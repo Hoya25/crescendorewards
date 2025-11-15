@@ -331,7 +331,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward }: Re
                   className="gap-2 border-primary/20 hover:bg-primary/10"
                 >
                   <Sparkles className="w-4 h-4" />
-                  Submit Idea
+                  Submit Reward
                 </Button>
               )}
             </div>
