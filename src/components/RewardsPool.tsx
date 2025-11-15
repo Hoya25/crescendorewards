@@ -8,9 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from '@/components/ui/carousel';
 import { toast } from '@/hooks/use-toast';
-import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Star, Flame, Clock, Lock, AlertTriangle, Package, Zap } from 'lucide-react';
+import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Star, Flame, Clock, Lock, AlertTriangle, Package, Zap, ArrowUpDown, Filter } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -26,6 +27,7 @@ interface Reward {
   stock_quantity: number | null;
   is_active: boolean;
   is_featured: boolean;
+  created_at?: string;
 }
 
 interface RewardsPoolProps {
@@ -53,6 +55,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
   const [filteredRewards, setFilteredRewards] = useState<Reward[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('newest');
+  const [priceFilter, setPriceFilter] = useState<string>('all');
+  const [availabilityFilter, setAvailabilityFilter] = useState<string>('all');
   const [selectedReward, setSelectedReward] = useState<Reward | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
@@ -98,14 +103,67 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
   }, []);
 
   useEffect(() => {
-    if (activeCategory === 'all') {
-      setFilteredRewards(rewards.filter(r => !r.is_featured));
-      setFeaturedRewards(rewards.filter(r => r.is_featured));
-    } else {
-      setFilteredRewards(rewards.filter(r => r.category === activeCategory && !r.is_featured));
-      setFeaturedRewards(rewards.filter(r => r.is_featured && r.category === activeCategory));
+    let filtered = activeCategory === 'all' 
+      ? rewards.filter(r => !r.is_featured)
+      : rewards.filter(r => r.category === activeCategory && !r.is_featured);
+    
+    let featured = activeCategory === 'all'
+      ? rewards.filter(r => r.is_featured)
+      : rewards.filter(r => r.is_featured && r.category === activeCategory);
+
+    // Apply price filter
+    if (priceFilter === 'free') {
+      filtered = filtered.filter(r => r.cost === 0);
+    } else if (priceFilter === 'under100') {
+      filtered = filtered.filter(r => r.cost < 100);
+    } else if (priceFilter === 'under500') {
+      filtered = filtered.filter(r => r.cost < 500);
+    } else if (priceFilter === 'over500') {
+      filtered = filtered.filter(r => r.cost >= 500);
     }
-  }, [activeCategory, rewards]);
+
+    // Apply availability filter
+    if (availabilityFilter === 'inStock') {
+      filtered = filtered.filter(r => r.stock_quantity === null || r.stock_quantity > 0);
+    } else if (availabilityFilter === 'lowStock') {
+      filtered = filtered.filter(r => r.stock_quantity !== null && r.stock_quantity > 0 && r.stock_quantity <= 10);
+    }
+
+    // Apply sorting
+    const sortedFiltered = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'priceLowToHigh':
+          return a.cost - b.cost;
+        case 'priceHighToLow':
+          return b.cost - a.cost;
+        case 'newest':
+          return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+        case 'oldest':
+          return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
+        case 'popularity':
+          // For now, featured items are "popular", otherwise sort by lowest cost
+          return (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0) || a.cost - b.cost;
+        default:
+          return 0;
+      }
+    });
+
+    const sortedFeatured = [...featured].sort((a, b) => {
+      switch (sortBy) {
+        case 'priceLowToHigh':
+          return a.cost - b.cost;
+        case 'priceHighToLow':
+          return b.cost - a.cost;
+        case 'newest':
+          return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+        default:
+          return 0;
+      }
+    });
+
+    setFilteredRewards(sortedFiltered);
+    setFeaturedRewards(sortedFeatured);
+  }, [activeCategory, rewards, sortBy, priceFilter, availabilityFilter]);
 
   const loadRewards = async () => {
     try {
@@ -114,7 +172,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
         .from('rewards')
         .select('*')
         .eq('is_active', true)
-        .order('cost', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setRewards(data as Reward[] || []);
@@ -270,6 +328,64 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
               })}
             </TabsList>
           </Tabs>
+
+          {/* Filters and Sorting */}
+          <div className="flex flex-wrap items-center gap-3 mt-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Filter className="w-4 h-4" />
+              <span className="font-medium">Filters:</span>
+            </div>
+            
+            {/* Sort By */}
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[180px] bg-background border-border z-50">
+                <ArrowUpDown className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent className="bg-background border-border z-50">
+                <SelectItem value="newest">Newest First</SelectItem>
+                <SelectItem value="oldest">Oldest First</SelectItem>
+                <SelectItem value="priceLowToHigh">Price: Low to High</SelectItem>
+                <SelectItem value="priceHighToLow">Price: High to Low</SelectItem>
+                <SelectItem value="popularity">Most Popular</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Price Filter */}
+            <Select value={priceFilter} onValueChange={setPriceFilter}>
+              <SelectTrigger className="w-[160px] bg-background border-border z-50">
+                <Coins className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Price" />
+              </SelectTrigger>
+              <SelectContent className="bg-background border-border z-50">
+                <SelectItem value="all">All Prices</SelectItem>
+                <SelectItem value="free">Free</SelectItem>
+                <SelectItem value="under100">Under 100</SelectItem>
+                <SelectItem value="under500">Under 500</SelectItem>
+                <SelectItem value="over500">500+</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Availability Filter */}
+            <Select value={availabilityFilter} onValueChange={setAvailabilityFilter}>
+              <SelectTrigger className="w-[160px] bg-background border-border z-50">
+                <Package className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Availability" />
+              </SelectTrigger>
+              <SelectContent className="bg-background border-border z-50">
+                <SelectItem value="all">All Items</SelectItem>
+                <SelectItem value="inStock">In Stock</SelectItem>
+                <SelectItem value="lowStock">Low Stock</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Results Count */}
+            <div className="ml-auto text-sm text-muted-foreground">
+              <Badge variant="secondary" className="gap-1">
+                {filteredRewards.length} {filteredRewards.length === 1 ? 'reward' : 'rewards'}
+              </Badge>
+            </div>
+          </div>
         </div>
       </div>
 
