@@ -1,4 +1,4 @@
-import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store } from 'lucide-react';
+import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
 import {
@@ -21,6 +21,7 @@ interface AdminSidebarProps {
 
 const menuItems = [
   { title: 'Dashboard', view: 'dashboard', icon: LayoutDashboard },
+  { title: 'Submissions', view: 'submissions', icon: FileCheck },
   { title: 'Rewards', view: 'rewards', icon: Gift },
   { title: 'Claims', view: 'claims', icon: ShoppingBag },
   { title: 'Brands', view: 'brands', icon: Store },

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AdminSidebar } from './AdminSidebar';
 import { AdminDashboard } from './AdminDashboard';
+import { AdminSubmissions } from './AdminSubmissions';
 import { AdminRewards } from './AdminRewards';
 import { AdminClaims } from './AdminClaims';
 import { AdminBrands } from './AdminBrands';
@@ -19,6 +20,8 @@ export function AdminPanel({ onClose }: AdminPanelProps) {
     switch (currentView) {
       case 'dashboard':
         return <AdminDashboard />;
+      case 'submissions':
+        return <AdminSubmissions />;
       case 'rewards':
         return <AdminRewards />;
       case 'claims':
