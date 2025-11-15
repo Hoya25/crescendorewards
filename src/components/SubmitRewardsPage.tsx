@@ -532,66 +532,62 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
                 <CardHeader>
                   <CardTitle className="text-lg">Submission Progress</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Completion</span>
-                      <span className="font-semibold">{Math.round(getProgress())}%</span>
-                    </div>
-                    <Progress value={getProgress()} className="h-2" />
+                <CardContent className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    {selectedType ? (
+                      <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border-2 border-muted-foreground flex-shrink-0" />
+                    )}
+                    <span className={`text-sm ${selectedType ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      Select reward type
+                    </span>
                   </div>
-
-                  <div className="space-y-3 pt-2">
-                    <div className="flex items-center gap-2">
-                      {selectedType ? (
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <div className="w-4 h-4 rounded-full border-2 border-border" />
-                      )}
-                      <span className={selectedType ? 'text-green-500' : 'text-muted-foreground'}>
-                        Select reward type
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {formData.title ? (
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <div className="w-4 h-4 rounded-full border-2 border-border" />
-                      )}
-                      <span className={formData.title ? 'text-green-500' : 'text-muted-foreground'}>
-                        Add reward title
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {formData.description ? (
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <div className="w-4 h-4 rounded-full border-2 border-border" />
-                      )}
-                      <span className={formData.description ? 'text-green-500' : 'text-muted-foreground'}>
-                        Write description
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {formData.category ? (
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <div className="w-4 h-4 rounded-full border-2 border-border" />
-                      )}
-                      <span className={formData.category ? 'text-green-500' : 'text-muted-foreground'}>
-                        Choose category
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {formData.suggestedNCTR ? (
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <div className="w-4 h-4 rounded-full border-2 border-border" />
-                      )}
-                      <span className={formData.suggestedNCTR ? 'text-green-500' : 'text-muted-foreground'}>
-                        Set NCTR value
-                      </span>
-                    </div>
+                  <div className="flex items-center gap-3">
+                    {formData.title && formData.description ? (
+                      <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border-2 border-muted-foreground flex-shrink-0" />
+                    )}
+                    <span className={`text-sm ${formData.title && formData.description ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      Add title & description
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {formData.category && formData.brand ? (
+                      <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border-2 border-muted-foreground flex-shrink-0" />
+                    )}
+                    <span className={`text-sm ${formData.category && formData.brand ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      Set category & brand
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {formData.suggestedNCTR && formData.claimPassRequired ? (
+                      <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border-2 border-muted-foreground flex-shrink-0" />
+                    )}
+                    <span className={`text-sm ${formData.suggestedNCTR && formData.claimPassRequired ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      Define pricing & supply
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {formData.imageUrl ? (
+                      <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    ) : (
+                      <div className="w-5 h-5 rounded-full border-2 border-muted-foreground flex-shrink-0" />
+                    )}
+                    <span className={`text-sm ${formData.imageUrl ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      Add redemption details
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-5 h-5 rounded-full border-2 border-muted-foreground flex-shrink-0" />
+                    <span className="text-sm text-muted-foreground">
+                      Accept terms
+                    </span>
                   </div>
                 </CardContent>
               </Card>
