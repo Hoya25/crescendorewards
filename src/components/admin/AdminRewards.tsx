@@ -221,12 +221,24 @@ export function AdminRewards() {
     if (!confirm('Are you sure you want to delete this reward?')) return;
 
     try {
+      // Get reward to delete image
+      const reward = rewards.find(r => r.id === id);
+      
       const { error } = await supabase
         .from('rewards')
         .delete()
         .eq('id', id);
 
       if (error) throw error;
+
+      // Delete image from storage if exists
+      if (reward?.image_url) {
+        const imagePath = reward.image_url.split('/').pop();
+        if (imagePath) {
+          await supabase.storage.from('reward-images').remove([imagePath]);
+        }
+      }
+
       toast({ title: 'Success', description: 'Reward deleted successfully' });
       loadRewards();
     } catch (error: any) {
@@ -286,7 +298,7 @@ export function AdminRewards() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8">
+                  <TableCell colSpan={7} className="text-center py-8">
                     Loading...
                   </TableCell>
                 </TableRow>
@@ -358,6 +370,44 @@ export function AdminRewards() {
             <DialogTitle>{editingReward ? 'Edit Reward' : 'Create Reward'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="image">Reward Image</Label>
+              <div className="flex flex-col gap-4">
+                {imagePreview ? (
+                  <div className="relative w-full h-48 rounded-lg overflow-hidden border">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={handleRemoveImage}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="w-full h-48 border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                    <Upload className="w-8 h-8" />
+                    <p className="text-sm">No image selected</p>
+                  </div>
+                )}
+                <Input
+                  id="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageSelect}
+                  className="cursor-pointer"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Supported: JPG, PNG, WEBP, GIF (Max 5MB)
+                </p>
+              </div>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
               <Input
