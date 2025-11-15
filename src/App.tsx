@@ -8,6 +8,7 @@ import { LandingPage } from "./components/LandingPage";
 import { Dashboard } from "./components/Dashboard";
 import { EarnNCTR } from "./components/EarnNCTR";
 import { RewardsPool } from "./components/RewardsPool";
+import { ProfilePage } from "./components/ProfilePage";
 import { AdminPanel } from "./components/admin/AdminPanel";
 import { AuthModal } from "./components/AuthModal";
 import { ThemeProvider } from "./components/ThemeProvider";
@@ -21,7 +22,7 @@ const queryClient = new QueryClient();
 function CrescendoApp() {
   const { user, profile, loading, isAuthenticated, signOut, refreshProfile } = useAuth();
   const { isAdmin } = useAdminRole();
-  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "admin">("landing");
+  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "profile" | "admin">("landing");
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [walletConnected, setWalletConnected] = useState(false);
@@ -87,7 +88,7 @@ function CrescendoApp() {
   };
 
   const handleViewProfile = () => {
-    toast.info("Profile page coming soon!");
+    setCurrentView("profile");
   };
 
   const handleViewBrandPartners = () => {
@@ -167,6 +168,15 @@ function CrescendoApp() {
             onClaimSuccess={refreshProfile}
           />
         </div>
+      )}
+
+      {currentView === "profile" && isAuthenticated && profile && (
+        <ProfilePage
+          profile={profile}
+          onBack={() => setCurrentView("dashboard")}
+          onSignOut={handleSignOut}
+          onRefresh={refreshProfile}
+        />
       )}
 
       {currentView === "admin" && isAuthenticated && isAdmin && (
