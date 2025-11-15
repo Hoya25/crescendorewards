@@ -266,6 +266,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
             opts={{
               align: "start",
               loop: true,
+              skipSnaps: false,
+              dragFree: false,
             }}
             plugins={[
               Autoplay({
@@ -274,18 +276,18 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
                 stopOnMouseEnter: true,
               }),
             ]}
-            className="w-full mb-12"
+            className="w-full mb-12 touch-pan-x"
           >
-            <CarouselContent>
+            <CarouselContent className="-ml-2 md:-ml-4">
               {featuredRewards.map((reward, index) => {
                 const Icon = categoryIcons[reward.category];
                 const affordable = canAfford(reward.cost);
                 const outOfStock = reward.stock_quantity !== null && reward.stock_quantity <= 0;
 
                 return (
-                  <CarouselItem key={reward.id} className="md:basis-1/2 lg:basis-1/2">
+                  <CarouselItem key={reward.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/2">
                     <Card
-                      className={`group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl h-full ${
+                      className={`group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl h-full select-none ${
                         !affordable || outOfStock ? 'opacity-60' : ''
                       }`}
                       onClick={() => handleRewardClick(reward)}
@@ -306,13 +308,13 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
                               <ImageWithFallback
                                 src={reward.image_url}
                                 alt={reward.title}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 pointer-events-none"
                               />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                               <Button
                                 size="icon"
                                 variant="secondary"
-                                className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg"
+                                className="absolute top-4 left-4 opacity-0 md:group-hover:opacity-100 transition-all duration-300 shadow-lg"
                                 onClick={(e) => handleImageZoom(reward.image_url!, e)}
                               >
                                 <ZoomIn className="w-5 h-5" />
@@ -364,7 +366,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
 
                           <Button
                             size="lg"
-                            className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all"
+                            className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all active:scale-95"
                             disabled={!affordable || outOfStock}
                             onClick={(e) => {
                               e.stopPropagation();
@@ -380,19 +382,37 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
                 );
               })}
             </CarouselContent>
-            <CarouselPrevious className="hidden md:flex -left-12 lg:-left-16" />
-            <CarouselNext className="hidden md:flex -right-12 lg:-right-16" />
+            <CarouselPrevious className="hidden md:flex -left-12 lg:-left-16 hover:scale-110 transition-transform" />
+            <CarouselNext className="hidden md:flex -right-12 lg:-right-16 hover:scale-110 transition-transform" />
           </Carousel>
 
-          {/* Carousel Indicators */}
-          <div className="flex justify-center gap-2 mt-4">
-            {featuredRewards.map((_, index) => (
-              <div
-                key={index}
-                className="w-2 h-2 rounded-full bg-primary/30 animate-pulse"
-                style={{ animationDelay: `${index * 200}ms` }}
-              />
-            ))}
+          {/* Mobile Swipe Hint & Carousel Indicators */}
+          <div className="flex flex-col items-center gap-3 mt-6">
+            {/* Swipe Hint for Mobile */}
+            <div className="md:hidden flex items-center gap-2 text-sm text-muted-foreground animate-pulse">
+              <div className="flex gap-1">
+                <div className="w-1 h-1 rounded-full bg-current" />
+                <div className="w-1 h-1 rounded-full bg-current" />
+                <div className="w-1 h-1 rounded-full bg-current" />
+              </div>
+              <span>Swipe to browse</span>
+              <div className="flex gap-1">
+                <div className="w-1 h-1 rounded-full bg-current" />
+                <div className="w-1 h-1 rounded-full bg-current" />
+                <div className="w-1 h-1 rounded-full bg-current" />
+              </div>
+            </div>
+            
+            {/* Progress Indicators */}
+            <div className="flex justify-center gap-2">
+              {featuredRewards.map((_, index) => (
+                <div
+                  key={index}
+                  className="w-2 h-2 rounded-full bg-primary/30 hover:bg-primary/50 transition-colors cursor-pointer"
+                  style={{ animationDelay: `${index * 200}ms` }}
+                />
+              ))}
+            </div>
           </div>
         </div>
       )}
