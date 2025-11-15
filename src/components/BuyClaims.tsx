@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Check, Sparkles, Award } from 'lucide-react';
+import { ShoppingCart, Check, Sparkles, Award, Gift } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -19,6 +19,7 @@ interface ClaimPackage {
   price: number;
   label: string;
   popular?: boolean;
+  bonus?: number;
 }
 
 const BASE_PRICE_PER_CLAIM = 5.99;
@@ -29,7 +30,7 @@ const claimPackages: ClaimPackage[] = [
   { id: 'popular', claims: 25, price: 125, label: 'Popular Pack', popular: true },
   { id: 'premium', claims: 50, price: 250, label: 'Premium Pack' },
   { id: 'ultimate', claims: 100, price: 500, label: 'Ultimate Pack' },
-  { id: 'mega', claims: 210, price: 1000, label: 'Mega Pack' },
+  { id: 'mega', claims: 210, price: 1000, label: 'Mega Pack', bonus: 10 },
 ];
 
 const calculateSavings = (claims: number, price: number): number => {
@@ -158,6 +159,12 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                           <Badge variant="secondary" className="gap-1">
                             <Award className="w-3 h-3" />
                             Best Value
+                          </Badge>
+                        )}
+                        {pkg.bonus && (
+                          <Badge variant="secondary" className="gap-1 bg-green-500/10 text-green-600 border-green-500/20">
+                            <Gift className="w-3 h-3" />
+                            +{pkg.bonus} Bonus
                           </Badge>
                         )}
                       </div>
