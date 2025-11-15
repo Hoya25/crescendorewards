@@ -11,6 +11,7 @@ import { RewardsPool } from "./components/RewardsPool";
 import { ProfilePage } from "./components/ProfilePage";
 import { AdminPanel } from "./components/admin/AdminPanel";
 import { StatusPage } from "./components/StatusPage";
+import { BrandPartnersPage } from "./components/BrandPartnersPage";
 import { AuthModal } from "./components/AuthModal";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useAuth } from "./hooks/useAuth";
@@ -23,7 +24,7 @@ const queryClient = new QueryClient();
 function CrescendoApp() {
   const { user, profile, loading, isAuthenticated, signOut, refreshProfile } = useAuth();
   const { isAdmin } = useAdminRole();
-  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "profile" | "admin" | "status">("landing");
+  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "profile" | "admin" | "status" | "brands">("landing");
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [walletConnected, setWalletConnected] = useState(false);
@@ -93,7 +94,7 @@ function CrescendoApp() {
   };
 
   const handleViewBrandPartners = () => {
-    toast.info("Brand partners page coming soon!");
+    setCurrentView("brands");
   };
 
   const handleViewMarketplace = () => {
@@ -186,6 +187,14 @@ function CrescendoApp() {
 
       {currentView === "status" && isAuthenticated && (
         <StatusPage onBack={() => setCurrentView("dashboard")} />
+      )}
+
+      {currentView === "brands" && isAuthenticated && (
+        <BrandPartnersPage 
+          onBack={() => setCurrentView("dashboard")}
+          onNavigateToStatus={() => setCurrentView("status")}
+          onNavigateToRewards={() => setCurrentView("rewards")}
+        />
       )}
 
       {showAuthModal && (

@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      brands: {
+        Row: {
+          base_earning_rate: number
+          category: string
+          created_at: string
+          description: string
+          id: string
+          is_active: boolean
+          is_featured: boolean
+          logo_color: string
+          logo_emoji: string
+          name: string
+          shop_url: string
+          updated_at: string
+        }
+        Insert: {
+          base_earning_rate: number
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          logo_color: string
+          logo_emoji: string
+          name: string
+          shop_url: string
+          updated_at?: string
+        }
+        Update: {
+          base_earning_rate?: number
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          is_active?: boolean
+          is_featured?: boolean
+          logo_color?: string
+          logo_emoji?: string
+          name?: string
+          shop_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           available_nctr: number
