@@ -29,7 +29,7 @@ const claimPackages: ClaimPackage[] = [
   { id: 'popular', claims: 25, price: 125, label: 'Popular Pack', popular: true },
   { id: 'premium', claims: 50, price: 250, label: 'Premium Pack' },
   { id: 'ultimate', claims: 100, price: 500, label: 'Ultimate Pack' },
-  { id: 'mega', claims: 1010, price: 1000, label: 'Mega Pack' },
+  { id: 'mega', claims: 210, price: 1000, label: 'Mega Pack' },
 ];
 
 const calculateSavings = (claims: number, price: number): number => {
