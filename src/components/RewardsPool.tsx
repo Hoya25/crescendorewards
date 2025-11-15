@@ -21,6 +21,7 @@ interface Reward {
   image_url: string | null;
   stock_quantity: number | null;
   is_active: boolean;
+  is_featured: boolean;
 }
 
 interface RewardsPoolProps {
@@ -44,6 +45,7 @@ const categoryLabels = {
 
 export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) {
   const [rewards, setRewards] = useState<Reward[]>([]);
+  const [featuredRewards, setFeaturedRewards] = useState<Reward[]>([]);
   const [filteredRewards, setFilteredRewards] = useState<Reward[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>('all');
@@ -68,9 +70,11 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
 
   useEffect(() => {
     if (activeCategory === 'all') {
-      setFilteredRewards(rewards);
+      setFilteredRewards(rewards.filter(r => !r.is_featured));
+      setFeaturedRewards(rewards.filter(r => r.is_featured));
     } else {
-      setFilteredRewards(rewards.filter(r => r.category === activeCategory));
+      setFilteredRewards(rewards.filter(r => r.category === activeCategory && !r.is_featured));
+      setFeaturedRewards(rewards.filter(r => r.is_featured && r.category === activeCategory));
     }
   }, [activeCategory, rewards]);
 
@@ -240,8 +244,124 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
         </div>
       </div>
 
-      {/* Rewards Grid */}
+      {/* Featured Rewards Section */}
+      {!loading && featuredRewards.length > 0 && (
+        <div className="container mx-auto px-4 py-8">
+          <div className="mb-6 flex items-center gap-3">
+            <Sparkles className="w-6 h-6 text-primary animate-pulse" />
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              Featured Rewards
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+            {featuredRewards.map((reward, index) => {
+              const Icon = categoryIcons[reward.category];
+              const affordable = canAfford(reward.cost);
+              const outOfStock = reward.stock_quantity !== null && reward.stock_quantity <= 0;
+
+              return (
+                <Card
+                  key={reward.id}
+                  className={`group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl ${
+                    !affordable || outOfStock ? 'opacity-60' : ''
+                  }`}
+                  style={{
+                    animationDelay: `${index * 150}ms`,
+                  }}
+                  onClick={() => handleRewardClick(reward)}
+                >
+                  {/* Featured Badge */}
+                  <div className="absolute top-4 right-4 z-10">
+                    <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 gap-1 animate-pulse">
+                      <Sparkles className="w-3 h-3" />
+                      Featured
+                    </Badge>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-0">
+                    {/* Image Section */}
+                    <div className="relative h-72 md:h-full bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden">
+                      {reward.image_url ? (
+                        <>
+                          <ImageWithFallback
+                            src={reward.image_url}
+                            alt={reward.title}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                          <Button
+                            size="icon"
+                            variant="secondary"
+                            className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={(e) => handleImageZoom(reward.image_url!, e)}
+                          >
+                            <ZoomIn className="w-5 h-5" />
+                          </Button>
+                        </>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Icon className="w-32 h-32 text-primary/60" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Content Section */}
+                    <div className="p-6 flex flex-col justify-between">
+                      <div>
+                        <CardTitle className="text-2xl mb-3 leading-tight">{reward.title}</CardTitle>
+                        <CardDescription className="text-base mb-4 line-clamp-3">
+                          {reward.description}
+                        </CardDescription>
+                        
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center justify-between py-2 border-b">
+                            <span className="text-sm font-medium">Cost:</span>
+                            <Badge variant={affordable ? 'default' : 'secondary'} className="text-lg font-bold px-3">
+                              {reward.cost} tokens
+                            </Badge>
+                          </div>
+                          {reward.stock_quantity !== null && (
+                            <div className="flex items-center justify-between py-2 border-b">
+                              <span className="text-sm font-medium">Available:</span>
+                              <span className="text-sm font-semibold">
+                                {outOfStock ? (
+                                  <span className="text-destructive">Out of Stock</span>
+                                ) : (
+                                  `${reward.stock_quantity} remaining`
+                                )}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <Button
+                        size="lg"
+                        className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                        disabled={!affordable || outOfStock}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRewardClick(reward);
+                        }}
+                      >
+                        {outOfStock ? 'Out of Stock' : affordable ? 'View Details' : 'Insufficient Balance'}
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Regular Rewards Grid */}
       <div className="container mx-auto px-4 py-8">
+        {!loading && featuredRewards.length > 0 && (
+          <h2 className="text-xl font-bold mb-6">All Rewards</h2>
+        )}
+        
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
