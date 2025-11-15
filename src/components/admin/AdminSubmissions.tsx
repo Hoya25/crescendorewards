@@ -9,11 +9,12 @@ import { toast } from 'sonner';
 import { 
   CheckCircle, XCircle, Clock, Filter, Search, 
   Package, User, Calendar, DollarSign, Lock,
-  FileText, Image as ImageIcon
+  FileText, Image as ImageIcon, Star
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
 
 interface RewardSubmission {
   id: string;
@@ -99,6 +100,36 @@ export function AdminSubmissions() {
       toast.error('Failed to update submission');
     } finally {
       setUpdating(false);
+    }
+  };
+
+  const getRewardIdFromNotes = (adminNotes: string | null): string | null => {
+    if (!adminNotes) return null;
+    const match = adminNotes.match(/reward ID: ([a-f0-9-]+)/i);
+    return match ? match[1] : null;
+  };
+
+  const toggleFeatured = async (submission: RewardSubmission, isFeatured: boolean) => {
+    const rewardId = getRewardIdFromNotes(submission.admin_notes);
+    
+    if (!rewardId) {
+      toast.error('Cannot toggle featured - reward not yet created');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('rewards')
+        .update({ is_featured: isFeatured })
+        .eq('id', rewardId);
+
+      if (error) throw error;
+
+      toast.success(`Reward ${isFeatured ? 'featured' : 'unfeatured'} successfully`);
+      fetchSubmissions();
+    } catch (error) {
+      console.error('Error toggling featured status:', error);
+      toast.error('Failed to update featured status');
     }
   };
 
@@ -306,6 +337,20 @@ export function AdminSubmissions() {
                             <p className="text-sm">{submission.admin_notes}</p>
                           </div>
                         </div>
+                      </div>
+                    )}
+
+                    {/* Featured Toggle for Approved Submissions */}
+                    {submission.status === 'approved' && getRewardIdFromNotes(submission.admin_notes) && (
+                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg mb-4">
+                        <Star className="w-5 h-5 text-yellow-500" />
+                        <Label htmlFor={`featured-${submission.id}`} className="flex-1 cursor-pointer">
+                          Mark as Featured in Marketplace
+                        </Label>
+                        <Switch
+                          id={`featured-${submission.id}`}
+                          onCheckedChange={(checked) => toggleFeatured(submission, checked)}
+                        />
                       </div>
                     )}
 
