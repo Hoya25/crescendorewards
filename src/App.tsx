@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LandingPage } from "./components/LandingPage";
 import { Dashboard } from "./components/Dashboard";
+import { EarnNCTR } from "./components/EarnNCTR";
 import { AuthModal } from "./components/AuthModal";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useAuth } from "./hooks/useAuth";
@@ -15,8 +16,8 @@ import { toast } from "sonner";
 const queryClient = new QueryClient();
 
 function CrescendoApp() {
-  const { user, profile, loading, isAuthenticated, signOut } = useAuth();
-  const [currentView, setCurrentView] = useState<"landing" | "dashboard">("landing");
+  const { user, profile, loading, isAuthenticated, signOut, refreshProfile } = useAuth();
+  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn">("landing");
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [walletConnected, setWalletConnected] = useState(false);
@@ -62,7 +63,7 @@ function CrescendoApp() {
   };
 
   const handleEarnNCTR = () => {
-    toast.info("Earn NCTR page coming soon!");
+    setCurrentView("earn");
   };
 
   const handleLockTokens = () => {
@@ -134,6 +135,16 @@ function CrescendoApp() {
           onViewProfile={handleViewProfile}
           onViewBrandPartners={handleViewBrandPartners}
           onViewMarketplace={handleViewMarketplace}
+        />
+      )}
+
+      {currentView === "earn" && isAuthenticated && (
+        <EarnNCTR
+          onBack={() => setCurrentView("dashboard")}
+          onNavigateToRewards={handleViewRewards}
+          onNavigateToStatus={handleViewStatusLevels}
+          onNavigateToBrands={handleViewBrandPartners}
+          onRefreshProfile={refreshProfile}
         />
       )}
 
