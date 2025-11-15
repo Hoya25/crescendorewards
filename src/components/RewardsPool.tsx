@@ -9,7 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
-import { Gift, Sparkles, ShoppingBag, CreditCard, Coins } from 'lucide-react';
+import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X } from 'lucide-react';
+import { ImageWithFallback } from '@/components/ImageWithFallback';
 
 interface Reward {
   id: string;
@@ -49,6 +50,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
   const [selectedReward, setSelectedReward] = useState<Reward | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
+  const [showImageZoom, setShowImageZoom] = useState(false);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const [claiming, setClaiming] = useState(false);
   const [shippingInfo, setShippingInfo] = useState({
     name: '',
@@ -97,6 +100,12 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
   const handleRewardClick = (reward: Reward) => {
     setSelectedReward(reward);
     setShowDetailModal(true);
+  };
+
+  const handleImageZoom = (imageUrl: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setZoomedImage(imageUrl);
+    setShowImageZoom(true);
   };
 
   const handleClaimClick = async () => {
@@ -257,18 +266,40 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
               return (
                 <Card
                   key={reward.id}
-                  className={`cursor-pointer transition-all hover:scale-105 hover:shadow-lg ${
+                  className={`group cursor-pointer transition-all hover:scale-[1.02] hover:shadow-xl ${
                     !affordable || outOfStock ? 'opacity-60' : ''
                   }`}
                   onClick={() => handleRewardClick(reward)}
                 >
                   <CardHeader className="pb-4">
-                    <div className="w-full h-48 bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg flex items-center justify-center mb-4">
-                      <Icon className="w-24 h-24 text-primary" />
+                    <div className="relative w-full h-56 bg-gradient-to-br from-muted/50 to-muted/20 rounded-lg overflow-hidden mb-4">
+                      {reward.image_url ? (
+                        <>
+                          <ImageWithFallback
+                            src={reward.image_url}
+                            alt={reward.title}
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                            <Button
+                              size="icon"
+                              variant="secondary"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={(e) => handleImageZoom(reward.image_url!, e)}
+                            >
+                              <ZoomIn className="w-5 h-5" />
+                            </Button>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Icon className="w-24 h-24 text-primary/60" />
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-start justify-between gap-2">
                       <CardTitle className="text-lg leading-tight">{reward.title}</CardTitle>
-                      <Badge variant={affordable ? 'default' : 'secondary'}>
+                      <Badge variant={affordable ? 'default' : 'secondary'} className="shrink-0">
                         {reward.cost} tokens
                       </Badge>
                     </div>
@@ -302,45 +333,93 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
         )}
       </div>
 
+      {/* Image Zoom Modal */}
+      <Dialog open={showImageZoom} onOpenChange={setShowImageZoom}>
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] p-0 overflow-hidden bg-black/95">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-4 right-4 z-50 bg-black/50 hover:bg-black/70 text-white"
+            onClick={() => setShowImageZoom(false)}
+          >
+            <X className="w-6 h-6" />
+          </Button>
+          {zoomedImage && (
+            <div className="w-full h-full flex items-center justify-center p-8">
+              <img
+                src={zoomedImage}
+                alt="Zoomed view"
+                className="max-w-full max-h-[80vh] object-contain animate-scale-in"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Detail Modal */}
       <Dialog open={showDetailModal} onOpenChange={setShowDetailModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-2xl">
           {selectedReward && (
             <>
               <DialogHeader>
-                <DialogTitle>{selectedReward.title}</DialogTitle>
-                <DialogDescription>{selectedReward.description}</DialogDescription>
+                <DialogTitle className="text-2xl">{selectedReward.title}</DialogTitle>
+                <DialogDescription className="text-base">{selectedReward.description}</DialogDescription>
               </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="flex items-center justify-center p-8 bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg">
-                  {(() => {
-                    const Icon = categoryIcons[selectedReward.category];
-                    return <Icon className="w-32 h-32 text-primary" />;
-                  })()}
+              <div className="space-y-6 py-4">
+                <div className="relative group cursor-pointer rounded-lg overflow-hidden" onClick={(e) => selectedReward.image_url && handleImageZoom(selectedReward.image_url, e)}>
+                  {selectedReward.image_url ? (
+                    <>
+                      <ImageWithFallback
+                        src={selectedReward.image_url}
+                        alt={selectedReward.title}
+                        className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                        <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/70 px-4 py-2 rounded-full flex items-center gap-2 text-white text-sm">
+                          <ZoomIn className="w-4 h-4" />
+                          Click to zoom
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex items-center justify-center h-64 bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg">
+                      {(() => {
+                        const Icon = categoryIcons[selectedReward.category];
+                        return <Icon className="w-32 h-32 text-primary" />;
+                      })()}
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Cost:</span>
-                  <Badge variant="outline" className="text-lg font-bold">
-                    {selectedReward.cost} tokens
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Your Balance:</span>
-                  <span className="text-lg font-bold text-primary">{claimBalance} tokens</span>
-                </div>
-                {selectedReward.stock_quantity !== null && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Available:</span>
-                    <span className="text-sm">{selectedReward.stock_quantity} remaining</span>
+                
+                <div className="grid gap-3 bg-muted/50 p-4 rounded-lg">
+                  <div className="flex items-center justify-between py-2 border-b border-border/50">
+                    <span className="text-sm font-medium">Cost:</span>
+                    <Badge variant="default" className="text-base font-bold px-3 py-1">
+                      {selectedReward.cost} tokens
+                    </Badge>
                   </div>
-                )}
+                  <div className="flex items-center justify-between py-2 border-b border-border/50">
+                    <span className="text-sm font-medium">Your Balance:</span>
+                    <span className="text-base font-bold text-primary">{claimBalance} tokens</span>
+                  </div>
+                  {selectedReward.stock_quantity !== null && (
+                    <div className="flex items-center justify-between py-2">
+                      <span className="text-sm font-medium">Available:</span>
+                      <span className="text-base font-semibold">{selectedReward.stock_quantity} remaining</span>
+                    </div>
+                  )}
+                </div>
               </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setShowDetailModal(false)}>
+              <DialogFooter className="gap-2">
+                <Button variant="outline" onClick={() => setShowDetailModal(false)} className="flex-1">
                   Cancel
                 </Button>
-                <Button onClick={handleClaimClick} disabled={!canAfford(selectedReward.cost)}>
-                  Claim Reward
+                <Button 
+                  onClick={handleClaimClick} 
+                  disabled={!canAfford(selectedReward.cost)}
+                  className="flex-1"
+                >
+                  {canAfford(selectedReward.cost) ? 'Claim Reward' : 'Insufficient Balance'}
                 </Button>
               </DialogFooter>
             </>
