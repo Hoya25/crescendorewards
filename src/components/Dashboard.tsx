@@ -2,7 +2,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
-import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Award, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap } from "lucide-react";
+import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Award, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck } from "lucide-react";
 import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
 import { ThemeToggle } from "./ThemeToggle";
@@ -41,6 +41,7 @@ interface DashboardProps {
   onViewProfile: () => void;
   onViewBrandPartners: () => void;
   onViewMarketplace?: () => void;
+  onMySubmissions?: () => void;
   isAdmin?: boolean;
   onAdminPanel?: () => void;
 }
@@ -62,6 +63,7 @@ export function Dashboard({
   onViewProfile,
   onViewBrandPartners,
   onViewMarketplace,
+  onMySubmissions,
   isAdmin,
   onAdminPanel,
 }: DashboardProps) {
@@ -410,6 +412,13 @@ export function Dashboard({
                   <Button onClick={onViewMarketplace} variant="outline" className="w-full justify-start gap-2">
                     <Store className="w-4 h-4" />
                     Marketplace
+                  </Button>
+                )}
+
+                {onMySubmissions && (
+                  <Button onClick={onMySubmissions} variant="outline" className="w-full justify-start gap-2">
+                    <FileCheck className="w-4 h-4" />
+                    My Submissions
                   </Button>
                 )}
               </CardContent>
