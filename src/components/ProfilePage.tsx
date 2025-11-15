@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
+import { BuyClaims } from '@/components/BuyClaims';
 
 interface Profile {
   id: string;
@@ -259,10 +260,19 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh }: ProfilePa
                     <span className="font-semibold">{profile.available_nctr.toLocaleString()}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Alliance Tokens</span>
+                    <span className="text-muted-foreground">Claim Passes</span>
                     <span className="font-semibold">{profile.claim_balance.toLocaleString()}</span>
                   </div>
                 </div>
+                <BuyClaims 
+                  currentBalance={profile.claim_balance} 
+                  onPurchaseSuccess={onRefresh}
+                  trigger={
+                    <Button className="w-full gap-2" variant="default">
+                      Buy Claim Passes
+                    </Button>
+                  }
+                />
               </CardContent>
             </Card>
           </div>
