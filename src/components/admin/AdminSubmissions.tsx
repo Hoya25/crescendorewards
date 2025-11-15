@@ -37,6 +37,7 @@ interface RewardSubmission {
     full_name: string | null;
     email: string | null;
   };
+  reward_featured?: boolean;
 }
 
 export function AdminSubmissions() {
@@ -67,7 +68,30 @@ export function AdminSubmissions() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setSubmissions(data || []);
+      
+      // For approved submissions, fetch their reward featured status
+      const submissionsWithFeaturedStatus = await Promise.all(
+        (data || []).map(async (submission) => {
+          if (submission.status === 'approved') {
+            const rewardId = getRewardIdFromNotes(submission.admin_notes);
+            if (rewardId) {
+              const { data: reward } = await supabase
+                .from('rewards')
+                .select('is_featured')
+                .eq('id', rewardId)
+                .single();
+              
+              return {
+                ...submission,
+                reward_featured: reward?.is_featured || false
+              };
+            }
+          }
+          return submission;
+        })
+      );
+      
+      setSubmissions(submissionsWithFeaturedStatus);
     } catch (error) {
       console.error('Error fetching submissions:', error);
       toast.error('Failed to load submissions');
@@ -342,13 +366,21 @@ export function AdminSubmissions() {
 
                     {/* Featured Toggle for Approved Submissions */}
                     {submission.status === 'approved' && getRewardIdFromNotes(submission.admin_notes) && (
-                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg mb-4">
-                        <Star className="w-5 h-5 text-yellow-500" />
-                        <Label htmlFor={`featured-${submission.id}`} className="flex-1 cursor-pointer">
-                          Mark as Featured in Marketplace
-                        </Label>
+                      <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg mb-4 border border-border">
+                        <div className="flex items-center gap-2 flex-1">
+                          <Star className={`w-5 h-5 ${submission.reward_featured ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground'}`} />
+                          <div>
+                            <Label htmlFor={`featured-${submission.id}`} className="cursor-pointer font-medium">
+                              Mark as Featured in Marketplace
+                            </Label>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {submission.reward_featured ? 'Currently featured' : 'Not featured'}
+                            </p>
+                          </div>
+                        </div>
                         <Switch
                           id={`featured-${submission.id}`}
+                          checked={submission.reward_featured || false}
                           onCheckedChange={(checked) => toggleFeatured(submission, checked)}
                         />
                       </div>
