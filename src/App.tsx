@@ -1,38 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LandingPage } from "./components/LandingPage";
 import { Dashboard } from "./components/Dashboard";
+import { AuthModal } from "./components/AuthModal";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { useAuth } from "./hooks/useAuth";
 import NotFound from "./pages/NotFound";
 import { toast } from "sonner";
 
 const queryClient = new QueryClient();
 
 function CrescendoApp() {
-  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "rewards">("landing");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, profile, loading, isAuthenticated, signOut } = useAuth();
+  const [currentView, setCurrentView] = useState<"landing" | "dashboard">("landing");
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [walletConnected, setWalletConnected] = useState(false);
 
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (isAuthenticated && profile) {
+      setCurrentView("dashboard");
+    } else if (!isAuthenticated) {
+      setCurrentView("landing");
+    }
+  }, [isAuthenticated, profile]);
+
   const handleJoin = () => {
-    // For now, directly authenticate (we'll add proper auth in next phase)
-    setIsAuthenticated(true);
-    setCurrentView("dashboard");
-    toast.success("Welcome to Crescendo!");
+    setAuthMode('signup');
+    setShowAuthModal(true);
   };
 
   const handleSignIn = () => {
-    // For now, directly authenticate (we'll add proper auth in next phase)
-    setIsAuthenticated(true);
-    setCurrentView("dashboard");
-    toast.success("Welcome back!");
+    setAuthMode('signin');
+    setShowAuthModal(true);
   };
 
-  const handleSignOut = () => {
-    setIsAuthenticated(false);
+  const handleAuthSuccess = () => {
+    setShowAuthModal(false);
+    setCurrentView("dashboard");
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
     setWalletConnected(false);
     setCurrentView("landing");
     toast.success("Signed out successfully");
@@ -79,17 +93,35 @@ function CrescendoApp() {
     toast.info("Marketplace coming soon!");
   };
 
+  const handleToggleAuthMode = () => {
+    setAuthMode(authMode === 'signin' ? 'signup' : 'signin');
+  };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-neutral-50 dark:bg-neutral-950">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-violet-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-neutral-600 dark:text-neutral-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
-      {currentView === "landing" && (
+      {currentView === "landing" && !isAuthenticated && (
         <LandingPage
           onJoin={handleJoin}
           onSignIn={handleSignIn}
           onViewRewards={handleViewRewards}
         />
       )}
-      {currentView === "dashboard" && isAuthenticated && (
+      
+      {currentView === "dashboard" && isAuthenticated && profile && (
         <Dashboard
+          profile={profile}
           walletConnected={walletConnected}
           onConnectWallet={handleConnectWallet}
           onLockTokens={handleLockTokens}
@@ -102,6 +134,15 @@ function CrescendoApp() {
           onViewProfile={handleViewProfile}
           onViewBrandPartners={handleViewBrandPartners}
           onViewMarketplace={handleViewMarketplace}
+        />
+      )}
+
+      {showAuthModal && (
+        <AuthModal
+          mode={authMode}
+          onClose={() => setShowAuthModal(false)}
+          onSuccess={handleAuthSuccess}
+          onToggleMode={handleToggleAuthMode}
         />
       )}
     </div>
