@@ -41,6 +41,8 @@ interface DashboardProps {
   onViewProfile: () => void;
   onViewBrandPartners: () => void;
   onViewMarketplace?: () => void;
+  isAdmin?: boolean;
+  onAdminPanel?: () => void;
 }
 
 export function Dashboard({
@@ -60,6 +62,8 @@ export function Dashboard({
   onViewProfile,
   onViewBrandPartners,
   onViewMarketplace,
+  isAdmin,
+  onAdminPanel,
 }: DashboardProps) {
   // Calculate tier based on level
   const getTierInfo = (level: number) => {
@@ -234,45 +238,11 @@ export function Dashboard({
                 Profile
               </Button>
 
-              {(onAdminRewards || onAdminBrands || onAdminExternalEarn) && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="gap-2">
-                      <Settings className="w-4 h-4" />
-                      Admin
-                      <ChevronDown className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    {onAdminRewards && (
-                      <DropdownMenuItem onClick={(e) => {
-                        e.preventDefault();
-                        onAdminRewards();
-                      }}>
-                        <Gift className="w-4 h-4 mr-2" />
-                        Manage Rewards
-                      </DropdownMenuItem>
-                    )}
-                    {onAdminBrands && (
-                      <DropdownMenuItem onClick={(e) => {
-                        e.preventDefault();
-                        onAdminBrands();
-                      }}>
-                        <Store className="w-4 h-4 mr-2" />
-                        Manage Brands
-                      </DropdownMenuItem>
-                    )}
-                    {onAdminExternalEarn && (
-                      <DropdownMenuItem onClick={(e) => {
-                        e.preventDefault();
-                        onAdminExternalEarn();
-                      }}>
-                        <Coins className="w-4 h-4 mr-2" />
-                        Manage External Earn
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              {isAdmin && onAdminPanel && (
+                <Button variant="ghost" onClick={onAdminPanel} className="gap-2">
+                  <Settings className="w-4 h-4" />
+                  Admin Panel
+                </Button>
               )}
 
               <Button variant="ghost" onClick={onSignOut} className="gap-2">

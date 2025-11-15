@@ -8,9 +8,11 @@ import { LandingPage } from "./components/LandingPage";
 import { Dashboard } from "./components/Dashboard";
 import { EarnNCTR } from "./components/EarnNCTR";
 import { RewardsPool } from "./components/RewardsPool";
+import { AdminPanel } from "./components/admin/AdminPanel";
 import { AuthModal } from "./components/AuthModal";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useAuth } from "./hooks/useAuth";
+import { useAdminRole } from "./hooks/useAdminRole";
 import NotFound from "./pages/NotFound";
 import { toast } from "sonner";
 
@@ -18,7 +20,8 @@ const queryClient = new QueryClient();
 
 function CrescendoApp() {
   const { user, profile, loading, isAuthenticated, signOut, refreshProfile } = useAuth();
-  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards">("landing");
+  const { isAdmin } = useAdminRole();
+  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "admin">("landing");
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [walletConnected, setWalletConnected] = useState(false);
@@ -136,6 +139,8 @@ function CrescendoApp() {
           onViewProfile={handleViewProfile}
           onViewBrandPartners={handleViewBrandPartners}
           onViewMarketplace={handleViewMarketplace}
+          isAdmin={isAdmin}
+          onAdminPanel={() => setCurrentView("admin")}
         />
       )}
 
@@ -162,6 +167,10 @@ function CrescendoApp() {
             onClaimSuccess={refreshProfile}
           />
         </div>
+      )}
+
+      {currentView === "admin" && isAuthenticated && isAdmin && (
+        <AdminPanel onClose={() => setCurrentView("dashboard")} />
       )}
 
       {showAuthModal && (
