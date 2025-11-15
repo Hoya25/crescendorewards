@@ -16,6 +16,7 @@ import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Autoplay from 'embla-carousel-autoplay';
+import { BuyClaims } from '@/components/BuyClaims';
 
 interface Reward {
   id: string;
@@ -324,12 +325,16 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               </h1>
               <p className="text-muted-foreground mt-1 truncate">Redeem your tokens for amazing rewards</p>
             </div>
-            <div className="flex items-center gap-4 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <div className="text-right hidden sm:block">
                 <p className="text-sm text-muted-foreground">Your Balance</p>
                 <p className="text-3xl font-bold text-primary">{claimBalance}</p>
-                <p className="text-xs text-muted-foreground">tokens</p>
+                <p className="text-xs text-muted-foreground">Claims</p>
               </div>
+              <BuyClaims 
+                currentBalance={claimBalance} 
+                onPurchaseSuccess={onClaimSuccess}
+              />
               {onSubmitReward && (
                 <Button
                   onClick={onSubmitReward}
@@ -337,7 +342,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                   className="gap-2 border-primary/20 hover:bg-primary/10"
                 >
                   <Sparkles className="w-4 h-4" />
-                  <span className="hidden sm:inline">Submit Rewards</span>
+                  <span className="hidden sm:inline">Submit Reward</span>
                 </Button>
               )}
             </div>
