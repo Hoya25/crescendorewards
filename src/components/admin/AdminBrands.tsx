@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,7 +40,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Star, ExternalLink, Loader2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Star, ExternalLink, Loader2, Search, Filter, X, SortAsc, SortDesc } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Brand {
@@ -86,6 +86,13 @@ export function AdminBrands() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  
+  // Filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'name' | 'rate' | 'created'>('created');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -102,6 +109,56 @@ export function AdminBrands() {
   useEffect(() => {
     loadBrands();
   }, []);
+
+  // Filtered and sorted brands
+  const filteredBrands = useMemo(() => {
+    let filtered = [...brands];
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (brand) =>
+          brand.name.toLowerCase().includes(query) ||
+          brand.description.toLowerCase().includes(query)
+      );
+    }
+
+    // Category filter
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter((brand) => brand.category === selectedCategory);
+    }
+
+    // Status filter
+    if (selectedStatus === 'active') {
+      filtered = filtered.filter((brand) => brand.is_active);
+    } else if (selectedStatus === 'inactive') {
+      filtered = filtered.filter((brand) => !brand.is_active);
+    } else if (selectedStatus === 'featured') {
+      filtered = filtered.filter((brand) => brand.is_featured);
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortBy) {
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'rate':
+          comparison = a.base_earning_rate - b.base_earning_rate;
+          break;
+        case 'created':
+          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          break;
+      }
+
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+
+    return filtered;
+  }, [brands, searchQuery, selectedCategory, selectedStatus, sortBy, sortOrder]);
 
   const loadBrands = async () => {
     try {
@@ -261,6 +318,18 @@ export function AdminBrands() {
       is_featured: false,
       is_active: true,
     });
+  };
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setSelectedCategory('all');
+    setSelectedStatus('all');
+    setSortBy('created');
+    setSortOrder('desc');
+  };
+
+  const toggleSortOrder = () => {
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
   const BrandFormFields = () => (
@@ -442,11 +511,121 @@ export function AdminBrands() {
         </Card>
       </div>
 
+      {/* Search and Filters */}
+      <Card>
+        <CardContent className="p-6 space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search brands by name or description..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7"
+                  onClick={() => setSearchQuery('')}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Filters:</span>
+            </div>
+
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active Only</SelectItem>
+                <SelectItem value="inactive">Inactive Only</SelectItem>
+                <SelectItem value="featured">Featured Only</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="created">Date Created</SelectItem>
+                <SelectItem value="name">Brand Name</SelectItem>
+                <SelectItem value="rate">Earning Rate</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={toggleSortOrder}
+              title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
+            >
+              {sortOrder === 'asc' ? (
+                <SortAsc className="w-4 h-4" />
+              ) : (
+                <SortDesc className="w-4 h-4" />
+              )}
+            </Button>
+
+            {(searchQuery || selectedCategory !== 'all' || selectedStatus !== 'all') && (
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-2">
+                <X className="w-4 h-4" />
+                Clear Filters
+              </Button>
+            )}
+
+            <div className="ml-auto text-sm text-muted-foreground">
+              Showing {filteredBrands.length} of {brands.length} brands
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardContent className="p-0">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          ) : filteredBrands.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 px-4">
+              <Search className="w-12 h-12 text-muted-foreground mb-4" />
+              <p className="text-lg font-medium mb-2">No brands found</p>
+              <p className="text-sm text-muted-foreground text-center">
+                {searchQuery || selectedCategory !== 'all' || selectedStatus !== 'all'
+                  ? 'Try adjusting your filters or search query'
+                  : 'Get started by adding your first brand partner'}
+              </p>
+              {(searchQuery || selectedCategory !== 'all' || selectedStatus !== 'all') && (
+                <Button variant="outline" className="mt-4" onClick={clearFilters}>
+                  Clear Filters
+                </Button>
+              )}
             </div>
           ) : (
             <Table>
@@ -461,7 +640,7 @@ export function AdminBrands() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {brands.map((brand) => (
+                {filteredBrands.map((brand) => (
                   <TableRow key={brand.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
