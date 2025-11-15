@@ -314,7 +314,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward }: Re
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                Rewards Pool
+                Rewards Marketplace
               </h1>
               <p className="text-muted-foreground mt-1">Redeem your tokens for amazing rewards</p>
             </div>

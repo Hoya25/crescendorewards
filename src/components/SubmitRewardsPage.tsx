@@ -117,17 +117,17 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-lg border-b border-border/50">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={onBack}>
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={onBack} className="flex-shrink-0">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-bold">Reward Marketplace</h1>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground truncate">
                 Contribute to the Crescendo rewards marketplace
               </p>
             </div>
-            <Badge variant="outline" className="hidden sm:flex gap-1">
+            <Badge variant="outline" className="hidden sm:flex gap-1 flex-shrink-0">
               <TrendingUp className="w-3 h-3" />
               Earn contributor rewards
             </Badge>
