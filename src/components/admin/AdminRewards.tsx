@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Upload, X, Image as ImageIcon } from 'lucide-react';
 
 interface Reward {
   id: string;
@@ -21,6 +21,7 @@ interface Reward {
   cost: number;
   stock_quantity: number | null;
   is_active: boolean;
+  image_url: string | null;
 }
 
 export function AdminRewards() {
@@ -28,6 +29,9 @@ export function AdminRewards() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingReward, setEditingReward] = useState<Reward | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -35,6 +39,7 @@ export function AdminRewards() {
     cost: 0,
     stock_quantity: null as number | null,
     is_active: true,
+    image_url: null as string | null,
   });
 
   useEffect(() => {
@@ -72,7 +77,9 @@ export function AdminRewards() {
         cost: reward.cost,
         stock_quantity: reward.stock_quantity,
         is_active: reward.is_active,
+        image_url: reward.image_url,
       });
+      setImagePreview(reward.image_url);
     } else {
       setEditingReward(null);
       setFormData({
@@ -82,17 +89,108 @@ export function AdminRewards() {
         cost: 0,
         stock_quantity: null,
         is_active: true,
+        image_url: null,
       });
+      setImagePreview(null);
     }
+    setImageFile(null);
     setShowModal(true);
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Invalid file',
+        description: 'Please select an image file',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'File too large',
+        description: 'Image must be less than 5MB',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setImageFile(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setFormData({ ...formData, image_url: null });
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile) return formData.image_url;
+
+    try {
+      setUploading(true);
+      
+      // Generate unique filename
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = `rewards/${fileName}`;
+
+      // Upload to Supabase Storage
+      const { error: uploadError, data } = await supabase.storage
+        .from('reward-images')
+        .upload(filePath, imageFile, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('reward-images')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error: any) {
+      toast({
+        title: 'Upload failed',
+        description: error.message || 'Failed to upload image',
+        variant: 'destructive',
+      });
+      return null;
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSave = async () => {
     try {
+      // Upload image if there's a new one
+      const imageUrl = await uploadImage();
+      if (imageFile && !imageUrl) return; // Upload failed
+
+      const dataToSave = {
+        ...formData,
+        image_url: imageUrl,
+      };
+
       if (editingReward) {
         const { error } = await supabase
           .from('rewards')
-          .update(formData)
+          .update(dataToSave)
           .eq('id', editingReward.id);
 
         if (error) throw error;
@@ -100,13 +198,15 @@ export function AdminRewards() {
       } else {
         const { error } = await supabase
           .from('rewards')
-          .insert([formData]);
+          .insert([dataToSave]);
 
         if (error) throw error;
         toast({ title: 'Success', description: 'Reward created successfully' });
       }
 
       setShowModal(false);
+      setImageFile(null);
+      setImagePreview(null);
       loadRewards();
     } catch (error: any) {
       toast({
@@ -174,6 +274,7 @@ export function AdminRewards() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Image</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Cost</TableHead>
@@ -191,13 +292,26 @@ export function AdminRewards() {
                 </TableRow>
               ) : rewards.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     No rewards found
                   </TableCell>
                 </TableRow>
               ) : (
                 rewards.map((reward) => (
                   <TableRow key={reward.id}>
+                    <TableCell>
+                      {reward.image_url ? (
+                        <img 
+                          src={reward.image_url} 
+                          alt={reward.title}
+                          className="w-12 h-12 object-cover rounded-lg"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
+                          <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                      )}
+                    </TableCell>
                     <TableCell className="font-medium">{reward.title}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{reward.category.replace('_', ' ')}</Badge>
@@ -262,6 +376,46 @@ export function AdminRewards() {
                 placeholder="Reward description"
               />
             </div>
+            <div className="space-y-2">
+              <Label>Reward Image</Label>
+              {imagePreview ? (
+                <div className="relative">
+                  <img 
+                    src={imagePreview} 
+                    alt="Preview" 
+                    className="w-full h-48 object-cover rounded-lg border"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={handleRemoveImage}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary transition-colors">
+                  <Input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageSelect}
+                  />
+                  <label htmlFor="image" className="cursor-pointer">
+                    <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">
+                      Click to upload image
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      PNG, JPG, WEBP up to 5MB
+                    </p>
+                  </label>
+                </div>
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
@@ -316,8 +470,8 @@ export function AdminRewards() {
             <Button variant="outline" onClick={() => setShowModal(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSave}>
-              {editingReward ? 'Update' : 'Create'}
+            <Button onClick={handleSave} disabled={uploading}>
+              {uploading ? 'Uploading...' : editingReward ? 'Update' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>
