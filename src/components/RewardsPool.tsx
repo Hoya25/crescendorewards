@@ -11,7 +11,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from '@/components/ui/carousel';
 import { toast } from '@/hooks/use-toast';
-import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Star, Flame, Clock, Lock, AlertTriangle, Package, Zap, ArrowUpDown, Filter, Search } from 'lucide-react';
+import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Star, Flame, Clock, Lock, AlertTriangle, Package, Zap, ArrowUpDown, Filter, Search, ArrowLeft } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -34,6 +34,7 @@ interface RewardsPoolProps {
   claimBalance: number;
   onClaimSuccess: () => void;
   onSubmitReward?: () => void;
+  onBack?: () => void;
 }
 
 const categoryIcons = {
@@ -50,7 +51,7 @@ const categoryLabels = {
   gift_cards: 'Gift Cards',
 };
 
-export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward }: RewardsPoolProps) {
+export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBack }: RewardsPoolProps) {
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [featuredRewards, setFeaturedRewards] = useState<Reward[]>([]);
   const [filteredRewards, setFilteredRewards] = useState<Reward[]>([]);
@@ -311,15 +312,20 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward }: Re
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
+          <div className="flex items-center gap-3 mb-4">
+            {onBack && (
+              <Button variant="ghost" size="icon" onClick={onBack} className="flex-shrink-0">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            )}
+            <div className="flex-1 min-w-0">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                 Rewards Marketplace
               </h1>
-              <p className="text-muted-foreground mt-1">Redeem your tokens for amazing rewards</p>
+              <p className="text-muted-foreground mt-1 truncate">Redeem your tokens for amazing rewards</p>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
+            <div className="flex items-center gap-4 flex-shrink-0">
+              <div className="text-right hidden sm:block">
                 <p className="text-sm text-muted-foreground">Your Balance</p>
                 <p className="text-3xl font-bold text-primary">{claimBalance}</p>
                 <p className="text-xs text-muted-foreground">tokens</p>
@@ -331,7 +337,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward }: Re
                   className="gap-2 border-primary/20 hover:bg-primary/10"
                 >
                   <Sparkles className="w-4 h-4" />
-                  Submit Reward
+                  <span className="hidden sm:inline">Submit Reward</span>
                 </Button>
               )}
             </div>
