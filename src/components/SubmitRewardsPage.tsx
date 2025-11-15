@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -78,7 +79,7 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
       return;
     }
 
-    if (!selectedType || !formData.title || !formData.description || !formData.category) {
+    if (!selectedType || !formData.title || !formData.description || !formData.category || !formData.suggestedNCTR) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -86,13 +87,29 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
     setSubmitting(true);
 
     try {
-      // In production, this would save to a reward_submissions table
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase
+        .from('reward_submissions')
+        .insert({
+          user_id: user.id,
+          lock_rate: selectedLockRate,
+          reward_type: selectedType,
+          title: formData.title,
+          description: formData.description,
+          category: formData.category,
+          brand: formData.brand || null,
+          nctr_value: parseInt(formData.suggestedNCTR),
+          claim_passes_required: parseInt(formData.claimPassRequired),
+          stock_quantity: formData.stockQuantity ? parseInt(formData.stockQuantity) : null,
+          image_url: formData.imageUrl || null,
+        });
+
+      if (error) throw error;
       
       toast.success('Reward submitted successfully! Our team will review it soon.');
       
       // Reset form
       setSelectedType('');
+      setSelectedLockRate('360');
       setFormData({
         title: '',
         description: '',
