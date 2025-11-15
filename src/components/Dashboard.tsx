@@ -10,7 +10,22 @@ import { ReferralCard } from "./ReferralCard";
 import { useTheme } from "./ThemeProvider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
+interface Profile {
+  id: string;
+  email: string | null;
+  full_name: string | null;
+  level: number;
+  locked_nctr: number;
+  available_nctr: number;
+  claim_balance: number;
+  referral_code: string | null;
+  has_claimed_signup_bonus: boolean;
+  has_status_access_pass: boolean;
+  wallet_address: string | null;
+}
+
 interface DashboardProps {
+  profile: Profile;
   walletConnected: boolean;
   onConnectWallet: () => void;
   onLockTokens: () => void;
@@ -29,6 +44,7 @@ interface DashboardProps {
 }
 
 export function Dashboard({
+  profile,
   walletConnected,
   onConnectWallet,
   onLockTokens,
@@ -45,28 +61,42 @@ export function Dashboard({
   onViewBrandPartners,
   onViewMarketplace,
 }: DashboardProps) {
-  // Mock user data
+  // Calculate tier based on level
+  const getTierInfo = (level: number) => {
+    const tiers = [
+      { tier: 'Starter', nextLevelThreshold: 1000, multiplier: '1x', claimsPerYear: 0, discount: '0%' },
+      { tier: 'Bronze', nextLevelThreshold: 2500, multiplier: '1.1x', claimsPerYear: 1, discount: '5%' },
+      { tier: 'Silver', nextLevelThreshold: 5000, multiplier: '1.25x', claimsPerYear: 4, discount: '10%' },
+      { tier: 'Gold', nextLevelThreshold: 10000, multiplier: '1.4x', claimsPerYear: 12, discount: '15%' },
+      { tier: 'Platinum', nextLevelThreshold: 25000, multiplier: '1.5x', claimsPerYear: 24, discount: '20%' },
+      { tier: 'Diamond', nextLevelThreshold: 50000, multiplier: '2x', claimsPerYear: 60, discount: '25%' },
+    ];
+    return tiers[level] || tiers[0];
+  };
+
+  const tierInfo = getTierInfo(profile.level);
+
   const userData = {
-    level: 2,
-    tier: 'Silver',
-    lockedNCTR: 2500,
-    nextLevelThreshold: 5000,
-    multiplier: '1.25x',
-    claimBalance: 3,
-    claimsPerYear: 4,
-    discount: '10%',
-    hasStatusAccessPass: false,
+    level: profile.level,
+    tier: tierInfo.tier,
+    lockedNCTR: profile.locked_nctr,
+    nextLevelThreshold: tierInfo.nextLevelThreshold,
+    multiplier: tierInfo.multiplier,
+    claimBalance: profile.claim_balance,
+    claimsPerYear: tierInfo.claimsPerYear,
+    discount: tierInfo.discount,
+    hasStatusAccessPass: profile.has_status_access_pass,
   };
 
-  // Mock referral data
+  // Mock referral data (will be calculated from referrals table in future)
   const referralStats = {
-    totalReferrals: 3,
-    totalEarned: 1600,
+    totalReferrals: 0,
+    totalEarned: profile.has_claimed_signup_bonus ? profile.available_nctr : 0,
     signupBonus: 100,
-    hasClaimedSignupBonus: true,
+    hasClaimedSignupBonus: profile.has_claimed_signup_bonus,
   };
 
-  const referralCode = 'CRES-A7X9K2';
+  const referralCode = profile.referral_code || 'CRES-LOADING';
 
   const progressToNextLevel = (userData.lockedNCTR / userData.nextLevelThreshold) * 100;
 
