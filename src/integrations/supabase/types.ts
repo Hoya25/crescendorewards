@@ -14,13 +14,116 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          available_nctr: number
+          avatar_url: string | null
+          claim_balance: number
+          created_at: string
+          email: string | null
+          full_name: string | null
+          has_claimed_signup_bonus: boolean
+          has_status_access_pass: boolean
+          id: string
+          level: number
+          locked_nctr: number
+          referral_code: string | null
+          referred_by: string | null
+          updated_at: string
+          wallet_address: string | null
+        }
+        Insert: {
+          available_nctr?: number
+          avatar_url?: string | null
+          claim_balance?: number
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          has_claimed_signup_bonus?: boolean
+          has_status_access_pass?: boolean
+          id: string
+          level?: number
+          locked_nctr?: number
+          referral_code?: string | null
+          referred_by?: string | null
+          updated_at?: string
+          wallet_address?: string | null
+        }
+        Update: {
+          available_nctr?: number
+          avatar_url?: string | null
+          claim_balance?: number
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          has_claimed_signup_bonus?: boolean
+          has_status_access_pass?: boolean
+          id?: string
+          level?: number
+          locked_nctr?: number
+          referral_code?: string | null
+          referred_by?: string | null
+          updated_at?: string
+          wallet_address?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          is_paid: boolean
+          referral_bonus: number
+          referred_id: string
+          referrer_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_paid?: boolean
+          referral_bonus?: number
+          referred_id: string
+          referrer_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_paid?: boolean
+          referral_bonus?: number
+          referred_id?: string
+          referrer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_referral_code: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never
