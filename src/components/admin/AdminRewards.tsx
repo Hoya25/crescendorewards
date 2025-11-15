@@ -22,6 +22,7 @@ interface Reward {
   stock_quantity: number | null;
   is_active: boolean;
   image_url: string | null;
+  is_featured: boolean;
 }
 
 export function AdminRewards() {
@@ -40,6 +41,7 @@ export function AdminRewards() {
     stock_quantity: null as number | null,
     is_active: true,
     image_url: null as string | null,
+    is_featured: false,
   });
 
   useEffect(() => {
@@ -78,6 +80,7 @@ export function AdminRewards() {
         stock_quantity: reward.stock_quantity,
         is_active: reward.is_active,
         image_url: reward.image_url,
+        is_featured: reward.is_featured,
       });
       setImagePreview(reward.image_url);
     } else {
@@ -90,6 +93,7 @@ export function AdminRewards() {
         stock_quantity: null,
         is_active: true,
         image_url: null,
+        is_featured: false,
       });
       setImagePreview(null);
     }
@@ -291,6 +295,7 @@ export function AdminRewards() {
                 <TableHead>Category</TableHead>
                 <TableHead>Cost</TableHead>
                 <TableHead>Stock</TableHead>
+                <TableHead>Featured</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -304,7 +309,7 @@ export function AdminRewards() {
                 </TableRow>
               ) : rewards.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     No rewards found
                   </TableCell>
                 </TableRow>
@@ -331,6 +336,13 @@ export function AdminRewards() {
                     <TableCell>{reward.cost} tokens</TableCell>
                     <TableCell>
                       {reward.stock_quantity === null ? 'Unlimited' : reward.stock_quantity}
+                    </TableCell>
+                    <TableCell>
+                      {reward.is_featured && (
+                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+                          Featured
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Switch
@@ -507,13 +519,26 @@ export function AdminRewards() {
                 placeholder="Unlimited"
               />
             </div>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="active"
-                checked={formData.is_active}
-                onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
-              />
-              <Label htmlFor="active">Active</Label>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="active"
+                  checked={formData.is_active}
+                  onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                />
+                <Label htmlFor="active">Active</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="featured"
+                  checked={formData.is_featured}
+                  onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
+                />
+                <Label htmlFor="featured" className="flex items-center gap-1">
+                  Featured
+                  <Badge variant="secondary" className="text-xs">Hero</Badge>
+                </Label>
+              </div>
             </div>
           </div>
           <DialogFooter>
