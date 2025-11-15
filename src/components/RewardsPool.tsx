@@ -10,8 +10,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from '@/components/ui/carousel';
 import { toast } from '@/hooks/use-toast';
-import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X } from 'lucide-react';
+import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Star, Flame, Clock, Lock, AlertTriangle, Package, Zap } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
+import { Progress } from '@/components/ui/progress';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Autoplay from 'embla-carousel-autoplay';
 
 interface Reward {
@@ -302,159 +304,189 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
                 stopOnMouseEnter: true,
               }),
             ]}
-            className="w-full mb-12 touch-pan-x"
+            className="w-full touch-pan-x"
           >
-            <CarouselContent className="-ml-2 md:-ml-4">
-              {featuredRewards.map((reward, index) => {
+            <CarouselContent className="-ml-4">
+              {featuredRewards.map((reward) => {
                 const Icon = categoryIcons[reward.category];
                 const affordable = canAfford(reward.cost);
                 const outOfStock = reward.stock_quantity !== null && reward.stock_quantity <= 0;
+                const stockPercentage = reward.stock_quantity !== null ? (reward.stock_quantity / 100) * 100 : 100;
 
                 return (
-                  <CarouselItem key={reward.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/2">
-                    <Card
-                      className={`group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl h-full select-none ${
-                        !affordable || outOfStock ? 'opacity-60' : ''
-                      }`}
-                      onClick={() => handleRewardClick(reward)}
-                    >
-                      {/* Featured Badge */}
-                      <div className="absolute top-4 right-4 z-10">
-                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 gap-1 animate-pulse shadow-lg">
-                          <Sparkles className="w-3 h-3" />
-                          Featured
-                        </Badge>
-                      </div>
-
-                      <div className="grid md:grid-cols-2 gap-0">
-                        {/* Image Section */}
-                        <div className="relative h-72 md:h-full bg-gradient-to-br from-primary/20 to-primary/5 overflow-hidden">
-                          {reward.image_url ? (
-                            <>
-                              <ImageWithFallback
-                                src={reward.image_url}
-                                alt={reward.title}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 pointer-events-none"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                              <Button
-                                size="icon"
-                                variant="secondary"
-                                className="absolute top-4 left-4 opacity-0 md:group-hover:opacity-100 transition-all duration-300 shadow-lg"
-                                onClick={(e) => handleImageZoom(reward.image_url!, e)}
-                              >
-                                <ZoomIn className="w-5 h-5" />
-                              </Button>
-                            </>
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Icon className="w-32 h-32 text-primary/60 animate-pulse" />
-                            </div>
+                  <CarouselItem key={reward.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                    <Card className="group cursor-pointer transition-all hover:shadow-2xl border-0 overflow-hidden bg-card/50 backdrop-blur">
+                      <div className="relative w-full h-80 bg-gradient-to-br from-primary/20 via-background to-secondary/20">
+                        {reward.image_url ? (
+                          <ImageWithFallback
+                            src={reward.image_url}
+                            alt={reward.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Icon className="w-20 h-20 text-muted-foreground/30" />
+                          </div>
+                        )}
+                        
+                        {/* Badge Cluster - Top Right */}
+                        <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
+                          <Badge className="bg-primary/90 text-primary-foreground backdrop-blur-sm border-0 shadow-lg">
+                            <Star className="w-3 h-3 mr-1" />
+                            Featured
+                          </Badge>
+                          {reward.cost === 0 && (
+                            <Badge className="bg-green-500/90 text-white backdrop-blur-sm border-0 shadow-lg">
+                              <Gift className="w-3 h-3 mr-1" />
+                              FREE
+                            </Badge>
+                          )}
+                          {outOfStock && (
+                            <Badge className="bg-destructive/90 text-destructive-foreground backdrop-blur-sm border-0 shadow-lg">
+                              <AlertTriangle className="w-3 h-3 mr-1" />
+                              Limited Supply
+                            </Badge>
+                          )}
+                          {reward.category === 'experiences' && (
+                            <Badge className="bg-orange-500/90 text-white backdrop-blur-sm border-0 shadow-lg">
+                              <Flame className="w-3 h-3 mr-1" />
+                              Trending
+                            </Badge>
                           )}
                         </div>
 
-                        {/* Content Section */}
-                        <div className="p-6 flex flex-col justify-between">
-                          <div>
-                            <CardTitle className="text-2xl mb-3 leading-tight group-hover:text-primary transition-colors">
-                              {reward.title}
-                            </CardTitle>
-                            <CardDescription className="text-base mb-4 line-clamp-3">
-                              {reward.description}
-                            </CardDescription>
-                            
-                            <div className="space-y-2 mb-4">
-                              <div className="flex items-center justify-between py-2 border-b border-border/50">
-                                <span className="text-sm font-medium">Cost:</span>
-                                <Badge variant={affordable ? 'default' : 'secondary'} className="text-lg font-bold px-3">
-                                  {reward.cost} tokens
-                                </Badge>
-                              </div>
-                              {reward.stock_quantity !== null && (
-                                <div className="flex items-center justify-between py-2 border-b border-border/50">
-                                  <span className="text-sm font-medium">Available:</span>
-                                  <span className="text-sm font-semibold">
-                                    {outOfStock ? (
-                                      <span className="text-destructive flex items-center gap-1">
-                                        <X className="w-4 h-4" />
-                                        Out of Stock
-                                      </span>
-                                    ) : (
-                                      <span className="text-green-600 dark:text-green-400">
-                                        {reward.stock_quantity} remaining
-                                      </span>
-                                    )}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <Button
-                            size="lg"
-                            className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all active:scale-95"
-                            disabled={!affordable || outOfStock}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRewardClick(reward);
-                            }}
-                          >
-                            {outOfStock ? 'Out of Stock' : affordable ? 'View Details' : 'Insufficient Balance'}
-                          </Button>
+                        {/* Category Badge - Top Left */}
+                        <div className="absolute top-4 left-4">
+                          <Badge variant="secondary" className="backdrop-blur-sm bg-background/80 border-border/50">
+                            <Icon className="w-3 h-3 mr-1" />
+                            {categoryLabels[reward.category]}
+                          </Badge>
                         </div>
+
+                        {/* Gradient Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
                       </div>
+
+                      <CardContent className="relative -mt-32 z-10 p-6 space-y-4">
+                        {/* Brand Info */}
+                        <div className="flex items-center gap-3 mb-2">
+                          <Avatar className="w-10 h-10 border-2 border-primary/20">
+                            <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                              {reward.title.substring(0, 1)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <p className="text-xs text-muted-foreground">Featured by</p>
+                            <p className="font-semibold text-sm">Partner Brand</p>
+                          </div>
+                        </div>
+
+                        {/* Title & Description */}
+                        <div className="space-y-2">
+                          <h3 className="text-2xl font-bold line-clamp-2">{reward.title}</h3>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{reward.description}</p>
+                        </div>
+
+                        {/* Stats Row */}
+                        <div className="grid grid-cols-3 gap-4 py-4 border-y border-border/50">
+                          <div className="text-center">
+                            <div className="flex items-center justify-center gap-1 text-primary mb-1">
+                              <Coins className="w-4 h-4" />
+                              <span className="text-xl font-bold">{reward.cost}</span>
+                            </div>
+                            <span className="text-xs text-muted-foreground">Claims</span>
+                          </div>
+                          <div className="text-center border-x border-border/50">
+                            <div className="flex items-center justify-center gap-1 mb-1">
+                              <Package className="w-4 h-4" />
+                              <span className="text-xl font-bold">{reward.stock_quantity || 'Unlimited'}</span>
+                            </div>
+                            <span className="text-xs text-muted-foreground">Available</span>
+                          </div>
+                          <div className="text-center">
+                            <div className="flex items-center justify-center gap-1 mb-1">
+                              <Zap className="w-4 h-4 text-orange-500" />
+                              <span className="text-xl font-bold">Instant</span>
+                            </div>
+                            <span className="text-xs text-muted-foreground">Delivery</span>
+                          </div>
+                        </div>
+
+                        {/* Stock Progress */}
+                        {reward.stock_quantity !== null && (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="text-muted-foreground">
+                                {reward.stock_quantity}/{100} left
+                              </span>
+                              <span className="text-muted-foreground">{Math.round(stockPercentage)}%</span>
+                            </div>
+                            <Progress 
+                              value={stockPercentage} 
+                              className="h-2"
+                            />
+                          </div>
+                        )}
+
+                        {/* CTA Button */}
+                        <Button
+                          size="lg"
+                          className="w-full"
+                          variant={affordable && !outOfStock ? "default" : "secondary"}
+                          disabled={!affordable || outOfStock}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRewardClick(reward);
+                          }}
+                        >
+                          {outOfStock ? 'Out of Stock' : affordable ? (
+                            <>
+                              <Gift className="w-4 h-4 mr-2" />
+                              Claim This Reward →
+                            </>
+                          ) : 'Insufficient Balance'}
+                        </Button>
+                      </CardContent>
                     </Card>
                   </CarouselItem>
                 );
               })}
             </CarouselContent>
-            <CarouselPrevious className="hidden md:flex -left-12 lg:-left-16 hover:scale-110 transition-transform" />
-            <CarouselNext className="hidden md:flex -right-12 lg:-right-16 hover:scale-110 transition-transform" />
+            <CarouselPrevious className="hidden md:flex -left-12 lg:-left-16 hover:scale-110 transition-transform bg-background/80 backdrop-blur" />
+            <CarouselNext className="hidden md:flex -right-12 lg:-right-16 hover:scale-110 transition-transform bg-background/80 backdrop-blur" />
           </Carousel>
 
-          {/* Mobile Swipe Hint & Carousel Indicators */}
-          <div className="flex flex-col items-center gap-3 mt-6">
-            {/* Swipe Hint for Mobile */}
-            <div className="md:hidden flex items-center gap-2 text-sm text-muted-foreground animate-pulse">
-              <div className="flex gap-1">
-                <div className="w-1 h-1 rounded-full bg-current" />
-                <div className="w-1 h-1 rounded-full bg-current" />
-                <div className="w-1 h-1 rounded-full bg-current" />
-              </div>
-              <span>Swipe to browse</span>
-              <div className="flex gap-1">
-                <div className="w-1 h-1 rounded-full bg-current" />
-                <div className="w-1 h-1 rounded-full bg-current" />
-                <div className="w-1 h-1 rounded-full bg-current" />
-              </div>
-            </div>
-            
-            {/* Progress Indicators */}
-            <div className="flex justify-center gap-2">
-              {featuredRewards.map((_, index) => (
-                <div
-                  key={index}
-                  className="w-2 h-2 rounded-full bg-primary/30 hover:bg-primary/50 transition-colors cursor-pointer"
-                  style={{ animationDelay: `${index * 200}ms` }}
-                />
-              ))}
-            </div>
+          {/* Carousel Indicators */}
+          <div className="flex justify-center gap-2 mt-6">
+            {featuredRewards.map((_, index) => (
+              <div
+                key={index}
+                className="w-2 h-2 rounded-full bg-primary/30 hover:bg-primary transition-colors cursor-pointer"
+              />
+            ))}
           </div>
+
         </div>
       )}
 
       {/* Regular Rewards Grid */}
       <div className="container mx-auto px-4 py-8">
         {!loading && featuredRewards.length > 0 && (
-          <h2 className="text-xl font-bold mb-6">All Rewards</h2>
+          <div className="flex items-center gap-2 mb-6">
+            <Star className="w-5 h-5 text-orange-500" />
+            <h2 className="text-2xl font-bold">Featured Rewards</h2>
+          </div>
         )}
         
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <Card key={i} className="animate-pulse">
-                <CardHeader className="h-48 bg-muted" />
-                <CardContent className="h-32 bg-muted/50 mt-4" />
+              <Card key={i} className="animate-pulse overflow-hidden">
+                <div className="h-56 bg-muted" />
+                <CardContent className="p-6">
+                  <div className="h-6 bg-muted rounded mb-2" />
+                  <div className="h-4 bg-muted rounded w-2/3" />
+                </CardContent>
               </Card>
             ))}
           </div>
@@ -469,70 +501,138 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
               const Icon = categoryIcons[reward.category];
               const affordable = canAfford(reward.cost);
               const outOfStock = reward.stock_quantity !== null && reward.stock_quantity <= 0;
+              const stockPercentage = reward.stock_quantity !== null ? (reward.stock_quantity / 100) * 100 : 100;
 
               return (
                 <Card
                   key={reward.id}
-                  className={`group cursor-pointer transition-all hover:scale-[1.02] hover:shadow-xl ${
+                  className={`group cursor-pointer transition-all hover:scale-[1.02] hover:shadow-xl overflow-hidden ${
                     !affordable || outOfStock ? 'opacity-60' : ''
                   }`}
                   onClick={() => handleRewardClick(reward)}
                 >
-                  <CardHeader className="pb-4">
-                    <div className="relative w-full h-56 bg-gradient-to-br from-muted/50 to-muted/20 rounded-lg overflow-hidden mb-4">
-                      {reward.image_url ? (
-                        <>
-                          <ImageWithFallback
-                            src={reward.image_url}
-                            alt={reward.title}
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                          />
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                            <Button
-                              size="icon"
-                              variant="secondary"
-                              className="opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={(e) => handleImageZoom(reward.image_url!, e)}
-                            >
-                              <ZoomIn className="w-5 h-5" />
-                            </Button>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Icon className="w-24 h-24 text-primary/60" />
-                        </div>
+                  <div className="relative w-full h-56 bg-gradient-to-br from-muted/50 to-muted/20">
+                    {reward.image_url ? (
+                      <ImageWithFallback
+                        src={reward.image_url}
+                        alt={reward.title}
+                        className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Icon className="w-16 h-16 text-muted-foreground/30" />
+                      </div>
+                    )}
+
+                    {/* Badge Stack - Top Right */}
+                    <div className="absolute top-3 right-3 flex flex-col gap-1.5 items-end">
+                      {reward.cost === 0 && (
+                        <Badge className="bg-green-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
+                          <Gift className="w-3 h-3 mr-1" />
+                          FREE
+                        </Badge>
+                      )}
+                      {outOfStock && (
+                        <Badge className="bg-destructive/90 backdrop-blur-sm border-0 shadow-lg text-xs">
+                          <AlertTriangle className="w-3 h-3 mr-1" />
+                          Limited
+                        </Badge>
+                      )}
+                      {reward.category === 'experiences' && (
+                        <Badge className="bg-orange-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
+                          <Flame className="w-3 h-3 mr-1" />
+                          Trending
+                        </Badge>
+                      )}
+                      {Math.random() > 0.7 && (
+                        <Badge className="bg-green-600/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
+                          <Sparkles className="w-3 h-3 mr-1" />
+                          New
+                        </Badge>
                       )}
                     </div>
-                    <div className="flex items-start justify-between gap-2">
-                      <CardTitle className="text-lg leading-tight">{reward.title}</CardTitle>
-                      <Badge variant={affordable ? 'default' : 'secondary'} className="shrink-0">
-                        {reward.cost} tokens
+
+                    {/* Category Badge - Top Left */}
+                    <div className="absolute top-3 left-3">
+                      <Badge variant="secondary" className="backdrop-blur-sm bg-background/80 border-border/50 text-xs">
+                        <Icon className="w-3 h-3 mr-1" />
+                        {categoryLabels[reward.category]}
                       </Badge>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="line-clamp-2">
-                      {reward.description}
-                    </CardDescription>
+
+                    {/* Cost Badge - Bottom Left */}
+                    <div className="absolute bottom-3 left-3">
+                      <Badge className="bg-background/90 backdrop-blur-sm border border-primary/20 text-primary font-bold shadow-lg">
+                        <Coins className="w-3 h-3 mr-1" />
+                        {reward.cost}
+                      </Badge>
+                    </div>
+
+                    {/* Zoom Overlay */}
+                    <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <ZoomIn className="w-8 h-8 text-primary" />
+                    </div>
+                  </div>
+
+                  <CardContent className="p-6 space-y-4">
+                    {/* Brand Avatar */}
+                    <div className="flex items-center gap-2">
+                      <Avatar className="w-8 h-8 border border-border">
+                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                          {reward.title.substring(0, 1)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-muted-foreground truncate">by Partner Brand</p>
+                      </div>
+                    </div>
+
+                    {/* Title & Description */}
+                    <div className="space-y-2">
+                      <h3 className="font-bold text-lg line-clamp-2 group-hover:text-primary transition-colors">
+                        {reward.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{reward.description}</p>
+                    </div>
+
+                    {/* Stock Info */}
                     {reward.stock_quantity !== null && (
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {outOfStock ? 'Out of Stock' : `${reward.stock_quantity} remaining`}
-                      </p>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Package className="w-3 h-3" />
+                            {reward.stock_quantity}/100 left
+                          </span>
+                          <span>{Math.round(stockPercentage)}%</span>
+                        </div>
+                        <Progress value={stockPercentage} className="h-1.5" />
+                      </div>
                     )}
-                  </CardContent>
-                  <CardFooter>
+
+                    {/* Action Button */}
                     <Button
                       className="w-full"
+                      variant={affordable && !outOfStock ? "default" : "secondary"}
                       disabled={!affordable || outOfStock}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRewardClick(reward);
                       }}
                     >
-                      {outOfStock ? 'Out of Stock' : affordable ? 'View Details' : 'Insufficient Balance'}
+                      {outOfStock ? 'Out of Stock' : affordable ? (
+                        <>
+                          <Gift className="w-4 h-4 mr-2" />
+                          Claim Reward
+                        </>
+                      ) : 'Insufficient Balance'}
                     </Button>
-                  </CardFooter>
+
+                    {/* Delivery Info */}
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2 border-t border-border/50">
+                      <Clock className="w-3 h-3" />
+                      <span>Delivery: Within 24 hours</span>
+                    </div>
+                  </CardContent>
                 </Card>
               );
             })}
