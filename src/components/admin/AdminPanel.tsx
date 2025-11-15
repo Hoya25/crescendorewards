@@ -5,6 +5,7 @@ import { AdminDashboard } from './AdminDashboard';
 import { AdminRewards } from './AdminRewards';
 import { AdminClaims } from './AdminClaims';
 import { AdminBrands } from './AdminBrands';
+import { AdminBrandComparison } from './AdminBrandComparison';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 
@@ -25,6 +26,8 @@ export function AdminPanel({ onClose }: AdminPanelProps) {
         return <AdminClaims />;
       case 'brands':
         return <AdminBrands />;
+      case 'compare':
+        return <AdminBrandComparison />;
       case 'users':
         return (
           <div className="text-center py-12">
