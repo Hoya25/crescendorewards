@@ -140,30 +140,46 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
             {/* Left Column - Main Form */}
             <div className="lg:col-span-2 space-y-6">
               {/* Claim Pass Conversion Rates */}
-              <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+              <Card className="border-border/50 bg-muted/20">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Award className="w-5 h-5 text-primary" />
+                  <CardTitle className="flex items-center gap-3">
+                    <Award className="w-6 h-6" />
                     Claim Pass Conversion Rates
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-base">
                     Understand how claim passes convert to NCTR based on lock duration
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {lockPeriods.map((period) => (
-                      <div
-                        key={period.value}
-                        className="p-3 rounded-lg bg-background border border-border/50 hover:border-primary/50 transition-colors"
-                      >
-                        <div className="flex items-center gap-2 mb-1">
-                          <Lock className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm font-medium">{period.label}</span>
-                        </div>
-                        <div className="text-lg font-bold text-primary">{period.multiplier}</div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="p-4 rounded-lg bg-background border border-border">
+                      <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                        <Lock className="w-4 h-4" />
+                        <span className="text-sm font-medium">30 days</span>
                       </div>
-                    ))}
+                      <div className="text-2xl font-bold">1x</div>
+                    </div>
+                    <div className="p-4 rounded-lg bg-background border border-border">
+                      <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                        <Lock className="w-4 h-4" />
+                        <span className="text-sm font-medium">90 days</span>
+                      </div>
+                      <div className="text-2xl font-bold">1.5x</div>
+                    </div>
+                    <div className="p-4 rounded-lg bg-background border border-border">
+                      <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                        <Lock className="w-4 h-4" />
+                        <span className="text-sm font-medium">180 days</span>
+                      </div>
+                      <div className="text-2xl font-bold">2x</div>
+                    </div>
+                    <div className="p-4 rounded-lg bg-background border border-border">
+                      <div className="flex items-center gap-2 mb-2 text-muted-foreground">
+                        <Lock className="w-4 h-4" />
+                        <span className="text-sm font-medium">365 days</span>
+                      </div>
+                      <div className="text-2xl font-bold">3x</div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
