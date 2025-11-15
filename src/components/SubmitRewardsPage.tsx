@@ -122,7 +122,7 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold">Submit Reward Idea</h1>
+              <h1 className="text-2xl font-bold">Reward Marketplace</h1>
               <p className="text-sm text-muted-foreground">
                 Contribute to the Crescendo rewards marketplace
               </p>
@@ -290,51 +290,6 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
                   </div>
                 </div>
               </div>
-
-              {/* How It Works */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Info className="w-5 h-5 text-primary" />
-                    How It Works
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-bold text-primary">1</span>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-1">Submit Your Idea</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Fill out the reward details including type, description, and suggested value
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-bold text-primary">2</span>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-1">Community Review</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Our team and community members review your submission for quality and fit
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-bold text-primary">3</span>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-1">Earn Rewards</h4>
-                      <p className="text-sm text-muted-foreground">
-                        If approved, earn NCTR tokens and contributor recognition
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
 
               {/* Reward Type Selection */}
               <Card>
