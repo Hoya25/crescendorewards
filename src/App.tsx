@@ -10,6 +10,7 @@ import { EarnNCTR } from "./components/EarnNCTR";
 import { RewardsPool } from "./components/RewardsPool";
 import { ProfilePage } from "./components/ProfilePage";
 import { AdminPanel } from "./components/admin/AdminPanel";
+import { StatusPage } from "./components/StatusPage";
 import { AuthModal } from "./components/AuthModal";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useAuth } from "./hooks/useAuth";
@@ -22,7 +23,7 @@ const queryClient = new QueryClient();
 function CrescendoApp() {
   const { user, profile, loading, isAuthenticated, signOut, refreshProfile } = useAuth();
   const { isAdmin } = useAdminRole();
-  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "profile" | "admin">("landing");
+  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "profile" | "admin" | "status">("landing");
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [walletConnected, setWalletConnected] = useState(false);
@@ -84,7 +85,7 @@ function CrescendoApp() {
   };
 
   const handleViewStatusLevels = () => {
-    toast.info("Status levels page coming soon!");
+    setCurrentView("status");
   };
 
   const handleViewProfile = () => {
@@ -181,6 +182,10 @@ function CrescendoApp() {
 
       {currentView === "admin" && isAuthenticated && isAdmin && (
         <AdminPanel onClose={() => setCurrentView("dashboard")} />
+      )}
+
+      {currentView === "status" && isAuthenticated && (
+        <StatusPage onBack={() => setCurrentView("dashboard")} />
       )}
 
       {showAuthModal && (
