@@ -24,7 +24,7 @@ const menuItems = [
   { title: 'Rewards', view: 'rewards', icon: Gift },
   { title: 'Claims', view: 'claims', icon: ShoppingBag },
   { title: 'Brands', view: 'brands', icon: Store },
-  { title: 'Users', view: 'users', icon: Users },
+  { title: 'Compare Brands', view: 'compare', icon: Users },
 ];
 
 export function AdminSidebar({ onNavigate, currentView }: AdminSidebarProps) {
