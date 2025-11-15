@@ -21,12 +21,21 @@ interface ClaimPackage {
   popular?: boolean;
 }
 
+const BASE_PRICE_PER_CLAIM = 5.99;
+
 const claimPackages: ClaimPackage[] = [
-  { id: 'starter', claims: 5, price: 4.99, label: 'Starter Pack' },
-  { id: 'popular', claims: 15, price: 12.99, label: 'Popular Pack', popular: true },
-  { id: 'premium', claims: 30, price: 19.99, label: 'Premium Pack' },
-  { id: 'ultimate', claims: 100, price: 49.99, label: 'Ultimate Pack' },
+  { id: 'starter', claims: 1, price: 5.99, label: 'Single Pass' },
+  { id: 'small', claims: 5, price: 25, label: 'Small Pack' },
+  { id: 'popular', claims: 25, price: 125, label: 'Popular Pack', popular: true },
+  { id: 'premium', claims: 50, price: 250, label: 'Premium Pack' },
+  { id: 'ultimate', claims: 100, price: 250, label: 'Ultimate Pack' },
 ];
+
+const calculateSavings = (claims: number, price: number): number => {
+  const regularPrice = claims * BASE_PRICE_PER_CLAIM;
+  const savings = ((regularPrice - price) / regularPrice) * 100;
+  return Math.round(savings);
+};
 
 export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyClaimsProps) {
   const [open, setOpen] = useState(false);
@@ -127,11 +136,20 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                     )}
                   </div>
 
-                  <div className="flex items-baseline gap-2 mb-4">
-                    <span className="text-3xl font-bold">${pkg.price}</span>
-                    <span className="text-sm text-muted-foreground">
-                      ${(pkg.price / pkg.claims).toFixed(2)} per claim
-                    </span>
+                  <div className="mb-4">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-3xl font-bold">${pkg.price}</span>
+                      <span className="text-sm text-muted-foreground">
+                        ${(pkg.price / pkg.claims).toFixed(2)} per claim
+                      </span>
+                    </div>
+                    {calculateSavings(pkg.claims, pkg.price) > 0 && (
+                      <div className="mt-1">
+                        <Badge variant="secondary" className="text-xs">
+                          Save {calculateSavings(pkg.claims, pkg.price)}%
+                        </Badge>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center justify-between">
