@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from '@/components/ui/carousel';
 import { toast } from '@/hooks/use-toast';
 import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
@@ -57,6 +57,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
   const [showImageZoom, setShowImageZoom] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const [claiming, setClaiming] = useState(false);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [shippingInfo, setShippingInfo] = useState({
     name: '',
     address: '',
@@ -65,6 +66,30 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
     zip: '',
     country: '',
   });
+
+  // Haptic feedback function
+  const triggerHaptic = () => {
+    // Check if device supports vibration
+    if ('vibrate' in navigator) {
+      // Short, subtle vibration (20ms)
+      navigator.vibrate(20);
+    }
+  };
+
+  // Set up carousel event listener for haptic feedback
+  useEffect(() => {
+    if (!carouselApi) return;
+
+    const onSelect = () => {
+      triggerHaptic();
+    };
+
+    carouselApi.on('select', onSelect);
+
+    return () => {
+      carouselApi.off('select', onSelect);
+    };
+  }, [carouselApi]);
 
   useEffect(() => {
     loadRewards();
@@ -263,6 +288,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
           </div>
           
           <Carousel
+            setApi={setCarouselApi}
             opts={{
               align: "start",
               loop: true,
