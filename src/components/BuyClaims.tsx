@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Check, Sparkles } from 'lucide-react';
+import { ShoppingCart, Check, Sparkles, Award } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -34,6 +34,21 @@ const claimPackages: ClaimPackage[] = [
 const calculateSavings = (claims: number, price: number): number => {
   const regularPrice = claims * BASE_PRICE_PER_CLAIM;
   return regularPrice - price;
+};
+
+const getBestValuePackageId = (): string => {
+  let maxSavings = 0;
+  let bestPackageId = '';
+  
+  claimPackages.forEach(pkg => {
+    const savings = calculateSavings(pkg.claims, pkg.price);
+    if (savings > maxSavings) {
+      maxSavings = savings;
+      bestPackageId = pkg.id;
+    }
+  });
+  
+  return bestPackageId;
 };
 
 export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyClaimsProps) {
@@ -109,31 +124,43 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
           </DialogHeader>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-            {claimPackages.map((pkg) => (
-              <Card
-                key={pkg.id}
-                className={`cursor-pointer transition-all ${
-                  selectedPackage?.id === pkg.id
-                    ? 'ring-2 ring-primary border-primary'
-                    : 'hover:border-primary/50'
-                } ${pkg.popular ? 'border-primary/30' : ''}`}
-                onClick={() => setSelectedPackage(pkg)}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="font-semibold text-lg">{pkg.label}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {pkg.claims} Claim Passes
-                      </p>
+            {claimPackages.map((pkg) => {
+              const isBestValue = pkg.id === getBestValuePackageId();
+              const savings = calculateSavings(pkg.claims, pkg.price);
+              
+              return (
+                <Card
+                  key={pkg.id}
+                  className={`cursor-pointer transition-all ${
+                    selectedPackage?.id === pkg.id
+                      ? 'ring-2 ring-primary border-primary'
+                      : 'hover:border-primary/50'
+                  } ${pkg.popular ? 'border-primary/30' : ''} ${isBestValue ? 'border-primary/40' : ''}`}
+                  onClick={() => setSelectedPackage(pkg)}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h3 className="font-semibold text-lg">{pkg.label}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {pkg.claims} Claim Passes
+                        </p>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        {pkg.popular && (
+                          <Badge className="gap-1">
+                            <Sparkles className="w-3 h-3" />
+                            Popular
+                          </Badge>
+                        )}
+                        {isBestValue && (
+                          <Badge variant="secondary" className="gap-1">
+                            <Award className="w-3 h-3" />
+                            Best Value
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    {pkg.popular && (
-                      <Badge className="gap-1">
-                        <Sparkles className="w-3 h-3" />
-                        Popular
-                      </Badge>
-                    )}
-                  </div>
 
                   <div className="mb-4">
                     <div className="flex items-baseline gap-2">
@@ -142,10 +169,10 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                         ${(pkg.price / pkg.claims).toFixed(2)} per claim
                       </span>
                     </div>
-                    {calculateSavings(pkg.claims, pkg.price) > 0 && (
+                    {savings !== 0 && (
                       <div className="mt-1">
-                        <Badge variant="secondary" className="text-xs">
-                          Save ${calculateSavings(pkg.claims, pkg.price).toFixed(2)}
+                        <Badge variant={savings > 0 ? "secondary" : "destructive"} className="text-xs">
+                          {savings > 0 ? 'Save' : 'Premium'} ${Math.abs(savings).toFixed(2)}
                         </Badge>
                       </div>
                     )}
@@ -162,7 +189,8 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            );
+            })}
           </div>
 
           <div className="bg-muted/50 rounded-lg p-4 mb-4">
