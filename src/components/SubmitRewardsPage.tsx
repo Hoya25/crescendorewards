@@ -140,49 +140,127 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
             {/* Left Column - Main Form */}
             <div className="lg:col-span-2 space-y-6">
               {/* Claim Pass Conversion Rates */}
-              <Card className="border-border/50 bg-muted/20">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <Award className="w-6 h-6" />
-                    Claim Pass Conversion Rates
-                  </CardTitle>
-                  <CardDescription className="text-base">
-                    Understand how claim passes convert to NCTR based on lock duration
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div className="p-4 rounded-lg bg-background border border-border">
-                      <div className="flex items-center gap-2 mb-2 text-muted-foreground">
-                        <Lock className="w-4 h-4" />
-                        <span className="text-sm font-medium">30 days</span>
-                      </div>
-                      <div className="text-2xl font-bold">1x</div>
+              <div className="mb-8 bg-muted/30 rounded-2xl p-8">
+                <div className="flex items-start gap-4 mb-6">
+                  <div className="p-3 bg-primary rounded-xl">
+                    <Award className="h-6 w-6 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold">Claim Pass Conversion Rates</h2>
+                    <p className="text-muted-foreground mt-1">
+                      Choose between higher NCTR with longer lock or lower NCTR with shorter lock
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-6 mb-6">
+                  {/* 360 LOCK Option */}
+                  <div className="border-2 border-primary/50 bg-background rounded-xl p-6">
+                    <div className="flex gap-2 mb-6">
+                      <Badge className="bg-primary text-primary-foreground">360LOCK Rate</Badge>
+                      <Badge variant="outline">Higher Reward</Badge>
                     </div>
-                    <div className="p-4 rounded-lg bg-background border border-border">
-                      <div className="flex items-center gap-2 mb-2 text-muted-foreground">
-                        <Lock className="w-4 h-4" />
-                        <span className="text-sm font-medium">90 days</span>
-                      </div>
-                      <div className="text-2xl font-bold">1.5x</div>
+                    <div className="flex items-baseline gap-2 mb-6">
+                      <Trophy className="h-6 w-6 text-primary" />
+                      <span className="text-4xl font-bold">1</span>
+                      <span className="text-muted-foreground ml-2">Claim Pass =</span>
                     </div>
-                    <div className="p-4 rounded-lg bg-background border border-border">
-                      <div className="flex items-center gap-2 mb-2 text-muted-foreground">
-                        <Lock className="w-4 h-4" />
-                        <span className="text-sm font-medium">180 days</span>
+                    <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-5 w-5 text-primary" />
+                        <span className="text-2xl font-bold text-primary">200 NCTR</span>
                       </div>
-                      <div className="text-2xl font-bold">2x</div>
-                    </div>
-                    <div className="p-4 rounded-lg bg-background border border-border">
-                      <div className="flex items-center gap-2 mb-2 text-muted-foreground">
-                        <Lock className="w-4 h-4" />
-                        <span className="text-sm font-medium">365 days</span>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Lock className="h-4 w-4" />
+                        <span>Locked for 360 days</span>
                       </div>
-                      <div className="text-2xl font-bold">3x</div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+
+                  {/* 90 LOCK Option */}
+                  <div className="border-2 border-border bg-background rounded-xl p-6">
+                    <div className="flex gap-2 mb-6">
+                      <Badge variant="outline">90LOCK Rate</Badge>
+                      <Badge variant="outline">Faster Access</Badge>
+                    </div>
+                    <div className="flex items-baseline gap-2 mb-6">
+                      <Trophy className="h-6 w-6 text-muted-foreground" />
+                      <span className="text-4xl font-bold">1</span>
+                      <span className="text-muted-foreground ml-2">Claim Pass =</span>
+                    </div>
+                    <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-5 w-5 text-orange-500" />
+                        <span className="text-2xl font-bold text-foreground">75 NCTR</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Lock className="h-4 w-4" />
+                        <span>Locked for 90 days</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
+                  <div className="flex gap-3">
+                    <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-foreground">
+                      <span className="font-semibold">You choose:</span> Select <span className="font-semibold">360LOCK</span> to earn 200 NCTR per pass (locked 360 days), or <span className="font-semibold">90LOCK</span> to earn 75 NCTR per pass (locked 90 days). Your choice applies to all claims of this reward.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* How It Works */}
+              <div className="mb-8 bg-gradient-to-br from-blue-50/80 to-cyan-50/80 dark:from-blue-950/30 dark:to-cyan-950/30 border border-blue-200/50 dark:border-blue-800/50 rounded-2xl p-8">
+                <div className="flex items-start gap-4 mb-8">
+                  <div className="p-3 bg-blue-600 rounded-xl">
+                    <Zap className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold">How It Works</h3>
+                </div>
+                
+                <div className="grid md:grid-cols-3 gap-8">
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg">
+                        1
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-foreground">
+                        Submit your reward with an exchange rate in Claims
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg">
+                        2
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-foreground">
+                        Members claim your reward using their Claims
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg">
+                        3
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-foreground">
+                        You receive NCTR tokens with a lock period (360LOCK or 90LOCK)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               {/* How It Works */}
               <Card>
