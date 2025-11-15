@@ -163,6 +163,71 @@ export type Database = {
           },
         ]
       }
+      reward_submissions: {
+        Row: {
+          admin_notes: string | null
+          brand: string | null
+          category: string
+          claim_passes_required: number
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          lock_rate: string
+          nctr_value: number
+          reward_type: string
+          status: string
+          stock_quantity: number | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          brand?: string | null
+          category: string
+          claim_passes_required?: number
+          created_at?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          lock_rate: string
+          nctr_value: number
+          reward_type: string
+          status?: string
+          stock_quantity?: number | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          brand?: string | null
+          category?: string
+          claim_passes_required?: number
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          lock_rate?: string
+          nctr_value?: number
+          reward_type?: string
+          status?: string
+          stock_quantity?: number | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_submissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rewards: {
         Row: {
           category: string
