@@ -28,13 +28,12 @@ const claimPackages: ClaimPackage[] = [
   { id: 'small', claims: 5, price: 25, label: 'Small Pack' },
   { id: 'popular', claims: 25, price: 125, label: 'Popular Pack', popular: true },
   { id: 'premium', claims: 50, price: 250, label: 'Premium Pack' },
-  { id: 'ultimate', claims: 100, price: 250, label: 'Ultimate Pack' },
+  { id: 'ultimate', claims: 100, price: 2500, label: 'Ultimate Pack' },
 ];
 
 const calculateSavings = (claims: number, price: number): number => {
   const regularPrice = claims * BASE_PRICE_PER_CLAIM;
-  const savings = ((regularPrice - price) / regularPrice) * 100;
-  return Math.round(savings);
+  return regularPrice - price;
 };
 
 export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyClaimsProps) {
@@ -146,7 +145,7 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                     {calculateSavings(pkg.claims, pkg.price) > 0 && (
                       <div className="mt-1">
                         <Badge variant="secondary" className="text-xs">
-                          Save {calculateSavings(pkg.claims, pkg.price)}%
+                          Save ${calculateSavings(pkg.claims, pkg.price).toFixed(2)}
                         </Badge>
                       </div>
                     )}
