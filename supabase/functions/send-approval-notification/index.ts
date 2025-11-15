@@ -1,12 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@4.0.0";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.81.1';
-import React from 'npm:react@18.3.1';
-import { renderAsync } from 'npm:@react-email/components@0.0.22';
-import { ApprovalNotificationEmail } from './_templates/approval-notification.tsx';
 
-// TODO: Add RESEND_API_KEY secret before this function will work
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+// TODO: Add RESEND_API_KEY secret and implement email sending
+// For now, this function just logs the notification
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -52,43 +48,20 @@ const handler = async (req: Request): Promise<Response> => {
     const userEmail = submission.profiles?.email;
     const userName = submission.profiles?.full_name || 'User';
 
-    if (!userEmail) {
-      throw new Error('User email not found');
-    }
-
-    // Render email template
-    const html = await renderAsync(
-      React.createElement(ApprovalNotificationEmail, {
-        userName,
-        rewardTitle: submission.title,
-        rewardId: reward_id,
-        appUrl: Deno.env.get('SUPABASE_URL')?.replace('supabase.co', 'lovable.app') || '',
-      })
-    );
-
-    // Send email via Resend
-    const { error: emailError } = await resend.emails.send({
-      from: 'NCTR Rewards <onboarding@resend.dev>',
-      to: [userEmail],
-      subject: `🎉 Your reward "${submission.title}" has been approved!`,
-      html,
-    });
-
-    if (emailError) {
-      throw emailError;
-    }
-
-    console.log(`Approval notification sent to ${userEmail} for submission ${submission_id}`);
+    console.log(`[TODO] Send email to ${userEmail}: Your reward "${submission.title}" (ID: ${reward_id}) has been approved!`);
+    console.log(`User: ${userName}, Email: ${userEmail}`);
+    console.log(`Reward ID: ${reward_id}, Submission ID: ${submission_id}`);
+    console.log('Note: Add RESEND_API_KEY to enable actual email sending');
 
     return new Response(
-      JSON.stringify({ success: true }),
+      JSON.stringify({ success: true, message: 'Email notification logged (not sent - add RESEND_API_KEY)' }),
       {
         status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
   } catch (error: any) {
-    console.error("Error sending approval notification:", error);
+    console.error("Error in approval notification:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
