@@ -11,7 +11,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from '@/components/ui/carousel';
 import { toast } from '@/hooks/use-toast';
-import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Star, Flame, Clock, Lock, AlertTriangle, Package, Zap, ArrowUpDown, Filter } from 'lucide-react';
+import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Star, Flame, Clock, Lock, AlertTriangle, Package, Zap, ArrowUpDown, Filter, Search } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -58,6 +58,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
   const [sortBy, setSortBy] = useState<string>('newest');
   const [priceFilter, setPriceFilter] = useState<string>('all');
   const [availabilityFilter, setAvailabilityFilter] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedReward, setSelectedReward] = useState<Reward | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
@@ -111,6 +112,19 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
       ? rewards.filter(r => r.is_featured)
       : rewards.filter(r => r.is_featured && r.category === activeCategory);
 
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(r => 
+        r.title.toLowerCase().includes(query) || 
+        r.description.toLowerCase().includes(query)
+      );
+      featured = featured.filter(r => 
+        r.title.toLowerCase().includes(query) || 
+        r.description.toLowerCase().includes(query)
+      );
+    }
+
     // Apply price filter
     if (priceFilter === 'free') {
       filtered = filtered.filter(r => r.cost === 0);
@@ -163,7 +177,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
 
     setFilteredRewards(sortedFiltered);
     setFeaturedRewards(sortedFeatured);
-  }, [activeCategory, rewards, sortBy, priceFilter, availabilityFilter]);
+  }, [activeCategory, rewards, sortBy, priceFilter, availabilityFilter, searchQuery]);
 
   const loadRewards = async () => {
     try {
@@ -310,8 +324,30 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
             </div>
           </div>
 
+          {/* Search Bar */}
+          <div className="relative mt-4">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search rewards by name or description..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-background border-border"
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7"
+                onClick={() => setSearchQuery('')}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
+
           {/* Category Tabs */}
-          <Tabs value={activeCategory} onValueChange={setActiveCategory}>
+          <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mt-4">
             <TabsList className="w-full justify-start overflow-x-auto">
               <TabsTrigger value="all" className="flex items-center gap-2">
                 <Gift className="w-4 h-4" />
