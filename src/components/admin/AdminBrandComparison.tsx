@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,8 +17,12 @@ import {
   Loader2,
   GitCompare,
   AlertCircle,
+  Download,
+  FileImage,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface Brand {
   id: string;
@@ -48,6 +52,8 @@ export function AdminBrandComparison() {
   const [selectedBrands, setSelectedBrands] = useState<Brand[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
+  const comparisonRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadBrands();
@@ -107,6 +113,62 @@ export function AdminBrandComparison() {
       return Math.max(
         ...selectedBrands.map((b) => b.base_earning_rate * 2.0)
       );
+    }
+  };
+
+  const exportAsImage = async () => {
+    if (!comparisonRef.current) return;
+    
+    try {
+      setExporting(true);
+      const canvas = await html2canvas(comparisonRef.current, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+      
+      const image = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = `brand-comparison-${new Date().toISOString().split('T')[0]}.png`;
+      link.href = image;
+      link.click();
+      
+      toast.success('Comparison exported as image');
+    } catch (error) {
+      console.error('Error exporting image:', error);
+      toast.error('Failed to export image');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const exportAsPDF = async () => {
+    if (!comparisonRef.current) return;
+    
+    try {
+      setExporting(true);
+      const canvas = await html2canvas(comparisonRef.current, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+        unit: 'px',
+        format: [canvas.width, canvas.height],
+      });
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save(`brand-comparison-${new Date().toISOString().split('T')[0]}.pdf`);
+      
+      toast.success('Comparison exported as PDF');
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      toast.error('Failed to export PDF');
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -204,6 +266,36 @@ export function AdminBrandComparison() {
 
         {/* Comparison View */}
         <div className="md:col-span-2">
+          {selectedBrands.length > 0 && (
+            <div className="flex gap-2 mb-4">
+              <Button
+                onClick={exportAsImage}
+                disabled={exporting}
+                variant="outline"
+                className="gap-2"
+              >
+                {exporting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <FileImage className="w-4 h-4" />
+                )}
+                Export as Image
+              </Button>
+              <Button
+                onClick={exportAsPDF}
+                disabled={exporting}
+                variant="outline"
+                className="gap-2"
+              >
+                {exporting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+                Export as PDF
+              </Button>
+            </div>
+          )}
           {selectedBrands.length === 0 ? (
             <Card className="h-full">
               <CardContent className="flex flex-col items-center justify-center py-12">
@@ -215,7 +307,7 @@ export function AdminBrandComparison() {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-4">
+            <div ref={comparisonRef} className="space-y-4 p-6 bg-background rounded-lg">
               {/* Alert for optimal comparison */}
               {selectedBrands.length === 1 && (
                 <Card className="bg-muted">
