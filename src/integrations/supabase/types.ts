@@ -118,11 +118,89 @@ export type Database = {
           },
         ]
       }
+      rewards: {
+        Row: {
+          category: string
+          cost: number
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          is_active: boolean
+          stock_quantity: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          cost: number
+          created_at?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          stock_quantity?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          cost?: number
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          stock_quantity?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rewards_claims: {
+        Row: {
+          claimed_at: string
+          id: string
+          reward_id: string
+          shipping_info: Json | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          id?: string
+          reward_id: string
+          shipping_info?: Json | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          id?: string
+          reward_id?: string
+          shipping_info?: Json | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rewards_claims_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      claim_reward: {
+        Args: { p_reward_id: string; p_shipping_info?: Json }
+        Returns: Json
+      }
       generate_referral_code: { Args: never; Returns: string }
       get_user_task_progress: {
         Args: never

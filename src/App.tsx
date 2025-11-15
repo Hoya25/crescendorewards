@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LandingPage } from "./components/LandingPage";
 import { Dashboard } from "./components/Dashboard";
 import { EarnNCTR } from "./components/EarnNCTR";
+import { RewardsPool } from "./components/RewardsPool";
 import { AuthModal } from "./components/AuthModal";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useAuth } from "./hooks/useAuth";
@@ -17,7 +18,7 @@ const queryClient = new QueryClient();
 
 function CrescendoApp() {
   const { user, profile, loading, isAuthenticated, signOut, refreshProfile } = useAuth();
-  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn">("landing");
+  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards">("landing");
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [walletConnected, setWalletConnected] = useState(false);
@@ -59,7 +60,7 @@ function CrescendoApp() {
   };
 
   const handleViewRewards = () => {
-    toast.info("Rewards Pool coming in Phase 3!");
+    setCurrentView("rewards");
   };
 
   const handleEarnNCTR = () => {
@@ -146,6 +147,21 @@ function CrescendoApp() {
           onNavigateToBrands={handleViewBrandPartners}
           onRefreshProfile={refreshProfile}
         />
+      )}
+
+      {currentView === "rewards" && isAuthenticated && profile && (
+        <div className="relative">
+          <button
+            onClick={() => setCurrentView("dashboard")}
+            className="fixed top-4 left-4 z-50 px-4 py-2 bg-background/80 backdrop-blur-sm border rounded-lg hover:bg-accent transition-colors"
+          >
+            ← Back to Dashboard
+          </button>
+          <RewardsPool 
+            claimBalance={profile.claim_balance}
+            onClaimSuccess={refreshProfile}
+          />
+        </div>
       )}
 
       {showAuthModal && (
