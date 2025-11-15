@@ -33,6 +33,7 @@ interface Reward {
 interface RewardsPoolProps {
   claimBalance: number;
   onClaimSuccess: () => void;
+  onSubmitReward?: () => void;
 }
 
 const categoryIcons = {
@@ -49,7 +50,7 @@ const categoryLabels = {
   gift_cards: 'Gift Cards',
 };
 
-export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) {
+export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward }: RewardsPoolProps) {
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [featuredRewards, setFeaturedRewards] = useState<Reward[]>([]);
   const [filteredRewards, setFilteredRewards] = useState<Reward[]>([]);
@@ -317,10 +318,22 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
               </h1>
               <p className="text-muted-foreground mt-1">Redeem your tokens for amazing rewards</p>
             </div>
-            <div className="text-right">
-              <p className="text-sm text-muted-foreground">Your Balance</p>
-              <p className="text-3xl font-bold text-primary">{claimBalance}</p>
-              <p className="text-xs text-muted-foreground">tokens</p>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground">Your Balance</p>
+                <p className="text-3xl font-bold text-primary">{claimBalance}</p>
+                <p className="text-xs text-muted-foreground">tokens</p>
+              </div>
+              {onSubmitReward && (
+                <Button
+                  onClick={onSubmitReward}
+                  variant="outline"
+                  className="gap-2 border-primary/20 hover:bg-primary/10"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Submit Idea
+                </Button>
+              )}
             </div>
           </div>
 
