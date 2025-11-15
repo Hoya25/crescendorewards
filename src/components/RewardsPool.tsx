@@ -99,8 +99,19 @@ export function RewardsPool({ claimBalance, onClaimSuccess }: RewardsPoolProps) 
     setShowDetailModal(true);
   };
 
-  const handleClaimClick = () => {
+  const handleClaimClick = async () => {
     if (!selectedReward) return;
+    
+    // Check if user is authenticated
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast({
+        title: 'Sign In Required',
+        description: 'Please sign in to claim rewards',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     if (claimBalance < selectedReward.cost) {
       toast({

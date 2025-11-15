@@ -154,16 +154,16 @@ function CrescendoApp() {
         />
       )}
 
-      {currentView === "rewards" && isAuthenticated && profile && (
+      {currentView === "rewards" && (
         <div className="relative">
           <button
-            onClick={() => setCurrentView("dashboard")}
+            onClick={() => setCurrentView(isAuthenticated ? "dashboard" : "landing")}
             className="fixed top-4 left-4 z-50 px-4 py-2 bg-background/80 backdrop-blur-sm border rounded-lg hover:bg-accent transition-colors"
           >
-            ← Back to Dashboard
+            ← Back
           </button>
           <RewardsPool 
-            claimBalance={profile.claim_balance}
+            claimBalance={profile?.claim_balance || 0}
             onClaimSuccess={refreshProfile}
           />
         </div>
