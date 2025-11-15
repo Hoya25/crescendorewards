@@ -124,6 +124,21 @@ export type Database = {
     }
     Functions: {
       generate_referral_code: { Args: never; Returns: string }
+      get_user_task_progress: {
+        Args: never
+        Returns: {
+          completed_at: string
+          description: string
+          icon: string
+          is_completed: boolean
+          link: string
+          recurring: boolean
+          reward_amount: number
+          task_id: string
+          task_type: string
+          title: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
