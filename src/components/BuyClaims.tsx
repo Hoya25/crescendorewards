@@ -22,11 +22,17 @@ interface ClaimPackage {
   bonus?: number;
 }
 
-const BASE_PRICE_PER_CLAIM = 5.99;
+// Stripe price IDs for each package
+const STRIPE_PRICES = {
+  starter: 'price_1STt82LH9lB6iuZgexn693ld',
+  popular: 'price_1STt8GLH9lB6iuZg0ZXNlYAf',
+  premium: 'price_1STt8aLH9lB6iuZgjKuIc0vh',
+  ultimate: 'price_1STtAoLH9lB6iuZghenXBMFK',
+  mega: 'price_1STtB2LH9lB6iuZgL4qyz4lC',
+};
 
 const claimPackages: ClaimPackage[] = [
-  { id: 'starter', claims: 1, price: 5.99, label: 'Single Pass' },
-  { id: 'small', claims: 5, price: 25, label: 'Small Pack' },
+  { id: 'starter', claims: 10, price: 50, label: 'Starter Pack' },
   { id: 'popular', claims: 25, price: 125, label: 'Popular Pack', popular: true },
   { id: 'premium', claims: 50, price: 250, label: 'Premium Pack' },
   { id: 'ultimate', claims: 100, price: 500, label: 'Ultimate Pack' },
@@ -34,7 +40,8 @@ const claimPackages: ClaimPackage[] = [
 ];
 
 const calculateSavings = (claims: number, price: number): number => {
-  const regularPrice = claims * BASE_PRICE_PER_CLAIM;
+  const basePrice = 5.99;
+  const regularPrice = claims * basePrice;
   return regularPrice - price;
 };
 
@@ -61,44 +68,44 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
   const handlePurchase = async () => {
     if (!selectedPackage) return;
 
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to purchase claim passes.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setProcessing(true);
     try {
-      setProcessing(true);
-
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({
-          title: 'Error',
-          description: 'You must be logged in to purchase claims',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      // Update claim balance
-      const { error } = await supabase
-        .from('profiles')
-        .update({ 
-          claim_balance: currentBalance + selectedPackage.claims 
-        })
-        .eq('id', user.id);
+      const priceId = STRIPE_PRICES[selectedPackage.id as keyof typeof STRIPE_PRICES];
+      
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+        body: { 
+          priceId,
+          packageId: selectedPackage.id
+        },
+      });
 
       if (error) throw error;
 
+      if (data?.url) {
+        // Redirect to Stripe Checkout
+        window.open(data.url, '_blank');
+        setOpen(false);
+        toast({
+          title: "Redirecting to checkout",
+          description: "Complete your purchase to receive claim passes.",
+        });
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
       toast({
-        title: 'Purchase Successful! 🎉',
-        description: `You've received ${selectedPackage.claims} Claim Passes!`,
-      });
-
-      onPurchaseSuccess();
-      setOpen(false);
-      setSelectedPackage(null);
-    } catch (error: any) {
-      console.error('Error purchasing claims:', error);
-      toast({
-        title: 'Purchase Failed',
-        description: error.message || 'Failed to purchase claims',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to start checkout. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setProcessing(false);
