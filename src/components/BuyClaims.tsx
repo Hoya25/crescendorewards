@@ -28,7 +28,7 @@ const claimPackages: ClaimPackage[] = [
   { id: 'small', claims: 5, price: 25, label: 'Small Pack' },
   { id: 'popular', claims: 25, price: 125, label: 'Popular Pack', popular: true },
   { id: 'premium', claims: 50, price: 250, label: 'Premium Pack' },
-  { id: 'ultimate', claims: 100, price: 2500, label: 'Ultimate Pack' },
+  { id: 'ultimate', claims: 100, price: 500, label: 'Ultimate Pack' },
 ];
 
 const calculateSavings = (claims: number, price: number): number => {
