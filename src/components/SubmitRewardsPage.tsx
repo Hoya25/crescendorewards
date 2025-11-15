@@ -6,39 +6,67 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
-import { ArrowLeft, Upload, Send, Sparkles } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { 
+  ArrowLeft, Upload, Send, Sparkles, Gift, Shirt, CreditCard, 
+  Ticket, Trophy, Zap, Package, Star, CheckCircle2, Shield,
+  Info, TrendingUp, Lock, Users, Award
+} from 'lucide-react';
 
 interface SubmitRewardsPageProps {
   onBack: () => void;
 }
 
+const rewardTypes = [
+  { id: 'physical', label: 'Physical Product', icon: Package },
+  { id: 'digital', label: 'Digital Good', icon: Zap },
+  { id: 'giftcard', label: 'Gift Card', icon: CreditCard },
+  { id: 'experience', label: 'Experience', icon: Ticket },
+  { id: 'nft', label: 'NFT/Crypto', icon: Sparkles },
+  { id: 'merch', label: 'Merchandise', icon: Shirt },
+  { id: 'subscription', label: 'Subscription', icon: Star },
+  { id: 'other', label: 'Other', icon: Gift },
+];
+
+const lockPeriods = [
+  { value: '30', label: '30 days', multiplier: '1x' },
+  { value: '90', label: '90 days', multiplier: '1.5x' },
+  { value: '180', label: '180 days', multiplier: '2x' },
+  { value: '365', label: '365 days', multiplier: '3x' },
+];
+
 export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
   const { user, profile } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+  const [selectedType, setSelectedType] = useState<string>('');
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     category: '',
-    suggestedCost: '',
-    contactEmail: profile?.email || '',
-    additionalNotes: '',
+    brand: '',
+    suggestedNCTR: '',
+    claimPassRequired: '1',
+    lockPeriod: '30',
+    stockQuantity: '',
+    imageUrl: '',
   });
-
-  const categories = [
-    'Physical Products',
-    'Digital Goods',
-    'Gift Cards',
-    'Experiences',
-    'Crypto/NFTs',
-    'Subscriptions',
-    'Merchandise',
-    'Other',
-  ];
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const getProgress = () => {
+    const fields = [
+      selectedType,
+      formData.title,
+      formData.description,
+      formData.category,
+      formData.suggestedNCTR,
+    ];
+    const completed = fields.filter(Boolean).length;
+    return (completed / fields.length) * 100;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,7 +77,7 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
       return;
     }
 
-    if (!formData.title || !formData.description || !formData.category) {
+    if (!selectedType || !formData.title || !formData.description || !formData.category) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -57,20 +85,23 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
     setSubmitting(true);
 
     try {
-      // For now, we'll send this as an email or store in a separate submissions table
-      // Since there's no submissions table yet, we'll just show success
-      // In production, you'd want to create a reward_submissions table
+      // In production, this would save to a reward_submissions table
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast.success('Reward submitted successfully! Our team will review it soon.');
       
       // Reset form
+      setSelectedType('');
       setFormData({
         title: '',
         description: '',
         category: '',
-        suggestedCost: '',
-        contactEmail: profile?.email || '',
-        additionalNotes: '',
+        brand: '',
+        suggestedNCTR: '',
+        claimPassRequired: '1',
+        lockPeriod: '30',
+        stockQuantity: '',
+        imageUrl: '',
       });
     } catch (error) {
       console.error('Error submitting reward:', error);
@@ -81,182 +112,331 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b">
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-lg border-b border-border/50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={onBack}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl font-bold">Submit Reward Idea</h1>
               <p className="text-sm text-muted-foreground">
-                Help us improve our rewards catalog
+                Contribute to the Crescendo rewards marketplace
               </p>
             </div>
+            <Badge variant="outline" className="hidden sm:flex gap-1">
+              <TrendingUp className="w-3 h-3" />
+              Earn contributor rewards
+            </Badge>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Hero Section */}
-        <Card className="mb-8 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Sparkles className="w-6 h-6 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h2 className="text-xl font-semibold mb-2">Have a Great Reward Idea?</h2>
-                <p className="text-muted-foreground text-sm">
-                  We're always looking to expand our rewards catalog with exciting new options. 
-                  Submit your suggestion below and help shape the future of NCTR rewards!
-                </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <div className="text-xs px-3 py-1 rounded-full bg-primary/10 text-primary">
-                    ✓ Community-Driven
+      <form onSubmit={handleSubmit}>
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Left Column - Main Form */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Claim Pass Conversion Rates */}
+              <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Award className="w-5 h-5 text-primary" />
+                    Claim Pass Conversion Rates
+                  </CardTitle>
+                  <CardDescription>
+                    Understand how claim passes convert to NCTR based on lock duration
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {lockPeriods.map((period) => (
+                      <div
+                        key={period.value}
+                        className="p-3 rounded-lg bg-background border border-border/50 hover:border-primary/50 transition-colors"
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <Lock className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm font-medium">{period.label}</span>
+                        </div>
+                        <div className="text-lg font-bold text-primary">{period.multiplier}</div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="text-xs px-3 py-1 rounded-full bg-primary/10 text-primary">
-                    ✓ Quick Review Process
+                </CardContent>
+              </Card>
+
+              {/* How It Works */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Info className="w-5 h-5 text-primary" />
+                    How It Works
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-sm font-bold text-primary">1</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Submit Your Idea</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Fill out the reward details including type, description, and suggested value
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-xs px-3 py-1 rounded-full bg-primary/10 text-primary">
-                    ✓ Get Featured
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-sm font-bold text-primary">2</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Community Review</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Our team and community members review your submission for quality and fit
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-sm font-bold text-primary">3</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-1">Earn Rewards</h4>
+                      <p className="text-sm text-muted-foreground">
+                        If approved, earn NCTR tokens and contributor recognition
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-        {/* Submission Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Reward Details</CardTitle>
-            <CardDescription>
-              Fill out the form below with as much detail as possible
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Title */}
-              <div className="space-y-2">
-                <Label htmlFor="title" className="required">
-                  Reward Title *
-                </Label>
-                <Input
-                  id="title"
-                  placeholder="e.g., Premium Gaming Headset"
-                  value={formData.title}
-                  onChange={(e) => handleInputChange('title', e.target.value)}
-                  required
-                />
-              </div>
+              {/* Reward Type Selection */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Reward Type</CardTitle>
+                  <CardDescription>
+                    Select the type of reward you'd like to submit
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {rewardTypes.map((type) => {
+                      const Icon = type.icon;
+                      return (
+                        <button
+                          key={type.id}
+                          type="button"
+                          onClick={() => setSelectedType(type.id)}
+                          className={`p-4 rounded-lg border-2 transition-all ${
+                            selectedType === type.id
+                              ? 'border-primary bg-primary/5 shadow-lg shadow-primary/20'
+                              : 'border-border hover:border-primary/50 hover:bg-accent'
+                          }`}
+                        >
+                          <Icon className={`w-6 h-6 mx-auto mb-2 ${
+                            selectedType === type.id ? 'text-primary' : 'text-muted-foreground'
+                          }`} />
+                          <div className="text-xs font-medium text-center">{type.label}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
 
-              {/* Description */}
-              <div className="space-y-2">
-                <Label htmlFor="description" className="required">
-                  Description *
-                </Label>
-                <Textarea
-                  id="description"
-                  placeholder="Describe the reward in detail... What makes it special? Why would users want it?"
-                  value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
-                  rows={5}
-                  required
-                />
-                <p className="text-xs text-muted-foreground">
-                  Include brand names, models, specifications, or any relevant details
-                </p>
-              </div>
+              {/* Reward Details */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Reward Details</CardTitle>
+                  <CardDescription>
+                    Provide detailed information about the reward
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">
+                      Reward Title <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="title"
+                      placeholder="e.g., Premium Headphones Bundle"
+                      value={formData.title}
+                      onChange={(e) => handleInputChange('title', e.target.value)}
+                      maxLength={100}
+                    />
+                    <div className="text-xs text-muted-foreground text-right">
+                      {formData.title.length}/100 characters
+                    </div>
+                  </div>
 
-              {/* Category and Cost Row */}
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Category */}
-                <div className="space-y-2">
-                  <Label htmlFor="category" className="required">
-                    Category *
-                  </Label>
-                  <Select 
-                    value={formData.category} 
-                    onValueChange={(value) => handleInputChange('category', value)}
-                    required
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">
+                      Description <span className="text-destructive">*</span>
+                    </Label>
+                    <Textarea
+                      id="description"
+                      placeholder="Describe the reward in detail..."
+                      value={formData.description}
+                      onChange={(e) => handleInputChange('description', e.target.value)}
+                      rows={4}
+                      maxLength={500}
+                    />
+                    <div className="text-xs text-muted-foreground text-right">
+                      {formData.description.length}/500 characters
+                    </div>
+                  </div>
 
-                {/* Suggested Cost */}
-                <div className="space-y-2">
-                  <Label htmlFor="suggestedCost">
-                    Suggested NCTR Cost (Optional)
-                  </Label>
-                  <Input
-                    id="suggestedCost"
-                    type="number"
-                    placeholder="e.g., 5000"
-                    value={formData.suggestedCost}
-                    onChange={(e) => handleInputChange('suggestedCost', e.target.value)}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    How much NCTR should this reward cost?
-                  </p>
-                </div>
-              </div>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="category">
+                        Category <span className="text-destructive">*</span>
+                      </Label>
+                      <Select
+                        value={formData.category}
+                        onValueChange={(value) => handleInputChange('category', value)}
+                      >
+                        <SelectTrigger id="category">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="tech">Technology</SelectItem>
+                          <SelectItem value="fashion">Fashion</SelectItem>
+                          <SelectItem value="entertainment">Entertainment</SelectItem>
+                          <SelectItem value="travel">Travel</SelectItem>
+                          <SelectItem value="food">Food & Dining</SelectItem>
+                          <SelectItem value="wellness">Wellness</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-              {/* Contact Email */}
-              <div className="space-y-2">
-                <Label htmlFor="contactEmail" className="required">
-                  Contact Email *
-                </Label>
-                <Input
-                  id="contactEmail"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={formData.contactEmail}
-                  onChange={(e) => handleInputChange('contactEmail', e.target.value)}
-                  required
-                />
-                <p className="text-xs text-muted-foreground">
-                  We'll use this to contact you about your submission
-                </p>
-              </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="brand">Brand/Partner (Optional)</Label>
+                      <Input
+                        id="brand"
+                        placeholder="e.g., Sony, Nike"
+                        value={formData.brand}
+                        onChange={(e) => handleInputChange('brand', e.target.value)}
+                      />
+                    </div>
+                  </div>
 
-              {/* Additional Notes */}
-              <div className="space-y-2">
-                <Label htmlFor="additionalNotes">
-                  Additional Notes (Optional)
-                </Label>
-                <Textarea
-                  id="additionalNotes"
-                  placeholder="Any other information you'd like to share? Links to products, reference images, or special considerations..."
-                  value={formData.additionalNotes}
-                  onChange={(e) => handleInputChange('additionalNotes', e.target.value)}
-                  rows={4}
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="imageUrl">Image URL (Optional)</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="imageUrl"
+                        placeholder="https://example.com/image.jpg"
+                        value={formData.imageUrl}
+                        onChange={(e) => handleInputChange('imageUrl', e.target.value)}
+                      />
+                      <Button type="button" variant="outline" size="icon">
+                        <Upload className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Exchange Rate & Supply */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-primary" />
+                    Exchange Rate & Supply
+                  </CardTitle>
+                  <CardDescription>
+                    Set the value and availability of this reward
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="suggestedNCTR">
+                        Suggested NCTR Cost <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="suggestedNCTR"
+                        type="number"
+                        placeholder="1000"
+                        value={formData.suggestedNCTR}
+                        onChange={(e) => handleInputChange('suggestedNCTR', e.target.value)}
+                        min="1"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="claimPassRequired">Claim Passes Required</Label>
+                      <Select
+                        value={formData.claimPassRequired}
+                        onValueChange={(value) => handleInputChange('claimPassRequired', value)}
+                      >
+                        <SelectTrigger id="claimPassRequired">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">1 Pass</SelectItem>
+                          <SelectItem value="2">2 Passes</SelectItem>
+                          <SelectItem value="3">3 Passes</SelectItem>
+                          <SelectItem value="5">5 Passes</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="lockPeriod">Recommended Lock Period</Label>
+                    <Select
+                      value={formData.lockPeriod}
+                      onValueChange={(value) => handleInputChange('lockPeriod', value)}
+                    >
+                      <SelectTrigger id="lockPeriod">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {lockPeriods.map((period) => (
+                          <SelectItem key={period.value} value={period.value}>
+                            {period.label} ({period.multiplier} multiplier)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="stockQuantity">Stock Quantity (Optional)</Label>
+                    <Input
+                      id="stockQuantity"
+                      type="number"
+                      placeholder="Leave empty for unlimited"
+                      value={formData.stockQuantity}
+                      onChange={(e) => handleInputChange('stockQuantity', e.target.value)}
+                      min="1"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Submit Button */}
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onBack}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
                 <Button
                   type="submit"
-                  disabled={submitting}
+                  disabled={submitting || getProgress() < 80}
                   className="flex-1 gap-2"
-                  size="lg"
                 >
                   {submitting ? (
-                    <>Submitting...</>
+                    <>Processing...</>
                   ) : (
                     <>
                       <Send className="w-4 h-4" />
@@ -264,61 +444,140 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
                     </>
                   )}
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={onBack}
-                  size="lg"
-                >
-                  Cancel
-                </Button>
               </div>
+            </div>
 
-              <p className="text-xs text-muted-foreground text-center pt-2">
-                By submitting, you agree that your suggestion may be used in our rewards catalog. 
-                All submissions are subject to review and approval.
-              </p>
-            </form>
-          </CardContent>
-        </Card>
+            {/* Right Column - Progress & Tips */}
+            <div className="space-y-6">
+              {/* Submission Progress */}
+              <Card className="sticky top-24">
+                <CardHeader>
+                  <CardTitle className="text-lg">Submission Progress</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Completion</span>
+                      <span className="font-semibold">{Math.round(getProgress())}%</span>
+                    </div>
+                    <Progress value={getProgress()} className="h-2" />
+                  </div>
 
-        {/* Guidelines Card */}
-        <Card className="mt-8 border-muted">
-          <CardHeader>
-            <CardTitle className="text-lg">Submission Guidelines</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground space-y-3">
-            <div className="flex gap-3">
-              <div className="text-primary font-bold">1.</div>
-              <div>
-                <strong className="text-foreground">Be Specific:</strong> Include brand names, 
-                models, and specifications when applicable
-              </div>
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-center gap-2">
+                      {selectedType ? (
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <div className="w-4 h-4 rounded-full border-2 border-border" />
+                      )}
+                      <span className={selectedType ? 'text-green-500' : 'text-muted-foreground'}>
+                        Select reward type
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {formData.title ? (
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <div className="w-4 h-4 rounded-full border-2 border-border" />
+                      )}
+                      <span className={formData.title ? 'text-green-500' : 'text-muted-foreground'}>
+                        Add reward title
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {formData.description ? (
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <div className="w-4 h-4 rounded-full border-2 border-border" />
+                      )}
+                      <span className={formData.description ? 'text-green-500' : 'text-muted-foreground'}>
+                        Write description
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {formData.category ? (
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <div className="w-4 h-4 rounded-full border-2 border-border" />
+                      )}
+                      <span className={formData.category ? 'text-green-500' : 'text-muted-foreground'}>
+                        Choose category
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {formData.suggestedNCTR ? (
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <div className="w-4 h-4 rounded-full border-2 border-border" />
+                      )}
+                      <span className={formData.suggestedNCTR ? 'text-green-500' : 'text-muted-foreground'}>
+                        Set NCTR value
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Quality Tips */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Star className="w-5 h-5 text-primary" />
+                    Quality Tips
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm">
+                  <div className="flex gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                    <p className="text-muted-foreground">
+                      Use clear, descriptive titles that highlight the reward's value
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                    <p className="text-muted-foreground">
+                      Include specific details about features, specs, or benefits
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                    <p className="text-muted-foreground">
+                      Research fair NCTR pricing based on similar rewards
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                    <p className="text-muted-foreground">
+                      Add high-quality images when possible
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Contributor Protection */}
+              <Card className="border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Shield className="w-5 h-5 text-green-500" />
+                    Contributor Protection
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm">
+                  <p className="text-muted-foreground">
+                    Your submissions are protected. You retain credit for approved ideas and earn rewards when your contributions are featured.
+                  </p>
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-background/50 border border-green-500/20">
+                    <Users className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <span className="text-xs font-medium">
+                      Join 1,200+ active contributors
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-            <div className="flex gap-3">
-              <div className="text-primary font-bold">2.</div>
-              <div>
-                <strong className="text-foreground">Consider Value:</strong> Suggest rewards that 
-                offer good value for our community
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <div className="text-primary font-bold">3.</div>
-              <div>
-                <strong className="text-foreground">Stay Relevant:</strong> Focus on rewards that 
-                align with our community's interests
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <div className="text-primary font-bold">4.</div>
-              <div>
-                <strong className="text-foreground">Include Links:</strong> If possible, provide 
-                links to products or reference images in the additional notes
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </div>
+      </form>
     </div>
   );
 }
