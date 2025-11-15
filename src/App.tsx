@@ -163,19 +163,12 @@ function CrescendoApp() {
       )}
 
       {currentView === "rewards" && (
-        <div className="relative">
-          <button
-            onClick={() => setCurrentView(isAuthenticated ? "dashboard" : "landing")}
-            className="fixed top-4 left-4 z-50 px-4 py-2 bg-background/80 backdrop-blur-sm border rounded-lg hover:bg-accent transition-colors"
-          >
-            ← Back
-          </button>
-          <RewardsPool 
-            claimBalance={profile?.claim_balance || 0}
-            onClaimSuccess={refreshProfile}
-            onSubmitReward={handleSubmitRewards}
-          />
-        </div>
+        <RewardsPool 
+          claimBalance={profile?.claim_balance || 0}
+          onClaimSuccess={refreshProfile}
+          onSubmitReward={handleSubmitRewards}
+          onBack={() => setCurrentView(isAuthenticated ? "dashboard" : "landing")}
+        />
       )}
 
       {currentView === "profile" && isAuthenticated && profile && (
