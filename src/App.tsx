@@ -13,6 +13,7 @@ import { AdminPanel } from "./components/admin/AdminPanel";
 import { StatusPage } from "./components/StatusPage";
 import { BrandPartnersPage } from "./components/BrandPartnersPage";
 import { SubmitRewardsPage } from "./components/SubmitRewardsPage";
+import { MySubmissionsPage } from "./components/MySubmissionsPage";
 import { AuthModal } from "./components/AuthModal";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useAuth } from "./hooks/useAuth";
@@ -25,7 +26,7 @@ const queryClient = new QueryClient();
 function CrescendoApp() {
   const { user, profile, loading, isAuthenticated, signOut, refreshProfile } = useAuth();
   const { isAdmin } = useAdminRole();
-  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "profile" | "admin" | "status" | "brands" | "submit-rewards">("landing");
+  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "profile" | "admin" | "status" | "brands" | "submit-rewards" | "my-submissions">("landing");
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [walletConnected, setWalletConnected] = useState(false);
@@ -106,6 +107,10 @@ function CrescendoApp() {
     setCurrentView("submit-rewards");
   };
 
+  const handleMySubmissions = () => {
+    setCurrentView("my-submissions");
+  };
+
   const handleToggleAuthMode = () => {
     setAuthMode(authMode === 'signin' ? 'signup' : 'signin');
   };
@@ -147,6 +152,7 @@ function CrescendoApp() {
           onViewProfile={handleViewProfile}
           onViewBrandPartners={handleViewBrandPartners}
           onViewMarketplace={handleViewMarketplace}
+          onMySubmissions={handleMySubmissions}
           isAdmin={isAdmin}
           onAdminPanel={() => setCurrentView("admin")}
         />
@@ -199,6 +205,12 @@ function CrescendoApp() {
       {currentView === "submit-rewards" && isAuthenticated && (
         <SubmitRewardsPage
           onBack={() => setCurrentView("rewards")}
+        />
+      )}
+
+      {currentView === "my-submissions" && isAuthenticated && (
+        <MySubmissionsPage
+          onBack={() => setCurrentView("dashboard")}
         />
       )}
 
