@@ -41,8 +41,11 @@ const lockPeriods = [
 export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
   const { user, profile } = useAuth();
   const [submitting, setSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [selectedType, setSelectedType] = useState<string>('');
   const [selectedLockRate, setSelectedLockRate] = useState<'360' | '90'>('360');
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -52,11 +55,67 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
     claimPassRequired: '1',
     lockPeriod: '30',
     stockQuantity: '',
-    imageUrl: '',
   });
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
+    setSelectedImage(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!selectedImage || !user) return null;
+
+    setUploading(true);
+    try {
+      const fileExt = selectedImage.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError, data } = await supabase.storage
+        .from('reward-images')
+        .upload(fileName, selectedImage, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('reward-images')
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image');
+      return null;
+    } finally {
+      setUploading(false);
+    }
   };
 
   const getProgress = () => {
@@ -87,6 +146,16 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
     setSubmitting(true);
 
     try {
+      // Upload image if selected
+      let imageUrl: string | null = null;
+      if (selectedImage) {
+        imageUrl = await uploadImage();
+        if (!imageUrl) {
+          setSubmitting(false);
+          return;
+        }
+      }
+
       const { error } = await supabase
         .from('reward_submissions')
         .insert({
@@ -100,7 +169,7 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
           nctr_value: parseInt(formData.suggestedNCTR),
           claim_passes_required: parseInt(formData.claimPassRequired),
           stock_quantity: formData.stockQuantity ? parseInt(formData.stockQuantity) : null,
-          image_url: formData.imageUrl || null,
+          image_url: imageUrl,
         });
 
       if (error) throw error;
@@ -110,6 +179,8 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
       // Reset form
       setSelectedType('');
       setSelectedLockRate('360');
+      setSelectedImage(null);
+      setImagePreview('');
       setFormData({
         title: '',
         description: '',
@@ -119,7 +190,6 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
         claimPassRequired: '1',
         lockPeriod: '30',
         stockQuantity: '',
-        imageUrl: '',
       });
     } catch (error) {
       console.error('Error submitting reward:', error);
@@ -420,17 +490,51 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="imageUrl">Image URL (Optional)</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="imageUrl"
-                        placeholder="https://example.com/image.jpg"
-                        value={formData.imageUrl}
-                        onChange={(e) => handleInputChange('imageUrl', e.target.value)}
-                      />
-                      <Button type="button" variant="outline" size="icon">
-                        <Upload className="w-4 h-4" />
-                      </Button>
+                    <Label htmlFor="imageUpload">Reward Image (Optional)</Label>
+                    <div className="space-y-3">
+                      {imagePreview && (
+                        <div className="relative w-full h-48 rounded-lg overflow-hidden border border-border">
+                          <img 
+                            src={imagePreview} 
+                            alt="Preview" 
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedImage(null);
+                              setImagePreview('');
+                            }}
+                            className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                          </button>
+                        </div>
+                      )}
+                      <div className="flex gap-2">
+                        <Input
+                          id="imageUpload"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageSelect}
+                          className="hidden"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => document.getElementById('imageUpload')?.click()}
+                          className="flex-1 gap-2"
+                          disabled={uploading}
+                        >
+                          <Upload className="w-4 h-4" />
+                          {selectedImage ? 'Change Image' : 'Upload Image'}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Max file size: 5MB. Supported formats: JPG, PNG, WEBP
+                      </p>
                     </div>
                   </div>
                 </CardContent>
@@ -527,11 +631,11 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={submitting || getProgress() < 80}
+                  disabled={submitting || uploading || getProgress() < 80}
                   className="flex-1 gap-2"
                 >
-                  {submitting ? (
-                    <>Processing...</>
+                  {submitting || uploading ? (
+                    <>{uploading ? 'Uploading image...' : 'Processing...'}</>
                   ) : (
                     <>
                       <Send className="w-4 h-4" />
@@ -591,13 +695,13 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
-                    {formData.imageUrl ? (
+                    {imagePreview ? (
                       <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
                     ) : (
                       <div className="w-5 h-5 rounded-full border-2 border-muted-foreground flex-shrink-0" />
                     )}
-                    <span className={`text-sm ${formData.imageUrl ? 'text-foreground' : 'text-muted-foreground'}`}>
-                      Add redemption details
+                    <span className={`text-sm ${imagePreview ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      Add reward image
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
