@@ -41,6 +41,7 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
   const { user, profile } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [selectedType, setSelectedType] = useState<string>('');
+  const [selectedLockRate, setSelectedLockRate] = useState<'360' | '90'>('360');
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -155,7 +156,15 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
 
                 <div className="grid md:grid-cols-2 gap-6 mb-6">
                   {/* 360 LOCK Option */}
-                  <div className="border-2 border-primary/50 bg-background rounded-xl p-6">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedLockRate('360')}
+                    className={`border-2 rounded-xl p-6 text-left transition-all ${
+                      selectedLockRate === '360'
+                        ? 'border-primary/50 bg-background shadow-lg shadow-primary/10'
+                        : 'border-border bg-background hover:border-primary/30'
+                    }`}
+                  >
                     <div className="flex gap-2 mb-6">
                       <Badge className="bg-primary text-primary-foreground">360LOCK Rate</Badge>
                       <Badge variant="outline">Higher Reward</Badge>
@@ -175,10 +184,24 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
                         <span>Locked for 360 days</span>
                       </div>
                     </div>
-                  </div>
+                    {selectedLockRate === '360' && (
+                      <div className="mt-4 flex items-center gap-2 text-primary">
+                        <CheckCircle2 className="h-5 w-5" />
+                        <span className="text-sm font-medium">Selected</span>
+                      </div>
+                    )}
+                  </button>
 
                   {/* 90 LOCK Option */}
-                  <div className="border-2 border-border bg-background rounded-xl p-6">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedLockRate('90')}
+                    className={`border-2 rounded-xl p-6 text-left transition-all ${
+                      selectedLockRate === '90'
+                        ? 'border-primary/50 bg-background shadow-lg shadow-primary/10'
+                        : 'border-border bg-background hover:border-primary/30'
+                    }`}
+                  >
                     <div className="flex gap-2 mb-6">
                       <Badge variant="outline">90LOCK Rate</Badge>
                       <Badge variant="outline">Faster Access</Badge>
@@ -198,7 +221,13 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
                         <span>Locked for 90 days</span>
                       </div>
                     </div>
-                  </div>
+                    {selectedLockRate === '90' && (
+                      <div className="mt-4 flex items-center gap-2 text-primary">
+                        <CheckCircle2 className="h-5 w-5" />
+                        <span className="text-sm font-medium">Selected</span>
+                      </div>
+                    )}
+                  </button>
                 </div>
 
                 <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
