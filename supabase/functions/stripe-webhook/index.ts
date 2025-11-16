@@ -9,11 +9,11 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
 const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET") || "";
 
 const claimPackages = {
-  'starter': { claims: 10 },
-  'popular': { claims: 25 },
-  'premium': { claims: 50 },
-  'ultimate': { claims: 100 },
-  'mega': { claims: 220 }, // 210 + 10 bonus
+  'starter': { claims: 10, name: 'Starter Pack', price: 999 },
+  'popular': { claims: 25, name: 'Popular Pack', price: 1999 },
+  'premium': { claims: 50, name: 'Premium Pack', price: 2999 },
+  'ultimate': { claims: 100, name: 'Ultimate Pack', price: 4999 },
+  'mega': { claims: 220, name: 'Mega Pack', price: 9999 },
 };
 
 serve(async (req) => {
@@ -76,6 +76,25 @@ serve(async (req) => {
       if (error) {
         console.error("Error updating claim balance:", error);
         return new Response("Database error", { status: 500 });
+      }
+
+      // Record the purchase
+      const { error: purchaseError } = await supabaseClient
+        .from("purchases")
+        .insert({
+          user_id: userId,
+          package_id: packageId,
+          package_name: package_info.name,
+          claims_amount: package_info.claims,
+          amount_paid: package_info.price,
+          currency: 'usd',
+          stripe_session_id: session.id,
+          status: 'completed'
+        });
+
+      if (purchaseError) {
+        console.error("Error recording purchase:", purchaseError);
+        // Don't fail the webhook if we can't record the purchase
       }
 
       console.log(`Successfully added ${package_info.claims} claims to user ${userId}`);
