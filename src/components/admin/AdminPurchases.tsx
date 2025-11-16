@@ -7,11 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format, startOfWeek, startOfMonth, endOfWeek, endOfMonth, startOfDay, endOfDay, subDays, subMonths, startOfQuarter, endOfQuarter, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, parseISO, isWithinInterval } from 'date-fns';
-import { DollarSign, Package, TrendingUp, Users, CalendarIcon } from 'lucide-react';
+import { DollarSign, Package, TrendingUp, Users, CalendarIcon, Download, FileText } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { exportPurchasesToCSV, exportPurchasesToPDF } from '@/lib/export-utils';
 
 interface Purchase {
   id: string;
@@ -257,6 +258,19 @@ export function AdminPurchases() {
 
   const chartData = getChartData();
 
+  const handleExportCSV = () => {
+    exportPurchasesToCSV(purchases, getDateRangeLabel());
+  };
+
+  const handleExportPDF = async () => {
+    await exportPurchasesToPDF(
+      purchases,
+      getDateRangeLabel(),
+      getTotalRevenue(),
+      getUniqueCustomers()
+    );
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -266,6 +280,16 @@ export function AdminPurchases() {
             <p className="text-muted-foreground">Track all user purchases and revenue</p>
           </div>
           <div className="flex flex-col gap-2">
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" size="sm" onClick={handleExportCSV}>
+                <FileText className="mr-2 h-4 w-4" />
+                Export CSV
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleExportPDF}>
+                <Download className="mr-2 h-4 w-4" />
+                Export PDF
+              </Button>
+            </div>
             <Tabs value={dateRange} onValueChange={(value) => setDateRange(value as DateRange)} className="w-full">
               <TabsList className="grid grid-cols-4 w-full">
                 <TabsTrigger value="last7">Last 7d</TabsTrigger>
@@ -362,7 +386,7 @@ export function AdminPurchases() {
             <CardTitle>Revenue Trends</CardTitle>
             <CardDescription>Purchase patterns over {getDateRangeLabel().toLowerCase()}</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent id="revenue-chart">
             {chartData.length === 0 ? (
               <div className="h-[300px] flex items-center justify-center text-muted-foreground">
                 No data available for the selected period
