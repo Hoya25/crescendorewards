@@ -121,6 +121,45 @@ export type Database = {
           },
         ]
       }
+      purchases: {
+        Row: {
+          amount_paid: number
+          claims_amount: number
+          created_at: string
+          currency: string
+          id: string
+          package_id: string
+          package_name: string
+          status: string
+          stripe_session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount_paid: number
+          claims_amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          package_id: string
+          package_name: string
+          status?: string
+          stripe_session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount_paid?: number
+          claims_amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          package_id?: string
+          package_name?: string
+          status?: string
+          stripe_session_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       referrals: {
         Row: {
           created_at: string
