@@ -6,6 +6,7 @@ import { AdminSubmissions } from './AdminSubmissions';
 import { AdminRewards } from './AdminRewards';
 import { AdminClaims } from './AdminClaims';
 import { AdminBrands } from './AdminBrands';
+import { AdminPurchases } from './AdminPurchases';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 
@@ -26,6 +27,8 @@ export function AdminPanel({ onClose }: AdminPanelProps) {
         return <AdminRewards />;
       case 'claims':
         return <AdminClaims />;
+      case 'purchases':
+        return <AdminPurchases />;
       case 'brands':
         return <AdminBrands />;
       case 'users':
