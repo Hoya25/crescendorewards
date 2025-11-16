@@ -4,10 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { format, startOfWeek, startOfMonth, endOfWeek, endOfMonth } from 'date-fns';
-import { DollarSign, Package, TrendingUp, Users } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format, startOfWeek, startOfMonth, endOfWeek, endOfMonth, startOfDay, endOfDay } from 'date-fns';
+import { DollarSign, Package, TrendingUp, Users, CalendarIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 
 interface Purchase {
   id: string;
@@ -25,16 +28,25 @@ interface Purchase {
   };
 }
 
-type DateRange = 'week' | 'month' | 'all';
+type DateRange = 'week' | 'month' | 'all' | 'custom';
+
+interface DateRangeSelection {
+  from: Date | undefined;
+  to: Date | undefined;
+}
 
 export function AdminPurchases() {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState<DateRange>('all');
+  const [customDateRange, setCustomDateRange] = useState<DateRangeSelection>({
+    from: undefined,
+    to: undefined
+  });
 
   useEffect(() => {
     fetchPurchases();
-  }, [dateRange]);
+  }, [dateRange, customDateRange]);
 
   const getDateRangeFilter = () => {
     const now = new Date();
@@ -50,6 +62,14 @@ export function AdminPurchases() {
           start: startOfMonth(now),
           end: endOfMonth(now)
         };
+      case 'custom':
+        if (customDateRange.from && customDateRange.to) {
+          return {
+            start: startOfDay(customDateRange.from),
+            end: endOfDay(customDateRange.to)
+          };
+        }
+        return null;
       case 'all':
         return null;
     }
@@ -128,6 +148,11 @@ export function AdminPurchases() {
         return 'This Week';
       case 'month':
         return 'This Month';
+      case 'custom':
+        if (customDateRange.from && customDateRange.to) {
+          return `${format(customDateRange.from, 'MMM d')} - ${format(customDateRange.to, 'MMM d, yyyy')}`;
+        }
+        return 'Custom Range';
       case 'all':
         return 'All Time';
     }
@@ -141,13 +166,53 @@ export function AdminPurchases() {
             <h2 className="text-3xl font-bold mb-2">Purchase Management</h2>
             <p className="text-muted-foreground">Track all user purchases and revenue</p>
           </div>
-          <Tabs value={dateRange} onValueChange={(value) => setDateRange(value as DateRange)}>
-            <TabsList>
-              <TabsTrigger value="week">This Week</TabsTrigger>
-              <TabsTrigger value="month">This Month</TabsTrigger>
-              <TabsTrigger value="all">All Time</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <div className="flex gap-2">
+            <Tabs value={dateRange} onValueChange={(value) => setDateRange(value as DateRange)}>
+              <TabsList>
+                <TabsTrigger value="week">This Week</TabsTrigger>
+                <TabsTrigger value="month">This Month</TabsTrigger>
+                <TabsTrigger value="custom">Custom</TabsTrigger>
+                <TabsTrigger value="all">All Time</TabsTrigger>
+              </TabsList>
+            </Tabs>
+            {dateRange === 'custom' && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "justify-start text-left font-normal",
+                      !customDateRange.from && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {customDateRange.from && customDateRange.to ? (
+                      `${format(customDateRange.from, 'MMM d')} - ${format(customDateRange.to, 'MMM d, yyyy')}`
+                    ) : (
+                      <span>Select date range</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <Calendar
+                    mode="range"
+                    selected={{
+                      from: customDateRange.from,
+                      to: customDateRange.to
+                    }}
+                    onSelect={(range) => {
+                      setCustomDateRange({
+                        from: range?.from,
+                        to: range?.to
+                      });
+                    }}
+                    numberOfMonths={2}
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            )}
+          </div>
         </div>
         <div className="grid gap-4 md:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
