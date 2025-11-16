@@ -9,11 +9,12 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut, Link2, Unlink } from 'lucide-react';
+import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { BuyClaims } from '@/components/BuyClaims';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
+import { useNCTRBalance } from '@/hooks/useNCTRBalance';
 
 interface Profile {
   id: string;
@@ -45,6 +46,7 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh }: ProfilePa
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url);
   const { address, isConnected, linkWalletToAccount } = useWalletAuth();
   const [linkingWallet, setLinkingWallet] = useState(false);
+  const { balance: walletNCTRBalance, formattedBalance, isLoading: isLoadingBalance, contractAddress, refetch: refetchBalance } = useNCTRBalance();
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -328,6 +330,124 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh }: ProfilePa
                 />
               </CardContent>
             </Card>
+
+            {/* Wallet NCTR Balance */}
+            {walletAddress && (
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <Wallet className="w-5 h-5" />
+                      Wallet Balance
+                    </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => refetchBalance()}
+                      disabled={isLoadingBalance}
+                    >
+                      <RefreshCw className={`w-4 h-4 ${isLoadingBalance ? 'animate-spin' : ''}`} />
+                    </Button>
+                  </div>
+                  <CardDescription>
+                    NCTR tokens in your Base wallet
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {isConnected ? (
+                    <>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">Wallet NCTR</span>
+                          <span className="text-2xl font-bold">
+                            {isLoadingBalance ? (
+                              <RefreshCw className="w-5 h-5 animate-spin" />
+                            ) : (
+                              `${parseFloat(formattedBalance).toLocaleString(undefined, {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                              })}`
+                            )}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Contract</span>
+                          <a
+                            href={`https://basescan.org/token/${contractAddress}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-primary hover:underline font-mono"
+                          >
+                            {contractAddress.slice(0, 6)}...{contractAddress.slice(-4)}
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
+                      </div>
+                      
+                      <Separator />
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Total NCTR</span>
+                          <span className="font-semibold">
+                            {(walletNCTRBalance + profile.available_nctr + profile.locked_nctr).toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2
+                            })}
+                          </span>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          = Wallet ({walletNCTRBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })}) + Available ({profile.available_nctr.toLocaleString()}) + Locked ({profile.locked_nctr.toLocaleString()})
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Connect your wallet to view balance
+                      </p>
+                      <ConnectButton.Custom>
+                        {({
+                          account,
+                          chain,
+                          openConnectModal,
+                          mounted,
+                        }) => {
+                          const ready = mounted;
+                          const connected = ready && account && chain;
+
+                          return (
+                            <div
+                              {...(!ready && {
+                                'aria-hidden': true,
+                                style: {
+                                  opacity: 0,
+                                  pointerEvents: 'none',
+                                  userSelect: 'none',
+                                },
+                              })}
+                            >
+                              {!connected && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  className="w-full"
+                                  onClick={openConnectModal}
+                                >
+                                  <Wallet className="mr-2 h-4 w-4" />
+                                  Connect Wallet
+                                </Button>
+                              )}
+                            </div>
+                          );
+                        }}
+                      </ConnectButton.Custom>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Right Column - Account Details */}
