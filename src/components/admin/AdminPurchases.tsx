@@ -6,11 +6,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format, startOfWeek, startOfMonth, endOfWeek, endOfMonth, startOfDay, endOfDay, subDays, subMonths, startOfQuarter, endOfQuarter } from 'date-fns';
+import { format, startOfWeek, startOfMonth, endOfWeek, endOfMonth, startOfDay, endOfDay, subDays, subMonths, startOfQuarter, endOfQuarter, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, parseISO, isWithinInterval } from 'date-fns';
 import { DollarSign, Package, TrendingUp, Users, CalendarIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 
 interface Purchase {
   id: string;
@@ -179,6 +180,83 @@ export function AdminPurchases() {
     }
   };
 
+  const getChartData = () => {
+    if (purchases.length === 0) return [];
+
+    const dateFilter = getDateRangeFilter();
+    if (!dateFilter && dateRange === 'all') {
+      // For "all time", group by month
+      const months = eachMonthOfInterval({
+        start: purchases.length > 0 ? new Date(purchases[purchases.length - 1].created_at) : new Date(),
+        end: new Date()
+      });
+
+      return months.map(month => {
+        const monthStart = startOfMonth(month);
+        const monthEnd = endOfMonth(month);
+        
+        const monthPurchases = purchases.filter(p => {
+          const purchaseDate = parseISO(p.created_at);
+          return isWithinInterval(purchaseDate, { start: monthStart, end: monthEnd });
+        });
+
+        const revenue = monthPurchases.reduce((sum, p) => sum + p.amount_paid, 0);
+        
+        return {
+          date: format(month, 'MMM yyyy'),
+          revenue: revenue / 100,
+          count: monthPurchases.length
+        };
+      });
+    }
+
+    if (!dateFilter) return [];
+
+    // Determine interval based on date range
+    const daysDiff = Math.ceil((dateFilter.end.getTime() - dateFilter.start.getTime()) / (1000 * 60 * 60 * 24));
+    
+    let intervals: Date[];
+    let formatString: string;
+
+    if (daysDiff <= 14) {
+      // Daily for 2 weeks or less
+      intervals = eachDayOfInterval({ start: dateFilter.start, end: dateFilter.end });
+      formatString = 'MMM d';
+    } else if (daysDiff <= 90) {
+      // Weekly for 3 months or less
+      intervals = eachWeekOfInterval({ start: dateFilter.start, end: dateFilter.end });
+      formatString = 'MMM d';
+    } else {
+      // Monthly for longer periods
+      intervals = eachMonthOfInterval({ start: dateFilter.start, end: dateFilter.end });
+      formatString = 'MMM yyyy';
+    }
+
+    return intervals.map(interval => {
+      const intervalStart = daysDiff <= 14 ? startOfDay(interval) : 
+                           daysDiff <= 90 ? startOfWeek(interval) : 
+                           startOfMonth(interval);
+      const intervalEnd = daysDiff <= 14 ? endOfDay(interval) : 
+                         daysDiff <= 90 ? endOfWeek(interval) : 
+                         endOfMonth(interval);
+      
+      const intervalPurchases = purchases.filter(p => {
+        const purchaseDate = parseISO(p.created_at);
+        return isWithinInterval(purchaseDate, { start: intervalStart, end: intervalEnd });
+      });
+
+      const revenue = intervalPurchases.reduce((sum, p) => sum + p.amount_paid, 0);
+      
+      return {
+        date: format(interval, formatString),
+        revenue: revenue / 100,
+        count: intervalPurchases.length
+      };
+    });
+  };
+
+  const chartData = getChartData();
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -274,6 +352,73 @@ export function AdminPurchases() {
       <div>
         <h2 className="text-3xl font-bold mb-2">Purchase Management</h2>
         <p className="text-muted-foreground">Track all user purchases and revenue</p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {/* Revenue Chart */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle>Revenue Trends</CardTitle>
+            <CardDescription>Purchase patterns over {getDateRangeLabel().toLowerCase()}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {chartData.length === 0 ? (
+              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                No data available for the selected period
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={chartData}>
+                  <defs>
+                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis 
+                    dataKey="date" 
+                    className="text-xs"
+                    tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                  />
+                  <YAxis 
+                    className="text-xs"
+                    tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                    tickFormatter={(value) => `$${value}`}
+                  />
+                  <Tooltip 
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="bg-background border rounded-lg p-3 shadow-lg">
+                            <p className="font-medium">{payload[0].payload.date}</p>
+                            <p className="text-sm text-muted-foreground">
+                              Revenue: <span className="font-semibold text-foreground">
+                                ${payload[0].value?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </span>
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              Purchases: <span className="font-semibold text-foreground">{payload[0].payload.count}</span>
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="revenue" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={2}
+                    fill="url(#colorRevenue)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Stats Cards */}
