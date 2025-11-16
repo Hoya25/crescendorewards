@@ -3,9 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { format, startOfWeek, startOfMonth, endOfWeek, endOfMonth } from 'date-fns';
 import { DollarSign, Package, TrendingUp, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Purchase {
   id: string;
@@ -23,20 +25,52 @@ interface Purchase {
   };
 }
 
+type DateRange = 'week' | 'month' | 'all';
+
 export function AdminPurchases() {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dateRange, setDateRange] = useState<DateRange>('all');
 
   useEffect(() => {
     fetchPurchases();
-  }, []);
+  }, [dateRange]);
+
+  const getDateRangeFilter = () => {
+    const now = new Date();
+    
+    switch (dateRange) {
+      case 'week':
+        return {
+          start: startOfWeek(now, { weekStartsOn: 1 }),
+          end: endOfWeek(now, { weekStartsOn: 1 })
+        };
+      case 'month':
+        return {
+          start: startOfMonth(now),
+          end: endOfMonth(now)
+        };
+      case 'all':
+        return null;
+    }
+  };
 
   const fetchPurchases = async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('purchases')
         .select('*')
         .order('created_at', { ascending: false });
+
+      // Apply date range filter
+      const dateFilter = getDateRangeFilter();
+      if (dateFilter) {
+        query = query
+          .gte('created_at', dateFilter.start.toISOString())
+          .lte('created_at', dateFilter.end.toISOString());
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -88,12 +122,32 @@ export function AdminPurchases() {
     return getTotalRevenue() / purchases.length;
   };
 
+  const getDateRangeLabel = () => {
+    switch (dateRange) {
+      case 'week':
+        return 'This Week';
+      case 'month':
+        return 'This Month';
+      case 'all':
+        return 'All Time';
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
-        <div>
-          <h2 className="text-3xl font-bold mb-2">Purchase Management</h2>
-          <p className="text-muted-foreground">Track all user purchases and revenue</p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-3xl font-bold mb-2">Purchase Management</h2>
+            <p className="text-muted-foreground">Track all user purchases and revenue</p>
+          </div>
+          <Tabs value={dateRange} onValueChange={(value) => setDateRange(value as DateRange)}>
+            <TabsList>
+              <TabsTrigger value="week">This Week</TabsTrigger>
+              <TabsTrigger value="month">This Month</TabsTrigger>
+              <TabsTrigger value="all">All Time</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
         <div className="grid gap-4 md:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
@@ -182,7 +236,7 @@ export function AdminPurchases() {
         <CardHeader>
           <CardTitle>Recent Purchases</CardTitle>
           <CardDescription>
-            View and manage all user purchases
+            Showing purchases for: {getDateRangeLabel()}
           </CardDescription>
         </CardHeader>
         <CardContent>
