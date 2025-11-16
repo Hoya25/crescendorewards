@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format, startOfWeek, startOfMonth, endOfWeek, endOfMonth, startOfDay, endOfDay } from 'date-fns';
+import { format, startOfWeek, startOfMonth, endOfWeek, endOfMonth, startOfDay, endOfDay, subDays, subMonths, startOfQuarter, endOfQuarter } from 'date-fns';
 import { DollarSign, Package, TrendingUp, Users, CalendarIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -28,7 +28,7 @@ interface Purchase {
   };
 }
 
-type DateRange = 'week' | 'month' | 'all' | 'custom';
+type DateRange = 'week' | 'month' | 'last7' | 'last30' | 'quarter' | 'all' | 'custom';
 
 interface DateRangeSelection {
   from: Date | undefined;
@@ -61,6 +61,21 @@ export function AdminPurchases() {
         return {
           start: startOfMonth(now),
           end: endOfMonth(now)
+        };
+      case 'last7':
+        return {
+          start: startOfDay(subDays(now, 7)),
+          end: endOfDay(now)
+        };
+      case 'last30':
+        return {
+          start: startOfDay(subDays(now, 30)),
+          end: endOfDay(now)
+        };
+      case 'quarter':
+        return {
+          start: startOfQuarter(now),
+          end: endOfQuarter(now)
         };
       case 'custom':
         if (customDateRange.from && customDateRange.to) {
@@ -148,6 +163,12 @@ export function AdminPurchases() {
         return 'This Week';
       case 'month':
         return 'This Month';
+      case 'last7':
+        return 'Last 7 Days';
+      case 'last30':
+        return 'Last 30 Days';
+      case 'quarter':
+        return 'This Quarter';
       case 'custom':
         if (customDateRange.from && customDateRange.to) {
           return `${format(customDateRange.from, 'MMM d')} - ${format(customDateRange.to, 'MMM d, yyyy')}`;
@@ -161,35 +182,50 @@ export function AdminPurchases() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-3xl font-bold mb-2">Purchase Management</h2>
             <p className="text-muted-foreground">Track all user purchases and revenue</p>
           </div>
-          <div className="flex gap-2">
-            <Tabs value={dateRange} onValueChange={(value) => setDateRange(value as DateRange)}>
-              <TabsList>
-                <TabsTrigger value="week">This Week</TabsTrigger>
+          <div className="flex flex-col gap-2">
+            <Tabs value={dateRange} onValueChange={(value) => setDateRange(value as DateRange)} className="w-full">
+              <TabsList className="grid grid-cols-4 w-full">
+                <TabsTrigger value="last7">Last 7d</TabsTrigger>
+                <TabsTrigger value="last30">Last 30d</TabsTrigger>
                 <TabsTrigger value="month">This Month</TabsTrigger>
-                <TabsTrigger value="custom">Custom</TabsTrigger>
-                <TabsTrigger value="all">All Time</TabsTrigger>
+                <TabsTrigger value="quarter">Quarter</TabsTrigger>
               </TabsList>
             </Tabs>
-            {dateRange === 'custom' && (
+            <div className="flex gap-2">
+              <Button
+                variant={dateRange === 'week' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setDateRange('week')}
+              >
+                This Week
+              </Button>
+              <Button
+                variant={dateRange === 'all' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setDateRange('all')}
+              >
+                All Time
+              </Button>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
-                    variant="outline"
+                    variant={dateRange === 'custom' ? 'default' : 'outline'}
+                    size="sm"
                     className={cn(
                       "justify-start text-left font-normal",
-                      !customDateRange.from && "text-muted-foreground"
+                      !customDateRange.from && dateRange === 'custom' && "text-muted-foreground"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {customDateRange.from && customDateRange.to ? (
-                      `${format(customDateRange.from, 'MMM d')} - ${format(customDateRange.to, 'MMM d, yyyy')}`
+                    {dateRange === 'custom' && customDateRange.from && customDateRange.to ? (
+                      `${format(customDateRange.from, 'MMM d')} - ${format(customDateRange.to, 'MMM d')}`
                     ) : (
-                      <span>Select date range</span>
+                      <span>Custom</span>
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -205,13 +241,16 @@ export function AdminPurchases() {
                         from: range?.from,
                         to: range?.to
                       });
+                      if (range?.from && range?.to) {
+                        setDateRange('custom');
+                      }
                     }}
                     numberOfMonths={2}
                     className={cn("p-3 pointer-events-auto")}
                   />
                 </PopoverContent>
               </Popover>
-            )}
+            </div>
           </div>
         </div>
         <div className="grid gap-4 md:grid-cols-4">
