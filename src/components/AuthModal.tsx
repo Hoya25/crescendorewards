@@ -6,6 +6,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Sparkles, Wallet, Gift, Loader2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useWalletAuth } from '@/hooks/useWalletAuth';
+import { Separator } from './ui/separator';
 
 interface AuthModalProps {
   mode: 'signin' | 'signup';
@@ -20,6 +23,8 @@ export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalP
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { authenticateWallet, isConnected } = useWalletAuth();
+  const [walletLoading, setWalletLoading] = useState(false);
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -103,6 +108,23 @@ export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalP
       console.error('Auth error:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleWalletAuth = async () => {
+    if (!isConnected) {
+      toast.error('Please connect your wallet using the button below');
+      return;
+    }
+
+    setWalletLoading(true);
+    try {
+      const result = await authenticateWallet();
+      if (result.success) {
+        onSuccess();
+      }
+    } finally {
+      setWalletLoading(false);
     }
   };
 
@@ -212,21 +234,73 @@ export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalP
             </button>
           </div>
 
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-neutral-200 dark:border-neutral-800" />
+          {/* Wallet Connect Section */}
+          <div className="space-y-4">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <Separator />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white dark:bg-neutral-900 text-neutral-500">Or continue with</span>
+
+            <div className="flex flex-col gap-2">
+              <ConnectButton.Custom>
+                {({
+                  account,
+                  chain,
+                  openConnectModal,
+                  mounted,
+                }) => {
+                  const ready = mounted;
+                  const connected = ready && account && chain;
+
+                  return (
+                    <div
+                      {...(!ready && {
+                        'aria-hidden': true,
+                        style: {
+                          opacity: 0,
+                          pointerEvents: 'none',
+                          userSelect: 'none',
+                        },
+                      })}
+                    >
+                      {!connected ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full"
+                          onClick={openConnectModal}
+                        >
+                          <Wallet className="mr-2 h-4 w-4" />
+                          Connect Base Wallet
+                        </Button>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="default"
+                          className="w-full"
+                          onClick={handleWalletAuth}
+                          disabled={walletLoading}
+                        >
+                          {walletLoading ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <Wallet className="mr-2 h-4 w-4" />
+                          )}
+                          {mode === 'signin' ? 'Sign in' : 'Sign up'} with Wallet
+                        </Button>
+                      )}
+                    </div>
+                  );
+                }}
+              </ConnectButton.Custom>
             </div>
           </div>
-
-          {/* Wallet Connect (Coming Soon) */}
-          <Button variant="outline" className="w-full gap-2" disabled>
-            <Wallet className="w-4 h-4" />
-            Connect Wallet (Coming Soon)
-          </Button>
         </div>
       </DialogContent>
     </Dialog>

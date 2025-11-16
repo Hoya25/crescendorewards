@@ -9,9 +9,11 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut } from 'lucide-react';
+import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut, Link2, Unlink } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { BuyClaims } from '@/components/BuyClaims';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useWalletAuth } from '@/hooks/useWalletAuth';
 
 interface Profile {
   id: string;
@@ -41,6 +43,8 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh }: ProfilePa
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url);
+  const { address, isConnected, linkWalletToAccount } = useWalletAuth();
+  const [linkingWallet, setLinkingWallet] = useState(false);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -129,8 +133,7 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh }: ProfilePa
       const { error } = await supabase
         .from('profiles')
         .update({
-          full_name: fullName || null,
-          wallet_address: walletAddress || null,
+          full_name: fullName,
         })
         .eq('id', profile.id);
 
@@ -146,6 +149,56 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh }: ProfilePa
       toast({
         title: 'Error',
         description: error.message || 'Failed to update profile',
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleLinkWallet = async () => {
+    if (!isConnected || !address) {
+      toast({
+        title: 'Error',
+        description: 'Please connect your wallet first',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setLinkingWallet(true);
+    try {
+      const success = await linkWalletToAccount(profile.id);
+      if (success) {
+        setWalletAddress(address);
+        onRefresh();
+      }
+    } finally {
+      setLinkingWallet(false);
+    }
+  };
+
+  const handleUnlinkWallet = async () => {
+    try {
+      setSaving(true);
+      const { error } = await supabase
+        .from('profiles')
+        .update({ wallet_address: null })
+        .eq('id', profile.id);
+
+      if (error) throw error;
+
+      setWalletAddress('');
+      toast({
+        title: 'Success',
+        description: 'Wallet unlinked successfully',
+      });
+      onRefresh();
+    } catch (error: any) {
+      console.error('Error unlinking wallet:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to unlink wallet',
         variant: 'destructive',
       });
     } finally {
@@ -320,18 +373,87 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh }: ProfilePa
                 <div className="space-y-2">
                   <Label htmlFor="wallet" className="flex items-center gap-2">
                     <Wallet className="w-4 h-4" />
-                    Wallet Address
+                    Base Wallet
                   </Label>
-                  <Input
-                    id="wallet"
-                    type="text"
-                    value={walletAddress}
-                    onChange={(e) => setWalletAddress(e.target.value)}
-                    placeholder="0x..."
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Your Base network wallet address
-                  </p>
+                  
+                  {walletAddress ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Input
+                          id="wallet"
+                          type="text"
+                          value={walletAddress}
+                          disabled
+                          className="font-mono text-sm"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleUnlinkWallet}
+                          disabled={saving}
+                        >
+                          <Unlink className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Connected Base wallet address
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <ConnectButton.Custom>
+                        {({
+                          account,
+                          chain,
+                          openConnectModal,
+                          mounted,
+                        }) => {
+                          const ready = mounted;
+                          const connected = ready && account && chain;
+
+                          return (
+                            <div
+                              {...(!ready && {
+                                'aria-hidden': true,
+                                style: {
+                                  opacity: 0,
+                                  pointerEvents: 'none',
+                                  userSelect: 'none',
+                                },
+                              })}
+                            >
+                              {!connected ? (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  className="w-full"
+                                  onClick={openConnectModal}
+                                >
+                                  <Wallet className="mr-2 h-4 w-4" />
+                                  Connect Base Wallet
+                                </Button>
+                              ) : (
+                                <Button
+                                  type="button"
+                                  variant="default"
+                                  className="w-full"
+                                  onClick={handleLinkWallet}
+                                  disabled={linkingWallet}
+                                >
+                                  <Link2 className="mr-2 h-4 w-4" />
+                                  {linkingWallet ? 'Linking...' : 'Link Wallet to Profile'}
+                                </Button>
+                              )}
+                            </div>
+                          );
+                        }}
+                      </ConnectButton.Custom>
+                      <p className="text-xs text-muted-foreground">
+                        Connect your Base wallet for seamless authentication
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex justify-end">
