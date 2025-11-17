@@ -46,6 +46,7 @@ interface Brand {
   shop_url: string;
   is_featured: boolean;
   created_at: string;
+  image_url: string | null;
 }
 
 const categories = [
@@ -280,16 +281,24 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
                           <Badge variant="secondary">{brand.category}</Badge>
                         </div>
                         
-                        <div className="text-center px-8 space-y-6">
-                          <div className="flex items-center justify-center gap-4">
-                            <div 
-                              className="w-24 h-24 rounded-3xl flex items-center justify-center text-5xl"
-                              style={{ backgroundColor: brand.logo_color }}
-                            >
-                              {brand.logo_emoji}
+                          <div className="text-center px-8 space-y-6">
+                            <div className="flex items-center justify-center gap-4">
+                              {brand.image_url ? (
+                                <img 
+                                  src={brand.image_url} 
+                                  alt={brand.name}
+                                  className="w-24 h-24 object-contain"
+                                />
+                              ) : (
+                                <div 
+                                  className="w-24 h-24 rounded-3xl flex items-center justify-center text-5xl"
+                                  style={{ backgroundColor: brand.logo_color }}
+                                >
+                                  {brand.logo_emoji}
+                                </div>
+                              )}
+                              <h3 className="text-5xl font-bold">{brand.name}</h3>
                             </div>
-                            <h3 className="text-5xl font-bold">{brand.name}</h3>
-                          </div>
                           
                           <p className="text-lg text-muted-foreground max-w-2xl">
                             {brand.description}
@@ -418,12 +427,20 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
                 <Card key={brand.id} className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-6 space-y-4">
                     <div className="flex items-center gap-4">
-                      <div 
-                        className="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0"
-                        style={{ backgroundColor: brand.logo_color }}
-                      >
-                        {brand.logo_emoji}
-                      </div>
+                      {brand.image_url ? (
+                        <img 
+                          src={brand.image_url} 
+                          alt={brand.name}
+                          className="w-20 h-20 object-contain rounded-2xl bg-muted p-2"
+                        />
+                      ) : (
+                        <div 
+                          className="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl flex-shrink-0"
+                          style={{ backgroundColor: brand.logo_color }}
+                        >
+                          {brand.logo_emoji}
+                        </div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <h3 className="text-2xl font-bold mb-1">{brand.name}</h3>
                       </div>
