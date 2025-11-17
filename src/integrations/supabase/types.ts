@@ -65,6 +65,39 @@ export type Database = {
         }
         Relationships: []
       }
+      membership_history: {
+        Row: {
+          created_at: string
+          id: string
+          locked_nctr: number
+          previous_tier_level: number | null
+          previous_tier_name: string | null
+          tier_level: number
+          tier_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          locked_nctr: number
+          previous_tier_level?: number | null
+          previous_tier_name?: string | null
+          tier_level: number
+          tier_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          locked_nctr?: number
+          previous_tier_level?: number | null
+          previous_tier_name?: string | null
+          tier_level?: number
+          tier_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           available_nctr: number

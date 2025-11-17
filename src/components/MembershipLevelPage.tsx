@@ -23,9 +23,10 @@ import { TierUpgradeCelebration } from './TierUpgradeCelebration';
 
 interface MembershipLevelPageProps {
   onBack: () => void;
+  onViewHistory?: () => void;
 }
 
-export function MembershipLevelPage({ onBack }: MembershipLevelPageProps) {
+export function MembershipLevelPage({ onBack, onViewHistory }: MembershipLevelPageProps) {
   const { profile } = useAuth();
   const [showLockDialog, setShowLockDialog] = useState(false);
   const [selectedTier, setSelectedTier] = useState<typeof membershipTiers[0] | null>(null);
@@ -78,6 +79,18 @@ export function MembershipLevelPage({ onBack }: MembershipLevelPageProps) {
 
       if (error) throw error;
 
+      // Record membership history if tier changed
+      if (newTier.level > oldTier.level) {
+        await supabase.from('membership_history').insert({
+          user_id: profile.id,
+          tier_level: newTier.level,
+          tier_name: newTier.name,
+          locked_nctr: newLockedAmount,
+          previous_tier_level: oldTier.level,
+          previous_tier_name: oldTier.name,
+        });
+      }
+
       toast.success(`Successfully locked ${amount} NCTR for 360 days!`);
       setShowLockDialog(false);
 
@@ -104,10 +117,18 @@ export function MembershipLevelPage({ onBack }: MembershipLevelPageProps) {
       {/* Header */}
       <div className="sticky top-0 z-10 backdrop-blur-sm bg-background/80 border-b">
         <div className="container mx-auto px-4 py-4">
-          <Button variant="ghost" onClick={onBack} className="gap-2">
-            <ArrowLeft className="w-4 h-4" />
-            Back
-          </Button>
+          <div className="flex items-center justify-between">
+            <Button variant="ghost" onClick={onBack} className="gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </Button>
+            
+            {onViewHistory && (
+              <Button variant="outline" onClick={onViewHistory}>
+                View History
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 

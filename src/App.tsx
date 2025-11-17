@@ -11,6 +11,7 @@ import { RewardsPool } from "./components/RewardsPool";
 import { ProfilePage } from "./components/ProfilePage";
 import { AdminPanel } from "./components/admin/AdminPanel";
 import { MembershipLevelPage } from "./components/MembershipLevelPage";
+import { MembershipHistoryPage } from "./components/MembershipHistoryPage";
 import { BrandPartnersPage } from "./components/BrandPartnersPage";
 import { BrandDetailPage } from "./components/BrandDetailPage";
 import { SubmitRewardsPage } from "./components/SubmitRewardsPage";
@@ -28,7 +29,7 @@ const queryClient = new QueryClient();
 function CrescendoApp() {
   const { user, profile, loading, isAuthenticated, signOut, refreshProfile } = useAuth();
   const { isAdmin } = useAdminRole();
-  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "profile" | "admin" | "membership" | "brands" | "brand-detail" | "submit-rewards" | "my-submissions" | "purchase-history">("landing");
+  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "profile" | "admin" | "membership" | "membership-history" | "brands" | "brand-detail" | "submit-rewards" | "my-submissions" | "purchase-history">("landing");
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
@@ -205,7 +206,14 @@ function CrescendoApp() {
       )}
 
       {currentView === "membership" && isAuthenticated && (
-        <MembershipLevelPage onBack={() => setCurrentView("dashboard")} />
+        <MembershipLevelPage 
+          onBack={() => setCurrentView("dashboard")}
+          onViewHistory={() => setCurrentView("membership-history")}
+        />
+      )}
+
+      {currentView === "membership-history" && isAuthenticated && (
+        <MembershipHistoryPage onBack={() => setCurrentView("membership")} />
       )}
 
       {currentView === "brands" && isAuthenticated && (
