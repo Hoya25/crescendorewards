@@ -16,6 +16,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 import { useNCTRBalance } from '@/hooks/useNCTRBalance';
 import { getMembershipTierByNCTR } from '@/utils/membershipLevels';
+import { validateImageFile } from '@/lib/image-validation';
 
 interface Profile {
   id: string;
@@ -53,23 +54,15 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh }: ProfilePa
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file size (2MB)
-    if (file.size > 2 * 1024 * 1024) {
+    // Validate image file
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
       toast({
         title: 'Error',
-        description: 'Image size must be less than 2MB',
+        description: validation.error,
         variant: 'destructive',
       });
-      return;
-    }
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: 'Error',
-        description: 'Please select a valid image file',
-        variant: 'destructive',
-      });
+      e.target.value = ''; // Reset file input
       return;
     }
 

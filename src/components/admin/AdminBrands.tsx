@@ -42,6 +42,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Star, ExternalLink, Loader2, Search, Filter, X, SortAsc, SortDesc } from 'lucide-react';
 import { toast } from 'sonner';
+import { validateImageFile } from '@/lib/image-validation';
 
 interface Brand {
   id: string;
@@ -189,15 +190,10 @@ export function AdminBrands() {
   };
 
   const validateAndSetImage = (file: File) => {
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
-      return;
-    }
-
-    // Validate file size (5MB max)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size must be less than 5MB');
+    // Validate image file
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      toast.error(validation.error);
       return;
     }
 

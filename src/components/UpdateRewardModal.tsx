@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { Upload, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
+import { validateImageFile } from '@/lib/image-validation';
 
 interface UpdateRewardModalProps {
   open: boolean;
@@ -49,6 +50,14 @@ export function UpdateRewardModal({ open, onClose, submission, onSuccess }: Upda
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Validate image file
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      toast.error(validation.error);
+      e.target.value = ''; // Reset file input
+      return;
+    }
 
     try {
       setUploadingImage(true);

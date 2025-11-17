@@ -15,6 +15,7 @@ import {
   Ticket, Trophy, Zap, Package, Star, CheckCircle2, Shield,
   Info, TrendingUp, Lock, Users, Award
 } from 'lucide-react';
+import { validateImageFile } from '@/lib/image-validation';
 
 interface SubmitRewardsPageProps {
   onBack: () => void;
@@ -65,15 +66,11 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select a valid image file');
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size must be less than 5MB');
+    // Validate image file
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      toast.error(validation.error);
+      e.target.value = ''; // Reset file input
       return;
     }
 

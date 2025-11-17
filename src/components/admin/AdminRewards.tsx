@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { validateImageFile } from '@/lib/image-validation';
 
 interface Reward {
   id: string;
@@ -103,21 +104,12 @@ export function AdminRewards() {
   };
 
   const validateAndSetImage = (file: File) => {
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
+    // Validate image file
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
       toast({
-        title: 'Invalid file',
-        description: 'Please select an image file',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    // Validate file size (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: 'File too large',
-        description: 'Image must be less than 5MB',
+        title: 'Error',
+        description: validation.error,
         variant: 'destructive',
       });
       return;
