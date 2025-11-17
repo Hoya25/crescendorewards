@@ -158,7 +158,26 @@ export function RewardDetailPage({ rewardId, onBack, onClaimSuccess }: RewardDet
   const shareUrl = generateShareUrl();
   const shareText = `Check out this amazing reward: ${reward?.title || 'Reward'} - Claim it now with my referral code and get bonus claim passes!`;
 
-  const handleShare = (platform: string) => {
+  const trackShare = async (platform: string) => {
+    if (!profile?.referral_code || !reward) return;
+
+    try {
+      const { error } = await supabase
+        .from('reward_shares')
+        .insert({
+          user_id: profile.id,
+          reward_id: reward.id,
+          referral_code: profile.referral_code,
+          share_platform: platform,
+        });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error tracking share:', error);
+    }
+  };
+
+  const handleShare = async (platform: string) => {
     const encodedUrl = encodeURIComponent(shareUrl);
     const encodedText = encodeURIComponent(shareText);
 
@@ -169,12 +188,14 @@ export function RewardDetailPage({ rewardId, onBack, onClaimSuccess }: RewardDet
     };
 
     if (urls[platform]) {
+      await trackShare(platform);
       window.open(urls[platform], '_blank', 'width=600,height=400');
     }
   };
 
   const handleCopyLink = async () => {
     try {
+      await trackShare('direct_link');
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       toast({

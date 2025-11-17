@@ -13,6 +13,7 @@ import { AdminPanel } from "./components/admin/AdminPanel";
 import { MembershipLevelPage } from "./components/MembershipLevelPage";
 import { MembershipHistoryPage } from "./components/MembershipHistoryPage";
 import { MembershipStatisticsPage } from "./components/MembershipStatisticsPage";
+import { ReferralAnalyticsDashboard } from "./components/ReferralAnalyticsDashboard";
 import { RewardDetailPage } from "./components/RewardDetailPage";
 import { BrandPartnersPage } from "./components/BrandPartnersPage";
 import { BrandDetailPage } from "./components/BrandDetailPage";
@@ -31,7 +32,7 @@ const queryClient = new QueryClient();
 function CrescendoApp() {
   const { user, profile, loading, isAuthenticated, signOut, refreshProfile } = useAuth();
   const { isAdmin } = useAdminRole();
-  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "reward-detail" | "profile" | "admin" | "membership" | "membership-history" | "membership-statistics" | "brands" | "brand-detail" | "submit-rewards" | "my-submissions" | "purchase-history">("landing");
+  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "reward-detail" | "profile" | "admin" | "membership" | "membership-history" | "membership-statistics" | "brands" | "brand-detail" | "submit-rewards" | "my-submissions" | "purchase-history" | "referral-analytics">("landing");
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
   const [selectedRewardId, setSelectedRewardId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -175,6 +176,7 @@ function CrescendoApp() {
           onViewMarketplace={handleViewMarketplace}
           onMySubmissions={handleMySubmissions}
           onPurchaseHistory={handlePurchaseHistory}
+          onReferralAnalytics={() => setCurrentView("referral-analytics")}
           isAdmin={isAdmin}
           onAdminPanel={() => setCurrentView("admin")}
         />
@@ -268,6 +270,12 @@ function CrescendoApp() {
 
       {currentView === "purchase-history" && isAuthenticated && (
         <PurchaseHistoryPage
+          onBack={() => setCurrentView("dashboard")}
+        />
+      )}
+
+      {currentView === "referral-analytics" && isAuthenticated && (
+        <ReferralAnalyticsDashboard
           onBack={() => setCurrentView("dashboard")}
         />
       )}

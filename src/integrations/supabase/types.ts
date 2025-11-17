@@ -241,6 +241,50 @@ export type Database = {
           },
         ]
       }
+      reward_shares: {
+        Row: {
+          bonus_earned: number
+          clicks: number
+          conversions: number
+          id: string
+          referral_code: string
+          reward_id: string
+          share_platform: string | null
+          shared_at: string
+          user_id: string
+        }
+        Insert: {
+          bonus_earned?: number
+          clicks?: number
+          conversions?: number
+          id?: string
+          referral_code: string
+          reward_id: string
+          share_platform?: string | null
+          shared_at?: string
+          user_id: string
+        }
+        Update: {
+          bonus_earned?: number
+          clicks?: number
+          conversions?: number
+          id?: string
+          referral_code?: string
+          reward_id?: string
+          share_platform?: string | null
+          shared_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_shares_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reward_submissions: {
         Row: {
           admin_notes: string | null
@@ -430,6 +474,20 @@ export type Database = {
           user_name: string
         }[]
       }
+      get_user_share_analytics: {
+        Args: never
+        Returns: {
+          conversion_rate: number
+          last_shared_at: string
+          reward_id: string
+          reward_image: string
+          reward_title: string
+          total_bonus_earned: number
+          total_clicks: number
+          total_conversions: number
+          total_shares: number
+        }[]
+      }
       get_user_task_progress: {
         Args: never
         Returns: {
@@ -451,6 +509,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      track_reward_conversion: {
+        Args: { p_referral_code: string; p_reward_id: string }
+        Returns: Json
       }
       update_claim_status: {
         Args: { p_claim_id: string; p_status: string }

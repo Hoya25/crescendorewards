@@ -2,7 +2,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
-import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Award, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt, Crown } from "lucide-react";
+import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Award, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt, Crown, BarChart3 } from "lucide-react";
 import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
 import { ThemeToggle } from "./ThemeToggle";
@@ -44,6 +44,7 @@ interface DashboardProps {
   onViewMarketplace?: () => void;
   onMySubmissions?: () => void;
   onPurchaseHistory?: () => void;
+  onReferralAnalytics?: () => void;
   isAdmin?: boolean;
   onAdminPanel?: () => void;
 }
@@ -67,6 +68,7 @@ export function Dashboard({
   onViewMarketplace,
   onMySubmissions,
   onPurchaseHistory,
+  onReferralAnalytics,
   isAdmin,
   onAdminPanel,
 }: DashboardProps) {
@@ -447,6 +449,13 @@ export function Dashboard({
                   <Button onClick={onPurchaseHistory} variant="outline" className="w-full justify-start gap-2">
                     <Receipt className="w-4 h-4" />
                     Purchase History
+                  </Button>
+                )}
+
+                {onReferralAnalytics && (
+                  <Button onClick={onReferralAnalytics} variant="outline" className="w-full justify-start gap-2">
+                    <BarChart3 className="w-4 h-4" />
+                    Referral Analytics
                   </Button>
                 )}
               </CardContent>
