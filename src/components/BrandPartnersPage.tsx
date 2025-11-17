@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from '@/components/ui/carousel';
 import { 
   ArrowLeft, 
@@ -19,7 +20,8 @@ import {
   ExternalLink,
   Tag,
   Zap,
-  LinkIcon
+  LinkIcon,
+  Search
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Autoplay from 'embla-carousel-autoplay';
@@ -69,6 +71,7 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
   const [filteredBrands, setFilteredBrands] = useState<Brand[]>([]);
   const [featuredBrands, setFeaturedBrands] = useState<Brand[]>([]);
   const [activeCategory, setActiveCategory] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   
@@ -80,14 +83,25 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
   }, []);
 
   useEffect(() => {
-    if (activeCategory === 'all') {
-      setFilteredBrands(brands.filter(b => !b.is_featured));
-      setFeaturedBrands(brands.filter(b => b.is_featured));
-    } else {
-      setFilteredBrands(brands.filter(b => b.category === activeCategory && !b.is_featured));
-      setFeaturedBrands(brands.filter(b => b.is_featured && b.category === activeCategory));
+    let filtered = brands;
+    
+    // Apply category filter
+    if (activeCategory !== 'all') {
+      filtered = filtered.filter(b => b.category === activeCategory);
     }
-  }, [activeCategory, brands]);
+    
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(b => 
+        b.name.toLowerCase().includes(query) || 
+        b.description.toLowerCase().includes(query)
+      );
+    }
+    
+    setFilteredBrands(filtered.filter(b => !b.is_featured));
+    setFeaturedBrands(filtered.filter(b => b.is_featured));
+  }, [activeCategory, searchQuery, brands]);
 
   const getCategoryCount = (categoryId: string) => {
     if (categoryId === 'all') return brands.length;
@@ -282,38 +296,63 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
           </div>
         )}
 
-        {/* Browse by Category - Enhanced Filters */}
+        {/* Search and Filter */}
         <Card className="sticky top-[73px] z-[5] bg-background/95 backdrop-blur">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold">Browse by Category</h2>
-              <Badge variant="secondary" className="text-sm">
-                {activeCategory === 'all' ? brands.length : filteredBrands.length + featuredBrands.length} Partners
-              </Badge>
+          <CardContent className="p-6 space-y-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search brands by name or description..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-12 text-base"
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                >
+                  Clear
+                </Button>
+              )}
             </div>
-            <div className="flex flex-wrap gap-2">
-              {categories.map((category) => {
-                const Icon = category.icon;
-                const isActive = activeCategory === category.id;
-                const count = getCategoryCount(category.id);
-                return (
-                  <Button
-                    key={category.id}
-                    variant={isActive ? 'default' : 'outline'}
-                    onClick={() => setActiveCategory(category.id)}
-                    className="gap-2"
-                  >
-                    <Icon className="w-4 h-4" />
-                    {category.label}
-                    <Badge 
-                      variant={isActive ? 'secondary' : 'outline'} 
-                      className="ml-1 px-1.5 py-0 text-xs"
+
+            {/* Category Filters */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold">Filter by Category</h2>
+                <Badge variant="secondary" className="text-sm">
+                  {filteredBrands.length + featuredBrands.length} Partners
+                </Badge>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {categories.map((category) => {
+                  const Icon = category.icon;
+                  const isActive = activeCategory === category.id;
+                  const count = getCategoryCount(category.id);
+                  return (
+                    <Button
+                      key={category.id}
+                      variant={isActive ? 'default' : 'outline'}
+                      onClick={() => setActiveCategory(category.id)}
+                      className="gap-2"
                     >
-                      {count}
-                    </Badge>
-                  </Button>
-                );
-              })}
+                      <Icon className="w-4 h-4" />
+                      {category.label}
+                      <Badge 
+                        variant={isActive ? 'secondary' : 'outline'} 
+                        className="ml-1 px-1.5 py-0 text-xs"
+                      >
+                        {count}
+                      </Badge>
+                    </Button>
+                  );
+                })}
+              </div>
             </div>
           </CardContent>
         </Card>
