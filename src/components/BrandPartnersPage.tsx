@@ -256,18 +256,6 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
                             {brand.description}
                           </p>
                           
-                          <div className="flex items-center justify-center gap-8 pt-4">
-                            <div>
-                              <p className="text-sm text-muted-foreground mb-1">Base Earning Rate</p>
-                              <p className="text-2xl font-bold">{brand.base_earning_rate} NCTR per $1</p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-muted-foreground mb-1">With Your {multiplier}x Multiplier</p>
-                              <p className="text-2xl font-bold text-primary">
-                                {calculateMultipliedRate(brand.base_earning_rate)} NCTR per $1
-                              </p>
-                            </div>
-                          </div>
                           
                           <Button 
                             size="lg" 
@@ -348,12 +336,7 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
                     
                     <p className="text-muted-foreground">{brand.description}</p>
                     
-                    <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">Base Rate</p>
-                      <p className="text-xl font-bold">{brand.base_earning_rate} NCTR per $1</p>
-                    </div>
-                    
-                    <Button 
+                    <Button
                       className="w-full gap-2" 
                       variant="outline"
                       onClick={() => handleViewBrand(brand)}

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, ExternalLink, Loader2 } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface BrandDetailPageProps {
@@ -27,9 +28,26 @@ interface Brand {
   earn_opportunities: EarnOpportunity[];
 }
 
+const statusMultipliers: Record<number, number> = {
+  0: 1.0,
+  1: 1.1,
+  2: 1.25,
+  3: 1.4,
+  4: 1.6,
+  5: 2.0,
+};
+
 export function BrandDetailPage({ brandId, onBack }: BrandDetailPageProps) {
+  const { profile } = useAuth();
   const [brand, setBrand] = useState<Brand | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const userLevel = profile?.level || 0;
+  const multiplier = statusMultipliers[userLevel] || 1.0;
+
+  const calculateMultipliedRate = (baseRate: number) => {
+    return (baseRate * multiplier).toFixed(2);
+  };
 
   useEffect(() => {
     loadBrand();
@@ -116,14 +134,32 @@ export function BrandDetailPage({ brandId, onBack }: BrandDetailPageProps) {
                     <span className="text-muted-foreground">Category: </span>
                     <span className="font-medium">{brand.category}</span>
                   </div>
-                  <div className="text-sm">
-                    <span className="text-muted-foreground">Base Earning Rate: </span>
-                    <span className="font-medium text-primary">{brand.base_earning_rate}% NCTR</span>
-                  </div>
                 </div>
               </div>
             </div>
           </CardHeader>
+        </Card>
+
+        {/* Earning Rates Card */}
+        <Card className="bg-primary/5 mb-6">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" />
+              Your Earning Rate
+            </h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Base Earning Rate</p>
+                <p className="text-3xl font-bold">{brand.base_earning_rate} NCTR per $1</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">With Your {multiplier}x Status Multiplier</p>
+                <p className="text-3xl font-bold text-primary">
+                  {calculateMultipliedRate(brand.base_earning_rate)} NCTR per $1
+                </p>
+              </div>
+            </div>
+          </CardContent>
         </Card>
 
         {/* Earn Opportunities */}
