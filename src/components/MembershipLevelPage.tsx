@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Trophy, Zap, Gift, Tag, Check, Lock, Sparkles, Crown, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Trophy, Zap, Gift, Tag, Check, Lock, Sparkles, Crown, TrendingUp, BarChart3, History } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { 
   membershipTiers, 
@@ -24,9 +24,10 @@ import { TierUpgradeCelebration } from './TierUpgradeCelebration';
 interface MembershipLevelPageProps {
   onBack: () => void;
   onViewHistory?: () => void;
+  onViewStatistics?: () => void;
 }
 
-export function MembershipLevelPage({ onBack, onViewHistory }: MembershipLevelPageProps) {
+export function MembershipLevelPage({ onBack, onViewHistory, onViewStatistics }: MembershipLevelPageProps) {
   const { profile } = useAuth();
   const [showLockDialog, setShowLockDialog] = useState(false);
   const [selectedTier, setSelectedTier] = useState<typeof membershipTiers[0] | null>(null);
@@ -123,11 +124,20 @@ export function MembershipLevelPage({ onBack, onViewHistory }: MembershipLevelPa
               Back
             </Button>
             
-            {onViewHistory && (
-              <Button variant="outline" onClick={onViewHistory}>
-                View History
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {onViewHistory && (
+                <Button variant="outline" onClick={onViewHistory} className="gap-2">
+                  <History className="w-4 h-4" />
+                  View History
+                </Button>
+              )}
+              {onViewStatistics && (
+                <Button variant="outline" onClick={onViewStatistics} className="gap-2">
+                  <BarChart3 className="w-4 h-4" />
+                  Statistics
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
