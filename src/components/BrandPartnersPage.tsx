@@ -89,6 +89,11 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
     }
   }, [activeCategory, brands]);
 
+  const getCategoryCount = (categoryId: string) => {
+    if (categoryId === 'all') return brands.length;
+    return brands.filter(b => b.category === categoryId).length;
+  };
+
   const loadBrands = async () => {
     try {
       setLoading(true);
@@ -277,27 +282,41 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
           </div>
         )}
 
-        {/* Browse by Category */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Browse by Category</h2>
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => {
-              const Icon = category.icon;
-              const isActive = activeCategory === category.id;
-              return (
-                <Button
-                  key={category.id}
-                  variant={isActive ? 'default' : 'outline'}
-                  onClick={() => setActiveCategory(category.id)}
-                  className="gap-2"
-                >
-                  <Icon className="w-4 h-4" />
-                  {category.label}
-                </Button>
-              );
-            })}
-          </div>
-        </div>
+        {/* Browse by Category - Enhanced Filters */}
+        <Card className="sticky top-[73px] z-[5] bg-background/95 backdrop-blur">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold">Browse by Category</h2>
+              <Badge variant="secondary" className="text-sm">
+                {activeCategory === 'all' ? brands.length : filteredBrands.length + featuredBrands.length} Partners
+              </Badge>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((category) => {
+                const Icon = category.icon;
+                const isActive = activeCategory === category.id;
+                const count = getCategoryCount(category.id);
+                return (
+                  <Button
+                    key={category.id}
+                    variant={isActive ? 'default' : 'outline'}
+                    onClick={() => setActiveCategory(category.id)}
+                    className="gap-2"
+                  >
+                    <Icon className="w-4 h-4" />
+                    {category.label}
+                    <Badge 
+                      variant={isActive ? 'secondary' : 'outline'} 
+                      className="ml-1 px-1.5 py-0 text-xs"
+                    >
+                      {count}
+                    </Badge>
+                  </Button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* All Partners Grid */}
         <div>
