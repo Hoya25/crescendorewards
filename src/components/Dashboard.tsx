@@ -7,6 +7,7 @@ import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
 import { ThemeToggle } from "./ThemeToggle";
 import { ReferralCard } from "./ReferralCard";
+import { getMembershipTierByNCTR } from '@/utils/membershipLevels';
 import { useTheme } from "./ThemeProvider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
@@ -37,7 +38,7 @@ interface DashboardProps {
   onAdminRewards?: () => void;
   onAdminBrands?: () => void;
   onAdminExternalEarn?: () => void;
-  onViewStatusLevels: () => void;
+  onViewMembershipLevels: () => void;
   onViewProfile: () => void;
   onViewBrandPartners: () => void;
   onViewMarketplace?: () => void;
@@ -60,7 +61,7 @@ export function Dashboard({
   onAdminRewards,
   onAdminBrands,
   onAdminExternalEarn,
-  onViewStatusLevels,
+  onViewMembershipLevels,
   onViewProfile,
   onViewBrandPartners,
   onViewMarketplace,
@@ -69,30 +70,18 @@ export function Dashboard({
   isAdmin,
   onAdminPanel,
 }: DashboardProps) {
-  // Calculate tier based on level
-  const getTierInfo = (level: number) => {
-    const tiers = [
-      { tier: 'Starter', nextLevelThreshold: 1000, multiplier: '1x', claimsPerYear: 0, discount: '0%' },
-      { tier: 'Bronze', nextLevelThreshold: 2500, multiplier: '1.1x', claimsPerYear: 1, discount: '5%' },
-      { tier: 'Silver', nextLevelThreshold: 5000, multiplier: '1.25x', claimsPerYear: 4, discount: '10%' },
-      { tier: 'Gold', nextLevelThreshold: 10000, multiplier: '1.4x', claimsPerYear: 12, discount: '15%' },
-      { tier: 'Platinum', nextLevelThreshold: 25000, multiplier: '1.5x', claimsPerYear: 24, discount: '20%' },
-      { tier: 'Diamond', nextLevelThreshold: 50000, multiplier: '2x', claimsPerYear: 60, discount: '25%' },
-    ];
-    return tiers[level] || tiers[0];
-  };
-
-  const tierInfo = getTierInfo(profile.level);
+  // Calculate tier based on locked NCTR (360LOCK)
+  const tierInfo = getMembershipTierByNCTR(profile.locked_nctr);
 
   const userData = {
-    level: profile.level,
-    tier: tierInfo.tier,
+    level: tierInfo.level,
+    tier: tierInfo.name,
     lockedNCTR: profile.locked_nctr,
-    nextLevelThreshold: tierInfo.nextLevelThreshold,
-    multiplier: tierInfo.multiplier,
+    nextLevelThreshold: tierInfo.requirement,
+    multiplier: tierInfo.multiplier.toString() + 'x',
     claimBalance: profile.claim_balance,
-    claimsPerYear: tierInfo.claimsPerYear,
-    discount: tierInfo.discount,
+    claimsPerYear: tierInfo.claims,
+    discount: tierInfo.discount + '%',
     hasStatusAccessPass: profile.has_status_access_pass,
   };
 
@@ -147,12 +136,12 @@ export function Dashboard({
               </Button>
               <Button
                 variant="outline"
-                onClick={onViewStatusLevels}
+                onClick={onViewMembershipLevels}
                 className="gap-2"
                 size="sm"
               >
                 <Trophy className="w-4 h-4" />
-                Status
+                Membership
               </Button>
               <Button
                 variant="outline"
@@ -204,11 +193,11 @@ export function Dashboard({
               </Button>
               <Button
                 variant="outline"
-                onClick={onViewStatusLevels}
+                onClick={onViewMembershipLevels}
                 className="gap-2"
               >
                 <Trophy className="w-4 h-4" />
-                Status
+                Membership
               </Button>
               <Button
                 variant="outline"
@@ -378,9 +367,9 @@ export function Dashboard({
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button onClick={onViewStatusLevels} variant="outline" className="w-full justify-start gap-2">
+                <Button onClick={onViewMembershipLevels} variant="outline" className="w-full justify-start gap-2">
                   <Award className="w-4 h-4" />
-                  View All Status Levels
+                  View Membership Levels
                 </Button>
 
                 <Button onClick={onEarnNCTR} variant="outline" className="w-full justify-start gap-2">

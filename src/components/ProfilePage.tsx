@@ -15,6 +15,7 @@ import { BuyClaims } from '@/components/BuyClaims';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 import { useNCTRBalance } from '@/hooks/useNCTRBalance';
+import { getMembershipTierByNCTR } from '@/utils/membershipLevels';
 
 interface Profile {
   id: string;
@@ -220,10 +221,7 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh }: ProfilePa
     return profile.email?.[0]?.toUpperCase() || 'U';
   };
 
-  const getTierName = (level: number) => {
-    const tiers = ['Starter', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
-    return tiers[level] || 'Starter';
-  };
+  const membershipTier = getMembershipTierByNCTR(profile.locked_nctr);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80">
@@ -290,19 +288,19 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh }: ProfilePa
               </CardContent>
             </Card>
 
-            {/* Status Card */}
+            {/* Membership Level Card */}
             <Card>
               <CardHeader>
-                <CardTitle>Status Level</CardTitle>
+                <CardTitle>Membership Level</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Tier</span>
-                  <Badge className="text-base">{getTierName(profile.level)}</Badge>
+                  <Badge className="text-base">{membershipTier.name}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Level</span>
-                  <span className="text-lg font-bold">{profile.level}</span>
+                  <span className="text-sm font-medium">Multiplier</span>
+                  <span className="text-lg font-bold">{membershipTier.multiplier}x</span>
                 </div>
                 <Separator />
                 <div className="space-y-2">

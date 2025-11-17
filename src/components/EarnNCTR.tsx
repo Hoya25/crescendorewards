@@ -330,8 +330,8 @@ export function EarnNCTR({ onBack, onNavigateToRewards, onNavigateToStatus, onNa
               {onNavigateToStatus && (
                 <Button variant="outline" onClick={onNavigateToStatus} className="h-auto py-6 flex-col gap-2">
                   <Trophy className="w-6 h-6 text-violet-600" />
-                  <span className="font-semibold">Status Levels</span>
-                  <span className="text-xs text-neutral-600 dark:text-neutral-400">Level up for better rewards</span>
+                  <span className="font-semibold">Membership Levels</span>
+                  <span className="text-xs text-neutral-600 dark:text-neutral-400">Lock NCTR for better rewards</span>
                 </Button>
               )}
               {onNavigateToBrands && (

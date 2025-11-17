@@ -112,8 +112,8 @@ export function LandingPage({ onJoin, onViewRewards, onSignIn, onViewLevelDetail
       <section className="py-20 px-6 bg-neutral-50 dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold tracking-tight mb-4">Member Status Levels</h2>
-            <p className="text-neutral-600 dark:text-neutral-400">Unlock greater benefits as you level up</p>
+            <h2 className="text-4xl font-bold tracking-tight mb-4">Membership Levels</h2>
+            <p className="text-neutral-600 dark:text-neutral-400">Lock NCTR in 360LOCK to unlock greater benefits</p>
           </div>
 
           <div className="grid md:grid-cols-5 gap-4">
