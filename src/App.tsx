@@ -13,6 +13,7 @@ import { AdminPanel } from "./components/admin/AdminPanel";
 import { MembershipLevelPage } from "./components/MembershipLevelPage";
 import { MembershipHistoryPage } from "./components/MembershipHistoryPage";
 import { MembershipStatisticsPage } from "./components/MembershipStatisticsPage";
+import { RewardDetailPage } from "./components/RewardDetailPage";
 import { BrandPartnersPage } from "./components/BrandPartnersPage";
 import { BrandDetailPage } from "./components/BrandDetailPage";
 import { SubmitRewardsPage } from "./components/SubmitRewardsPage";
@@ -30,8 +31,9 @@ const queryClient = new QueryClient();
 function CrescendoApp() {
   const { user, profile, loading, isAuthenticated, signOut, refreshProfile } = useAuth();
   const { isAdmin } = useAdminRole();
-  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "profile" | "admin" | "membership" | "membership-history" | "membership-statistics" | "brands" | "brand-detail" | "submit-rewards" | "my-submissions" | "purchase-history">("landing");
+  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "reward-detail" | "profile" | "admin" | "membership" | "membership-history" | "membership-statistics" | "brands" | "brand-detail" | "submit-rewards" | "my-submissions" | "purchase-history">("landing");
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
+  const [selectedRewardId, setSelectedRewardId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [walletConnected, setWalletConnected] = useState(false);
@@ -113,6 +115,11 @@ function CrescendoApp() {
     setCurrentView("rewards");
   };
 
+  const handleViewRewardDetail = (rewardId: string) => {
+    setSelectedRewardId(rewardId);
+    setCurrentView("reward-detail");
+  };
+
   const handleSubmitRewards = () => {
     setCurrentView("submit-rewards");
   };
@@ -190,6 +197,15 @@ function CrescendoApp() {
           onSubmitReward={handleSubmitRewards}
           onBack={() => setCurrentView(isAuthenticated ? "dashboard" : "landing")}
           onNavigateToBrands={handleViewBrandPartners}
+          onViewRewardDetail={handleViewRewardDetail}
+        />
+      )}
+
+      {currentView === "reward-detail" && selectedRewardId && (
+        <RewardDetailPage
+          rewardId={selectedRewardId}
+          onBack={() => setCurrentView("rewards")}
+          onClaimSuccess={refreshProfile}
         />
       )}
 

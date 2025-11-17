@@ -37,6 +37,7 @@ interface RewardsPoolProps {
   onSubmitReward?: () => void;
   onBack?: () => void;
   onNavigateToBrands?: () => void;
+  onViewRewardDetail?: (rewardId: string) => void;
 }
 
 const categoryIcons = {
@@ -53,7 +54,7 @@ const categoryLabels = {
   gift_cards: 'Gift Cards',
 };
 
-export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBack, onNavigateToBrands }: RewardsPoolProps) {
+export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBack, onNavigateToBrands, onViewRewardDetail }: RewardsPoolProps) {
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [featuredRewards, setFeaturedRewards] = useState<Reward[]>([]);
   const [filteredRewards, setFilteredRewards] = useState<Reward[]>([]);
@@ -207,8 +208,12 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   };
 
   const handleRewardClick = (reward: Reward) => {
-    setSelectedReward(reward);
-    setShowDetailModal(true);
+    if (onViewRewardDetail) {
+      onViewRewardDetail(reward.id);
+    } else {
+      setSelectedReward(reward);
+      setShowDetailModal(true);
+    }
   };
 
   const handleImageZoom = (imageUrl: string, e: React.MouseEvent) => {
@@ -502,7 +507,10 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
                 return (
                   <CarouselItem key={reward.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
-                    <Card className="group cursor-pointer transition-all hover:shadow-2xl border-0 overflow-hidden bg-card/50 backdrop-blur">
+                    <Card 
+                      className="group cursor-pointer transition-all hover:shadow-2xl border-0 overflow-hidden bg-card/50 backdrop-blur"
+                      onClick={() => handleRewardClick(reward)}
+                    >
                       <div className="relative w-full h-80 bg-gradient-to-br from-primary/20 via-background to-secondary/20">
                         {reward.image_url ? (
                           <ImageWithFallback
