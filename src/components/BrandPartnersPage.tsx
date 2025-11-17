@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from '@/components/ui/carousel';
 import { 
   ArrowLeft, 
@@ -21,7 +22,8 @@ import {
   Tag,
   Zap,
   LinkIcon,
-  Search
+  Search,
+  ArrowUpDown
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Autoplay from 'embla-carousel-autoplay';
@@ -43,6 +45,7 @@ interface Brand {
   logo_color: string;
   shop_url: string;
   is_featured: boolean;
+  created_at: string;
 }
 
 const categories = [
@@ -72,6 +75,7 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
   const [featuredBrands, setFeaturedBrands] = useState<Brand[]>([]);
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('name-asc');
   const [loading, setLoading] = useState(true);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   
@@ -99,9 +103,25 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
       );
     }
     
-    setFilteredBrands(filtered.filter(b => !b.is_featured));
-    setFeaturedBrands(filtered.filter(b => b.is_featured));
-  }, [activeCategory, searchQuery, brands]);
+    // Apply sorting
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'name-asc':
+          return a.name.localeCompare(b.name);
+        case 'name-desc':
+          return b.name.localeCompare(a.name);
+        case 'rate-high':
+          return b.base_earning_rate - a.base_earning_rate;
+        case 'newest':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        default:
+          return 0;
+      }
+    });
+    
+    setFilteredBrands(sorted.filter(b => !b.is_featured));
+    setFeaturedBrands(sorted.filter(b => b.is_featured));
+  }, [activeCategory, searchQuery, sortBy, brands]);
 
   const getCategoryCount = (categoryId: string) => {
     if (categoryId === 'all') return brands.length;
@@ -299,26 +319,43 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
         {/* Search and Filter */}
         <Card className="sticky top-[73px] z-[5] bg-background/95 backdrop-blur">
           <CardContent className="p-6 space-y-4">
-            {/* Search Bar */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search brands by name or description..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12 text-base"
-              />
-              {searchQuery && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                >
-                  Clear
-                </Button>
-              )}
+            {/* Search Bar and Sort */}
+            <div className="flex gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search brands by name or description..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 h-12 text-base"
+                />
+                {searchQuery && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                  >
+                    Clear
+                  </Button>
+                )}
+              </div>
+              
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[200px] h-12">
+                  <div className="flex items-center gap-2">
+                    <ArrowUpDown className="w-4 h-4" />
+                    <SelectValue />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="bg-background border shadow-lg z-50">
+                  <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+                  <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+                  <SelectItem value="rate-high">Highest Rate</SelectItem>
+                  <SelectItem value="newest">Newest First</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Category Filters */}
