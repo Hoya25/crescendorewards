@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { getMembershipTierByNCTR } from '@/utils/membershipLevels';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -80,8 +81,8 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
   const [loading, setLoading] = useState(true);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   
-  const userLevel = profile?.level || 0;
-  const multiplier = statusMultipliers[userLevel] || 1.0;
+  const membershipTier = getMembershipTierByNCTR(profile?.locked_nctr || 0);
+  const multiplier = membershipTier.multiplier;
 
   useEffect(() => {
     loadBrands();

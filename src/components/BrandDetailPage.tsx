@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft, ExternalLink, Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
+import { getMembershipTierByNCTR } from '@/utils/membershipLevels';
 
 interface BrandDetailPageProps {
   brandId: string;
@@ -43,8 +44,8 @@ export function BrandDetailPage({ brandId, onBack }: BrandDetailPageProps) {
   const [brand, setBrand] = useState<Brand | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const userLevel = profile?.level || 0;
-  const multiplier = statusMultipliers[userLevel] || 1.0;
+  const membershipTier = getMembershipTierByNCTR(profile?.locked_nctr || 0);
+  const multiplier = membershipTier.multiplier;
 
   const calculateMultipliedRate = (baseRate: number) => {
     return (baseRate * multiplier).toFixed(2);

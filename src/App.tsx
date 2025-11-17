@@ -10,7 +10,7 @@ import { EarnNCTR } from "./components/EarnNCTR";
 import { RewardsPool } from "./components/RewardsPool";
 import { ProfilePage } from "./components/ProfilePage";
 import { AdminPanel } from "./components/admin/AdminPanel";
-import { StatusPage } from "./components/StatusPage";
+import { MembershipLevelPage } from "./components/MembershipLevelPage";
 import { BrandPartnersPage } from "./components/BrandPartnersPage";
 import { BrandDetailPage } from "./components/BrandDetailPage";
 import { SubmitRewardsPage } from "./components/SubmitRewardsPage";
@@ -28,7 +28,7 @@ const queryClient = new QueryClient();
 function CrescendoApp() {
   const { user, profile, loading, isAuthenticated, signOut, refreshProfile } = useAuth();
   const { isAdmin } = useAdminRole();
-  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "profile" | "admin" | "status" | "brands" | "brand-detail" | "submit-rewards" | "my-submissions" | "purchase-history">("landing");
+  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "profile" | "admin" | "membership" | "brands" | "brand-detail" | "submit-rewards" | "my-submissions" | "purchase-history">("landing");
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
@@ -90,8 +90,8 @@ function CrescendoApp() {
     toast.info("Level up modal coming soon!");
   };
 
-  const handleViewStatusLevels = () => {
-    setCurrentView("status");
+  const handleViewMembershipLevels = () => {
+    setCurrentView("membership");
   };
 
   const handleViewProfile = () => {
@@ -160,7 +160,7 @@ function CrescendoApp() {
           onEarnNCTR={handleEarnNCTR}
           onSignOut={handleSignOut}
           onLevelUp={handleLevelUp}
-          onViewStatusLevels={handleViewStatusLevels}
+          onViewMembershipLevels={handleViewMembershipLevels}
           onViewProfile={handleViewProfile}
           onViewBrandPartners={handleViewBrandPartners}
           onViewMarketplace={handleViewMarketplace}
@@ -175,7 +175,7 @@ function CrescendoApp() {
         <EarnNCTR
           onBack={() => setCurrentView("dashboard")}
           onNavigateToRewards={handleViewRewards}
-          onNavigateToStatus={handleViewStatusLevels}
+          onNavigateToStatus={handleViewMembershipLevels}
           onNavigateToBrands={handleViewBrandPartners}
           onRefreshProfile={refreshProfile}
         />
@@ -204,14 +204,14 @@ function CrescendoApp() {
         <AdminPanel onClose={() => setCurrentView("dashboard")} />
       )}
 
-      {currentView === "status" && isAuthenticated && (
-        <StatusPage onBack={() => setCurrentView("dashboard")} />
+      {currentView === "membership" && isAuthenticated && (
+        <MembershipLevelPage onBack={() => setCurrentView("dashboard")} />
       )}
 
       {currentView === "brands" && isAuthenticated && (
         <BrandPartnersPage 
           onBack={() => setCurrentView("dashboard")}
-          onNavigateToStatus={() => setCurrentView("status")}
+          onNavigateToStatus={() => setCurrentView("membership")}
           onNavigateToRewards={() => setCurrentView("rewards")}
           onNavigateToBrandDetail={handleViewBrandDetail}
         />
