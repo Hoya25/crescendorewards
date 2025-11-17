@@ -11,13 +11,15 @@ import {
   getMembershipTierByNCTR, 
   getNextMembershipTier, 
   getMembershipProgress,
-  getNCTRNeededForNextLevel 
+  getNCTRNeededForNextLevel,
+  MembershipTier
 } from '@/utils/membershipLevels';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { TierUpgradeCelebration } from './TierUpgradeCelebration';
 
 interface MembershipLevelPageProps {
   onBack: () => void;
@@ -29,6 +31,8 @@ export function MembershipLevelPage({ onBack }: MembershipLevelPageProps) {
   const [selectedTier, setSelectedTier] = useState<typeof membershipTiers[0] | null>(null);
   const [lockAmount, setLockAmount] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [upgradedTier, setUpgradedTier] = useState<{ old: MembershipTier; new: MembershipTier } | null>(null);
 
   if (!profile) return null;
 
@@ -60,10 +64,14 @@ export function MembershipLevelPage({ onBack }: MembershipLevelPageProps) {
 
     setProcessing(true);
     try {
+      const oldTier = getMembershipTierByNCTR(currentLockedNCTR);
+      const newLockedAmount = currentLockedNCTR + amount;
+      const newTier = getMembershipTierByNCTR(newLockedAmount);
+
       const { error } = await supabase
         .from('profiles')
         .update({
-          locked_nctr: currentLockedNCTR + amount,
+          locked_nctr: newLockedAmount,
           available_nctr: availableNCTR - amount,
         })
         .eq('id', profile.id);
@@ -72,7 +80,17 @@ export function MembershipLevelPage({ onBack }: MembershipLevelPageProps) {
 
       toast.success(`Successfully locked ${amount} NCTR for 360 days!`);
       setShowLockDialog(false);
-      window.location.reload(); // Refresh to show new level
+
+      // Check if tier upgraded
+      if (newTier.level > oldTier.level) {
+        setUpgradedTier({ old: oldTier, new: newTier });
+        setShowCelebration(true);
+        setTimeout(() => {
+          window.location.reload();
+        }, 4000); // Reload after celebration
+      } else {
+        window.location.reload(); // Refresh to show new progress
+      }
     } catch (error: any) {
       console.error('Error locking NCTR:', error);
       toast.error('Failed to lock NCTR. Please try again.');
@@ -337,6 +355,16 @@ export function MembershipLevelPage({ onBack }: MembershipLevelPageProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Celebration Modal */}
+      {upgradedTier && (
+        <TierUpgradeCelebration
+          isOpen={showCelebration}
+          onClose={() => setShowCelebration(false)}
+          newTier={upgradedTier.new}
+          oldTier={upgradedTier.old}
+        />
+      )}
     </div>
   );
 }
