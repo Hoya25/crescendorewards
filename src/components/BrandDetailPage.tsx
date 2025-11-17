@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { ArrowLeft, ExternalLink, Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { getMembershipTierByNCTR } from '@/utils/membershipLevels';
+import { ImageWithFallback } from '@/components/ImageWithFallback';
 
 interface BrandDetailPageProps {
   brandId: string;
@@ -123,7 +124,7 @@ export function BrandDetailPage({ brandId, onBack }: BrandDetailPageProps) {
           <CardHeader>
             <div className="flex items-start gap-4">
               {brand.image_url ? (
-                <img 
+                <ImageWithFallback 
                   src={brand.image_url} 
                   alt={brand.name}
                   className="w-20 h-20 object-contain rounded-lg bg-muted p-2 flex-shrink-0"

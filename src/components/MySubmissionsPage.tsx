@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from '@/components/ui/input';
 import { UpdateRewardModal } from '@/components/UpdateRewardModal';
 import { RewardVersionHistory } from '@/components/RewardVersionHistory';
+import { ImageWithFallback } from '@/components/ImageWithFallback';
 
 interface SubmissionPageProps {
   onBack: () => void;
@@ -381,7 +382,7 @@ export function MySubmissionsPage({ onBack }: SubmissionPageProps) {
                   {/* Image */}
                   <div className="lg:w-64 flex-shrink-0">
                     {submission.image_url ? (
-                      <img 
+                      <ImageWithFallback 
                         src={submission.image_url} 
                         alt={submission.title}
                         className="w-full h-full object-cover"
@@ -623,7 +624,7 @@ export function MySubmissionsPage({ onBack }: SubmissionPageProps) {
               <Card className="p-4 bg-muted/50">
                 <div className="flex items-center gap-3">
                   {selectedSubmission.image_url ? (
-                    <img
+                    <ImageWithFallback
                       src={selectedSubmission.image_url}
                       alt={selectedSubmission.title}
                       className="w-16 h-16 rounded-lg object-cover"
