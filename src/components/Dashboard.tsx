@@ -2,12 +2,12 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
-import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Award, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt } from "lucide-react";
+import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Award, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt, Crown } from "lucide-react";
 import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
 import { ThemeToggle } from "./ThemeToggle";
 import { ReferralCard } from "./ReferralCard";
-import { getMembershipTierByNCTR } from '@/utils/membershipLevels';
+import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress, getNCTRNeededForNextLevel } from '@/utils/membershipLevels';
 import { useTheme } from "./ThemeProvider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
@@ -71,17 +71,20 @@ export function Dashboard({
   onAdminPanel,
 }: DashboardProps) {
   // Calculate tier based on locked NCTR (360LOCK)
-  const tierInfo = getMembershipTierByNCTR(profile.locked_nctr);
+  const currentTier = getMembershipTierByNCTR(profile.locked_nctr);
+  const nextTier = getNextMembershipTier(profile.locked_nctr);
+  const progressPercent = getMembershipProgress(profile.locked_nctr);
+  const nctrNeeded = getNCTRNeededForNextLevel(profile.locked_nctr);
 
   const userData = {
-    level: tierInfo.level,
-    tier: tierInfo.name,
+    level: currentTier.level,
+    tier: currentTier.name,
     lockedNCTR: profile.locked_nctr,
-    nextLevelThreshold: tierInfo.requirement,
-    multiplier: tierInfo.multiplier.toString() + 'x',
+    nextLevelThreshold: nextTier?.requirement || currentTier.requirement,
+    multiplier: currentTier.multiplier.toString() + 'x',
     claimBalance: profile.claim_balance,
-    claimsPerYear: tierInfo.claims,
-    discount: tierInfo.discount + '%',
+    claimsPerYear: currentTier.claims,
+    discount: currentTier.discount + '%',
     hasStatusAccessPass: profile.has_status_access_pass,
   };
 
@@ -94,8 +97,6 @@ export function Dashboard({
   };
 
   const referralCode = profile.referral_code || 'CRES-LOADING';
-
-  const progressToNextLevel = (userData.lockedNCTR / userData.nextLevelThreshold) * 100;
 
   const levelColors = {
     0: { gradient: 'from-slate-400 to-gray-500', bg: 'bg-slate-50', border: 'border-slate-200' },
@@ -257,7 +258,7 @@ export function Dashboard({
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Main Column */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Status Card */}
+            {/* Membership Progress Card */}
             <Card className={`border-2 ${currentLevelStyle.border} ${currentLevelStyle.bg} dark:bg-opacity-10`}>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-6">
@@ -267,33 +268,62 @@ export function Dashboard({
                     </div>
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-2xl font-bold">{userData.tier} Status</h3>
-                        <Badge variant="secondary">Level {userData.level}</Badge>
+                        <h3 className="text-2xl font-bold">{userData.tier} Member</h3>
+                        <Badge variant="secondary" className="text-sm px-3">
+                          {userData.multiplier} Earnings
+                        </Badge>
                       </div>
                       <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                        {userData.lockedNCTR.toLocaleString()} NCTR Committed
+                        {userData.lockedNCTR.toLocaleString()} NCTR in 360LOCK
                       </p>
                     </div>
                   </div>
-                  <Button onClick={onLevelUp} className="gap-2 bg-violet-600 hover:bg-violet-700 text-white">
-                    <Zap className="w-4 h-4" />
-                    Level Up
+                  <Button onClick={onViewMembershipLevels} className="gap-2 bg-violet-600 hover:bg-violet-700 text-white">
+                    <Crown className="w-4 h-4" />
+                    Upgrade
                   </Button>
                 </div>
 
                 {/* Progress to Next Level */}
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-neutral-600 dark:text-neutral-400">Progress to Gold</span>
-                    <span className="font-medium">
-                      {userData.lockedNCTR.toLocaleString()} / {userData.nextLevelThreshold.toLocaleString()} NCTR
-                    </span>
+                {nextTier ? (
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-neutral-600 dark:text-neutral-400 font-medium">
+                        Progress to {nextTier.name}
+                      </span>
+                      <span className="font-semibold">
+                        {progressPercent.toFixed(0)}%
+                      </span>
+                    </div>
+                    <div className="relative">
+                      <Progress value={progressPercent} className="h-4" />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-xs font-bold text-white drop-shadow-md">
+                          {userData.lockedNCTR.toLocaleString()} / {userData.nextLevelThreshold.toLocaleString()} NCTR
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
+                        <Lock className="w-3 h-3" />
+                        <span>Lock {nctrNeeded.toLocaleString()} more NCTR</span>
+                      </div>
+                      <div className="text-xs font-medium text-primary">
+                        Next: {nextTier.multiplier}x earnings
+                      </div>
+                    </div>
                   </div>
-                  <Progress value={progressToNextLevel} className="h-3" />
-                  <p className="text-xs text-neutral-600 dark:text-neutral-400">
-                    Commit {(userData.nextLevelThreshold - userData.lockedNCTR).toLocaleString()} more NCTR to reach Gold status
-                  </p>
-                </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <Badge variant="secondary" className="text-lg px-6 py-2">
+                      <Trophy className="w-4 h-4 mr-2" />
+                      Max Level Achieved!
+                    </Badge>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      You've unlocked all membership benefits
+                    </p>
+                  </div>
+                )}
 
                 {/* Status Access Pass Banner */}
                 {!userData.hasStatusAccessPass && walletConnected && (
@@ -313,7 +343,7 @@ export function Dashboard({
                   </div>
                 )}
 
-                {/* Status Benefits */}
+                {/* Membership Benefits */}
                 <div className="mt-6 grid grid-cols-3 gap-4">
                   <div className="p-4 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800">
                     <div className="flex items-center gap-2 mb-2">
