@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Autoplay from 'embla-carousel-autoplay';
+import { ImageWithFallback } from '@/components/ImageWithFallback';
 
 interface BrandPartnersPageProps {
   onBack: () => void;
@@ -283,14 +284,14 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
                         </div>
                         
                           <div className="text-center px-8 space-y-6">
-                            <div className="flex items-center justify-center gap-4">
-                              {brand.image_url ? (
-                                <img 
-                                  src={brand.image_url} 
-                                  alt={brand.name}
-                                  className="w-24 h-24 object-contain"
-                                />
-                              ) : (
+                          <div className="flex items-center justify-center gap-4">
+                            {brand.image_url ? (
+                              <ImageWithFallback 
+                                src={brand.image_url} 
+                                alt={brand.name}
+                                className="w-24 h-24 object-contain"
+                              />
+                            ) : (
                                 <div 
                                   className="w-24 h-24 rounded-3xl flex items-center justify-center text-5xl"
                                   style={{ backgroundColor: brand.logo_color }}
@@ -429,7 +430,7 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
                   <CardContent className="p-6 space-y-4">
                     <div className="flex items-center gap-4">
                       {brand.image_url ? (
-                        <img 
+                        <ImageWithFallback 
                           src={brand.image_url} 
                           alt={brand.name}
                           className="w-20 h-20 object-contain rounded-2xl bg-muted p-2"

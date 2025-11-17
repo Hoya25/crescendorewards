@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { Upload, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ImageWithFallback } from '@/components/ImageWithFallback';
 
 interface UpdateRewardModalProps {
   open: boolean;
@@ -240,7 +241,7 @@ export function UpdateRewardModal({ open, onClose, submission, onSuccess }: Upda
             <Label>Reward Image</Label>
             <div className="flex gap-4 items-start">
               {formData.image_url && (
-                <img
+                <ImageWithFallback
                   src={formData.image_url}
                   alt="Preview"
                   className="w-32 h-32 object-cover rounded-lg"
