@@ -12,6 +12,7 @@ import { ProfilePage } from "./components/ProfilePage";
 import { AdminPanel } from "./components/admin/AdminPanel";
 import { StatusPage } from "./components/StatusPage";
 import { BrandPartnersPage } from "./components/BrandPartnersPage";
+import { BrandDetailPage } from "./components/BrandDetailPage";
 import { SubmitRewardsPage } from "./components/SubmitRewardsPage";
 import { MySubmissionsPage } from "./components/MySubmissionsPage";
 import { PurchaseHistoryPage } from "./components/PurchaseHistoryPage";
@@ -27,7 +28,8 @@ const queryClient = new QueryClient();
 function CrescendoApp() {
   const { user, profile, loading, isAuthenticated, signOut, refreshProfile } = useAuth();
   const { isAdmin } = useAdminRole();
-  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "profile" | "admin" | "status" | "brands" | "submit-rewards" | "my-submissions" | "purchase-history">("landing");
+  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "profile" | "admin" | "status" | "brands" | "brand-detail" | "submit-rewards" | "my-submissions" | "purchase-history">("landing");
+  const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
   const [walletConnected, setWalletConnected] = useState(false);
@@ -98,6 +100,11 @@ function CrescendoApp() {
 
   const handleViewBrandPartners = () => {
     setCurrentView("brands");
+  };
+
+  const handleViewBrandDetail = (brandId: string) => {
+    setSelectedBrandId(brandId);
+    setCurrentView("brand-detail");
   };
 
   const handleViewMarketplace = () => {
@@ -205,6 +212,14 @@ function CrescendoApp() {
           onBack={() => setCurrentView("dashboard")}
           onNavigateToStatus={() => setCurrentView("status")}
           onNavigateToRewards={() => setCurrentView("rewards")}
+          onNavigateToBrandDetail={handleViewBrandDetail}
+        />
+      )}
+
+      {currentView === "brand-detail" && isAuthenticated && selectedBrandId && (
+        <BrandDetailPage 
+          brandId={selectedBrandId}
+          onBack={() => setCurrentView("brands")}
         />
       )}
 

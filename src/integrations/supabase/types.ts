@@ -20,6 +20,7 @@ export type Database = {
           category: string
           created_at: string
           description: string
+          earn_opportunities: Json | null
           id: string
           is_active: boolean
           is_featured: boolean
@@ -34,6 +35,7 @@ export type Database = {
           category: string
           created_at?: string
           description: string
+          earn_opportunities?: Json | null
           id?: string
           is_active?: boolean
           is_featured?: boolean
@@ -48,6 +50,7 @@ export type Database = {
           category?: string
           created_at?: string
           description?: string
+          earn_opportunities?: Json | null
           id?: string
           is_active?: boolean
           is_featured?: boolean

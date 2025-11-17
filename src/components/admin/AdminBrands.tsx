@@ -55,6 +55,7 @@ interface Brand {
   is_featured: boolean;
   is_active: boolean;
   created_at: string;
+  earn_opportunities: { title: string; description: string; link: string; }[];
 }
 
 const categories = [
@@ -104,6 +105,7 @@ export function AdminBrands() {
     shop_url: '',
     is_featured: false,
     is_active: true,
+    earn_opportunities: [] as { title: string; description: string; link: string; }[],
   });
 
   useEffect(() => {
@@ -169,7 +171,10 @@ export function AdminBrands() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setBrands(data || []);
+      setBrands((data || []).map(brand => ({
+        ...brand,
+        earn_opportunities: (brand.earn_opportunities as any) || []
+      })));
     } catch (error: any) {
       console.error('Error loading brands:', error);
       toast.error('Failed to load brands');
@@ -297,6 +302,7 @@ export function AdminBrands() {
       shop_url: brand.shop_url,
       is_featured: brand.is_featured,
       is_active: brand.is_active,
+      earn_opportunities: brand.earn_opportunities || [],
     });
     setShowEditDialog(true);
   };
@@ -317,6 +323,7 @@ export function AdminBrands() {
       shop_url: '',
       is_featured: false,
       is_active: true,
+      earn_opportunities: [],
     });
   };
 
@@ -459,6 +466,90 @@ export function AdminBrands() {
           checked={formData.is_active}
           onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
         />
+      </div>
+
+      {/* Earn Opportunities Section */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Label>Earn Opportunities</Label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setFormData({
+              ...formData,
+              earn_opportunities: [...formData.earn_opportunities, { title: '', description: '', link: '' }]
+            })}
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Add Opportunity
+          </Button>
+        </div>
+        
+        {formData.earn_opportunities.map((opp, index) => (
+          <Card key={index} className="p-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Opportunity {index + 1}</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setFormData({
+                    ...formData,
+                    earn_opportunities: formData.earn_opportunities.filter((_, i) => i !== index)
+                  })}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              <div>
+                <Label htmlFor={`opp-title-${index}`}>Title</Label>
+                <Input
+                  id={`opp-title-${index}`}
+                  value={opp.title}
+                  onChange={(e) => {
+                    const updated = [...formData.earn_opportunities];
+                    updated[index].title = e.target.value;
+                    setFormData({ ...formData, earn_opportunities: updated });
+                  }}
+                  placeholder="e.g., Shop Electronics"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor={`opp-description-${index}`}>Description</Label>
+                <Textarea
+                  id={`opp-description-${index}`}
+                  value={opp.description}
+                  onChange={(e) => {
+                    const updated = [...formData.earn_opportunities];
+                    updated[index].description = e.target.value;
+                    setFormData({ ...formData, earn_opportunities: updated });
+                  }}
+                  placeholder="Brief description of this earning opportunity"
+                  rows={2}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor={`opp-link-${index}`}>Link</Label>
+                <Input
+                  id={`opp-link-${index}`}
+                  type="url"
+                  value={opp.link}
+                  onChange={(e) => {
+                    const updated = [...formData.earn_opportunities];
+                    updated[index].link = e.target.value;
+                    setFormData({ ...formData, earn_opportunities: updated });
+                  }}
+                  placeholder="https://..."
+                />
+              </div>
+            </div>
+          </Card>
+        ))}
       </div>
     </div>
   );
