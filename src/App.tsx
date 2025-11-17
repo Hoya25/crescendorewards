@@ -187,6 +187,7 @@ function CrescendoApp() {
           onClaimSuccess={refreshProfile}
           onSubmitReward={handleSubmitRewards}
           onBack={() => setCurrentView(isAuthenticated ? "dashboard" : "landing")}
+          onNavigateToBrands={handleViewBrandPartners}
         />
       )}
 

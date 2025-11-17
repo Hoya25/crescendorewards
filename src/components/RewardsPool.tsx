@@ -11,7 +11,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from '@/components/ui/carousel';
 import { toast } from '@/hooks/use-toast';
-import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Star, Flame, Clock, Lock, AlertTriangle, Package, Zap, ArrowUpDown, Filter, Search, ArrowLeft } from 'lucide-react';
+import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Star, Flame, Clock, Lock, AlertTriangle, Package, Zap, ArrowUpDown, Filter, Search, ArrowLeft, Store } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -36,6 +36,7 @@ interface RewardsPoolProps {
   onClaimSuccess: () => void;
   onSubmitReward?: () => void;
   onBack?: () => void;
+  onNavigateToBrands?: () => void;
 }
 
 const categoryIcons = {
@@ -52,7 +53,7 @@ const categoryLabels = {
   gift_cards: 'Gift Cards',
 };
 
-export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBack }: RewardsPoolProps) {
+export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBack, onNavigateToBrands }: RewardsPoolProps) {
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [featuredRewards, setFeaturedRewards] = useState<Reward[]>([]);
   const [filteredRewards, setFilteredRewards] = useState<Reward[]>([]);
@@ -335,6 +336,16 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 currentBalance={claimBalance} 
                 onPurchaseSuccess={onClaimSuccess}
               />
+              {onNavigateToBrands && (
+                <Button
+                  onClick={onNavigateToBrands}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Store className="w-4 h-4" />
+                  <span className="hidden sm:inline">Brand Partners</span>
+                </Button>
+              )}
               {onSubmitReward && (
                 <Button
                   onClick={onSubmitReward}
