@@ -16,6 +16,7 @@ import {
   Info, TrendingUp, Lock, Users, Award
 } from 'lucide-react';
 import { validateImageFile } from '@/lib/image-validation';
+import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 
 interface SubmitRewardsPageProps {
   onBack: () => void;
@@ -89,12 +90,23 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
 
     setUploading(true);
     try {
-      const fileExt = selectedImage.name.split('.').pop();
+      // Compress image before upload
+      const { file: compressedFile, originalSize, compressedSize, compressionRatio } = 
+        await compressImageWithStats(selectedImage);
+
+      // Show compression stats if significant
+      if (compressionRatio > 0.1) {
+        toast.success(
+          `Image compressed: ${formatBytes(originalSize)} → ${formatBytes(compressedSize)} (${(compressionRatio * 100).toFixed(0)}% reduction)`
+        );
+      }
+
+      const fileExt = compressedFile.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
       
       const { error: uploadError, data } = await supabase.storage
         .from('reward-images')
-        .upload(fileName, selectedImage, {
+        .upload(fileName, compressedFile, {
           cacheControl: '3600',
           upsert: false
         });

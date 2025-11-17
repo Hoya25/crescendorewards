@@ -11,6 +11,7 @@ import { Upload, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { validateImageFile } from '@/lib/image-validation';
+import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 
 interface UpdateRewardModalProps {
   open: boolean;
@@ -62,13 +63,24 @@ export function UpdateRewardModal({ open, onClose, submission, onSuccess }: Upda
     try {
       setUploadingImage(true);
 
-      const fileExt = file.name.split('.').pop();
+      // Compress image before upload
+      const { file: compressedFile, originalSize, compressedSize, compressionRatio } = 
+        await compressImageWithStats(file);
+
+      // Show compression stats
+      if (compressionRatio > 0.1) {
+        toast.success(
+          `Image compressed: ${formatBytes(originalSize)} → ${formatBytes(compressedSize)} (${(compressionRatio * 100).toFixed(0)}% reduction)`
+        );
+      }
+
+      const fileExt = compressedFile.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('reward-images')
-        .upload(filePath, file);
+        .upload(filePath, compressedFile);
 
       if (uploadError) throw uploadError;
 
