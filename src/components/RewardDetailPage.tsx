@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, ShoppingBag, Star, Package, Zap, CheckCircle2, AlertTriangle, Coins, CreditCard, Sparkles, Gift, Clock, Lock } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Star, Package, Zap, CheckCircle2, AlertTriangle, Coins, CreditCard, Sparkles, Gift, Clock, Lock, Share2, Twitter, Facebook, Linkedin, Link2, Check } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
@@ -52,6 +52,8 @@ export function RewardDetailPage({ rewardId, onBack, onClaimSuccess }: RewardDet
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [shippingInfo, setShippingInfo] = useState({
     name: '',
     address: '',
@@ -147,6 +149,48 @@ export function RewardDetailPage({ rewardId, onBack, onClaimSuccess }: RewardDet
     }
   };
 
+  const generateShareUrl = () => {
+    const baseUrl = window.location.origin;
+    const referralCode = profile?.referral_code || '';
+    return `${baseUrl}/?reward=${rewardId}&ref=${referralCode}`;
+  };
+
+  const shareUrl = generateShareUrl();
+  const shareText = `Check out this amazing reward: ${reward?.title || 'Reward'} - Claim it now with my referral code and get bonus claim passes!`;
+
+  const handleShare = (platform: string) => {
+    const encodedUrl = encodeURIComponent(shareUrl);
+    const encodedText = encodeURIComponent(shareText);
+
+    const urls: Record<string, string> = {
+      twitter: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+    };
+
+    if (urls[platform]) {
+      window.open(urls[platform], '_blank', 'width=600,height=400');
+    }
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      toast({
+        title: 'Link Copied!',
+        description: 'Share this link to earn bonus claim passes when someone claims this reward',
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to copy link',
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (loading || !reward) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -176,15 +220,27 @@ export function RewardDetailPage({ rewardId, onBack, onClaimSuccess }: RewardDet
               Back to Rewards
             </Button>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowShareModal(true)}
+                className="gap-2"
+              >
+                <Share2 className="w-4 h-4" />
+                Share & Earn
+              </Button>
+              
+              <div className="flex items-center gap-4">
               <div className="text-right">
                 <p className="text-sm text-muted-foreground">Your Balance</p>
                 <p className="text-2xl font-bold text-primary">{claimBalance}</p>
               </div>
-              <BuyClaims 
-                currentBalance={claimBalance} 
-                onPurchaseSuccess={onClaimSuccess}
-              />
+                <BuyClaims 
+                  currentBalance={claimBalance} 
+                  onPurchaseSuccess={onClaimSuccess}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -485,6 +541,127 @@ export function RewardDetailPage({ rewardId, onBack, onClaimSuccess }: RewardDet
               {claiming ? 'Processing...' : 'Confirm Claim'}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Share Modal */}
+      <Dialog open={showShareModal} onOpenChange={setShowShareModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Share2 className="w-5 h-5 text-primary" />
+              Share & Earn Bonus
+            </DialogTitle>
+            <DialogDescription>
+              Share this reward with your referral code. When someone claims it through your link, you'll earn bonus claim passes!
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            {/* Reward Preview */}
+            <Card className="p-4 bg-muted/50">
+              <div className="flex items-center gap-3">
+                {reward.image_url ? (
+                  <ImageWithFallback
+                    src={reward.image_url}
+                    alt={reward.title}
+                    className="w-16 h-16 rounded-lg object-cover"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Icon className="w-8 h-8 text-primary" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold truncate">{reward.title}</h4>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Coins className="w-3 h-3" />
+                    {reward.cost} Claim Passes
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            {/* Bonus Info */}
+            <Card className="p-4 bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                  <Gift className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-1">Earn Bonus Claim Passes</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Get rewarded when someone claims this reward using your referral link!
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            {/* Share Buttons */}
+            <div className="space-y-3">
+              <p className="text-sm font-medium">Share on social media:</p>
+              <div className="grid grid-cols-3 gap-2">
+                <Button
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => handleShare('twitter')}
+                >
+                  <Twitter className="w-4 h-4" />
+                  Twitter
+                </Button>
+                <Button
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => handleShare('facebook')}
+                >
+                  <Facebook className="w-4 h-4" />
+                  Facebook
+                </Button>
+                <Button
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => handleShare('linkedin')}
+                >
+                  <Linkedin className="w-4 h-4" />
+                  LinkedIn
+                </Button>
+              </div>
+            </div>
+
+            {/* Copy Link */}
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Or copy the link:</p>
+              <div className="flex gap-2">
+                <Input
+                  value={shareUrl}
+                  readOnly
+                  className="font-mono text-sm"
+                />
+                <Button
+                  onClick={handleCopyLink}
+                  className="gap-2 flex-shrink-0"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <Link2 className="w-4 h-4" />
+                      Copy
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {profile?.referral_code && (
+              <p className="text-xs text-muted-foreground text-center">
+                Your referral code: <span className="font-mono font-semibold text-foreground">{profile.referral_code}</span>
+              </p>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
