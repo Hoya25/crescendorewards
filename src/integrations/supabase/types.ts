@@ -22,6 +22,7 @@ export type Database = {
           description: string
           earn_opportunities: Json | null
           id: string
+          image_url: string | null
           is_active: boolean
           is_featured: boolean
           logo_color: string
@@ -37,6 +38,7 @@ export type Database = {
           description: string
           earn_opportunities?: Json | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
           is_featured?: boolean
           logo_color: string
@@ -52,6 +54,7 @@ export type Database = {
           description?: string
           earn_opportunities?: Json | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
           is_featured?: boolean
           logo_color?: string
