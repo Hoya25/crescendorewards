@@ -55,6 +55,7 @@ interface Brand {
   is_featured: boolean;
   is_active: boolean;
   created_at: string;
+  image_url: string | null;
   earn_opportunities: { title: string; description: string; link: string; }[];
 }
 
@@ -87,6 +88,8 @@ export function AdminBrands() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -105,6 +108,7 @@ export function AdminBrands() {
     shop_url: '',
     is_featured: false,
     is_active: true,
+    image_url: null as string | null,
     earn_opportunities: [] as { title: string; description: string; link: string; }[],
   });
 
@@ -183,13 +187,74 @@ export function AdminBrands() {
     }
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
+    setSelectedImage(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    setFormData({ ...formData, image_url: null });
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!selectedImage) return formData.image_url;
+
+    try {
+      const fileExt = selectedImage.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = `brands/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('reward-images')
+        .upload(filePath, selectedImage);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('reward-images')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image');
+      return null;
+    }
+  };
+
   const handleAddBrand = async () => {
     try {
       setSubmitting(true);
       
+      // Upload image if selected
+      const imageUrl = await uploadImage();
+      
       const { error } = await supabase
         .from('brands')
-        .insert([formData]);
+        .insert([{ ...formData, image_url: imageUrl }]);
 
       if (error) throw error;
 
@@ -211,9 +276,12 @@ export function AdminBrands() {
     try {
       setSubmitting(true);
       
+      // Upload image if new image selected
+      const imageUrl = await uploadImage();
+      
       const { error } = await supabase
         .from('brands')
-        .update(formData)
+        .update({ ...formData, image_url: imageUrl })
         .eq('id', selectedBrand.id);
 
       if (error) throw error;
@@ -302,8 +370,10 @@ export function AdminBrands() {
       shop_url: brand.shop_url,
       is_featured: brand.is_featured,
       is_active: brand.is_active,
+      image_url: brand.image_url,
       earn_opportunities: brand.earn_opportunities || [],
     });
+    setImagePreview(brand.image_url);
     setShowEditDialog(true);
   };
 
@@ -323,8 +393,11 @@ export function AdminBrands() {
       shop_url: '',
       is_featured: false,
       is_active: true,
+      image_url: null,
       earn_opportunities: [],
     });
+    setSelectedImage(null);
+    setImagePreview(null);
   };
 
   const clearFilters = () => {
@@ -397,7 +470,7 @@ export function AdminBrands() {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="logo_emoji">Logo Emoji</Label>
+          <Label htmlFor="logo_emoji">Logo Emoji (fallback)</Label>
           <Input
             id="logo_emoji"
             value={formData.logo_emoji}
@@ -408,7 +481,7 @@ export function AdminBrands() {
         </div>
 
         <div>
-          <Label htmlFor="logo_color">Logo Color</Label>
+          <Label htmlFor="logo_color">Logo Color (fallback)</Label>
           <Select
             value={formData.logo_color}
             onValueChange={(value) => setFormData({ ...formData, logo_color: value })}
@@ -430,6 +503,49 @@ export function AdminBrands() {
               ))}
             </SelectContent>
           </Select>
+        </div>
+      </div>
+
+      <div>
+        <Label htmlFor="brand_image">Brand Logo Image</Label>
+        <div className="space-y-4">
+          {imagePreview ? (
+            <div className="relative">
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="w-full h-48 object-contain rounded-lg border bg-muted"
+              />
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={handleRemoveImage}
+                className="absolute top-2 right-2"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="border-2 border-dashed rounded-lg p-8 text-center">
+              <Input
+                id="brand_image"
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                className="hidden"
+              />
+              <Label
+                htmlFor="brand_image"
+                className="cursor-pointer flex flex-col items-center gap-2"
+              >
+                <Plus className="w-8 h-8 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
+                  Click to upload brand logo (max 5MB)
+                </span>
+              </Label>
+            </div>
+          )}
         </div>
       </div>
 
