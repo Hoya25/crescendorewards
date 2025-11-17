@@ -28,6 +28,7 @@ interface BrandPartnersPageProps {
   onBack: () => void;
   onNavigateToStatus: () => void;
   onNavigateToRewards: () => void;
+  onNavigateToBrandDetail: (brandId: string) => void;
 }
 
 interface Brand {
@@ -62,7 +63,7 @@ const statusMultipliers: Record<number, number> = {
   5: 2.0,
 };
 
-export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewards }: BrandPartnersPageProps) {
+export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewards, onNavigateToBrandDetail }: BrandPartnersPageProps) {
   const { profile } = useAuth();
   const [brands, setBrands] = useState<Brand[]>([]);
   const [filteredBrands, setFilteredBrands] = useState<Brand[]>([]);
@@ -110,9 +111,8 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
     }
   };
 
-  const handleShopNow = (brand: Brand) => {
-    window.open(brand.shop_url, '_blank');
-    toast.success(`Opening ${brand.name} - Your earnings will be tracked!`);
+  const handleViewBrand = (brand: Brand) => {
+    onNavigateToBrandDetail(brand.id);
   };
 
   const calculateMultipliedRate = (baseRate: number) => {
@@ -272,10 +272,9 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
                           <Button 
                             size="lg" 
                             className="gap-2"
-                            onClick={() => handleShopNow(brand)}
+                            onClick={() => handleViewBrand(brand)}
                           >
-                            <ShoppingBag className="w-4 h-4" />
-                            Shop Now
+                            View Opportunities
                             <ExternalLink className="w-4 h-4" />
                           </Button>
                         </div>
@@ -357,10 +356,10 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
                     <Button 
                       className="w-full gap-2" 
                       variant="outline"
-                      onClick={() => handleShopNow(brand)}
+                      onClick={() => handleViewBrand(brand)}
                     >
                       <ExternalLink className="w-4 h-4" />
-                      Shop Now
+                      View Opportunities
                     </Button>
                   </CardContent>
                 </Card>
