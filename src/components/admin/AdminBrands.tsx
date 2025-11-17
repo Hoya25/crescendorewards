@@ -90,6 +90,7 @@ export function AdminBrands() {
   const [submitting, setSubmitting] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -187,10 +188,7 @@ export function AdminBrands() {
     }
   };
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const validateAndSetImage = (file: File) => {
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
@@ -213,9 +211,44 @@ export function AdminBrands() {
     reader.readAsDataURL(file);
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    validateAndSetImage(file);
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      validateAndSetImage(file);
+    }
+  };
+
   const handleRemoveImage = () => {
     setSelectedImage(null);
     setImagePreview(null);
+    setIsDragging(false);
     setFormData({ ...formData, image_url: null });
   };
 
@@ -398,6 +431,7 @@ export function AdminBrands() {
     });
     setSelectedImage(null);
     setImagePreview(null);
+    setIsDragging(false);
   };
 
   const clearFilters = () => {
@@ -527,7 +561,17 @@ export function AdminBrands() {
               </Button>
             </div>
           ) : (
-            <div className="border-2 border-dashed rounded-lg p-8 text-center">
+            <div
+              onDragEnter={handleDragEnter}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                isDragging
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-primary/50'
+              }`}
+            >
               <Input
                 id="brand_image"
                 type="file"
@@ -541,7 +585,10 @@ export function AdminBrands() {
               >
                 <Plus className="w-8 h-8 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
-                  Click to upload brand logo (max 5MB)
+                  {isDragging ? 'Drop image here' : 'Click or drag & drop to upload brand logo'}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  Max 5MB
                 </span>
               </Label>
             </div>

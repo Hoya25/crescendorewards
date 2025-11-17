@@ -33,6 +33,7 @@ export function AdminRewards() {
   const [uploading, setUploading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -101,10 +102,7 @@ export function AdminRewards() {
     setShowModal(true);
   };
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const validateAndSetImage = (file: File) => {
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast({
@@ -135,9 +133,44 @@ export function AdminRewards() {
     reader.readAsDataURL(file);
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    validateAndSetImage(file);
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      validateAndSetImage(file);
+    }
+  };
+
   const handleRemoveImage = () => {
     setImageFile(null);
     setImagePreview(null);
+    setIsDragging(false);
     setFormData({ ...formData, image_url: null });
   };
 
@@ -403,18 +436,36 @@ export function AdminRewards() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="w-full h-48 border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                  <div
+                    onDragEnter={handleDragEnter}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={`w-full h-48 border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-2 transition-colors ${
+                      isDragging
+                        ? 'border-primary bg-primary/5 text-primary'
+                        : 'border-border text-muted-foreground hover:border-primary/50'
+                    }`}
+                  >
                     <Upload className="w-8 h-8" />
-                    <p className="text-sm">No image selected</p>
+                    <p className="text-sm font-medium">
+                      {isDragging ? 'Drop image here' : 'Drag & drop or click to upload'}
+                    </p>
+                    <Input
+                      id="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                      className="hidden"
+                    />
+                    <Label
+                      htmlFor="image"
+                      className="cursor-pointer text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Click to browse files
+                    </Label>
                   </div>
                 )}
-                <Input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageSelect}
-                  className="cursor-pointer"
-                />
                 <p className="text-xs text-muted-foreground">
                   Supported: JPG, PNG, WEBP, GIF (Max 5MB)
                 </p>
