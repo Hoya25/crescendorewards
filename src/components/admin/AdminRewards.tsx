@@ -13,6 +13,7 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { validateImageFile } from '@/lib/image-validation';
+import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 
 interface Reward {
   id: string;
@@ -171,16 +172,27 @@ export function AdminRewards() {
 
     try {
       setUploading(true);
+
+      // Compress image before upload
+      const { file: compressedFile, originalSize, compressedSize, compressionRatio } = 
+        await compressImageWithStats(imageFile);
+
+      if (compressionRatio > 0.1) {
+        toast({
+          title: 'Image Compressed',
+          description: `Reduced from ${formatBytes(originalSize)} to ${formatBytes(compressedSize)}`,
+        });
+      }
       
       // Generate unique filename
-      const fileExt = imageFile.name.split('.').pop();
+      const fileExt = compressedFile.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
       const filePath = `rewards/${fileName}`;
 
       // Upload to Supabase Storage
       const { error: uploadError, data } = await supabase.storage
         .from('reward-images')
-        .upload(filePath, imageFile, {
+        .upload(filePath, compressedFile, {
           cacheControl: '3600',
           upsert: false,
         });

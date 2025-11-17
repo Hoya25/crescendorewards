@@ -17,6 +17,7 @@ import { useWalletAuth } from '@/hooks/useWalletAuth';
 import { useNCTRBalance } from '@/hooks/useNCTRBalance';
 import { getMembershipTierByNCTR } from '@/utils/membershipLevels';
 import { validateImageFile } from '@/lib/image-validation';
+import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 
 interface Profile {
   id: string;
@@ -69,6 +70,17 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh }: ProfilePa
     try {
       setUploading(true);
 
+      // Compress image before upload
+      const { file: compressedFile, originalSize, compressedSize } = 
+        await compressImageWithStats(file);
+
+      if (compressedSize < originalSize) {
+        toast({
+          title: 'Image Compressed',
+          description: `Reduced from ${formatBytes(originalSize)} to ${formatBytes(compressedSize)}`,
+        });
+      }
+
       // Delete old avatar if exists
       if (avatarUrl) {
         const oldPath = avatarUrl.split('/').pop();
@@ -78,13 +90,13 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh }: ProfilePa
       }
 
       // Upload new avatar
-      const fileExt = file.name.split('.').pop();
+      const fileExt = compressedFile.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
       const filePath = `${profile.id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file, {
+        .upload(filePath, compressedFile, {
           cacheControl: '3600',
           upsert: false,
         });

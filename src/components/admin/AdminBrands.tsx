@@ -43,6 +43,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2, Star, ExternalLink, Loader2, Search, Filter, X, SortAsc, SortDesc } from 'lucide-react';
 import { toast } from 'sonner';
 import { validateImageFile } from '@/lib/image-validation';
+import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 
 interface Brand {
   id: string;
@@ -252,13 +253,23 @@ export function AdminBrands() {
     if (!selectedImage) return formData.image_url;
 
     try {
-      const fileExt = selectedImage.name.split('.').pop();
+      // Compress image before upload
+      const { file: compressedFile, originalSize, compressedSize, compressionRatio } = 
+        await compressImageWithStats(selectedImage);
+
+      if (compressionRatio > 0.1) {
+        toast.success(
+          `Image compressed: ${formatBytes(originalSize)} → ${formatBytes(compressedSize)} (${(compressionRatio * 100).toFixed(0)}% reduction)`
+        );
+      }
+
+      const fileExt = compressedFile.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
       const filePath = `brands/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('reward-images')
-        .upload(filePath, selectedImage);
+        .upload(filePath, compressedFile);
 
       if (uploadError) throw uploadError;
 
@@ -267,9 +278,9 @@ export function AdminBrands() {
         .getPublicUrl(filePath);
 
       return publicUrl;
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error uploading image:', error);
-      toast.error('Failed to upload image');
+      toast.error('Failed to upload brand image');
       return null;
     }
   };
