@@ -10,11 +10,14 @@ import {
   Calendar, DollarSign, Lock, Image as ImageIcon,
   FileText, Filter, AlertCircle, Share2, Twitter, 
   Facebook, Linkedin, Link2, Check, TrendingUp, 
-  MousePointerClick, Users, Award
+  MousePointerClick, Users, Award, Edit, History, 
+  GitBranch
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { UpdateRewardModal } from '@/components/UpdateRewardModal';
+import { RewardVersionHistory } from '@/components/RewardVersionHistory';
 
 interface SubmissionPageProps {
   onBack: () => void;
@@ -36,6 +39,10 @@ interface RewardSubmission {
   admin_notes: string | null;
   created_at: string;
   updated_at: string;
+  version: number;
+  parent_submission_id: string | null;
+  is_latest_version: boolean;
+  version_notes: string | null;
 }
 
 export function MySubmissionsPage({ onBack }: SubmissionPageProps) {
@@ -47,6 +54,10 @@ export function MySubmissionsPage({ onBack }: SubmissionPageProps) {
   const [selectedSubmission, setSelectedSubmission] = useState<RewardSubmission | null>(null);
   const [copied, setCopied] = useState(false);
   const [shareStats, setShareStats] = useState<Record<string, any>>({});
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [submissionToUpdate, setSubmissionToUpdate] = useState<RewardSubmission | null>(null);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [versionHistoryId, setVersionHistoryId] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -234,6 +245,21 @@ export function MySubmissionsPage({ onBack }: SubmissionPageProps) {
     }
   };
 
+  const handleUpdateClick = (submission: RewardSubmission) => {
+    setSubmissionToUpdate(submission);
+    setShowUpdateModal(true);
+  };
+
+  const handleViewHistory = (submissionId: string) => {
+    setVersionHistoryId(submissionId);
+    setShowVersionHistory(true);
+  };
+
+  const handleUpdateSuccess = () => {
+    fetchSubmissions();
+    setShowUpdateModal(false);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
@@ -371,10 +397,25 @@ export function MySubmissionsPage({ onBack }: SubmissionPageProps) {
                   <div className="flex-1 p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div>
-                        <h3 className="text-2xl font-bold mb-2">{submission.title}</h3>
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-2xl font-bold">{submission.title}</h3>
+                          {submission.version > 1 && (
+                            <Badge variant="outline" className="gap-1">
+                              <GitBranch className="w-3 h-3" />
+                              v{submission.version}
+                            </Badge>
+                          )}
+                        </div>
                         <p className="text-muted-foreground">{submission.description}</p>
                       </div>
-                      {getStatusBadge(submission.status)}
+                      <div className="flex flex-col gap-2 items-end">
+                        {getStatusBadge(submission.status)}
+                        {submission.is_latest_version && submission.version > 1 && (
+                          <Badge variant="secondary" className="text-xs">
+                            Latest
+                          </Badge>
+                        )}
+                      </div>
                     </div>
 
                     {/* Status Description */}
@@ -449,6 +490,57 @@ export function MySubmissionsPage({ onBack }: SubmissionPageProps) {
                               Admin Notes
                             </div>
                             <p className="text-sm">{submission.admin_notes}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Version Notes for Updates */}
+                    {submission.version_notes && submission.version > 1 && (
+                      <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-4 mb-4">
+                        <div className="flex items-start gap-2">
+                          <GitBranch className="w-4 h-4 text-blue-600 mt-0.5" />
+                          <div>
+                            <div className="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">
+                              Update Notes (v{submission.version})
+                            </div>
+                            <p className="text-sm">{submission.version_notes}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Version Management for Approved Submissions */}
+                    {submission.status === 'approved' && submission.is_latest_version && (
+                      <div className="border-t pt-4 mt-4 mb-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Edit className="w-5 h-5 text-primary" />
+                              <h4 className="font-semibold">Manage Your Reward</h4>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              Keep your reward up-to-date by submitting improvements
+                            </p>
+                          </div>
+                          <div className="flex gap-2 w-full sm:w-auto">
+                            {(submission.version > 1 || submission.parent_submission_id) && (
+                              <Button
+                                variant="outline"
+                                onClick={() => handleViewHistory(submission.id)}
+                                className="gap-2 flex-1 sm:flex-initial"
+                              >
+                                <History className="w-4 h-4" />
+                                History
+                              </Button>
+                            )}
+                            <Button
+                              onClick={() => handleUpdateClick(submission)}
+                              className="gap-2 flex-1 sm:flex-initial"
+                            >
+                              <Edit className="w-4 h-4" />
+                              Update Reward
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -633,6 +725,25 @@ export function MySubmissionsPage({ onBack }: SubmissionPageProps) {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Update Reward Modal */}
+      {submissionToUpdate && (
+        <UpdateRewardModal
+          open={showUpdateModal}
+          onClose={() => setShowUpdateModal(false)}
+          submission={submissionToUpdate}
+          onSuccess={handleUpdateSuccess}
+        />
+      )}
+
+      {/* Version History Modal */}
+      {versionHistoryId && (
+        <RewardVersionHistory
+          open={showVersionHistory}
+          onClose={() => setShowVersionHistory(false)}
+          submissionId={versionHistoryId}
+        />
+      )}
     </div>
   );
 }
