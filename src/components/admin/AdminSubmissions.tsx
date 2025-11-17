@@ -9,12 +9,14 @@ import { toast } from 'sonner';
 import { 
   CheckCircle, XCircle, Clock, Filter, Search, 
   Package, User, Calendar, DollarSign, Lock,
-  FileText, Image as ImageIcon, Star
+  FileText, Image as ImageIcon, Star, GitBranch,
+  History
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
+import { RewardVersionHistory } from '@/components/RewardVersionHistory';
 
 interface RewardSubmission {
   id: string;
@@ -33,6 +35,10 @@ interface RewardSubmission {
   admin_notes: string | null;
   created_at: string;
   updated_at: string;
+  version: number;
+  parent_submission_id: string | null;
+  is_latest_version: boolean;
+  version_notes: string | null;
   profiles?: {
     full_name: string | null;
     email: string | null;
@@ -48,6 +54,8 @@ export function AdminSubmissions() {
   const [selectedSubmission, setSelectedSubmission] = useState<RewardSubmission | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
   const [updating, setUpdating] = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const [versionHistoryId, setVersionHistoryId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSubmissions();
@@ -292,17 +300,48 @@ export function AdminSubmissions() {
                     )}
                   </div>
 
-                  {/* Content */}
-                  <div className="flex-1 space-y-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-xl font-bold">{submission.title}</h3>
-                          {getStatusBadge(submission.status)}
+                    {/* Content */}
+                    <div className="flex-1 space-y-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2 flex-wrap">
+                            <h3 className="text-xl font-bold">{submission.title}</h3>
+                            {getStatusBadge(submission.status)}
+                            {submission.version > 1 && (
+                              <Badge variant="outline" className="gap-1">
+                                <GitBranch className="w-3 h-3" />
+                                v{submission.version}
+                              </Badge>
+                            )}
+                            {submission.is_latest_version && submission.version > 1 && (
+                              <Badge variant="secondary" className="text-xs">
+                                Latest
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-muted-foreground line-clamp-2">{submission.description}</p>
+                          {submission.version_notes && submission.version > 1 && (
+                            <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
+                              <span className="font-medium">Update: </span>
+                              <span>{submission.version_notes}</span>
+                            </div>
+                          )}
                         </div>
-                        <p className="text-muted-foreground line-clamp-2">{submission.description}</p>
+                        {(submission.version > 1 || submission.parent_submission_id) && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setVersionHistoryId(submission.id);
+                              setShowVersionHistory(true);
+                            }}
+                            className="gap-2"
+                          >
+                            <History className="w-4 h-4" />
+                            History
+                          </Button>
+                        )}
                       </div>
-                    </div>
 
                     {/* Details Grid */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4 border-y">
@@ -504,6 +543,15 @@ export function AdminSubmissions() {
           ))
         )}
       </div>
+
+      {/* Version History Modal */}
+      {versionHistoryId && (
+        <RewardVersionHistory
+          open={showVersionHistory}
+          onClose={() => setShowVersionHistory(false)}
+          submissionId={versionHistoryId}
+        />
+      )}
     </div>
   );
 }

@@ -285,6 +285,44 @@ export type Database = {
           },
         ]
       }
+      reward_submission_changes: {
+        Row: {
+          change_summary: string | null
+          changed_fields: Json
+          created_at: string
+          id: string
+          new_version: number
+          previous_version: number
+          submission_id: string
+        }
+        Insert: {
+          change_summary?: string | null
+          changed_fields: Json
+          created_at?: string
+          id?: string
+          new_version: number
+          previous_version: number
+          submission_id: string
+        }
+        Update: {
+          change_summary?: string | null
+          changed_fields?: Json
+          created_at?: string
+          id?: string
+          new_version?: number
+          previous_version?: number
+          submission_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_submission_changes_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "reward_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reward_submissions: {
         Row: {
           admin_notes: string | null
@@ -295,14 +333,18 @@ export type Database = {
           description: string
           id: string
           image_url: string | null
+          is_latest_version: boolean
           lock_rate: string
           nctr_value: number
+          parent_submission_id: string | null
           reward_type: string
           status: string
           stock_quantity: number | null
           title: string
           updated_at: string
           user_id: string
+          version: number
+          version_notes: string | null
         }
         Insert: {
           admin_notes?: string | null
@@ -313,14 +355,18 @@ export type Database = {
           description: string
           id?: string
           image_url?: string | null
+          is_latest_version?: boolean
           lock_rate: string
           nctr_value: number
+          parent_submission_id?: string | null
           reward_type: string
           status?: string
           stock_quantity?: number | null
           title: string
           updated_at?: string
           user_id: string
+          version?: number
+          version_notes?: string | null
         }
         Update: {
           admin_notes?: string | null
@@ -331,16 +377,27 @@ export type Database = {
           description?: string
           id?: string
           image_url?: string | null
+          is_latest_version?: boolean
           lock_rate?: string
           nctr_value?: number
+          parent_submission_id?: string | null
           reward_type?: string
           status?: string
           stock_quantity?: number | null
           title?: string
           updated_at?: string
           user_id?: string
+          version?: number
+          version_notes?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "reward_submissions_parent_submission_id_fkey"
+            columns: ["parent_submission_id"]
+            isOneToOne: false
+            referencedRelation: "reward_submissions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reward_submissions_user_id_fkey"
             columns: ["user_id"]
@@ -509,6 +566,23 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      submit_reward_version: {
+        Args: {
+          p_brand: string
+          p_category: string
+          p_claim_passes_required: number
+          p_description: string
+          p_image_url: string
+          p_lock_rate: string
+          p_nctr_value: number
+          p_parent_submission_id: string
+          p_reward_type: string
+          p_stock_quantity: number
+          p_title: string
+          p_version_notes: string
+        }
+        Returns: Json
       }
       track_reward_conversion: {
         Args: { p_referral_code: string; p_reward_id: string }
