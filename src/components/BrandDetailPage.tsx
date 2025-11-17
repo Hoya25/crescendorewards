@@ -26,6 +26,7 @@ interface Brand {
   logo_emoji: string;
   logo_color: string;
   earn_opportunities: EarnOpportunity[];
+  image_url?: string | null;
 }
 
 const statusMultipliers: Record<number, number> = {
@@ -120,12 +121,20 @@ export function BrandDetailPage({ brandId, onBack }: BrandDetailPageProps) {
         <Card className="mb-6">
           <CardHeader>
             <div className="flex items-start gap-4">
-              <div 
-                className="w-20 h-20 rounded-lg flex items-center justify-center text-4xl flex-shrink-0"
-                style={{ backgroundColor: brand.logo_color }}
-              >
-                {brand.logo_emoji}
-              </div>
+              {brand.image_url ? (
+                <img 
+                  src={brand.image_url} 
+                  alt={brand.name}
+                  className="w-20 h-20 object-contain rounded-lg bg-muted p-2 flex-shrink-0"
+                />
+              ) : (
+                <div 
+                  className="w-20 h-20 rounded-lg flex items-center justify-center text-4xl flex-shrink-0"
+                  style={{ backgroundColor: brand.logo_color }}
+                >
+                  {brand.logo_emoji}
+                </div>
+              )}
               <div className="flex-1">
                 <CardTitle className="text-3xl mb-2">{brand.name}</CardTitle>
                 <CardDescription className="text-base">{brand.description}</CardDescription>
