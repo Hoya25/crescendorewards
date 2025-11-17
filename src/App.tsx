@@ -108,7 +108,7 @@ function CrescendoApp() {
   };
 
   const handleViewMarketplace = () => {
-    toast.info("Marketplace coming soon!");
+    setCurrentView("rewards");
   };
 
   const handleSubmitRewards = () => {
