@@ -150,7 +150,7 @@ function CrescendoApp() {
   }
 
   return (
-    <div>
+    <div className="w-full max-w-[100vw] overflow-x-hidden">
       {currentView === "landing" && !isAuthenticated && (
         <LandingPage
           onJoin={handleJoin}
