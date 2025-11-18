@@ -397,7 +397,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                   All
                 </TabsTrigger>
                 {Object.entries(categoryLabels).map(([key, label]) => {
-                  const Icon = categoryIcons[key as keyof typeof categoryIcons];
+                  const Icon = categoryIcons[key as keyof typeof categoryIcons] || Gift;
                   return (
                     <TabsTrigger key={key} value={key} className="flex items-center gap-2 whitespace-nowrap">
                       <Icon className="w-4 h-4" />
@@ -505,7 +505,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             >
               <CarouselContent className="-ml-2 md:-ml-4">
               {featuredRewards.map((reward) => {
-                const Icon = categoryIcons[reward.category];
+                const Icon = categoryIcons[reward.category] || Gift;
                 const affordable = canAfford(reward.cost);
                 const outOfStock = reward.stock_quantity !== null && reward.stock_quantity <= 0;
                 const stockPercentage = reward.stock_quantity !== null ? (reward.stock_quantity / 100) * 100 : 100;
@@ -701,7 +701,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {filteredRewards.map((reward) => {
-              const Icon = categoryIcons[reward.category];
+              const Icon = categoryIcons[reward.category] || Gift;
               const affordable = canAfford(reward.cost);
               const outOfStock = reward.stock_quantity !== null && reward.stock_quantity <= 0;
               const stockPercentage = reward.stock_quantity !== null ? (reward.stock_quantity / 100) * 100 : 100;
@@ -894,7 +894,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                   ) : (
                     <div className="flex items-center justify-center h-64 bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg">
                       {(() => {
-                        const Icon = categoryIcons[selectedReward.category];
+                        const Icon = categoryIcons[selectedReward.category] || Gift;
                         return <Icon className="w-32 h-32 text-primary" />;
                       })()}
                     </div>
