@@ -15,9 +15,9 @@ interface LandingPageProps {
 
 export function LandingPage({ onJoin, onViewRewards, onSignIn, onViewLevelDetail }: LandingPageProps) {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen w-full overflow-x-hidden">
       {/* Navigation */}
-      <nav className="flex flex-col md:flex-row items-center justify-between p-6 gap-4">
+      <nav className="flex flex-col md:flex-row items-center justify-between p-4 md:p-6 gap-4 w-full max-w-7xl mx-auto">
         <div className="flex items-center gap-4">
           <CrescendoLogo />
         </div>
@@ -35,25 +35,25 @@ export function LandingPage({ onJoin, onViewRewards, onSignIn, onViewLevelDetail
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-6 overflow-hidden">
+      <section className="relative pt-16 md:pt-32 pb-12 md:pb-20 px-4 md:px-6 overflow-hidden w-full">
         <div className="absolute inset-0 bg-gradient-to-br from-violet-50 via-indigo-50 to-blue-50 -z-10" />
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDEyNCwgNTgsIDIzNywgMC4wNSkiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-40 -z-10" />
 
-        <div className="max-w-7xl mx-auto text-center">
-          <Badge className="mb-6 bg-violet-100 text-violet-700 hover:bg-violet-100">
+        <div className="max-w-7xl mx-auto text-center px-4">
+          <Badge className="mb-4 md:mb-6 bg-violet-100 text-violet-700 hover:bg-violet-100">
             Member Built. Member Owned.
           </Badge>
-          <h1 className="text-6xl font-bold tracking-tight mb-6 bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 md:mb-6 bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
             Unlock Exclusive Rewards
           </h1>
-          <p className="text-xl text-neutral-600 max-w-2xl mx-auto mb-10">
+          <p className="text-base md:text-xl text-neutral-600 max-w-2xl mx-auto mb-6 md:mb-10 px-4">
             Commit NCTR to 360LOCK, claim your status NFT on Base, and access crowdsourced digital rewards from Crescendo brands.
           </p>
-          <div className="flex items-center justify-center gap-4">
-            <Button onClick={onJoin} size="lg" className="bg-violet-600 hover:bg-violet-700 text-white">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 px-4">
+            <Button onClick={onJoin} size="lg" className="bg-violet-600 hover:bg-violet-700 text-white w-full sm:w-auto">
               Join Crescendo
             </Button>
-            <Button onClick={onViewRewards} size="lg" variant="outline">
+            <Button onClick={onViewRewards} size="lg" variant="outline" className="w-full sm:w-auto">
               View Rewards
             </Button>
           </div>
@@ -61,14 +61,14 @@ export function LandingPage({ onJoin, onViewRewards, onSignIn, onViewLevelDetail
       </section>
 
       {/* How It Works */}
-      <section className="py-20 px-6 bg-white dark:bg-gray-950">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold tracking-tight mb-4">How It Works</h2>
+      <section className="py-12 md:py-20 px-4 md:px-6 bg-white dark:bg-gray-950 w-full">
+        <div className="max-w-7xl mx-auto w-full">
+          <div className="text-center mb-8 md:mb-16 px-4">
+            <h2 className="text-2xl md:text-4xl font-bold tracking-tight mb-4">How It Works</h2>
             <p className="text-neutral-600 dark:text-neutral-400">Three simple steps to unlock your rewards</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 px-4">
             <Card className="border-2 hover:border-violet-200 transition-colors">
               <CardContent className="pt-8">
                 <div className="w-14 h-14 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center mb-6">

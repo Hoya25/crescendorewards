@@ -315,26 +315,26 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const needsShipping = selectedReward?.category === 'merch' || selectedReward?.category === 'experiences';
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/80 pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/80 pb-20 w-full max-w-[100vw] overflow-x-hidden">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-3 mb-4">
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b w-full">
+        <div className="container mx-auto px-4 py-4 md:py-6 max-w-full">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
             {onBack && (
               <Button variant="ghost" size="icon" onClick={onBack} className="flex-shrink-0">
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             )}
             <div className="flex-1 min-w-0">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                 Rewards Marketplace
               </h1>
-              <p className="text-muted-foreground mt-1 truncate">Redeem your tokens for amazing rewards</p>
+              <p className="text-muted-foreground mt-1 truncate text-sm md:text-base">Redeem your tokens for amazing rewards</p>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <div className="text-right hidden sm:block">
-                <p className="text-sm text-muted-foreground">Your Balance</p>
-                <p className="text-3xl font-bold text-primary">{claimBalance}</p>
+            <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
+              <div className="text-right flex-1 sm:flex-none sm:block">
+                <p className="text-xs sm:text-sm text-muted-foreground">Your Balance</p>
+                <p className="text-2xl sm:text-3xl font-bold text-primary">{claimBalance}</p>
                 <p className="text-xs text-muted-foreground">Claims</p>
               </div>
               <BuyClaims 
@@ -387,22 +387,24 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           </div>
 
           {/* Category Tabs */}
-          <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mt-4">
-            <TabsList className="w-full justify-start overflow-x-auto">
-              <TabsTrigger value="all" className="flex items-center gap-2">
-                <Gift className="w-4 h-4" />
-                All
-              </TabsTrigger>
-              {Object.entries(categoryLabels).map(([key, label]) => {
-                const Icon = categoryIcons[key as keyof typeof categoryIcons];
-                return (
-                  <TabsTrigger key={key} value={key} className="flex items-center gap-2">
-                    <Icon className="w-4 h-4" />
-                    {label}
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
+          <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mt-4 w-full">
+            <div className="w-full overflow-x-auto -mx-4 px-4">
+              <TabsList className="w-max min-w-full justify-start flex-nowrap">
+                <TabsTrigger value="all" className="flex items-center gap-2 whitespace-nowrap">
+                  <Gift className="w-4 h-4" />
+                  All
+                </TabsTrigger>
+                {Object.entries(categoryLabels).map(([key, label]) => {
+                  const Icon = categoryIcons[key as keyof typeof categoryIcons];
+                  return (
+                    <TabsTrigger key={key} value={key} className="flex items-center gap-2 whitespace-nowrap">
+                      <Icon className="w-4 h-4" />
+                      {label}
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </div>
           </Tabs>
 
           {/* Filters and Sorting */}
@@ -469,9 +471,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       {!loading && featuredRewards.length > 0 && (
         <div className="container mx-auto px-4 py-8">
           <div className="mb-6 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Sparkles className="w-6 h-6 text-primary animate-pulse" />
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            <div className="flex items-center gap-2 md:gap-3">
+              <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-primary animate-pulse" />
+              <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                 Featured Rewards
               </h2>
             </div>
@@ -481,24 +483,25 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             </Badge>
           </div>
           
-          <Carousel
-            setApi={setCarouselApi}
-            opts={{
-              align: "start",
-              loop: true,
-              skipSnaps: false,
-              dragFree: false,
-            }}
-            plugins={[
-              Autoplay({
-                delay: 5000,
-                stopOnInteraction: true,
-                stopOnMouseEnter: true,
-              }),
-            ]}
-            className="w-full touch-pan-x"
-          >
-            <CarouselContent className="-ml-4">
+          <div className="w-full overflow-hidden -mx-4 px-4">
+            <Carousel
+              setApi={setCarouselApi}
+              opts={{
+                align: "start",
+                loop: true,
+                skipSnaps: false,
+                dragFree: false,
+              }}
+              plugins={[
+                Autoplay({
+                  delay: 5000,
+                  stopOnInteraction: true,
+                  stopOnMouseEnter: true,
+                }),
+              ]}
+              className="w-full touch-pan-x"
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
               {featuredRewards.map((reward) => {
                 const Icon = categoryIcons[reward.category];
                 const affordable = canAfford(reward.cost);
@@ -506,12 +509,12 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 const stockPercentage = reward.stock_quantity !== null ? (reward.stock_quantity / 100) * 100 : 100;
 
                 return (
-                  <CarouselItem key={reward.id} className="pl-4 md:basis-1/2 lg:basis-1/3">
-                    <Card 
-                      className="group cursor-pointer transition-all hover:shadow-2xl border-0 overflow-hidden bg-card/50 backdrop-blur"
-                      onClick={() => handleRewardClick(reward)}
-                    >
-                      <div className="relative w-full h-80 bg-gradient-to-br from-primary/20 via-background to-secondary/20">
+                <CarouselItem key={reward.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
+                  <Card 
+                    className="group cursor-pointer transition-all hover:shadow-2xl border-0 overflow-hidden bg-card/50 backdrop-blur"
+                    onClick={() => handleRewardClick(reward)}
+                  >
+                    <div className="relative w-full h-64 md:h-80 bg-gradient-to-br from-primary/20 via-background to-secondary/20">
                         {reward.image_url ? (
                           <ImageWithFallback
                             src={reward.image_url}
@@ -650,6 +653,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             <CarouselPrevious className="hidden md:flex -left-12 lg:-left-16 hover:scale-110 transition-transform bg-background/80 backdrop-blur" />
             <CarouselNext className="hidden md:flex -right-12 lg:-right-16 hover:scale-110 transition-transform bg-background/80 backdrop-blur" />
           </Carousel>
+          </div>
 
           {/* Carousel Indicators */}
           <div className="flex justify-center gap-2 mt-6">
@@ -660,21 +664,23 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               />
             ))}
           </div>
-
         </div>
       )}
 
       {/* Regular Rewards Grid */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 md:py-12 max-w-full">
         {!loading && featuredRewards.length > 0 && (
           <div className="flex items-center gap-2 mb-6">
-            <Star className="w-5 h-5 text-orange-500" />
-            <h2 className="text-2xl font-bold">Featured Rewards</h2>
+            <Trophy className="w-5 h-5 text-primary" />
+            <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">All Rewards</h2>
+            <Badge variant="secondary" className="gap-1">
+              {filteredRewards.length} Available
+            </Badge>
           </div>
         )}
         
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {[...Array(6)].map((_, i) => (
               <Card key={i} className="animate-pulse overflow-hidden">
                 <div className="h-56 bg-muted" />
@@ -691,7 +697,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             <p className="text-xl text-muted-foreground">No rewards available in this category</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {filteredRewards.map((reward) => {
               const Icon = categoryIcons[reward.category];
               const affordable = canAfford(reward.cost);
