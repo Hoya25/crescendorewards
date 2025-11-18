@@ -11,7 +11,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from '@/components/ui/carousel';
 import { toast } from '@/hooks/use-toast';
-import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Star, Flame, Clock, Lock, AlertTriangle, Package, Zap, ArrowUpDown, Filter, Search, ArrowLeft, Store, Trophy } from 'lucide-react';
+import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Star, Flame, Clock, Lock, AlertTriangle, Package, Zap, ArrowUpDown, Filter, Search, ArrowLeft, Store, Trophy, Heart } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -22,7 +22,7 @@ interface Reward {
   id: string;
   title: string;
   description: string;
-  category: 'alliance_tokens' | 'experiences' | 'merch' | 'gift_cards';
+  category: 'alliance_tokens' | 'experiences' | 'merch' | 'gift_cards' | 'wellness';
   cost: number;
   image_url: string | null;
   stock_quantity: number | null;
@@ -45,6 +45,7 @@ const categoryIcons = {
   experiences: Sparkles,
   merch: ShoppingBag,
   gift_cards: CreditCard,
+  wellness: Heart,
 };
 
 const categoryLabels = {
@@ -52,6 +53,7 @@ const categoryLabels = {
   experiences: 'Experiences',
   merch: 'Merch',
   gift_cards: 'Gift Cards',
+  wellness: 'Wellness & Health',
 };
 
 export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBack, onNavigateToBrands, onViewRewardDetail }: RewardsPoolProps) {
