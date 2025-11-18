@@ -73,6 +73,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const [claiming, setClaiming] = useState(false);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const [currentSlide, setCurrentSlide] = useState(0);
   const [shippingInfo, setShippingInfo] = useState({
     name: '',
     address: '',
@@ -91,13 +92,17 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     }
   };
 
-  // Set up carousel event listener for haptic feedback
+  // Set up carousel event listener for haptic feedback and slide tracking
   useEffect(() => {
     if (!carouselApi) return;
 
     const onSelect = () => {
       triggerHaptic();
+      setCurrentSlide(carouselApi.selectedScrollSnap());
     };
+
+    // Set initial slide
+    setCurrentSlide(carouselApi.selectedScrollSnap());
 
     carouselApi.on('select', onSelect);
 
@@ -652,19 +657,31 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 );
               })}
             </CarouselContent>
-            <CarouselPrevious className="hidden md:flex -left-12 lg:-left-16 hover:scale-110 transition-transform bg-background/80 backdrop-blur" />
-            <CarouselNext className="hidden md:flex -right-12 lg:-right-16 hover:scale-110 transition-transform bg-background/80 backdrop-blur" />
+            <CarouselPrevious className="-left-4 md:-left-12 lg:-left-16 hover:scale-110 transition-transform bg-background/90 backdrop-blur shadow-lg border-2 border-border/50 h-12 w-12" />
+            <CarouselNext className="-right-4 md:-right-12 lg:-right-16 hover:scale-110 transition-transform bg-background/90 backdrop-blur shadow-lg border-2 border-border/50 h-12 w-12" />
           </Carousel>
           </div>
 
           {/* Carousel Indicators */}
           <div className="flex justify-center gap-2 mt-6">
             {featuredRewards.map((_, index) => (
-              <div
+              <button
                 key={index}
-                className="w-2 h-2 rounded-full bg-primary/30 hover:bg-primary transition-colors cursor-pointer"
+                onClick={() => carouselApi?.scrollTo(index)}
+                className={`h-2 rounded-full transition-all ${
+                  currentSlide === index 
+                    ? 'w-8 bg-primary' 
+                    : 'w-2 bg-primary/30 hover:bg-primary/50'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
               />
             ))}
+          </div>
+          
+          {/* Swipe Hint for Mobile */}
+          <div className="flex md:hidden justify-center items-center gap-2 mt-4 text-xs text-muted-foreground">
+            <ArrowLeft className="w-3 h-3" />
+            <span>Swipe to explore</span>
           </div>
         </div>
       )}
