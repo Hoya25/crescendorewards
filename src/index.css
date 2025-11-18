@@ -94,6 +94,37 @@ All colors MUST be HSL.
   }
 }
 
+/* Scrollbar styling */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth touch scrolling */
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Minimum touch target sizing for mobile */
+@media (hover: none) and (pointer: coarse) {
+  button:not(.no-min-size), 
+  a:not(.no-min-size), 
+  [role="button"]:not(.no-min-size) {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Active state for touch devices */
+.touch-active:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -108,5 +139,22 @@ All colors MUST be HSL.
 
   body {
     position: relative;
+  }
+}
+
+@layer utilities {
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out;
+  }
+
+  @keyframes scaleIn {
+    from {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
   }
 }
