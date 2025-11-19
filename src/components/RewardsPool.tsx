@@ -819,13 +819,19 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                           FREE
                         </Badge>
                       )}
+                      {reward.id === '796f68d6-7765-448c-a588-a1d95565a0cf' && (
+                        <Badge className="bg-orange-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
+                          <Clock className="w-3 h-3 mr-1" />
+                          Limited
+                        </Badge>
+                      )}
                       {outOfStock && (
                         <Badge className="bg-destructive/90 backdrop-blur-sm border-0 shadow-lg text-xs">
                           <AlertTriangle className="w-3 h-3 mr-1" />
                           Limited
                         </Badge>
                       )}
-                      {reward.category === 'experiences' && (
+                      {reward.category === 'experiences' && !reward.id.includes('796f68d6') && (
                         <Badge className="bg-orange-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
                           <Flame className="w-3 h-3 mr-1" />
                           Trending
