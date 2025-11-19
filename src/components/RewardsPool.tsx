@@ -129,9 +129,21 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   }, []);
 
   useEffect(() => {
+    // Define premium music experiences filter
+    const isPremiumMusicExperience = (r: Reward) => 
+      r.category === 'experiences' && 
+      r.cost >= 1000 &&
+      (r.title.toLowerCase().includes('concert') ||
+       r.title.toLowerCase().includes('festival') ||
+       r.title.toLowerCase().includes('tour') ||
+       r.title.toLowerCase().includes('backstage') ||
+       r.description.toLowerCase().includes('music') ||
+       r.description.toLowerCase().includes('concert') ||
+       r.description.toLowerCase().includes('festival'));
+    
     let filtered = activeCategory === 'all' 
-      ? rewards.filter(r => !r.is_featured)
-      : rewards.filter(r => r.category === activeCategory && !r.is_featured);
+      ? rewards.filter(r => !r.is_featured && !isPremiumMusicExperience(r))
+      : rewards.filter(r => r.category === activeCategory && !r.is_featured && !isPremiumMusicExperience(r));
     
     let featured = activeCategory === 'all'
       ? rewards.filter(r => r.is_featured)
@@ -752,6 +764,161 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           </div>
         </div>
       )}
+
+      {/* Premium Music Experiences Section */}
+      {!loading && (() => {
+        const premiumMusicRewards = rewards.filter(reward => 
+          reward.category === 'experiences' && 
+          reward.cost >= 1000 &&
+          (reward.title.toLowerCase().includes('concert') ||
+           reward.title.toLowerCase().includes('festival') ||
+           reward.title.toLowerCase().includes('tour') ||
+           reward.title.toLowerCase().includes('backstage') ||
+           reward.description.toLowerCase().includes('music') ||
+           reward.description.toLowerCase().includes('concert') ||
+           reward.description.toLowerCase().includes('festival'))
+        );
+        
+        if (premiumMusicRewards.length === 0) return null;
+        
+        return (
+          <div className="container mx-auto px-4 py-8 md:py-12 max-w-full">
+            <div className="flex items-center gap-2 mb-6">
+              <Sparkles className="w-5 h-5 text-orange-500" />
+              <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-orange-500 to-orange-300 bg-clip-text text-transparent">Premium Music Experiences</h2>
+              <Badge variant="secondary" className="gap-1 bg-orange-500/10 text-orange-600 border-orange-500/20">
+                {premiumMusicRewards.length} Exclusive
+              </Badge>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              {premiumMusicRewards.map((reward) => {
+                const Icon = categoryIcons[reward.category];
+                const outOfStock = reward.stock_quantity !== null && reward.stock_quantity <= 0;
+                const affordable = canAfford(reward.cost);
+                const stockPercentage = reward.stock_quantity !== null ? (reward.stock_quantity / 100) * 100 : 100;
+
+                return (
+                  <Card 
+                    key={reward.id} 
+                    className="group overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-orange-500/20"
+                    onClick={() => handleRewardClick(reward)}
+                  >
+                    <div className="relative w-full h-56 bg-gradient-to-br from-orange-500/20 via-muted/50 to-orange-300/20">
+                      {reward.image_url ? (
+                        <ImageWithFallback
+                          src={reward.image_url}
+                          alt={reward.title}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Icon className="w-16 h-16 text-muted-foreground/30" />
+                        </div>
+                      )}
+
+                      {/* Badge Stack */}
+                      <div className="absolute top-3 right-3 flex flex-col gap-1.5 items-end">
+                        <Badge className="bg-orange-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
+                          <Sparkles className="w-3 h-3 mr-1" />
+                          Premium
+                        </Badge>
+                        {(reward.id === '796f68d6-7765-448c-a588-a1d95565a0cf' || reward.id === '72f47f23-1309-4632-bae0-0c749a2b1c26') && (
+                          <Badge className="bg-red-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
+                            <Clock className="w-3 h-3 mr-1" />
+                            Limited
+                          </Badge>
+                        )}
+                      </div>
+
+                      {/* Category Badge */}
+                      <div className="absolute top-3 left-3">
+                        <Badge variant="secondary" className="backdrop-blur-sm bg-background/80 border-border/50 text-xs">
+                          <Icon className="w-3 h-3 mr-1" />
+                          {categoryLabels[reward.category]}
+                        </Badge>
+                      </div>
+
+                      {/* Cost Badge */}
+                      <div className="absolute bottom-3 left-3">
+                        <Badge className="bg-background/90 backdrop-blur-sm border border-orange-500/30 text-orange-600 font-bold shadow-lg">
+                          <Coins className="w-3 h-3 mr-1" />
+                          {reward.cost}
+                        </Badge>
+                      </div>
+
+                      {/* Zoom Overlay */}
+                      <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <ZoomIn className="w-8 h-8 text-orange-500" />
+                      </div>
+                    </div>
+
+                    <CardContent className="p-6 space-y-4">
+                      {/* Brand Avatar */}
+                      <div className="flex items-center gap-2">
+                        <Avatar className="w-8 h-8 border border-orange-500/20">
+                          <AvatarFallback className="bg-orange-500/10 text-orange-600 text-xs font-bold">
+                            {reward.title.substring(0, 1)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-orange-600 font-medium truncate">Exclusive Experience</p>
+                        </div>
+                      </div>
+
+                      {/* Title & Description */}
+                      <div className="space-y-2">
+                        <h3 className="font-bold text-lg line-clamp-2 group-hover:text-orange-600 transition-colors">
+                          {reward.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{reward.description}</p>
+                      </div>
+
+                      {/* Stock Info */}
+                      {reward.stock_quantity !== null && (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Package className="w-3 h-3" />
+                              {reward.stock_quantity}/100 left
+                            </span>
+                            <span>{Math.round(stockPercentage)}%</span>
+                          </div>
+                          <Progress value={stockPercentage} className="h-1.5" />
+                        </div>
+                      )}
+
+                      {/* Action Button */}
+                      <Button
+                        className="w-full"
+                        variant={affordable && !outOfStock ? "default" : "secondary"}
+                        disabled={!affordable || outOfStock}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRewardClick(reward);
+                        }}
+                      >
+                        {outOfStock ? 'Out of Stock' : affordable ? (
+                          <>
+                            <Gift className="w-4 h-4 mr-2" />
+                            Claim Reward
+                          </>
+                        ) : 'Insufficient Balance'}
+                      </Button>
+
+                      {/* Delivery Info */}
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2 border-t border-border/50">
+                        <Clock className="w-3 h-3" />
+                        <span>Exclusive access & VIP treatment</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Regular Rewards Grid */}
       <div className="container mx-auto px-4 py-8 md:py-12 max-w-full">
