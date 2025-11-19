@@ -168,8 +168,19 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       filtered = filtered.filter(r => r.stock_quantity !== null && r.stock_quantity > 0 && r.stock_quantity <= 10);
     }
 
-    // Apply sorting
+    // Define customized rewards that should be prioritized
+    const customizedRewardIds = ['72f47f23-1309-4632-bae0-0c749a2b1c26'];
+
+    // Apply sorting with prioritization for customized rewards
     const sortedFiltered = [...filtered].sort((a, b) => {
+      // Prioritize customized rewards
+      const aIsCustomized = customizedRewardIds.includes(a.id);
+      const bIsCustomized = customizedRewardIds.includes(b.id);
+      
+      if (aIsCustomized && !bIsCustomized) return -1;
+      if (!aIsCustomized && bIsCustomized) return 1;
+      
+      // Apply regular sorting for rewards in the same priority group
       switch (sortBy) {
         case 'priceLowToHigh':
           return a.cost - b.cost;
@@ -188,6 +199,13 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     });
 
     const sortedFeatured = [...featured].sort((a, b) => {
+      // Prioritize customized rewards in featured carousel too
+      const aIsCustomized = customizedRewardIds.includes(a.id);
+      const bIsCustomized = customizedRewardIds.includes(b.id);
+      
+      if (aIsCustomized && !bIsCustomized) return -1;
+      if (!aIsCustomized && bIsCustomized) return 1;
+      
       switch (sortBy) {
         case 'priceLowToHigh':
           return a.cost - b.cost;
