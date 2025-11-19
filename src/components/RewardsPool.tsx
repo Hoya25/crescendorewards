@@ -169,7 +169,12 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     }
 
     // Define customized rewards that should be prioritized
-    const customizedRewardIds = ['72f47f23-1309-4632-bae0-0c749a2b1c26'];
+    const customizedRewardIds = [
+      '72f47f23-1309-4632-bae0-0c749a2b1c26', // Florence and the Machine Tour 2026
+      '796f68d6-7765-448c-a588-a1d95565a0cf', // Snow League Aspen
+      '9ac902b4-38e9-4215-a99a-866cfd48c326', // VIP Access Passes to Outside Festival
+      '15aae70a-2c59-4929-9bf7-cab97cc9a260'  // Gaming Setup Upgrade
+    ];
 
     // Apply sorting with prioritization for customized rewards
     const sortedFiltered = [...filtered].sort((a, b) => {
