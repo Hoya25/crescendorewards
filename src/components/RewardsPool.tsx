@@ -67,6 +67,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const [sortBy, setSortBy] = useState<string>('newest');
   const [priceFilter, setPriceFilter] = useState<string>('all');
   const [availabilityFilter, setAvailabilityFilter] = useState<string>('all');
+  const [exclusiveFilter, setExclusiveFilter] = useState<string>('all');
+  const [highValueFilter, setHighValueFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedReward, setSelectedReward] = useState<Reward | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -176,6 +178,16 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       '15aae70a-2c59-4929-9bf7-cab97cc9a260'  // Gaming Setup Upgrade
     ];
 
+    // Apply exclusive experiences filter
+    if (exclusiveFilter === 'exclusive') {
+      filtered = filtered.filter(r => customizedRewardIds.includes(r.id));
+    }
+
+    // Apply high-value rewards filter
+    if (highValueFilter === 'highValue') {
+      filtered = filtered.filter(r => r.cost >= 500);
+    }
+
     // Apply sorting with prioritization for customized rewards
     const sortedFiltered = [...filtered].sort((a, b) => {
       // Prioritize customized rewards
@@ -225,7 +237,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
     setFilteredRewards(sortedFiltered);
     setFeaturedRewards(sortedFeatured);
-  }, [activeCategory, rewards, sortBy, priceFilter, availabilityFilter, searchQuery]);
+  }, [activeCategory, rewards, sortBy, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, searchQuery]);
 
   const loadRewards = async () => {
     try {
@@ -497,6 +509,30 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 <SelectItem value="all">All Items</SelectItem>
                 <SelectItem value="inStock">In Stock</SelectItem>
                 <SelectItem value="lowStock">Low Stock</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Exclusive Experiences Filter */}
+            <Select value={exclusiveFilter} onValueChange={setExclusiveFilter}>
+              <SelectTrigger className="w-[200px] bg-background border-border z-50">
+                <Trophy className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent className="bg-background border-border z-50">
+                <SelectItem value="all">All Rewards</SelectItem>
+                <SelectItem value="exclusive">Exclusive Experiences</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* High-Value Filter */}
+            <Select value={highValueFilter} onValueChange={setHighValueFilter}>
+              <SelectTrigger className="w-[180px] bg-background border-border z-50">
+                <Zap className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Value" />
+              </SelectTrigger>
+              <SelectContent className="bg-background border-border z-50">
+                <SelectItem value="all">All Values</SelectItem>
+                <SelectItem value="highValue">High-Value (500+)</SelectItem>
               </SelectContent>
             </Select>
 
