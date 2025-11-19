@@ -11,11 +11,12 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from '@/components/ui/carousel';
 import { toast } from '@/hooks/use-toast';
-import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Star, Flame, Clock, Lock, AlertTriangle, Package, Zap, ArrowUpDown, Filter, Search, ArrowLeft, Store, Trophy, Heart } from 'lucide-react';
+import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Star, Flame, Clock, Lock, AlertTriangle, Package, Zap, ArrowUpDown, Filter, Search, ArrowLeft, Store, Trophy, Heart, Play, Pause } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Autoplay from 'embla-carousel-autoplay';
+import { useRef } from 'react';
 import { BuyClaims } from '@/components/BuyClaims';
 
 interface Reward {
@@ -75,6 +76,15 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const [claiming, setClaiming] = useState(false);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isCarouselHovered, setIsCarouselHovered] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const autoplayPlugin = useRef(
+    Autoplay({
+      delay: carouselAutoplayDelay,
+      stopOnInteraction: true,
+      stopOnMouseEnter: true,
+    })
+  );
   const [shippingInfo, setShippingInfo] = useState({
     name: '',
     address: '',
@@ -491,7 +501,11 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             </Badge>
           </div>
           
-          <div className="w-full overflow-hidden -mx-4 px-4">
+          <div 
+            className="w-full overflow-hidden -mx-4 px-4 relative"
+            onMouseEnter={() => setIsCarouselHovered(true)}
+            onMouseLeave={() => setIsCarouselHovered(false)}
+          >
             <Carousel
               setApi={setCarouselApi}
               opts={{
@@ -505,13 +519,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 dragThreshold: 10,
                 inViewThreshold: 0.7,
               }}
-              plugins={[
-                Autoplay({
-                  delay: carouselAutoplayDelay,
-                  stopOnInteraction: true,
-                  stopOnMouseEnter: true,
-                }),
-              ]}
+              plugins={[autoplayPlugin.current]}
               className="w-full touch-pan-x cursor-grab active:cursor-grabbing"
             >
               <CarouselContent className="-ml-2 md:-ml-4 transition-transform duration-300 ease-out">
@@ -670,6 +678,31 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             <CarouselPrevious className="-left-4 md:-left-12 lg:-left-16 hover:scale-110 active:scale-95 transition-all duration-200 bg-background/90 backdrop-blur shadow-lg border-2 border-border/50 h-12 w-12 hover:bg-primary/10 hover:border-primary" />
             <CarouselNext className="-right-4 md:-right-12 lg:-right-16 hover:scale-110 active:scale-95 transition-all duration-200 bg-background/90 backdrop-blur shadow-lg border-2 border-border/50 h-12 w-12 hover:bg-primary/10 hover:border-primary" />
           </Carousel>
+          
+          {/* Play/Pause Control */}
+          <Button
+            variant="outline"
+            size="icon"
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 h-14 w-14 rounded-full bg-background/90 backdrop-blur-sm border-2 hover:bg-primary/10 hover:border-primary hover:scale-110 transition-all duration-300 shadow-xl ${
+              isCarouselHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
+            onClick={() => {
+              if (isPlaying) {
+                autoplayPlugin.current.stop();
+                setIsPlaying(false);
+              } else {
+                autoplayPlugin.current.play();
+                setIsPlaying(true);
+              }
+              triggerHaptic();
+            }}
+          >
+            {isPlaying ? (
+              <Pause className="h-6 w-6" />
+            ) : (
+              <Play className="h-6 w-6 ml-0.5" />
+            )}
+          </Button>
           </div>
 
           {/* Carousel Indicators */}
