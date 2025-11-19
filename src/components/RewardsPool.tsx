@@ -523,8 +523,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 return (
                 <CarouselItem 
                   key={reward.id} 
-                  className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 opacity-0 animate-fade-in"
-                  style={{ animationDelay: `${index * 150}ms`, animationFillMode: 'forwards' }}
+                  className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
                 >
                   <Card 
                     className="group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] border-0 overflow-hidden bg-card select-none touch-pan-y"
