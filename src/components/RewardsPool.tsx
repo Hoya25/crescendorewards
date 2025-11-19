@@ -497,7 +497,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 align: "start",
                 loop: true,
                 skipSnaps: false,
-                dragFree: false,
+                dragFree: true,
+                containScroll: "trimSnaps",
+                slidesToScroll: 1,
               }}
               plugins={[
                 Autoplay({
@@ -506,9 +508,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                   stopOnMouseEnter: true,
                 }),
               ]}
-              className="w-full touch-pan-x"
+              className="w-full touch-pan-x cursor-grab active:cursor-grabbing"
             >
-              <CarouselContent className="-ml-2 md:-ml-4">
+              <CarouselContent className="-ml-2 md:-ml-4 transition-transform duration-300 ease-out">
               {featuredRewards.map((reward) => {
                 const Icon = categoryIcons[reward.category] || Gift;
                 const affordable = canAfford(reward.cost);
@@ -518,8 +520,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 return (
                 <CarouselItem key={reward.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
                   <Card 
-                    className="group cursor-pointer transition-all hover:shadow-2xl border-0 overflow-hidden bg-card/50 backdrop-blur"
+                    className="group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] border-0 overflow-hidden bg-card/50 backdrop-blur select-none touch-pan-y"
                     onClick={() => handleRewardClick(reward)}
+                    onDragStart={(e) => e.preventDefault()}
                   >
                     <div className="relative w-full h-64 md:h-80 bg-gradient-to-br from-primary/20 via-background to-secondary/20">
                         {reward.image_url ? (
@@ -657,8 +660,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 );
               })}
             </CarouselContent>
-            <CarouselPrevious className="-left-4 md:-left-12 lg:-left-16 hover:scale-110 transition-transform bg-background/90 backdrop-blur shadow-lg border-2 border-border/50 h-12 w-12" />
-            <CarouselNext className="-right-4 md:-right-12 lg:-right-16 hover:scale-110 transition-transform bg-background/90 backdrop-blur shadow-lg border-2 border-border/50 h-12 w-12" />
+            <CarouselPrevious className="-left-4 md:-left-12 lg:-left-16 hover:scale-110 active:scale-95 transition-all duration-200 bg-background/90 backdrop-blur shadow-lg border-2 border-border/50 h-12 w-12 hover:bg-primary/10 hover:border-primary" />
+            <CarouselNext className="-right-4 md:-right-12 lg:-right-16 hover:scale-110 active:scale-95 transition-all duration-200 bg-background/90 backdrop-blur shadow-lg border-2 border-border/50 h-12 w-12 hover:bg-primary/10 hover:border-primary" />
           </Carousel>
           </div>
 
@@ -667,11 +670,14 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             {featuredRewards.map((_, index) => (
               <button
                 key={index}
-                onClick={() => carouselApi?.scrollTo(index)}
-                className={`h-2 rounded-full transition-all ${
+                onClick={() => {
+                  carouselApi?.scrollTo(index);
+                  triggerHaptic();
+                }}
+                className={`h-2 rounded-full transition-all duration-300 ease-out ${
                   currentSlide === index 
-                    ? 'w-8 bg-primary' 
-                    : 'w-2 bg-primary/30 hover:bg-primary/50'
+                    ? 'w-8 bg-primary shadow-lg shadow-primary/50' 
+                    : 'w-2 bg-primary/30 hover:bg-primary/60 hover:scale-125 active:scale-90'
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
@@ -679,9 +685,10 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           </div>
           
           {/* Swipe Hint for Mobile */}
-          <div className="flex md:hidden justify-center items-center gap-2 mt-4 text-xs text-muted-foreground">
-            <ArrowLeft className="w-3 h-3" />
-            <span>Swipe to explore</span>
+          <div className="flex md:hidden justify-center items-center gap-2 mt-4 text-xs text-muted-foreground animate-pulse">
+            <ArrowLeft className="w-3 h-3 animate-[slide-in-right_1s_ease-in-out_infinite_alternate]" />
+            <span className="font-medium">Swipe to explore</span>
+            <ArrowLeft className="w-3 h-3 rotate-180 animate-[slide-in-right_1s_ease-in-out_infinite_alternate]" />
           </div>
         </div>
       )}
