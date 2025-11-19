@@ -514,14 +514,18 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               className="w-full touch-pan-x cursor-grab active:cursor-grabbing"
             >
               <CarouselContent className="-ml-2 md:-ml-4 transition-transform duration-300 ease-out">
-              {featuredRewards.map((reward) => {
+              {featuredRewards.map((reward, index) => {
                 const Icon = categoryIcons[reward.category] || Gift;
                 const affordable = canAfford(reward.cost);
                 const outOfStock = reward.stock_quantity !== null && reward.stock_quantity <= 0;
                 const stockPercentage = reward.stock_quantity !== null ? (reward.stock_quantity / 100) * 100 : 100;
 
                 return (
-                <CarouselItem key={reward.id} className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3">
+                <CarouselItem 
+                  key={reward.id} 
+                  className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 opacity-0 animate-fade-in"
+                  style={{ animationDelay: `${index * 150}ms`, animationFillMode: 'forwards' }}
+                >
                   <Card 
                     className="group cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] border-0 overflow-hidden bg-card select-none touch-pan-y"
                     onClick={() => handleRewardClick(reward)}
