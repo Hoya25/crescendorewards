@@ -577,8 +577,6 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                           </Badge>
                         </div>
 
-                        {/* Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
                       </div>
 
                       <CardContent className="relative -mt-32 z-10 p-6 space-y-4">
