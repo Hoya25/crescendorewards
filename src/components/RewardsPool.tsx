@@ -38,6 +38,7 @@ interface RewardsPoolProps {
   onBack?: () => void;
   onNavigateToBrands?: () => void;
   onViewRewardDetail?: (rewardId: string) => void;
+  carouselAutoplayDelay?: number;
 }
 
 const categoryIcons = {
@@ -56,7 +57,7 @@ const categoryLabels = {
   wellness: 'Wellness & Health',
 };
 
-export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBack, onNavigateToBrands, onViewRewardDetail }: RewardsPoolProps) {
+export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBack, onNavigateToBrands, onViewRewardDetail, carouselAutoplayDelay = 5000 }: RewardsPoolProps) {
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [featuredRewards, setFeaturedRewards] = useState<Reward[]>([]);
   const [filteredRewards, setFilteredRewards] = useState<Reward[]>([]);
@@ -506,7 +507,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               }}
               plugins={[
                 Autoplay({
-                  delay: 5000,
+                  delay: carouselAutoplayDelay,
                   stopOnInteraction: true,
                   stopOnMouseEnter: true,
                 }),
