@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,13 +11,13 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from '@/components/ui/carousel';
 import { toast } from '@/hooks/use-toast';
-import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Star, Flame, Clock, Lock, AlertTriangle, Package, Zap, ArrowUpDown, Filter, Search, ArrowLeft, Store, Trophy, Heart, Play, Pause } from 'lucide-react';
+import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Star, Flame, Clock, Lock, AlertTriangle, Package, Zap, ArrowUpDown, Filter, Search, ArrowLeft, Store, Trophy, Heart, Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Autoplay from 'embla-carousel-autoplay';
-import { useRef } from 'react';
 import { BuyClaims } from '@/components/BuyClaims';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Reward {
   id: string;
@@ -78,6 +78,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isCarouselHovered, setIsCarouselHovered] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [showSwipeIndicators, setShowSwipeIndicators] = useState(true);
+  const isMobile = useIsMobile();
   const autoplayPlugin = useRef(
     Autoplay({
       delay: carouselAutoplayDelay,
@@ -703,6 +705,24 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               <Play className="h-6 w-6 ml-0.5" />
             )}
           </Button>
+
+          {/* Swipe Gesture Indicators - Mobile Only */}
+          {isMobile && showSwipeIndicators && (
+            <>
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 animate-fade-in pointer-events-none">
+                <div className="flex items-center gap-2 bg-primary/90 backdrop-blur-sm text-primary-foreground px-4 py-2 rounded-full shadow-lg animate-pulse">
+                  <ChevronLeft className="h-5 w-5" />
+                  <span className="text-sm font-medium">Swipe</span>
+                </div>
+              </div>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10 animate-fade-in pointer-events-none">
+                <div className="flex items-center gap-2 bg-primary/90 backdrop-blur-sm text-primary-foreground px-4 py-2 rounded-full shadow-lg animate-pulse">
+                  <span className="text-sm font-medium">Swipe</span>
+                  <ChevronRight className="h-5 w-5" />
+                </div>
+              </div>
+            </>
+          )}
           </div>
 
           {/* Carousel Indicators */}
