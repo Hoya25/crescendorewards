@@ -16,20 +16,21 @@ export interface MembershipTier {
 export const membershipTiers: MembershipTier[] = [
   {
     level: 0,
-    name: 'Free Member',
-    requirement: 0,
-    description: 'Start your journey with basic benefits',
+    name: 'Level 1',
+    requirement: 100,
+    description: 'Start your journey with 100 NCTR locked in 360LOCK',
     multiplier: 1.0,
     claims: 'No claims',
     discount: 0,
     benefits: [
       'Access to basic rewards',
       'Earn 1x NCTR on all activities',
-      'Community access'
+      'Community access',
+      '100 NCTR in 360LOCK'
     ],
     nftBadges: [],
-    color: 'hsl(0 0% 60%)',
-    bgColor: 'hsl(0 0% 96%)'
+    color: 'hsl(142 76% 36%)',
+    bgColor: 'hsl(142 76% 96%)'
   },
   {
     level: 1,
