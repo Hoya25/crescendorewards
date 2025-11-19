@@ -294,6 +294,12 @@ export function RewardDetailPage({ rewardId, onBack, onClaimSuccess }: RewardDet
                       Featured
                     </Badge>
                   )}
+                  {reward.id === '796f68d6-7765-448c-a588-a1d95565a0cf' && (
+                    <Badge className="bg-orange-500/90 text-white backdrop-blur-sm border-0 shadow-lg">
+                      <Clock className="w-3 h-3 mr-1" />
+                      Limited Availability
+                    </Badge>
+                  )}
                   {reward.cost === 0 && (
                     <Badge className="bg-green-500/90 text-white backdrop-blur-sm border-0 shadow-lg">
                       <Gift className="w-3 h-3 mr-1" />
