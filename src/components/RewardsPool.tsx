@@ -500,6 +500,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 dragFree: true,
                 containScroll: "trimSnaps",
                 slidesToScroll: 1,
+                duration: 25,
+                dragThreshold: 10,
+                inViewThreshold: 0.7,
               }}
               plugins={[
                 Autoplay({
