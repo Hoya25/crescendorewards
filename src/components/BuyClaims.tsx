@@ -309,7 +309,7 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Current Tier Progress:</span>
-                    <TrendingUp className="w-4 h-4 text-violet-600" />
+                    <TrendingUp className="w-4 h-4 text-violet-600 animate-pulse" />
                   </div>
                   
                   {(() => {
@@ -322,9 +322,9 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
 
                     return (
                       <>
-                        <div className="space-y-1">
+                        <div className="space-y-1 animate-fade-in">
                           <div className="flex items-center justify-between text-xs">
-                            <span className="font-medium" style={{ color: currentTier.color }}>
+                            <span className="font-medium transition-colors duration-300" style={{ color: currentTier.color }}>
                               {currentTier.name}
                             </span>
                             {nextTier && (
@@ -333,25 +333,27 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                               </span>
                             )}
                           </div>
-                          <Progress value={currentProgress} className="h-2" />
+                          <div className="relative">
+                            <Progress value={currentProgress} className="h-2 transition-all duration-500 ease-out" />
+                          </div>
                           <div className="text-xs text-muted-foreground">
                             {lockedNCTR.toLocaleString()} <NCTRLogo size="xs" /> locked
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 py-2">
+                        <div className="flex items-center gap-2 py-2 animate-fade-in" style={{ animationDelay: "100ms" }}>
                           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
                           <span className="text-xs font-medium text-violet-600">After Purchase</span>
                           <div className="h-px flex-1 bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
                         </div>
 
-                        <div className="space-y-1">
+                        <div className="space-y-1 animate-fade-in" style={{ animationDelay: "200ms" }}>
                           <div className="flex items-center justify-between text-xs">
-                            <span className="font-medium" style={{ color: newTier.color }}>
+                            <span className="font-medium transition-colors duration-300" style={{ color: newTier.color }}>
                               {newTier.name}
                               {newTier.level > currentTier.level && (
-                                <Badge variant="secondary" className="ml-2 text-xs">
-                                  TIER UP!
+                                <Badge variant="secondary" className="ml-2 text-xs animate-scale-in bg-gradient-to-r from-violet-500 to-purple-500 text-white border-none">
+                                  🎉 TIER UP!
                                 </Badge>
                               )}
                             </span>
@@ -364,10 +366,21 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                               </span>
                             )}
                           </div>
-                          <Progress value={newProgress} className="h-2" />
+                          <div className="relative overflow-hidden">
+                            <Progress 
+                              value={newProgress} 
+                              className="h-2 transition-all duration-700 ease-out"
+                              style={{ 
+                                animationDelay: "300ms",
+                              }}
+                            />
+                            {newTier.level > currentTier.level && (
+                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-slide-in-right" />
+                            )}
+                          </div>
                           <div className="text-xs text-muted-foreground">
                             {newLockedNCTR.toLocaleString()} <NCTRLogo size="xs" /> locked
-                            <span className="text-violet-600 font-medium ml-1">
+                            <span className="text-violet-600 font-medium ml-1 inline-block animate-fade-in">
                               (+{selectedPackage.bonus.toLocaleString()})
                             </span>
                           </div>
