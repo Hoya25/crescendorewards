@@ -7,6 +7,7 @@ import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
 import { ThemeToggle } from "./ThemeToggle";
 import { ReferralCard } from "./ReferralCard";
+import { BuyClaims } from "./BuyClaims";
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress, getNCTRNeededForNextLevel } from '@/utils/membershipLevels';
 import { useTheme } from "./ThemeProvider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
@@ -49,6 +50,7 @@ interface DashboardProps {
   onViewWishlist?: () => void;
   isAdmin?: boolean;
   onAdminPanel?: () => void;
+  onClaimSuccess?: () => void;
 }
 
 export function Dashboard({
@@ -75,6 +77,7 @@ export function Dashboard({
   onViewWishlist,
   isAdmin,
   onAdminPanel,
+  onClaimSuccess,
 }: DashboardProps) {
   // Calculate tier based on locked NCTR (360LOCK)
   const currentTier = getMembershipTierByNCTR(profile.locked_nctr);
@@ -389,9 +392,21 @@ export function Dashboard({
                   <div className="text-5xl font-bold mb-2">{userData.claimBalance}</div>
                   <p className="text-sm text-neutral-600 dark:text-neutral-400">Available claims</p>
                 </div>
-                <Button onClick={onViewRewards} className="w-full bg-violet-600 hover:bg-violet-700 text-white">
-                  Browse Rewards
-                </Button>
+                <div className="space-y-2">
+                  <Button onClick={onViewRewards} className="w-full bg-violet-600 hover:bg-violet-700 text-white">
+                    Browse Rewards
+                  </Button>
+                  <BuyClaims 
+                    currentBalance={userData.claimBalance} 
+                    onPurchaseSuccess={onClaimSuccess || (() => {})}
+                    trigger={
+                      <Button variant="outline" className="w-full gap-2">
+                        <Plus className="w-4 h-4" />
+                        Buy More Claims
+                      </Button>
+                    }
+                  />
+                </div>
               </CardContent>
             </Card>
 
