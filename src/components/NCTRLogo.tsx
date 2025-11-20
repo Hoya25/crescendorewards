@@ -8,11 +8,11 @@ interface NCTRLogoProps {
 }
 
 const sizeClasses = {
-  xs: "inline-block h-4 w-auto mx-0.5 align-middle",
-  sm: "inline-block h-5 w-auto mx-1 align-middle",
-  md: "inline-block h-6 w-auto mx-1 align-middle",
-  lg: "inline-block h-8 w-auto mx-1 align-middle",
-  xl: "inline-block h-12 w-auto mx-2 align-middle"
+  xs: "inline-block h-12 w-auto mx-0.5 align-middle",
+  sm: "inline-block h-[3.75rem] w-auto mx-1 align-middle",
+  md: "inline-block h-[4.5rem] w-auto mx-1 align-middle",
+  lg: "inline-block h-24 w-auto mx-1 align-middle",
+  xl: "inline-block h-36 w-auto mx-2 align-middle"
 };
 
 export function NCTRLogo({ className, size = 'md' }: NCTRLogoProps) {
