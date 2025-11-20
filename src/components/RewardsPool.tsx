@@ -729,27 +729,27 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                           </Badge>
                         </div>
 
-
-                        {/* Gradient Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-                      </div>
-
-                      <CardContent className="relative -mt-32 z-10 p-6 space-y-4">
-                        {/* Wishlist Heart Button - Top Right of Content */}
+                        {/* Wishlist Heart Button - Top Right */}
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="absolute -top-2 right-4 z-20 bg-background hover:bg-accent backdrop-blur-sm h-10 w-10 rounded-full shadow-xl border-2 border-border/50"
+                          className="absolute top-3 right-3 z-20 bg-background/90 hover:bg-background backdrop-blur-sm h-9 w-9 rounded-full shadow-lg border border-border/20"
                           onClick={(e) => toggleWishlist(reward.id, e)}
                         >
                           <Heart
                             className={`h-5 w-5 transition-colors ${
                               wishlistItems.has(reward.id)
                                 ? 'fill-red-500 text-red-500'
-                                : 'text-foreground'
+                                : 'text-muted-foreground'
                             }`}
                           />
                         </Button>
+
+                        {/* Gradient Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+                      </div>
+
+                      <CardContent className="relative -mt-32 z-10 p-6 space-y-4">
                         
                         {/* Brand Info */}
                         <div className="flex items-center gap-3 mb-2">
@@ -969,24 +969,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                       </div>
                     )}
 
-                    {/* Wishlist Heart Button - Top Left */}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute top-3 left-3 z-10 bg-background/90 hover:bg-background backdrop-blur-sm h-9 w-9"
-                      onClick={(e) => toggleWishlist(reward.id, e)}
-                    >
-                      <Heart
-                        className={`h-5 w-5 transition-colors ${
-                          wishlistItems.has(reward.id)
-                            ? 'fill-red-500 text-red-500'
-                            : 'text-muted-foreground'
-                        }`}
-                      />
-                    </Button>
-
-                    {/* Badge Stack - Top Right */}
-                    <div className="absolute top-3 right-3 flex flex-col gap-1.5 items-end">
+                    {/* Badge Stack - Top Left */}
+                    <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
                       {reward.cost === 0 && (
                         <Badge className="bg-green-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
                           <Gift className="w-3 h-3 mr-1" />
@@ -1018,6 +1002,22 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                         </Badge>
                       )}
                     </div>
+
+                    {/* Wishlist Heart Button - Top Right */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-3 right-3 z-10 bg-background/90 hover:bg-background backdrop-blur-sm h-9 w-9 rounded-full shadow-lg border border-border/20"
+                      onClick={(e) => toggleWishlist(reward.id, e)}
+                    >
+                      <Heart
+                        className={`h-5 w-5 transition-colors ${
+                          wishlistItems.has(reward.id)
+                            ? 'fill-red-500 text-red-500'
+                            : 'text-muted-foreground'
+                        }`}
+                      />
+                    </Button>
 
                     {/* Cost Badge - Bottom Left */}
                     <div className="absolute bottom-3 left-3">
