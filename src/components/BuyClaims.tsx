@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { ShoppingCart, Check, Sparkles, Award, Gift, HelpCircle } from 'lucide-react';
+import { ShoppingCart, Check, Sparkles, Award, Gift, HelpCircle, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { NCTRLogo } from './NCTRLogo';
+import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress } from '@/utils/membershipLevels';
 
 interface BuyClaimsProps {
   currentBalance: number;
@@ -71,6 +73,28 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
   const [open, setOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<ClaimPackage | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [lockedNCTR, setLockedNCTR] = useState(0);
+
+  useEffect(() => {
+    const fetchLockedNCTR = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('locked_nctr')
+        .eq('id', user.id)
+        .single();
+
+      if (profile) {
+        setLockedNCTR(profile.locked_nctr);
+      }
+    };
+
+    if (open) {
+      fetchLockedNCTR();
+    }
+  }, [open]);
 
   const handlePurchase = async () => {
     if (!selectedPackage) return;
@@ -254,33 +278,106 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
           </div>
 
           {selectedPackage?.bonus && (
-            <div className="mb-4 p-3 bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20 rounded-lg">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Gift className="w-5 h-5 text-violet-600" />
-                  <span className="text-sm font-medium text-violet-900 dark:text-violet-100 flex items-center gap-1">
-                    Bonus <NCTRLogo size="xs" /> (360LOCK):
+            <>
+              <div className="mb-4 p-3 bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20 rounded-lg">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Gift className="w-5 h-5 text-violet-600" />
+                    <span className="text-sm font-medium text-violet-900 dark:text-violet-100 flex items-center gap-1">
+                      Bonus <NCTRLogo size="xs" /> (360LOCK):
+                    </span>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="w-4 h-4 text-violet-600 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="font-semibold mb-1">360LOCK Bonus</p>
+                          <p className="text-sm">
+                            Earn 3 NCTR per $1 spent on claim passes. These bonus NCTR are automatically locked for 360 days, 
+                            contributing to your membership tier level while they vest.
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <span className="font-bold text-lg text-violet-600 flex items-center gap-1">
+                    +{selectedPackage.bonus} <NCTRLogo size="xs" />
                   </span>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <HelpCircle className="w-4 h-4 text-violet-600 cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs">
-                        <p className="font-semibold mb-1">360LOCK Bonus</p>
-                        <p className="text-sm">
-                          Earn 3 NCTR per $1 spent on claim passes. These bonus NCTR are automatically locked for 360 days, 
-                          contributing to your membership tier level while they vest.
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
                 </div>
-                <span className="font-bold text-lg text-violet-600 flex items-center gap-1">
-                  +{selectedPackage.bonus} <NCTRLogo size="xs" />
-                </span>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Current Tier Progress:</span>
+                    <TrendingUp className="w-4 h-4 text-violet-600" />
+                  </div>
+                  
+                  {(() => {
+                    const currentTier = getMembershipTierByNCTR(lockedNCTR);
+                    const newLockedNCTR = lockedNCTR + selectedPackage.bonus;
+                    const newTier = getMembershipTierByNCTR(newLockedNCTR);
+                    const currentProgress = getMembershipProgress(lockedNCTR);
+                    const newProgress = getMembershipProgress(newLockedNCTR);
+                    const nextTier = getNextMembershipTier(lockedNCTR);
+
+                    return (
+                      <>
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-medium" style={{ color: currentTier.color }}>
+                              {currentTier.name}
+                            </span>
+                            {nextTier && (
+                              <span className="text-muted-foreground">
+                                {nextTier.name} at {nextTier.requirement.toLocaleString()}
+                              </span>
+                            )}
+                          </div>
+                          <Progress value={currentProgress} className="h-2" />
+                          <div className="text-xs text-muted-foreground">
+                            {lockedNCTR.toLocaleString()} <NCTRLogo size="xs" /> locked
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 py-2">
+                          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
+                          <span className="text-xs font-medium text-violet-600">After Purchase</span>
+                          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-violet-500/50 to-transparent" />
+                        </div>
+
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-medium" style={{ color: newTier.color }}>
+                              {newTier.name}
+                              {newTier.level > currentTier.level && (
+                                <Badge variant="secondary" className="ml-2 text-xs">
+                                  TIER UP!
+                                </Badge>
+                              )}
+                            </span>
+                            {nextTier && newTier.level < nextTier.level && (
+                              <span className="text-muted-foreground">
+                                {nextTier.requirement - newLockedNCTR > 0 
+                                  ? `${(nextTier.requirement - newLockedNCTR).toLocaleString()} to ${nextTier.name}`
+                                  : nextTier.name
+                                }
+                              </span>
+                            )}
+                          </div>
+                          <Progress value={newProgress} className="h-2" />
+                          <div className="text-xs text-muted-foreground">
+                            {newLockedNCTR.toLocaleString()} <NCTRLogo size="xs" /> locked
+                            <span className="text-violet-600 font-medium ml-1">
+                              (+{selectedPackage.bonus.toLocaleString()})
+                            </span>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
               </div>
-            </div>
+            </>
           )}
 
           <DialogFooter>
