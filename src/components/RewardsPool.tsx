@@ -733,7 +733,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="absolute bottom-4 left-4 z-10 bg-background/90 hover:bg-background backdrop-blur-sm h-10 w-10 rounded-full shadow-lg"
+                          className="absolute bottom-4 left-4 z-30 bg-background/95 hover:bg-background backdrop-blur-sm h-10 w-10 rounded-full shadow-xl border border-border/20"
                           onClick={(e) => toggleWishlist(reward.id, e)}
                         >
                           <Heart
