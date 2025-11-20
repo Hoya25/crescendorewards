@@ -76,7 +76,7 @@ export function ReferralCard({ stats, referralCode }: ReferralCardProps) {
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium">Your Referral Link</label>
             <Badge variant="secondary" className="text-xs flex items-center gap-1">
-              500 <NCTRLogo className="inline-block h-3 w-auto" /> per referral
+              500 <NCTRLogo size="xs" /> per referral
             </Badge>
           </div>
           <div className="flex gap-2">

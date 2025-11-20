@@ -192,7 +192,7 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                         <div className="flex items-center gap-2">
                           <Gift className="w-4 h-4 text-violet-600" />
                           <span className="text-sm font-medium text-violet-900 dark:text-violet-100 flex items-center gap-1">
-                            +{pkg.bonus} Bonus <NCTRLogo className="inline-block h-3 w-auto" /> (360LOCK)
+                            +{pkg.bonus} Bonus <NCTRLogo size="xs" /> (360LOCK)
                           </span>
                         </div>
                       </div>
@@ -243,10 +243,10 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                 {selectedPackage.bonus && (
                   <div className="flex items-center justify-between mt-1">
                     <span className="text-sm text-muted-foreground flex items-center gap-1">
-                      Bonus <NCTRLogo className="inline-block h-3 w-auto" /> (360LOCK):
+                      Bonus <NCTRLogo size="xs" /> (360LOCK):
                     </span>
                     <span className="font-semibold text-violet-600 flex items-center gap-1">
-                      +{selectedPackage.bonus} <NCTRLogo className="inline-block h-3 w-auto" />
+                      +{selectedPackage.bonus} <NCTRLogo size="xs" />
                     </span>
                   </div>
                 )}

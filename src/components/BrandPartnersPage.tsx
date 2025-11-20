@@ -234,7 +234,7 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1 flex items-center gap-1">
-                    Earn <NCTRLogo className="inline-block h-4 w-auto" />
+                    Earn <NCTRLogo size="sm" />
                   </h3>
                   <p className="text-sm text-muted-foreground">Base rate × your status multiplier ({multiplier}x)</p>
                 </div>
@@ -252,10 +252,10 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
             </div>
             <div className="text-right">
               <p className="text-sm opacity-90 mb-1 flex items-center justify-end gap-1">
-                Example: 5 <NCTRLogo className="inline-block h-4 w-auto" /> base rate
+                Example: 5 <NCTRLogo size="sm" /> base rate
               </p>
               <p className="text-3xl font-bold flex items-center justify-end gap-2">
-                = {(5 * multiplier).toFixed(2)} <NCTRLogo className="inline-block h-8 w-auto" /> per $1
+                = {(5 * multiplier).toFixed(2)} <NCTRLogo size="lg" /> per $1
               </p>
             </div>
           </CardContent>
@@ -536,7 +536,7 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
             <h2 className="text-3xl font-bold mb-4">Are You a Brand?</h2>
             <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
               Join the Crescendo Rewards Alliance and connect with our engaged community of members. 
-              Drive sales while rewarding loyal customers with <span className="inline-flex items-center gap-1"><NCTRLogo className="inline-block h-3 w-auto" /> tokens</span>.
+              Drive sales while rewarding loyal customers with <span className="inline-flex items-center gap-1"><NCTRLogo size="xs" /> tokens</span>.
             </p>
             <Button size="lg" className="gap-2">
               <Trophy className="w-4 h-4" />

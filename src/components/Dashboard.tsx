@@ -283,7 +283,7 @@ export function Dashboard({
                         </Badge>
                       </div>
                       <p className="text-sm text-neutral-600 dark:text-neutral-400 flex items-center gap-1">
-                        {userData.lockedNCTR.toLocaleString()} <NCTRLogo className="inline-block h-4 w-auto" /> in 360LOCK
+                        {userData.lockedNCTR.toLocaleString()} <NCTRLogo size="xs" /> in 360LOCK
                       </p>
                     </div>
                   </div>
@@ -308,14 +308,14 @@ export function Dashboard({
                       <Progress value={progressPercent} className="h-4" />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <span className="text-xs font-bold text-white drop-shadow-md flex items-center gap-1">
-                          {userData.lockedNCTR.toLocaleString()} / {userData.nextLevelThreshold.toLocaleString()} <NCTRLogo className="inline-block h-3 w-auto brightness-0 invert" />
+                          {userData.lockedNCTR.toLocaleString()} / {userData.nextLevelThreshold.toLocaleString()} <NCTRLogo size="xs" />
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
                         <Lock className="w-3 h-3" />
-                        <span className="flex items-center gap-1">Lock {nctrNeeded.toLocaleString()} more <NCTRLogo className="inline-block h-3 w-auto" /></span>
+                        <span className="flex items-center gap-1">Lock {nctrNeeded.toLocaleString()} more <NCTRLogo size="xs" /></span>
                       </div>
                       <div className="text-xs font-medium text-primary">
                         Next: {nextTier.multiplier}x earnings
@@ -425,7 +425,7 @@ export function Dashboard({
 
                 <Button onClick={onEarnNCTR} variant="outline" className="w-full justify-start gap-2">
                   <Coins className="w-4 h-4" />
-                  Earn <NCTRLogo className="inline-block h-5 w-auto mx-0.5 align-middle" />
+                  Earn <NCTRLogo size="sm" />
                 </Button>
 
                 <Button onClick={onLockTokens} variant="outline" className="w-full justify-start gap-2">
@@ -510,13 +510,13 @@ export function Dashboard({
                   </div>
                   <div>
                     <p className="font-medium flex items-center gap-1">
-                      Claimed 100 <NCTRLogo className="inline-block h-3 w-auto" /> Signup Bonus
+                      Claimed 100 <NCTRLogo size="xs" /> Signup Bonus
                     </p>
                     <p className="text-sm text-neutral-600 dark:text-neutral-400">2 days ago</p>
                   </div>
                 </div>
                 <Badge variant="secondary" className="flex items-center gap-1">
-                  +100 <NCTRLogo className="inline-block h-3 w-auto" />
+                  +100 <NCTRLogo size="xs" />
                 </Badge>
               </div>
 
@@ -531,7 +531,7 @@ export function Dashboard({
                   </div>
                 </div>
                 <Badge variant="secondary" className="flex items-center gap-1">
-                  +500 <NCTRLogo className="inline-block h-3 w-auto" />
+                  +500 <NCTRLogo size="xs" />
                 </Badge>
               </div>
 
@@ -542,7 +542,7 @@ export function Dashboard({
                   </div>
                   <div>
                     <p className="font-medium flex items-center gap-1">
-                      Committed 2,500 <NCTRLogo className="inline-block h-3 w-auto" /> to 360LOCK
+                      Committed 2,500 <NCTRLogo size="xs" /> to 360LOCK
                     </p>
                     <p className="text-sm text-neutral-600 dark:text-neutral-400">1 week ago</p>
                   </div>

@@ -47,7 +47,7 @@ export function LandingPage({ onJoin, onViewRewards, onSignIn, onViewLevelDetail
             Unlock Exclusive Rewards
           </h1>
           <p className="text-base md:text-xl text-neutral-600 max-w-2xl mx-auto mb-6 md:mb-10 px-4 flex items-center justify-center gap-2 flex-wrap">
-            Commit <NCTRLogo className="inline-block h-6 w-auto" /> to 360LOCK, claim your status NFT on Base, and access crowdsourced digital rewards from Crescendo brands.
+            Commit <NCTRLogo size="lg" /> to 360LOCK, claim your status NFT on Base, and access crowdsourced digital rewards from Crescendo brands.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 px-4">
             <Button onClick={onJoin} size="lg" className="bg-violet-600 hover:bg-violet-700 text-white w-full sm:w-auto">
@@ -75,10 +75,10 @@ export function LandingPage({ onJoin, onViewRewards, onSignIn, onViewLevelDetail
                   <Lock className="w-7 h-7 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3 flex items-center justify-center gap-2">
-                  Earn and Commit <NCTRLogo className="inline-block h-6 w-auto" />
+                  Earn and Commit <NCTRLogo size="lg" />
                 </h3>
                 <p className="text-neutral-600 dark:text-neutral-400 flex items-center justify-center gap-1 flex-wrap">
-                  Commit your <NCTRLogo className="inline-block h-5 w-auto" /> tokens to 360LOCK to build your Crescendo member status and unlock benefits.
+                  Commit your <NCTRLogo size="sm" /> tokens to 360LOCK to build your Crescendo member status and unlock benefits.
                 </p>
               </CardContent>
             </Card>
@@ -116,7 +116,7 @@ export function LandingPage({ onJoin, onViewRewards, onSignIn, onViewLevelDetail
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold tracking-tight mb-4">Membership Levels</h2>
             <p className="text-neutral-600 dark:text-neutral-400 flex items-center justify-center gap-1">
-              Lock <NCTRLogo className="inline-block h-5 w-auto" /> in 360LOCK to unlock greater benefits
+              Lock <NCTRLogo size="sm" /> in 360LOCK to unlock greater benefits
             </p>
           </div>
 

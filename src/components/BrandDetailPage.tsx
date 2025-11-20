@@ -163,13 +163,13 @@ export function BrandDetailPage({ brandId, onBack }: BrandDetailPageProps) {
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Base Earning Rate</p>
                 <p className="text-3xl font-bold flex items-center gap-2">
-                  {brand.base_earning_rate} <NCTRLogo className="inline-block h-8 w-auto" /> per $1
+                  {brand.base_earning_rate} <NCTRLogo size="lg" /> per $1
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">With Your {multiplier}x Status Multiplier</p>
                 <p className="text-3xl font-bold text-primary flex items-center gap-2">
-                  {calculateMultipliedRate(brand.base_earning_rate)} <NCTRLogo className="inline-block h-8 w-auto" /> per $1
+                  {calculateMultipliedRate(brand.base_earning_rate)} <NCTRLogo size="lg" /> per $1
                 </p>
               </div>
             </div>
