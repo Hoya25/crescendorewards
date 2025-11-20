@@ -46,6 +46,7 @@ interface DashboardProps {
   onPurchaseHistory?: () => void;
   onReferralAnalytics?: () => void;
   onFoodBeverage?: () => void;
+  onViewWishlist?: () => void;
   isAdmin?: boolean;
   onAdminPanel?: () => void;
 }
@@ -71,6 +72,7 @@ export function Dashboard({
   onPurchaseHistory,
   onReferralAnalytics,
   onFoodBeverage,
+  onViewWishlist,
   isAdmin,
   onAdminPanel,
 }: DashboardProps) {
@@ -440,10 +442,12 @@ export function Dashboard({
                   </Button>
                 )}
 
-                <Button onClick={() => window.location.href = '/#wishlist'} variant="outline" className="w-full justify-start gap-2">
-                  <Heart className="w-4 h-4" />
-                  My Wishlist
-                </Button>
+                {onViewWishlist && (
+                  <Button onClick={onViewWishlist} variant="outline" className="w-full justify-start gap-2">
+                    <Heart className="w-4 h-4" />
+                    My Wishlist
+                  </Button>
+                )}
 
                 {onViewMarketplace && (
                   <Button onClick={onViewMarketplace} variant="outline" className="w-full justify-start gap-2">

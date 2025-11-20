@@ -139,6 +139,10 @@ function CrescendoApp() {
     setCurrentView("food-beverage");
   };
 
+  const handleViewWishlist = () => {
+    setCurrentView("wishlist");
+  };
+
   const handleToggleAuthMode = () => {
     setAuthMode(authMode === 'signin' ? 'signup' : 'signin');
   };
@@ -184,6 +188,7 @@ function CrescendoApp() {
           onPurchaseHistory={handlePurchaseHistory}
           onReferralAnalytics={() => setCurrentView("referral-analytics")}
           onFoodBeverage={handleFoodBeverage}
+          onViewWishlist={handleViewWishlist}
           isAdmin={isAdmin}
           onAdminPanel={() => setCurrentView("admin")}
         />
