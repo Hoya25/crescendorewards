@@ -729,6 +729,22 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                           </Badge>
                         </div>
 
+                        {/* Wishlist Heart Button - Bottom Left */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute bottom-4 left-4 z-10 bg-background/90 hover:bg-background backdrop-blur-sm h-10 w-10 rounded-full shadow-lg"
+                          onClick={(e) => toggleWishlist(reward.id, e)}
+                        >
+                          <Heart
+                            className={`h-5 w-5 transition-colors ${
+                              wishlistItems.has(reward.id)
+                                ? 'fill-red-500 text-red-500'
+                                : 'text-muted-foreground'
+                            }`}
+                          />
+                        </Button>
+
                         {/* Gradient Overlay */}
                         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
                       </div>
