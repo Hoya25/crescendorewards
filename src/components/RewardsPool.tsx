@@ -695,11 +695,15 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                           </div>
                         )}
                         
-                        {/* Badge Cluster - Top Right */}
-                        <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
+                        {/* All Badges - Top Left */}
+                        <div className="absolute top-4 left-4 flex flex-col gap-2 items-start">
                           <Badge className="bg-primary/90 text-primary-foreground backdrop-blur-sm border-0 shadow-lg">
                             <Star className="w-3 h-3 mr-1" />
                             Featured
+                          </Badge>
+                          <Badge variant="secondary" className="backdrop-blur-sm bg-background/80 border-border/50">
+                            <Icon className="w-3 h-3 mr-1" />
+                            {categoryLabels[reward.category]}
                           </Badge>
                           {reward.cost === 0 && (
                             <Badge className="bg-green-500/90 text-white backdrop-blur-sm border-0 shadow-lg">
@@ -719,14 +723,6 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                               Trending
                             </Badge>
                           )}
-                        </div>
-
-                        {/* Category Badge - Top Left */}
-                        <div className="absolute top-4 left-4">
-                          <Badge variant="secondary" className="backdrop-blur-sm bg-background/80 border-border/50">
-                            <Icon className="w-3 h-3 mr-1" />
-                            {categoryLabels[reward.category]}
-                          </Badge>
                         </div>
 
                         {/* Wishlist Heart Button - Top Right */}
