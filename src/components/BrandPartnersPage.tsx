@@ -29,6 +29,7 @@ import {
 import { toast } from 'sonner';
 import Autoplay from 'embla-carousel-autoplay';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
+import { NCTRLogo } from '@/components/NCTRLogo';
 
 interface BrandPartnersPageProps {
   onBack: () => void;
@@ -232,7 +233,9 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
                   3
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">Earn NCTR</h3>
+                  <h3 className="font-semibold mb-1 flex items-center gap-1">
+                    Earn <NCTRLogo className="inline-block h-4 w-auto" />
+                  </h3>
                   <p className="text-sm text-muted-foreground">Base rate × your status multiplier ({multiplier}x)</p>
                 </div>
               </div>
