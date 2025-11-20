@@ -191,6 +191,7 @@ function CrescendoApp() {
           onViewWishlist={handleViewWishlist}
           isAdmin={isAdmin}
           onAdminPanel={() => setCurrentView("admin")}
+          onClaimSuccess={refreshProfile}
         />
       )}
 

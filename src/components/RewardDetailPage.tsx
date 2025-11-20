@@ -529,12 +529,29 @@ export function RewardDetailPage({ rewardId, onBack, onClaimSuccess, onViewWishl
             <Card className="p-6 bg-gradient-to-br from-primary/5 to-transparent border-2 border-primary/20">
               <div className="space-y-4">
                 {!canAfford && (
-                  <div className="p-3 bg-orange-100 dark:bg-orange-950 rounded-lg">
-                    <p className="text-sm text-orange-800 dark:text-orange-200 flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4" />
-                      You need {reward.cost - claimBalance} more claim passes to claim this reward
-                    </p>
-                  </div>
+                  <>
+                    <div className="p-3 bg-orange-100 dark:bg-orange-950 rounded-lg">
+                      <p className="text-sm text-orange-800 dark:text-orange-200 flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4" />
+                        You need {reward.cost - claimBalance} more claim passes to claim this reward
+                      </p>
+                    </div>
+                    
+                    <BuyClaims 
+                      currentBalance={claimBalance} 
+                      onPurchaseSuccess={onClaimSuccess}
+                      trigger={
+                        <Button 
+                          size="lg" 
+                          className="w-full text-lg h-14 gap-2" 
+                          variant="default"
+                        >
+                          <CreditCard className="w-5 h-5" />
+                          Buy Claim Passes
+                        </Button>
+                      }
+                    />
+                  </>
                 )}
                 
                 <Button
