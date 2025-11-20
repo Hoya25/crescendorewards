@@ -6,7 +6,7 @@ interface NCTRLogoProps {
   className?: string;
 }
 
-export function NCTRLogo({ className = "inline-block h-[2.7rem] w-auto mx-1 align-middle" }: NCTRLogoProps) {
+export function NCTRLogo({ className = "inline-block h-[8.1rem] w-auto mx-1 align-middle" }: NCTRLogoProps) {
   const { theme } = useTheme();
 
   return (
