@@ -11,6 +11,8 @@ import { BuyClaims } from "./BuyClaims";
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress, getNCTRNeededForNextLevel } from '@/utils/membershipLevels';
 import { useTheme } from "./ThemeProvider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { SidebarProvider, SidebarTrigger } from "./ui/sidebar";
+import { AppSidebar } from "./AppSidebar";
 
 interface Profile {
   id: string;
@@ -121,49 +123,47 @@ export function Dashboard({
   const { theme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
-      {/* Navigation */}
-      <nav className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          {/* Mobile Layout - Stacked */}
-          <div className="flex flex-col gap-4 md:hidden">
-            <button
-              onClick={onViewMarketplace}
-              className="hover:opacity-80 transition-opacity cursor-pointer self-center"
-            >
-              <CrescendoLogo />
-            </button>
+    <SidebarProvider>
+      <div className="min-h-screen w-full flex bg-neutral-50 dark:bg-neutral-950">
+        <AppSidebar onNavigate={onViewBrandPartners} />
+        
+        <div className="flex-1 flex flex-col">
+          {/* Navigation */}
+          <nav className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800">
+            <div className="max-w-7xl mx-auto px-6 py-4">
+              {/* Mobile Layout - Stacked */}
+              <div className="flex flex-col gap-4 md:hidden">
+                <div className="flex items-center justify-center gap-4">
+                  <SidebarTrigger />
+                  <button
+                    onClick={onViewMarketplace}
+                    className="hover:opacity-80 transition-opacity cursor-pointer"
+                  >
+                    <CrescendoLogo />
+                  </button>
+                </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              <Button
-                variant="outline"
-                onClick={onViewBrandPartners}
-                className="gap-2"
-                size="sm"
-              >
-                <Store className="w-4 h-4" />
-                Brands
-              </Button>
-              <Button
-                variant="outline"
-                onClick={onViewMembershipLevels}
-                className="gap-2"
-                size="sm"
-              >
-                <Trophy className="w-4 h-4" />
-                Membership
-              </Button>
-              <Button
-                variant="outline"
-                onClick={onViewRewards}
-                className="gap-2"
-                size="sm"
-              >
-                <Gift className="w-4 h-4" />
-                Rewards
-              </Button>
-              <ThemeToggle />
-            </div>
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={onViewMembershipLevels}
+                    className="gap-2"
+                    size="sm"
+                  >
+                    <Trophy className="w-4 h-4" />
+                    Membership
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={onViewRewards}
+                    className="gap-2"
+                    size="sm"
+                  >
+                    <Gift className="w-4 h-4" />
+                    Rewards
+                  </Button>
+                  <ThemeToggle />
+                </div>
 
             <div className="flex flex-wrap items-center justify-center gap-2">
               {!walletConnected ? (
@@ -183,41 +183,36 @@ export function Dashboard({
             </div>
           </div>
 
-          {/* Desktop Layout - Single Row */}
-          <div className="hidden md:flex items-center justify-between gap-6">
-            <button
-              onClick={onViewMarketplace}
-              className="hover:opacity-80 transition-opacity cursor-pointer"
-            >
-              <CrescendoLogo />
-            </button>
+              {/* Desktop Layout - Single Row */}
+              <div className="hidden md:flex items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  <SidebarTrigger />
+                  <button
+                    onClick={onViewMarketplace}
+                    className="hover:opacity-80 transition-opacity cursor-pointer"
+                  >
+                    <CrescendoLogo />
+                  </button>
+                </div>
 
-            <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                onClick={onViewBrandPartners}
-                className="gap-2"
-              >
-                <Store className="w-4 h-4" />
-                Brands
-              </Button>
-              <Button
-                variant="outline"
-                onClick={onViewMembershipLevels}
-                className="gap-2"
-              >
-                <Trophy className="w-4 h-4" />
-                Membership
-              </Button>
-              <Button
-                variant="outline"
-                onClick={onViewRewards}
-                className="gap-2"
-              >
-                <Gift className="w-4 h-4" />
-                Rewards
-              </Button>
-            </div>
+                <div className="flex items-center gap-4">
+                  <Button
+                    variant="outline"
+                    onClick={onViewMembershipLevels}
+                    className="gap-2"
+                  >
+                    <Trophy className="w-4 h-4" />
+                    Membership
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={onViewRewards}
+                    className="gap-2"
+                  >
+                    <Gift className="w-4 h-4" />
+                    Rewards
+                  </Button>
+                </div>
 
             <div className="flex items-center gap-4">
               <ThemeToggle />
@@ -252,13 +247,13 @@ export function Dashboard({
                 <LogOut className="w-4 h-4" />
                 Sign Out
               </Button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </nav>
+          </nav>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-10">
+          {/* Main Content */}
+          <div className="max-w-7xl mx-auto px-6 py-10 flex-1">
         <div className="mb-8">
           <h1 className="text-4xl font-bold tracking-tight mb-2">Welcome back</h1>
           <p className="text-neutral-600 dark:text-neutral-400">Manage your status, claims, and rewards</p>
@@ -553,6 +548,8 @@ export function Dashboard({
           </CardContent>
         </Card>
       </div>
-    </div>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 }
