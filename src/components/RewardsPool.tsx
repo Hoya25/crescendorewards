@@ -81,6 +81,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const [isCarouselHovered, setIsCarouselHovered] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [showSwipeIndicators, setShowSwipeIndicators] = useState(true);
+  const [wishlistItems, setWishlistItems] = useState<Set<string>>(new Set());
   const isMobile = useIsMobile();
   const autoplayPlugin = useRef(
     Autoplay({
@@ -261,6 +262,87 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       setLoading(false);
     }
   };
+
+  const loadWishlist = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data, error } = await supabase
+        .from('reward_wishlists')
+        .select('reward_id')
+        .eq('user_id', session.user.id);
+
+      if (error) throw error;
+      const wishlistSet = new Set(data?.map(item => item.reward_id) || []);
+      setWishlistItems(wishlistSet);
+    } catch (error) {
+      console.error('Error loading wishlist:', error);
+    }
+  };
+
+  const toggleWishlist = async (rewardId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast({
+        title: 'Sign In Required',
+        description: 'Please sign in to add items to your wishlist',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const isInWishlist = wishlistItems.has(rewardId);
+
+    try {
+      if (isInWishlist) {
+        const { error } = await supabase
+          .from('reward_wishlists')
+          .delete()
+          .eq('user_id', session.user.id)
+          .eq('reward_id', rewardId);
+
+        if (error) throw error;
+
+        setWishlistItems(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(rewardId);
+          return newSet;
+        });
+
+        toast({
+          title: 'Removed from wishlist',
+          description: 'Item removed from your wishlist',
+        });
+      } else {
+        const { error } = await supabase
+          .from('reward_wishlists')
+          .insert({
+            user_id: session.user.id,
+            reward_id: rewardId,
+          });
+
+        if (error) throw error;
+
+        setWishlistItems(prev => new Set([...prev, rewardId]));
+
+        toast({
+          title: 'Added to wishlist',
+          description: 'Item added to your wishlist',
+        });
+      }
+    } catch (error: any) {
+      console.error('Error toggling wishlist:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update wishlist',
+        variant: 'destructive',
+      });
+    }
+  };
+
 
   const handleRewardClick = (reward: Reward) => {
     if (onViewRewardDetail) {

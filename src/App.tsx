@@ -8,6 +8,7 @@ import { LandingPage } from "./components/LandingPage";
 import { Dashboard } from "./components/Dashboard";
 import { EarnNCTR } from "./components/EarnNCTR";
 import { RewardsPool } from "./components/RewardsPool";
+import { WishlistPage } from "./components/WishlistPage";
 import { ProfilePage } from "./components/ProfilePage";
 import { AdminPanel } from "./components/admin/AdminPanel";
 import { MembershipLevelPage } from "./components/MembershipLevelPage";
@@ -33,7 +34,7 @@ const queryClient = new QueryClient();
 function CrescendoApp() {
   const { user, profile, loading, isAuthenticated, signOut, refreshProfile } = useAuth();
   const { isAdmin } = useAdminRole();
-  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "reward-detail" | "profile" | "admin" | "membership" | "membership-history" | "membership-statistics" | "brands" | "brand-detail" | "submit-rewards" | "my-submissions" | "purchase-history" | "referral-analytics" | "food-beverage">("landing");
+  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "reward-detail" | "profile" | "admin" | "membership" | "membership-history" | "membership-statistics" | "brands" | "brand-detail" | "submit-rewards" | "my-submissions" | "purchase-history" | "referral-analytics" | "food-beverage" | "wishlist">("landing");
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
   const [selectedRewardId, setSelectedRewardId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -291,6 +292,14 @@ function CrescendoApp() {
           onBack={() => setCurrentView(isAuthenticated ? "dashboard" : "landing")}
           onViewRewardDetail={handleViewRewardDetail}
           claimBalance={profile?.claim_balance || 0}
+        />
+      )}
+
+      {currentView === "wishlist" && isAuthenticated && profile && (
+        <WishlistPage
+          onBack={() => setCurrentView("dashboard")}
+          onViewRewardDetail={handleViewRewardDetail}
+          claimBalance={profile.claim_balance}
         />
       )}
 
