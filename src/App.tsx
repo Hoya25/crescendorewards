@@ -20,6 +20,7 @@ import { BrandDetailPage } from "./components/BrandDetailPage";
 import { SubmitRewardsPage } from "./components/SubmitRewardsPage";
 import { MySubmissionsPage } from "./components/MySubmissionsPage";
 import { PurchaseHistoryPage } from "./components/PurchaseHistoryPage";
+import { FoodBeveragePage } from "./components/FoodBeveragePage";
 import { AuthModal } from "./components/AuthModal";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { useAuth } from "./hooks/useAuth";
@@ -32,7 +33,7 @@ const queryClient = new QueryClient();
 function CrescendoApp() {
   const { user, profile, loading, isAuthenticated, signOut, refreshProfile } = useAuth();
   const { isAdmin } = useAdminRole();
-  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "reward-detail" | "profile" | "admin" | "membership" | "membership-history" | "membership-statistics" | "brands" | "brand-detail" | "submit-rewards" | "my-submissions" | "purchase-history" | "referral-analytics">("landing");
+  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "reward-detail" | "profile" | "admin" | "membership" | "membership-history" | "membership-statistics" | "brands" | "brand-detail" | "submit-rewards" | "my-submissions" | "purchase-history" | "referral-analytics" | "food-beverage">("landing");
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
   const [selectedRewardId, setSelectedRewardId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -133,6 +134,10 @@ function CrescendoApp() {
     setCurrentView("purchase-history");
   };
 
+  const handleFoodBeverage = () => {
+    setCurrentView("food-beverage");
+  };
+
   const handleToggleAuthMode = () => {
     setAuthMode(authMode === 'signin' ? 'signup' : 'signin');
   };
@@ -177,6 +182,7 @@ function CrescendoApp() {
           onMySubmissions={handleMySubmissions}
           onPurchaseHistory={handlePurchaseHistory}
           onReferralAnalytics={() => setCurrentView("referral-analytics")}
+          onFoodBeverage={handleFoodBeverage}
           isAdmin={isAdmin}
           onAdminPanel={() => setCurrentView("admin")}
         />
@@ -277,6 +283,14 @@ function CrescendoApp() {
       {currentView === "referral-analytics" && isAuthenticated && (
         <ReferralAnalyticsDashboard
           onBack={() => setCurrentView("dashboard")}
+        />
+      )}
+
+      {currentView === "food-beverage" && (
+        <FoodBeveragePage
+          onBack={() => setCurrentView(isAuthenticated ? "dashboard" : "landing")}
+          onViewRewardDetail={handleViewRewardDetail}
+          claimBalance={profile?.claim_balance || 0}
         />
       )}
 

@@ -2,7 +2,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
-import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Award, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt, Crown, BarChart3 } from "lucide-react";
+import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Award, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt, Crown, BarChart3, UtensilsCrossed } from "lucide-react";
 import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
 import { ThemeToggle } from "./ThemeToggle";
@@ -45,6 +45,7 @@ interface DashboardProps {
   onMySubmissions?: () => void;
   onPurchaseHistory?: () => void;
   onReferralAnalytics?: () => void;
+  onFoodBeverage?: () => void;
   isAdmin?: boolean;
   onAdminPanel?: () => void;
 }
@@ -69,6 +70,7 @@ export function Dashboard({
   onMySubmissions,
   onPurchaseHistory,
   onReferralAnalytics,
+  onFoodBeverage,
   isAdmin,
   onAdminPanel,
 }: DashboardProps) {
@@ -430,6 +432,13 @@ export function Dashboard({
                   <Store className="w-4 h-4" />
                   Brand Partners
                 </Button>
+
+                {onFoodBeverage && (
+                  <Button onClick={onFoodBeverage} variant="outline" className="w-full justify-start gap-2">
+                    <UtensilsCrossed className="w-4 h-4" />
+                    Food & Beverage
+                  </Button>
+                )}
 
                 {onViewMarketplace && (
                   <Button onClick={onViewMarketplace} variant="outline" className="w-full justify-start gap-2">
