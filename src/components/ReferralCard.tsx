@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Users, Copy, Check, Share2, Gift, Lock } from 'lucide-react';
 import { toast } from 'sonner';
+import { NCTRLogo } from './NCTRLogo';
 
 interface ReferralStats {
   totalReferrals: number;
@@ -74,7 +75,9 @@ export function ReferralCard({ stats, referralCode }: ReferralCardProps) {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <label className="text-sm font-medium">Your Referral Link</label>
-            <Badge variant="secondary" className="text-xs">500 NCTR per referral</Badge>
+            <Badge variant="secondary" className="text-xs flex items-center gap-1">
+              500 <NCTRLogo className="inline-block h-3 w-auto" /> per referral
+            </Badge>
           </div>
           <div className="flex gap-2">
             <input

@@ -7,6 +7,7 @@ import { ArrowLeft, ExternalLink, Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { getMembershipTierByNCTR } from '@/utils/membershipLevels';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
+import { NCTRLogo } from '@/components/NCTRLogo';
 
 interface BrandDetailPageProps {
   brandId: string;
@@ -161,12 +162,14 @@ export function BrandDetailPage({ brandId, onBack }: BrandDetailPageProps) {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Base Earning Rate</p>
-                <p className="text-3xl font-bold">{brand.base_earning_rate} NCTR per $1</p>
+                <p className="text-3xl font-bold flex items-center gap-2">
+                  {brand.base_earning_rate} <NCTRLogo className="inline-block h-8 w-auto" /> per $1
+                </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">With Your {multiplier}x Status Multiplier</p>
-                <p className="text-3xl font-bold text-primary">
-                  {calculateMultipliedRate(brand.base_earning_rate)} NCTR per $1
+                <p className="text-3xl font-bold text-primary flex items-center gap-2">
+                  {calculateMultipliedRate(brand.base_earning_rate)} <NCTRLogo className="inline-block h-8 w-auto" /> per $1
                 </p>
               </div>
             </div>

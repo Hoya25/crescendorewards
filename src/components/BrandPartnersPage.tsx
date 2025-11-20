@@ -251,8 +251,12 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
               <p className="text-5xl font-bold">{multiplier}x</p>
             </div>
             <div className="text-right">
-              <p className="text-sm opacity-90 mb-1">Example: 5 NCTR base rate</p>
-              <p className="text-3xl font-bold">= {(5 * multiplier).toFixed(2)} NCTR per $1</p>
+              <p className="text-sm opacity-90 mb-1 flex items-center justify-end gap-1">
+                Example: 5 <NCTRLogo className="inline-block h-4 w-auto" /> base rate
+              </p>
+              <p className="text-3xl font-bold flex items-center justify-end gap-2">
+                = {(5 * multiplier).toFixed(2)} <NCTRLogo className="inline-block h-8 w-auto" /> per $1
+              </p>
             </div>
           </CardContent>
         </Card>
