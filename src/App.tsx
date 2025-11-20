@@ -230,6 +230,7 @@ function CrescendoApp() {
           onBack={() => setCurrentView("dashboard")}
           onSignOut={handleSignOut}
           onRefresh={refreshProfile}
+          onViewWishlist={handleViewWishlist}
         />
       )}
 

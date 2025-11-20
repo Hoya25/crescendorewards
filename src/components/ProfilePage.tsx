@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { BuyClaims } from '@/components/BuyClaims';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
@@ -39,9 +39,10 @@ interface ProfilePageProps {
   onBack: () => void;
   onSignOut: () => void;
   onRefresh: () => void;
+  onViewWishlist?: () => void;
 }
 
-export function ProfilePage({ profile, onBack, onSignOut, onRefresh }: ProfilePageProps) {
+export function ProfilePage({ profile, onBack, onSignOut, onRefresh, onViewWishlist }: ProfilePageProps) {
   const [fullName, setFullName] = useState(profile.full_name || '');
   const [walletAddress, setWalletAddress] = useState(profile.wallet_address || '');
   const [uploading, setUploading] = useState(false);
@@ -50,6 +51,8 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh }: ProfilePa
   const { address, isConnected, linkWalletToAccount } = useWalletAuth();
   const [linkingWallet, setLinkingWallet] = useState(false);
   const { balance: walletNCTRBalance, formattedBalance, isLoading: isLoadingBalance, contractAddress, refetch: refetchBalance } = useNCTRBalance();
+  const [wishlistItems, setWishlistItems] = useState<any[]>([]);
+  const [loadingWishlist, setLoadingWishlist] = useState(true);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -227,6 +230,26 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh }: ProfilePa
   };
 
   const membershipTier = getMembershipTierByNCTR(profile.locked_nctr);
+
+  // Load wishlist items
+  useEffect(() => {
+    loadWishlist();
+  }, [profile.id]);
+
+  const loadWishlist = async () => {
+    try {
+      setLoadingWishlist(true);
+      const { data, error } = await supabase
+        .rpc('get_user_wishlist', { p_user_id: profile.id });
+
+      if (error) throw error;
+      setWishlistItems(data || []);
+    } catch (error) {
+      console.error('Error loading wishlist:', error);
+    } finally {
+      setLoadingWishlist(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80">
@@ -451,6 +474,83 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh }: ProfilePa
                 </CardContent>
               </Card>
             )}
+
+            {/* Wishlist Card */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Heart className="w-5 h-5" />
+                    My Wishlist
+                  </CardTitle>
+                  <Badge variant="secondary">{wishlistItems.length}</Badge>
+                </div>
+                <CardDescription>Your saved rewards</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loadingWishlist ? (
+                  <div className="space-y-2">
+                    <div className="h-16 bg-muted animate-pulse rounded" />
+                    <div className="h-16 bg-muted animate-pulse rounded" />
+                  </div>
+                ) : wishlistItems.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Heart className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground">
+                      No items in your wishlist yet
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {wishlistItems.slice(0, 3).map((item) => (
+                      <div
+                        key={item.wishlist_id}
+                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
+                      >
+                        <div className="w-12 h-12 rounded-md overflow-hidden bg-muted flex-shrink-0">
+                          {item.reward_image ? (
+                            <ImageWithFallback
+                              src={item.reward_image}
+                              alt={item.reward_title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Gift className="w-6 h-6 text-muted-foreground" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">
+                            {item.reward_title}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {item.reward_cost} Claims
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {wishlistItems.length > 3 && (
+                      <p className="text-xs text-muted-foreground text-center pt-2">
+                        +{wishlistItems.length - 3} more items
+                      </p>
+                    )}
+                  </div>
+                )}
+                
+                {onViewWishlist && wishlistItems.length > 0 && (
+                  <Button
+                    variant="outline"
+                    className="w-full mt-4 gap-2"
+                    onClick={onViewWishlist}
+                  >
+                    <Heart className="w-4 h-4" />
+                    View Full Wishlist
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           {/* Right Column - Account Details */}
