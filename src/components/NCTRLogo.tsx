@@ -1,4 +1,6 @@
 import { useTheme } from './ThemeProvider';
+import nctrGrey from '@/assets/nctr-grey.png';
+import nctrYellow from '@/assets/nctr-yellow.png';
 
 interface NCTRLogoProps {
   className?: string;
@@ -7,10 +9,11 @@ interface NCTRLogoProps {
 export function NCTRLogo({ className = "inline-block h-[2.7rem] w-auto mx-1 align-middle" }: NCTRLogoProps) {
   const { theme } = useTheme();
 
-  // Simple text logo as placeholder - can be replaced with actual logo images
   return (
-    <div className={`${className} flex items-center justify-center font-bold text-2xl ${theme === 'dark' ? 'text-yellow-500' : 'text-gray-700'}`}>
-      NCTR
-    </div>
+    <img 
+      src={theme === 'dark' ? nctrYellow : nctrGrey}
+      alt="NCTR"
+      className={className}
+    />
   );
 }

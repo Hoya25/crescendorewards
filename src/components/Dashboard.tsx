@@ -425,7 +425,7 @@ export function Dashboard({
 
                 <Button onClick={onEarnNCTR} variant="outline" className="w-full justify-start gap-2">
                   <Coins className="w-4 h-4" />
-                  Earn NCTR
+                  Earn <NCTRLogo className="inline-block h-5 w-auto mx-0.5 align-middle" />
                 </Button>
 
                 <Button onClick={onLockTokens} variant="outline" className="w-full justify-start gap-2">

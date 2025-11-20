@@ -5,6 +5,7 @@ import { Badge } from './ui/badge';
 import { ArrowLeft, CheckCircle2, ExternalLink, Users, Share2, Calendar, Zap, Store, Trophy, Gift, Lock, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { NCTRLogo } from './NCTRLogo';
 
 interface EarnNCTRProps {
   onBack: () => void;
@@ -148,7 +149,9 @@ export function EarnNCTR({ onBack, onNavigateToRewards, onNavigateToStatus, onNa
               Back
             </Button>
           </div>
-          <h1 className="text-4xl font-bold mb-2">Earn NCTR</h1>
+          <h1 className="text-4xl font-bold mb-2 flex items-center gap-2">
+            Earn <NCTRLogo className="inline-block h-12 w-auto" />
+          </h1>
           <p className="text-neutral-600 dark:text-neutral-400">Complete tasks and activities to earn NCTR tokens</p>
         </div>
       </div>
@@ -159,7 +162,9 @@ export function EarnNCTR({ onBack, onNavigateToRewards, onNavigateToStatus, onNa
           <div className="grid md:grid-cols-3 gap-6">
             <div className="text-center">
               <div className="text-4xl font-bold mb-2">{totalEarnableToday}</div>
-              <p className="text-violet-100">NCTR Available Today</p>
+              <p className="text-violet-100 flex items-center justify-center gap-1">
+                <NCTRLogo className="inline-block h-5 w-auto" /> Available Today
+              </p>
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold mb-2">{tasks.filter(t => t.is_completed).length}</div>
