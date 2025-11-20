@@ -193,6 +193,17 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                     )}
                   </div>
 
+                  {pkg.bonus && (
+                    <div className="mb-3 p-2 bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Gift className="w-4 h-4 text-violet-600" />
+                        <span className="text-sm font-medium text-violet-900 dark:text-violet-100 flex items-center gap-1">
+                          +{pkg.bonus} Bonus <NCTRLogo size="xs" /> (360LOCK)
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Check className="w-4 h-4 text-primary" />
