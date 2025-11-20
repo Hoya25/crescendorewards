@@ -8,6 +8,7 @@ import { AdminClaims } from './AdminClaims';
 import { AdminBrands } from './AdminBrands';
 import { AdminPurchases } from './AdminPurchases';
 import { AdminWishlists } from './AdminWishlists';
+import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 
@@ -34,6 +35,8 @@ export function AdminPanel({ onClose }: AdminPanelProps) {
         return <AdminBrands />;
       case 'wishlists':
         return <AdminWishlists />;
+      case 'wishlist-analytics':
+        return <WishlistAnalytics />;
       case 'users':
         return (
           <div className="text-center py-12">

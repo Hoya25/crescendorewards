@@ -619,6 +619,20 @@ export type Database = {
           wishlist_id: string
         }[]
       }
+      get_wishlist_analytics: {
+        Args: never
+        Returns: {
+          avg_days_on_wishlist: number
+          is_trending: boolean
+          recent_adds: number
+          reward_category: string
+          reward_cost: number
+          reward_id: string
+          reward_image: string
+          reward_title: string
+          wishlist_count: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
