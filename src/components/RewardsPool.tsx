@@ -51,7 +51,7 @@ const categoryIcons = {
 };
 
 const categoryLabels = {
-  alliance_tokens: 'Alliance Tokens',
+  alliance_tokens: 'S.W.E.A.T. Tokens',
   experiences: 'Experiences',
   merch: 'Merch',
   gift_cards: 'Gift Cards',
