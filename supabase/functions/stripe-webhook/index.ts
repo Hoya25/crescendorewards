@@ -16,23 +16,10 @@ const claimPackages = {
   'mega': { claims: 220, name: 'Mega Pack', price: 100000 }, // $1000
 };
 
-// Calculate bonus NCTR based on tiered rates
+// Calculate bonus NCTR: 3 NCTR per $1 spent
 function calculateBonusNCTR(amountInCents: number): number {
   const dollars = amountInCents / 100;
-  let bonusNCTR = 0;
-  
-  if (dollars <= 125) {
-    // 5 NCTR per $1 up to $125
-    bonusNCTR = dollars * 5;
-  } else if (dollars <= 500) {
-    // 5 NCTR per $1 for first $125, then 7 NCTR per $1 from $125 to $500
-    bonusNCTR = (125 * 5) + ((dollars - 125) * 7);
-  } else {
-    // 5 NCTR per $1 for first $125, 7 NCTR per $1 from $125 to $500, 10 NCTR per $1 over $500
-    bonusNCTR = (125 * 5) + (375 * 7) + ((dollars - 500) * 10);
-  }
-  
-  return Math.floor(bonusNCTR);
+  return Math.floor(dollars * 3);
 }
 
 serve(async (req) => {

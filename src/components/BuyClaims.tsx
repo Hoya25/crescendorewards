@@ -32,19 +32,9 @@ const STRIPE_PRICES = {
   mega: 'price_1STtB2LH9lB6iuZgL4qyz4lC',
 };
 
-// Calculate bonus NCTR based on tiered rates (all bonus is 360LOCK)
+// Calculate bonus NCTR: 3 NCTR per $1 spent (all bonus is 360LOCK)
 const calculateBonusNCTR = (priceInDollars: number): number => {
-  let bonusNCTR = 0;
-  
-  if (priceInDollars <= 125) {
-    bonusNCTR = priceInDollars * 5;
-  } else if (priceInDollars <= 500) {
-    bonusNCTR = (125 * 5) + ((priceInDollars - 125) * 7);
-  } else {
-    bonusNCTR = (125 * 5) + (375 * 7) + ((priceInDollars - 500) * 10);
-  }
-  
-  return Math.floor(bonusNCTR);
+  return Math.floor(priceInDollars * 3);
 };
 
 const claimPackages: ClaimPackage[] = [
@@ -187,17 +177,6 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                       </div>
                     </div>
 
-                    {pkg.bonus && (
-                      <div className="mb-3 p-2 bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20 rounded-lg">
-                        <div className="flex items-center gap-2">
-                          <Gift className="w-4 h-4 text-violet-600" />
-                          <span className="text-sm font-medium text-violet-900 dark:text-violet-100 flex items-center gap-1">
-                            +{pkg.bonus} Bonus <NCTRLogo size="xs" /> (360LOCK)
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
                   <div className="mb-4">
                     <div className="flex items-baseline gap-2">
                       <span className="text-3xl font-bold">${pkg.price}</span>
@@ -240,16 +219,6 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                   <span className="text-sm text-muted-foreground">You'll receive:</span>
                   <span className="font-semibold text-primary">+{selectedPackage.claims} Claims</span>
                 </div>
-                {selectedPackage.bonus && (
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="text-sm text-muted-foreground flex items-center gap-1">
-                      Bonus <NCTRLogo size="xs" /> (360LOCK):
-                    </span>
-                    <span className="font-semibold text-violet-600 flex items-center gap-1">
-                      +{selectedPackage.bonus} <NCTRLogo size="xs" />
-                    </span>
-                  </div>
-                )}
                 <div className="flex items-center justify-between mt-2 pt-2 border-t">
                   <span className="font-semibold">New Balance:</span>
                   <span className="font-bold text-lg">{currentBalance + selectedPackage.claims} Claims</span>
@@ -257,6 +226,22 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
               </>
             )}
           </div>
+
+          {selectedPackage?.bonus && (
+            <div className="mb-4 p-3 bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Gift className="w-5 h-5 text-violet-600" />
+                  <span className="text-sm font-medium text-violet-900 dark:text-violet-100 flex items-center gap-1">
+                    Bonus <NCTRLogo size="xs" /> (360LOCK):
+                  </span>
+                </div>
+                <span className="font-bold text-lg text-violet-600 flex items-center gap-1">
+                  +{selectedPackage.bonus} <NCTRLogo size="xs" />
+                </span>
+              </div>
+            </div>
+          )}
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)} disabled={processing}>
