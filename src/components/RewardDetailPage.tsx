@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, ShoppingBag, Star, Package, Zap, CheckCircle2, AlertTriangle, Coins, CreditCard, Sparkles, Gift, Clock, Lock, Share2, Twitter, Facebook, Linkedin, Link2, Check } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Star, Package, Zap, CheckCircle2, AlertTriangle, Coins, CreditCard, Sparkles, Gift, Clock, Lock, Share2, Twitter, Facebook, Linkedin, Link2, Check, Heart } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
@@ -54,6 +54,7 @@ export function RewardDetailPage({ rewardId, onBack, onClaimSuccess }: RewardDet
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isInWishlist, setIsInWishlist] = useState(false);
   const [shippingInfo, setShippingInfo] = useState({
     name: '',
     address: '',
@@ -65,6 +66,7 @@ export function RewardDetailPage({ rewardId, onBack, onClaimSuccess }: RewardDet
 
   useEffect(() => {
     fetchRewardDetails();
+    loadWishlistStatus();
   }, [rewardId]);
 
   const fetchRewardDetails = async () => {
@@ -87,6 +89,75 @@ export function RewardDetailPage({ rewardId, onBack, onClaimSuccess }: RewardDet
       onBack();
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadWishlistStatus = async () => {
+    if (!profile) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('reward_wishlists')
+        .select('id')
+        .eq('user_id', profile.id)
+        .eq('reward_id', rewardId)
+        .maybeSingle();
+
+      if (error) throw error;
+      setIsInWishlist(!!data);
+    } catch (error) {
+      console.error('Error loading wishlist status:', error);
+    }
+  };
+
+  const toggleWishlist = async () => {
+    if (!profile) {
+      toast({
+        title: 'Sign In Required',
+        description: 'Please sign in to add items to your wishlist',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      if (isInWishlist) {
+        const { error } = await supabase
+          .from('reward_wishlists')
+          .delete()
+          .eq('user_id', profile.id)
+          .eq('reward_id', rewardId);
+
+        if (error) throw error;
+
+        setIsInWishlist(false);
+        toast({
+          title: 'Removed from wishlist',
+          description: 'Item removed from your wishlist',
+        });
+      } else {
+        const { error } = await supabase
+          .from('reward_wishlists')
+          .insert({
+            user_id: profile.id,
+            reward_id: rewardId,
+          });
+
+        if (error) throw error;
+
+        setIsInWishlist(true);
+        toast({
+          title: 'Added to wishlist',
+          description: 'Item saved to your wishlist',
+        });
+      }
+    } catch (error: any) {
+      console.error('Error toggling wishlist:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update wishlist',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -242,6 +313,20 @@ export function RewardDetailPage({ rewardId, onBack, onClaimSuccess }: RewardDet
             </Button>
             
             <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={toggleWishlist}
+                className="gap-2"
+              >
+                <Heart 
+                  className={`w-4 h-4 transition-colors ${
+                    isInWishlist ? 'fill-red-500 text-red-500' : ''
+                  }`} 
+                />
+                {isInWishlist ? 'In Wishlist' : 'Add to Wishlist'}
+              </Button>
+              
               <Button 
                 variant="outline" 
                 size="sm"
