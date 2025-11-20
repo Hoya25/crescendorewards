@@ -407,6 +407,45 @@ export type Database = {
           },
         ]
       }
+      reward_wishlists: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          reward_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          reward_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          reward_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_wishlists_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reward_wishlists_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rewards: {
         Row: {
           category: string
@@ -510,6 +549,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_gift_reward: {
+        Args: { p_admin_notes?: string; p_reward_id: string; p_user_id: string }
+        Returns: Json
+      }
       claim_reward: {
         Args: { p_reward_id: string; p_shipping_info?: Json }
         Returns: Json
@@ -558,6 +601,22 @@ export type Database = {
           task_id: string
           task_type: string
           title: string
+        }[]
+      }
+      get_user_wishlist: {
+        Args: { p_user_id?: string }
+        Returns: {
+          added_at: string
+          notes: string
+          reward_category: string
+          reward_cost: number
+          reward_id: string
+          reward_image: string
+          reward_title: string
+          user_email: string
+          user_id: string
+          user_name: string
+          wishlist_id: string
         }[]
       }
       has_role: {

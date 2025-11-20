@@ -2,7 +2,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
-import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Award, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt, Crown, BarChart3, UtensilsCrossed } from "lucide-react";
+import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Award, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt, Crown, BarChart3, UtensilsCrossed, Heart } from "lucide-react";
 import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
 import { ThemeToggle } from "./ThemeToggle";
@@ -439,6 +439,11 @@ export function Dashboard({
                     Food & Beverage
                   </Button>
                 )}
+
+                <Button onClick={() => window.location.href = '/#wishlist'} variant="outline" className="w-full justify-start gap-2">
+                  <Heart className="w-4 h-4" />
+                  My Wishlist
+                </Button>
 
                 {onViewMarketplace && (
                   <Button onClick={onViewMarketplace} variant="outline" className="w-full justify-start gap-2">
