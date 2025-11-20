@@ -729,27 +729,28 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                           </Badge>
                         </div>
 
-                        {/* Wishlist Heart Button - Bottom Left */}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="absolute bottom-4 left-4 z-30 bg-background/95 hover:bg-background backdrop-blur-sm h-10 w-10 rounded-full shadow-xl border border-border/20"
-                          onClick={(e) => toggleWishlist(reward.id, e)}
-                        >
-                          <Heart
-                            className={`h-5 w-5 transition-colors ${
-                              wishlistItems.has(reward.id)
-                                ? 'fill-red-500 text-red-500'
-                                : 'text-muted-foreground'
-                            }`}
-                          />
-                        </Button>
 
                         {/* Gradient Overlay */}
                         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
                       </div>
 
                       <CardContent className="relative -mt-32 z-10 p-6 space-y-4">
+                        {/* Wishlist Heart Button - Top Right of Content */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute -top-2 right-4 z-20 bg-background hover:bg-accent backdrop-blur-sm h-10 w-10 rounded-full shadow-xl border-2 border-border/50"
+                          onClick={(e) => toggleWishlist(reward.id, e)}
+                        >
+                          <Heart
+                            className={`h-5 w-5 transition-colors ${
+                              wishlistItems.has(reward.id)
+                                ? 'fill-red-500 text-red-500'
+                                : 'text-foreground'
+                            }`}
+                          />
+                        </Button>
+                        
                         {/* Brand Info */}
                         <div className="flex items-center gap-3 mb-2">
                           <Avatar className="w-10 h-10 border-2 border-primary/20">
