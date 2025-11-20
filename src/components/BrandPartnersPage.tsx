@@ -536,7 +536,7 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
             <h2 className="text-3xl font-bold mb-4">Are You a Brand?</h2>
             <p className="text-lg text-muted-foreground mb-6 max-w-2xl mx-auto">
               Join the Crescendo Rewards Alliance and connect with our engaged community of members. 
-              Drive sales while rewarding loyal customers with NCTR tokens.
+              Drive sales while rewarding loyal customers with <span className="inline-flex items-center gap-1"><NCTRLogo className="inline-block h-3 w-auto" /> tokens</span>.
             </p>
             <Button size="lg" className="gap-2">
               <Trophy className="w-4 h-4" />
