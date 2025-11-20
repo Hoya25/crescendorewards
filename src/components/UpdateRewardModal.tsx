@@ -202,7 +202,7 @@ export function UpdateRewardModal({ open, onClose, submission, onSuccess }: Upda
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="alliance_tokens">S.W.E.A.T. Tokens</SelectItem>
+                  <SelectItem value="alliance_tokens">Alliance Tokens</SelectItem>
                   <SelectItem value="experiences">Experiences</SelectItem>
                   <SelectItem value="merch">Merch</SelectItem>
                   <SelectItem value="gift_cards">Gift Cards</SelectItem>
