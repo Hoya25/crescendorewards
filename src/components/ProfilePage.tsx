@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift } from 'lucide-react';
+import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift, X } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { BuyClaims } from '@/components/BuyClaims';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
@@ -248,6 +248,31 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh, onViewWishl
       console.error('Error loading wishlist:', error);
     } finally {
       setLoadingWishlist(false);
+    }
+  };
+
+  const handleRemoveFromWishlist = async (wishlistId: string, rewardTitle: string) => {
+    try {
+      const { error } = await supabase
+        .from('reward_wishlists')
+        .delete()
+        .eq('id', wishlistId);
+
+      if (error) throw error;
+
+      setWishlistItems(prev => prev.filter(item => item.wishlist_id !== wishlistId));
+
+      toast({
+        title: 'Removed from wishlist',
+        description: `${rewardTitle} removed from your wishlist`,
+      });
+    } catch (error: any) {
+      console.error('Error removing from wishlist:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to remove item from wishlist',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -505,7 +530,7 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh, onViewWishl
                     {wishlistItems.slice(0, 3).map((item) => (
                       <div
                         key={item.wishlist_id}
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
+                        className="group flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors relative"
                       >
                         <div className="w-12 h-12 rounded-md overflow-hidden bg-muted flex-shrink-0">
                           {item.reward_image ? (
@@ -528,6 +553,14 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh, onViewWishl
                             {item.reward_cost} Claims
                           </p>
                         </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleRemoveFromWishlist(item.wishlist_id, item.reward_title)}
+                        >
+                          <X className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                        </Button>
                       </div>
                     ))}
                     
