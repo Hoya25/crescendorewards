@@ -46,8 +46,8 @@ export function LandingPage({ onJoin, onViewRewards, onSignIn, onViewLevelDetail
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 md:mb-6 bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
             Unlock Exclusive Rewards
           </h1>
-          <p className="text-base md:text-xl text-neutral-600 max-w-2xl mx-auto mb-6 md:mb-10 px-4">
-            Commit NCTR to 360LOCK, claim your status NFT on Base, and access crowdsourced digital rewards from Crescendo brands.
+          <p className="text-base md:text-xl text-neutral-600 max-w-2xl mx-auto mb-6 md:mb-10 px-4 flex items-center justify-center gap-2 flex-wrap">
+            Commit <NCTRLogo className="inline-block h-6 w-auto" /> to 360LOCK, claim your status NFT on Base, and access crowdsourced digital rewards from Crescendo brands.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 px-4">
             <Button onClick={onJoin} size="lg" className="bg-violet-600 hover:bg-violet-700 text-white w-full sm:w-auto">
@@ -74,9 +74,11 @@ export function LandingPage({ onJoin, onViewRewards, onSignIn, onViewLevelDetail
                 <div className="w-14 h-14 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center mb-6">
                   <Lock className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">Earn and Commit NCTR</h3>
-                <p className="text-neutral-600 dark:text-neutral-400">
-                  Commit your NCTR tokens to 360LOCK to build your Crescendo member status and unlock benefits.
+                <h3 className="text-xl font-semibold mb-3 flex items-center justify-center gap-2">
+                  Earn and Commit <NCTRLogo className="inline-block h-6 w-auto" />
+                </h3>
+                <p className="text-neutral-600 dark:text-neutral-400 flex items-center justify-center gap-1 flex-wrap">
+                  Commit your <NCTRLogo className="inline-block h-5 w-auto" /> tokens to 360LOCK to build your Crescendo member status and unlock benefits.
                 </p>
               </CardContent>
             </Card>
@@ -113,7 +115,9 @@ export function LandingPage({ onJoin, onViewRewards, onSignIn, onViewLevelDetail
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold tracking-tight mb-4">Membership Levels</h2>
-            <p className="text-neutral-600 dark:text-neutral-400">Lock NCTR in 360LOCK to unlock greater benefits</p>
+            <p className="text-neutral-600 dark:text-neutral-400 flex items-center justify-center gap-1">
+              Lock <NCTRLogo className="inline-block h-5 w-auto" /> in 360LOCK to unlock greater benefits
+            </p>
           </div>
 
           <div className="grid md:grid-cols-5 gap-4">

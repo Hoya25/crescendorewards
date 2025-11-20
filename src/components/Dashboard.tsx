@@ -282,8 +282,8 @@ export function Dashboard({
                           {userData.multiplier} Earnings
                         </Badge>
                       </div>
-                      <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                        {userData.lockedNCTR.toLocaleString()} NCTR in 360LOCK
+                      <p className="text-sm text-neutral-600 dark:text-neutral-400 flex items-center gap-1">
+                        {userData.lockedNCTR.toLocaleString()} <NCTRLogo className="inline-block h-4 w-auto" /> in 360LOCK
                       </p>
                     </div>
                   </div>
@@ -307,15 +307,15 @@ export function Dashboard({
                     <div className="relative">
                       <Progress value={progressPercent} className="h-4" />
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-xs font-bold text-white drop-shadow-md">
-                          {userData.lockedNCTR.toLocaleString()} / {userData.nextLevelThreshold.toLocaleString()} NCTR
+                        <span className="text-xs font-bold text-white drop-shadow-md flex items-center gap-1">
+                          {userData.lockedNCTR.toLocaleString()} / {userData.nextLevelThreshold.toLocaleString()} <NCTRLogo className="inline-block h-3 w-auto brightness-0 invert" />
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400">
                         <Lock className="w-3 h-3" />
-                        <span>Lock {nctrNeeded.toLocaleString()} more NCTR</span>
+                        <span className="flex items-center gap-1">Lock {nctrNeeded.toLocaleString()} more <NCTRLogo className="inline-block h-3 w-auto" /></span>
                       </div>
                       <div className="text-xs font-medium text-primary">
                         Next: {nextTier.multiplier}x earnings
