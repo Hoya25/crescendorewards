@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingCart, Check, Sparkles, Award, Gift } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { ShoppingCart, Check, Sparkles, Award, Gift, HelpCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { NCTRLogo } from './NCTRLogo';
@@ -200,6 +201,20 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                         <span className="text-sm font-medium text-violet-900 dark:text-violet-100 flex items-center gap-1">
                           +{pkg.bonus} Bonus <NCTRLogo size="xs" /> (360LOCK)
                         </span>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <HelpCircle className="w-3.5 h-3.5 text-violet-600 cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs">
+                              <p className="font-semibold mb-1">360LOCK Bonus</p>
+                              <p className="text-sm">
+                                Earn 3 NCTR per $1 spent on claim passes. These bonus NCTR are automatically locked for 360 days, 
+                                contributing to your membership tier level while they vest.
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     </div>
                   )}
@@ -246,6 +261,20 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                   <span className="text-sm font-medium text-violet-900 dark:text-violet-100 flex items-center gap-1">
                     Bonus <NCTRLogo size="xs" /> (360LOCK):
                   </span>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <HelpCircle className="w-4 h-4 text-violet-600 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="font-semibold mb-1">360LOCK Bonus</p>
+                        <p className="text-sm">
+                          Earn 3 NCTR per $1 spent on claim passes. These bonus NCTR are automatically locked for 360 days, 
+                          contributing to your membership tier level while they vest.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
                 <span className="font-bold text-lg text-violet-600 flex items-center gap-1">
                   +{selectedPackage.bonus} <NCTRLogo size="xs" />
