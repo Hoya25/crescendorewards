@@ -9,12 +9,31 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
 const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET") || "";
 
 const claimPackages = {
-  'starter': { claims: 10, name: 'Starter Pack', price: 999 },
-  'popular': { claims: 25, name: 'Popular Pack', price: 1999 },
-  'premium': { claims: 50, name: 'Premium Pack', price: 2999 },
-  'ultimate': { claims: 100, name: 'Ultimate Pack', price: 4999 },
-  'mega': { claims: 220, name: 'Mega Pack', price: 9999 },
+  'starter': { claims: 10, name: 'Starter Pack', price: 5000 }, // $50
+  'popular': { claims: 25, name: 'Popular Pack', price: 12500 }, // $125
+  'premium': { claims: 50, name: 'Premium Pack', price: 25000 }, // $250
+  'ultimate': { claims: 100, name: 'Ultimate Pack', price: 50000 }, // $500
+  'mega': { claims: 220, name: 'Mega Pack', price: 100000 }, // $1000
 };
+
+// Calculate bonus NCTR based on tiered rates
+function calculateBonusNCTR(amountInCents: number): number {
+  const dollars = amountInCents / 100;
+  let bonusNCTR = 0;
+  
+  if (dollars <= 125) {
+    // 5 NCTR per $1 up to $125
+    bonusNCTR = dollars * 5;
+  } else if (dollars <= 500) {
+    // 5 NCTR per $1 for first $125, then 7 NCTR per $1 from $125 to $500
+    bonusNCTR = (125 * 5) + ((dollars - 125) * 7);
+  } else {
+    // 5 NCTR per $1 for first $125, 7 NCTR per $1 from $125 to $500, 10 NCTR per $1 over $500
+    bonusNCTR = (125 * 5) + (375 * 7) + ((dollars - 500) * 10);
+  }
+  
+  return Math.floor(bonusNCTR);
+}
 
 serve(async (req) => {
   const signature = req.headers.get("stripe-signature");
@@ -53,10 +72,10 @@ serve(async (req) => {
         { auth: { persistSession: false } }
       );
 
-      // First get current balance
+      // First get current balance and locked NCTR
       const { data: profile } = await supabaseClient
         .from("profiles")
-        .select("claim_balance")
+        .select("claim_balance, locked_nctr")
         .eq("id", userId)
         .single();
 
@@ -65,11 +84,16 @@ serve(async (req) => {
         return new Response("Profile not found", { status: 404 });
       }
 
-      // Update with new balance
+      // Calculate bonus NCTR (automatically added to 360LOCK)
+      const bonusNCTR = calculateBonusNCTR(package_info.price);
+      console.log(`Calculated bonus NCTR: ${bonusNCTR} for purchase amount: $${package_info.price / 100}`);
+
+      // Update with new balance and bonus locked NCTR
       const { error } = await supabaseClient
         .from("profiles")
         .update({
-          claim_balance: profile.claim_balance + package_info.claims
+          claim_balance: profile.claim_balance + package_info.claims,
+          locked_nctr: profile.locked_nctr + bonusNCTR
         })
         .eq("id", userId);
 
@@ -97,7 +121,7 @@ serve(async (req) => {
         // Don't fail the webhook if we can't record the purchase
       }
 
-      console.log(`Successfully added ${package_info.claims} claims to user ${userId}`);
+      console.log(`Successfully added ${package_info.claims} claims and ${bonusNCTR} bonus NCTR (360LOCK) to user ${userId}`);
     }
 
     return new Response(JSON.stringify({ received: true }), {

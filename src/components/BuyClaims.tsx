@@ -31,12 +31,27 @@ const STRIPE_PRICES = {
   mega: 'price_1STtB2LH9lB6iuZgL4qyz4lC',
 };
 
+// Calculate bonus NCTR based on tiered rates (all bonus is 360LOCK)
+const calculateBonusNCTR = (priceInDollars: number): number => {
+  let bonusNCTR = 0;
+  
+  if (priceInDollars <= 125) {
+    bonusNCTR = priceInDollars * 5;
+  } else if (priceInDollars <= 500) {
+    bonusNCTR = (125 * 5) + ((priceInDollars - 125) * 7);
+  } else {
+    bonusNCTR = (125 * 5) + (375 * 7) + ((priceInDollars - 500) * 10);
+  }
+  
+  return Math.floor(bonusNCTR);
+};
+
 const claimPackages: ClaimPackage[] = [
-  { id: 'starter', claims: 10, price: 50, label: 'Starter Pack' },
-  { id: 'popular', claims: 25, price: 125, label: 'Popular Pack', popular: true },
-  { id: 'premium', claims: 50, price: 250, label: 'Premium Pack' },
-  { id: 'ultimate', claims: 100, price: 500, label: 'Ultimate Pack' },
-  { id: 'mega', claims: 210, price: 1000, label: 'Mega Pack', bonus: 10 },
+  { id: 'starter', claims: 10, price: 50, label: 'Starter Pack', bonus: calculateBonusNCTR(50) },
+  { id: 'popular', claims: 25, price: 125, label: 'Popular Pack', popular: true, bonus: calculateBonusNCTR(125) },
+  { id: 'premium', claims: 50, price: 250, label: 'Premium Pack', bonus: calculateBonusNCTR(250) },
+  { id: 'ultimate', claims: 100, price: 500, label: 'Ultimate Pack', bonus: calculateBonusNCTR(500) },
+  { id: 'mega', claims: 210, price: 1000, label: 'Mega Pack', bonus: calculateBonusNCTR(1000) },
 ];
 
 const calculateSavings = (claims: number, price: number): number => {
@@ -168,14 +183,19 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                             Best Value
                           </Badge>
                         )}
-                        {pkg.bonus && (
-                          <Badge variant="secondary" className="gap-1 bg-green-500/10 text-green-600 border-green-500/20">
-                            <Gift className="w-3 h-3" />
-                            +{pkg.bonus} Bonus
-                          </Badge>
-                        )}
                       </div>
                     </div>
+
+                    {pkg.bonus && (
+                      <div className="mb-3 p-2 bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Gift className="w-4 h-4 text-violet-600" />
+                          <span className="text-sm font-medium text-violet-900 dark:text-violet-100">
+                            +{pkg.bonus} Bonus NCTR (360LOCK)
+                          </span>
+                        </div>
+                      </div>
+                    )}
 
                   <div className="mb-4">
                     <div className="flex items-baseline gap-2">
@@ -219,6 +239,12 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                   <span className="text-sm text-muted-foreground">You'll receive:</span>
                   <span className="font-semibold text-primary">+{selectedPackage.claims} Claims</span>
                 </div>
+                {selectedPackage.bonus && (
+                  <div className="flex items-center justify-between mt-1">
+                    <span className="text-sm text-muted-foreground">Bonus NCTR (360LOCK):</span>
+                    <span className="font-semibold text-violet-600">+{selectedPackage.bonus} NCTR</span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between mt-2 pt-2 border-t">
                   <span className="font-semibold">New Balance:</span>
                   <span className="font-bold text-lg">{currentBalance + selectedPackage.claims} Claims</span>
