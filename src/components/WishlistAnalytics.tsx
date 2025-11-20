@@ -19,7 +19,7 @@ interface WishlistAnalytic {
 }
 
 const categoryLabels: Record<string, string> = {
-  alliance_tokens: 'S.W.E.A.T. Tokens',
+  alliance_tokens: 'Alliance Tokens',
   experiences: 'Experiences',
   merch: 'Merch',
   gift_cards: 'Gift Cards',
