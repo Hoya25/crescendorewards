@@ -556,6 +556,84 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             </div>
           </Tabs>
 
+          {/* Category Descriptions */}
+          {activeCategory === 'alliance_tokens' && (
+            <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
+              <div className="flex items-start gap-3">
+                <Coins className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-foreground">About Alliance Tokens</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Alliance Tokens are digital rewards from our brand partners that represent shared values and commitments. 
+                    Each token type (like S.W.E.A.T. Tokens from Mike Rowe WORKS Foundation) embodies specific principles 
+                    and can be redeemed for exclusive benefits. Partner tokens unlock special experiences, merchandise, 
+                    and opportunities aligned with their organization&apos;s mission.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeCategory === 'experiences' && (
+            <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
+              <div className="flex items-start gap-3">
+                <Sparkles className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-foreground">Exclusive Experiences</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Redeem your claims for once-in-a-lifetime experiences like VIP concert access, meet-and-greets, 
+                    adventure packages, and exclusive events. These rewards create unforgettable memories.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeCategory === 'merch' && (
+            <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
+              <div className="flex items-start gap-3">
+                <ShoppingBag className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-foreground">Exclusive Merchandise</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Get your hands on limited-edition apparel, collectibles, and branded merchandise from our partners. 
+                    Show your support with exclusive gear you can&apos;t find anywhere else.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeCategory === 'gift_cards' && (
+            <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
+              <div className="flex items-start gap-3">
+                <CreditCard className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-foreground">Gift Cards & Vouchers</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Exchange your claims for gift cards from popular brands and retailers. Perfect for treating yourself 
+                    or giving as gifts to friends and family.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeCategory === 'wellness' && (
+            <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
+              <div className="flex items-start gap-3">
+                <Heart className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-foreground">Wellness & Health</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Invest in your wellbeing with health supplements, fitness gear, and wellness products. 
+                    Take care of yourself with rewards that support a healthy lifestyle.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Filters and Sorting */}
           <div className="flex flex-wrap items-center gap-3 mt-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
