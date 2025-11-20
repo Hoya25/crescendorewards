@@ -952,6 +952,22 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                       </div>
                     )}
 
+                    {/* Wishlist Heart Button - Top Left */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-3 left-3 z-10 bg-background/90 hover:bg-background backdrop-blur-sm h-9 w-9"
+                      onClick={(e) => toggleWishlist(reward.id, e)}
+                    >
+                      <Heart
+                        className={`h-5 w-5 transition-colors ${
+                          wishlistItems.has(reward.id)
+                            ? 'fill-red-500 text-red-500'
+                            : 'text-muted-foreground'
+                        }`}
+                      />
+                    </Button>
+
                     {/* Badge Stack - Top Right */}
                     <div className="absolute top-3 right-3 flex flex-col gap-1.5 items-end">
                       {reward.cost === 0 && (
@@ -984,14 +1000,6 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                           New
                         </Badge>
                       )}
-                    </div>
-
-                    {/* Category Badge - Top Left */}
-                    <div className="absolute top-3 left-3">
-                      <Badge variant="secondary" className="backdrop-blur-sm bg-background/80 border-border/50 text-xs">
-                        <Icon className="w-3 h-3 mr-1" />
-                        {categoryLabels[reward.category]}
-                      </Badge>
                     </div>
 
                     {/* Cost Badge - Bottom Left */}

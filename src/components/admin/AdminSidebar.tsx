@@ -1,4 +1,4 @@
-import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt } from 'lucide-react';
+import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, Heart } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
 import {
@@ -26,6 +26,7 @@ const menuItems = [
   { title: 'Claims', view: 'claims', icon: ShoppingBag },
   { title: 'Purchases', view: 'purchases', icon: Receipt },
   { title: 'Brands', view: 'brands', icon: Store },
+  { title: 'Wishlists', view: 'wishlists', icon: Heart },
 ];
 
 export function AdminSidebar({ onNavigate, currentView }: AdminSidebarProps) {
