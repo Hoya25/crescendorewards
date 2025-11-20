@@ -331,7 +331,7 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
                   <div className="flex gap-3">
                     <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                     <p className="text-sm text-foreground">
-                      <span className="font-semibold">You choose:</span> Select <span className="font-semibold">360LOCK</span> to earn <span className="inline-flex items-center gap-1">200 <NCTRLogo className="inline-block h-3 w-auto" /> per pass</span> (locked 360 days), or <span className="font-semibold">90LOCK</span> to earn <span className="inline-flex items-center gap-1">75 <NCTRLogo className="inline-block h-3 w-auto" /> per pass</span> (locked 90 days). Your choice applies to all claims of this reward.
+                      <span className="font-semibold">You choose:</span> Select <span className="font-semibold">360LOCK</span> to earn <span className="inline-flex items-center gap-1">200 <NCTRLogo size="xs" /> per pass</span> (locked 360 days), or <span className="font-semibold">90LOCK</span> to earn <span className="inline-flex items-center gap-1">75 <NCTRLogo size="xs" /> per pass</span> (locked 90 days). Your choice applies to all claims of this reward.
                     </p>
                   </div>
                 </div>

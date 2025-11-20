@@ -150,10 +150,10 @@ export function EarnNCTR({ onBack, onNavigateToRewards, onNavigateToStatus, onNa
             </Button>
           </div>
           <h1 className="text-4xl font-bold mb-2 flex items-center gap-2">
-            Earn <NCTRLogo className="inline-block h-12 w-auto" />
+            Earn <NCTRLogo size="xl" />
           </h1>
           <p className="text-neutral-600 dark:text-neutral-400 flex items-center justify-center gap-1">
-            Complete tasks and activities to earn <NCTRLogo className="inline-block h-4 w-auto" /> tokens
+            Complete tasks and activities to earn <NCTRLogo size="sm" /> tokens
           </p>
         </div>
       </div>
@@ -165,7 +165,7 @@ export function EarnNCTR({ onBack, onNavigateToRewards, onNavigateToStatus, onNa
             <div className="text-center">
               <div className="text-4xl font-bold mb-2">{totalEarnableToday}</div>
               <p className="text-violet-100 flex items-center justify-center gap-1">
-                <NCTRLogo className="inline-block h-5 w-auto" /> Available Today
+                <NCTRLogo size="sm" /> Available Today
               </p>
             </div>
             <div className="text-center">

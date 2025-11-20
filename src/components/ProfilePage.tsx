@@ -402,7 +402,7 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh, onViewWishl
                     </Button>
                   </div>
                   <CardDescription className="flex items-center gap-1">
-                    <NCTRLogo className="inline-block h-3 w-auto" /> tokens in your Base wallet
+                    <NCTRLogo size="xs" /> tokens in your Base wallet
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">

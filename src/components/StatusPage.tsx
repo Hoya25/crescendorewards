@@ -181,7 +181,7 @@ export function StatusPage({ onBack }: StatusPageProps) {
                   <p className="text-sm text-muted-foreground mb-1">Your Current Status</p>
                   <h2 className="text-4xl font-bold mb-2">{currentTier.name}</h2>
                   <p className="text-muted-foreground flex items-center gap-1">
-                    {lockedNCTR.toLocaleString()} <NCTRLogo className="inline-block h-3 w-auto" /> locked in 360LOCK
+                    {lockedNCTR.toLocaleString()} <NCTRLogo size="xs" /> locked in 360LOCK
                   </p>
                 </div>
               </div>
@@ -222,13 +222,13 @@ export function StatusPage({ onBack }: StatusPageProps) {
                 <div className="flex justify-between text-sm">
                   <span className="font-medium">Progress to {nextTier.name}</span>
                   <span className="text-muted-foreground flex items-center gap-1">
-                    {remainingNCTR.toLocaleString()} <NCTRLogo className="inline-block h-3 w-auto" /> to go
+                    {remainingNCTR.toLocaleString()} <NCTRLogo size="xs" /> to go
                   </span>
                 </div>
                 <Progress value={progressToNext} className="h-2" />
                 <div className="flex justify-between text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">{lockedNCTR.toLocaleString()} <NCTRLogo className="inline-block h-2 w-auto" /></span>
-                  <span className="flex items-center gap-1">{nextTier.requirement.toLocaleString()} <NCTRLogo className="inline-block h-2 w-auto" /></span>
+                  <span className="flex items-center gap-1">{lockedNCTR.toLocaleString()} <NCTRLogo size="xs" /></span>
+                  <span className="flex items-center gap-1">{nextTier.requirement.toLocaleString()} <NCTRLogo size="xs" /></span>
                 </div>
               </div>
             )}
@@ -308,7 +308,7 @@ export function StatusPage({ onBack }: StatusPageProps) {
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1 flex items-center gap-1">
-                    Earn <NCTRLogo className="inline-block h-4 w-auto" /> Tokens
+                    Earn <NCTRLogo size="sm" /> Tokens
                   </h3>
                   <p className="text-sm text-muted-foreground">Complete activities, refer friends, and engage with partner brands</p>
                 </div>
@@ -320,7 +320,7 @@ export function StatusPage({ onBack }: StatusPageProps) {
                 <div>
                   <h3 className="font-semibold mb-1">Commit to 360LOCK</h3>
                   <p className="text-sm text-muted-foreground flex items-center gap-1 flex-wrap">
-                    Lock your <NCTRLogo className="inline-block h-3 w-auto" /> for 360 days to build your member status level
+                    Lock your <NCTRLogo size="xs" /> for 360 days to build your member status level
                   </p>
                 </div>
               </div>
@@ -443,7 +443,7 @@ export function StatusPage({ onBack }: StatusPageProps) {
                               {benefit.split('NCTR').map((part, i) => (
                                 i === 0 ? part : (
                                   <span key={i} className="inline-flex items-center gap-1">
-                                    <NCTRLogo className="inline-block h-3 w-auto" />
+                                    <NCTRLogo size="xs" />
                                     {part}
                                   </span>
                                 )

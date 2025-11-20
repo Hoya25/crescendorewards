@@ -499,7 +499,7 @@ export function AdminBrands() {
 
         <div>
           <Label htmlFor="earning_rate" className="flex items-center gap-1">
-            Base Earning Rate (<NCTRLogo className="inline-block h-3 w-auto" /> per $1)
+            Base Earning Rate (<NCTRLogo size="xs" /> per $1)
           </Label>
           <Input
             id="earning_rate"
@@ -926,7 +926,7 @@ export function AdminBrands() {
                       <Badge variant="secondary">{brand.category}</Badge>
                     </TableCell>
                     <TableCell>
-                      <span className="font-mono">{brand.base_earning_rate} NCTR/$1</span>
+                      <span className="font-mono flex items-center gap-1">{brand.base_earning_rate} <NCTRLogo size="xs" />/$1</span>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
