@@ -44,6 +44,7 @@ import { Plus, Edit, Trash2, Star, ExternalLink, Loader2, Search, Filter, X, Sor
 import { toast } from 'sonner';
 import { validateImageFile } from '@/lib/image-validation';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
+import { NCTRLogo } from '@/components/NCTRLogo';
 
 interface Brand {
   id: string;
@@ -497,7 +498,9 @@ export function AdminBrands() {
         </div>
 
         <div>
-          <Label htmlFor="earning_rate">Base Earning Rate (NCTR per $1)</Label>
+          <Label htmlFor="earning_rate" className="flex items-center gap-1">
+            Base Earning Rate (<NCTRLogo className="inline-block h-3 w-auto" /> per $1)
+          </Label>
           <Input
             id="earning_rate"
             type="number"
