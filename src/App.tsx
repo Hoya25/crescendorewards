@@ -220,6 +220,7 @@ function CrescendoApp() {
           rewardId={selectedRewardId}
           onBack={() => setCurrentView("rewards")}
           onClaimSuccess={refreshProfile}
+          onViewWishlist={handleViewWishlist}
         />
       )}
 

@@ -30,6 +30,7 @@ interface RewardDetailPageProps {
   rewardId: string;
   onBack: () => void;
   onClaimSuccess: () => void;
+  onViewWishlist?: () => void;
 }
 
 const categoryIcons = {
@@ -46,7 +47,7 @@ const categoryLabels = {
   gift_cards: 'Gift Cards',
 };
 
-export function RewardDetailPage({ rewardId, onBack, onClaimSuccess }: RewardDetailPageProps) {
+export function RewardDetailPage({ rewardId, onBack, onClaimSuccess, onViewWishlist }: RewardDetailPageProps) {
   const { profile } = useAuth();
   const [reward, setReward] = useState<Reward | null>(null);
   const [loading, setLoading] = useState(true);
@@ -149,6 +150,16 @@ export function RewardDetailPage({ rewardId, onBack, onClaimSuccess }: RewardDet
         toast({
           title: 'Added to wishlist',
           description: 'Item saved to your wishlist',
+          action: onViewWishlist ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onViewWishlist}
+              className="gap-1"
+            >
+              View Wishlist
+            </Button>
+          ) : undefined,
         });
       }
     } catch (error: any) {
