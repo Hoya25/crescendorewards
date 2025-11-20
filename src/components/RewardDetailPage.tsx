@@ -56,6 +56,7 @@ export function RewardDetailPage({ rewardId, onBack, onClaimSuccess, onViewWishl
   const [showShareModal, setShowShareModal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const [shippingInfo, setShippingInfo] = useState({
     name: '',
     address: '',
@@ -120,6 +121,10 @@ export function RewardDetailPage({ rewardId, onBack, onClaimSuccess, onViewWishl
       });
       return;
     }
+
+    // Trigger animation
+    setIsAnimating(true);
+    setTimeout(() => setIsAnimating(false), 500);
 
     try {
       if (isInWishlist) {
@@ -333,7 +338,7 @@ export function RewardDetailPage({ rewardId, onBack, onClaimSuccess, onViewWishl
                 <Heart 
                   className={`w-4 h-4 transition-colors ${
                     isInWishlist ? 'fill-red-500 text-red-500' : ''
-                  }`} 
+                  } ${isAnimating ? 'animate-heart-bounce' : ''}`} 
                 />
                 {isInWishlist ? 'In Wishlist' : 'Add to Wishlist'}
               </Button>

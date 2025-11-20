@@ -82,6 +82,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const [isPlaying, setIsPlaying] = useState(true);
   const [showSwipeIndicators, setShowSwipeIndicators] = useState(true);
   const [wishlistItems, setWishlistItems] = useState<Set<string>>(new Set());
+  const [animatingHearts, setAnimatingHearts] = useState<Set<string>>(new Set());
   const isMobile = useIsMobile();
   const autoplayPlugin = useRef(
     Autoplay({
@@ -129,6 +130,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
   useEffect(() => {
     loadRewards();
+    loadWishlist();
   }, []);
 
   useEffect(() => {
@@ -283,6 +285,16 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
   const toggleWishlist = async (rewardId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    // Trigger animation
+    setAnimatingHearts(prev => new Set([...prev, rewardId]));
+    setTimeout(() => {
+      setAnimatingHearts(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(rewardId);
+        return newSet;
+      });
+    }, 500);
     
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -737,7 +749,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                               wishlistItems.has(reward.id)
                                 ? 'fill-red-500 text-red-500'
                                 : 'text-muted-foreground'
-                            }`}
+                            } ${animatingHearts.has(reward.id) ? 'animate-heart-bounce' : ''}`}
                           />
                         </Button>
 
@@ -1011,7 +1023,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                           wishlistItems.has(reward.id)
                             ? 'fill-red-500 text-red-500'
                             : 'text-muted-foreground'
-                        }`}
+                        } ${animatingHearts.has(reward.id) ? 'animate-heart-bounce' : ''}`}
                       />
                     </Button>
 
