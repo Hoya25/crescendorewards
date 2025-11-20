@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { ShoppingCart, Check, Sparkles, Award, Gift } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { NCTRLogo } from './NCTRLogo';
 
 interface BuyClaimsProps {
   currentBalance: number;
@@ -190,8 +191,8 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                       <div className="mb-3 p-2 bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20 rounded-lg">
                         <div className="flex items-center gap-2">
                           <Gift className="w-4 h-4 text-violet-600" />
-                          <span className="text-sm font-medium text-violet-900 dark:text-violet-100">
-                            +{pkg.bonus} Bonus NCTR (360LOCK)
+                          <span className="text-sm font-medium text-violet-900 dark:text-violet-100 flex items-center gap-1">
+                            +{pkg.bonus} Bonus <NCTRLogo className="inline-block h-3 w-auto" /> (360LOCK)
                           </span>
                         </div>
                       </div>
@@ -241,8 +242,12 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                 </div>
                 {selectedPackage.bonus && (
                   <div className="flex items-center justify-between mt-1">
-                    <span className="text-sm text-muted-foreground">Bonus NCTR (360LOCK):</span>
-                    <span className="font-semibold text-violet-600">+{selectedPackage.bonus} NCTR</span>
+                    <span className="text-sm text-muted-foreground flex items-center gap-1">
+                      Bonus <NCTRLogo className="inline-block h-3 w-auto" /> (360LOCK):
+                    </span>
+                    <span className="font-semibold text-violet-600 flex items-center gap-1">
+                      +{selectedPackage.bonus} <NCTRLogo className="inline-block h-3 w-auto" />
+                    </span>
                   </div>
                 )}
                 <div className="flex items-center justify-between mt-2 pt-2 border-t">

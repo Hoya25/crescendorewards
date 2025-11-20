@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
+import { NCTRLogo } from './NCTRLogo';
 import { toast } from '@/hooks/use-toast';
 import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift, X } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
@@ -400,8 +401,8 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh, onViewWishl
                       <RefreshCw className={`w-4 h-4 ${isLoadingBalance ? 'animate-spin' : ''}`} />
                     </Button>
                   </div>
-                  <CardDescription>
-                    NCTR tokens in your Base wallet
+                  <CardDescription className="flex items-center gap-1">
+                    <NCTRLogo className="inline-block h-3 w-auto" /> tokens in your Base wallet
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">

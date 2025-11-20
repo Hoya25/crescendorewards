@@ -509,11 +509,15 @@ export function Dashboard({
                     <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" />
                   </div>
                   <div>
-                    <p className="font-medium">Claimed 100 NCTR Signup Bonus</p>
+                    <p className="font-medium flex items-center gap-1">
+                      Claimed 100 <NCTRLogo className="inline-block h-3 w-auto" /> Signup Bonus
+                    </p>
                     <p className="text-sm text-neutral-600 dark:text-neutral-400">2 days ago</p>
                   </div>
                 </div>
-                <Badge variant="secondary">+100 NCTR</Badge>
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  +100 <NCTRLogo className="inline-block h-3 w-auto" />
+                </Badge>
               </div>
 
               <div className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-900 rounded-lg">
@@ -526,7 +530,9 @@ export function Dashboard({
                     <p className="text-sm text-neutral-600 dark:text-neutral-400">3 days ago</p>
                   </div>
                 </div>
-                <Badge variant="secondary">+500 NCTR</Badge>
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  +500 <NCTRLogo className="inline-block h-3 w-auto" />
+                </Badge>
               </div>
 
               <div className="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-900 rounded-lg">
@@ -535,7 +541,9 @@ export function Dashboard({
                     <Lock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
-                    <p className="font-medium">Committed 2,500 NCTR to 360LOCK</p>
+                    <p className="font-medium flex items-center gap-1">
+                      Committed 2,500 <NCTRLogo className="inline-block h-3 w-auto" /> to 360LOCK
+                    </p>
                     <p className="text-sm text-neutral-600 dark:text-neutral-400">1 week ago</p>
                   </div>
                 </div>

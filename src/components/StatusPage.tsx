@@ -5,6 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Trophy, Zap, Gift, Tag, Check, Lock, ShoppingCart, Sparkles, Ticket, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { NCTRLogo } from './NCTRLogo';
 
 interface StatusPageProps {
   onBack: () => void;
@@ -179,7 +180,9 @@ export function StatusPage({ onBack }: StatusPageProps) {
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">Your Current Status</p>
                   <h2 className="text-4xl font-bold mb-2">{currentTier.name}</h2>
-                  <p className="text-muted-foreground">{lockedNCTR.toLocaleString()} NCTR locked in 360LOCK</p>
+                  <p className="text-muted-foreground flex items-center gap-1">
+                    {lockedNCTR.toLocaleString()} <NCTRLogo className="inline-block h-3 w-auto" /> locked in 360LOCK
+                  </p>
                 </div>
               </div>
               
@@ -218,12 +221,14 @@ export function StatusPage({ onBack }: StatusPageProps) {
               <div className="mt-6 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="font-medium">Progress to {nextTier.name}</span>
-                  <span className="text-muted-foreground">{remainingNCTR.toLocaleString()} NCTR to go</span>
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    {remainingNCTR.toLocaleString()} <NCTRLogo className="inline-block h-3 w-auto" /> to go
+                  </span>
                 </div>
                 <Progress value={progressToNext} className="h-2" />
                 <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>{lockedNCTR.toLocaleString()} NCTR</span>
-                  <span>{nextTier.requirement.toLocaleString()} NCTR</span>
+                  <span className="flex items-center gap-1">{lockedNCTR.toLocaleString()} <NCTRLogo className="inline-block h-2 w-auto" /></span>
+                  <span className="flex items-center gap-1">{nextTier.requirement.toLocaleString()} <NCTRLogo className="inline-block h-2 w-auto" /></span>
                 </div>
               </div>
             )}
@@ -302,7 +307,9 @@ export function StatusPage({ onBack }: StatusPageProps) {
                   1
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">Earn NCTR Tokens</h3>
+                  <h3 className="font-semibold mb-1 flex items-center gap-1">
+                    Earn <NCTRLogo className="inline-block h-4 w-auto" /> Tokens
+                  </h3>
                   <p className="text-sm text-muted-foreground">Complete activities, refer friends, and engage with partner brands</p>
                 </div>
               </div>
@@ -312,7 +319,9 @@ export function StatusPage({ onBack }: StatusPageProps) {
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1">Commit to 360LOCK</h3>
-                  <p className="text-sm text-muted-foreground">Lock your NCTR for 360 days to build your member status level</p>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1 flex-wrap">
+                    Lock your <NCTRLogo className="inline-block h-3 w-auto" /> for 360 days to build your member status level
+                  </p>
                 </div>
               </div>
               <div className="flex gap-4">
@@ -430,7 +439,16 @@ export function StatusPage({ onBack }: StatusPageProps) {
                             <div className="w-5 h-5 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                               <Check className="w-3 h-3 text-green-600" />
                             </div>
-                            <span className="text-sm">{benefit}</span>
+                            <span className="text-sm flex items-center gap-1 flex-wrap">
+                              {benefit.split('NCTR').map((part, i) => (
+                                i === 0 ? part : (
+                                  <span key={i} className="inline-flex items-center gap-1">
+                                    <NCTRLogo className="inline-block h-3 w-auto" />
+                                    {part}
+                                  </span>
+                                )
+                              ))}
+                            </span>
                           </div>
                         ))}
                       </div>

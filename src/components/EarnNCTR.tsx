@@ -152,7 +152,9 @@ export function EarnNCTR({ onBack, onNavigateToRewards, onNavigateToStatus, onNa
           <h1 className="text-4xl font-bold mb-2 flex items-center gap-2">
             Earn <NCTRLogo className="inline-block h-12 w-auto" />
           </h1>
-          <p className="text-neutral-600 dark:text-neutral-400">Complete tasks and activities to earn NCTR tokens</p>
+          <p className="text-neutral-600 dark:text-neutral-400 flex items-center justify-center gap-1">
+            Complete tasks and activities to earn <NCTRLogo className="inline-block h-4 w-auto" /> tokens
+          </p>
         </div>
       </div>
 
