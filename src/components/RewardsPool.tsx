@@ -30,6 +30,10 @@ interface Reward {
   is_active: boolean;
   is_featured: boolean;
   created_at?: string;
+  token_gated?: boolean;
+  token_name?: string | null;
+  token_symbol?: string | null;
+  minimum_token_balance?: number;
 }
 
 interface RewardsPoolProps {
@@ -1055,39 +1059,45 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                       </div>
                     )}
 
-                    {/* Badge Stack - Top Left */}
-                    <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
-                      {reward.cost === 0 && (
-                        <Badge className="bg-green-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
-                          <Gift className="w-3 h-3 mr-1" />
-                          FREE
-                        </Badge>
-                      )}
-                      {(reward.id === '796f68d6-7765-448c-a588-a1d95565a0cf' || reward.id === '72f47f23-1309-4632-bae0-0c749a2b1c26') && (
-                        <Badge className="bg-orange-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
-                          <Clock className="w-3 h-3 mr-1" />
-                          Limited
-                        </Badge>
-                      )}
-                      {outOfStock && (
-                        <Badge className="bg-destructive/90 backdrop-blur-sm border-0 shadow-lg text-xs">
-                          <AlertTriangle className="w-3 h-3 mr-1" />
-                          Limited
-                        </Badge>
-                      )}
-                      {reward.category === 'experiences' && !reward.id.includes('796f68d6') && (
-                        <Badge className="bg-orange-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
-                          <Flame className="w-3 h-3 mr-1" />
-                          Trending
-                        </Badge>
-                      )}
-                      {Math.random() > 0.7 && (
-                        <Badge className="bg-green-600/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
-                          <Sparkles className="w-3 h-3 mr-1" />
-                          New
-                        </Badge>
-                      )}
-                    </div>
+                     {/* Badge Stack - Top Left */}
+                     <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
+                       {reward.token_gated && reward.token_symbol && (
+                         <Badge className="bg-purple-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
+                           <Lock className="w-3 h-3 mr-1" />
+                           {reward.minimum_token_balance}+ {reward.token_symbol}
+                         </Badge>
+                       )}
+                       {reward.cost === 0 && (
+                         <Badge className="bg-green-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
+                           <Gift className="w-3 h-3 mr-1" />
+                           FREE
+                         </Badge>
+                       )}
+                       {(reward.id === '796f68d6-7765-448c-a588-a1d95565a0cf' || reward.id === '72f47f23-1309-4632-bae0-0c749a2b1c26') && (
+                         <Badge className="bg-orange-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
+                           <Clock className="w-3 h-3 mr-1" />
+                           Limited
+                         </Badge>
+                       )}
+                       {outOfStock && (
+                         <Badge className="bg-destructive/90 backdrop-blur-sm border-0 shadow-lg text-xs">
+                           <AlertTriangle className="w-3 h-3 mr-1" />
+                           Limited
+                         </Badge>
+                       )}
+                       {reward.category === 'experiences' && !reward.id.includes('796f68d6') && (
+                         <Badge className="bg-orange-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
+                           <Flame className="w-3 h-3 mr-1" />
+                           Trending
+                         </Badge>
+                       )}
+                       {Math.random() > 0.7 && (
+                         <Badge className="bg-green-600/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
+                           <Sparkles className="w-3 h-3 mr-1" />
+                           New
+                         </Badge>
+                       )}
+                     </div>
 
                     {/* Wishlist Heart Button - Top Right */}
                     <Button
