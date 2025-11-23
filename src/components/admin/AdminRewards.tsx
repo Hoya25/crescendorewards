@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Pencil, Trash2, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, Upload, X, Image as ImageIcon, Lock } from 'lucide-react';
 import { validateImageFile } from '@/lib/image-validation';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 
@@ -25,6 +25,11 @@ interface Reward {
   is_active: boolean;
   image_url: string | null;
   is_featured: boolean;
+  token_gated: boolean;
+  token_contract_address: string | null;
+  minimum_token_balance: number;
+  token_name: string | null;
+  token_symbol: string | null;
 }
 
 export function AdminRewards() {
@@ -45,6 +50,11 @@ export function AdminRewards() {
     is_active: true,
     image_url: null as string | null,
     is_featured: false,
+    token_gated: false,
+    token_contract_address: null as string | null,
+    minimum_token_balance: 1,
+    token_name: null as string | null,
+    token_symbol: null as string | null,
   });
 
   useEffect(() => {
@@ -84,6 +94,11 @@ export function AdminRewards() {
         is_active: reward.is_active,
         image_url: reward.image_url,
         is_featured: reward.is_featured,
+        token_gated: reward.token_gated || false,
+        token_contract_address: reward.token_contract_address,
+        minimum_token_balance: reward.minimum_token_balance || 1,
+        token_name: reward.token_name,
+        token_symbol: reward.token_symbol,
       });
       setImagePreview(reward.image_url);
     } else {
@@ -97,6 +112,11 @@ export function AdminRewards() {
         is_active: true,
         image_url: null,
         is_featured: false,
+        token_gated: false,
+        token_contract_address: null,
+        minimum_token_balance: 1,
+        token_name: null,
+        token_symbol: null,
       });
       setImagePreview(null);
     }
@@ -594,6 +614,71 @@ export function AdminRewards() {
                   <Badge variant="secondary" className="text-xs">Hero</Badge>
                 </Label>
               </div>
+            </div>
+            
+            {/* Token Gating Section */}
+            <div className="space-y-4 pt-4 border-t">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="token_gated" className="text-base font-semibold flex items-center gap-2">
+                    <Lock className="w-4 h-4" />
+                    Token Gating
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-1">Require users to hold specific tokens to claim this reward</p>
+                </div>
+                <Switch
+                  id="token_gated"
+                  checked={formData.token_gated}
+                  onCheckedChange={(checked) => setFormData({ ...formData, token_gated: checked })}
+                />
+              </div>
+              
+              {formData.token_gated && (
+                <div className="space-y-3 pl-4 border-l-2 border-primary/20">
+                  <div className="space-y-2">
+                    <Label htmlFor="token_name">Token Name</Label>
+                    <Input
+                      id="token_name"
+                      value={formData.token_name || ''}
+                      onChange={(e) => setFormData({ ...formData, token_name: e.target.value })}
+                      placeholder="e.g., USDC, Alliance Tokens"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="token_symbol">Token Symbol</Label>
+                    <Input
+                      id="token_symbol"
+                      value={formData.token_symbol || ''}
+                      onChange={(e) => setFormData({ ...formData, token_symbol: e.target.value })}
+                      placeholder="e.g., USDC, ALT"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="token_contract">Token Contract Address (Base Chain)</Label>
+                    <Input
+                      id="token_contract"
+                      value={formData.token_contract_address || ''}
+                      onChange={(e) => setFormData({ ...formData, token_contract_address: e.target.value })}
+                      placeholder="0x..."
+                      className="font-mono text-sm"
+                    />
+                    <p className="text-xs text-muted-foreground">Base network contract address for token verification</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="min_balance">Minimum Token Balance Required</Label>
+                    <Input
+                      id="min_balance"
+                      type="number"
+                      value={formData.minimum_token_balance}
+                      onChange={(e) => setFormData({ ...formData, minimum_token_balance: parseInt(e.target.value) || 1 })}
+                      min="1"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>

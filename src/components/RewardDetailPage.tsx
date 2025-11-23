@@ -24,6 +24,11 @@ interface Reward {
   stock_quantity: number | null;
   is_active: boolean;
   is_featured: boolean;
+  token_gated?: boolean;
+  token_name?: string | null;
+  token_symbol?: string | null;
+  minimum_token_balance?: number;
+  token_contract_address?: string | null;
 }
 
 interface RewardDetailPageProps {
@@ -524,6 +529,47 @@ export function RewardDetailPage({ rewardId, onBack, onClaimSuccess, onViewWishl
                 </li>
               </ul>
             </Card>
+
+            {/* Token Requirement Notice */}
+            {reward.token_gated && (
+              <Card className="p-6 bg-purple-500/5 border-2 border-purple-500/20">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-purple-700 dark:text-purple-300">
+                  <Lock className="w-5 h-5" />
+                  Token Requirement
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 p-3 bg-background/50 rounded-lg">
+                    <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
+                      <Coins className="w-6 h-6 text-purple-500" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold">{reward.token_name || reward.token_symbol}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Minimum balance: {reward.minimum_token_balance} {reward.token_symbol}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <p className="text-sm text-blue-800 dark:text-blue-200 flex items-start gap-2">
+                      <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                      <span>
+                        To claim this reward, you must hold at least <strong>{reward.minimum_token_balance} {reward.token_symbol}</strong> tokens in your connected wallet on Base network.
+                      </span>
+                    </p>
+                  </div>
+                  {reward.token_contract_address && (
+                    <details className="text-xs">
+                      <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                        Token Contract Details
+                      </summary>
+                      <div className="mt-2 p-2 bg-muted rounded font-mono break-all">
+                        {reward.token_contract_address}
+                      </div>
+                    </details>
+                  )}
+                </div>
+              </Card>
+            )}
 
             {/* Claim Button */}
             <Card className="p-6 bg-gradient-to-br from-primary/5 to-transparent border-2 border-primary/20">

@@ -456,8 +456,13 @@ export type Database = {
           image_url: string | null
           is_active: boolean
           is_featured: boolean
+          minimum_token_balance: number | null
           stock_quantity: number | null
           title: string
+          token_contract_address: string | null
+          token_gated: boolean | null
+          token_name: string | null
+          token_symbol: string | null
           updated_at: string
         }
         Insert: {
@@ -469,8 +474,13 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           is_featured?: boolean
+          minimum_token_balance?: number | null
           stock_quantity?: number | null
           title: string
+          token_contract_address?: string | null
+          token_gated?: boolean | null
+          token_name?: string | null
+          token_symbol?: string | null
           updated_at?: string
         }
         Update: {
@@ -482,8 +492,13 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           is_featured?: boolean
+          minimum_token_balance?: number | null
           stock_quantity?: number | null
           title?: string
+          token_contract_address?: string | null
+          token_gated?: boolean | null
+          token_name?: string | null
+          token_symbol?: string | null
           updated_at?: string
         }
         Relationships: []
