@@ -84,7 +84,8 @@ export const membershipTiers: MembershipTier[] = [
       'VIP event invitations',
       'Earn 1.4x NCTR on all activities',
       '15% discount on partner brands',
-      'Dedicated account manager'
+      'Dedicated account manager',
+      'Buy\'R app premium membership'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access', 'VIP Experiences'],
     color: 'hsl(43 96% 56%)',
@@ -105,7 +106,8 @@ export const membershipTiers: MembershipTier[] = [
       'Earn 1.6x NCTR on all activities',
       '20% discount on partner brands',
       'Personal concierge service',
-      'Priority shipping'
+      'Priority shipping',
+      'Buy\'R app premium membership'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access', 'VIP Experiences', 'Platinum Concierge'],
     color: 'hsl(0 0% 85%)',
@@ -127,7 +129,8 @@ export const membershipTiers: MembershipTier[] = [
       '25% discount on partner brands',
       'White-glove concierge service',
       'Free expedited shipping',
-      'Early access to all new features'
+      'Early access to all new features',
+      'Buy\'R app premium membership'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access', 'VIP Experiences', 'Diamond Elite'],
     color: 'hsl(180 100% 50%)',
