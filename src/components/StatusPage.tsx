@@ -79,7 +79,7 @@ const statusTiers: StatusTier[] = [
       'Earn 1.4x NCTR on all activities',
       '15% discount on partner brands',
       'Dedicated account manager',
-      'Buy\'R app premium membership'
+      'Buy\'r Premium membership'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access', 'VIP Experiences'],
     color: 'hsl(271 91% 65%)',
@@ -101,7 +101,7 @@ const statusTiers: StatusTier[] = [
       '20% discount on partner brands',
       'Personal concierge service',
       'Priority shipping',
-      'Buy\'R app premium membership'
+      'Buy\'r Premium membership'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access', 'VIP Experiences', 'Platinum Concierge'],
     color: 'hsl(43 96% 56%)',
@@ -124,7 +124,7 @@ const statusTiers: StatusTier[] = [
       'White-glove concierge service',
       'Free expedited shipping',
       'Early access to all new features',
-      'Buy\'R app premium membership'
+      'Buy\'r Premium membership'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access', 'VIP Experiences', 'Diamond Elite'],
     color: 'hsl(180 100% 50%)',
