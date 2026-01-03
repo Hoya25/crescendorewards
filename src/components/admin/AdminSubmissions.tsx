@@ -1,22 +1,26 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { 
-  CheckCircle, XCircle, Clock, Filter, Search, 
+  CheckCircle, XCircle, Clock, Search, 
   Package, User, Calendar, DollarSign, Lock,
   FileText, Image as ImageIcon, Star, GitBranch,
-  History
+  History, Eye, Pencil, MessageSquare, ChevronRight,
+  AlertCircle, Inbox
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { RewardVersionHistory } from '@/components/RewardVersionHistory';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 
 interface RewardSubmission {
   id: string;
@@ -46,20 +50,71 @@ interface RewardSubmission {
   reward_featured?: boolean;
 }
 
+const REJECTION_REASONS = [
+  { value: 'duplicate', label: 'Duplicate reward' },
+  { value: 'inappropriate', label: 'Inappropriate content' },
+  { value: 'insufficient', label: 'Insufficient details' },
+  { value: 'not_aligned', label: 'Not aligned with Crescendo' },
+  { value: 'other', label: 'Other' },
+];
+
+const CATEGORIES = [
+  { value: 'all', label: 'All Categories' },
+  { value: 'alliance_tokens', label: 'Alliance Tokens' },
+  { value: 'gaming', label: 'Gaming' },
+  { value: 'entertainment', label: 'Entertainment' },
+  { value: 'experiences', label: 'Experiences' },
+  { value: 'merchandise', label: 'Merchandise' },
+  { value: 'gift_cards', label: 'Gift Cards' },
+  { value: 'crypto', label: 'Crypto' },
+];
+
 export function AdminSubmissions() {
   const [submissions, setSubmissions] = useState<RewardSubmission[]>([]);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('pending');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSubmission, setSelectedSubmission] = useState<RewardSubmission | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
   const [updating, setUpdating] = useState(false);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [versionHistoryId, setVersionHistoryId] = useState<string | null>(null);
+  const [previewAsCard, setPreviewAsCard] = useState(false);
+  
+  // Modal states
+  const [showApproveEditModal, setShowApproveEditModal] = useState(false);
+  const [showRequestChangesModal, setShowRequestChangesModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  
+  // Edit form data
+  const [editFormData, setEditFormData] = useState({
+    title: '',
+    description: '',
+    cost: 0,
+    category: '',
+    stock_quantity: null as number | null,
+    is_featured: false,
+  });
+  
+  // Reject form data
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [customRejectionMessage, setCustomRejectionMessage] = useState('');
+  
+  // Request changes message
+  const [changesRequestMessage, setChangesRequestMessage] = useState('');
 
   useEffect(() => {
     fetchSubmissions();
   }, []);
+
+  // Auto-select first pending when filter changes
+  useEffect(() => {
+    const filtered = getFilteredSubmissions();
+    if (filtered.length > 0 && (!selectedSubmission || !filtered.find(s => s.id === selectedSubmission.id))) {
+      setSelectedSubmission(filtered[0]);
+    }
+  }, [statusFilter, categoryFilter, searchTerm, submissions]);
 
   const fetchSubmissions = async () => {
     try {
@@ -108,6 +163,19 @@ export function AdminSubmissions() {
     }
   };
 
+  const getFilteredSubmissions = () => {
+    return submissions.filter(sub => {
+      const matchesStatus = statusFilter === 'all' || sub.status === statusFilter;
+      const matchesCategory = categoryFilter === 'all' || sub.category === categoryFilter;
+      const matchesSearch = sub.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           (sub.profiles?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+                           (sub.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
+      return matchesStatus && matchesSearch && matchesCategory;
+    });
+  };
+
+  const filteredSubmissions = getFilteredSubmissions();
+
   const updateSubmissionStatus = async (submissionId: string, newStatus: string, notes?: string) => {
     try {
       setUpdating(true);
@@ -124,8 +192,16 @@ export function AdminSubmissions() {
       if (error) throw error;
 
       toast.success(`Submission ${newStatus} successfully`);
-      fetchSubmissions();
-      setSelectedSubmission(null);
+      await fetchSubmissions();
+      
+      // Select next pending submission
+      const pending = submissions.filter(s => s.status === 'pending' && s.id !== submissionId);
+      if (pending.length > 0) {
+        setSelectedSubmission(pending[0]);
+      } else {
+        setSelectedSubmission(null);
+      }
+      
       setAdminNotes('');
     } catch (error) {
       console.error('Error updating submission:', error);
@@ -133,6 +209,105 @@ export function AdminSubmissions() {
     } finally {
       setUpdating(false);
     }
+  };
+
+  const handleApproveAndEdit = async () => {
+    if (!selectedSubmission) return;
+    
+    try {
+      setUpdating(true);
+      
+      // First approve the submission with the edited data
+      const { error: submitError } = await supabase
+        .from('reward_submissions')
+        .update({ 
+          status: 'approved',
+          title: editFormData.title,
+          description: editFormData.description,
+          claim_passes_required: editFormData.cost,
+          category: editFormData.category,
+          stock_quantity: editFormData.stock_quantity,
+          admin_notes: `Edited and approved by admin. Original title: ${selectedSubmission.title}`
+        })
+        .eq('id', selectedSubmission.id);
+
+      if (submitError) throw submitError;
+
+      // The trigger will create the reward automatically
+      // Now update the featured status if needed
+      if (editFormData.is_featured) {
+        // Wait a moment for the trigger to create the reward
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Try to find the newly created reward
+        const { data: newReward } = await supabase
+          .from('rewards')
+          .select('id')
+          .eq('title', editFormData.title)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+        
+        if (newReward) {
+          await supabase
+            .from('rewards')
+            .update({ is_featured: true })
+            .eq('id', newReward.id);
+        }
+      }
+
+      toast.success('Submission approved and edited successfully');
+      setShowApproveEditModal(false);
+      await fetchSubmissions();
+      
+      // Select next pending
+      const pending = submissions.filter(s => s.status === 'pending' && s.id !== selectedSubmission.id);
+      setSelectedSubmission(pending.length > 0 ? pending[0] : null);
+    } catch (error) {
+      console.error('Error approving submission:', error);
+      toast.error('Failed to approve submission');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleRequestChanges = async () => {
+    if (!selectedSubmission || !changesRequestMessage.trim()) return;
+    
+    await updateSubmissionStatus(
+      selectedSubmission.id, 
+      'pending', 
+      `Changes requested: ${changesRequestMessage}`
+    );
+    setShowRequestChangesModal(false);
+    setChangesRequestMessage('');
+  };
+
+  const handleReject = async () => {
+    if (!selectedSubmission || !rejectionReason) return;
+    
+    const reasonLabel = REJECTION_REASONS.find(r => r.value === rejectionReason)?.label || rejectionReason;
+    const fullMessage = customRejectionMessage 
+      ? `${reasonLabel}: ${customRejectionMessage}`
+      : reasonLabel;
+    
+    await updateSubmissionStatus(selectedSubmission.id, 'rejected', fullMessage);
+    setShowRejectModal(false);
+    setRejectionReason('');
+    setCustomRejectionMessage('');
+  };
+
+  const openApproveEditModal = () => {
+    if (!selectedSubmission) return;
+    setEditFormData({
+      title: selectedSubmission.title,
+      description: selectedSubmission.description,
+      cost: selectedSubmission.claim_passes_required,
+      category: selectedSubmission.category,
+      stock_quantity: selectedSubmission.stock_quantity,
+      is_featured: false,
+    });
+    setShowApproveEditModal(true);
   };
 
   const getRewardIdFromNotes = (adminNotes: string | null): string | null => {
@@ -165,25 +340,25 @@ export function AdminSubmissions() {
     }
   };
 
-  const filteredSubmissions = submissions.filter(sub => {
-    const matchesStatus = statusFilter === 'all' || sub.status === statusFilter;
-    const matchesSearch = sub.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         sub.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (sub.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
-    return matchesStatus && matchesSearch;
-  });
-
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, size: 'sm' | 'default' = 'default') => {
+    const iconSize = size === 'sm' ? 'w-3 h-3' : 'w-3.5 h-3.5';
     switch (status) {
       case 'pending':
-        return <Badge variant="outline" className="gap-1"><Clock className="w-3 h-3" />Pending</Badge>;
+        return <Badge variant="outline" className={cn("gap-1", size === 'sm' && "text-xs")}><Clock className={iconSize} />Pending</Badge>;
       case 'approved':
-        return <Badge variant="default" className="gap-1 bg-green-500"><CheckCircle className="w-3 h-3" />Approved</Badge>;
+        return <Badge variant="default" className={cn("gap-1 bg-green-500", size === 'sm' && "text-xs")}><CheckCircle className={iconSize} />Approved</Badge>;
       case 'rejected':
-        return <Badge variant="destructive" className="gap-1"><XCircle className="w-3 h-3" />Rejected</Badge>;
+        return <Badge variant="destructive" className={cn("gap-1", size === 'sm' && "text-xs")}><XCircle className={iconSize} />Rejected</Badge>;
       default:
         return <Badge>{status}</Badge>;
     }
+  };
+
+  const statusCounts = {
+    all: submissions.length,
+    pending: submissions.filter(s => s.status === 'pending').length,
+    approved: submissions.filter(s => s.status === 'approved').length,
+    rejected: submissions.filter(s => s.status === 'rejected').length,
   };
 
   if (loading) {
@@ -198,141 +373,218 @@ export function AdminSubmissions() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="h-[calc(100vh-8rem)]">
+      <div className="mb-4">
         <h2 className="text-3xl font-bold tracking-tight">Reward Submissions</h2>
         <p className="text-muted-foreground">Review and manage community-submitted rewards</p>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-          <Input
-            placeholder="Search submissions..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-48">
-            <Filter className="w-4 h-4 mr-2" />
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{submissions.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Pending</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">
-              {submissions.filter(s => s.status === 'pending').length}
+      {/* Two Panel Layout */}
+      <div className="flex flex-col lg:flex-row gap-4 h-[calc(100%-4rem)]">
+        {/* Left Panel - Submissions List */}
+        <div className="w-full lg:w-[40%] flex flex-col border rounded-lg bg-card">
+          {/* Filter Tabs */}
+          <div className="p-3 border-b">
+            <Tabs value={statusFilter} onValueChange={setStatusFilter}>
+              <TabsList className="w-full grid grid-cols-4">
+                <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
+                <TabsTrigger value="pending" className="text-xs gap-1">
+                  Pending
+                  {statusCounts.pending > 0 && (
+                    <Badge variant="secondary" className="ml-1 h-5 min-w-5 px-1.5 text-xs">
+                      {statusCounts.pending}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="approved" className="text-xs">Approved</TabsTrigger>
+                <TabsTrigger value="rejected" className="text-xs">Rejected</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+          
+          {/* Search and Category Filter */}
+          <div className="p-3 border-b space-y-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <Input
+                placeholder="Search by title or email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9 h-9"
+              />
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Approved</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {submissions.filter(s => s.status === 'approved').length}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Rejected</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {submissions.filter(s => s.status === 'rejected').length}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Submissions List */}
-      <div className="grid gap-4">
-        {filteredSubmissions.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No submissions found</p>
-            </CardContent>
-          </Card>
-        ) : (
-          filteredSubmissions.map((submission) => (
-            <Card key={submission.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex flex-col lg:flex-row gap-6">
-                  {/* Image Preview */}
-                  <div className="flex-shrink-0">
-                    {submission.image_url ? (
-                      <img 
-                        src={submission.image_url} 
-                        alt={submission.title}
-                        className="w-full lg:w-48 h-48 object-cover rounded-lg border border-border"
-                      />
-                    ) : (
-                      <div className="w-full lg:w-48 h-48 bg-muted rounded-lg border border-border flex items-center justify-center">
-                        <ImageIcon className="w-12 h-12 text-muted-foreground" />
-                      </div>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="h-9">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map(cat => (
+                  <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Submissions List */}
+          <ScrollArea className="flex-1">
+            {filteredSubmissions.length === 0 ? (
+              <div className="p-8 text-center">
+                <Inbox className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                <p className="font-medium">No submissions found</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {statusFilter === 'pending' 
+                    ? 'No pending submissions to review'
+                    : 'Try adjusting your filters'}
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y">
+                {filteredSubmissions.map((submission) => (
+                  <button
+                    key={submission.id}
+                    onClick={() => setSelectedSubmission(submission)}
+                    className={cn(
+                      "w-full p-3 text-left hover:bg-muted/50 transition-colors flex gap-3",
+                      selectedSubmission?.id === submission.id && "bg-muted border-l-2 border-l-primary"
                     )}
+                  >
+                    {/* Thumbnail */}
+                    <div className="flex-shrink-0">
+                      {submission.image_url ? (
+                        <img 
+                          src={submission.image_url} 
+                          alt={submission.title}
+                          className="w-12 h-12 object-cover rounded-md border"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-muted rounded-md border flex items-center justify-center">
+                          <ImageIcon className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium truncate text-sm">{submission.title}</span>
+                        {submission.version > 1 && (
+                          <Badge variant="outline" className="text-[10px] h-4 px-1">
+                            v{submission.version}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="truncate">{submission.profiles?.full_name || submission.profiles?.email || 'Unknown'}</span>
+                        <span>•</span>
+                        <span>{new Date(submission.created_at).toLocaleDateString()}</span>
+                      </div>
+                      <div className="mt-1.5">
+                        {getStatusBadge(submission.status, 'sm')}
+                      </div>
+                    </div>
+                    
+                    <ChevronRight className="w-4 h-4 text-muted-foreground self-center flex-shrink-0" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+        </div>
+
+        {/* Right Panel - Preview */}
+        <div className="w-full lg:w-[60%] flex flex-col border rounded-lg bg-card">
+          {selectedSubmission ? (
+            <>
+              <ScrollArea className="flex-1">
+                <div className="p-6 space-y-6">
+                  {/* Preview Toggle */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Eye className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm font-medium">Preview as Reward Card</span>
+                    </div>
+                    <Switch
+                      checked={previewAsCard}
+                      onCheckedChange={setPreviewAsCard}
+                    />
                   </div>
 
-                    {/* Content */}
-                    <div className="flex-1 space-y-4">
+                  {previewAsCard ? (
+                    /* Card Preview */
+                    <div className="flex justify-center">
+                      <Card className="w-full max-w-sm overflow-hidden">
+                        <div className="relative aspect-[4/3]">
+                          {selectedSubmission.image_url ? (
+                            <img 
+                              src={selectedSubmission.image_url} 
+                              alt={selectedSubmission.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-muted flex items-center justify-center">
+                              <ImageIcon className="w-16 h-16 text-muted-foreground" />
+                            </div>
+                          )}
+                          <Badge className="absolute top-3 left-3 capitalize">
+                            {selectedSubmission.category.replace('_', ' ')}
+                          </Badge>
+                        </div>
+                        <CardContent className="p-4">
+                          <h3 className="font-bold text-lg mb-2">{selectedSubmission.title}</h3>
+                          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                            {selectedSubmission.description}
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-primary">
+                              {selectedSubmission.claim_passes_required} Claims
+                            </span>
+                            {selectedSubmission.stock_quantity !== null && (
+                              <span className="text-xs text-muted-foreground">
+                                {selectedSubmission.stock_quantity} left
+                              </span>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ) : (
+                    /* Full Preview */
+                    <>
+                      {/* Large Image */}
+                      <div className="relative aspect-video rounded-lg overflow-hidden border">
+                        {selectedSubmission.image_url ? (
+                          <img 
+                            src={selectedSubmission.image_url} 
+                            alt={selectedSubmission.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-muted flex items-center justify-center">
+                            <ImageIcon className="w-20 h-20 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Title and Status */}
                       <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2 flex-wrap">
-                            <h3 className="text-xl font-bold">{submission.title}</h3>
-                            {getStatusBadge(submission.status)}
-                            {submission.version > 1 && (
+                        <div>
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-2xl font-bold">{selectedSubmission.title}</h3>
+                            {selectedSubmission.version > 1 && (
                               <Badge variant="outline" className="gap-1">
                                 <GitBranch className="w-3 h-3" />
-                                v{submission.version}
-                              </Badge>
-                            )}
-                            {submission.is_latest_version && submission.version > 1 && (
-                              <Badge variant="secondary" className="text-xs">
-                                Latest
+                                v{selectedSubmission.version}
                               </Badge>
                             )}
                           </div>
-                          <p className="text-muted-foreground line-clamp-2">{submission.description}</p>
-                          {submission.version_notes && submission.version > 1 && (
-                            <div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
-                              <span className="font-medium">Update: </span>
-                              <span>{submission.version_notes}</span>
-                            </div>
-                          )}
+                          {getStatusBadge(selectedSubmission.status)}
                         </div>
-                        {(submission.version > 1 || submission.parent_submission_id) && (
+                        {selectedSubmission.version > 1 && (
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => {
-                              setVersionHistoryId(submission.id);
+                              setVersionHistoryId(selectedSubmission.id);
                               setShowVersionHistory(true);
                             }}
                             className="gap-2"
@@ -343,206 +595,359 @@ export function AdminSubmissions() {
                         )}
                       </div>
 
-                    {/* Details Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4 border-y">
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-muted-foreground" />
-                        <div className="text-sm">
-                          <div className="font-medium">{submission.profiles?.full_name || 'Unknown'}</div>
-                          <div className="text-muted-foreground text-xs">{submission.profiles?.email}</div>
-                        </div>
+                      {/* Description */}
+                      <div>
+                        <Label className="text-muted-foreground text-xs uppercase tracking-wide">Description</Label>
+                        <p className="mt-1">{selectedSubmission.description}</p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Package className="w-4 h-4 text-muted-foreground" />
-                        <div className="text-sm">
-                          <div className="font-medium capitalize">{submission.reward_type}</div>
-                          <div className="text-muted-foreground text-xs">{submission.category}</div>
+
+                      {/* Details Grid */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="bg-muted/50 rounded-lg p-3">
+                          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                            <DollarSign className="w-3.5 h-3.5" />
+                            Cost
+                          </div>
+                          <div className="font-bold">{selectedSubmission.claim_passes_required} Claims</div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <DollarSign className="w-4 h-4 text-muted-foreground" />
-                        <div className="text-sm">
-                          <div className="font-medium">{submission.nctr_value} NCTR</div>
-                          <div className="text-muted-foreground text-xs">{submission.claim_passes_required} Claim Pass</div>
+                        <div className="bg-muted/50 rounded-lg p-3">
+                          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                            <Lock className="w-3.5 h-3.5" />
+                            Lock Rate
+                          </div>
+                          <div className="font-bold">{selectedSubmission.lock_rate}LOCK</div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Lock className="w-4 h-4 text-muted-foreground" />
-                        <div className="text-sm">
-                          <div className="font-medium">{submission.lock_rate}LOCK</div>
-                          <div className="text-muted-foreground text-xs">
-                            {submission.stock_quantity ? `${submission.stock_quantity} in stock` : 'Unlimited'}
+                        <div className="bg-muted/50 rounded-lg p-3">
+                          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                            <Package className="w-3.5 h-3.5" />
+                            Category
+                          </div>
+                          <div className="font-bold capitalize">{selectedSubmission.category.replace('_', ' ')}</div>
+                        </div>
+                        <div className="bg-muted/50 rounded-lg p-3">
+                          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                            <Package className="w-3.5 h-3.5" />
+                            Stock
+                          </div>
+                          <div className="font-bold">
+                            {selectedSubmission.stock_quantity !== null ? selectedSubmission.stock_quantity : 'Unlimited'}
                           </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Brand & Date */}
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      {submission.brand && (
-                        <div className="flex items-center gap-1">
-                          <span className="font-medium">Brand:</span> {submission.brand}
+                      {/* Submitter Info */}
+                      <div className="bg-muted/30 rounded-lg p-4 border">
+                        <Label className="text-muted-foreground text-xs uppercase tracking-wide mb-3 block">Submitter Information</Label>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                              <User className="w-5 h-5 text-primary" />
+                            </div>
+                            <div>
+                              <div className="font-medium">{selectedSubmission.profiles?.full_name || 'Unknown'}</div>
+                              <div className="text-xs text-muted-foreground">{selectedSubmission.profiles?.email}</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                              <Calendar className="w-5 h-5 text-muted-foreground" />
+                            </div>
+                            <div>
+                              <div className="font-medium">{new Date(selectedSubmission.created_at).toLocaleDateString()}</div>
+                              <div className="text-xs text-muted-foreground">Submitted</div>
+                            </div>
+                          </div>
+                          {selectedSubmission.brand && (
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                                <Package className="w-5 h-5 text-muted-foreground" />
+                              </div>
+                              <div>
+                                <div className="font-medium">{selectedSubmission.brand}</div>
+                                <div className="text-xs text-muted-foreground">Brand</div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        {selectedSubmission.version_notes && (
+                          <div className="mt-4 pt-4 border-t">
+                            <Label className="text-xs text-muted-foreground">Version Notes</Label>
+                            <p className="text-sm mt-1">{selectedSubmission.version_notes}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Admin Notes */}
+                      {selectedSubmission.admin_notes && (
+                        <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+                          <div className="flex items-start gap-2">
+                            <FileText className="w-4 h-4 text-amber-600 mt-0.5" />
+                            <div>
+                              <Label className="text-amber-600 text-xs uppercase tracking-wide">Admin Notes</Label>
+                              <p className="text-sm mt-1">{selectedSubmission.admin_notes}</p>
+                            </div>
+                          </div>
                         </div>
                       )}
-                      <div className="flex items-center gap-1">
-                        <Calendar className="w-4 h-4" />
-                        {new Date(submission.created_at).toLocaleDateString()}
-                      </div>
-                    </div>
 
-                    {/* Admin Notes */}
-                    {submission.admin_notes && (
-                      <div className="bg-muted/50 rounded-lg p-3">
-                        <div className="flex items-start gap-2">
-                          <FileText className="w-4 h-4 text-muted-foreground mt-0.5" />
-                          <div>
-                            <div className="text-xs font-medium text-muted-foreground mb-1">Admin Notes</div>
-                            <p className="text-sm">{submission.admin_notes}</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Featured Toggle for Approved Submissions */}
-                    {submission.status === 'approved' && getRewardIdFromNotes(submission.admin_notes) && (
-                      <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg mb-4 border border-border">
-                        <div className="flex items-center gap-2 flex-1">
-                          <Star className={`w-5 h-5 ${submission.reward_featured ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground'}`} />
-                          <div>
-                            <Label htmlFor={`featured-${submission.id}`} className="cursor-pointer font-medium">
-                              Mark as Featured in Marketplace
-                            </Label>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                              {submission.reward_featured ? 'Currently featured' : 'Not featured'}
+                      {/* Featured Toggle for Approved */}
+                      {selectedSubmission.status === 'approved' && getRewardIdFromNotes(selectedSubmission.admin_notes) && (
+                        <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border">
+                          <Star className={cn(
+                            "w-5 h-5",
+                            selectedSubmission.reward_featured ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground'
+                          )} />
+                          <div className="flex-1">
+                            <Label className="cursor-pointer font-medium">Featured in Marketplace</Label>
+                            <p className="text-xs text-muted-foreground">
+                              {selectedSubmission.reward_featured ? 'Currently featured' : 'Not featured'}
                             </p>
                           </div>
+                          <Switch
+                            checked={selectedSubmission.reward_featured || false}
+                            onCheckedChange={(checked) => toggleFeatured(selectedSubmission, checked)}
+                          />
                         </div>
-                        <Switch
-                          id={`featured-${submission.id}`}
-                          checked={submission.reward_featured || false}
-                          onCheckedChange={(checked) => toggleFeatured(submission, checked)}
-                        />
-                      </div>
-                    )}
-
-                    {/* Actions */}
-                    <div className="flex gap-2">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => {
-                              setSelectedSubmission(submission);
-                              setAdminNotes(submission.admin_notes || '');
-                            }}
-                          >
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Approve
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Approve Submission</DialogTitle>
-                            <DialogDescription>
-                              Add optional notes and approve this reward submission
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4 py-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="notes">Admin Notes (Optional)</Label>
-                              <Textarea
-                                id="notes"
-                                placeholder="Add notes about this approval..."
-                                value={adminNotes}
-                                onChange={(e) => setAdminNotes(e.target.value)}
-                                rows={4}
-                              />
-                            </div>
-                            <div className="flex gap-2 justify-end">
-                              <DialogTrigger asChild>
-                                <Button variant="outline">Cancel</Button>
-                              </DialogTrigger>
-                              <Button
-                                onClick={() => updateSubmissionStatus(submission.id, 'approved', adminNotes)}
-                                disabled={updating}
-                                className="bg-green-600 hover:bg-green-700"
-                              >
-                                {updating ? 'Approving...' : 'Approve Submission'}
-                              </Button>
-                            </div>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => {
-                              setSelectedSubmission(submission);
-                              setAdminNotes(submission.admin_notes || '');
-                            }}
-                          >
-                            <XCircle className="w-4 h-4 mr-2" />
-                            Reject
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Reject Submission</DialogTitle>
-                            <DialogDescription>
-                              Please provide a reason for rejecting this submission
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4 py-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="reject-notes">Reason for Rejection *</Label>
-                              <Textarea
-                                id="reject-notes"
-                                placeholder="Explain why this submission is being rejected..."
-                                value={adminNotes}
-                                onChange={(e) => setAdminNotes(e.target.value)}
-                                rows={4}
-                                required
-                              />
-                            </div>
-                            <div className="flex gap-2 justify-end">
-                              <DialogTrigger asChild>
-                                <Button variant="outline">Cancel</Button>
-                              </DialogTrigger>
-                              <Button
-                                onClick={() => updateSubmissionStatus(submission.id, 'rejected', adminNotes)}
-                                disabled={updating || !adminNotes.trim()}
-                                variant="destructive"
-                              >
-                                {updating ? 'Rejecting...' : 'Reject Submission'}
-                              </Button>
-                            </div>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-
-                      {submission.status !== 'pending' && (
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => updateSubmissionStatus(submission.id, 'pending')}
-                          disabled={updating}
-                        >
-                          <Clock className="w-4 h-4 mr-2" />
-                          Reset to Pending
-                        </Button>
                       )}
-                    </div>
-                  </div>
+                    </>
+                  )}
                 </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
+              </ScrollArea>
+
+              {/* Sticky Action Bar */}
+              {selectedSubmission.status === 'pending' && (
+                <div className="p-4 border-t bg-card flex flex-wrap gap-2">
+                  <Button
+                    onClick={() => updateSubmissionStatus(selectedSubmission.id, 'approved')}
+                    disabled={updating}
+                    className="bg-green-600 hover:bg-green-700 gap-2"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    Approve
+                  </Button>
+                  <Button
+                    onClick={openApproveEditModal}
+                    disabled={updating}
+                    variant="default"
+                    className="gap-2"
+                  >
+                    <Pencil className="w-4 h-4" />
+                    Approve & Edit
+                  </Button>
+                  <Button
+                    onClick={() => setShowRequestChangesModal(true)}
+                    disabled={updating}
+                    variant="outline"
+                    className="gap-2 border-amber-500 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Request Changes
+                  </Button>
+                  <Button
+                    onClick={() => setShowRejectModal(true)}
+                    disabled={updating}
+                    variant="destructive"
+                    className="gap-2"
+                  >
+                    <XCircle className="w-4 h-4" />
+                    Reject
+                  </Button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center p-8">
+              <div className="text-center">
+                <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="font-medium text-lg mb-1">No Submission Selected</h3>
+                <p className="text-muted-foreground text-sm">
+                  Select a submission from the list to preview
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Approve & Edit Modal */}
+      <Dialog open={showApproveEditModal} onOpenChange={setShowApproveEditModal}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Approve & Edit Submission</DialogTitle>
+            <DialogDescription>
+              Edit the submission details before approving
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {selectedSubmission?.image_url && (
+              <div className="aspect-video rounded-lg overflow-hidden border">
+                <img 
+                  src={selectedSubmission.image_url} 
+                  alt={selectedSubmission.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="edit-title">Title</Label>
+              <Input
+                id="edit-title"
+                value={editFormData.title}
+                onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-description">Description</Label>
+              <Textarea
+                id="edit-description"
+                value={editFormData.description}
+                onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                rows={3}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-cost">Cost (Claims)</Label>
+                <Input
+                  id="edit-cost"
+                  type="number"
+                  value={editFormData.cost}
+                  onChange={(e) => setEditFormData({ ...editFormData, cost: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-stock">Stock Quantity</Label>
+                <Input
+                  id="edit-stock"
+                  type="number"
+                  placeholder="Unlimited"
+                  value={editFormData.stock_quantity ?? ''}
+                  onChange={(e) => setEditFormData({ 
+                    ...editFormData, 
+                    stock_quantity: e.target.value ? parseInt(e.target.value) : null 
+                  })}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-category">Category</Label>
+              <Select value={editFormData.category} onValueChange={(v) => setEditFormData({ ...editFormData, category: v })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.filter(c => c.value !== 'all').map(cat => (
+                    <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+              <Star className={cn(
+                "w-5 h-5",
+                editFormData.is_featured ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground'
+              )} />
+              <div className="flex-1">
+                <Label className="cursor-pointer">Mark as Featured</Label>
+              </div>
+              <Switch
+                checked={editFormData.is_featured}
+                onCheckedChange={(checked) => setEditFormData({ ...editFormData, is_featured: checked })}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowApproveEditModal(false)}>Cancel</Button>
+            <Button onClick={handleApproveAndEdit} disabled={updating} className="bg-green-600 hover:bg-green-700">
+              {updating ? 'Saving...' : 'Save & Approve'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Request Changes Modal */}
+      <Dialog open={showRequestChangesModal} onOpenChange={setShowRequestChangesModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Request Changes</DialogTitle>
+            <DialogDescription>
+              Send feedback to the submitter about what needs to be updated
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="changes-message">Your Feedback</Label>
+              <Textarea
+                id="changes-message"
+                placeholder="Please describe what changes are needed..."
+                value={changesRequestMessage}
+                onChange={(e) => setChangesRequestMessage(e.target.value)}
+                rows={5}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowRequestChangesModal(false)}>Cancel</Button>
+            <Button 
+              onClick={handleRequestChanges} 
+              disabled={updating || !changesRequestMessage.trim()}
+              className="bg-amber-500 hover:bg-amber-600"
+            >
+              {updating ? 'Sending...' : 'Send Feedback'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reject Modal */}
+      <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertCircle className="w-5 h-5" />
+              Reject Submission
+            </DialogTitle>
+            <DialogDescription>
+              Select a reason for rejecting this submission
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Rejection Reason *</Label>
+              <Select value={rejectionReason} onValueChange={setRejectionReason}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a reason..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {REJECTION_REASONS.map(reason => (
+                    <SelectItem key={reason.value} value={reason.value}>{reason.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="custom-message">Additional Message (Optional)</Label>
+              <Textarea
+                id="custom-message"
+                placeholder="Add more context about the rejection..."
+                value={customRejectionMessage}
+                onChange={(e) => setCustomRejectionMessage(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowRejectModal(false)}>Cancel</Button>
+            <Button 
+              onClick={handleReject} 
+              disabled={updating || !rejectionReason}
+              variant="destructive"
+            >
+              {updating ? 'Rejecting...' : 'Confirm Reject'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Version History Modal */}
       {versionHistoryId && (
