@@ -1,6 +1,6 @@
 import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, Heart, TrendingUp } from 'lucide-react';
-import { NavLink } from '@/components/NavLink';
-import { useLocation } from 'react-router-dom';
+import { useAdminNotifications } from '@/hooks/useAdminNotifications';
+import { cn } from '@/lib/utils';
 import {
   Sidebar,
   SidebarContent,
@@ -10,7 +10,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
 
@@ -19,19 +18,56 @@ interface AdminSidebarProps {
   currentView: string;
 }
 
+interface BadgeProps {
+  count: number;
+  pulse?: boolean;
+}
+
+function NotificationBadge({ count, pulse = false }: BadgeProps) {
+  if (count === 0) return null;
+  
+  const displayCount = count > 9 ? '9+' : count.toString();
+  const shouldPulse = pulse || count > 5;
+  
+  return (
+    <span
+      className={cn(
+        "flex items-center justify-center h-5 min-w-5 px-1 text-xs font-medium text-white bg-destructive rounded-full",
+        shouldPulse && "animate-pulse"
+      )}
+    >
+      {displayCount}
+    </span>
+  );
+}
+
 const menuItems = [
-  { title: 'Dashboard', view: 'dashboard', icon: LayoutDashboard },
-  { title: 'Submissions', view: 'submissions', icon: FileCheck },
-  { title: 'Rewards', view: 'rewards', icon: Gift },
-  { title: 'Claims', view: 'claims', icon: ShoppingBag },
-  { title: 'Purchases', view: 'purchases', icon: Receipt },
-  { title: 'Brands', view: 'brands', icon: Store },
-  { title: 'Wishlists', view: 'wishlists', icon: Heart },
-  { title: 'Wishlist Analytics', view: 'wishlist-analytics', icon: TrendingUp },
+  { title: 'Dashboard', view: 'dashboard', icon: LayoutDashboard, badgeKey: 'total' as const },
+  { title: 'Submissions', view: 'submissions', icon: FileCheck, badgeKey: 'submissions' as const },
+  { title: 'Rewards', view: 'rewards', icon: Gift, badgeKey: null },
+  { title: 'Claims', view: 'claims', icon: ShoppingBag, badgeKey: 'claims' as const },
+  { title: 'Purchases', view: 'purchases', icon: Receipt, badgeKey: null },
+  { title: 'Brands', view: 'brands', icon: Store, badgeKey: null },
+  { title: 'Wishlists', view: 'wishlists', icon: Heart, badgeKey: null },
+  { title: 'Wishlist Analytics', view: 'wishlist-analytics', icon: TrendingUp, badgeKey: null },
 ];
 
 export function AdminSidebar({ onNavigate, currentView }: AdminSidebarProps) {
   const { open } = useSidebar();
+  const { pendingClaims, pendingSubmissions, totalPending } = useAdminNotifications();
+
+  const getBadgeCount = (badgeKey: 'total' | 'claims' | 'submissions' | null): number => {
+    switch (badgeKey) {
+      case 'total':
+        return totalPending;
+      case 'claims':
+        return pendingClaims;
+      case 'submissions':
+        return pendingSubmissions;
+      default:
+        return 0;
+    }
+  };
 
   return (
     <Sidebar className={open ? 'w-60' : 'w-14'} collapsible="icon">
@@ -47,19 +83,33 @@ export function AdminSidebar({ onNavigate, currentView }: AdminSidebarProps) {
           <SidebarGroupLabel>Management</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.view}>
-                  <SidebarMenuButton
-                    onClick={() => onNavigate(item.view)}
-                    className={`cursor-pointer ${
-                      currentView === item.view ? 'bg-accent text-accent-foreground' : ''
-                    }`}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {open && <span>{item.title}</span>}
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {menuItems.map((item) => {
+                const badgeCount = getBadgeCount(item.badgeKey);
+                
+                return (
+                  <SidebarMenuItem key={item.view}>
+                    <SidebarMenuButton
+                      onClick={() => onNavigate(item.view)}
+                      className={`cursor-pointer ${
+                        currentView === item.view ? 'bg-accent text-accent-foreground' : ''
+                      }`}
+                    >
+                      <item.icon className="h-4 w-4 shrink-0" />
+                      {open && (
+                        <div className="flex items-center justify-between flex-1">
+                          <span>{item.title}</span>
+                          <NotificationBadge count={badgeCount} />
+                        </div>
+                      )}
+                      {!open && badgeCount > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-white">
+                          {badgeCount > 9 ? '!' : badgeCount}
+                        </span>
+                      )}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
