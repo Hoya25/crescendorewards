@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -54,8 +53,7 @@ const categoryLabels: Record<string, string> = {
 export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const navigate = useNavigate();
   const { id: rewardId } = useParams<{ id: string }>();
-  const { profile } = useAuth();
-  const { refreshProfile, setShowAuthModal, setAuthMode } = useAuthContext();
+  const { profile, refreshProfile, setShowAuthModal, setAuthMode } = useAuthContext();
   const [reward, setReward] = useState<Reward | null>(null);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
