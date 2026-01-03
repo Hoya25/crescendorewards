@@ -233,11 +233,9 @@ export function FeaturedCarousel({
                         />
                       </Button>
 
-                      {/* Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
                     </div>
 
-                    <CardContent className="relative -mt-32 z-10 p-6 space-y-4">
+                    <CardContent className="p-6 space-y-4">
                       {/* Brand Info */}
                       <div className="flex items-center gap-3 mb-2">
                         <Avatar className="w-10 h-10 border-2 border-primary/20">
