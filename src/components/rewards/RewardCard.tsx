@@ -141,17 +141,17 @@ export function RewardCard({
           </Badge>
         </div>
 
-        {/* Zoom Overlay */}
-        <div 
-          className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-          onClick={(e) => {
-            if (reward.image_url) {
-              onImageZoom(reward.image_url, e);
-            }
-          }}
-        >
-          <ZoomIn className="w-8 h-8 text-primary" />
-        </div>
+        {/* Zoom Button */}
+        {reward.image_url && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute bottom-3 right-3 z-10 bg-background/90 hover:bg-background backdrop-blur-sm h-9 w-9 rounded-full shadow-lg border border-border/20 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={(e) => onImageZoom(reward.image_url!, e)}
+          >
+            <ZoomIn className="w-4 h-4 text-primary" />
+          </Button>
+        )}
       </div>
 
       <CardContent className="p-6 space-y-4">
