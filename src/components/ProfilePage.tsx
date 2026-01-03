@@ -11,7 +11,8 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { NCTRLogo } from './NCTRLogo';
 import { toast } from '@/hooks/use-toast';
-import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift, X } from 'lucide-react';
+import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift, X, Crown, ChevronRight } from 'lucide-react';
+import { useAdminRole } from '@/hooks/useAdminRole';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { BuyClaims } from '@/components/BuyClaims';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
@@ -27,6 +28,7 @@ export function ProfilePage() {
   const { profile, signOut, refreshProfile } = useAuthContext();
   
   if (!profile) return null;
+  const { isAdmin } = useAdminRole();
   const [fullName, setFullName] = useState(profile.full_name || '');
   const [walletAddress, setWalletAddress] = useState(profile.wallet_address || '');
   const [uploading, setUploading] = useState(false);
@@ -568,6 +570,33 @@ export function ProfilePage() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Admin Access Card - Only visible to admins */}
+            {isAdmin && (
+              <Card className="border-2 border-amber-200 dark:border-amber-800 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
+                      <Crown className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">Admin Access</CardTitle>
+                      <CardDescription>You have administrator privileges</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <Button
+                    onClick={() => navigate('/admin')}
+                    className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white gap-2"
+                  >
+                    <Shield className="w-4 h-4" />
+                    Open Admin Panel
+                    <ChevronRight className="w-4 h-4 ml-auto" />
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Right Column - Account Details */}
