@@ -5,15 +5,27 @@ import { Sparkles, Lock, Gift, Trophy, TrendingUp, Star, Users, Zap, Award, Chec
 import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
 import { ImageWithFallback } from "./ImageWithFallback";
+import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "@/contexts/AuthContext";
 
-interface LandingPageProps {
-  onJoin: () => void;
-  onViewRewards: () => void;
-  onSignIn: () => void;
-  onViewLevelDetail?: (level: number) => void;
-}
+export function LandingPage() {
+  const navigate = useNavigate();
+  const { setShowAuthModal, setAuthMode } = useAuthContext();
 
-export function LandingPage({ onJoin, onViewRewards, onSignIn, onViewLevelDetail }: LandingPageProps) {
+  const handleJoin = () => {
+    setAuthMode('signup');
+    setShowAuthModal(true);
+  };
+
+  const handleSignIn = () => {
+    setAuthMode('signin');
+    setShowAuthModal(true);
+  };
+
+  const handleViewRewards = () => {
+    navigate('/rewards');
+  };
+
   return (
     <div className="min-h-screen w-full overflow-x-hidden">
       {/* Navigation */}
@@ -22,13 +34,13 @@ export function LandingPage({ onJoin, onViewRewards, onSignIn, onViewLevelDetail
           <CrescendoLogo />
         </div>
         <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={onViewRewards}>
+          <Button variant="ghost" onClick={handleViewRewards}>
             Rewards
           </Button>
-          <Button variant="ghost" onClick={onSignIn}>
+          <Button variant="ghost" onClick={handleSignIn}>
             Sign in
           </Button>
-          <Button onClick={onJoin} className="bg-violet-600 hover:bg-violet-700 text-white">
+          <Button onClick={handleJoin} className="bg-violet-600 hover:bg-violet-700 text-white">
             Join Now
           </Button>
         </div>
@@ -49,93 +61,60 @@ export function LandingPage({ onJoin, onViewRewards, onSignIn, onViewLevelDetail
           <p className="text-base md:text-xl text-neutral-600 max-w-2xl mx-auto mb-6 md:mb-10 px-4 flex items-center justify-center gap-2 flex-wrap">
             Commit <NCTRLogo size="lg" /> to 360LOCK, claim your status NFT on Base, and access crowdsourced digital rewards from Crescendo brands.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 px-4">
-            <Button onClick={onJoin} size="lg" className="bg-violet-600 hover:bg-violet-700 text-white w-full sm:w-auto">
-              Join Crescendo
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button 
+              size="lg" 
+              className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-200 text-base md:text-lg px-6 md:px-8 w-full sm:w-auto"
+              onClick={handleJoin}
+            >
+              Start Earning <Sparkles className="ml-2 w-5 h-5" />
             </Button>
-            <Button onClick={onViewRewards} size="lg" variant="outline" className="w-full sm:w-auto">
-              View Rewards
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="border-violet-200 hover:bg-violet-50 text-base md:text-lg w-full sm:w-auto"
+              onClick={handleViewRewards}
+            >
+              Explore Rewards
             </Button>
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-12 md:py-20 px-4 md:px-6 bg-white dark:bg-gray-950 w-full">
-        <div className="max-w-7xl mx-auto w-full">
-          <div className="text-center mb-8 md:mb-16 px-4">
-            <h2 className="text-2xl md:text-4xl font-bold tracking-tight mb-4">How It Works</h2>
-            <p className="text-neutral-600 dark:text-neutral-400">Three simple steps to unlock your rewards</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 px-4">
-            <Card className="border-2 hover:border-violet-200 transition-colors">
-              <CardContent className="pt-8">
-                <div className="w-14 h-14 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center mb-6">
-                  <Lock className="w-7 h-7 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold mb-3 flex items-center justify-center gap-2">
-                  Earn and Commit <NCTRLogo size="lg" />
-                </h3>
-                <p className="text-neutral-600 dark:text-neutral-400 flex items-center justify-center gap-1 flex-wrap">
-                  Commit your <NCTRLogo size="sm" /> tokens to 360LOCK to build your Crescendo member status and unlock benefits.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-2 hover:border-violet-200 transition-colors">
-              <CardContent className="pt-8">
-                <div className="w-14 h-14 bg-gradient-to-br from-violet-400 to-purple-500 rounded-2xl flex items-center justify-center mb-6">
-                  <Trophy className="w-7 h-7 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Claim Status Access Pass</h3>
-                <p className="text-neutral-600 dark:text-neutral-400">
-                  Claim your status NFT on Base to enable token-gated access to exclusive rewards and experiences.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-2 hover:border-violet-200 transition-colors">
-              <CardContent className="pt-8">
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-2xl flex items-center justify-center mb-6">
-                  <Gift className="w-7 h-7 text-white" />
-                </div>
-                <h3 className="text-xl font-semibold mb-3">Redeem Rewards</h3>
-                <p className="text-neutral-600 dark:text-neutral-400">
-                  Access and redeem exclusive digital rewards crowdsourced from Crescendo brands and partners.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Status Levels Preview */}
-      <section className="py-20 px-6 bg-neutral-50 dark:bg-gray-900">
+      {/* Status Levels Section */}
+      <section className="py-12 md:py-20 px-4 md:px-6 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold tracking-tight mb-4">Membership Levels</h2>
-            <p className="text-neutral-600 dark:text-neutral-400 flex items-center justify-center gap-1">
-              Lock <NCTRLogo size="sm" /> in 360LOCK to unlock greater benefits
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">6 Levels of Status</h2>
+            <p className="text-base md:text-lg text-neutral-600 max-w-2xl mx-auto">
+              Lock NCTR in 360LOCK to unlock higher status levels and better earning rates
             </p>
           </div>
-
-          <div className="grid md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
             {[
-              { level: 1, tier: 'Bronze', color: 'from-emerald-400 to-green-500', required: '1K', multiplier: '1.1x' },
-              { level: 2, tier: 'Silver', color: 'from-blue-400 to-cyan-500', required: '2.5K', multiplier: '1.25x' },
-              { level: 3, tier: 'Gold', color: 'from-purple-400 to-violet-500', required: '5K', multiplier: '1.4x' },
-              { level: 4, tier: 'Platinum', color: 'from-amber-400 to-yellow-500', required: '10K', multiplier: '1.5x' },
-              { level: 5, tier: 'Diamond', color: 'from-cyan-400 to-blue-600', required: '25K', multiplier: '2x' },
-            ].map((tier) => (
-              <Card key={tier.level} className="border-2 hover:border-violet-200 transition-all hover:scale-105 cursor-pointer" onClick={() => onViewLevelDetail?.(tier.level)}>
-                <CardContent className="pt-6 text-center">
-                  <div className={`w-16 h-16 mx-auto bg-gradient-to-br ${tier.color} rounded-2xl flex items-center justify-center mb-4`}>
-                    <Award className="w-8 h-8 text-white" />
+              { level: 1, name: 'Level 1', nctr: '100', multiplier: '1.0x', color: 'from-slate-400 to-gray-500' },
+              { level: 2, name: 'Level 2', nctr: '500', multiplier: '1.1x', color: 'from-emerald-400 to-green-500' },
+              { level: 3, name: 'Silver', nctr: '2,500', multiplier: '1.25x', color: 'from-blue-400 to-cyan-500' },
+              { level: 4, name: 'Gold', nctr: '10,000', multiplier: '1.4x', color: 'from-purple-400 to-violet-500' },
+              { level: 5, name: 'Platinum', nctr: '50,000', multiplier: '1.6x', color: 'from-amber-400 to-yellow-500' },
+              { level: 6, name: 'Diamond', nctr: '100,000', multiplier: '2.0x', color: 'from-cyan-400 to-blue-600' },
+            ].map((status) => (
+              <Card 
+                key={status.level} 
+                className="border-2 hover:border-violet-300 transition-all cursor-pointer group overflow-hidden"
+              >
+                <div className={`h-1 bg-gradient-to-r ${status.color}`} />
+                <CardContent className="p-3 md:p-4 text-center">
+                  <div className={`w-8 h-8 md:w-12 md:h-12 rounded-full bg-gradient-to-r ${status.color} mx-auto mb-2 md:mb-3 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                    <Trophy className="w-4 h-4 md:w-6 md:h-6 text-white" />
                   </div>
-                  <h3 className="font-semibold mb-1">{tier.tier}</h3>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-2">{tier.required} NCTR</p>
-                  <Badge variant="secondary" className="text-xs">{tier.multiplier} Earn</Badge>
+                  <h3 className="font-bold text-xs md:text-sm">{status.name}</h3>
+                  <p className="text-xs md:text-sm text-neutral-600 flex items-center justify-center gap-1">
+                    {status.nctr} <NCTRLogo />
+                  </p>
+                  <Badge variant="secondary" className="mt-2 text-xs">
+                    {status.multiplier}
+                  </Badge>
                 </CardContent>
               </Card>
             ))}
@@ -143,39 +122,56 @@ export function LandingPage({ onJoin, onViewRewards, onSignIn, onViewLevelDetail
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 px-6 bg-white dark:bg-gray-950">
+      {/* Brand Partners Section */}
+      <section className="py-12 md:py-20 px-4 md:px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-4xl font-bold text-violet-600 mb-2">500K+</div>
-              <p className="text-neutral-600 dark:text-neutral-400">Total Rewards</p>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-violet-600 mb-2">50+</div>
-              <p className="text-neutral-600 dark:text-neutral-400">Brand Partners</p>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-violet-600 mb-2">10K+</div>
-              <p className="text-neutral-600 dark:text-neutral-400">Active Members</p>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-violet-600 mb-2">$2M+</div>
-              <p className="text-neutral-600 dark:text-neutral-400">Rewards Value</p>
-            </div>
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">Brand Partners</h2>
+            <p className="text-base md:text-lg text-neutral-600 max-w-2xl mx-auto">
+              Earn NCTR from purchases at our exclusive brand partners
+            </p>
+          </div>
+          <div className="grid grid-cols-3 md:grid-cols-5 gap-4 md:gap-8">
+            {[
+              { name: 'Nike', logo: '/brands/nike-logo.png' },
+              { name: 'Spotify', logo: '/brands/spotify-logo.png' },
+              { name: 'Sephora', logo: '/brands/sephora-logo.png' },
+              { name: 'Whole Foods', logo: '/brands/wholefoods-logo.png' },
+              { name: 'Chipotle', logo: '/brands/chipotle-logo.png' },
+              { name: 'Delta', logo: '/brands/delta-logo.png' },
+              { name: 'Apple', logo: '/brands/apple-logo.png' },
+              { name: 'AMC', logo: '/brands/amc-logo.png' },
+              { name: 'Urban Outfitters', logo: '/brands/urbanoutfitters-logo.png' },
+              { name: 'Kroma', logo: '/brands/kroma-logo.png' },
+            ].map((brand) => (
+              <div key={brand.name} className="flex items-center justify-center p-2 md:p-4 grayscale hover:grayscale-0 transition-all">
+                <ImageWithFallback
+                  src={brand.logo}
+                  alt={brand.name}
+                  className="h-6 md:h-10 w-auto object-contain"
+                />
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-6 bg-gradient-to-br from-violet-600 to-indigo-700 text-white">
+      <section className="py-12 md:py-20 px-4 md:px-6 bg-gradient-to-r from-violet-600 to-indigo-600">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-6">Ready to Start Earning?</h2>
-          <p className="text-xl mb-10 text-violet-100">
-            Join Crescendo today and unlock exclusive rewards from top brands
+          <h2 className="text-2xl md:text-4xl font-bold text-white mb-4 md:mb-6">
+            Ready to Start Earning?
+          </h2>
+          <p className="text-base md:text-xl text-violet-100 mb-6 md:mb-8">
+            Join thousands of members already earning NCTR and claiming exclusive rewards
           </p>
-          <Button onClick={onJoin} size="lg" className="bg-white text-violet-600 hover:bg-neutral-100">
-            Get Started Now
+          <Button 
+            size="lg" 
+            variant="secondary"
+            className="text-violet-600 hover:text-violet-700 text-base md:text-lg px-6 md:px-8"
+            onClick={handleJoin}
+          >
+            Join Crescendo <Award className="ml-2 w-5 h-5" />
           </Button>
         </div>
       </section>

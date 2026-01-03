@@ -2,12 +2,10 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MembershipHistory } from './MembershipHistory';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
-interface MembershipHistoryPageProps {
-  onBack: () => void;
-}
-
-export function MembershipHistoryPage({ onBack }: MembershipHistoryPageProps) {
+export function MembershipHistoryPage() {
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   if (!user) return null;
@@ -18,7 +16,7 @@ export function MembershipHistoryPage({ onBack }: MembershipHistoryPageProps) {
         <div className="max-w-3xl mx-auto">
           <Button
             variant="ghost"
-            onClick={onBack}
+            onClick={() => navigate('/membership')}
             className="mb-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
