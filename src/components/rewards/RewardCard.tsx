@@ -65,9 +65,7 @@ export function RewardCard({
 
   return (
     <Card
-      className={`group cursor-pointer transition-all hover:scale-[1.02] hover:shadow-xl overflow-hidden ${
-        !affordable || outOfStock ? 'opacity-60' : ''
-      }`}
+      className="group cursor-pointer transition-all hover:scale-[1.02] hover:shadow-xl overflow-hidden"
       onClick={onClick}
     >
       <div className="relative w-full h-56 bg-gradient-to-br from-muted/50 to-muted/20">

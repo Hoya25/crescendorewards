@@ -588,7 +588,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                         alt={selectedReward.title}
                         className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                      <div className="absolute inset-0 bg-transparent flex items-center justify-center">
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/70 px-4 py-2 rounded-full flex items-center gap-2 text-white text-sm">
                           <ZoomIn className="w-4 h-4" />
                           Click to zoom
