@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,130 +23,33 @@ import { PurchaseHistoryPage } from "./components/PurchaseHistoryPage";
 import { FoodBeveragePage } from "./components/FoodBeveragePage";
 import { AuthModal } from "./components/AuthModal";
 import { ThemeProvider } from "./components/ThemeProvider";
-import { useAuth } from "./hooks/useAuth";
-import { useAdminRole } from "./hooks/useAdminRole";
+import { AuthProvider, useAuthContext } from "./contexts/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AdminRoute } from "./components/AdminRoute";
 import NotFound from "./pages/NotFound";
-import { toast } from "sonner";
 
 const queryClient = new QueryClient();
 
-function CrescendoApp() {
-  const { user, profile, loading, isAuthenticated, signOut, refreshProfile } = useAuth();
-  const { isAdmin } = useAdminRole();
-  const [currentView, setCurrentView] = useState<"landing" | "dashboard" | "earn" | "rewards" | "reward-detail" | "profile" | "admin" | "membership" | "membership-history" | "membership-statistics" | "brands" | "brand-detail" | "submit-rewards" | "my-submissions" | "purchase-history" | "referral-analytics" | "food-beverage" | "wishlist">("landing");
-  const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
-  const [selectedRewardId, setSelectedRewardId] = useState<string | null>(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
-  const [walletConnected, setWalletConnected] = useState(false);
-
-  // Redirect authenticated users to dashboard
-  useEffect(() => {
-    if (isAuthenticated && profile) {
-      setCurrentView("dashboard");
-    } else if (!isAuthenticated) {
-      setCurrentView("landing");
-    }
-  }, [isAuthenticated, profile]);
-
-  const handleJoin = () => {
-    setAuthMode('signup');
-    setShowAuthModal(true);
-  };
-
-  const handleSignIn = () => {
-    setAuthMode('signin');
-    setShowAuthModal(true);
-  };
+function AppRoutes() {
+  const { 
+    isAuthenticated, 
+    profile, 
+    loading,
+    showAuthModal,
+    setShowAuthModal,
+    authMode,
+    setAuthMode,
+    refreshProfile,
+  } = useAuthContext();
 
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
-    setCurrentView("dashboard");
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    setWalletConnected(false);
-    setCurrentView("landing");
-    toast.success("Signed out successfully");
-  };
-
-  const handleConnectWallet = () => {
-    setWalletConnected(true);
-    toast.success("Wallet connected successfully");
-  };
-
-  const handleViewRewards = () => {
-    setCurrentView("rewards");
-  };
-
-  const handleEarnNCTR = () => {
-    setCurrentView("earn");
-  };
-
-  const handleLockTokens = () => {
-    toast.info("Lock tokens modal coming soon!");
-  };
-
-  const handleClaimNFT = () => {
-    toast.info("Claim NFT modal coming soon!");
-  };
-
-  const handleLevelUp = () => {
-    toast.info("Level up modal coming soon!");
-  };
-
-  const handleViewMembershipLevels = () => {
-    setCurrentView("membership");
-  };
-
-  const handleViewProfile = () => {
-    setCurrentView("profile");
-  };
-
-  const handleViewBrandPartners = () => {
-    setCurrentView("brands");
-  };
-
-  const handleViewBrandDetail = (brandId: string) => {
-    setSelectedBrandId(brandId);
-    setCurrentView("brand-detail");
-  };
-
-  const handleViewMarketplace = () => {
-    setCurrentView("rewards");
-  };
-
-  const handleViewRewardDetail = (rewardId: string) => {
-    setSelectedRewardId(rewardId);
-    setCurrentView("reward-detail");
-  };
-
-  const handleSubmitRewards = () => {
-    setCurrentView("submit-rewards");
-  };
-
-  const handleMySubmissions = () => {
-    setCurrentView("my-submissions");
-  };
-
-  const handlePurchaseHistory = () => {
-    setCurrentView("purchase-history");
-  };
-
-  const handleFoodBeverage = () => {
-    setCurrentView("food-beverage");
-  };
-
-  const handleViewWishlist = () => {
-    setCurrentView("wishlist");
-  };
-
-  const handleToggleAuthMode = () => {
+  const handleToggleMode = () => {
     setAuthMode(authMode === 'signin' ? 'signup' : 'signin');
   };
 
-  // Show loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-neutral-50 dark:bg-neutral-950">
@@ -161,162 +63,148 @@ function CrescendoApp() {
 
   return (
     <div className="w-full max-w-[100vw] overflow-x-hidden">
-      {currentView === "landing" && !isAuthenticated && (
-        <LandingPage
-          onJoin={handleJoin}
-          onSignIn={handleSignIn}
-          onViewRewards={handleViewRewards}
+      <Routes>
+        {/* Public Routes */}
+        <Route 
+          path="/" 
+          element={
+            isAuthenticated ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <LandingPage />
+            )
+          } 
         />
-      )}
-      
-      {currentView === "dashboard" && isAuthenticated && profile && (
-        <Dashboard
-          profile={profile}
-          walletConnected={walletConnected}
-          onConnectWallet={handleConnectWallet}
-          onLockTokens={handleLockTokens}
-          onClaimNFT={handleClaimNFT}
-          onViewRewards={handleViewRewards}
-          onEarnNCTR={handleEarnNCTR}
-          onSignOut={handleSignOut}
-          onLevelUp={handleLevelUp}
-          onViewMembershipLevels={handleViewMembershipLevels}
-          onViewProfile={handleViewProfile}
-          onViewBrandPartners={handleViewBrandPartners}
-          onViewMarketplace={handleViewMarketplace}
-          onMySubmissions={handleMySubmissions}
-          onPurchaseHistory={handlePurchaseHistory}
-          onReferralAnalytics={() => setCurrentView("referral-analytics")}
-          onFoodBeverage={handleFoodBeverage}
-          onViewWishlist={handleViewWishlist}
-          isAdmin={isAdmin}
-          onAdminPanel={() => setCurrentView("admin")}
-          onClaimSuccess={refreshProfile}
+        <Route path="/rewards" element={<RewardsPool claimBalance={profile?.claim_balance || 0} onClaimSuccess={refreshProfile} />} />
+        <Route path="/rewards/:id" element={<RewardDetailPage onClaimSuccess={refreshProfile} />} />
+        <Route path="/food-beverage" element={<FoodBeveragePage claimBalance={profile?.claim_balance || 0} />} />
+
+        {/* Protected Routes */}
+        <Route 
+          path="/dashboard" 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
         />
-      )}
-
-      {currentView === "earn" && isAuthenticated && (
-        <EarnNCTR
-          onBack={() => setCurrentView("dashboard")}
-          onNavigateToRewards={handleViewRewards}
-          onNavigateToStatus={handleViewMembershipLevels}
-          onNavigateToBrands={handleViewBrandPartners}
-          onRefreshProfile={refreshProfile}
+        <Route 
+          path="/earn" 
+          element={
+            <ProtectedRoute>
+              <EarnNCTR />
+            </ProtectedRoute>
+          } 
         />
-      )}
-
-      {currentView === "rewards" && (
-        <RewardsPool 
-          claimBalance={profile?.claim_balance || 0}
-          onClaimSuccess={refreshProfile}
-          onSubmitReward={handleSubmitRewards}
-          onBack={() => setCurrentView(isAuthenticated ? "dashboard" : "landing")}
-          onNavigateToBrands={handleViewBrandPartners}
-          onViewRewardDetail={handleViewRewardDetail}
+        <Route 
+          path="/profile" 
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          } 
         />
-      )}
-
-      {currentView === "reward-detail" && selectedRewardId && (
-        <RewardDetailPage
-          rewardId={selectedRewardId}
-          onBack={() => setCurrentView("rewards")}
-          onClaimSuccess={refreshProfile}
-          onViewWishlist={handleViewWishlist}
+        <Route 
+          path="/membership" 
+          element={
+            <ProtectedRoute>
+              <MembershipLevelPage />
+            </ProtectedRoute>
+          } 
         />
-      )}
-
-      {currentView === "profile" && isAuthenticated && profile && (
-        <ProfilePage
-          profile={profile}
-          onBack={() => setCurrentView("dashboard")}
-          onSignOut={handleSignOut}
-          onRefresh={refreshProfile}
-          onViewWishlist={handleViewWishlist}
+        <Route 
+          path="/membership/history" 
+          element={
+            <ProtectedRoute>
+              <MembershipHistoryPage />
+            </ProtectedRoute>
+          } 
         />
-      )}
-
-      {currentView === "admin" && isAuthenticated && isAdmin && (
-        <AdminPanel onClose={() => setCurrentView("dashboard")} />
-      )}
-
-      {currentView === "membership" && isAuthenticated && (
-        <MembershipLevelPage 
-          onBack={() => setCurrentView("dashboard")}
-          onViewHistory={() => setCurrentView("membership-history")}
-          onViewStatistics={() => setCurrentView("membership-statistics")}
+        <Route 
+          path="/membership/statistics" 
+          element={
+            <ProtectedRoute>
+              <MembershipStatisticsPage />
+            </ProtectedRoute>
+          } 
         />
-      )}
-
-      {currentView === "membership-history" && isAuthenticated && (
-        <MembershipHistoryPage onBack={() => setCurrentView("membership")} />
-      )}
-
-      {currentView === "membership-statistics" && isAuthenticated && (
-        <MembershipStatisticsPage onBack={() => setCurrentView("membership")} />
-      )}
-
-      {currentView === "brands" && isAuthenticated && (
-        <BrandPartnersPage 
-          onBack={() => setCurrentView("dashboard")}
-          onNavigateToStatus={() => setCurrentView("membership")}
-          onNavigateToRewards={() => setCurrentView("rewards")}
-          onNavigateToBrandDetail={handleViewBrandDetail}
+        <Route 
+          path="/brands" 
+          element={
+            <ProtectedRoute>
+              <BrandPartnersPage />
+            </ProtectedRoute>
+          } 
         />
-      )}
-
-      {currentView === "brand-detail" && isAuthenticated && selectedBrandId && (
-        <BrandDetailPage 
-          brandId={selectedBrandId}
-          onBack={() => setCurrentView("brands")}
+        <Route 
+          path="/brands/:id" 
+          element={
+            <ProtectedRoute>
+              <BrandDetailPage />
+            </ProtectedRoute>
+          } 
         />
-      )}
-
-      {currentView === "submit-rewards" && isAuthenticated && (
-        <SubmitRewardsPage
-          onBack={() => setCurrentView("rewards")}
+        <Route 
+          path="/submit-reward" 
+          element={
+            <ProtectedRoute>
+              <SubmitRewardsPage />
+            </ProtectedRoute>
+          } 
         />
-      )}
-
-      {currentView === "my-submissions" && isAuthenticated && (
-        <MySubmissionsPage
-          onBack={() => setCurrentView("dashboard")}
+        <Route 
+          path="/my-submissions" 
+          element={
+            <ProtectedRoute>
+              <MySubmissionsPage />
+            </ProtectedRoute>
+          } 
         />
-      )}
-
-      {currentView === "purchase-history" && isAuthenticated && (
-        <PurchaseHistoryPage
-          onBack={() => setCurrentView("dashboard")}
+        <Route 
+          path="/purchase-history" 
+          element={
+            <ProtectedRoute>
+              <PurchaseHistoryPage />
+            </ProtectedRoute>
+          } 
         />
-      )}
-
-      {currentView === "referral-analytics" && isAuthenticated && (
-        <ReferralAnalyticsDashboard
-          onBack={() => setCurrentView("dashboard")}
+        <Route 
+          path="/referrals" 
+          element={
+            <ProtectedRoute>
+              <ReferralAnalyticsDashboard />
+            </ProtectedRoute>
+          } 
         />
-      )}
-
-      {currentView === "food-beverage" && (
-        <FoodBeveragePage
-          onBack={() => setCurrentView(isAuthenticated ? "dashboard" : "landing")}
-          onViewRewardDetail={handleViewRewardDetail}
-          claimBalance={profile?.claim_balance || 0}
+        <Route 
+          path="/wishlist" 
+          element={
+            <ProtectedRoute>
+              <WishlistPage claimBalance={profile?.claim_balance || 0} />
+            </ProtectedRoute>
+          } 
         />
-      )}
 
-      {currentView === "wishlist" && isAuthenticated && profile && (
-        <WishlistPage
-          onBack={() => setCurrentView("dashboard")}
-          onViewRewardDetail={handleViewRewardDetail}
-          claimBalance={profile.claim_balance}
+        {/* Admin Routes */}
+        <Route 
+          path="/admin/*" 
+          element={
+            <AdminRoute>
+              <AdminPanel />
+            </AdminRoute>
+          } 
         />
-      )}
+
+        {/* 404 */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
 
       {showAuthModal && (
         <AuthModal
           mode={authMode}
           onClose={() => setShowAuthModal(false)}
           onSuccess={handleAuthSuccess}
-          onToggleMode={handleToggleAuthMode}
+          onToggleMode={handleToggleMode}
         />
       )}
     </div>
@@ -330,10 +218,9 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<CrescendoApp />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>

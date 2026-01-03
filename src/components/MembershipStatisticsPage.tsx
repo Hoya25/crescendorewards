@@ -2,12 +2,10 @@ import { ArrowLeft, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MembershipStatistics } from './MembershipStatistics';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
-interface MembershipStatisticsPageProps {
-  onBack: () => void;
-}
-
-export function MembershipStatisticsPage({ onBack }: MembershipStatisticsPageProps) {
+export function MembershipStatisticsPage() {
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   if (!user) {
@@ -25,7 +23,7 @@ export function MembershipStatisticsPage({ onBack }: MembershipStatisticsPagePro
           <Button
             variant="ghost"
             size="icon"
-            onClick={onBack}
+            onClick={() => navigate('/membership')}
             className="shrink-0"
           >
             <ArrowLeft className="w-5 h-5" />

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AdminSidebar } from './AdminSidebar';
 import { AdminDashboard } from './AdminDashboard';
@@ -12,11 +13,8 @@ import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 
-interface AdminPanelProps {
-  onClose: () => void;
-}
-
-export function AdminPanel({ onClose }: AdminPanelProps) {
+export function AdminPanel() {
+  const navigate = useNavigate();
   const [currentView, setCurrentView] = useState('dashboard');
 
   const renderView = () => {
@@ -59,7 +57,7 @@ export function AdminPanel({ onClose }: AdminPanelProps) {
               <SidebarTrigger />
               <h1 className="text-xl font-bold">Admin Panel</h1>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
               <X className="w-5 h-5" />
             </Button>
           </header>
