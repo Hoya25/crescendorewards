@@ -1,17 +1,8 @@
 // Membership level calculation based on locked NCTR (360LOCK)
-export interface MembershipTier {
-  level: number;
-  name: string;
-  requirement: number; // Locked NCTR required
-  description: string;
-  multiplier: number;
-  claims: string;
-  discount: number;
-  benefits: string[];
-  nftBadges: string[];
-  color: string;
-  bgColor: string;
-}
+import type { MembershipTier } from '@/types';
+
+// Re-export for backwards compatibility
+export type { MembershipTier } from '@/types';
 
 export const membershipTiers: MembershipTier[] = [
   {

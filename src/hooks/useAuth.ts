@@ -1,21 +1,7 @@
 import { useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-
-interface Profile {
-  id: string;
-  email: string | null;
-  full_name: string | null;
-  avatar_url: string | null;
-  level: number;
-  locked_nctr: number;
-  available_nctr: number;
-  claim_balance: number;
-  referral_code: string | null;
-  has_claimed_signup_bonus: boolean;
-  has_status_access_pass: boolean;
-  wallet_address: string | null;
-}
+import type { Profile } from '@/types';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
