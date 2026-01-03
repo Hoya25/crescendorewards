@@ -20,7 +20,7 @@ export function AdminPanel() {
   const renderView = () => {
     switch (currentView) {
       case 'dashboard':
-        return <AdminDashboard />;
+        return <AdminDashboard onNavigate={setCurrentView} />;
       case 'submissions':
         return <AdminSubmissions />;
       case 'rewards':
@@ -42,7 +42,7 @@ export function AdminPanel() {
           </div>
         );
       default:
-        return <AdminDashboard />;
+        return <AdminDashboard onNavigate={setCurrentView} />;
     }
   };
 
