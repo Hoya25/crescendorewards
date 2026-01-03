@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { 
   Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, 
-  Lock, AlertTriangle, Package, Flame, Clock, Heart 
+  Lock, AlertTriangle, Package, Flame, Clock, Heart, Pencil 
 } from 'lucide-react';
 
 export interface RewardCardData {
@@ -41,6 +41,8 @@ interface RewardCardProps {
   onClick: () => void;
   isAnimatingHeart?: boolean;
   claimBalance?: number;
+  isAdmin?: boolean;
+  onAdminEdit?: (rewardId: string) => void;
 }
 
 export function RewardCard({
@@ -51,6 +53,8 @@ export function RewardCard({
   onClick,
   isAnimatingHeart = false,
   claimBalance = 0,
+  isAdmin = false,
+  onAdminEdit,
 }: RewardCardProps) {
   const Icon = categoryIcons[reward.category as keyof typeof categoryIcons] || Gift;
   const affordable = claimBalance >= reward.cost;
@@ -114,6 +118,21 @@ export function RewardCard({
             </Badge>
           )}
         </div>
+
+        {/* Admin Edit Button - Top Right (before heart) */}
+        {isAdmin && onAdminEdit && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-3 right-14 z-10 bg-amber-500/90 hover:bg-amber-600 backdrop-blur-sm h-9 w-9 rounded-full shadow-lg border-0 text-white"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAdminEdit(reward.id);
+            }}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+        )}
 
         {/* Wishlist Heart Button - Top Right */}
         <Button

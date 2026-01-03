@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from '@/hooks/use-toast';
-import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Clock, Package, Heart, Store, Trophy, User, ChevronDown, LogOut, LayoutDashboard, FileCheck, Receipt, BarChart3, Crown, ArrowLeft } from 'lucide-react';
+import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Clock, Package, Heart, Store, Trophy, User, ChevronDown, LogOut, LayoutDashboard, FileCheck, Receipt, BarChart3, Crown, ArrowLeft, Shield, Settings, Plus, Pencil } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -664,6 +664,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 onClick={() => handleRewardClick(reward)}
                 isAnimatingHeart={animatingHearts.has(reward.id)}
                 claimBalance={claimBalance}
+                isAdmin={isAdmin}
+                onAdminEdit={(rewardId) => navigate(`/admin?tab=rewards&edit=${rewardId}`)}
               />
             ))}
           </div>
@@ -857,6 +859,44 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Floating Admin Bar */}
+      {isAdmin && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
+          <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full shadow-2xl px-4 py-2 flex items-center gap-3">
+            <div className="flex items-center gap-2 pr-3 border-r border-white/30">
+              <Crown className="w-4 h-4" />
+              <span className="text-sm font-medium hidden sm:inline">Admin Mode</span>
+            </div>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-white hover:bg-white/20 gap-2"
+              onClick={() => navigate('/admin?tab=rewards')}
+            >
+              <Settings className="w-4 h-4" />
+              <span className="hidden sm:inline">Manage Rewards</span>
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-white hover:bg-white/20 gap-2"
+              onClick={() => navigate('/admin?tab=claims')}
+            >
+              <Package className="w-4 h-4" />
+              <span className="hidden sm:inline">Claims</span>
+            </Button>
+            <Button
+              size="sm"
+              className="bg-white text-amber-600 hover:bg-white/90 gap-2"
+              onClick={() => navigate('/admin')}
+            >
+              <Shield className="w-4 h-4" />
+              <span className="hidden sm:inline">Full Admin</span>
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
