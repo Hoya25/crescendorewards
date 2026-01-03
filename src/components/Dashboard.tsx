@@ -13,20 +13,7 @@ import { useTheme } from "./ThemeProvider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { SidebarProvider, SidebarTrigger } from "./ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
-
-interface Profile {
-  id: string;
-  email: string | null;
-  full_name: string | null;
-  level: number;
-  locked_nctr: number;
-  available_nctr: number;
-  claim_balance: number;
-  referral_code: string | null;
-  has_claimed_signup_bonus: boolean;
-  has_status_access_pass: boolean;
-  wallet_address: string | null;
-}
+import type { Profile } from '@/types';
 
 interface DashboardProps {
   profile: Profile;
