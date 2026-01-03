@@ -19,6 +19,7 @@ import Autoplay from 'embla-carousel-autoplay';
 import { BuyClaims } from '@/components/BuyClaims';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { RewardCard } from '@/components/rewards/RewardCard';
+import { RewardFilters } from '@/components/rewards/RewardFilters';
 
 interface Reward {
   id: string;
@@ -518,208 +519,23 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             </div>
           </div>
 
-          {/* Search Bar */}
-          <div className="relative mt-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search rewards by name or description..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-background border-border"
-            />
-            {searchQuery && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7"
-                onClick={() => setSearchQuery('')}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            )}
-          </div>
-
-          {/* Category Tabs */}
-          <Tabs value={activeCategory} onValueChange={setActiveCategory} className="mt-4 w-full">
-            <div className="w-full overflow-x-auto -mx-4 px-4">
-              <TabsList className="w-max min-w-full justify-start flex-nowrap">
-                <TabsTrigger value="all" className="flex items-center gap-2 whitespace-nowrap">
-                  <Gift className="w-4 h-4" />
-                  All
-                </TabsTrigger>
-                {Object.entries(categoryLabels).map(([key, label]) => {
-                  const Icon = categoryIcons[key as keyof typeof categoryIcons] || Gift;
-                  return (
-                    <TabsTrigger key={key} value={key} className="flex items-center gap-2 whitespace-nowrap">
-                      <Icon className="w-4 h-4" />
-                      {label}
-                    </TabsTrigger>
-                  );
-                })}
-              </TabsList>
-            </div>
-          </Tabs>
-
-          {/* Category Descriptions */}
-          {activeCategory === 'alliance_tokens' && (
-            <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
-              <div className="flex items-start gap-3">
-                <Coins className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-foreground">About Alliance Tokens</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Alliance Tokens are digital rewards from our brand partners that represent shared values and commitments. 
-                    Each token type (like S.W.E.A.T. Tokens from Mike Rowe WORKS Foundation) embodies specific principles 
-                    and can be redeemed for exclusive benefits. Partner tokens unlock special experiences, merchandise, 
-                    and opportunities aligned with their organization&apos;s mission.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeCategory === 'experiences' && (
-            <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
-              <div className="flex items-start gap-3">
-                <Sparkles className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-foreground">Exclusive Experiences</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Redeem your claims for once-in-a-lifetime experiences like VIP concert access, meet-and-greets, 
-                    adventure packages, and exclusive events. These rewards create unforgettable memories.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeCategory === 'merch' && (
-            <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
-              <div className="flex items-start gap-3">
-                <ShoppingBag className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-foreground">Exclusive Merchandise</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Get your hands on limited-edition apparel, collectibles, and branded merchandise from our partners. 
-                    Show your support with exclusive gear you can&apos;t find anywhere else.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeCategory === 'gift_cards' && (
-            <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
-              <div className="flex items-start gap-3">
-                <CreditCard className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-foreground">Gift Cards & Vouchers</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Exchange your claims for gift cards from popular brands and retailers. Perfect for treating yourself 
-                    or giving as gifts to friends and family.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeCategory === 'wellness' && (
-            <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
-              <div className="flex items-start gap-3">
-                <Heart className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <div className="space-y-2">
-                  <h3 className="font-semibold text-foreground">Wellness & Health</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Invest in your wellbeing with health supplements, fitness gear, and wellness products. 
-                    Take care of yourself with rewards that support a healthy lifestyle.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Filters and Sorting */}
-          <div className="flex flex-wrap items-center gap-3 mt-4">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Filter className="w-4 h-4" />
-              <span className="font-medium">Filters:</span>
-            </div>
-            
-            {/* Sort By */}
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px] bg-background border-border z-50">
-                <ArrowUpDown className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent className="bg-background border-border z-50">
-                <SelectItem value="newest">Newest First</SelectItem>
-                <SelectItem value="oldest">Oldest First</SelectItem>
-                <SelectItem value="priceLowToHigh">Price: Low to High</SelectItem>
-                <SelectItem value="priceHighToLow">Price: High to Low</SelectItem>
-                <SelectItem value="popularity">Most Popular</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Price Filter */}
-            <Select value={priceFilter} onValueChange={setPriceFilter}>
-              <SelectTrigger className="w-[160px] bg-background border-border z-50">
-                <Coins className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="Price" />
-              </SelectTrigger>
-              <SelectContent className="bg-background border-border z-50">
-                <SelectItem value="all">All Prices</SelectItem>
-                <SelectItem value="free">Free</SelectItem>
-                <SelectItem value="under100">Under 100</SelectItem>
-                <SelectItem value="under500">Under 500</SelectItem>
-                <SelectItem value="over500">500+</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Availability Filter */}
-            <Select value={availabilityFilter} onValueChange={setAvailabilityFilter}>
-              <SelectTrigger className="w-[160px] bg-background border-border z-50">
-                <Package className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="Availability" />
-              </SelectTrigger>
-              <SelectContent className="bg-background border-border z-50">
-                <SelectItem value="all">All Items</SelectItem>
-                <SelectItem value="inStock">In Stock</SelectItem>
-                <SelectItem value="lowStock">Low Stock</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Exclusive Experiences Filter */}
-            <Select value={exclusiveFilter} onValueChange={setExclusiveFilter}>
-              <SelectTrigger className="w-[200px] bg-background border-border z-50">
-                <Trophy className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="Type" />
-              </SelectTrigger>
-              <SelectContent className="bg-background border-border z-50">
-                <SelectItem value="all">All Rewards</SelectItem>
-                <SelectItem value="exclusive">Exclusive Experiences</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* High-Value Filter */}
-            <Select value={highValueFilter} onValueChange={setHighValueFilter}>
-              <SelectTrigger className="w-[180px] bg-background border-border z-50">
-                <Zap className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="Value" />
-              </SelectTrigger>
-              <SelectContent className="bg-background border-border z-50">
-                <SelectItem value="all">All Values</SelectItem>
-                <SelectItem value="highValue">High-Value (500+)</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Results Count */}
-            <div className="ml-auto text-sm text-muted-foreground">
-              <Badge variant="secondary" className="gap-1">
-                {filteredRewards.length} {filteredRewards.length === 1 ? 'reward' : 'rewards'}
-              </Badge>
-            </div>
-          </div>
+          <RewardFilters
+            activeCategory={activeCategory}
+            onCategoryChange={setActiveCategory}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            priceFilter={priceFilter}
+            onPriceFilterChange={setPriceFilter}
+            availabilityFilter={availabilityFilter}
+            onAvailabilityFilterChange={setAvailabilityFilter}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            exclusiveFilter={exclusiveFilter}
+            onExclusiveFilterChange={setExclusiveFilter}
+            highValueFilter={highValueFilter}
+            onHighValueFilterChange={setHighValueFilter}
+            resultsCount={filteredRewards.length}
+          />
         </div>
       </div>
 
