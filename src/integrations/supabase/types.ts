@@ -590,6 +590,18 @@ export type Database = {
         }[]
       }
       get_public_stats: { Args: never; Returns: Json }
+      get_user_activity: {
+        Args: { p_limit?: number; p_user_id: string }
+        Returns: {
+          activity_type: string
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          metadata: Json
+          title: string
+        }[]
+      }
       get_user_share_analytics: {
         Args: never
         Returns: {
