@@ -89,7 +89,7 @@ export function BrandDetailPage() {
     );
   }
 
-  if (!brand) {
+  if (!brandId || !brand) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="max-w-md">
