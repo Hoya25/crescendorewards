@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,31 +20,13 @@ import { useNCTRBalance } from '@/hooks/useNCTRBalance';
 import { getMembershipTierByNCTR } from '@/utils/membershipLevels';
 import { validateImageFile } from '@/lib/image-validation';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
+import { useAuthContext } from '@/contexts/AuthContext';
 
-interface Profile {
-  id: string;
-  email: string | null;
-  full_name: string | null;
-  level: number;
-  locked_nctr: number;
-  available_nctr: number;
-  claim_balance: number;
-  referral_code: string | null;
-  has_claimed_signup_bonus: boolean;
-  has_status_access_pass: boolean;
-  wallet_address: string | null;
-  avatar_url: string | null;
-}
-
-interface ProfilePageProps {
-  profile: Profile;
-  onBack: () => void;
-  onSignOut: () => void;
-  onRefresh: () => void;
-  onViewWishlist?: () => void;
-}
-
-export function ProfilePage({ profile, onBack, onSignOut, onRefresh, onViewWishlist }: ProfilePageProps) {
+export function ProfilePage() {
+  const navigate = useNavigate();
+  const { profile, signOut, refreshProfile } = useAuthContext();
+  
+  if (!profile) return null;
   const [fullName, setFullName] = useState(profile.full_name || '');
   const [walletAddress, setWalletAddress] = useState(profile.wallet_address || '');
   const [uploading, setUploading] = useState(false);
@@ -125,7 +108,7 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh, onViewWishl
         title: 'Success',
         description: 'Avatar updated successfully',
       });
-      onRefresh();
+      refreshProfile();
     } catch (error: any) {
       console.error('Error uploading avatar:', error);
       toast({
@@ -155,7 +138,7 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh, onViewWishl
         title: 'Success',
         description: 'Profile updated successfully',
       });
-      onRefresh();
+      refreshProfile();
     } catch (error: any) {
       console.error('Error updating profile:', error);
       toast({
@@ -183,7 +166,7 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh, onViewWishl
       const success = await linkWalletToAccount(profile.id);
       if (success) {
         setWalletAddress(address);
-        onRefresh();
+        refreshProfile();
       }
     } finally {
       setLinkingWallet(false);
@@ -205,7 +188,7 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh, onViewWishl
         title: 'Success',
         description: 'Wallet unlinked successfully',
       });
-      onRefresh();
+      refreshProfile();
     } catch (error: any) {
       console.error('Error unlinking wallet:', error);
       toast({
@@ -283,7 +266,7 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh, onViewWishl
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={onBack}>
+            <Button variant="ghost" onClick={() => navigate('/dashboard')}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
@@ -373,7 +356,7 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh, onViewWishl
                 </div>
                 <BuyClaims 
                   currentBalance={profile.claim_balance} 
-                  onPurchaseSuccess={onRefresh}
+                  onPurchaseSuccess={refreshProfile}
                   trigger={
                     <Button className="w-full gap-2" variant="default">
                       Buy Claim Passes
@@ -573,11 +556,11 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh, onViewWishl
                   </div>
                 )}
                 
-                {onViewWishlist && wishlistItems.length > 0 && (
+                {wishlistItems.length > 0 && (
                   <Button
                     variant="outline"
                     className="w-full mt-4 gap-2"
-                    onClick={onViewWishlist}
+                    onClick={() => navigate('/wishlist')}
                   >
                     <Heart className="w-4 h-4" />
                     View Full Wishlist
@@ -773,7 +756,7 @@ export function ProfilePage({ profile, onBack, onSignOut, onRefresh, onViewWishl
                 <CardDescription>Irreversible actions</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="destructive" onClick={onSignOut} className="w-full">
+                <Button variant="destructive" onClick={signOut} className="w-full">
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
                 </Button>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,10 +20,6 @@ import { Input } from '@/components/ui/input';
 import { UpdateRewardModal } from '@/components/UpdateRewardModal';
 import { RewardVersionHistory } from '@/components/RewardVersionHistory';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
-
-interface SubmissionPageProps {
-  onBack: () => void;
-}
 
 interface RewardSubmission {
   id: string;
@@ -46,8 +43,9 @@ interface RewardSubmission {
   version_notes: string | null;
 }
 
-export function MySubmissionsPage({ onBack }: SubmissionPageProps) {
-  const { user, profile } = useAuth();
+export function MySubmissionsPage() {
+  const navigate = useNavigate();
+  const { user, profile } = useAuthContext();
   const [submissions, setSubmissions] = useState<RewardSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -283,7 +281,7 @@ export function MySubmissionsPage({ onBack }: SubmissionPageProps) {
         <div className="mb-8">
           <Button 
             variant="ghost" 
-            onClick={onBack}
+            onClick={() => navigate('/dashboard')}
             className="mb-4 gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -371,7 +369,7 @@ export function MySubmissionsPage({ onBack }: SubmissionPageProps) {
                   ? "You haven't submitted any rewards yet. Start contributing to the marketplace!"
                   : `No ${statusFilter} submissions found.`}
               </p>
-              <Button onClick={onBack}>Go Back</Button>
+              <Button onClick={() => navigate('/dashboard')}>Go Back</Button>
             </CardContent>
           </Card>
         ) : (

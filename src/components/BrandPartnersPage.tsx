@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { getMembershipTierByNCTR } from '@/utils/membershipLevels';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -30,13 +31,6 @@ import { toast } from 'sonner';
 import Autoplay from 'embla-carousel-autoplay';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { NCTRLogo } from '@/components/NCTRLogo';
-
-interface BrandPartnersPageProps {
-  onBack: () => void;
-  onNavigateToStatus: () => void;
-  onNavigateToRewards: () => void;
-  onNavigateToBrandDetail: (brandId: string) => void;
-}
 
 interface Brand {
   id: string;
@@ -72,8 +66,9 @@ const statusMultipliers: Record<number, number> = {
   5: 2.0,
 };
 
-export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewards, onNavigateToBrandDetail }: BrandPartnersPageProps) {
-  const { profile } = useAuth();
+export function BrandPartnersPage() {
+  const navigate = useNavigate();
+  const { profile } = useAuthContext();
   const [brands, setBrands] = useState<Brand[]>([]);
   const [filteredBrands, setFilteredBrands] = useState<Brand[]>([]);
   const [featuredBrands, setFeaturedBrands] = useState<Brand[]>([]);
@@ -155,7 +150,7 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
   };
 
   const handleViewBrand = (brand: Brand) => {
-    onNavigateToBrandDetail(brand.id);
+    navigate(`/brands/${brand.id}`);
   };
 
   const calculateMultipliedRate = (baseRate: number) => {
@@ -168,7 +163,7 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
-            <Button variant="ghost" onClick={onBack}>
+            <Button variant="ghost" onClick={() => navigate('/dashboard')}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Dashboard
             </Button>
@@ -178,11 +173,11 @@ export function BrandPartnersPage({ onBack, onNavigateToStatus, onNavigateToRewa
                 <Store className="w-4 h-4" />
                 Brands
               </Button>
-              <Button variant="outline" className="gap-2" onClick={onNavigateToStatus}>
+              <Button variant="outline" className="gap-2" onClick={() => navigate('/membership')}>
                 <Trophy className="w-4 h-4" />
                 Status
               </Button>
-              <Button variant="outline" className="gap-2" onClick={onNavigateToRewards}>
+              <Button variant="outline" className="gap-2" onClick={() => navigate('/rewards')}>
                 <Gift className="w-4 h-4" />
                 Rewards
               </Button>

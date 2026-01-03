@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -8,11 +9,6 @@ import { toast } from 'sonner';
 import { getMembershipTierByNCTR } from '@/utils/membershipLevels';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { NCTRLogo } from '@/components/NCTRLogo';
-
-interface BrandDetailPageProps {
-  brandId: string;
-  onBack: () => void;
-}
 
 interface EarnOpportunity {
   title: string;
@@ -41,8 +37,10 @@ const statusMultipliers: Record<number, number> = {
   5: 2.0,
 };
 
-export function BrandDetailPage({ brandId, onBack }: BrandDetailPageProps) {
-  const { profile } = useAuth();
+export function BrandDetailPage() {
+  const { id: brandId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { profile } = useAuthContext();
   const [brand, setBrand] = useState<Brand | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -54,7 +52,9 @@ export function BrandDetailPage({ brandId, onBack }: BrandDetailPageProps) {
   };
 
   useEffect(() => {
-    loadBrand();
+    if (brandId) {
+      loadBrand();
+    }
   }, [brandId]);
 
   const loadBrand = async () => {
@@ -95,7 +95,7 @@ export function BrandDetailPage({ brandId, onBack }: BrandDetailPageProps) {
         <Card className="max-w-md">
           <CardContent className="pt-6 text-center">
             <p className="text-muted-foreground mb-4">Brand not found</p>
-            <Button onClick={onBack} variant="outline">
+            <Button onClick={() => navigate('/brands')} variant="outline">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Brands
             </Button>
@@ -112,7 +112,7 @@ export function BrandDetailPage({ brandId, onBack }: BrandDetailPageProps) {
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b">
         <div className="container mx-auto px-4 py-4">
-          <Button variant="ghost" onClick={onBack} className="mb-2">
+          <Button variant="ghost" onClick={() => navigate('/brands')} className="mb-2">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Brands
           </Button>

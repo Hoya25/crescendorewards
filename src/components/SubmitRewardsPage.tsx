@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,10 +20,6 @@ import { validateImageFile } from '@/lib/image-validation';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 import { NCTRLogo } from './NCTRLogo';
 
-interface SubmitRewardsPageProps {
-  onBack: () => void;
-}
-
 const rewardTypes = [
   { id: 'physical', label: 'Physical Product', icon: Package },
   { id: 'digital', label: 'Digital Good', icon: Zap },
@@ -41,8 +38,9 @@ const lockPeriods = [
   { value: '365', label: '365 days', multiplier: '3x' },
 ];
 
-export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
-  const { user, profile } = useAuth();
+export function SubmitRewardsPage() {
+  const navigate = useNavigate();
+  const { user, profile } = useAuthContext();
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [selectedType, setSelectedType] = useState<string>('');
@@ -215,7 +213,7 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-lg border-b border-border/50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={onBack} className="flex-shrink-0">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')} className="flex-shrink-0">
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="flex-1 min-w-0">
@@ -634,7 +632,7 @@ export function SubmitRewardsPage({ onBack }: SubmitRewardsPageProps) {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={onBack}
+                  onClick={() => navigate('/dashboard')}
                   className="flex-1"
                 >
                   Cancel

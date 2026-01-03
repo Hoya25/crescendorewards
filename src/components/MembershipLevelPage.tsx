@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -21,14 +22,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { TierUpgradeCelebration } from './TierUpgradeCelebration';
 
-interface MembershipLevelPageProps {
-  onBack: () => void;
-  onViewHistory?: () => void;
-  onViewStatistics?: () => void;
-}
-
-export function MembershipLevelPage({ onBack, onViewHistory, onViewStatistics }: MembershipLevelPageProps) {
-  const { profile } = useAuth();
+export function MembershipLevelPage() {
+  const navigate = useNavigate();
+  const { profile } = useAuthContext();
   const [showLockDialog, setShowLockDialog] = useState(false);
   const [selectedTier, setSelectedTier] = useState<typeof membershipTiers[0] | null>(null);
   const [lockAmount, setLockAmount] = useState('');
@@ -119,24 +115,20 @@ export function MembershipLevelPage({ onBack, onViewHistory, onViewStatistics }:
       <div className="sticky top-0 z-10 backdrop-blur-sm bg-background/80 border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Button variant="ghost" onClick={onBack} className="gap-2">
+            <Button variant="ghost" onClick={() => navigate('/dashboard')} className="gap-2">
               <ArrowLeft className="w-4 h-4" />
               Back
             </Button>
             
             <div className="flex items-center gap-2">
-              {onViewHistory && (
-                <Button variant="outline" onClick={onViewHistory} className="gap-2">
-                  <History className="w-4 h-4" />
-                  View History
-                </Button>
-              )}
-              {onViewStatistics && (
-                <Button variant="outline" onClick={onViewStatistics} className="gap-2">
-                  <BarChart3 className="w-4 h-4" />
-                  Statistics
-                </Button>
-              )}
+              <Button variant="outline" onClick={() => navigate('/membership/history')} className="gap-2">
+                <History className="w-4 h-4" />
+                View History
+              </Button>
+              <Button variant="outline" onClick={() => navigate('/membership/statistics')} className="gap-2">
+                <BarChart3 className="w-4 h-4" />
+                Statistics
+              </Button>
             </div>
           </div>
         </div>
