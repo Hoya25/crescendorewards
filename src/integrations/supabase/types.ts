@@ -573,6 +573,7 @@ export type Database = {
         Returns: Json
       }
       generate_referral_code: { Args: never; Returns: string }
+      get_admin_dashboard_stats: { Args: never; Returns: Json }
       get_admin_stats: { Args: never; Returns: Json }
       get_all_claims: {
         Args: never
@@ -590,6 +591,17 @@ export type Database = {
         }[]
       }
       get_public_stats: { Args: never; Returns: Json }
+      get_recent_admin_activity: {
+        Args: { p_limit?: number }
+        Returns: {
+          activity_type: string
+          created_at: string
+          description: string
+          id: string
+          metadata: Json
+          title: string
+        }[]
+      }
       get_user_activity: {
         Args: { p_limit?: number; p_user_id: string }
         Returns: {
