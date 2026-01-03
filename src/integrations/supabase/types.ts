@@ -589,6 +589,7 @@ export type Database = {
           user_name: string
         }[]
       }
+      get_public_stats: { Args: never; Returns: Json }
       get_user_share_analytics: {
         Args: never
         Returns: {
