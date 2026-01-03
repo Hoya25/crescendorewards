@@ -9,6 +9,7 @@ import { AdminClaims } from './AdminClaims';
 import { AdminBrands } from './AdminBrands';
 import { AdminPurchases } from './AdminPurchases';
 import { AdminWishlists } from './AdminWishlists';
+import { AdminUsers } from './AdminUsers';
 import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -36,11 +37,7 @@ export function AdminPanel() {
       case 'wishlist-analytics':
         return <WishlistAnalytics />;
       case 'users':
-        return (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">User management coming soon</p>
-          </div>
-        );
+        return <AdminUsers />;
       default:
         return <AdminDashboard onNavigate={setCurrentView} />;
     }
