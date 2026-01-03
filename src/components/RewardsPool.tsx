@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -7,8 +8,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from '@/hooks/use-toast';
-import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Clock, Package, Heart, ArrowLeft, Store, Trophy } from 'lucide-react';
+import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Clock, Package, Heart, Store, Trophy, User, ChevronDown, LogOut, LayoutDashboard, FileCheck, Receipt, BarChart3, Crown, ArrowLeft } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -16,6 +18,10 @@ import { BuyClaims } from '@/components/BuyClaims';
 import { RewardCard } from '@/components/rewards/RewardCard';
 import { RewardFilters } from '@/components/rewards/RewardFilters';
 import { FeaturedCarousel } from '@/components/rewards/FeaturedCarousel';
+import { CrescendoLogo } from '@/components/CrescendoLogo';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { useAdminRole } from '@/hooks/useAdminRole';
 
 interface Reward {
   id: string;
@@ -53,6 +59,10 @@ const categoryIcons = {
 };
 
 export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBack, onNavigateToBrands, onViewRewardDetail, carouselAutoplayDelay = 5000 }: RewardsPoolProps) {
+  const navigate = useNavigate();
+  const { profile, isAuthenticated, signOut, setShowAuthModal, setAuthMode } = useAuthContext();
+  const { isAdmin } = useAdminRole();
+  
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [featuredRewards, setFeaturedRewards] = useState<Reward[]>([]);
   const [filteredRewards, setFilteredRewards] = useState<Reward[]>([]);
@@ -80,6 +90,16 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     zip: '',
     country: '',
   });
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  const handleSignIn = () => {
+    setAuthMode('signin');
+    setShowAuthModal(true);
+  };
 
   useEffect(() => {
     loadRewards();
@@ -418,71 +438,174 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80 pb-20 w-full max-w-[100vw] overflow-x-hidden">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b w-full">
-        <div className="container mx-auto px-4 py-4 md:py-6 max-w-full">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
-            {onBack && (
-              <Button variant="ghost" size="icon" onClick={onBack} className="flex-shrink-0">
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            )}
-            <div className="flex-1 min-w-0">
-              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                Rewards Marketplace
-              </h1>
-              <p className="text-muted-foreground mt-1 truncate text-sm md:text-base">Redeem your tokens for amazing rewards</p>
-            </div>
-            <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
-              <div className="text-right flex-1 sm:flex-none sm:block">
-                <p className="text-xs sm:text-sm text-muted-foreground">Your Balance</p>
-                <p className="text-2xl sm:text-3xl font-bold text-primary">{claimBalance}</p>
-                <p className="text-xs text-muted-foreground">Claims</p>
+      {/* Top Navigation Bar */}
+      <nav className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b w-full">
+        <div className="container mx-auto px-4 py-3 max-w-full">
+          <div className="flex items-center justify-between gap-4">
+            {/* Left: Logo & Navigation */}
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/')}
+                className="hover:opacity-80 transition-opacity cursor-pointer"
+              >
+                <CrescendoLogo />
+              </button>
+              <div className="hidden md:flex items-center gap-2">
+                {isAuthenticated && (
+                  <Button
+                    variant="ghost"
+                    onClick={() => navigate('/dashboard')}
+                    className="gap-2"
+                    size="sm"
+                  >
+                    <LayoutDashboard className="w-4 h-4" />
+                    Dashboard
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate('/brands')}
+                  className="gap-2"
+                  size="sm"
+                >
+                  <Store className="w-4 h-4" />
+                  Brands
+                </Button>
+                {isAuthenticated && (
+                  <Button
+                    variant="ghost"
+                    onClick={() => navigate('/membership')}
+                    className="gap-2"
+                    size="sm"
+                  >
+                    <Trophy className="w-4 h-4" />
+                    Membership
+                  </Button>
+                )}
               </div>
+            </div>
+
+            {/* Right: Balance, Theme & Profile */}
+            <div className="flex items-center gap-3">
+              {/* Claim Balance */}
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full">
+                <Coins className="w-4 h-4 text-primary" />
+                <span className="font-bold text-primary">{claimBalance}</span>
+                <span className="text-xs text-muted-foreground">Claims</span>
+              </div>
+              
               <BuyClaims 
                 currentBalance={claimBalance} 
                 onPurchaseSuccess={onClaimSuccess}
               />
-              {onNavigateToBrands && (
-                <Button
-                  onClick={onNavigateToBrands}
-                  variant="outline"
-                  className="gap-2"
-                >
-                  <Store className="w-4 h-4" />
-                  <span className="hidden sm:inline">Brand Partners</span>
-                </Button>
-              )}
-              {onSubmitReward && (
-                <Button
-                  onClick={onSubmitReward}
-                  variant="outline"
-                  className="gap-2 border-primary/20 hover:bg-primary/10"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span className="hidden sm:inline">Submit Reward</span>
+              
+              <ThemeToggle />
+
+              {isAuthenticated ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="gap-2">
+                      <User className="w-4 h-4" />
+                      <span className="hidden md:inline">{profile?.full_name || profile?.email?.split('@')[0] || 'Account'}</span>
+                      <ChevronDown className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                      <LayoutDashboard className="w-4 h-4 mr-2" />
+                      Dashboard
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/profile')}>
+                      <User className="w-4 h-4 mr-2" />
+                      Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/membership')}>
+                      <Trophy className="w-4 h-4 mr-2" />
+                      Membership
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/wishlist')}>
+                      <Heart className="w-4 h-4 mr-2" />
+                      Wishlist
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/my-submissions')}>
+                      <FileCheck className="w-4 h-4 mr-2" />
+                      My Submissions
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/purchase-history')}>
+                      <Receipt className="w-4 h-4 mr-2" />
+                      Purchase History
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/referrals')}>
+                      <BarChart3 className="w-4 h-4 mr-2" />
+                      Referrals
+                    </DropdownMenuItem>
+                    {isAdmin && (
+                      <DropdownMenuItem onClick={() => navigate('/admin')}>
+                        <Crown className="w-4 h-4 mr-2" />
+                        Admin Panel
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onClick={handleSignOut}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button onClick={handleSignIn} size="sm">
+                  Sign In
                 </Button>
               )}
             </div>
           </div>
+        </div>
+      </nav>
 
-          <RewardFilters
-            activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-            priceFilter={priceFilter}
-            onPriceFilterChange={setPriceFilter}
-            availabilityFilter={availabilityFilter}
-            onAvailabilityFilterChange={setAvailabilityFilter}
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            exclusiveFilter={exclusiveFilter}
-            onExclusiveFilterChange={setExclusiveFilter}
-            highValueFilter={highValueFilter}
-            onHighValueFilterChange={setHighValueFilter}
-            resultsCount={filteredRewards.length}
-          />
+      {/* Page Header */}
+      <div className="bg-background/50 border-b w-full">
+        <div className="container mx-auto px-4 py-4 max-w-full">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              {onBack && (
+                <Button variant="ghost" size="icon" onClick={onBack} className="flex-shrink-0">
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+              )}
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                  Rewards Marketplace
+                </h1>
+                <p className="text-muted-foreground text-sm md:text-base">Redeem your tokens for amazing rewards</p>
+              </div>
+            </div>
+            
+            {/* Mobile Balance Display */}
+            <div className="flex sm:hidden items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full">
+              <Coins className="w-4 h-4 text-primary" />
+              <span className="font-bold text-primary">{claimBalance}</span>
+              <span className="text-xs text-muted-foreground">Claims</span>
+            </div>
+          </div>
+          
+          <div className="mt-4">
+            <RewardFilters
+              activeCategory={activeCategory}
+              onCategoryChange={setActiveCategory}
+              sortBy={sortBy}
+              onSortChange={setSortBy}
+              priceFilter={priceFilter}
+              onPriceFilterChange={setPriceFilter}
+              availabilityFilter={availabilityFilter}
+              onAvailabilityFilterChange={setAvailabilityFilter}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              exclusiveFilter={exclusiveFilter}
+              onExclusiveFilterChange={setExclusiveFilter}
+              highValueFilter={highValueFilter}
+              onHighValueFilterChange={setHighValueFilter}
+              resultsCount={filteredRewards.length}
+            />
+          </div>
         </div>
       </div>
 
