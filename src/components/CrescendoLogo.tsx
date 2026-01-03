@@ -1,4 +1,6 @@
 import { useTheme } from './ThemeProvider';
+import crescendoLogoLight from '@/assets/crescendo-logo-light.png';
+import crescendoLogoDark from '@/assets/crescendo-logo-dark.png';
 
 interface CrescendoLogoProps {
   className?: string;
@@ -7,15 +9,19 @@ interface CrescendoLogoProps {
 
 export function CrescendoLogo({ className = "", showSubtitle = true }: CrescendoLogoProps) {
   const { theme } = useTheme();
+  
+  // Use dark logo on dark theme (white text), light logo on light theme (dark text)
+  const logoSrc = theme === 'dark' ? crescendoLogoDark : crescendoLogoLight;
 
-  // Simple text logo as placeholder - can be replaced with actual logo image
   return (
-    <div className={`${theme === 'light' ? 'text-gray-900' : 'text-white'} ${className} font-bold text-3xl`} style={{
-      width: '300px',
-      minWidth: '300px'
-    }}>
-      Crescendo
-      {showSubtitle && <div className="text-sm font-normal text-gray-600 dark:text-gray-400">Rewards Alliance</div>}
-    </div>
+    <img 
+      src={logoSrc}
+      alt="Crescendo Rewards Marketplace"
+      className={`h-10 w-auto ${className}`}
+      style={{
+        minWidth: '160px',
+        maxWidth: '200px'
+      }}
+    />
   );
 }

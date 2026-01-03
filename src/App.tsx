@@ -26,6 +26,7 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import { AuthProvider, useAuthContext } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminRoute } from "./components/AdminRoute";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -63,8 +64,9 @@ function AppRoutes() {
 
   return (
     <div className="w-full max-w-[100vw] overflow-x-hidden">
-      <Routes>
-        {/* Public Routes */}
+      <ErrorBoundary>
+        <Routes>
+          {/* Public Routes */}
         <Route 
           path="/" 
           element={
@@ -75,19 +77,21 @@ function AppRoutes() {
             )
           } 
         />
-        <Route path="/rewards" element={<RewardsPool claimBalance={profile?.claim_balance || 0} onClaimSuccess={refreshProfile} />} />
+        <Route path="/rewards" element={<ErrorBoundary><RewardsPool claimBalance={profile?.claim_balance || 0} onClaimSuccess={refreshProfile} /></ErrorBoundary>} />
         <Route path="/rewards/:id" element={<RewardDetailPage onClaimSuccess={refreshProfile} />} />
         <Route path="/food-beverage" element={<FoodBeveragePage claimBalance={profile?.claim_balance || 0} />} />
 
-        {/* Protected Routes */}
-        <Route 
-          path="/dashboard" 
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } 
-        />
+          {/* Protected Routes */}
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <ErrorBoundary>
+                  <Dashboard />
+                </ErrorBoundary>
+              </ProtectedRoute>
+            } 
+          />
         <Route 
           path="/earn" 
           element={
@@ -185,19 +189,22 @@ function AppRoutes() {
           } 
         />
 
-        {/* Admin Routes */}
-        <Route 
-          path="/admin/*" 
-          element={
-            <AdminRoute>
-              <AdminPanel />
-            </AdminRoute>
-          } 
-        />
+          {/* Admin Routes */}
+          <Route 
+            path="/admin/*" 
+            element={
+              <AdminRoute>
+                <ErrorBoundary>
+                  <AdminPanel />
+                </ErrorBoundary>
+              </AdminRoute>
+            } 
+          />
 
-        {/* 404 */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          {/* 404 */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </ErrorBoundary>
 
       {showAuthModal && (
         <AuthModal
