@@ -1,7 +1,7 @@
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { Sparkles, Lock, Gift, Trophy, TrendingUp, Star, Users, Zap, Award, CheckCircle2, ExternalLink } from "lucide-react";
+import { Sparkles, Trophy, Users, Award, ShoppingBag, Infinity } from "lucide-react";
 import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
 import { ImageWithFallback } from "./ImageWithFallback";
@@ -115,6 +115,61 @@ export function LandingPage() {
                   <Badge variant="secondary" className="mt-2 text-xs">
                     {status.multiplier}
                   </Badge>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Crescendo Section */}
+      <section className="py-12 md:py-20 px-4 md:px-6 bg-gradient-to-b from-neutral-50 to-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">Why Crescendo?</h2>
+            <p className="text-base md:text-lg text-neutral-600 max-w-2xl mx-auto">
+              A loyalty program that actually works for you
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {[
+              {
+                icon: Users,
+                title: "Member-Built Rewards",
+                description: "Our community sources and votes on rewards. You decide what's worth earning.",
+                gradient: "from-violet-500 to-purple-600"
+              },
+              {
+                icon: ShoppingBag,
+                title: "Earn From What You Buy",
+                description: "Connect your everyday purchases to earn NCTR. No extra apps, no changing habits.",
+                gradient: "from-emerald-500 to-green-600"
+              },
+              {
+                icon: Trophy,
+                title: "Own Your Status",
+                description: "Your membership lives on-chain. Take your status anywhere, forever.",
+                gradient: "from-amber-500 to-yellow-500"
+              },
+              {
+                icon: Infinity,
+                title: "Points That Never Expire",
+                description: "Lock NCTR in 360LOCK and your benefits only grow. No use-it-or-lose-it pressure.",
+                gradient: "from-blue-500 to-cyan-500"
+              }
+            ].map((benefit) => (
+              <Card 
+                key={benefit.title} 
+                className="border border-neutral-200 hover:border-violet-300 hover:shadow-lg transition-all group"
+              >
+                <CardContent className="p-5 md:p-6">
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${benefit.gradient} flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
+                    <benefit.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="font-bold text-base md:text-lg mb-2">{benefit.title}</h3>
+                  <p className="text-sm md:text-base text-neutral-600 leading-relaxed">
+                    {benefit.description}
+                  </p>
                 </CardContent>
               </Card>
             ))}
