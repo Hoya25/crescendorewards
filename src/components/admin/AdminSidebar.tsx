@@ -43,6 +43,7 @@ function NotificationBadge({ count, pulse = false }: BadgeProps) {
 
 const menuItems = [
   { title: 'Dashboard', view: 'dashboard', icon: LayoutDashboard, badgeKey: 'total' as const },
+  { title: 'Users', view: 'users', icon: Users, badgeKey: null },
   { title: 'Submissions', view: 'submissions', icon: FileCheck, badgeKey: 'submissions' as const },
   { title: 'Rewards', view: 'rewards', icon: Gift, badgeKey: null },
   { title: 'Claims', view: 'claims', icon: ShoppingBag, badgeKey: 'claims' as const },
