@@ -14,6 +14,7 @@ const categoryIcons = {
   merch: ShoppingBag,
   gift_cards: CreditCard,
   wellness: Heart,
+  opportunity: Trophy,
 };
 
 const categoryLabels = {
@@ -22,6 +23,7 @@ const categoryLabels = {
   merch: 'Merch',
   gift_cards: 'Gift Cards',
   wellness: 'Wellness & Health',
+  opportunity: 'Opportunity',
 };
 
 interface RewardFiltersProps {

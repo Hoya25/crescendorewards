@@ -30,6 +30,7 @@ const categoryLabels: Record<string, string> = {
   merch: 'Merch',
   gift_cards: 'Gift Cards',
   wellness: 'Wellness & Health',
+  opportunity: 'Opportunity',
 };
 
 export function WishlistPage({ claimBalance }: WishlistPageProps) {

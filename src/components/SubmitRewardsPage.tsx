@@ -481,6 +481,7 @@ export function SubmitRewardsPage() {
                           <SelectItem value="travel">Travel</SelectItem>
                           <SelectItem value="food">Food & Dining</SelectItem>
                           <SelectItem value="wellness">Wellness</SelectItem>
+                          <SelectItem value="opportunity">Opportunity</SelectItem>
                           <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                       </Select>

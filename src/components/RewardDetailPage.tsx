@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, ShoppingBag, Star, Package, Zap, CheckCircle2, AlertTriangle, Coins, CreditCard, Sparkles, Gift, Clock, Lock, Share2, Twitter, Facebook, Linkedin, Link2, Check, Heart } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Star, Package, Zap, CheckCircle2, AlertTriangle, Coins, CreditCard, Sparkles, Gift, Clock, Lock, Share2, Twitter, Facebook, Linkedin, Link2, Check, Heart, Trophy } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
@@ -41,6 +41,7 @@ const categoryIcons: Record<string, any> = {
   experiences: Sparkles,
   merch: ShoppingBag,
   gift_cards: CreditCard,
+  opportunity: Trophy,
 };
 
 const categoryLabels: Record<string, string> = {
@@ -48,6 +49,7 @@ const categoryLabels: Record<string, string> = {
   experiences: 'Experiences',
   merch: 'Merch',
   gift_cards: 'Gift Cards',
+  opportunity: 'Opportunity',
 };
 
 export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {

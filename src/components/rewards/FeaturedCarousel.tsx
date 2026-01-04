@@ -11,7 +11,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   Gift, Sparkles, ShoppingBag, CreditCard, Coins, Star, 
   Flame, AlertTriangle, Package, Zap, Heart, Play, Pause,
-  ChevronLeft, ChevronRight, ArrowLeft
+  ChevronLeft, ChevronRight, ArrowLeft, Trophy
 } from 'lucide-react';
 
 export interface FeaturedReward {
@@ -34,6 +34,7 @@ const categoryIcons = {
   merch: ShoppingBag,
   gift_cards: CreditCard,
   wellness: Heart,
+  opportunity: Trophy,
 };
 
 const categoryLabels: Record<string, string> = {
@@ -42,6 +43,7 @@ const categoryLabels: Record<string, string> = {
   merch: 'Merch',
   gift_cards: 'Gift Cards',
   wellness: 'Wellness & Health',
+  opportunity: 'Opportunity',
 };
 
 interface FeaturedCarouselProps {

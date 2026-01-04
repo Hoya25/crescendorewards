@@ -56,6 +56,7 @@ const CATEGORIES = [
   { value: 'gaming', label: 'Gaming' },
   { value: 'entertainment', label: 'Entertainment' },
   { value: 'crypto', label: 'Crypto' },
+  { value: 'opportunity', label: 'Opportunity' },
 ];
 
 const STATUS_FILTERS = [
