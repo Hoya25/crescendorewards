@@ -204,6 +204,8 @@ export function LandingPage() {
                   src={brand.logo}
                   alt={brand.name}
                   className="h-6 md:h-10 w-auto object-contain"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             ))}
