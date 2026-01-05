@@ -44,6 +44,7 @@ interface Brand {
   is_featured: boolean;
   created_at: string;
   image_url: string | null;
+  earn_opportunities: unknown | null;
 }
 
 const categories = [
@@ -189,14 +190,41 @@ export function BrandPartnersPage() {
               <Store className="w-8 h-8 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold">Alliance Brand Partners</h1>
-              <p className="text-muted-foreground">Brands that honor your Crescendo Status Benefits</p>
+              <h1 className="text-3xl font-bold">Crescendo Brands</h1>
+              <p className="text-muted-foreground">Brands with exclusive rewards and custom earning opportunities on Crescendo</p>
             </div>
           </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8 space-y-8">
+        {/* The Garden CTA */}
+        <Card className="bg-gradient-to-r from-emerald-500 to-teal-600 border-0 overflow-hidden">
+          <CardContent className="p-8">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="w-20 h-20 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0">
+                <ShoppingBag className="w-10 h-10 text-white" />
+              </div>
+              <div className="flex-1 text-center md:text-left">
+                <h2 className="text-2xl font-bold text-white mb-2">Earn NCTR on Everyday Purchases</h2>
+                <p className="text-white/90 mb-4">
+                  Connect your spending to The Garden and earn NCTR automatically from hundreds of brands.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center gap-3">
+                  <Button 
+                    className="bg-white text-emerald-600 hover:bg-white/90 gap-2"
+                    onClick={() => window.open('https://thegarden.nctr.live/', '_blank')}
+                  >
+                    Visit The Garden
+                    <ExternalLink className="w-4 h-4" />
+                  </Button>
+                  <span className="text-white/70 text-sm">External site • Powered by NCTR Alliance</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* How Shop & Earn Works */}
         <Card className="bg-primary/5">
           <CardContent className="p-6">
@@ -407,10 +435,10 @@ export function BrandPartnersPage() {
           </CardContent>
         </Card>
 
-        {/* All Partners Grid */}
+        {/* Crescendo Brand Partners Grid */}
         <div>
           <h2 className="text-2xl font-bold mb-4">
-            {activeCategory === 'all' ? 'All Partners' : categories.find(c => c.id === activeCategory)?.label}
+            {activeCategory === 'all' ? 'Crescendo Brand Partners' : categories.find(c => c.id === activeCategory)?.label}
           </h2>
           
           {loading ? (
@@ -446,7 +474,12 @@ export function BrandPartnersPage() {
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-2xl font-bold mb-1">{brand.name}</h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-2xl font-bold">{brand.name}</h3>
+                          {brand.earn_opportunities && Array.isArray(brand.earn_opportunities) && brand.earn_opportunities.length > 0 && (
+                            <Badge className="bg-emerald-500 text-white">Bonus Earn Rate</Badge>
+                          )}
+                        </div>
                       </div>
                     </div>
                     
