@@ -4,11 +4,12 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, ExternalLink, Loader2, Sparkles } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Loader2, Sparkles, Gift } from 'lucide-react';
 import { toast } from 'sonner';
 import { getMembershipTierByNCTR } from '@/utils/membershipLevels';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { NCTRLogo } from '@/components/NCTRLogo';
+import { RewardCard, RewardCardData } from '@/components/rewards/RewardCard';
 
 interface EarnOpportunity {
   title: string;
@@ -42,10 +43,14 @@ export function BrandDetailPage() {
   const navigate = useNavigate();
   const { profile } = useAuthContext();
   const [brand, setBrand] = useState<Brand | null>(null);
+  const [rewards, setRewards] = useState<RewardCardData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [wishlist, setWishlist] = useState<Set<string>>(new Set());
+  const [animatingHeartId, setAnimatingHeartId] = useState<string | null>(null);
 
   const membershipTier = getMembershipTierByNCTR(profile?.locked_nctr || 0);
   const multiplier = membershipTier.multiplier;
+  const claimBalance = profile?.claim_balance || 0;
 
   const calculateMultipliedRate = (baseRate: number) => {
     return (baseRate * multiplier).toFixed(2);
@@ -53,27 +58,78 @@ export function BrandDetailPage() {
 
   useEffect(() => {
     if (brandId) {
-      loadBrand();
+      loadBrandAndRewards();
+      loadWishlist();
     }
   }, [brandId]);
 
-  const loadBrand = async () => {
+  const loadBrandAndRewards = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('brands')
-        .select('*')
-        .eq('id', brandId)
-        .single();
+      
+      // Fetch brand and rewards in parallel
+      const [brandResult, rewardsResult] = await Promise.all([
+        supabase
+          .from('brands')
+          .select('*')
+          .eq('id', brandId)
+          .single(),
+        supabase
+          .from('rewards')
+          .select('*')
+          .eq('brand_id', brandId)
+          .eq('is_active', true)
+      ]);
 
-      if (error) throw error;
-      setBrand({ ...data, earn_opportunities: (data.earn_opportunities as any) || [] });
+      if (brandResult.error) throw brandResult.error;
+      setBrand({ ...brandResult.data, earn_opportunities: (brandResult.data.earn_opportunities as any) || [] });
+      
+      if (rewardsResult.data) {
+        setRewards(rewardsResult.data.map(r => ({ ...r, brand_name: brandResult.data.name })));
+      }
     } catch (error: any) {
       console.error('Error loading brand:', error);
       toast.error('Failed to load brand details');
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadWishlist = async () => {
+    if (!profile) return;
+    const { data } = await supabase
+      .from('reward_wishlists')
+      .select('reward_id')
+      .eq('user_id', profile.id);
+    if (data) {
+      setWishlist(new Set(data.map(w => w.reward_id)));
+    }
+  };
+
+  const handleToggleWishlist = async (rewardId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!profile) {
+      toast.error('Please sign in to add to wishlist');
+      return;
+    }
+
+    setAnimatingHeartId(rewardId);
+    setTimeout(() => setAnimatingHeartId(null), 300);
+
+    if (wishlist.has(rewardId)) {
+      await supabase.from('reward_wishlists').delete().eq('reward_id', rewardId).eq('user_id', profile.id);
+      setWishlist(prev => { const n = new Set(prev); n.delete(rewardId); return n; });
+      toast.success('Removed from wishlist');
+    } else {
+      await supabase.from('reward_wishlists').insert({ reward_id: rewardId, user_id: profile.id });
+      setWishlist(prev => new Set(prev).add(rewardId));
+      toast.success('Added to wishlist');
+    }
+  };
+
+  const handleImageZoom = (imageUrl: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.open(imageUrl, '_blank');
   };
 
   const handleOpenLink = (link: string, title: string) => {
@@ -176,16 +232,42 @@ export function BrandDetailPage() {
           </CardContent>
         </Card>
 
-        {/* Earn Opportunities */}
+        {/* Rewards from Brand */}
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-4">Earn Opportunities</h2>
-          {opportunities.length === 0 ? (
+          <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+            <Gift className="w-6 h-6 text-primary" />
+            Rewards from {brand.name}
+          </h2>
+          {rewards.length === 0 ? (
             <Card>
-              <CardContent className="pt-6 text-center text-muted-foreground">
-                No earn opportunities available yet. Check back soon!
+              <CardContent className="py-12 text-center">
+                <Gift className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
+                <p className="text-muted-foreground font-medium">No rewards currently available from this brand</p>
+                <p className="text-sm text-muted-foreground mt-1">Check back soon for exclusive offers</p>
               </CardContent>
             </Card>
           ) : (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {rewards.map((reward) => (
+                <RewardCard
+                  key={reward.id}
+                  reward={reward}
+                  isInWishlist={wishlist.has(reward.id)}
+                  onToggleWishlist={handleToggleWishlist}
+                  onImageZoom={handleImageZoom}
+                  onClick={() => navigate(`/rewards/${reward.id}`)}
+                  isAnimatingHeart={animatingHeartId === reward.id}
+                  claimBalance={claimBalance}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Earn Opportunities */}
+        {opportunities.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold mb-4">Earn Opportunities</h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {opportunities.map((opportunity, index) => (
                 <Card key={index} className="hover:shadow-lg transition-shadow">
@@ -205,8 +287,8 @@ export function BrandDetailPage() {
                 </Card>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
