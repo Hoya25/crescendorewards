@@ -448,6 +448,7 @@ export type Database = {
       }
       rewards: {
         Row: {
+          brand_id: string | null
           category: string
           cost: number
           created_at: string
@@ -466,6 +467,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          brand_id?: string | null
           category: string
           cost: number
           created_at?: string
@@ -484,6 +486,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          brand_id?: string | null
           category?: string
           cost?: number
           created_at?: string
@@ -501,7 +504,15 @@ export type Database = {
           token_symbol?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "rewards_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rewards_claims: {
         Row: {

@@ -38,6 +38,8 @@ interface Reward {
   token_name?: string | null;
   token_symbol?: string | null;
   minimum_token_balance?: number;
+  brand_id?: string | null;
+  brand_name?: string | null;
 }
 
 interface RewardsPoolProps {
@@ -220,12 +222,20 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       setLoading(true);
       const { data, error } = await supabase
         .from('rewards')
-        .select('*')
+        .select('*, brands:brand_id(name)')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setRewards(data as Reward[] || []);
+      
+      // Map brand name to rewards
+      const rewardsWithBrandName = (data || []).map((reward: any) => ({
+        ...reward,
+        brand_name: reward.brands?.name || null,
+        brands: undefined, // Clean up the nested object
+      }));
+      
+      setRewards(rewardsWithBrandName as Reward[]);
     } catch (error) {
       console.error('Error loading rewards:', error);
       toast({
