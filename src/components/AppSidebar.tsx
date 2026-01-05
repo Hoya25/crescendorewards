@@ -1,4 +1,4 @@
-import { Store, LayoutDashboard, Gift, Trophy, Crown, User, Heart, FileCheck, Receipt, BarChart3, Settings, UtensilsCrossed, Coins, Shield } from 'lucide-react';
+import { Store, LayoutDashboard, Gift, Trophy, Crown, User, Heart, FileCheck, Receipt, BarChart3, Settings, UtensilsCrossed, Coins, Shield, ShoppingBag, ExternalLink } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
 
@@ -141,6 +141,21 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              {/* The Garden - External Link */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => window.open('https://thegarden.nctr.live/', '_blank')}
+                  className="cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 group"
+                >
+                  <ShoppingBag className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  {open && (
+                    <span className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+                      The Garden
+                      <ExternalLink className="h-3 w-3 opacity-50 group-hover:opacity-100 transition-opacity" />
+                    </span>
+                  )}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
