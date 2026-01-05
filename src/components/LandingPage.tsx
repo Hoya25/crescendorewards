@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
@@ -7,10 +8,43 @@ import { CrescendoLogo } from "./CrescendoLogo";
 import { ImageWithFallback } from "./ImageWithFallback";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+
+interface FeaturedBrand {
+  id: string;
+  name: string;
+  image_url: string | null;
+  logo_emoji: string;
+  logo_color: string;
+}
 
 export function LandingPage() {
   const navigate = useNavigate();
   const { setShowAuthModal, setAuthMode } = useAuthContext();
+  const [featuredBrands, setFeaturedBrands] = useState<FeaturedBrand[]>([]);
+  const [brandsLoading, setBrandsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeaturedBrands = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('brands')
+          .select('id, name, image_url, logo_emoji, logo_color')
+          .eq('is_featured', true)
+          .eq('is_active', true)
+          .order('name', { ascending: true });
+
+        if (error) throw error;
+        setFeaturedBrands(data || []);
+      } catch (error) {
+        console.error('Error fetching featured brands:', error);
+      } finally {
+        setBrandsLoading(false);
+      }
+    };
+
+    fetchFeaturedBrands();
+  }, []);
 
   const handleJoin = () => {
     setAuthMode('signup');
@@ -177,41 +211,38 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Brand Partners Section */}
-      <section className="py-12 md:py-20 px-4 md:px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-8 md:mb-12">
-            <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">Brand Partners</h2>
-            <p className="text-base md:text-lg text-neutral-600 max-w-2xl mx-auto">
-              Earn NCTR from purchases at our exclusive brand partners
-            </p>
+      {/* Brand Partners Section - Only show if featured brands exist */}
+      {!brandsLoading && featuredBrands.length > 0 && (
+        <section className="py-12 md:py-20 px-4 md:px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-8 md:mb-12">
+              <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">Trusted By Leading Brands</h2>
+            </div>
+            <div className="grid grid-cols-3 md:grid-cols-5 gap-4 md:gap-8">
+              {featuredBrands.map((brand) => (
+                <div key={brand.id} className="flex items-center justify-center p-2 md:p-4 grayscale hover:grayscale-0 transition-all">
+                  {brand.image_url ? (
+                    <ImageWithFallback
+                      src={brand.image_url}
+                      alt={brand.name}
+                      className="h-6 md:h-10 w-auto object-contain"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <div 
+                      className="w-12 h-12 md:w-16 md:h-16 rounded-xl flex items-center justify-center text-2xl md:text-3xl"
+                      style={{ backgroundColor: brand.logo_color }}
+                    >
+                      {brand.logo_emoji}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="grid grid-cols-3 md:grid-cols-5 gap-4 md:gap-8">
-            {[
-              { name: 'Nike', logo: '/brands/nike-logo.png' },
-              { name: 'Spotify', logo: '/brands/spotify-logo.png' },
-              { name: 'Sephora', logo: '/brands/sephora-logo.png' },
-              { name: 'Whole Foods', logo: '/brands/wholefoods-logo.png' },
-              { name: 'Chipotle', logo: '/brands/chipotle-logo.png' },
-              { name: 'Delta', logo: '/brands/delta-logo.png' },
-              { name: 'Apple', logo: '/brands/apple-logo.png' },
-              { name: 'AMC', logo: '/brands/amc-logo.png' },
-              { name: 'Urban Outfitters', logo: '/brands/urbanoutfitters-logo.png' },
-              { name: 'Kroma', logo: '/brands/kroma-logo.png' },
-            ].map((brand) => (
-              <div key={brand.name} className="flex items-center justify-center p-2 md:p-4 grayscale hover:grayscale-0 transition-all">
-                <ImageWithFallback
-                  src={brand.logo}
-                  alt={brand.name}
-                  className="h-6 md:h-10 w-auto object-contain"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* CTA Section */}
       <section className="py-12 md:py-20 px-4 md:px-6 bg-gradient-to-r from-violet-600 to-indigo-600">
