@@ -2,7 +2,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
-import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Award, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt, Crown, BarChart3, UtensilsCrossed, Heart } from "lucide-react";
+import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Award, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt, Crown, BarChart3, UtensilsCrossed, Heart, ShoppingBag, ExternalLink } from "lucide-react";
 import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
 import { ThemeToggle } from "./ThemeToggle";
@@ -306,7 +306,7 @@ export function Dashboard() {
               </Card>
 
               {/* Quick Actions */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <Card 
                   className="cursor-pointer hover:border-violet-300 transition-colors"
                   onClick={() => navigate('/rewards')}
@@ -328,13 +328,24 @@ export function Dashboard() {
                   </CardContent>
                 </Card>
                 <Card 
+                  className="cursor-pointer hover:border-emerald-300 transition-colors group"
+                  onClick={() => window.open('https://thegarden.nctr.live/', '_blank')}
+                >
+                  <CardContent className="p-4 text-center relative">
+                    <ExternalLink className="w-3 h-3 absolute top-2 right-2 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <ShoppingBag className="w-8 h-8 mx-auto mb-2 text-emerald-600" />
+                    <h3 className="font-medium">The Garden</h3>
+                    <p className="text-sm text-muted-foreground">Earn from purchases</p>
+                  </CardContent>
+                </Card>
+                <Card 
                   className="cursor-pointer hover:border-blue-300 transition-colors"
                   onClick={() => navigate('/brands')}
                 >
                   <CardContent className="p-4 text-center">
                     <Store className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-                    <h3 className="font-medium">Brand Partners</h3>
-                    <p className="text-sm text-muted-foreground">Shop & earn</p>
+                    <h3 className="font-medium">Crescendo Brands</h3>
+                    <p className="text-sm text-muted-foreground">Exclusive rewards</p>
                   </CardContent>
                 </Card>
                 <Card 
