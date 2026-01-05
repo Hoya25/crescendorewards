@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, ShoppingBag, Star, Package, Zap, CheckCircle2, AlertTriangle, Coins, CreditCard, Sparkles, Gift, Clock, Lock, Share2, Twitter, Facebook, Linkedin, Link2, Check, Heart, Trophy } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Star, Package, Zap, CheckCircle2, AlertTriangle, Coins, CreditCard, Sparkles, Gift, Clock, Lock, Share2, Twitter, Facebook, Linkedin, Link2, Check, Heart, Trophy, Store, ExternalLink } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
@@ -30,6 +30,15 @@ interface Reward {
   token_symbol?: string | null;
   minimum_token_balance?: number;
   token_contract_address?: string | null;
+  brand_id?: string | null;
+}
+
+interface Brand {
+  id: string;
+  name: string;
+  image_url: string | null;
+  logo_emoji: string;
+  logo_color: string;
 }
 
 interface RewardDetailPageProps {
@@ -57,6 +66,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const { id: rewardId } = useParams<{ id: string }>();
   const { profile, refreshProfile, setShowAuthModal, setAuthMode } = useAuthContext();
   const [reward, setReward] = useState<Reward | null>(null);
+  const [brand, setBrand] = useState<Brand | null>(null);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
@@ -104,6 +114,18 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
 
       if (error) throw error;
       setReward(data);
+
+      // Fetch brand if reward has brand_id
+      if (data?.brand_id) {
+        const { data: brandData } = await supabase
+          .from('brands')
+          .select('id, name, image_url, logo_emoji, logo_color')
+          .eq('id', data.brand_id)
+          .single();
+        setBrand(brandData);
+      } else {
+        setBrand(null);
+      }
     } catch (error) {
       console.error('Error fetching reward:', error);
       toast({
@@ -328,8 +350,46 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                 )}
               </div>
               <h1 className="text-3xl font-bold mb-2">{reward.title}</h1>
+              {brand && (
+                <p className="text-sm text-muted-foreground mb-2">From {brand.name}</p>
+              )}
               <p className="text-muted-foreground">{reward.description}</p>
             </div>
+
+            {/* Brand Info Card */}
+            {brand && (
+              <Card className="bg-muted/30">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    {brand.image_url ? (
+                      <img 
+                        src={brand.image_url} 
+                        alt={brand.name} 
+                        className="w-12 h-12 rounded-lg object-contain bg-background p-1"
+                      />
+                    ) : (
+                      <div 
+                        className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl"
+                        style={{ backgroundColor: brand.logo_color }}
+                      >
+                        {brand.logo_emoji}
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <p className="font-medium">{brand.name}</p>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-sm text-primary"
+                        onClick={() => navigate(`/brands/${brand.id}`)}
+                      >
+                        View all rewards from {brand.name}
+                        <ExternalLink className="w-3 h-3 ml-1" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <Card>
               <CardContent className="p-4 space-y-4">

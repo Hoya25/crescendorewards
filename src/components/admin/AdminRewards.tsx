@@ -42,6 +42,12 @@ interface Reward {
   created_at: string;
   claim_count?: number;
   wishlist_count?: number;
+  brand_id?: string | null;
+}
+
+interface Brand {
+  id: string;
+  name: string;
 }
 
 type SortField = 'title' | 'cost' | 'stock_quantity' | 'claim_count' | 'wishlist_count' | 'created_at';
@@ -117,11 +123,24 @@ export function AdminRewards() {
     minimum_token_balance: 1,
     token_name: null as string | null,
     token_symbol: null as string | null,
+    brand_id: null as string | null,
   });
+
+  const [brands, setBrands] = useState<Brand[]>([]);
 
   useEffect(() => {
     loadRewards();
+    loadBrands();
   }, []);
+
+  const loadBrands = async () => {
+    const { data } = await supabase
+      .from('brands')
+      .select('id, name')
+      .eq('is_active', true)
+      .order('name');
+    setBrands(data || []);
+  };
 
   const loadRewards = async () => {
     try {
@@ -262,6 +281,7 @@ export function AdminRewards() {
         minimum_token_balance: reward.minimum_token_balance || 1,
         token_name: reward.token_name,
         token_symbol: reward.token_symbol,
+        brand_id: reward.brand_id || null,
       });
       setImagePreview(reward.image_url);
     } else {
@@ -280,6 +300,7 @@ export function AdminRewards() {
         minimum_token_balance: 1,
         token_name: null,
         token_symbol: null,
+        brand_id: null,
       });
       setImagePreview(null);
     }
@@ -303,6 +324,7 @@ export function AdminRewards() {
       minimum_token_balance: reward.minimum_token_balance || 1,
       token_name: reward.token_name,
       token_symbol: reward.token_symbol,
+      brand_id: reward.brand_id || null,
     });
     setImagePreview(reward.image_url);
     setImageFile(null);
@@ -989,6 +1011,19 @@ export function AdminRewards() {
             <div className="space-y-2">
               <Label>Stock Quantity (empty for unlimited)</Label>
               <Input type="number" value={formData.stock_quantity ?? ''} placeholder="Unlimited" onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value ? parseInt(e.target.value) : null })} />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Brand (optional)</Label>
+              <Select value={formData.brand_id || 'none'} onValueChange={(v) => setFormData({ ...formData, brand_id: v === 'none' ? null : v })}>
+                <SelectTrigger><SelectValue placeholder="No specific brand" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No specific brand</SelectItem>
+                  {brands.map(brand => (
+                    <SelectItem key={brand.id} value={brand.id}>{brand.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

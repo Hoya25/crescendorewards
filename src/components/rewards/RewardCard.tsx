@@ -23,6 +23,8 @@ export interface RewardCardData {
   token_name?: string | null;
   token_symbol?: string | null;
   minimum_token_balance?: number | null;
+  brand_id?: string | null;
+  brand_name?: string | null;
 }
 
 const categoryIcons = {
@@ -178,11 +180,13 @@ export function RewardCard({
         <div className="flex items-center gap-2">
           <Avatar className="w-8 h-8 border border-border">
             <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-              {reward.title.substring(0, 1)}
+              {reward.brand_name ? reward.brand_name.substring(0, 1) : reward.title.substring(0, 1)}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-muted-foreground truncate">by Partner Brand</p>
+            <p className="text-xs text-muted-foreground truncate">
+              {reward.brand_name ? `From ${reward.brand_name}` : 'by Partner Brand'}
+            </p>
           </div>
         </div>
 
