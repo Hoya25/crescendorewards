@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
-import { ArrowLeft, CheckCircle2, ExternalLink, Users, Share2, Calendar, Zap, Store, Trophy, Gift, Lock, Loader2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, ExternalLink, Users, Share2, Calendar, Zap, Store, Trophy, Gift, Lock, Loader2, ShoppingBag, CreditCard, BarChart3, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { NCTRLogo } from './NCTRLogo';
@@ -121,6 +121,68 @@ export function EarnNCTR() {
           </p>
         </div>
 
+        {/* The Garden Hero Card */}
+        <Card className="mb-8 overflow-hidden border-0 shadow-xl">
+          <div className="bg-gradient-to-r from-emerald-500 to-teal-500 p-8 md:p-10">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+                <ShoppingBag className="w-10 h-10 text-white" />
+              </div>
+              <div className="flex-1 text-center md:text-left">
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+                  Earn from Every Purchase
+                </h2>
+                <p className="text-white/90 text-lg mb-6 max-w-2xl">
+                  Connect your everyday spending to The Garden and automatically earn NCTR from hundreds of partner brands. No changing how you shop—just earning from what you already buy.
+                </p>
+                <div className="flex flex-col items-center md:items-start gap-2">
+                  <Button 
+                    size="lg"
+                    onClick={() => window.open('https://thegarden.nctr.live/', '_blank')}
+                    className="bg-white text-emerald-600 hover:bg-white/90 shadow-lg gap-2"
+                  >
+                    Start Earning with The Garden
+                    <ExternalLink className="w-4 h-4" />
+                  </Button>
+                  <p className="text-white/70 text-sm">
+                    External site • Powered by NCTR Alliance
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* How It Works Section */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-emerald-500" />
+              How The Garden Works
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { step: 1, title: 'Create your Garden account', icon: Users },
+                { step: 2, title: 'Connect your payment methods', icon: CreditCard },
+                { step: 3, title: 'Shop at partner brands as usual', icon: ShoppingBag },
+                { step: 4, title: 'Watch your NCTR balance grow', icon: BarChart3 },
+              ].map((item) => (
+                <div key={item.step} className="text-center p-4">
+                  <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-3">
+                    <item.icon className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <div className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
+                    Step {item.step}
+                  </div>
+                  <p className="text-sm font-medium">{item.title}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Quick Links */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           <Card 
@@ -150,6 +212,12 @@ export function EarnNCTR() {
               <p className="text-sm font-medium">Brands</p>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Other Earning Methods Header */}
+        <div className="mb-6">
+          <h2 className="text-xl font-bold mb-2">Other Ways to Earn</h2>
+          <p className="text-muted-foreground text-sm">Complete tasks and activities for bonus NCTR</p>
         </div>
 
         {/* Task Categories */}
