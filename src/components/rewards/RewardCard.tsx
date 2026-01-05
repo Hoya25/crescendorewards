@@ -78,6 +78,8 @@ export function RewardCard({
             src={reward.image_url}
             alt={reward.title}
             className="w-full h-full object-cover transition-transform group-hover:scale-105"
+            loading="lazy"
+            decoding="async"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
