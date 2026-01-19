@@ -1,11 +1,10 @@
-import { useState } from "react";
-import { Lock, Gift, Users } from "lucide-react";
+import { Search, Lock, Sparkles } from "lucide-react";
 import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { CrescendoLogo } from "./CrescendoLogo";
 
 interface WelcomeModalProps {
   isOpen: boolean;
@@ -14,97 +13,73 @@ interface WelcomeModalProps {
 
 const steps = [
   {
+    icon: Search,
+    title: "Browse",
+    description: "Explore rewards from the community",
+  },
+  {
     icon: Lock,
-    title: "Commit NCTR to Level Up",
-    description: "The more NCTR you commit to 360LOCK, the higher your status level and the better your rewards multiplier.",
+    title: "Lock",
+    description: "Commit NCTR to unlock access",
   },
   {
-    icon: Gift,
-    title: "Claim Exclusive Rewards",
-    description: "Use your claim passes to redeem member-curated rewards—from gift cards to VIP experiences.",
-  },
-  {
-    icon: Users,
-    title: "Refer Friends, Earn Together",
-    description: "Share your referral code and earn bonus NCTR when friends join.",
+    icon: Sparkles,
+    title: "Earn",
+    description: "Get rewards, opportunities, experiences",
   },
 ];
 
 export const WelcomeModal = ({ isOpen, onClose }: WelcomeModalProps) => {
-  const [currentStep, setCurrentStep] = useState(0);
-
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
   const handleComplete = () => {
-    setCurrentStep(0);
     onClose();
   };
-
-  const handleSkip = () => {
-    setCurrentStep(0);
-    onClose();
-  };
-
-  const currentStepData = steps[currentStep];
-  const IconComponent = currentStepData.icon;
-  const isLastStep = currentStep === steps.length - 1;
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && handleSkip()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md p-0 overflow-hidden">
         <div className="p-8 flex flex-col items-center text-center">
-          {/* Icon with gradient background */}
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center mb-6 shadow-lg">
-            <IconComponent className="w-10 h-10 text-white" />
+          {/* Logo */}
+          <div className="mb-6">
+            <CrescendoLogo />
           </div>
 
           {/* Title */}
-          <h2 className="text-2xl font-bold mb-3">{currentStepData.title}</h2>
+          <h2 className="text-2xl font-bold mb-2">Welcome to Crescendo</h2>
 
-          {/* Description */}
-          <p className="text-muted-foreground mb-8 leading-relaxed">
-            {currentStepData.description}
+          {/* Subtitle */}
+          <p className="text-muted-foreground mb-8">
+            The rewards marketplace built by members, owned by members
           </p>
 
-          {/* Step indicators */}
-          <div className="flex gap-2 mb-6">
-            {steps.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentStep(index)}
-                className={cn(
-                  "w-2.5 h-2.5 rounded-full transition-all duration-300",
-                  index === currentStep
-                    ? "bg-primary w-6"
-                    : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                )}
-                aria-label={`Go to step ${index + 1}`}
-              />
-            ))}
+          {/* Steps */}
+          <div className="w-full space-y-4 mb-8">
+            {steps.map((step, index) => {
+              const IconComponent = step.icon;
+              return (
+                <div
+                  key={index}
+                  className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 border border-border/50"
+                >
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <IconComponent className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-foreground">{step.title}</h3>
+                    <p className="text-sm text-muted-foreground">{step.description}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
-          {/* Buttons */}
-          <div className="flex flex-col gap-3 w-full">
-            {isLastStep ? (
-              <Button onClick={handleComplete} className="w-full">
-                Get Started
-              </Button>
-            ) : (
-              <Button onClick={handleNext} className="w-full">
-                Next
-              </Button>
-            )}
-            <button
-              onClick={handleSkip}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Skip
-            </button>
-          </div>
+          {/* Button */}
+          <Button 
+            onClick={handleComplete} 
+            className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white"
+            size="lg"
+          >
+            Start Exploring
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
