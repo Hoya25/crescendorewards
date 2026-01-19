@@ -9,6 +9,7 @@ export interface Profile {
   email: string | null;
   full_name: string | null;
   avatar_url: string | null;
+  bio: string | null;
   level: number;
   locked_nctr: number;
   available_nctr: number;

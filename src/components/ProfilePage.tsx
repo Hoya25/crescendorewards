@@ -1,17 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { NCTRLogo } from './NCTRLogo';
 import { toast } from '@/hooks/use-toast';
-import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift, X, Crown, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift, X, Crown, ChevronRight, FileText } from 'lucide-react';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { BuyClaims } from '@/components/BuyClaims';
@@ -24,12 +25,14 @@ import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { ProfilePageSkeleton } from '@/components/skeletons/ProfileSkeleton';
 import { NoWishlistItemsEmpty } from '@/components/EmptyState';
+import { ProfileCompletion } from '@/components/ProfileCompletion';
 
 export function ProfilePage() {
   const navigate = useNavigate();
   const { profile, signOut, refreshProfile } = useAuthContext();
   const { isAdmin } = useAdminRole();
   const [fullName, setFullName] = useState(profile?.full_name || '');
+  const [bio, setBio] = useState(profile?.bio || '');
   const [walletAddress, setWalletAddress] = useState(profile?.wallet_address || '');
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -39,6 +42,12 @@ export function ProfilePage() {
   const { balance: walletNCTRBalance, formattedBalance, isLoading: isLoadingBalance, contractAddress, refetch: refetchBalance } = useNCTRBalance();
   const [wishlistItems, setWishlistItems] = useState<any[]>([]);
   const [loadingWishlist, setLoadingWishlist] = useState(true);
+  
+  // Refs for scrolling to sections
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const bioInputRef = useRef<HTMLTextAreaElement>(null);
+  const walletSectionRef = useRef<HTMLDivElement>(null);
 
   // Load wishlist items - must be before early return
   useEffect(() => {
@@ -178,6 +187,7 @@ export function ProfilePage() {
         .from('profiles')
         .update({
           full_name: fullName,
+          bio: bio,
         })
         .eq('id', profile.id);
 
@@ -312,6 +322,22 @@ export function ProfilePage() {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Left Column - Avatar & Stats */}
           <div className="space-y-6">
+            {/* Profile Completion Card */}
+            <ProfileCompletion 
+              profile={profile}
+              onAvatarClick={() => avatarInputRef.current?.click()}
+              onNameClick={() => {
+                nameInputRef.current?.focus();
+                nameInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }}
+              onBioClick={() => {
+                bioInputRef.current?.focus();
+                bioInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }}
+              onWalletClick={() => {
+                walletSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }}
+            />
             {/* Avatar Card */}
             <Card>
               <CardHeader>
@@ -339,6 +365,7 @@ export function ProfilePage() {
                   </label>
                   <input
                     id="avatar-upload"
+                    ref={avatarInputRef}
                     type="file"
                     accept="image/*"
                     className="hidden"
@@ -659,6 +686,7 @@ export function ProfilePage() {
                   </Label>
                   <Input
                     id="fullName"
+                    ref={nameInputRef}
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
@@ -667,6 +695,25 @@ export function ProfilePage() {
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="bio" className="flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    Bio
+                  </Label>
+                  <Textarea
+                    id="bio"
+                    ref={bioInputRef}
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    placeholder="Tell us about yourself..."
+                    className="min-h-[100px] resize-none"
+                    maxLength={500}
+                  />
+                  <p className="text-xs text-muted-foreground text-right">
+                    {bio.length}/500 characters
+                  </p>
+                </div>
+
+                <div className="space-y-2" ref={walletSectionRef}>
                   <Label htmlFor="wallet" className="flex items-center gap-2">
                     <Wallet className="w-4 h-4" />
                     Base Wallet
