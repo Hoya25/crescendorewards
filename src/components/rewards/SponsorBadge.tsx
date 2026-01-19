@@ -1,6 +1,7 @@
 import { ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { isSponsorshipVisible, type SponsorshipData } from '@/lib/sponsorship-utils';
+import { useTheme } from 'next-themes';
 
 interface SponsorBadgeProps {
   sponsorData: SponsorshipData;
@@ -9,14 +10,35 @@ interface SponsorBadgeProps {
 }
 
 /**
+ * Gets the appropriate logo URL based on theme for NCTR Alliance
+ */
+function getThemedLogoUrl(logoUrl: string | null, theme: string | undefined): string | null {
+  if (!logoUrl) return null;
+  
+  // Handle NCTR Alliance theme-aware logos
+  if (logoUrl.includes('nctr-alliance')) {
+    return theme === 'dark' 
+      ? '/brands/nctr-alliance-yellow.png' 
+      : '/brands/nctr-alliance-grey.png';
+  }
+  
+  return logoUrl;
+}
+
+/**
  * Displays a subtle, premium "Sponsored by" badge for rewards
  * Only shows when sponsorship is active and within date range
  */
 export function SponsorBadge({ sponsorData, variant = 'card', className }: SponsorBadgeProps) {
+  const { theme, resolvedTheme } = useTheme();
+  const currentTheme = resolvedTheme || theme;
+  
   // Don't render if sponsorship shouldn't be visible
   if (!isSponsorshipVisible(sponsorData)) {
     return null;
   }
+
+  const logoUrl = getThemedLogoUrl(sponsorData.sponsor_logo, currentTheme);
 
   const content = (
     <div
@@ -30,9 +52,9 @@ export function SponsorBadge({ sponsorData, variant = 'card', className }: Spons
       )}
     >
       {/* Sponsor Logo */}
-      {sponsorData.sponsor_logo && (
+      {logoUrl && (
         <img
-          src={sponsorData.sponsor_logo}
+          src={logoUrl}
           alt={sponsorData.sponsor_name || 'Sponsor'}
           className={cn(
             'object-contain',
