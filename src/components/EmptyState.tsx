@@ -52,9 +52,9 @@ export function NoRewardsEmpty() {
     <EmptyState
       icon={Gift}
       title="No rewards available yet"
-      description="Check back soon for exclusive rewards, experiences, and merchandise from our brand partners."
-      actionLabel="Explore Brands"
-      actionHref="/brands"
+      description="Check back soon for exclusive rewards, experiences, and merchandise."
+      actionLabel="Explore Rewards"
+      actionHref="/rewards"
     />
   );
 }

@@ -27,18 +27,10 @@ const initialSteps: OnboardingStep[] = [
   },
   {
     id: "earn",
-    title: "Discover Earning",
-    description: "Learn how to earn NCTR",
+    title: "Start Earning",
+    description: "Earn NCTR through The Garden",
     icon: Coins,
     route: "/earn",
-    completed: false,
-  },
-  {
-    id: "brands",
-    title: "Meet Partners",
-    description: "Check out brand partners",
-    icon: Store,
-    route: "/brands",
     completed: false,
   },
   {
@@ -49,6 +41,15 @@ const initialSteps: OnboardingStep[] = [
     route: "/membership",
     completed: false,
   },
+  // HIDDEN FOR REWARDS-FOCUSED PHASE - TODO: Restore when re-enabling brand partnerships
+  // {
+  //   id: "brands",
+  //   title: "Meet Partners",
+  //   description: "Check out brand partners",
+  //   icon: Store,
+  //   route: "/brands",
+  //   completed: false,
+  // },
 ];
 
 export const OnboardingProgress = () => {

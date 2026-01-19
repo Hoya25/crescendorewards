@@ -22,15 +22,16 @@ interface AppSidebarProps {
 }
 
 const mainNavItems = [
-  { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Rewards', url: '/rewards', icon: Gift },
+  { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Membership', url: '/membership', icon: Trophy },
-  { title: 'Earn NCTR', url: '/earn', icon: Coins },
+  // Earn now links to The Garden - handled separately
 ];
 
+// HIDDEN FOR REWARDS-FOCUSED PHASE - TODO: Restore when re-enabling brand partnerships
 const browseItems = [
-  { title: 'Crescendo Brands', url: '/brands', icon: Store },
-  { title: 'Food & Beverage', url: '/food-beverage', icon: UtensilsCrossed },
+  // { title: 'Crescendo Brands', url: '/brands', icon: Store },
+  // { title: 'Food & Beverage', url: '/food-beverage', icon: UtensilsCrossed },
 ];
 
 const accountItems = [
@@ -116,32 +117,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Browse */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Browse</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {browseItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    onClick={() => handleNavigation(item.url)}
-                    className={cn(
-                      "cursor-pointer",
-                      isActive(item.url) 
-                        ? "bg-accent text-accent-foreground" 
-                        : "hover:bg-accent hover:text-accent-foreground"
-                    )}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {open && <span>{item.title}</span>}
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-              {/* The Garden - External Link */}
+              {/* The Garden - Primary Earn Method */}
               <SidebarMenuItem>
                 <SidebarMenuButton
                   onClick={() => window.open('https://thegarden.nctr.live/', '_blank')}
@@ -150,7 +126,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
                   <ShoppingBag className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                   {open && (
                     <span className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
-                      The Garden
+                      Earn NCTR
                       <ExternalLink className="h-3 w-3 opacity-50 group-hover:opacity-100 transition-opacity" />
                     </span>
                   )}
@@ -159,6 +135,34 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Browse - HIDDEN FOR REWARDS-FOCUSED PHASE */}
+        {/* TODO: Restore when re-enabling brand partnerships */}
+        {browseItems.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Browse</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {browseItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      onClick={() => handleNavigation(item.url)}
+                      className={cn(
+                        "cursor-pointer",
+                        isActive(item.url) 
+                          ? "bg-accent text-accent-foreground" 
+                          : "hover:bg-accent hover:text-accent-foreground"
+                      )}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {open && <span>{item.title}</span>}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {/* Account */}
         <SidebarGroup>
