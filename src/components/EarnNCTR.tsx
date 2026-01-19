@@ -208,107 +208,115 @@ export function EarnNCTR() {
               <p className="text-sm font-medium">Status</p>
             </CardContent>
           </Card>
-          <Card 
-            className="cursor-pointer hover:border-blue-300 transition-colors"
-            onClick={() => navigate('/brands')}
-          >
-            <CardContent className="p-4 text-center">
-              <Store className="w-6 h-6 mx-auto mb-2 text-blue-600" />
-              <p className="text-sm font-medium">Brands</p>
-            </CardContent>
-          </Card>
+          {/* HIDDEN FOR REWARDS-FOCUSED PHASE - TODO: Restore when re-enabling brand partnerships */}
+          {false && (
+            <Card 
+              className="cursor-pointer hover:border-blue-300 transition-colors"
+              onClick={() => navigate('/brands')}
+            >
+              <CardContent className="p-4 text-center">
+                <Store className="w-6 h-6 mx-auto mb-2 text-blue-600" />
+                <p className="text-sm font-medium">Brands</p>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
-        {/* Other Earning Methods Header */}
-        <div className="mb-6">
-          <h2 className="text-xl font-bold mb-2">Other Ways to Earn</h2>
-          <p className="text-muted-foreground text-sm">Complete tasks and activities for bonus NCTR</p>
-        </div>
+        {/* Other Earning Methods - HIDDEN FOR REWARDS-FOCUSED PHASE */}
+        {/* TODO: Restore when re-enabling other earn pathways */}
+        {false && (
+          <div className="mb-6">
+            <h2 className="text-xl font-bold mb-2">Other Ways to Earn</h2>
+            <p className="text-muted-foreground text-sm">Complete tasks and activities for bonus NCTR</p>
+          </div>
+        )}
 
-        {/* Task Categories */}
-        <div className="space-y-8">
-          {Object.entries(categoryConfig).map(([category, config]) => {
-            const categoryTasks = groupedTasks[category] || [];
-            if (categoryTasks.length === 0) return null;
-            
-            const CategoryIcon = config.icon;
-            
-            return (
-              <div key={category}>
-                <div className="flex items-center gap-2 mb-4">
-                  <CategoryIcon className={`w-5 h-5 text-${config.color}-600`} />
-                  <h2 className="text-xl font-bold">{config.title}</h2>
-                  <Badge variant="secondary" className="ml-auto">
-                    {categoryTasks.filter(t => t.is_completed).length}/{categoryTasks.length}
-                  </Badge>
-                </div>
-                
-                <div className="space-y-3">
-                  {categoryTasks.map((task) => {
-                    const TaskIcon = iconMap[task.icon] || Zap;
-                    
-                    return (
-                      <Card key={task.task_id} className={task.is_completed ? 'opacity-60' : ''}>
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-4">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                              task.is_completed 
-                                ? 'bg-green-100 dark:bg-green-900/30' 
-                                : 'bg-violet-100 dark:bg-violet-900/30'
-                            }`}>
-                              {task.is_completed ? (
-                                <CheckCircle2 className="w-5 h-5 text-green-600" />
-                              ) : (
-                                <TaskIcon className="w-5 h-5 text-violet-600" />
-                              )}
-                            </div>
-                            
-                            <div className="flex-1">
-                              <h3 className="font-medium">{task.title}</h3>
-                              <p className="text-sm text-muted-foreground">{task.description}</p>
-                            </div>
-                            
-                            <div className="flex items-center gap-3">
-                              <Badge variant="secondary" className="flex items-center gap-1">
-                                +{task.reward_amount} <NCTRLogo size="sm" />
-                              </Badge>
+        {/* Task Categories - HIDDEN FOR REWARDS-FOCUSED PHASE */}
+        {false && (
+          <div className="space-y-8">
+            {Object.entries(categoryConfig).map(([category, config]) => {
+              const categoryTasks = groupedTasks[category] || [];
+              if (categoryTasks.length === 0) return null;
+              
+              const CategoryIcon = config.icon;
+              
+              return (
+                <div key={category}>
+                  <div className="flex items-center gap-2 mb-4">
+                    <CategoryIcon className={`w-5 h-5 text-${config.color}-600`} />
+                    <h2 className="text-xl font-bold">{config.title}</h2>
+                    <Badge variant="secondary" className="ml-auto">
+                      {categoryTasks.filter(t => t.is_completed).length}/{categoryTasks.length}
+                    </Badge>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {categoryTasks.map((task) => {
+                      const TaskIcon = iconMap[task.icon] || Zap;
+                      
+                      return (
+                        <Card key={task.task_id} className={task.is_completed ? 'opacity-60' : ''}>
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-4">
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                task.is_completed 
+                                  ? 'bg-green-100 dark:bg-green-900/30' 
+                                  : 'bg-violet-100 dark:bg-violet-900/30'
+                              }`}>
+                                {task.is_completed ? (
+                                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                                ) : (
+                                  <TaskIcon className="w-5 h-5 text-violet-600" />
+                                )}
+                              </div>
                               
-                              {task.is_completed ? (
-                                <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                                  Completed
+                              <div className="flex-1">
+                                <h3 className="font-medium">{task.title}</h3>
+                                <p className="text-sm text-muted-foreground">{task.description}</p>
+                              </div>
+                              
+                              <div className="flex items-center gap-3">
+                                <Badge variant="secondary" className="flex items-center gap-1">
+                                  +{task.reward_amount} <NCTRLogo size="sm" />
                                 </Badge>
-                              ) : task.link ? (
-                                <Button 
-                                  size="sm"
-                                  onClick={() => window.open(task.link!, '_blank')}
-                                  className="gap-1"
-                                >
-                                  Go <ExternalLink className="w-3 h-3" />
-                                </Button>
-                              ) : (
-                                <Button 
-                                  size="sm"
-                                  onClick={() => completeTask(task.task_id, task.title, task.reward_amount)}
-                                  disabled={completingTask === task.task_id}
-                                >
-                                  {completingTask === task.task_id ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                  ) : (
-                                    'Complete'
-                                  )}
-                                </Button>
-                              )}
+                                
+                                {task.is_completed ? (
+                                  <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                                    Completed
+                                  </Badge>
+                                ) : task.link ? (
+                                  <Button 
+                                    size="sm"
+                                    onClick={() => window.open(task.link!, '_blank')}
+                                    className="gap-1"
+                                  >
+                                    Go <ExternalLink className="w-3 h-3" />
+                                  </Button>
+                                ) : (
+                                  <Button 
+                                    size="sm"
+                                    onClick={() => completeTask(task.task_id, task.title, task.reward_amount)}
+                                    disabled={completingTask === task.task_id}
+                                  >
+                                    {completingTask === task.task_id ? (
+                                      <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                      'Complete'
+                                    )}
+                                  </Button>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         {tasks.length === 0 && (
           <Card>

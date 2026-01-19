@@ -355,46 +355,41 @@ export function Dashboard() {
                   </CardContent>
                 </Card>
                 <Card 
-                  className="cursor-pointer hover:border-green-300 transition-colors"
-                  onClick={() => navigate('/earn')}
-                >
-                  <CardContent className="p-4 text-center">
-                    <Coins className="w-8 h-8 mx-auto mb-2 text-green-600" />
-                    <h3 className="font-medium">Earn NCTR</h3>
-                    <p className="text-sm text-muted-foreground">Complete tasks</p>
-                  </CardContent>
-                </Card>
-                <Card 
                   className="cursor-pointer hover:border-emerald-300 transition-colors group"
                   onClick={() => window.open('https://thegarden.nctr.live/', '_blank')}
                 >
                   <CardContent className="p-4 text-center relative">
                     <ExternalLink className="w-3 h-3 absolute top-2 right-2 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                     <ShoppingBag className="w-8 h-8 mx-auto mb-2 text-emerald-600" />
-                    <h3 className="font-medium">The Garden</h3>
-                    <p className="text-sm text-muted-foreground">Earn from purchases</p>
+                    <h3 className="font-medium">Earn NCTR</h3>
+                    <p className="text-sm text-muted-foreground">Via The Garden</p>
                   </CardContent>
                 </Card>
-                <Card 
-                  className="cursor-pointer hover:border-blue-300 transition-colors"
-                  onClick={() => navigate('/brands')}
-                >
-                  <CardContent className="p-4 text-center">
-                    <Store className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-                    <h3 className="font-medium">Crescendo Brands</h3>
-                    <p className="text-sm text-muted-foreground">Exclusive rewards</p>
-                  </CardContent>
-                </Card>
-                <Card 
-                  className="cursor-pointer hover:border-amber-300 transition-colors"
-                  onClick={() => navigate('/food-beverage')}
-                >
-                  <CardContent className="p-4 text-center">
-                    <UtensilsCrossed className="w-8 h-8 mx-auto mb-2 text-amber-600" />
-                    <h3 className="font-medium">Food & Beverage</h3>
-                    <p className="text-sm text-muted-foreground">Local rewards</p>
-                  </CardContent>
-                </Card>
+                {/* HIDDEN FOR REWARDS-FOCUSED PHASE - TODO: Restore when re-enabling brand partnerships */}
+                {false && (
+                  <>
+                    <Card 
+                      className="cursor-pointer hover:border-blue-300 transition-colors"
+                      onClick={() => navigate('/brands')}
+                    >
+                      <CardContent className="p-4 text-center">
+                        <Store className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+                        <h3 className="font-medium">Crescendo Brands</h3>
+                        <p className="text-sm text-muted-foreground">Exclusive rewards</p>
+                      </CardContent>
+                    </Card>
+                    <Card 
+                      className="cursor-pointer hover:border-amber-300 transition-colors"
+                      onClick={() => navigate('/food-beverage')}
+                    >
+                      <CardContent className="p-4 text-center">
+                        <UtensilsCrossed className="w-8 h-8 mx-auto mb-2 text-amber-600" />
+                        <h3 className="font-medium">Food & Beverage</h3>
+                        <p className="text-sm text-muted-foreground">Local rewards</p>
+                      </CardContent>
+                    </Card>
+                  </>
+                )}
               </div>
 
               {/* Claim Balance & Buy Claims */}

@@ -226,8 +226,9 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Brand Partners Section - Only show if featured brands exist */}
-      {!brandsLoading && featuredBrands.length > 0 && (
+      {/* Brand Partners Section - HIDDEN FOR REWARDS-FOCUSED PHASE */}
+      {/* TODO: Restore when re-enabling brand partnerships */}
+      {false && !brandsLoading && featuredBrands.length > 0 && (
         <section className="py-12 md:py-20 px-4 md:px-6">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-8 md:mb-12">
