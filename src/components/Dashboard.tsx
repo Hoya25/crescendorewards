@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
-import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Award, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt, Crown, BarChart3, UtensilsCrossed, Heart, ShoppingBag, ExternalLink } from "lucide-react";
+import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt, Crown, BarChart3, UtensilsCrossed, Heart, ShoppingBag, ExternalLink } from "lucide-react";
 import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
 import { ThemeToggle } from "./ThemeToggle";
@@ -112,9 +112,6 @@ export function Dashboard() {
     toast.info("Lock tokens modal coming soon!");
   };
 
-  const handleClaimNFT = () => {
-    toast.info("Claim NFT modal coming soon!");
-  };
 
   const handleLevelUp = () => {
     toast.info("Level up modal coming soon!");
@@ -265,25 +262,6 @@ export function Dashboard() {
           {/* Main Content */}
           <main className="flex-1 p-4 md:p-6">
             <div className="max-w-7xl mx-auto space-y-6">
-              {/* Status Access Pass Banner */}
-              {!userData.hasStatusAccessPass && (
-                <Card className="border-2 border-violet-200 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20">
-                  <CardContent className="p-4 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-violet-600 flex items-center justify-center">
-                        <Award className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-lg">Claim Your Status Access Pass</h3>
-                        <p className="text-sm text-muted-foreground">Mint your Status NFT on Base to unlock exclusive benefits</p>
-                      </div>
-                    </div>
-                    <Button onClick={handleClaimNFT} className="bg-violet-600 hover:bg-violet-700">
-                      Claim NFT <Sparkles className="ml-2 w-4 h-4" />
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
 
               {/* Membership Progress Card */}
               <Card className={`border-2 ${currentLevelStyle.border} dark:border-neutral-700`}>

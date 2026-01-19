@@ -108,7 +108,7 @@ export function LandingPage() {
             Unlock Exclusive Rewards
           </h1>
           <p className="text-base md:text-xl text-neutral-600 max-w-2xl mx-auto mb-6 md:mb-10 px-4 flex items-center justify-center gap-2 flex-wrap">
-            Commit <NCTRLogo size="lg" /> to 360LOCK, claim your status NFT on Base, and access crowdsourced digital rewards from Crescendo brands.
+            Commit <NCTRLogo size="lg" /> to 360LOCK, level up your membership, and access crowdsourced digital rewards from Crescendo brands.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button 
