@@ -7,6 +7,8 @@ import { ArrowLeft, Receipt, Calendar, Package } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
+import { Skeleton } from '@/components/ui/skeleton';
+import { NoTransactionsEmpty } from '@/components/EmptyState';
 
 interface Purchase {
   id: string;
@@ -17,6 +19,35 @@ interface Purchase {
   currency: string;
   status: string;
   created_at: string;
+}
+
+function PurchaseCardSkeleton() {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-6 w-20" />
+        </div>
+        <div className="flex items-center gap-2 mt-2">
+          <Skeleton className="h-4 w-4" />
+          <Skeleton className="h-4 w-32" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-6 w-12" />
+          </div>
+          <div className="text-right space-y-1">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-6 w-16" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 export function PurchaseHistoryPage() {
@@ -54,14 +85,6 @@ export function PurchaseHistoryPage() {
     }).format(amount / 100);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-4xl mx-auto">
@@ -84,17 +107,16 @@ export function PurchaseHistoryPage() {
           </p>
         </div>
 
-        {purchases.length === 0 ? (
+        {loading ? (
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <PurchaseCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : purchases.length === 0 ? (
           <Card>
-            <CardContent className="p-8 text-center">
-              <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-lg font-medium mb-2">No Purchases Yet</h3>
-              <p className="text-muted-foreground mb-4">
-                You haven't purchased any claim packages yet.
-              </p>
-              <Button onClick={() => navigate('/dashboard')}>
-                Browse Packages
-              </Button>
+            <CardContent className="p-0">
+              <NoTransactionsEmpty />
             </CardContent>
           </Card>
         ) : (

@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "sonner";
+import { DashboardSkeleton } from "./skeletons/DashboardSkeleton";
 
 const WELCOME_SEEN_KEY = "crescendo_welcome_seen";
 
@@ -42,7 +43,20 @@ export function Dashboard() {
     setShowWelcomeModal(false);
   };
 
-  if (!profile) return null;
+  if (!profile) {
+    return (
+      <SidebarProvider>
+        <div className="min-h-screen w-full flex bg-neutral-50 dark:bg-neutral-950">
+          <AppSidebar onNavigate={() => navigate('/brands')} />
+          <div className="flex-1 p-4 md:p-6">
+            <div className="max-w-7xl mx-auto">
+              <DashboardSkeleton />
+            </div>
+          </div>
+        </div>
+      </SidebarProvider>
+    );
+  }
 
   // Calculate tier based on locked NCTR (360LOCK)
   const currentTier = getMembershipTierByNCTR(profile.locked_nctr);
