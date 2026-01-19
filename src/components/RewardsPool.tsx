@@ -20,6 +20,7 @@ import { RewardFilters } from '@/components/rewards/RewardFilters';
 import { FeaturedCarousel } from '@/components/rewards/FeaturedCarousel';
 import { CrescendoLogo } from '@/components/CrescendoLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { SEO } from '@/components/SEO';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useAdminRole } from '@/hooks/useAdminRole';
 
@@ -448,6 +449,10 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80 pb-20 w-full max-w-[100vw] overflow-x-hidden">
+      <SEO 
+        title="Rewards Marketplace"
+        description="Browse and claim exclusive rewards including experiences, merchandise, gift cards, and more. Member-built, member-owned."
+      />
       {/* Top Navigation Bar */}
       <nav className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b w-full">
         <div className="container mx-auto px-4 py-3 max-w-full">
