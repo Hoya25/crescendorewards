@@ -15,10 +15,12 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
+import { SponsorshipEditor } from '@/components/admin/SponsorshipEditor';
+import { getSponsorshipStatus, formatSponsorshipStatus, type SponsorshipData } from '@/lib/sponsorship-utils';
 import { 
   Plus, Pencil, Trash2, Upload, X, Image as ImageIcon, Lock, 
   MoreHorizontal, Copy, ExternalLink, Gift, ChevronUp, ChevronDown,
-  Minus, Search, Star, AlertTriangle, Heart, ShoppingCart, Package
+  Minus, Search, Star, AlertTriangle, Heart, ShoppingCart, Package, Megaphone
 } from 'lucide-react';
 import { validateImageFile } from '@/lib/image-validation';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
@@ -43,6 +45,13 @@ interface Reward {
   claim_count?: number;
   wishlist_count?: number;
   brand_id?: string | null;
+  // Sponsorship fields
+  sponsor_enabled: boolean;
+  sponsor_name: string | null;
+  sponsor_logo: string | null;
+  sponsor_link: string | null;
+  sponsor_start_date: string | null;
+  sponsor_end_date: string | null;
 }
 
 interface Brand {
@@ -70,6 +79,7 @@ const STATUS_FILTERS = [
   { value: 'active', label: 'Active' },
   { value: 'inactive', label: 'Inactive' },
   { value: 'featured', label: 'Featured' },
+  { value: 'sponsored', label: 'Sponsored' },
   { value: 'low_stock', label: 'Low Stock (<5)' },
   { value: 'out_of_stock', label: 'Out of Stock' },
 ];
@@ -124,6 +134,13 @@ export function AdminRewards() {
     token_name: null as string | null,
     token_symbol: null as string | null,
     brand_id: null as string | null,
+    // Sponsorship fields
+    sponsor_enabled: false,
+    sponsor_name: null as string | null,
+    sponsor_logo: null as string | null,
+    sponsor_link: null as string | null,
+    sponsor_start_date: null as string | null,
+    sponsor_end_date: null as string | null,
   });
 
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -218,6 +235,17 @@ export function AdminRewards() {
         case 'featured':
           if (!reward.is_featured) return false;
           break;
+        case 'sponsored':
+          const sponsorStatus = getSponsorshipStatus({
+            sponsor_enabled: reward.sponsor_enabled,
+            sponsor_name: reward.sponsor_name,
+            sponsor_logo: reward.sponsor_logo,
+            sponsor_link: reward.sponsor_link,
+            sponsor_start_date: reward.sponsor_start_date,
+            sponsor_end_date: reward.sponsor_end_date,
+          });
+          if (sponsorStatus === 'none') return false;
+          break;
         case 'low_stock':
           if (reward.stock_quantity === null || reward.stock_quantity >= 5) return false;
           break;
@@ -282,6 +310,12 @@ export function AdminRewards() {
         token_name: reward.token_name,
         token_symbol: reward.token_symbol,
         brand_id: reward.brand_id || null,
+        sponsor_enabled: reward.sponsor_enabled || false,
+        sponsor_name: reward.sponsor_name,
+        sponsor_logo: reward.sponsor_logo,
+        sponsor_link: reward.sponsor_link,
+        sponsor_start_date: reward.sponsor_start_date,
+        sponsor_end_date: reward.sponsor_end_date,
       });
       setImagePreview(reward.image_url);
     } else {
@@ -301,6 +335,12 @@ export function AdminRewards() {
         token_name: null,
         token_symbol: null,
         brand_id: null,
+        sponsor_enabled: false,
+        sponsor_name: null,
+        sponsor_logo: null,
+        sponsor_link: null,
+        sponsor_start_date: null,
+        sponsor_end_date: null,
       });
       setImagePreview(null);
     }
@@ -325,6 +365,12 @@ export function AdminRewards() {
       token_name: reward.token_name,
       token_symbol: reward.token_symbol,
       brand_id: reward.brand_id || null,
+      sponsor_enabled: false, // Don't duplicate sponsorship
+      sponsor_name: null,
+      sponsor_logo: null,
+      sponsor_link: null,
+      sponsor_start_date: null,
+      sponsor_end_date: null,
     });
     setImagePreview(reward.image_url);
     setImageFile(null);
@@ -759,6 +805,7 @@ export function AdminRewards() {
                   Wishlist <SortIcon field="wishlist_count" />
                 </TableHead>
                 <TableHead className="text-center">Featured</TableHead>
+                <TableHead className="text-center">Sponsor</TableHead>
                 <TableHead className="text-center">Active</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -782,7 +829,7 @@ export function AdminRewards() {
                 ))
               ) : filteredRewards.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="text-center py-12">
+                  <TableCell colSpan={12} className="text-center py-12">
                     <Package className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
                     <p className="font-medium">No rewards found</p>
                     <p className="text-sm text-muted-foreground mt-1">Try adjusting your filters or create a new reward</p>
@@ -886,6 +933,33 @@ export function AdminRewards() {
                           onCheckedChange={() => toggleFeatured(reward.id, reward.is_featured)}
                         />
                       </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {(() => {
+                        const sponsorStatus = getSponsorshipStatus({
+                          sponsor_enabled: reward.sponsor_enabled,
+                          sponsor_name: reward.sponsor_name,
+                          sponsor_logo: reward.sponsor_logo,
+                          sponsor_link: reward.sponsor_link,
+                          sponsor_start_date: reward.sponsor_start_date,
+                          sponsor_end_date: reward.sponsor_end_date,
+                        });
+                        if (sponsorStatus === 'none') {
+                          return <span className="text-muted-foreground text-xs">—</span>;
+                        }
+                        const display = formatSponsorshipStatus(sponsorStatus);
+                        return (
+                          <Badge variant={display.variant} className={cn("text-xs", display.className)}>
+                            {reward.sponsor_name ? (
+                              <span className="flex items-center gap-1">
+                                <Megaphone className="w-3 h-3" />
+                                {reward.sponsor_name.substring(0, 10)}
+                                {reward.sponsor_name.length > 10 && '...'}
+                              </span>
+                            ) : display.label}
+                          </Badge>
+                        );
+                      })()}
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="flex justify-center">
@@ -1073,6 +1147,19 @@ export function AdminRewards() {
                 </div>
               )}
             </div>
+
+            {/* Sponsorship */}
+            <SponsorshipEditor
+              formData={{
+                sponsor_enabled: formData.sponsor_enabled,
+                sponsor_name: formData.sponsor_name,
+                sponsor_logo: formData.sponsor_logo,
+                sponsor_link: formData.sponsor_link,
+                sponsor_start_date: formData.sponsor_start_date,
+                sponsor_end_date: formData.sponsor_end_date,
+              }}
+              onChange={(updates) => setFormData({ ...formData, ...updates })}
+            />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>

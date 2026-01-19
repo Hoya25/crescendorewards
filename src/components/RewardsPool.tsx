@@ -44,6 +44,13 @@ interface Reward {
   minimum_token_balance?: number;
   brand_id?: string | null;
   brand_name?: string | null;
+  // Sponsorship fields
+  sponsor_enabled?: boolean;
+  sponsor_name?: string | null;
+  sponsor_logo?: string | null;
+  sponsor_link?: string | null;
+  sponsor_start_date?: string | null;
+  sponsor_end_date?: string | null;
 }
 
 interface RewardsPoolProps {

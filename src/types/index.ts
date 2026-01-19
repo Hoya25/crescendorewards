@@ -40,6 +40,14 @@ export interface Reward {
   token_symbol: string | null;
   token_contract_address: string | null;
   minimum_token_balance: number | null;
+  brand_id: string | null;
+  // Sponsorship fields
+  sponsor_enabled: boolean;
+  sponsor_name: string | null;
+  sponsor_logo: string | null;
+  sponsor_link: string | null;
+  sponsor_start_date: string | null;
+  sponsor_end_date: string | null;
   created_at?: string;
   updated_at?: string;
 }

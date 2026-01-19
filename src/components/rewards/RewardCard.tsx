@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
+import { SponsorBadge } from '@/components/rewards/SponsorBadge';
 import { 
   Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, 
   Lock, AlertTriangle, Package, Flame, Clock, Heart, Pencil 
@@ -25,6 +26,13 @@ export interface RewardCardData {
   minimum_token_balance?: number | null;
   brand_id?: string | null;
   brand_name?: string | null;
+  // Sponsorship fields
+  sponsor_enabled?: boolean;
+  sponsor_name?: string | null;
+  sponsor_logo?: string | null;
+  sponsor_link?: string | null;
+  sponsor_start_date?: string | null;
+  sponsor_end_date?: string | null;
 }
 
 const categoryIcons = {
@@ -235,6 +243,23 @@ export function RewardCard({
           <Clock className="w-3 h-3" />
           <span>Delivery: Within 24 hours</span>
         </div>
+
+        {/* Sponsor Badge */}
+        {reward.sponsor_enabled && (
+          <div className="pt-2">
+            <SponsorBadge
+              sponsorData={{
+                sponsor_enabled: reward.sponsor_enabled,
+                sponsor_name: reward.sponsor_name || null,
+                sponsor_logo: reward.sponsor_logo || null,
+                sponsor_link: reward.sponsor_link || null,
+                sponsor_start_date: reward.sponsor_start_date || null,
+                sponsor_end_date: reward.sponsor_end_date || null,
+              }}
+              variant="card"
+            />
+          </div>
+        )}
       </CardContent>
     </Card>
   );

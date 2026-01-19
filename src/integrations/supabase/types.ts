@@ -458,6 +458,12 @@ export type Database = {
           is_active: boolean
           is_featured: boolean
           minimum_token_balance: number | null
+          sponsor_enabled: boolean
+          sponsor_end_date: string | null
+          sponsor_link: string | null
+          sponsor_logo: string | null
+          sponsor_name: string | null
+          sponsor_start_date: string | null
           stock_quantity: number | null
           title: string
           token_contract_address: string | null
@@ -477,6 +483,12 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           minimum_token_balance?: number | null
+          sponsor_enabled?: boolean
+          sponsor_end_date?: string | null
+          sponsor_link?: string | null
+          sponsor_logo?: string | null
+          sponsor_name?: string | null
+          sponsor_start_date?: string | null
           stock_quantity?: number | null
           title: string
           token_contract_address?: string | null
@@ -496,6 +508,12 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           minimum_token_balance?: number | null
+          sponsor_enabled?: boolean
+          sponsor_end_date?: string | null
+          sponsor_link?: string | null
+          sponsor_logo?: string | null
+          sponsor_name?: string | null
+          sponsor_start_date?: string | null
           stock_quantity?: number | null
           title?: string
           token_contract_address?: string | null
