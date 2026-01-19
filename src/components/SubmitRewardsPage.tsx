@@ -548,9 +548,15 @@ export function SubmitRewardsPage() {
                           {selectedImage ? 'Change Image' : 'Upload Image'}
                         </Button>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        Max file size: 5MB. Supported formats: JPG, PNG, WEBP
-                      </p>
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <p className="font-medium">Optimized Image Specs:</p>
+                        <ul className="list-disc list-inside space-y-0.5 text-muted-foreground/80">
+                          <li><span className="font-medium">Dimensions:</span> 800×600px or 4:3 aspect ratio</li>
+                          <li><span className="font-medium">Format:</span> PNG (transparent) or JPG</li>
+                          <li><span className="font-medium">Max size:</span> 5MB (under 1MB preferred)</li>
+                          <li><span className="font-medium">Background:</span> Clean, uncluttered preferred</li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -759,7 +765,7 @@ export function SubmitRewardsPage() {
                   <div className="flex gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
                     <p className="text-muted-foreground">
-                      Add high-quality images when possible
+                      Add high-quality images (800×600px, under 1MB)
                     </p>
                   </div>
                 </CardContent>
