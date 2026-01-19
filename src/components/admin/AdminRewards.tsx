@@ -435,6 +435,29 @@ export function AdminRewards() {
     }
   };
 
+  const toggleSponsorship = async (id: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('rewards')
+        .update({ sponsor_enabled: !currentStatus })
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      setRewards(prev => prev.map(r => r.id === id ? { ...r, sponsor_enabled: !currentStatus } : r));
+      toast({ 
+        title: !currentStatus ? 'Sponsorship Enabled' : 'Sponsorship Disabled',
+        description: `Sponsorship ${!currentStatus ? 'is now visible' : 'hidden from'} users`,
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update sponsorship status',
+        variant: 'destructive',
+      });
+    }
+  };
+
   // Stock adjustment
   const adjustStock = async (id: string, delta: number) => {
     const reward = rewards.find(r => r.id === id);
@@ -1053,31 +1076,66 @@ export function AdminRewards() {
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
-                      {(() => {
-                        const sponsorStatus = getSponsorshipStatus({
-                          sponsor_enabled: reward.sponsor_enabled,
-                          sponsor_name: reward.sponsor_name,
-                          sponsor_logo: reward.sponsor_logo,
-                          sponsor_link: reward.sponsor_link,
-                          sponsor_start_date: reward.sponsor_start_date,
-                          sponsor_end_date: reward.sponsor_end_date,
-                        });
-                        if (sponsorStatus === 'none') {
-                          return <span className="text-muted-foreground text-xs">—</span>;
-                        }
-                        const display = formatSponsorshipStatus(sponsorStatus);
-                        return (
-                          <Badge variant={display.variant} className={cn("text-xs", display.className)}>
-                            {reward.sponsor_name ? (
-                              <span className="flex items-center gap-1">
-                                <Megaphone className="w-3 h-3" />
-                                {reward.sponsor_name.substring(0, 10)}
-                                {reward.sponsor_name.length > 10 && '...'}
-                              </span>
-                            ) : display.label}
-                          </Badge>
-                        );
-                      })()}
+                      <div className="flex items-center justify-center gap-2">
+                        <Switch
+                          checked={reward.sponsor_enabled}
+                          onCheckedChange={() => toggleSponsorship(reward.id, reward.sponsor_enabled)}
+                          disabled={!reward.sponsor_name}
+                        />
+                        {reward.sponsor_enabled && reward.sponsor_name && (
+                          (() => {
+                            const sponsorStatus = getSponsorshipStatus({
+                              sponsor_enabled: reward.sponsor_enabled,
+                              sponsor_name: reward.sponsor_name,
+                              sponsor_logo: reward.sponsor_logo,
+                              sponsor_link: reward.sponsor_link,
+                              sponsor_start_date: reward.sponsor_start_date,
+                              sponsor_end_date: reward.sponsor_end_date,
+                            });
+                            const display = formatSponsorshipStatus(sponsorStatus);
+                            return (
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Badge 
+                                    variant={display.variant} 
+                                    className={cn("text-xs cursor-pointer", display.className)}
+                                  >
+                                    <Megaphone className="w-3 h-3 mr-1" />
+                                    {reward.sponsor_name.substring(0, 8)}
+                                    {reward.sponsor_name.length > 8 && '...'}
+                                  </Badge>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 p-3">
+                                  <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                      {reward.sponsor_logo && (
+                                        <img 
+                                          src={reward.sponsor_logo} 
+                                          alt={reward.sponsor_name} 
+                                          className="h-6 w-auto object-contain"
+                                        />
+                                      )}
+                                      <span className="font-medium">{reward.sponsor_name}</span>
+                                    </div>
+                                    <div className="text-xs text-muted-foreground space-y-1">
+                                      <div>Status: <Badge variant={display.variant} className={cn("text-xs ml-1", display.className)}>{display.label}</Badge></div>
+                                      {reward.sponsor_start_date && (
+                                        <div>Start: {new Date(reward.sponsor_start_date).toLocaleDateString()}</div>
+                                      )}
+                                      {reward.sponsor_end_date && (
+                                        <div>End: {new Date(reward.sponsor_end_date).toLocaleDateString()}</div>
+                                      )}
+                                      {reward.sponsor_link && (
+                                        <div className="truncate">Link: {reward.sponsor_link}</div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
+                            );
+                          })()
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="flex justify-center">
