@@ -10,6 +10,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { ReferralCard } from "./ReferralCard";
 import { BuyClaims } from "./BuyClaims";
 import { WelcomeModal } from "./WelcomeModal";
+import { OnboardingProgress } from "./OnboardingProgress";
 import { SEO } from "./SEO";
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress, getNCTRNeededForNextLevel } from '@/utils/membershipLevels';
 import { useTheme } from "./ThemeProvider";
@@ -459,6 +460,7 @@ export function Dashboard() {
         </div>
       </div>
       <WelcomeModal isOpen={showWelcomeModal} onClose={handleWelcomeClose} />
+      <OnboardingProgress />
     </SidebarProvider>
   );
 }
