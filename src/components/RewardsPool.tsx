@@ -502,15 +502,6 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                     Dashboard
                   </Button>
                 )}
-                <Button
-                  variant="ghost"
-                  onClick={() => navigate('/brands')}
-                  className="gap-2"
-                  size="sm"
-                >
-                  <Store className="w-4 h-4" />
-                  Brands
-                </Button>
                 {isAuthenticated && (
                   <Button
                     variant="ghost"
