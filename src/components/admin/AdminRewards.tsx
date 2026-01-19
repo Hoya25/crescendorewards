@@ -1225,6 +1225,7 @@ export function AdminRewards() {
                 >
                   <Upload className="w-8 h-8 text-muted-foreground" />
                   <p className="text-sm text-muted-foreground">Drag & drop or click to upload</p>
+                  <p className="text-xs text-muted-foreground/70">800×600px • PNG/JPG • Max 5MB</p>
                   <Input id="image-upload" type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
                 </div>
               )}
