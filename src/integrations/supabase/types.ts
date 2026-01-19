@@ -102,6 +102,7 @@ export type Database = {
         Row: {
           available_nctr: number
           avatar_url: string | null
+          bio: string | null
           claim_balance: number
           created_at: string
           email: string | null
@@ -119,6 +120,7 @@ export type Database = {
         Insert: {
           available_nctr?: number
           avatar_url?: string | null
+          bio?: string | null
           claim_balance?: number
           created_at?: string
           email?: string | null
@@ -136,6 +138,7 @@ export type Database = {
         Update: {
           available_nctr?: number
           avatar_url?: string | null
+          bio?: string | null
           claim_balance?: number
           created_at?: string
           email?: string | null
