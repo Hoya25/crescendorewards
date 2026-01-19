@@ -170,10 +170,6 @@ export function BrandPartnersPage() {
             </Button>
             
             <div className="flex items-center gap-2">
-              <Button variant="outline" className="gap-2">
-                <Store className="w-4 h-4" />
-                Brands
-              </Button>
               <Button variant="outline" className="gap-2" onClick={() => navigate('/membership')}>
                 <Trophy className="w-4 h-4" />
                 Status
