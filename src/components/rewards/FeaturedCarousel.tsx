@@ -240,18 +240,6 @@ export function FeaturedCarousel({
                     </div>
 
                     <CardContent className="p-6 space-y-4">
-                      {/* Brand Info */}
-                      <div className="flex items-center gap-3 mb-2">
-                        <Avatar className="w-10 h-10 border-2 border-primary/20">
-                          <AvatarFallback className="bg-primary/10 text-primary font-bold">
-                            {reward.title.substring(0, 1)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <p className="text-xs text-muted-foreground">Featured by</p>
-                          <p className="font-semibold text-sm">Partner Brand</p>
-                        </div>
-                      </div>
 
                       {/* Title & Description */}
                       <div className="space-y-2">

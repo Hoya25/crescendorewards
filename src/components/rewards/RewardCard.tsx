@@ -184,19 +184,6 @@ export function RewardCard({
       </div>
 
       <CardContent className="p-6 space-y-4">
-        {/* Brand Avatar */}
-        <div className="flex items-center gap-2">
-          <Avatar className="w-8 h-8 border border-border">
-            <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-              {reward.brand_name ? reward.brand_name.substring(0, 1) : reward.title.substring(0, 1)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-muted-foreground truncate">
-              {reward.brand_name ? `From ${reward.brand_name}` : 'by Partner Brand'}
-            </p>
-          </div>
-        </div>
 
         {/* Title & Description */}
         <div className="space-y-2">
