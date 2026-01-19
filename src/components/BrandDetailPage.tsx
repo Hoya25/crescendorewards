@@ -4,12 +4,14 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, ExternalLink, Loader2, Sparkles, Gift } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Sparkles, Gift } from 'lucide-react';
 import { toast } from 'sonner';
 import { getMembershipTierByNCTR } from '@/utils/membershipLevels';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { NCTRLogo } from '@/components/NCTRLogo';
 import { RewardCard, RewardCardData } from '@/components/rewards/RewardCard';
+import { DataErrorState } from '@/components/DataErrorState';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface EarnOpportunity {
   title: string;
@@ -45,6 +47,8 @@ export function BrandDetailPage() {
   const [brand, setBrand] = useState<Brand | null>(null);
   const [rewards, setRewards] = useState<RewardCardData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [retrying, setRetrying] = useState(false);
   const [wishlist, setWishlist] = useState<Set<string>>(new Set());
   const [animatingHeartId, setAnimatingHeartId] = useState<string | null>(null);
 
@@ -63,9 +67,11 @@ export function BrandDetailPage() {
     }
   }, [brandId]);
 
-  const loadBrandAndRewards = async () => {
+  const loadBrandAndRewards = async (isRetry = false) => {
     try {
+      if (isRetry) setRetrying(true);
       setLoading(true);
+      setError(null);
       
       // Fetch brand and rewards in parallel
       const [brandResult, rewardsResult] = await Promise.all([
@@ -87,13 +93,19 @@ export function BrandDetailPage() {
       if (rewardsResult.data) {
         setRewards(rewardsResult.data.map(r => ({ ...r, brand_name: brandResult.data.name })));
       }
-    } catch (error: any) {
-      console.error('Error loading brand:', error);
-      toast.error('Failed to load brand details');
+    } catch (err: any) {
+      console.error('Error loading brand:', err);
+      setError(err instanceof Error ? err : new Error('Failed to load brand'));
+      if (!isRetry) {
+        toast.error('Failed to load brand details');
+      }
     } finally {
       setLoading(false);
+      setRetrying(false);
     }
   };
+
+  const handleRetry = () => loadBrandAndRewards(true);
 
   const loadWishlist = async () => {
     if (!profile) return;
@@ -139,8 +151,39 @@ export function BrandDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-background p-6">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <Skeleton className="h-10 w-32" />
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-16 w-16 rounded-xl" />
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-48" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          </div>
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-48 w-full" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background p-6">
+        <div className="max-w-4xl mx-auto">
+          <Button variant="ghost" onClick={() => navigate('/brands')} className="mb-6">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Brands
+          </Button>
+          <DataErrorState
+            title="Failed to load brand"
+            message="We couldn't load the brand details. Please try again."
+            onRetry={handleRetry}
+            retrying={retrying}
+            variant="fullpage"
+          />
+        </div>
       </div>
     );
   }

@@ -24,6 +24,7 @@ import { SEO } from '@/components/SEO';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { RewardsGridSkeleton } from '@/components/skeletons/RewardCardSkeleton';
 import { NoRewardsEmpty } from '@/components/EmptyState';
+import { DataErrorState } from '@/components/DataErrorState';
 import { useAdminRole } from '@/hooks/useAdminRole';
 
 interface Reward {
@@ -72,6 +73,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const [featuredRewards, setFeaturedRewards] = useState<Reward[]>([]);
   const [filteredRewards, setFilteredRewards] = useState<Reward[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<Error | null>(null);
+  const [retrying, setRetrying] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('newest');
   const [priceFilter, setPriceFilter] = useState<string>('all');
@@ -220,9 +223,14 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     setFeaturedRewards(sortedFeatured);
   }, [activeCategory, rewards, sortBy, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, searchQuery]);
 
-  const loadRewards = async () => {
+  const loadRewards = async (isRetry = false) => {
     try {
+      if (isRetry) {
+        setRetrying(true);
+      }
       setLoading(true);
+      setLoadError(null);
+      
       const { data, error } = await supabase
         .from('rewards')
         .select('*, brands:brand_id(name)')
@@ -241,14 +249,22 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       setRewards(rewardsWithBrandName as Reward[]);
     } catch (error) {
       console.error('Error loading rewards:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load rewards',
-        variant: 'destructive',
-      });
+      setLoadError(error instanceof Error ? error : new Error('Failed to load rewards'));
+      if (!isRetry) {
+        toast({
+          title: 'Error',
+          description: 'Failed to load rewards',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
+      setRetrying(false);
     }
+  };
+
+  const handleRetryLoad = () => {
+    loadRewards(true);
   };
 
   const loadWishlist = async () => {
@@ -654,6 +670,13 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         
         {loading ? (
           <RewardsGridSkeleton count={6} />
+        ) : loadError ? (
+          <DataErrorState
+            title="Failed to load rewards"
+            message="We couldn't load the rewards. Please check your connection and try again."
+            onRetry={handleRetryLoad}
+            retrying={retrying}
+          />
         ) : filteredRewards.length === 0 ? (
           <NoRewardsEmpty />
         ) : (
