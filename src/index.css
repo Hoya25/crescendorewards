@@ -125,6 +125,28 @@ All colors MUST be HSL.
   opacity: 0.9;
 }
 
+/* Mobile form improvements */
+@media (max-width: 640px) {
+  input, textarea, select, button[type="submit"] {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+  }
+  
+  /* Full-width form elements on mobile */
+  .form-input-mobile {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* Safe area insets for modern devices */
+.safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-area-inset-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
 @layer base {
   * {
     @apply border-border;
