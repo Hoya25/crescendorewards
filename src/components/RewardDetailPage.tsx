@@ -7,7 +7,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, ShoppingBag, Star, Package, Zap, CheckCircle2, AlertTriangle, Coins, CreditCard, Sparkles, Gift, Clock, Lock, Share2, Twitter, Facebook, Linkedin, Link2, Check, Heart, Trophy, Store, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Star, Package, Zap, CheckCircle2, AlertTriangle, Coins, CreditCard, Sparkles, Gift, Clock, Lock, Share2, Twitter, Facebook, Linkedin, Link2, Check, Heart, Trophy, Store, ExternalLink, AlertCircle } from 'lucide-react';
+import { ConfirmationDialog } from '@/components/ConfirmationDialog';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { toast } from '@/hooks/use-toast';
@@ -89,6 +90,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const [addingToWishlist, setAddingToWishlist] = useState(false);
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
+  const [showConfirmClaim, setShowConfirmClaim] = useState(false);
 
   useEffect(() => {
     if (rewardId) {
@@ -673,14 +675,28 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
               <Button variant="outline" onClick={() => setShowClaimModal(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleClaim} disabled={claiming}>
-                {claiming ? 'Claiming...' : 'Confirm Claim'}
+              <Button onClick={() => setShowConfirmClaim(true)} disabled={claiming}>
+                Continue to Confirm
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
 
-        {/* Buy Claims Modal */}
+        {/* Confirm Claim Dialog */}
+        <ConfirmationDialog
+          isOpen={showConfirmClaim}
+          onClose={() => setShowConfirmClaim(false)}
+          onConfirm={() => {
+            setShowConfirmClaim(false);
+            handleClaim();
+          }}
+          title="Confirm Claim"
+          description={`This will use ${reward?.cost || 0} Claims from your balance. Your new balance will be ${(profile?.claim_balance || 0) - (reward?.cost || 0)} Claims. This action cannot be undone.`}
+          confirmText="Confirm Claim"
+          cancelText="Go Back"
+          icon={<AlertCircle className="w-5 h-5 text-primary" />}
+          isLoading={claiming}
+        />
         <Dialog open={showBuyClaimsModal} onOpenChange={setShowBuyClaimsModal}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>

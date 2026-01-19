@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Trophy, Zap, Gift, Tag, Check, Lock, Sparkles, Crown, TrendingUp, BarChart3, History } from 'lucide-react';
+import { ArrowLeft, Trophy, Zap, Gift, Tag, Check, Lock, Sparkles, Crown, TrendingUp, BarChart3, History, AlertCircle } from 'lucide-react';
+import { ConfirmationDialog } from '@/components/ConfirmationDialog';
 import { cn } from '@/lib/utils';
 import { 
   membershipTiers, 
@@ -26,6 +27,7 @@ export function MembershipLevelPage() {
   const navigate = useNavigate();
   const { profile } = useAuthContext();
   const [showLockDialog, setShowLockDialog] = useState(false);
+  const [showConfirmLock, setShowConfirmLock] = useState(false);
   const [selectedTier, setSelectedTier] = useState<typeof membershipTiers[0] | null>(null);
   const [lockAmount, setLockAmount] = useState('');
   const [processing, setProcessing] = useState(false);
@@ -372,13 +374,28 @@ export function MembershipLevelPage() {
             <Button variant="outline" onClick={() => setShowLockDialog(false)} disabled={processing}>
               Cancel
             </Button>
-            <Button onClick={handleLockNCTR} disabled={processing || !lockAmount}>
-              {processing ? 'Processing...' : `Lock ${lockAmount || '0'} NCTR`}
+            <Button onClick={() => setShowConfirmLock(true)} disabled={processing || !lockAmount}>
+              Continue
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
+      {/* Confirm Lock Dialog */}
+      <ConfirmationDialog
+        isOpen={showConfirmLock}
+        onClose={() => setShowConfirmLock(false)}
+        onConfirm={() => {
+          setShowConfirmLock(false);
+          handleLockNCTR();
+        }}
+        title="Confirm 360LOCK"
+        description={`You are about to lock ${lockAmount || '0'} NCTR for 360 days. During this period, your tokens will contribute to your membership level but cannot be withdrawn or transferred. This action cannot be undone.`}
+        confirmText={`Lock ${lockAmount || '0'} NCTR`}
+        cancelText="Go Back"
+        icon={<Lock className="w-5 h-5 text-primary" />}
+        isLoading={processing}
+      />
       {/* Celebration Modal */}
       {upgradedTier && (
         <TierUpgradeCelebration

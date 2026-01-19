@@ -14,8 +14,9 @@ import { toast } from 'sonner';
 import { 
   ArrowLeft, Upload, Send, Sparkles, Gift, Shirt, CreditCard, 
   Ticket, Trophy, Zap, Package, Star, CheckCircle2, Shield,
-  Info, TrendingUp, Lock, Users, Award
+  Info, TrendingUp, Lock, Users, Award, AlertCircle
 } from 'lucide-react';
+import { ConfirmationDialog } from '@/components/ConfirmationDialog';
 import { validateImageFile } from '@/lib/image-validation';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 import { NCTRLogo } from './NCTRLogo';
@@ -43,6 +44,7 @@ export function SubmitRewardsPage() {
   const { user, profile } = useAuthContext();
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
   const [selectedType, setSelectedType] = useState<string>('');
   const [selectedLockRate, setSelectedLockRate] = useState<'360' | '90'>('360');
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -138,7 +140,7 @@ export function SubmitRewardsPage() {
     return (completed / fields.length) * 100;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmitClick = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!user) {
@@ -151,6 +153,11 @@ export function SubmitRewardsPage() {
       return;
     }
 
+    setShowConfirmSubmit(true);
+  };
+
+  const handleSubmit = async () => {
+    setShowConfirmSubmit(false);
     setSubmitting(true);
 
     try {
@@ -230,7 +237,7 @@ export function SubmitRewardsPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmitClick}>
         <div className="container mx-auto px-4 py-8">
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Left Column - Main Form */}
@@ -782,6 +789,19 @@ export function SubmitRewardsPage() {
           </div>
         </div>
       </form>
+
+      {/* Confirm Submit Dialog */}
+      <ConfirmationDialog
+        isOpen={showConfirmSubmit}
+        onClose={() => setShowConfirmSubmit(false)}
+        onConfirm={handleSubmit}
+        title="Submit for Review?"
+        description={`You're about to submit "${formData.title}" for review. Our team will review your submission and notify you once it's approved. Once submitted, you can track its status in "My Submissions".`}
+        confirmText="Submit for Review"
+        cancelText="Go Back"
+        icon={<Send className="w-5 h-5 text-primary" />}
+        isLoading={submitting}
+      />
     </div>
   );
 }
