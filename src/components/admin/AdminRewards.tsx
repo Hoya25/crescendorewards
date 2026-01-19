@@ -114,6 +114,17 @@ export function AdminRewards() {
   const [selectedGiftUser, setSelectedGiftUser] = useState<any>(null);
   const [giftingInProgress, setGiftingInProgress] = useState(false);
   
+  // Bulk sponsorship modal
+  const [showBulkSponsorModal, setShowBulkSponsorModal] = useState(false);
+  const [bulkSponsorData, setBulkSponsorData] = useState({
+    sponsor_name: '',
+    sponsor_logo: '',
+    sponsor_link: '',
+    sponsor_start_date: '',
+    sponsor_end_date: '',
+  });
+  const [bulkSponsorSaving, setBulkSponsorSaving] = useState(false);
+  
   // Delete confirmation
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteReward, setDeleteReward] = useState<Reward | null>(null);
@@ -519,6 +530,105 @@ export function AdminRewards() {
     }
   };
 
+  // Bulk sponsorship
+  const handleBulkSponsor = async () => {
+    if (selectedIds.size === 0) return;
+    
+    // Validate required fields
+    if (!bulkSponsorData.sponsor_name || !bulkSponsorData.sponsor_logo || 
+        !bulkSponsorData.sponsor_start_date || !bulkSponsorData.sponsor_end_date) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please fill in all required fields',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate dates
+    if (new Date(bulkSponsorData.sponsor_end_date) < new Date(bulkSponsorData.sponsor_start_date)) {
+      toast({
+        title: 'Validation Error',
+        description: 'End date must be after start date',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setBulkSponsorSaving(true);
+    try {
+      const { error } = await supabase
+        .from('rewards')
+        .update({
+          sponsor_enabled: true,
+          sponsor_name: bulkSponsorData.sponsor_name,
+          sponsor_logo: bulkSponsorData.sponsor_logo,
+          sponsor_link: bulkSponsorData.sponsor_link || null,
+          sponsor_start_date: bulkSponsorData.sponsor_start_date,
+          sponsor_end_date: bulkSponsorData.sponsor_end_date,
+        })
+        .in('id', Array.from(selectedIds));
+
+      if (error) throw error;
+      
+      toast({ 
+        title: 'Sponsorship Applied', 
+        description: `Added "${bulkSponsorData.sponsor_name}" sponsorship to ${selectedIds.size} rewards` 
+      });
+      setSelectedIds(new Set());
+      setShowBulkSponsorModal(false);
+      setBulkSponsorData({
+        sponsor_name: '',
+        sponsor_logo: '',
+        sponsor_link: '',
+        sponsor_start_date: '',
+        sponsor_end_date: '',
+      });
+      loadRewards();
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to apply sponsorship',
+        variant: 'destructive',
+      });
+    } finally {
+      setBulkSponsorSaving(false);
+    }
+  };
+
+  const handleRemoveBulkSponsorship = async () => {
+    if (selectedIds.size === 0) return;
+
+    try {
+      const { error } = await supabase
+        .from('rewards')
+        .update({
+          sponsor_enabled: false,
+          sponsor_name: null,
+          sponsor_logo: null,
+          sponsor_link: null,
+          sponsor_start_date: null,
+          sponsor_end_date: null,
+        })
+        .in('id', Array.from(selectedIds));
+
+      if (error) throw error;
+      
+      toast({ 
+        title: 'Sponsorship Removed', 
+        description: `Removed sponsorship from ${selectedIds.size} rewards` 
+      });
+      setSelectedIds(new Set());
+      loadRewards();
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to remove sponsorship',
+        variant: 'destructive',
+      });
+    }
+  };
+
   // Gift to user
   const searchUsers = async (query: string) => {
     if (query.length < 2) {
@@ -761,13 +871,21 @@ export function AdminRewards() {
 
       {/* Bulk Actions */}
       {selectedIds.size > 0 && (
-        <div className="flex items-center gap-4 p-4 bg-primary/5 border rounded-lg">
+        <div className="flex flex-wrap items-center gap-4 p-4 bg-primary/5 border rounded-lg">
           <span className="font-medium">{selectedIds.size} selected</span>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="outline" onClick={() => bulkAction('activate')}>Activate</Button>
             <Button size="sm" variant="outline" onClick={() => bulkAction('deactivate')}>Deactivate</Button>
             <Button size="sm" variant="outline" onClick={() => bulkAction('feature')}>Feature</Button>
             <Button size="sm" variant="outline" onClick={() => bulkAction('unfeature')}>Unfeature</Button>
+            <div className="h-6 w-px bg-border mx-1" />
+            <Button size="sm" variant="outline" onClick={() => setShowBulkSponsorModal(true)} className="gap-1">
+              <Megaphone className="w-3 h-3" />
+              Add Sponsor
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleRemoveBulkSponsorship}>
+              Remove Sponsor
+            </Button>
           </div>
           <Button size="sm" variant="ghost" onClick={() => setSelectedIds(new Set())}>Clear Selection</Button>
         </div>
@@ -1249,6 +1367,104 @@ export function AdminRewards() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDeleteModal(false)}>Cancel</Button>
             <Button variant="destructive" onClick={handleDelete}>Delete Anyway</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Sponsorship Modal */}
+      <Dialog open={showBulkSponsorModal} onOpenChange={setShowBulkSponsorModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Megaphone className="w-5 h-5" /> Add Sponsorship to {selectedIds.size} Rewards
+            </DialogTitle>
+            <DialogDescription>
+              Apply the same sponsor to all selected rewards
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Sponsor Name *</Label>
+              <Input
+                value={bulkSponsorData.sponsor_name}
+                onChange={(e) => setBulkSponsorData({ ...bulkSponsorData, sponsor_name: e.target.value })}
+                placeholder="e.g., Nike, NCTR Alliance"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Sponsor Logo URL *</Label>
+              <Input
+                value={bulkSponsorData.sponsor_logo}
+                onChange={(e) => setBulkSponsorData({ ...bulkSponsorData, sponsor_logo: e.target.value })}
+                placeholder="https://..."
+              />
+              {bulkSponsorData.sponsor_logo && (
+                <div className="mt-2 p-2 bg-muted rounded border">
+                  <img
+                    src={bulkSponsorData.sponsor_logo}
+                    alt="Logo preview"
+                    className="h-8 w-auto object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Sponsor Link (optional)</Label>
+              <Input
+                value={bulkSponsorData.sponsor_link}
+                onChange={(e) => setBulkSponsorData({ ...bulkSponsorData, sponsor_link: e.target.value })}
+                placeholder="https://sponsor-website.com"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Start Date *</Label>
+                <Input
+                  type="date"
+                  value={bulkSponsorData.sponsor_start_date}
+                  onChange={(e) => setBulkSponsorData({ ...bulkSponsorData, sponsor_start_date: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>End Date *</Label>
+                <Input
+                  type="date"
+                  value={bulkSponsorData.sponsor_end_date}
+                  onChange={(e) => setBulkSponsorData({ ...bulkSponsorData, sponsor_end_date: e.target.value })}
+                />
+              </div>
+            </div>
+            
+            {bulkSponsorData.sponsor_end_date && bulkSponsorData.sponsor_start_date && 
+             new Date(bulkSponsorData.sponsor_end_date) < new Date(bulkSponsorData.sponsor_start_date) && (
+              <div className="flex items-center gap-2 text-destructive text-sm">
+                <AlertTriangle className="w-4 h-4" />
+                End date must be after start date
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowBulkSponsorModal(false);
+              setBulkSponsorData({
+                sponsor_name: '',
+                sponsor_logo: '',
+                sponsor_link: '',
+                sponsor_start_date: '',
+                sponsor_end_date: '',
+              });
+            }}>
+              Cancel
+            </Button>
+            <Button onClick={handleBulkSponsor} disabled={bulkSponsorSaving}>
+              {bulkSponsorSaving ? 'Applying...' : `Apply to ${selectedIds.size} Rewards`}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
