@@ -1,4 +1,4 @@
-import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, Heart, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, Heart, TrendingUp, Building2 } from 'lucide-react';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { cn } from '@/lib/utils';
 import {
@@ -49,6 +49,7 @@ const menuItems = [
   { title: 'Claims', view: 'claims', icon: ShoppingBag, badgeKey: 'claims' as const },
   { title: 'Purchases', view: 'purchases', icon: Receipt, badgeKey: null },
   { title: 'Brands', view: 'brands', icon: Store, badgeKey: null },
+  { title: 'Sponsors', view: 'sponsors', icon: Building2, badgeKey: null },
   { title: 'Wishlists', view: 'wishlists', icon: Heart, badgeKey: null },
   { title: 'Wishlist Analytics', view: 'wishlist-analytics', icon: TrendingUp, badgeKey: null },
 ];

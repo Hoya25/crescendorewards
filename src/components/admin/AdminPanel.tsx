@@ -10,6 +10,7 @@ import { AdminBrands } from './AdminBrands';
 import { AdminPurchases } from './AdminPurchases';
 import { AdminWishlists } from './AdminWishlists';
 import { AdminUsers } from './AdminUsers';
+import { AdminSponsors } from './AdminSponsors';
 import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -32,6 +33,8 @@ export function AdminPanel() {
         return <AdminPurchases />;
       case 'brands':
         return <AdminBrands />;
+      case 'sponsors':
+        return <AdminSponsors />;
       case 'wishlists':
         return <AdminWishlists />;
       case 'wishlist-analytics':
