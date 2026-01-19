@@ -432,14 +432,6 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                     )}
                     <div className="flex-1">
                       <p className="font-medium">{brand.name}</p>
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto text-sm text-primary"
-                        onClick={() => navigate(`/brands/${brand.id}`)}
-                      >
-                        View all rewards from {brand.name}
-                        <ExternalLink className="w-3 h-3 ml-1" />
-                      </Button>
                     </div>
                   </div>
                 </CardContent>

@@ -186,8 +186,8 @@ export function BrandPartnersPage() {
               <Store className="w-8 h-8 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold">Crescendo Brands</h1>
-              <p className="text-muted-foreground">Brands with exclusive rewards and custom earning opportunities on Crescendo</p>
+              <h1 className="text-3xl font-bold">Partner Network</h1>
+              <p className="text-muted-foreground">Shop through The Garden to earn on everyday purchases</p>
             </div>
           </div>
         </div>
@@ -223,7 +223,7 @@ export function BrandPartnersPage() {
 
         {/* Section Header */}
         <div className="mt-8">
-          <h2 className="text-2xl font-bold mb-6">Crescendo Brand Partners</h2>
+          <h2 className="text-2xl font-bold mb-6">Partner Network</h2>
         </div>
 
         {/* How Shop & Earn Works */}

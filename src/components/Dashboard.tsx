@@ -48,7 +48,7 @@ export function Dashboard() {
     return (
       <SidebarProvider>
         <div className="min-h-screen w-full flex bg-neutral-50 dark:bg-neutral-950">
-          <AppSidebar onNavigate={() => navigate('/brands')} />
+          <AppSidebar />
           <div className="flex-1 p-4 md:p-6">
             <div className="max-w-7xl mx-auto">
               <DashboardSkeleton />
@@ -127,7 +127,7 @@ export function Dashboard() {
         description="Manage your Crescendo membership, track your NCTR balance, and access exclusive rewards."
       />
       <div className="min-h-screen w-full flex bg-neutral-50 dark:bg-neutral-950">
-        <AppSidebar onNavigate={() => navigate('/brands')} />
+        <AppSidebar />
         
         <div className="flex-1 flex flex-col">
           {/* Navigation */}
