@@ -7,6 +7,7 @@ import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
 import { ImageWithFallback } from "./ImageWithFallback";
 import { SEO } from "./SEO";
+import { MobileNav } from "./MobileNav";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,11 +69,13 @@ export function LandingPage() {
         description="Member-built, member-owned rewards marketplace. Lock NCTR to unlock rewards, opportunities, and experiences."
       />
       {/* Navigation */}
-      <nav className="flex flex-col md:flex-row items-center justify-between p-4 md:p-6 gap-4 w-full max-w-7xl mx-auto">
+      <nav className="flex items-center justify-between p-4 md:p-6 w-full max-w-7xl mx-auto">
         <div className="flex items-center gap-4">
           <CrescendoLogo />
         </div>
-        <div className="flex items-center gap-4">
+        
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center gap-4">
           <Button variant="ghost" onClick={handleViewRewards}>
             Rewards
           </Button>
@@ -83,6 +86,13 @@ export function LandingPage() {
             Join Now
           </Button>
         </div>
+        
+        {/* Mobile Navigation */}
+        <MobileNav
+          onViewRewards={handleViewRewards}
+          onSignIn={handleSignIn}
+          onJoin={handleJoin}
+        />
       </nav>
 
       {/* Hero Section */}
