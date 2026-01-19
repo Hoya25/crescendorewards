@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Check, Camera, User, FileText, Wallet, Gift, ChevronRight } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { useProfileCompletion } from '@/hooks/useProfileCompletion';
 import type { Profile } from '@/types';
 
 interface ProfileCompletionProps {
@@ -16,7 +15,7 @@ interface ProfileCompletionProps {
   onWalletClick?: () => void;
 }
 
-interface CompletionItem {
+interface CompletionItemDisplay {
   id: string;
   label: string;
   icon: React.ReactNode;
@@ -34,85 +33,30 @@ export function ProfileCompletion({
   onWalletClick 
 }: ProfileCompletionProps) {
   const navigate = useNavigate();
-  const [hasClaimedReward, setHasClaimedReward] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const { percentage, completedCount, totalCount, items, isComplete, loading } = useProfileCompletion(profile);
 
-  useEffect(() => {
-    const checkRewardClaims = async () => {
-      if (!profile?.id) return;
-      
-      try {
-        const { count, error } = await supabase
-          .from('rewards_claims')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', profile.id);
+  const iconMap: Record<string, React.ReactNode> = {
+    avatar: <Camera className="w-4 h-4" />,
+    name: <User className="w-4 h-4" />,
+    bio: <FileText className="w-4 h-4" />,
+    wallet: <Wallet className="w-4 h-4" />,
+    reward: <Gift className="w-4 h-4" />,
+  };
 
-        if (error) throw error;
-        setHasClaimedReward((count ?? 0) > 0);
-      } catch (error) {
-        console.error('Error checking reward claims:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const actionMap: Record<string, { action?: () => void; label: string }> = {
+    avatar: { action: onAvatarClick, label: 'Upload' },
+    name: { action: onNameClick, label: 'Add' },
+    bio: { action: onBioClick, label: 'Add' },
+    wallet: { action: onWalletClick, label: 'Connect' },
+    reward: { action: () => navigate('/rewards'), label: 'Browse' },
+  };
 
-    checkRewardClaims();
-  }, [profile?.id]);
-
-  const completionItems: CompletionItem[] = [
-    {
-      id: 'avatar',
-      label: 'Upload avatar',
-      icon: <Camera className="w-4 h-4" />,
-      isComplete: !!profile.avatar_url,
-      weight: 20,
-      action: onAvatarClick,
-      actionLabel: 'Upload',
-    },
-    {
-      id: 'name',
-      label: 'Set display name',
-      icon: <User className="w-4 h-4" />,
-      isComplete: !!profile.full_name && profile.full_name.trim().length > 0,
-      weight: 20,
-      action: onNameClick,
-      actionLabel: 'Add',
-    },
-    {
-      id: 'bio',
-      label: 'Add bio',
-      icon: <FileText className="w-4 h-4" />,
-      isComplete: !!profile.bio && profile.bio.trim().length > 0,
-      weight: 20,
-      action: onBioClick,
-      actionLabel: 'Add',
-    },
-    {
-      id: 'wallet',
-      label: 'Connect wallet',
-      icon: <Wallet className="w-4 h-4" />,
-      isComplete: !!profile.wallet_address,
-      weight: 20,
-      action: onWalletClick,
-      actionLabel: 'Connect',
-    },
-    {
-      id: 'reward',
-      label: 'Claim first reward',
-      icon: <Gift className="w-4 h-4" />,
-      isComplete: hasClaimedReward,
-      weight: 20,
-      action: () => navigate('/rewards'),
-      actionLabel: 'Browse',
-    },
-  ];
-
-  const completedWeight = completionItems
-    .filter(item => item.isComplete)
-    .reduce((sum, item) => sum + item.weight, 0);
-
-  const completedCount = completionItems.filter(item => item.isComplete).length;
-  const totalCount = completionItems.length;
+  const displayItems: CompletionItemDisplay[] = items.map(item => ({
+    ...item,
+    icon: iconMap[item.id],
+    action: actionMap[item.id]?.action,
+    actionLabel: actionMap[item.id]?.label,
+  }));
 
   if (loading) {
     return (
@@ -135,16 +79,16 @@ export function ProfileCompletion({
   }
 
   // Don't show if profile is 100% complete
-  if (completedWeight === 100) {
+  if (isComplete) {
     return (
-      <Card className="border-green-500/20 bg-green-500/5">
+      <Card className="border-primary/20 bg-primary/5">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
-              <Check className="w-5 h-5 text-green-500" />
+              <Check className="w-5 h-5 text-primary" />
               Profile Complete!
             </CardTitle>
-            <Badge variant="secondary" className="bg-green-500/10 text-green-600">
+            <Badge variant="secondary" className="bg-primary/10 text-primary">
               100%
             </Badge>
           </div>
@@ -159,26 +103,46 @@ export function ProfileCompletion({
     );
   }
 
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Profile Completion</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="animate-pulse space-y-4">
+            <div className="h-4 bg-muted rounded w-full" />
+            <div className="space-y-2">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-10 bg-muted rounded" />
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Profile Completion</CardTitle>
           <Badge variant="secondary">
-            {completedWeight}%
+            {percentage}%
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-1">
-          <Progress value={completedWeight} className="h-2" />
+          <Progress value={percentage} className="h-2" />
           <p className="text-xs text-muted-foreground">
             {completedCount} of {totalCount} completed
           </p>
         </div>
 
         <div className="space-y-2">
-          {completionItems.map((item) => (
+          {displayItems.map((item) => (
             <div
               key={item.id}
               className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${
@@ -190,7 +154,7 @@ export function ProfileCompletion({
               <div className="flex items-center gap-3">
                 <div className={`p-2 rounded-full ${
                   item.isComplete 
-                    ? 'bg-green-500/10 text-green-600' 
+                    ? 'bg-primary/10 text-primary' 
                     : 'bg-muted text-muted-foreground'
                 }`}>
                   {item.isComplete ? <Check className="w-4 h-4" /> : item.icon}
@@ -215,7 +179,7 @@ export function ProfileCompletion({
               )}
               
               {item.isComplete && (
-                <Badge variant="outline" className="text-green-600 border-green-500/30">
+                <Badge variant="outline" className="text-primary border-primary/30">
                   +{item.weight}%
                 </Badge>
               )}
