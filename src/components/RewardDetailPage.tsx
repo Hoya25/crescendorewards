@@ -14,6 +14,8 @@ import { toast } from '@/hooks/use-toast';
 import { BuyClaims } from '@/components/BuyClaims';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { DataErrorState } from '@/components/DataErrorState';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Reward {
   id: string;
@@ -68,6 +70,8 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const [reward, setReward] = useState<Reward | null>(null);
   const [brand, setBrand] = useState<Brand | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [retrying, setRetrying] = useState(false);
   const [claiming, setClaiming] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [showBuyClaimsModal, setShowBuyClaimsModal] = useState(false);
@@ -102,17 +106,22 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
     }
   }, [reward, profile?.referral_code]);
 
-  const fetchReward = async () => {
+  const fetchReward = async (isRetry = false) => {
     if (!rewardId) return;
     
+    if (isRetry) {
+      setRetrying(true);
+    }
+    setError(null);
+    
     try {
-      const { data, error } = await supabase
+      const { data, error: fetchError } = await supabase
         .from('rewards')
         .select('*')
         .eq('id', rewardId)
         .single();
 
-      if (error) throw error;
+      if (fetchError) throw fetchError;
       setReward(data);
 
       // Fetch brand if reward has brand_id
@@ -126,16 +135,24 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
       } else {
         setBrand(null);
       }
-    } catch (error) {
-      console.error('Error fetching reward:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load reward details',
-        variant: 'destructive',
-      });
+    } catch (err) {
+      console.error('Error fetching reward:', err);
+      setError(err instanceof Error ? err : new Error('Failed to load reward'));
+      if (!isRetry) {
+        toast({
+          title: 'Error',
+          description: 'Failed to load reward details',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
+      setRetrying(false);
     }
+  };
+
+  const handleRetry = () => {
+    fetchReward(true);
   };
 
   const checkWishlistStatus = async () => {
@@ -291,8 +308,44 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-background p-6">
+        <div className="max-w-4xl mx-auto">
+          <Skeleton className="h-10 w-32 mb-6" />
+          <div className="grid md:grid-cols-2 gap-8">
+            <Skeleton className="aspect-square rounded-lg" />
+            <div className="space-y-4">
+              <Skeleton className="h-8 w-3/4" />
+              <Skeleton className="h-6 w-20" />
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background p-6">
+        <div className="max-w-4xl mx-auto">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/rewards')}
+            className="mb-6"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Rewards
+          </Button>
+          <DataErrorState
+            title="Failed to load reward"
+            message="We couldn't load the reward details. Please try again."
+            onRetry={handleRetry}
+            retrying={retrying}
+            variant="fullpage"
+          />
+        </div>
       </div>
     );
   }

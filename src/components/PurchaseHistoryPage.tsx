@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
 import { NoTransactionsEmpty } from '@/components/EmptyState';
+import { DataErrorState } from '@/components/DataErrorState';
 
 interface Purchase {
   id: string;
@@ -55,6 +56,8 @@ export function PurchaseHistoryPage() {
   const { user } = useAuth();
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [retrying, setRetrying] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -62,21 +65,28 @@ export function PurchaseHistoryPage() {
     }
   }, [user]);
 
-  const fetchPurchases = async () => {
+  const fetchPurchases = async (isRetry = false) => {
     try {
-      const { data, error } = await supabase
+      if (isRetry) setRetrying(true);
+      setError(null);
+      
+      const { data, error: fetchError } = await supabase
         .from('purchases')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (fetchError) throw fetchError;
       setPurchases(data || []);
-    } catch (error) {
-      console.error('Error fetching purchases:', error);
+    } catch (err) {
+      console.error('Error fetching purchases:', err);
+      setError(err instanceof Error ? err : new Error('Failed to load purchases'));
     } finally {
       setLoading(false);
+      setRetrying(false);
     }
   };
+
+  const handleRetry = () => fetchPurchases(true);
 
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat('en-US', {
@@ -113,6 +123,13 @@ export function PurchaseHistoryPage() {
               <PurchaseCardSkeleton key={i} />
             ))}
           </div>
+        ) : error ? (
+          <DataErrorState
+            title="Failed to load purchase history"
+            message="We couldn't load your purchase history. Please try again."
+            onRetry={handleRetry}
+            retrying={retrying}
+          />
         ) : purchases.length === 0 ? (
           <Card>
             <CardContent className="p-0">
