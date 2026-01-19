@@ -22,23 +22,70 @@ import { getMembershipTierByNCTR } from '@/utils/membershipLevels';
 import { validateImageFile } from '@/lib/image-validation';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { ProfilePageSkeleton } from '@/components/skeletons/ProfileSkeleton';
+import { NoWishlistItemsEmpty } from '@/components/EmptyState';
 
 export function ProfilePage() {
   const navigate = useNavigate();
   const { profile, signOut, refreshProfile } = useAuthContext();
-  
-  if (!profile) return null;
   const { isAdmin } = useAdminRole();
-  const [fullName, setFullName] = useState(profile.full_name || '');
-  const [walletAddress, setWalletAddress] = useState(profile.wallet_address || '');
+  const [fullName, setFullName] = useState(profile?.full_name || '');
+  const [walletAddress, setWalletAddress] = useState(profile?.wallet_address || '');
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url);
+  const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url);
   const { address, isConnected, linkWalletToAccount } = useWalletAuth();
   const [linkingWallet, setLinkingWallet] = useState(false);
   const { balance: walletNCTRBalance, formattedBalance, isLoading: isLoadingBalance, contractAddress, refetch: refetchBalance } = useNCTRBalance();
   const [wishlistItems, setWishlistItems] = useState<any[]>([]);
   const [loadingWishlist, setLoadingWishlist] = useState(true);
+
+  // Load wishlist items - must be before early return
+  useEffect(() => {
+    if (profile?.id) {
+      loadWishlist();
+    }
+  }, [profile?.id]);
+
+  const loadWishlist = async () => {
+    if (!profile?.id) return;
+    try {
+      setLoadingWishlist(true);
+      const { data, error } = await supabase
+        .rpc('get_user_wishlist', { p_user_id: profile.id });
+
+      if (error) throw error;
+      setWishlistItems(data || []);
+    } catch (error) {
+      console.error('Error loading wishlist:', error);
+    } finally {
+      setLoadingWishlist(false);
+    }
+  };
+  
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-background/80">
+        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" onClick={() => navigate('/dashboard')}>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold">Profile Settings</h1>
+                <p className="text-sm text-muted-foreground">Manage your account and preferences</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="container mx-auto px-4 py-8">
+          <ProfilePageSkeleton />
+        </div>
+      </div>
+    );
+  }
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -216,26 +263,6 @@ export function ProfilePage() {
   };
 
   const membershipTier = getMembershipTierByNCTR(profile.locked_nctr);
-
-  // Load wishlist items
-  useEffect(() => {
-    loadWishlist();
-  }, [profile.id]);
-
-  const loadWishlist = async () => {
-    try {
-      setLoadingWishlist(true);
-      const { data, error } = await supabase
-        .rpc('get_user_wishlist', { p_user_id: profile.id });
-
-      if (error) throw error;
-      setWishlistItems(data || []);
-    } catch (error) {
-      console.error('Error loading wishlist:', error);
-    } finally {
-      setLoadingWishlist(false);
-    }
-  };
 
   const handleRemoveFromWishlist = async (wishlistId: string, rewardTitle: string) => {
     try {

@@ -22,6 +22,8 @@ import { CrescendoLogo } from '@/components/CrescendoLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { SEO } from '@/components/SEO';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { RewardsGridSkeleton } from '@/components/skeletons/RewardCardSkeleton';
+import { NoRewardsEmpty } from '@/components/EmptyState';
 import { useAdminRole } from '@/hooks/useAdminRole';
 
 interface Reward {
@@ -651,22 +653,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         )}
         
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {[...Array(6)].map((_, i) => (
-              <Card key={i} className="animate-pulse overflow-hidden">
-                <div className="h-56 bg-muted" />
-                <CardContent className="p-6">
-                  <div className="h-6 bg-muted rounded mb-2" />
-                  <div className="h-4 bg-muted rounded w-2/3" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <RewardsGridSkeleton count={6} />
         ) : filteredRewards.length === 0 ? (
-          <div className="text-center py-12">
-            <Gift className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-            <p className="text-xl text-muted-foreground">No rewards available in this category</p>
-          </div>
+          <NoRewardsEmpty />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {filteredRewards.map((reward) => (

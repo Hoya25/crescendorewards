@@ -8,6 +8,8 @@ import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { Skeleton } from '@/components/ui/skeleton';
+import { NoWishlistItemsEmpty } from '@/components/EmptyState';
 
 interface WishlistItem {
   wishlist_id: string;
@@ -32,6 +34,25 @@ const categoryLabels: Record<string, string> = {
   wellness: 'Wellness & Health',
   opportunity: 'Opportunity',
 };
+
+function WishlistCardSkeleton() {
+  return (
+    <Card className="overflow-hidden">
+      <Skeleton className="aspect-video w-full" />
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-5 w-3/4" />
+          <Skeleton className="h-8 w-8 rounded" />
+        </div>
+        <Skeleton className="h-4 w-1/3 mt-2" />
+      </CardHeader>
+      <CardFooter className="flex items-center justify-between">
+        <Skeleton className="h-6 w-20" />
+        <Skeleton className="h-6 w-24" />
+      </CardFooter>
+    </Card>
+  );
+}
 
 export function WishlistPage({ claimBalance }: WishlistPageProps) {
   const navigate = useNavigate();
@@ -91,14 +112,6 @@ export function WishlistPage({ claimBalance }: WishlistPageProps) {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-4xl mx-auto">
@@ -121,17 +134,16 @@ export function WishlistPage({ claimBalance }: WishlistPageProps) {
           </p>
         </div>
 
-        {wishlist.length === 0 ? (
+        {loading ? (
+          <div className="grid md:grid-cols-2 gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <WishlistCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : wishlist.length === 0 ? (
           <Card>
-            <CardContent className="p-8 text-center">
-              <Gift className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-lg font-medium mb-2">Your Wishlist is Empty</h3>
-              <p className="text-muted-foreground mb-4">
-                Browse rewards and add items to your wishlist!
-              </p>
-              <Button onClick={() => navigate('/rewards')}>
-                Explore Rewards
-              </Button>
+            <CardContent className="p-0">
+              <NoWishlistItemsEmpty />
             </CardContent>
           </Card>
         ) : (
