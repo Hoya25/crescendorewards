@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
@@ -8,6 +9,7 @@ import { CrescendoLogo } from "./CrescendoLogo";
 import { ThemeToggle } from "./ThemeToggle";
 import { ReferralCard } from "./ReferralCard";
 import { BuyClaims } from "./BuyClaims";
+import { WelcomeModal } from "./WelcomeModal";
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress, getNCTRNeededForNextLevel } from '@/utils/membershipLevels';
 import { useTheme } from "./ThemeProvider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
@@ -18,11 +20,26 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "sonner";
 
+const WELCOME_SEEN_KEY = "crescendo_welcome_seen";
+
 export function Dashboard() {
   const navigate = useNavigate();
   const { profile, signOut, refreshProfile } = useAuthContext();
   const { isAdmin } = useAdminRole();
   const { theme } = useTheme();
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+
+  useEffect(() => {
+    const hasSeenWelcome = localStorage.getItem(WELCOME_SEEN_KEY);
+    if (hasSeenWelcome !== "true") {
+      setShowWelcomeModal(true);
+    }
+  }, []);
+
+  const handleWelcomeClose = () => {
+    localStorage.setItem(WELCOME_SEEN_KEY, "true");
+    setShowWelcomeModal(false);
+  };
 
   if (!profile) return null;
 
@@ -422,6 +439,7 @@ export function Dashboard() {
           </main>
         </div>
       </div>
+      <WelcomeModal isOpen={showWelcomeModal} onClose={handleWelcomeClose} />
     </SidebarProvider>
   );
 }
