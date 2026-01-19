@@ -6,6 +6,7 @@ import { Sparkles, Trophy, Users, Award, ShoppingBag, Infinity } from "lucide-re
 import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
 import { ImageWithFallback } from "./ImageWithFallback";
+import { SEO } from "./SEO";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,6 +63,10 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden">
+      <SEO 
+        title="The People's Rewards Marketplace"
+        description="Member-built, member-owned rewards marketplace. Lock NCTR to unlock rewards, opportunities, and experiences."
+      />
       {/* Navigation */}
       <nav className="flex flex-col md:flex-row items-center justify-between p-4 md:p-6 gap-4 w-full max-w-7xl mx-auto">
         <div className="flex items-center gap-4">

@@ -6,6 +6,7 @@ import { ArrowLeft, CheckCircle2, ExternalLink, Users, Share2, Calendar, Zap, St
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { NCTRLogo } from './NCTRLogo';
+import { SEO } from './SEO';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 
@@ -104,6 +105,10 @@ export function EarnNCTR() {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 p-6">
+      <SEO 
+        title="Earn NCTR"
+        description="Complete tasks and activities to earn NCTR tokens. Connect your purchases to The Garden and unlock earning opportunities."
+      />
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">

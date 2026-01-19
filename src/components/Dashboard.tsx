@@ -10,6 +10,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { ReferralCard } from "./ReferralCard";
 import { BuyClaims } from "./BuyClaims";
 import { WelcomeModal } from "./WelcomeModal";
+import { SEO } from "./SEO";
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress, getNCTRNeededForNextLevel } from '@/utils/membershipLevels';
 import { useTheme } from "./ThemeProvider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
@@ -106,6 +107,10 @@ export function Dashboard() {
 
   return (
     <SidebarProvider>
+      <SEO 
+        title="Dashboard"
+        description="Manage your Crescendo membership, track your NCTR balance, and access exclusive rewards."
+      />
       <div className="min-h-screen w-full flex bg-neutral-50 dark:bg-neutral-950">
         <AppSidebar onNavigate={() => navigate('/brands')} />
         
