@@ -178,83 +178,84 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                   } ${pkg.popular ? 'border-primary/30' : ''} ${isBestValue ? 'border-primary/40' : ''}`}
                   onClick={() => setSelectedPackage(pkg)}
                 >
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="font-semibold text-lg">{pkg.label}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {pkg.claims} Claim Passes
-                        </p>
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        {pkg.popular && (
-                          <Badge className="gap-1">
-                            <Sparkles className="w-3 h-3" />
-                            Popular
-                          </Badge>
-                        )}
-                        {isBestValue && (
-                          <Badge variant="secondary" className="gap-1">
-                            <Award className="w-3 h-3" />
-                            Best Value
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-
-                  <div className="mb-4">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold">${pkg.price}</span>
-                      <span className="text-sm text-muted-foreground">
-                        ${(pkg.price / pkg.claims).toFixed(2)} per claim
-                      </span>
-                    </div>
-                    {savings !== 0 && (
-                      <div className="mt-1">
-                        <Badge variant={savings > 0 ? "secondary" : "destructive"} className="text-xs">
-                          {savings > 0 ? 'Save' : 'Premium'} ${Math.abs(savings).toFixed(2)}
+                  <CardContent className="p-5">
+                    {/* Header with badges */}
+                    <div className="flex items-center gap-2 mb-1 min-h-[24px]">
+                      {pkg.popular && (
+                        <Badge className="gap-1 shrink-0">
+                          <Sparkles className="w-3 h-3" />
+                          Popular
                         </Badge>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                      {isBestValue && (
+                        <Badge variant="secondary" className="gap-1 shrink-0">
+                          <Award className="w-3 h-3" />
+                          Best Value
+                        </Badge>
+                      )}
+                    </div>
 
-                  {pkg.bonus && (
-                    <div className="mb-3 p-2 bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <Gift className="w-4 h-4 text-violet-600" />
-                        <span className="text-sm font-medium text-violet-900 dark:text-violet-100 flex items-center gap-1">
-                          +{pkg.bonus} Bonus <NCTRLogo size="xs" /> (360LOCK)
+                    {/* Title and claims */}
+                    <h3 className="font-semibold text-lg">{pkg.label}</h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {pkg.claims} Claim Passes
+                    </p>
+
+                    {/* Price section */}
+                    <div className="mb-3">
+                      <div className="flex items-baseline gap-2 flex-wrap">
+                        <span className="text-3xl font-bold">${pkg.price}</span>
+                        <span className="text-sm text-muted-foreground whitespace-nowrap">
+                          ${(pkg.price / pkg.claims).toFixed(2)} per claim
                         </span>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <HelpCircle className="w-3.5 h-3.5 text-violet-600 cursor-help" />
-                            </TooltipTrigger>
-                            <TooltipContent className="max-w-xs">
-                              <p className="font-semibold mb-1">360LOCK Bonus</p>
-                              <p className="text-sm">
-                                Earn 3 NCTR per $1 spent on claim passes. These bonus NCTR are automatically locked for 360 days, 
-                                contributing to your membership tier level while they vest.
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
                       </div>
+                      {savings > 0 && (
+                        <Badge variant="secondary" className="text-xs mt-1.5">
+                          Save ${savings.toFixed(2)}
+                        </Badge>
+                      )}
                     </div>
-                  )}
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Check className="w-4 h-4 text-primary" />
-                      <span>Instant delivery</span>
-                    </div>
-                    {selectedPackage?.id === pkg.id && (
-                      <Badge variant="secondary">Selected</Badge>
+                    {/* Bonus NCTR */}
+                    {pkg.bonus && (
+                      <div className="mb-3 p-2.5 bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Gift className="w-4 h-4 text-violet-600 shrink-0" />
+                          <span className="text-sm font-medium text-violet-900 dark:text-violet-100">
+                            +{pkg.bonus} Bonus
+                          </span>
+                          <NCTRLogo size="xs" />
+                          <span className="text-xs text-violet-600 font-medium">(360LOCK)</span>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle className="w-3.5 h-3.5 text-violet-600 cursor-help shrink-0 ml-auto" />
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-xs">
+                                <p className="font-semibold mb-1">360LOCK Bonus</p>
+                                <p className="text-sm">
+                                  Earn 3 NCTR per $1 spent. Bonus NCTR is locked for 360 days, boosting your membership tier.
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                      </div>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
-            );
+
+                    {/* Footer */}
+                    <div className="flex items-center justify-between pt-1">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Check className="w-4 h-4 text-primary shrink-0" />
+                        <span>Instant delivery</span>
+                      </div>
+                      {selectedPackage?.id === pkg.id && (
+                        <Badge variant="secondary">Selected</Badge>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
             })}
           </div>
 
