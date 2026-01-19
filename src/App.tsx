@@ -134,19 +134,11 @@ function AppRoutes() {
         />
         <Route 
           path="/brands" 
-          element={
-            <ProtectedRoute>
-              <BrandPartnersPage />
-            </ProtectedRoute>
-          } 
+          element={<Navigate to="/rewards" replace />} 
         />
         <Route 
           path="/brands/:id" 
-          element={
-            <ProtectedRoute>
-              <BrandDetailPage />
-            </ProtectedRoute>
-          } 
+          element={<Navigate to="/rewards" replace />} 
         />
         <Route 
           path="/submit-reward" 
