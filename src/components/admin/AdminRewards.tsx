@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -85,6 +86,7 @@ const STATUS_FILTERS = [
 ];
 
 export function AdminRewards() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -160,6 +162,46 @@ export function AdminRewards() {
     loadRewards();
     loadBrands();
   }, []);
+
+  // Handle edit query param for quick edit from reward detail page
+  useEffect(() => {
+    const editId = searchParams.get('edit');
+    if (editId && rewards.length > 0 && !loading) {
+      const rewardToEdit = rewards.find(r => r.id === editId);
+      if (rewardToEdit) {
+        // Inline the edit logic to avoid calling handleOpenModal before it's defined
+        setEditingReward(rewardToEdit);
+        setFormData({
+          title: rewardToEdit.title,
+          description: rewardToEdit.description,
+          category: rewardToEdit.category,
+          cost: rewardToEdit.cost,
+          stock_quantity: rewardToEdit.stock_quantity,
+          is_active: rewardToEdit.is_active,
+          image_url: rewardToEdit.image_url,
+          is_featured: rewardToEdit.is_featured,
+          token_gated: rewardToEdit.token_gated || false,
+          token_contract_address: rewardToEdit.token_contract_address,
+          minimum_token_balance: rewardToEdit.minimum_token_balance || 1,
+          token_name: rewardToEdit.token_name,
+          token_symbol: rewardToEdit.token_symbol,
+          brand_id: rewardToEdit.brand_id || null,
+          sponsor_enabled: rewardToEdit.sponsor_enabled || false,
+          sponsor_name: rewardToEdit.sponsor_name,
+          sponsor_logo: rewardToEdit.sponsor_logo,
+          sponsor_link: rewardToEdit.sponsor_link,
+          sponsor_start_date: rewardToEdit.sponsor_start_date,
+          sponsor_end_date: rewardToEdit.sponsor_end_date,
+        });
+        setImagePreview(rewardToEdit.image_url);
+        setImageFile(null);
+        setShowModal(true);
+        // Clear the edit param from URL
+        searchParams.delete('edit');
+        setSearchParams(searchParams, { replace: true });
+      }
+    }
+  }, [rewards, searchParams, loading]);
 
   const loadBrands = async () => {
     const { data } = await supabase

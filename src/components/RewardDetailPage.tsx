@@ -7,7 +7,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, ShoppingBag, Star, Package, Zap, CheckCircle2, AlertTriangle, Coins, CreditCard, Sparkles, Gift, Clock, Lock, Share2, Twitter, Facebook, Linkedin, Link2, Check, Heart, Trophy, Store, ExternalLink, AlertCircle } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Star, Package, Zap, CheckCircle2, AlertTriangle, Coins, CreditCard, Sparkles, Gift, Clock, Lock, Share2, Twitter, Facebook, Linkedin, Link2, Check, Heart, Trophy, Store, ExternalLink, AlertCircle, Pencil } from 'lucide-react';
+import { useAdminRole } from '@/hooks/useAdminRole';
 import { ConfirmationDialog } from '@/components/ConfirmationDialog';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
@@ -68,6 +69,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const navigate = useNavigate();
   const { id: rewardId } = useParams<{ id: string }>();
   const { profile, refreshProfile, setShowAuthModal, setAuthMode } = useAuthContext();
+  const { isAdmin } = useAdminRole();
   const [reward, setReward] = useState<Reward | null>(null);
   const [brand, setBrand] = useState<Brand | null>(null);
   const [loading, setLoading] = useState(true);
@@ -370,14 +372,27 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-4xl mx-auto">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/rewards')}
-          className="mb-6"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Rewards
-        </Button>
+        <div className="flex items-center justify-between mb-6">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/rewards')}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Rewards
+          </Button>
+          
+          {isAdmin && rewardId && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/admin?tab=rewards&edit=${rewardId}`)}
+              className="gap-2 bg-amber-500/10 border-amber-500/30 text-amber-600 hover:bg-amber-500/20 hover:text-amber-700"
+            >
+              <Pencil className="w-4 h-4" />
+              Quick Edit
+            </Button>
+          )}
+        </div>
 
         <div className="grid md:grid-cols-2 gap-8">
           {/* Image */}
