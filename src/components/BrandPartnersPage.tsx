@@ -225,6 +225,11 @@ export function BrandPartnersPage() {
           </CardContent>
         </Card>
 
+        {/* Section Header */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold mb-6">Crescendo Brand Partners</h2>
+        </div>
+
         {/* How Shop & Earn Works */}
         <Card className="bg-primary/5">
           <CardContent className="p-6">

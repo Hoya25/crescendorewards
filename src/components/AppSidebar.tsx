@@ -29,7 +29,7 @@ const mainNavItems = [
 ];
 
 const browseItems = [
-  { title: 'Brand Partners', url: '/brands', icon: Store },
+  { title: 'Crescendo Brands', url: '/brands', icon: Store },
   { title: 'Food & Beverage', url: '/food-beverage', icon: UtensilsCrossed },
 ];
 
