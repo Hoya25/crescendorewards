@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { isSponsorshipVisible, type SponsorshipData } from '@/lib/sponsorship-utils';
@@ -10,19 +11,20 @@ interface SponsorBadgeProps {
 }
 
 /**
- * Gets the appropriate logo URL based on theme for NCTR Alliance
+ * Gets the appropriate logo URL based on theme for known sponsors
  */
-function getThemedLogoUrl(logoUrl: string | null, theme: string | undefined): string | null {
-  if (!logoUrl) return null;
-  
+function getThemedLogoUrl(logoUrl: string | null, sponsorName: string | null, theme: string | undefined): string | null {
   // Handle NCTR Alliance theme-aware logos
-  if (logoUrl.includes('nctr-alliance')) {
+  if (sponsorName?.toLowerCase().includes('nctr alliance') || logoUrl?.includes('nctr-alliance')) {
     return theme === 'dark' 
       ? '/brands/nctr-alliance-yellow.png' 
       : '/brands/nctr-alliance-grey.png';
   }
   
-  return logoUrl;
+  // Return the provided logo URL if it exists
+  if (logoUrl) return logoUrl;
+  
+  return null;
 }
 
 /**
@@ -32,13 +34,14 @@ function getThemedLogoUrl(logoUrl: string | null, theme: string | undefined): st
 export function SponsorBadge({ sponsorData, variant = 'card', className }: SponsorBadgeProps) {
   const { theme, resolvedTheme } = useTheme();
   const currentTheme = resolvedTheme || theme;
+  const [imageError, setImageError] = useState(false);
   
   // Don't render if sponsorship shouldn't be visible
   if (!isSponsorshipVisible(sponsorData)) {
     return null;
   }
 
-  const logoUrl = getThemedLogoUrl(sponsorData.sponsor_logo, currentTheme);
+  const logoUrl = getThemedLogoUrl(sponsorData.sponsor_logo, sponsorData.sponsor_name, currentTheme);
 
   const content = (
     <div
@@ -52,7 +55,7 @@ export function SponsorBadge({ sponsorData, variant = 'card', className }: Spons
       )}
     >
       {/* Sponsor Logo */}
-      {logoUrl && (
+      {logoUrl && !imageError && (
         <img
           src={logoUrl}
           alt={sponsorData.sponsor_name || 'Sponsor'}
@@ -60,6 +63,7 @@ export function SponsorBadge({ sponsorData, variant = 'card', className }: Spons
             'object-contain',
             variant === 'card' ? 'h-4 w-auto max-w-[60px]' : 'h-6 w-auto max-w-[80px]'
           )}
+          onError={() => setImageError(true)}
         />
       )}
       
