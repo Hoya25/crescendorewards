@@ -603,7 +603,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="gap-2">
                       <User className="w-4 h-4" />
-                      <span className="hidden md:inline">{profile?.full_name || profile?.email?.split('@')[0] || 'Account'}</span>
+                      <span className="hidden md:inline">{profile?.display_name || profile?.email?.split('@')[0] || 'Account'}</span>
                       <ChevronDown className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>

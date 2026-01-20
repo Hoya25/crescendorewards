@@ -67,6 +67,15 @@ const categoryLabels: Record<string, string> = {
   opportunity: 'Opportunity',
 };
 
+// Helper to extract Crescendo data from unified profile
+const getCrescendoData = (profile: any) => {
+  const crescendoData = profile?.crescendo_data || {};
+  return {
+    claim_balance: crescendoData.claims_balance || crescendoData.claim_balance || 0,
+    referral_code: crescendoData.referral_code || null,
+  };
+};
+
 export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const navigate = useNavigate();
   const { id: rewardId } = useParams<{ id: string }>();
@@ -97,6 +106,9 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [showConfirmClaim, setShowConfirmClaim] = useState(false);
+  
+  // Extract crescendo data
+  const crescendoData = getCrescendoData(profile);
 
   useEffect(() => {
     if (rewardId) {
@@ -110,11 +122,11 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   }, [rewardId, profile, fetchWatchCounts]);
 
   useEffect(() => {
-    if (reward && profile?.referral_code) {
+    if (reward && crescendoData.referral_code) {
       const baseUrl = window.location.origin;
-      setShareUrl(`${baseUrl}/rewards/${reward.id}?ref=${profile.referral_code}`);
+      setShareUrl(`${baseUrl}/rewards/${reward.id}?ref=${crescendoData.referral_code}`);
     }
-  }, [reward, profile?.referral_code]);
+  }, [reward, crescendoData.referral_code]);
 
   const fetchReward = async (isRetry = false) => {
     if (!rewardId) return;
@@ -265,7 +277,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
 
       setShowClaimModal(false);
       onClaimSuccess?.();
-      refreshProfile();
+      refreshUnifiedProfile();
       fetchReward();
     } catch (error: any) {
       console.error('Error claiming reward:', error);
@@ -372,7 +384,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   }
 
   const CategoryIcon = categoryIcons[reward.category] || Gift;
-  const canAfford = profile && profile.claim_balance >= reward.cost;
+  const canAfford = profile && crescendoData.claim_balance >= reward.cost;
   const inStock = reward.stock_quantity === null || reward.stock_quantity > 0;
 
   return (
@@ -490,7 +502,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">Your Balance</span>
                     <span className={`font-bold ${canAfford ? 'text-green-600' : 'text-red-600'}`}>
-                      {profile.claim_balance} Claims
+                      {crescendoData.claim_balance} Claims
                     </span>
                   </div>
                 )}
@@ -500,7 +512,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                     <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
                       <AlertTriangle className="w-4 h-4" />
                       <span className="text-sm font-medium">
-                        You need {reward.cost - profile.claim_balance} more claims
+                        You need {reward.cost - crescendoData.claim_balance} more claims
                       </span>
                     </div>
                   </div>
@@ -727,7 +739,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
             handleClaim();
           }}
           title="Confirm Claim"
-          description={`This will use ${reward?.cost || 0} Claims from your balance. Your new balance will be ${(profile?.claim_balance || 0) - (reward?.cost || 0)} Claims. This action cannot be undone.`}
+          description={`This will use ${reward?.cost || 0} Claims from your balance. Your new balance will be ${crescendoData.claim_balance - (reward?.cost || 0)} Claims. This action cannot be undone.`}
           confirmText="Confirm Claim"
           cancelText="Go Back"
           icon={<AlertCircle className="w-5 h-5 text-primary" />}
@@ -742,10 +754,10 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
               </DialogDescription>
             </DialogHeader>
             <BuyClaims
-              currentBalance={profile?.claim_balance || 0}
+              currentBalance={crescendoData.claim_balance}
               onPurchaseSuccess={() => {
                 setShowBuyClaimsModal(false);
-                refreshProfile();
+                refreshUnifiedProfile();
               }}
             />
           </DialogContent>

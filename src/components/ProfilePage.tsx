@@ -26,20 +26,61 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { NoWishlistItemsEmpty } from '@/components/EmptyState';
 import { ProfilePageSkeleton } from '@/components/skeletons/ProfileSkeleton';
-import { NoWishlistItemsEmpty } from '@/components/EmptyState';
 import { ProfileCompletion } from '@/components/ProfileCompletion';
+import type { Profile } from '@/types';
+
+// Helper to extract Crescendo data from unified profile
+const getCrescendoData = (profile: any) => {
+  const crescendoData = profile?.crescendo_data || {};
+  return {
+    locked_nctr: crescendoData.locked_nctr || 0,
+    available_nctr: crescendoData.available_nctr || 0,
+    claim_balance: crescendoData.claims_balance || crescendoData.claim_balance || 0,
+    referral_code: crescendoData.referral_code || null,
+    has_claimed_signup_bonus: crescendoData.has_claimed_signup_bonus || false,
+  };
+};
+
+// Adapter to convert UnifiedProfile to Profile format for components
+const toProfileFormat = (unifiedProfile: any): Profile | null => {
+  if (!unifiedProfile) return null;
+  const crescendoData = getCrescendoData(unifiedProfile);
+  return {
+    id: unifiedProfile.id,
+    email: unifiedProfile.email,
+    full_name: unifiedProfile.display_name,
+    bio: unifiedProfile.crescendo_data?.bio || '',
+    avatar_url: unifiedProfile.avatar_url,
+    wallet_address: unifiedProfile.wallet_address,
+    level: crescendoData.locked_nctr > 0 ? 1 : 0,
+    locked_nctr: crescendoData.locked_nctr,
+    available_nctr: crescendoData.available_nctr,
+    claim_balance: crescendoData.claim_balance,
+    referral_code: crescendoData.referral_code,
+    referred_by: null,
+    has_claimed_signup_bonus: crescendoData.has_claimed_signup_bonus,
+    has_status_access_pass: false,
+    created_at: unifiedProfile.created_at,
+    updated_at: unifiedProfile.updated_at,
+  };
+};
 
 export function ProfilePage() {
   const navigate = useNavigate();
   const { signOut } = useAuthContext();
-  const { profile, refreshUnifiedProfile } = useUnifiedUser();
+  const { profile: unifiedProfile, refreshUnifiedProfile, updateUnifiedProfile } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
-  const [fullName, setFullName] = useState(profile?.full_name || '');
-  const [bio, setBio] = useState(profile?.bio || '');
-  const [walletAddress, setWalletAddress] = useState(profile?.wallet_address || '');
+  
+  // Convert to Profile format for compatibility
+  const profile = toProfileFormat(unifiedProfile);
+  const crescendoData = getCrescendoData(unifiedProfile);
+  
+  const [fullName, setFullName] = useState(unifiedProfile?.display_name || '');
+  const [bio, setBio] = useState(unifiedProfile?.crescendo_data?.bio || '');
+  const [walletAddress, setWalletAddress] = useState(unifiedProfile?.wallet_address || '');
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url);
+  const [avatarUrl, setAvatarUrl] = useState(unifiedProfile?.avatar_url);
   const { address, isConnected, linkWalletToAccount } = useWalletAuth();
   const [linkingWallet, setLinkingWallet] = useState(false);
   const { balance: walletNCTRBalance, formattedBalance, isLoading: isLoadingBalance, contractAddress, refetch: refetchBalance } = useNCTRBalance();
@@ -54,17 +95,17 @@ export function ProfilePage() {
 
   // Load wishlist items - must be before early return
   useEffect(() => {
-    if (profile?.id) {
+    if (unifiedProfile?.id) {
       loadWishlist();
     }
-  }, [profile?.id]);
+  }, [unifiedProfile?.id]);
 
   const loadWishlist = async () => {
-    if (!profile?.id) return;
+    if (!unifiedProfile?.id) return;
     try {
       setLoadingWishlist(true);
       const { data, error } = await supabase
-        .rpc('get_user_wishlist', { p_user_id: profile.id });
+        .rpc('get_user_wishlist', { p_user_id: unifiedProfile.id });
 
       if (error) throw error;
       setWishlistItems(data || []);
@@ -75,7 +116,7 @@ export function ProfilePage() {
     }
   };
   
-  if (!profile) {
+  if (!unifiedProfile) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-background/80">
         <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
@@ -133,14 +174,14 @@ export function ProfilePage() {
       if (avatarUrl) {
         const oldPath = avatarUrl.split('/').pop();
         if (oldPath) {
-          await supabase.storage.from('avatars').remove([`${profile.id}/${oldPath}`]);
+          await supabase.storage.from('avatars').remove([`${unifiedProfile.id}/${oldPath}`]);
         }
       }
 
       // Upload new avatar
       const fileExt = compressedFile.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `${profile.id}/${fileName}`;
+      const filePath = `${unifiedProfile.id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
@@ -156,20 +197,14 @@ export function ProfilePage() {
         .from('avatars')
         .getPublicUrl(filePath);
 
-      // Update profile
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ avatar_url: publicUrl })
-        .eq('id', profile.id);
-
-      if (updateError) throw updateError;
+      // Update unified profile
+      await updateUnifiedProfile({ avatar_url: publicUrl });
 
       setAvatarUrl(publicUrl);
       toast({
         title: 'Success',
         description: 'Avatar updated successfully',
       });
-      refreshProfile();
     } catch (error: any) {
       console.error('Error uploading avatar:', error);
       toast({
@@ -186,21 +221,18 @@ export function ProfilePage() {
     try {
       setSaving(true);
 
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          full_name: fullName,
+      await updateUnifiedProfile({
+        display_name: fullName,
+        crescendo_data: {
+          ...unifiedProfile.crescendo_data,
           bio: bio,
-        })
-        .eq('id', profile.id);
-
-      if (error) throw error;
+        },
+      });
 
       toast({
         title: 'Success',
         description: 'Profile updated successfully',
       });
-      refreshProfile();
     } catch (error: any) {
       console.error('Error updating profile:', error);
       toast({
@@ -225,10 +257,10 @@ export function ProfilePage() {
 
     setLinkingWallet(true);
     try {
-      const success = await linkWalletToAccount(profile.id);
+      const success = await linkWalletToAccount(unifiedProfile.id);
       if (success) {
         setWalletAddress(address);
-        refreshProfile();
+        await refreshUnifiedProfile();
       }
     } finally {
       setLinkingWallet(false);
@@ -238,19 +270,13 @@ export function ProfilePage() {
   const handleUnlinkWallet = async () => {
     try {
       setSaving(true);
-      const { error } = await supabase
-        .from('profiles')
-        .update({ wallet_address: null })
-        .eq('id', profile.id);
-
-      if (error) throw error;
+      await updateUnifiedProfile({ wallet_address: null });
 
       setWalletAddress('');
       toast({
         title: 'Success',
         description: 'Wallet unlinked successfully',
       });
-      refreshProfile();
     } catch (error: any) {
       console.error('Error unlinking wallet:', error);
       toast({
@@ -272,10 +298,10 @@ export function ProfilePage() {
         .toUpperCase()
         .slice(0, 2);
     }
-    return profile.email?.[0]?.toUpperCase() || 'U';
+    return unifiedProfile.email?.[0]?.toUpperCase() || 'U';
   };
 
-  const membershipTier = getMembershipTierByNCTR(profile.locked_nctr);
+  const membershipTier = getMembershipTierByNCTR(crescendoData.locked_nctr);
 
   const handleRemoveFromWishlist = async (wishlistId: string, rewardTitle: string) => {
     try {
@@ -402,20 +428,20 @@ export function ProfilePage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Locked NCTR</span>
-                    <span className="font-semibold">{profile.locked_nctr.toLocaleString()}</span>
+                    <span className="font-semibold">{crescendoData.locked_nctr.toLocaleString()}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Available NCTR</span>
-                    <span className="font-semibold">{profile.available_nctr.toLocaleString()}</span>
+                    <span className="font-semibold">{crescendoData.available_nctr.toLocaleString()}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Claim Passes</span>
-                    <span className="font-semibold">{profile.claim_balance.toLocaleString()}</span>
+                    <span className="font-semibold">{crescendoData.claim_balance.toLocaleString()}</span>
                   </div>
                 </div>
                 <BuyClaims 
-                  currentBalance={profile.claim_balance} 
-                  onPurchaseSuccess={refreshProfile}
+                  currentBalance={crescendoData.claim_balance} 
+                  onPurchaseSuccess={refreshUnifiedProfile}
                   trigger={
                     <Button className="w-full gap-2" variant="default">
                       Buy Claim Passes
@@ -484,14 +510,14 @@ export function ProfilePage() {
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">Total NCTR</span>
                           <span className="font-semibold">
-                            {(walletNCTRBalance + profile.available_nctr + profile.locked_nctr).toLocaleString(undefined, {
+                            {(walletNCTRBalance + crescendoData.available_nctr + crescendoData.locked_nctr).toLocaleString(undefined, {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2
                             })}
                           </span>
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          = Wallet ({walletNCTRBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })}) + Available ({profile.available_nctr.toLocaleString()}) + Locked ({profile.locked_nctr.toLocaleString()})
+                          = Wallet ({walletNCTRBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })}) + Available ({crescendoData.available_nctr.toLocaleString()}) + Locked ({crescendoData.locked_nctr.toLocaleString()})
                         </div>
                       </div>
                     </>
@@ -673,7 +699,7 @@ export function ProfilePage() {
                   <Input
                     id="email"
                     type="email"
-                    value={profile.email || ''}
+                    value={unifiedProfile.email || ''}
                     disabled
                     className="bg-muted"
                   />
@@ -826,15 +852,15 @@ export function ProfilePage() {
                   <div className="flex gap-2">
                     <Input
                       id="referralCode"
-                      value={profile.referral_code || 'Loading...'}
+                      value={crescendoData.referral_code || 'Loading...'}
                       readOnly
                       className="bg-muted font-mono"
                     />
                     <Button
                       variant="outline"
                       onClick={() => {
-                        if (profile.referral_code) {
-                          navigator.clipboard.writeText(profile.referral_code);
+                        if (crescendoData.referral_code) {
+                          navigator.clipboard.writeText(crescendoData.referral_code);
                           toast({
                             title: 'Copied!',
                             description: 'Referral code copied to clipboard',
@@ -846,7 +872,7 @@ export function ProfilePage() {
                     </Button>
                   </div>
                 </div>
-                {profile.has_claimed_signup_bonus && (
+                {crescendoData.has_claimed_signup_bonus && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Shield className="w-4 h-4 text-green-600" />
                     Signup bonus claimed
