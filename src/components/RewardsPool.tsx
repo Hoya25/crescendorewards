@@ -9,15 +9,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Clock, Package, Heart, Store, Trophy, User, ChevronDown, LogOut, LayoutDashboard, FileCheck, Receipt, BarChart3, Crown, ArrowLeft, Shield, Settings, Plus, Pencil } from 'lucide-react';
+import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Clock, Package, Heart, Store, Trophy, User, ChevronDown, LogOut, LayoutDashboard, FileCheck, Receipt, BarChart3, Crown, ArrowLeft, Shield, Settings, Plus, Pencil, Search, ArrowUpDown, LayoutGrid, List, SlidersHorizontal } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { BuyClaims } from '@/components/BuyClaims';
 import { RewardCard } from '@/components/rewards/RewardCard';
+import { VisualRewardCard } from '@/components/rewards/VisualRewardCard';
 import { RewardFilters } from '@/components/rewards/RewardFilters';
 import { FeaturedCarousel } from '@/components/rewards/FeaturedCarousel';
+import { SponsoredRewardsCarousel } from '@/components/rewards/SponsoredRewardsCarousel';
+import { SponsoredBanner } from '@/components/rewards/SponsoredBanner';
 import { CrescendoLogo } from '@/components/CrescendoLogo';
 import { BetaBadge } from '@/components/BetaBadge';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -32,6 +36,8 @@ import { NoRewardsEmpty } from '@/components/EmptyState';
 import { DataErrorState } from '@/components/DataErrorState';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useWatchlist } from '@/hooks/useWatchlist';
+import { useFavorites } from '@/hooks/useFavorites';
+import { cn } from '@/lib/utils';
 
 interface Reward {
   id: string;
@@ -57,6 +63,8 @@ interface Reward {
   sponsor_link?: string | null;
   sponsor_start_date?: string | null;
   sponsor_end_date?: string | null;
+  min_status_tier?: string | null;
+  is_sponsored?: boolean | null;
 }
 
 interface RewardsPoolProps {
@@ -69,13 +77,22 @@ interface RewardsPoolProps {
   carouselAutoplayDelay?: number;
 }
 
-const categoryIcons = {
+const categoryIcons: Record<string, typeof Coins> = {
   alliance_tokens: Coins,
   experiences: Sparkles,
   merch: ShoppingBag,
   gift_cards: CreditCard,
   wellness: Heart,
   subscriptions: Trophy,
+};
+
+const categoryLabels: Record<string, string> = {
+  alliance_tokens: 'Alliance Tokens',
+  experiences: 'Experiences',
+  merch: 'Merch',
+  gift_cards: 'Gift Cards',
+  wellness: 'Wellness',
+  subscriptions: 'Subscriptions',
 };
 
 // Valid filter values for URL params
@@ -91,12 +108,16 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const { profile, tier } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   const { isWatching, toggleWatch, isAnimating: isWatchAnimating, getWatchCount, fetchWatchCounts } = useWatchlist();
+  const { favorites, toggleFavorite, animatingIds: favAnimatingIds } = useFavorites();
   const [rewards, setRewards] = useState<Reward[]>([]);
+  const [sponsoredRewards, setSponsoredRewards] = useState<Reward[]>([]);
   const [featuredRewards, setFeaturedRewards] = useState<Reward[]>([]);
   const [filteredRewards, setFilteredRewards] = useState<Reward[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<Error | null>(null);
   const [retrying, setRetrying] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [showFiltersDrawer, setShowFiltersDrawer] = useState(false);
   
   // Initialize state from URL params with validation
   const getValidParam = (param: string | null, validValues: string[], defaultValue: string) => {
@@ -318,6 +339,12 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       }));
       
       setRewards(rewardsWithBrandName as Reward[]);
+      
+      // Filter sponsored rewards
+      const sponsored = rewardsWithBrandName.filter((r: any) => 
+        r.sponsor_enabled || r.is_sponsored
+      );
+      setSponsoredRewards(sponsored as Reward[]);
     } catch (error) {
       console.error('Error loading rewards:', error);
       setLoadError(error instanceof Error ? error : new Error('Failed to load rewards'));
@@ -659,9 +686,10 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         </div>
       </nav>
 
-      {/* Page Header */}
-      <div className="bg-background/50 border-b w-full">
-        <div className="container mx-auto px-4 py-4 max-w-full">
+      {/* Page Header with Hero */}
+      <div className="bg-gradient-to-b from-background via-background to-muted/30 border-b w-full">
+        <div className="container mx-auto px-4 py-6 md:py-8 max-w-full space-y-6">
+          {/* Title Row */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               {onBack && (
@@ -684,31 +712,202 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               <span className="text-xs text-muted-foreground">Claims</span>
             </div>
           </div>
-          
-          <div className="mt-4">
-            <RewardFilters
-              activeCategory={activeCategory}
-              onCategoryChange={setActiveCategory}
-              sortBy={sortBy}
-              onSortChange={setSortBy}
-              priceFilter={priceFilter}
-              onPriceFilterChange={setPriceFilter}
-              availabilityFilter={availabilityFilter}
-              onAvailabilityFilterChange={setAvailabilityFilter}
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              exclusiveFilter={exclusiveFilter}
-              onExclusiveFilterChange={setExclusiveFilter}
-              highValueFilter={highValueFilter}
-              onHighValueFilterChange={setHighValueFilter}
-              resultsCount={filteredRewards.length}
-            />
+
+          {/* Category Quick Links (horizontal scroll on mobile) */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+            {[
+              { key: 'all', label: 'All', icon: Gift },
+              { key: 'experiences', label: 'Experiences', icon: Sparkles },
+              { key: 'subscriptions', label: 'Subscriptions', icon: Trophy },
+              { key: 'gift_cards', label: 'Gift Cards', icon: CreditCard },
+              { key: 'merch', label: 'Merch', icon: ShoppingBag },
+              { key: 'alliance_tokens', label: 'Alliance Tokens', icon: Coins },
+              { key: 'wellness', label: 'Wellness', icon: Heart },
+            ].map(({ key, label, icon: Icon }) => (
+              <Button
+                key={key}
+                variant={activeCategory === key ? 'default' : 'outline'}
+                size="sm"
+                className={cn(
+                  "flex-shrink-0 gap-2 rounded-full transition-all",
+                  activeCategory === key && "shadow-md"
+                )}
+                onClick={() => setActiveCategory(key)}
+              >
+                <Icon className="w-4 h-4" />
+                {label}
+              </Button>
+            ))}
           </div>
         </div>
       </div>
 
+      {/* Sponsored Banner (if featured campaign) */}
+      {!loading && sponsoredRewards.length > 0 && activeCategory === 'all' && (
+        <div className="container mx-auto px-4 pt-6 max-w-full">
+          <SponsoredBanner 
+            rewardId={sponsoredRewards[0]?.id}
+            rewardTitle={sponsoredRewards[0]?.title}
+            sponsorName={sponsoredRewards[0]?.sponsor_name || undefined}
+            sponsorLogo={sponsoredRewards[0]?.sponsor_logo || undefined}
+            minTier={sponsoredRewards[0]?.min_status_tier || 'Spiral'}
+          />
+        </div>
+      )}
+
+      {/* Sponsored Rewards Carousel */}
+      {!loading && activeCategory === 'all' && (
+        <div className="container mx-auto px-4 py-6 md:py-8 max-w-full">
+          <SponsoredRewardsCarousel />
+        </div>
+      )}
+
+      {/* Filter Bar */}
+      <div className="sticky top-[64px] z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b">
+        <div className="container mx-auto px-4 py-3 max-w-full">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Search Input */}
+            <div className="relative flex-1 min-w-[200px] max-w-md">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search rewards..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-background"
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7"
+                  onClick={() => setSearchQuery('')}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+
+            {/* Sort Dropdown */}
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[160px] bg-background">
+                <ArrowUpDown className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Sort" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest</SelectItem>
+                <SelectItem value="priceLowToHigh">Price: Low-High</SelectItem>
+                <SelectItem value="priceHighToLow">Price: High-Low</SelectItem>
+                <SelectItem value="popularity">Most Popular</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* View Toggle */}
+            <div className="flex items-center border rounded-lg overflow-hidden">
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                size="sm"
+                className="rounded-none h-9 px-3"
+                onClick={() => setViewMode('grid')}
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                className="rounded-none h-9 px-3"
+                onClick={() => setViewMode('list')}
+              >
+                <List className="w-4 h-4" />
+              </Button>
+            </div>
+
+            {/* More Filters Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={() => setShowFiltersDrawer(!showFiltersDrawer)}
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              <span className="hidden sm:inline">Filters</span>
+              {(priceFilter !== 'all' || availabilityFilter !== 'all' || exclusiveFilter !== 'exclusive') && (
+                <Badge variant="secondary" className="h-5 w-5 p-0 flex items-center justify-center text-[10px]">
+                  {[priceFilter !== 'all', availabilityFilter !== 'all', exclusiveFilter === 'exclusive'].filter(Boolean).length}
+                </Badge>
+              )}
+            </Button>
+
+            {/* Results Count */}
+            <div className="ml-auto hidden sm:block">
+              <Badge variant="secondary" className="gap-1">
+                {filteredRewards.length} {filteredRewards.length === 1 ? 'reward' : 'rewards'}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Expanded Filters (shown when showFiltersDrawer is true) */}
+          {showFiltersDrawer && (
+            <div className="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t animate-fade-in">
+              <Select value={priceFilter} onValueChange={setPriceFilter}>
+                <SelectTrigger className="w-[140px] bg-background">
+                  <Coins className="w-4 h-4 mr-2" />
+                  <SelectValue placeholder="Price" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Prices</SelectItem>
+                  <SelectItem value="free">Free</SelectItem>
+                  <SelectItem value="under100">Under 100</SelectItem>
+                  <SelectItem value="under500">Under 500</SelectItem>
+                  <SelectItem value="over500">500+</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={availabilityFilter} onValueChange={setAvailabilityFilter}>
+                <SelectTrigger className="w-[140px] bg-background">
+                  <Package className="w-4 h-4 mr-2" />
+                  <SelectValue placeholder="Stock" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Items</SelectItem>
+                  <SelectItem value="inStock">In Stock</SelectItem>
+                  <SelectItem value="lowStock">Low Stock</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={exclusiveFilter} onValueChange={setExclusiveFilter}>
+                <SelectTrigger className="w-[160px] bg-background">
+                  <Crown className="w-4 h-4 mr-2" />
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Rewards</SelectItem>
+                  <SelectItem value="exclusive">Exclusive Only</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {(priceFilter !== 'all' || availabilityFilter !== 'all' || exclusiveFilter !== 'all') && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground"
+                  onClick={() => {
+                    setPriceFilter('all');
+                    setAvailabilityFilter('all');
+                    setExclusiveFilter('all');
+                  }}
+                >
+                  <X className="w-4 h-4 mr-1" />
+                  Clear
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Featured Rewards Carousel */}
-      {!loading && featuredRewards.length > 0 && (
+      {!loading && featuredRewards.length > 0 && activeCategory === 'all' && (
         <FeaturedCarousel
           rewards={featuredRewards}
           onRewardClick={handleRewardClick}
@@ -721,12 +920,15 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         />
       )}
 
-      {/* Regular Rewards Grid */}
+      {/* Main Rewards Grid */}
       <div className="container mx-auto px-4 py-8 md:py-12 max-w-full">
-        {!loading && featuredRewards.length > 0 && (
+        {/* Section Header */}
+        {!loading && (
           <div className="flex items-center gap-2 mb-6">
-            <Trophy className="w-5 h-5 text-primary" />
-            <h2 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">All Rewards</h2>
+            <Gift className="w-5 h-5 text-primary" />
+            <h2 className="text-xl md:text-2xl font-bold">
+              {activeCategory === 'all' ? 'All Rewards' : categoryLabels[activeCategory] || 'Rewards'}
+            </h2>
             <Badge variant="secondary" className="gap-1">
               {filteredRewards.length} Available
             </Badge>
@@ -734,7 +936,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         )}
         
         {loading ? (
-          <RewardsGridSkeleton count={6} />
+          <RewardsGridSkeleton count={8} />
         ) : loadError ? (
           <DataErrorState
             title="Failed to load rewards"
@@ -743,29 +945,81 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             retrying={retrying}
           />
         ) : filteredRewards.length === 0 ? (
-          <NoRewardsEmpty />
+          <div className="text-center py-16 space-y-4">
+            <div className="w-20 h-20 mx-auto rounded-full bg-muted flex items-center justify-center">
+              <Gift className="w-10 h-10 text-muted-foreground" />
+            </div>
+            <h3 className="text-xl font-semibold">No rewards found</h3>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              We couldn't find any rewards matching your filters. Try adjusting your search or filters.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setActiveCategory('all');
+                setSearchQuery('');
+                setPriceFilter('all');
+                setAvailabilityFilter('all');
+                setExclusiveFilter('all');
+              }}
+            >
+              Clear All Filters
+            </Button>
+          </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {filteredRewards.map((reward) => {
+          <div className={cn(
+            "gap-6",
+            viewMode === 'grid' 
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
+              : "flex flex-col"
+          )}>
+            {filteredRewards.map((reward, index) => {
               const outOfStock = reward.stock_quantity !== null && reward.stock_quantity <= 0;
+              const userTier = tier ? { tierName: tier.display_name || tier.tier_name, tierLevel: tier.sort_order } : { tierName: 'Droplet', tierLevel: 1 };
+              
               return (
-                <RewardCard
-                  key={reward.id}
-                  reward={reward}
-                  isInWishlist={wishlistItems.has(reward.id)}
-                  onToggleWishlist={toggleWishlist}
-                  onImageZoom={handleImageZoom}
-                  onClick={() => handleRewardClick(reward)}
-                  isAnimatingHeart={animatingHearts.has(reward.id)}
-                  claimBalance={claimBalance}
-                  isAdmin={isAdmin}
-                  onAdminEdit={(rewardId) => navigate(`/admin?tab=rewards&edit=${rewardId}`)}
-                  isWatching={outOfStock ? isWatching(reward.id) : false}
-                  onToggleWatch={outOfStock ? toggleWatch : undefined}
-                  isAnimatingWatch={outOfStock ? isWatchAnimating(reward.id) : false}
-                  watchCount={outOfStock ? getWatchCount(reward.id) : 0}
-                  userTier={tier?.tier_name?.toLowerCase() || 'droplet'}
-                />
+                <div 
+                  key={reward.id} 
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  {viewMode === 'grid' ? (
+                    <VisualRewardCard
+                      reward={{
+                        ...reward,
+                        is_sponsored: reward.sponsor_enabled || false,
+                        sponsor_logo_url: reward.sponsor_logo,
+                        status_tier_claims_cost: null,
+                      }}
+                      isInFavorites={favorites.has(reward.id)}
+                      onToggleFavorites={(id, e) => {
+                        e.stopPropagation();
+                        toggleFavorite(id);
+                      }}
+                      onClick={() => handleRewardClick(reward)}
+                      isAnimatingHeart={favAnimatingIds.has(reward.id)}
+                      claimBalance={claimBalance}
+                      userTier={userTier}
+                    />
+                  ) : (
+                    <RewardCard
+                      reward={reward}
+                      isInWishlist={wishlistItems.has(reward.id)}
+                      onToggleWishlist={toggleWishlist}
+                      onImageZoom={handleImageZoom}
+                      onClick={() => handleRewardClick(reward)}
+                      isAnimatingHeart={animatingHearts.has(reward.id)}
+                      claimBalance={claimBalance}
+                      isAdmin={isAdmin}
+                      onAdminEdit={(rewardId) => navigate(`/admin?tab=rewards&edit=${rewardId}`)}
+                      isWatching={outOfStock ? isWatching(reward.id) : false}
+                      onToggleWatch={outOfStock ? toggleWatch : undefined}
+                      isAnimatingWatch={outOfStock ? isWatchAnimating(reward.id) : false}
+                      watchCount={outOfStock ? getWatchCount(reward.id) : 0}
+                      userTier={tier?.tier_name?.toLowerCase() || 'droplet'}
+                    />
+                  )}
+                </div>
               );
             })}
           </div>
