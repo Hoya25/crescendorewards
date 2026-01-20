@@ -229,6 +229,17 @@ export function Dashboard() {
                 </div>
 
                 <div className="flex flex-wrap items-center justify-center gap-2">
+                  {/* Admin Quick Access - Mobile */}
+                  {isAdmin && (
+                    <Button
+                      onClick={() => navigate('/admin')}
+                      size="sm"
+                      className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0"
+                    >
+                      <Crown className="w-4 h-4" />
+                      Admin
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     onClick={() => navigate('/membership')}
@@ -278,6 +289,16 @@ export function Dashboard() {
                 </div>
 
                 <div className="flex items-center gap-4">
+                  {/* Admin Quick Access Button - Prominent placement */}
+                  {isAdmin && (
+                    <Button
+                      onClick={() => navigate('/admin')}
+                      className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0 shadow-md"
+                    >
+                      <Crown className="w-4 h-4" />
+                      Admin Panel
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     onClick={() => navigate('/membership')}
