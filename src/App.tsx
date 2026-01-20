@@ -11,6 +11,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminRoute } from "./components/AdminRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { RouteLoading, PageLoading } from "./components/RouteLoading";
+import { FeedbackButton } from "./components/FeedbackButton";
 
 // Eagerly loaded components (critical path)
 import { LandingPage } from "./components/LandingPage";
@@ -219,6 +220,9 @@ function AppRoutes() {
           onToggleMode={handleToggleMode}
         />
       )}
+
+      {/* Global feedback button */}
+      <FeedbackButton />
     </div>
   );
 }

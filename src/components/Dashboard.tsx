@@ -6,6 +6,7 @@ import { Progress } from "./ui/progress";
 import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt, Crown, BarChart3, UtensilsCrossed, Heart, ShoppingBag, ExternalLink } from "lucide-react";
 import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
+import { BetaBadge } from "./BetaBadge";
 import { ThemeToggle } from "./ThemeToggle";
 import { ReferralCard } from "./ReferralCard";
 import { BuyClaims } from "./BuyClaims";
@@ -138,9 +139,10 @@ export function Dashboard() {
                   <SidebarTrigger />
                   <button
                     onClick={() => navigate('/rewards')}
-                    className="hover:opacity-80 transition-opacity cursor-pointer"
+                    className="hover:opacity-80 transition-opacity cursor-pointer flex items-center"
                   >
                     <CrescendoLogo />
+                    <BetaBadge />
                   </button>
                 </div>
 
@@ -184,9 +186,10 @@ export function Dashboard() {
                   <SidebarTrigger />
                   <button
                     onClick={() => navigate('/rewards')}
-                    className="hover:opacity-80 transition-opacity cursor-pointer"
+                    className="hover:opacity-80 transition-opacity cursor-pointer flex items-center"
                   >
                     <CrescendoLogo />
+                    <BetaBadge />
                   </button>
                 </div>
 
