@@ -65,6 +65,33 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          created_at: string
+          id: string
+          page_url: string
+          user_id: string | null
+          whats_broken: string | null
+          whats_working: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          page_url: string
+          user_id?: string | null
+          whats_broken?: string | null
+          whats_working?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          page_url?: string
+          user_id?: string | null
+          whats_broken?: string | null
+          whats_working?: string | null
+        }
+        Relationships: []
+      }
       membership_history: {
         Row: {
           created_at: string

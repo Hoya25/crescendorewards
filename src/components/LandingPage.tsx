@@ -5,6 +5,7 @@ import { Badge } from "./ui/badge";
 import { Sparkles, Trophy, Users, Award, ShoppingBag, Infinity } from "lucide-react";
 import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
+import { BetaBadge } from "./BetaBadge";
 import { ImageWithFallback } from "./ImageWithFallback";
 import { SEO } from "./SEO";
 import { MobileNav } from "./MobileNav";
@@ -71,8 +72,9 @@ export function LandingPage() {
       />
       {/* Navigation */}
       <nav className="flex items-center justify-between p-4 md:p-6 w-full max-w-7xl mx-auto">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center">
           <CrescendoLogo />
+          <BetaBadge />
         </div>
         
         {/* Desktop Navigation */}

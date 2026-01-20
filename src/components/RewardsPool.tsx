@@ -19,6 +19,7 @@ import { RewardCard } from '@/components/rewards/RewardCard';
 import { RewardFilters } from '@/components/rewards/RewardFilters';
 import { FeaturedCarousel } from '@/components/rewards/FeaturedCarousel';
 import { CrescendoLogo } from '@/components/CrescendoLogo';
+import { BetaBadge } from '@/components/BetaBadge';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { NotificationsDropdown } from '@/components/NotificationsDropdown';
 import { SEO } from '@/components/SEO';
@@ -488,9 +489,10 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/')}
-                className="hover:opacity-80 transition-opacity cursor-pointer"
+                className="hover:opacity-80 transition-opacity cursor-pointer flex items-center"
               >
                 <CrescendoLogo />
+                <BetaBadge />
               </button>
               <div className="hidden md:flex items-center gap-2">
                 {isAuthenticated && (
