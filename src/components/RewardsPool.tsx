@@ -961,15 +961,15 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       {/* Floating Admin Bar */}
       {isAdmin && (
         <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
-          <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full shadow-2xl px-4 py-2 flex items-center gap-3">
-            <div className="flex items-center gap-2 pr-3 border-r border-white/30">
+          <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground rounded-full shadow-2xl px-4 py-2 flex items-center gap-3">
+            <div className="flex items-center gap-2 pr-3 border-r border-primary-foreground/30">
               <Crown className="w-4 h-4" />
               <span className="text-sm font-medium hidden sm:inline">Admin Mode</span>
             </div>
             <Button
               size="sm"
               variant="ghost"
-              className="text-white hover:bg-white/20 gap-2"
+              className="text-primary-foreground hover:bg-primary-foreground/20 gap-2"
               onClick={() => navigate('/admin?tab=rewards')}
             >
               <Settings className="w-4 h-4" />
@@ -978,7 +978,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             <Button
               size="sm"
               variant="ghost"
-              className="text-white hover:bg-white/20 gap-2"
+              className="text-primary-foreground hover:bg-primary-foreground/20 gap-2"
               onClick={() => navigate('/admin?tab=claims')}
             >
               <Package className="w-4 h-4" />
@@ -986,7 +986,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             </Button>
             <Button
               size="sm"
-              className="bg-white text-amber-600 hover:bg-white/90 gap-2"
+              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 gap-2"
               onClick={() => navigate('/admin')}
             >
               <Shield className="w-4 h-4" />
