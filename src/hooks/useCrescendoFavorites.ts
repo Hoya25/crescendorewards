@@ -3,13 +3,6 @@ import { supabase } from '@/lib/supabase';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { toast } from 'sonner';
 
-interface CrescendoFavorite {
-  id: string;
-  user_id: string;
-  reward_id: string;
-  created_at: string;
-}
-
 interface UseCrescendoFavoritesReturn {
   favorites: Set<string>;
   favoritesCount: number;
@@ -33,17 +26,24 @@ export function useCrescendoFavorites(): UseCrescendoFavoritesReturn {
     }
 
     try {
-      // Use type assertion since crescendo_favorites is in external Garden DB
-      const { data, error } = await (supabase
-        .from('crescendo_favorites' as any)
+      // Use reward_wishlists table which exists in the database
+      const { data, error } = await supabase
+        .from('reward_wishlists')
         .select('reward_id')
-        .eq('user_id', profile.id) as any);
+        .eq('user_id', profile.id);
 
-      if (error) throw error;
-      const items = (data || []) as CrescendoFavorite[];
-      setFavorites(new Set(items.map(item => item.reward_id)));
+      if (error) {
+        // Table might not exist or RLS issue - fail gracefully
+        console.warn('Could not fetch favorites:', error.message);
+        setFavorites(new Set());
+        setLoading(false);
+        return;
+      }
+
+      setFavorites(new Set((data || []).map(item => item.reward_id)));
     } catch (error) {
       console.error('Error fetching favorites:', error);
+      setFavorites(new Set());
     } finally {
       setLoading(false);
     }
@@ -88,21 +88,21 @@ export function useCrescendoFavorites(): UseCrescendoFavoritesReturn {
 
     try {
       if (wasInFavorites) {
-        const { error } = await (supabase
-          .from('crescendo_favorites' as any)
+        const { error } = await supabase
+          .from('reward_wishlists')
           .delete()
           .eq('user_id', profile.id)
-          .eq('reward_id', rewardId) as any);
+          .eq('reward_id', rewardId);
 
         if (error) throw error;
         toast.success('Removed from favorites');
       } else {
-        const { error } = await (supabase
-          .from('crescendo_favorites' as any)
+        const { error } = await supabase
+          .from('reward_wishlists')
           .insert({
             user_id: profile.id,
             reward_id: rewardId,
-          }) as any);
+          });
 
         if (error) throw error;
         toast.success('Added to favorites');

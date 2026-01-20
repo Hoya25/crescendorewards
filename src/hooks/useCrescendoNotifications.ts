@@ -8,7 +8,7 @@ export interface CrescendoNotification {
   type: string;
   title: string;
   message: string;
-  read: boolean;
+  is_read: boolean;
   created_at: string;
 }
 
@@ -27,21 +27,34 @@ export function useCrescendoNotifications() {
     }
 
     try {
-      // Use type assertion since crescendo_notifications is in external Garden DB
-      const { data, error } = await (supabase
-        .from('crescendo_notifications' as any)
+      // Use notifications table which exists in the database
+      const { data, error } = await supabase
+        .from('notifications')
         .select('*')
         .eq('user_id', profile.id)
         .order('created_at', { ascending: false })
-        .limit(20) as any);
+        .limit(20);
 
-      if (error) throw error;
+      if (error) {
+        // Table might not exist or RLS issue - fail gracefully
+        console.warn('Could not fetch notifications:', error.message);
+        setNotifications([]);
+        setUnreadCount(0);
+        setLoading(false);
+        return;
+      }
 
-      const notifs = (data || []) as CrescendoNotification[];
+      const notifs = (data || []).map(n => ({
+        ...n,
+        is_read: n.is_read ?? false,
+      })) as CrescendoNotification[];
+      
       setNotifications(notifs);
-      setUnreadCount(notifs.filter(n => !n.read).length);
+      setUnreadCount(notifs.filter(n => !n.is_read).length);
     } catch (error) {
       console.error('Error fetching notifications:', error);
+      setNotifications([]);
+      setUnreadCount(0);
     } finally {
       setLoading(false);
     }
@@ -49,15 +62,15 @@ export function useCrescendoNotifications() {
 
   const markAsRead = async (notificationId: string) => {
     try {
-      const { error } = await (supabase
-        .from('crescendo_notifications' as any)
-        .update({ read: true })
-        .eq('id', notificationId) as any);
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', notificationId);
 
       if (error) throw error;
 
       setNotifications(prev =>
-        prev.map(n => (n.id === notificationId ? { ...n, read: true } : n))
+        prev.map(n => (n.id === notificationId ? { ...n, is_read: true } : n))
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
@@ -69,15 +82,15 @@ export function useCrescendoNotifications() {
     if (!profile) return;
 
     try {
-      const { error } = await (supabase
-        .from('crescendo_notifications' as any)
-        .update({ read: true })
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
         .eq('user_id', profile.id)
-        .eq('read', false) as any);
+        .eq('is_read', false);
 
       if (error) throw error;
 
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
       setUnreadCount(0);
     } catch (error) {
       console.error('Error marking all as read:', error);
@@ -91,13 +104,13 @@ export function useCrescendoNotifications() {
 
     // Subscribe to realtime notifications
     const channel = supabase
-      .channel('crescendo-notifications-changes')
+      .channel('notifications-changes')
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'crescendo_notifications',
+          table: 'notifications',
           filter: `user_id=eq.${profile.id}`,
         },
         (payload) => {

@@ -34,7 +34,7 @@ interface NotificationItemProps {
 
 function NotificationItem({ notification, onMarkAsRead }: NotificationItemProps) {
   const handleClick = () => {
-    if (!notification.read) {
+    if (!notification.is_read) {
       onMarkAsRead(notification.id);
     }
   };
@@ -43,7 +43,7 @@ function NotificationItem({ notification, onMarkAsRead }: NotificationItemProps)
     <DropdownMenuItem
       className={cn(
         'flex items-start gap-3 p-3 cursor-pointer',
-        !notification.read && 'bg-accent/50'
+        !notification.is_read && 'bg-accent/50'
       )}
       onClick={handleClick}
     >
@@ -51,7 +51,7 @@ function NotificationItem({ notification, onMarkAsRead }: NotificationItemProps)
         {getNotificationIcon(notification.type)}
       </div>
       <div className="flex-1 min-w-0">
-        <p className={cn('text-sm', !notification.read && 'font-medium')}>
+        <p className={cn('text-sm', !notification.is_read && 'font-medium')}>
           {notification.title}
         </p>
         <p className="text-xs text-muted-foreground line-clamp-2">
@@ -61,7 +61,7 @@ function NotificationItem({ notification, onMarkAsRead }: NotificationItemProps)
           {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
         </p>
       </div>
-      {!notification.read && (
+      {!notification.is_read && (
         <div className="flex-shrink-0">
           <div className="h-2 w-2 rounded-full bg-primary" />
         </div>
