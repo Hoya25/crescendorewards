@@ -13,6 +13,7 @@ import { AdminRoute } from "./components/AdminRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { RouteLoading, PageLoading } from "./components/RouteLoading";
 import { FeedbackButton } from "./components/FeedbackButton";
+import { DevToolsPanel } from "./components/DevToolsPanel";
 
 // Eagerly loaded components (critical path)
 import { LandingPage } from "./components/LandingPage";
@@ -233,6 +234,9 @@ function AppRoutes() {
 
       {/* Global feedback button */}
       <FeedbackButton />
+      
+      {/* Developer tools panel */}
+      <DevToolsPanel />
     </div>
   );
 }
