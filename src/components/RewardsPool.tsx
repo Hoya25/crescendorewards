@@ -20,6 +20,7 @@ import { RewardFilters } from '@/components/rewards/RewardFilters';
 import { FeaturedCarousel } from '@/components/rewards/FeaturedCarousel';
 import { CrescendoLogo } from '@/components/CrescendoLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { NotificationsDropdown } from '@/components/NotificationsDropdown';
 import { SEO } from '@/components/SEO';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { RewardsGridSkeleton } from '@/components/skeletons/RewardCardSkeleton';
@@ -530,6 +531,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 onPurchaseSuccess={onClaimSuccess}
               />
               
+              <NotificationsDropdown />
               <ThemeToggle />
 
               {isAuthenticated ? (
