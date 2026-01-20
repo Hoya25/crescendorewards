@@ -8,8 +8,9 @@ import { SponsorBadge } from '@/components/rewards/SponsorBadge';
 import { 
   Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, 
   Lock, AlertTriangle, Package, Flame, Clock, Heart, Pencil,
-  Bell, BellOff, Eye, Check
+  Bell, BellOff, Eye, Check, Percent
 } from 'lucide-react';
+import { getRewardPriceForUser } from '@/utils/getRewardPrice';
 
 export interface RewardCardData {
   id: string;
@@ -34,6 +35,10 @@ export interface RewardCardData {
   sponsor_link?: string | null;
   sponsor_start_date?: string | null;
   sponsor_end_date?: string | null;
+  // Tier pricing fields
+  is_sponsored?: boolean | null;
+  status_tier_claims_cost?: Record<string, number> | null;
+  min_status_tier?: string | null;
 }
 
 const categoryIcons = {
@@ -59,6 +64,8 @@ interface RewardCardProps {
   onToggleWatch?: (rewardId: string, e: React.MouseEvent) => void;
   isAnimatingWatch?: boolean;
   watchCount?: number;
+  // Tier-based pricing props
+  userTier?: string;
 }
 
 export function RewardCard({
@@ -75,9 +82,17 @@ export function RewardCard({
   onToggleWatch,
   isAnimatingWatch = false,
   watchCount = 0,
+  userTier = 'droplet',
 }: RewardCardProps) {
   const Icon = categoryIcons[reward.category as keyof typeof categoryIcons] || Gift;
-  const affordable = claimBalance >= reward.cost;
+  
+  // Calculate tier-based pricing
+  const tierPricing = getRewardPriceForUser(
+    { id: reward.id, cost: reward.cost, is_sponsored: reward.is_sponsored, status_tier_claims_cost: reward.status_tier_claims_cost },
+    userTier
+  );
+  
+  const affordable = claimBalance >= tierPricing.price;
   const outOfStock = reward.stock_quantity !== null && reward.stock_quantity <= 0;
   const stockPercentage = reward.stock_quantity !== null ? (reward.stock_quantity / 100) * 100 : 100;
 
@@ -173,10 +188,21 @@ export function RewardCard({
         </Button>
 
         {/* Cost Badge - Bottom Left */}
-        <div className="absolute bottom-3 left-3">
+        <div className="absolute bottom-3 left-3 flex flex-col gap-1 items-start">
+          {tierPricing.discount > 0 && (
+            <Badge className="bg-emerald-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
+              <Percent className="w-3 h-3 mr-1" />
+              {tierPricing.discount}% Off
+            </Badge>
+          )}
           <Badge className="bg-background/90 backdrop-blur-sm border border-primary/20 text-primary font-bold shadow-lg">
             <Coins className="w-3 h-3 mr-1" />
-            {reward.cost}
+            {tierPricing.isFree ? 'FREE' : tierPricing.price}
+            {tierPricing.discount > 0 && (
+              <span className="ml-1 line-through text-muted-foreground text-xs font-normal">
+                {tierPricing.originalPrice}
+              </span>
+            )}
           </Badge>
         </div>
 

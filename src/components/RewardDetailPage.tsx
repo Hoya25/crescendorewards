@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, ShoppingBag, Star, Package, Zap, CheckCircle2, AlertTriangle, Coins, CreditCard, Sparkles, Gift, Clock, Lock, Share2, Twitter, Facebook, Linkedin, Link2, Check, Heart, Trophy, Store, ExternalLink, AlertCircle, Pencil, Bell, Eye } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Star, Package, Zap, CheckCircle2, AlertTriangle, Coins, CreditCard, Sparkles, Gift, Clock, Lock, Share2, Twitter, Facebook, Linkedin, Link2, Check, Heart, Trophy, Store, ExternalLink, AlertCircle, Pencil, Bell, Eye, Percent } from 'lucide-react';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { ConfirmationDialog } from '@/components/ConfirmationDialog';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
@@ -20,6 +20,7 @@ import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { DataErrorState } from '@/components/DataErrorState';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useWatchlist } from '@/hooks/useWatchlist';
+import { getRewardPriceForUser, canUserClaimReward, type Reward as RewardType, type TierPricing } from '@/utils/getRewardPrice';
 
 interface Reward {
   id: string;
@@ -37,6 +38,10 @@ interface Reward {
   minimum_token_balance?: number;
   token_contract_address?: string | null;
   brand_id?: string | null;
+  // Tier pricing fields
+  is_sponsored?: boolean | null;
+  status_tier_claims_cost?: Record<string, number> | null;
+  min_status_tier?: string | null;
 }
 
 interface Brand {
@@ -78,11 +83,17 @@ const getCrescendoData = (profile: any) => {
   };
 };
 
+// Helper to get user tier from unified profile
+const getUserTier = (tier: any): string => {
+  if (!tier) return 'droplet';
+  return tier.tier_name?.toLowerCase() || 'droplet';
+};
+
 export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const navigate = useNavigate();
   const { id: rewardId } = useParams<{ id: string }>();
   const { setShowAuthModal, setAuthMode } = useAuthContext();
-  const { profile, refreshUnifiedProfile } = useUnifiedUser();
+  const { profile, tier, refreshUnifiedProfile } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   const { isWatching, toggleWatch, isAnimating: isWatchAnimating, getWatchCount, fetchWatchCounts } = useWatchlist();
   const [reward, setReward] = useState<Reward | null>(null);
@@ -146,7 +157,8 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
         .single();
 
       if (fetchError) throw fetchError;
-      setReward(data);
+      // Cast the data to our Reward type (status_tier_claims_cost comes as Json from Supabase)
+      setReward(data as unknown as Reward);
 
       // Fetch brand if reward has brand_id
       if (data?.brand_id) {
@@ -386,7 +398,15 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   }
 
   const CategoryIcon = categoryIcons[reward.category] || Gift;
-  const canAfford = profile && crescendoData.claim_balance >= reward.cost;
+  const userTier = getUserTier(tier);
+  
+  // Calculate tier-based pricing
+  const tierPricing = reward ? getRewardPriceForUser(
+    { id: reward.id, cost: reward.cost, is_sponsored: reward.is_sponsored, status_tier_claims_cost: reward.status_tier_claims_cost },
+    userTier
+  ) : { price: reward?.cost || 0, isFree: false, discount: 0, originalPrice: reward?.cost || 0 };
+  
+  const canAfford = profile && crescendoData.claim_balance >= tierPricing.price;
   const inStock = reward.stock_quantity === null || reward.stock_quantity > 0;
 
   return (
@@ -475,12 +495,36 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
 
             <Card>
               <CardContent className="p-4 space-y-4">
+                {/* Tier-based pricing display */}
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Cost</span>
-                  <span className="text-2xl font-bold flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-amber-500" />
-                    {reward.cost} Claims
-                  </span>
+                  <div className="text-right">
+                    {tierPricing.discount > 0 ? (
+                      <div className="flex flex-col items-end gap-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm line-through text-muted-foreground">
+                            {tierPricing.originalPrice} Claims
+                          </span>
+                          <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+                            <Percent className="w-3 h-3 mr-1" />
+                            {tierPricing.discount}% Off
+                          </Badge>
+                        </div>
+                        <span className="text-2xl font-bold flex items-center gap-2">
+                          <Zap className="w-5 h-5 text-emerald-500" />
+                          {tierPricing.isFree ? 'FREE' : `${tierPricing.price} Claims`}
+                        </span>
+                        <span className="text-xs text-muted-foreground capitalize">
+                          {userTier} Status Price
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-2xl font-bold flex items-center gap-2">
+                        <Zap className="w-5 h-5 text-amber-500" />
+                        {reward.cost} Claims
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {reward.stock_quantity !== null && (
@@ -514,7 +558,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                     <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
                       <AlertTriangle className="w-4 h-4" />
                       <span className="text-sm font-medium">
-                        You need {reward.cost - crescendoData.claim_balance} more claims
+                        You need {tierPricing.price - crescendoData.claim_balance} more claims
                       </span>
                     </div>
                   </div>
