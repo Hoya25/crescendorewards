@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { CrescendoLogo } from './CrescendoLogo';
 import { NCTRLogo } from './NCTRLogo';
-import { Twitter, MessageCircle, Mail, ExternalLink } from 'lucide-react';
+import { Twitter, MessageCircle, Mail, ExternalLink, Database } from 'lucide-react';
+import { SUPABASE_URL } from '@/lib/supabase';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -90,6 +91,18 @@ export function Footer() {
           <p className="mt-1 text-xs">
             Beta version — Building the future of member-owned rewards.
           </p>
+          
+          {/* Debug: Connection Status Indicator */}
+          <div className="mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 text-xs font-mono">
+              <Database className="w-3 h-3" />
+              <span className="text-muted-foreground">DB:</span>
+              <span className={SUPABASE_URL.includes('rndivcsonsojgelzewkb') ? 'text-accent-foreground' : 'text-destructive'}>
+                {SUPABASE_URL.includes('rndivcsonsojgelzewkb') ? 'The Garden (Shared)' : 'Lovable Cloud'}
+              </span>
+              <span className="w-2 h-2 rounded-full bg-accent animate-pulse" title="Connected" />
+            </div>
+          </div>
         </div>
       </div>
     </footer>
