@@ -13,6 +13,7 @@ import { BuyClaims } from "./BuyClaims";
 import { WelcomeModal } from "./WelcomeModal";
 import { OnboardingProgress } from "./OnboardingProgress";
 import { NeedsAttention } from "./NeedsAttention";
+import { ActivityFeed } from "./ActivityFeed";
 import { SEO } from "./SEO";
 import { NotificationsDropdown } from "./NotificationsDropdown";
 import { Footer } from "./Footer";
@@ -409,36 +410,7 @@ export function Dashboard() {
               />
 
               {/* Recent Activity */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
-                    Recent Activity
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-4 p-3 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
-                      <div className="flex-1">
-                        <p className="font-medium">Account Created</p>
-                        <p className="text-sm text-muted-foreground">Welcome to Crescendo!</p>
-                      </div>
-                    </div>
-                    {profile.has_claimed_signup_bonus && (
-                      <div className="flex items-center gap-4 p-3 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
-                        <Sparkles className="w-5 h-5 text-violet-500" />
-                        <div className="flex-1">
-                          <p className="font-medium">Signup Bonus Claimed</p>
-                          <p className="text-sm text-muted-foreground flex items-center gap-1">
-                            Received 100 <NCTRLogo />
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              <ActivityFeed />
             </div>
           </main>
           <Footer />
