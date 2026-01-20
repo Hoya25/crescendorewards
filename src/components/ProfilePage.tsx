@@ -12,7 +12,8 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { NCTRLogo } from './NCTRLogo';
 import { toast } from '@/hooks/use-toast';
-import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift, X, Crown, ChevronRight, FileText } from 'lucide-react';
+import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift, X, Crown, ChevronRight, FileText, Check, Lock, TrendingUp, Sparkles } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { BuyClaims } from '@/components/BuyClaims';
@@ -68,7 +69,7 @@ const toProfileFormat = (unifiedProfile: any): Profile | null => {
 export function ProfilePage() {
   const navigate = useNavigate();
   const { signOut } = useAuthContext();
-  const { profile: unifiedProfile, refreshUnifiedProfile, updateUnifiedProfile } = useUnifiedUser();
+  const { profile: unifiedProfile, refreshUnifiedProfile, updateUnifiedProfile, tier, nextTier, progressToNextTier, total360Locked } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   
   // Convert to Profile format for compatibility
@@ -410,26 +411,135 @@ export function ProfilePage() {
               </CardContent>
             </Card>
 
-            {/* Membership Level Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Membership Level</CardTitle>
+            {/* Your Status Benefits Card */}
+            <Card 
+              className="overflow-hidden border-2"
+              style={{ 
+                borderColor: tier?.badge_color ? `${tier.badge_color}30` : 'hsl(var(--border))'
+              }}
+            >
+              <CardHeader 
+                className="pb-3"
+                style={{ 
+                  background: tier?.badge_color 
+                    ? `linear-gradient(135deg, ${tier.badge_color}15, ${tier.badge_color}05)` 
+                    : undefined 
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">{tier?.badge_emoji || '💧'}</span>
+                    <div>
+                      <CardTitle 
+                        className="text-lg"
+                        style={{ color: tier?.badge_color }}
+                      >
+                        {tier?.display_name || 'Droplet'}
+                      </CardTitle>
+                      <CardDescription>Your current status</CardDescription>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => navigate('/membership')}
+                    className="gap-1"
+                  >
+                    Upgrade
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Tier</span>
-                  <Badge className="text-base">{membershipTier.name}</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Multiplier</span>
-                  <span className="text-lg font-bold">{membershipTier.multiplier}x</span>
-                </div>
-                <Separator />
+              <CardContent className="space-y-5 pt-4">
+                {/* 360LOCK Progress */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Locked NCTR</span>
-                    <span className="font-semibold">{crescendoData.locked_nctr.toLocaleString()}</span>
+                    <span className="text-muted-foreground flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5" />
+                      360LOCK Amount
+                    </span>
+                    <span className="font-bold">{total360Locked.toLocaleString()} NCTR</span>
                   </div>
+                  
+                  {nextTier && (
+                    <div className="space-y-1.5">
+                      <Progress 
+                        value={progressToNextTier} 
+                        className="h-2"
+                      />
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>{Math.round(progressToNextTier)}% to next level</span>
+                        <span className="flex items-center gap-1">
+                          <span>{nextTier.badge_emoji}</span>
+                          {nextTier.display_name}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {!nextTier && (
+                    <div 
+                      className="flex items-center gap-2 text-xs p-2 rounded-lg"
+                      style={{ backgroundColor: `${tier?.badge_color}10` }}
+                    >
+                      <Sparkles className="w-4 h-4" style={{ color: tier?.badge_color }} />
+                      <span style={{ color: tier?.badge_color }}>Maximum status achieved!</span>
+                    </div>
+                  )}
+                </div>
+
+                <Separator />
+
+                {/* Benefits List */}
+                <div className="space-y-3">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    Your Benefits
+                  </p>
+                  <ul className="space-y-2">
+                    {(tier?.benefits || [
+                      'Access to basic rewards',
+                      'Earn 1x NCTR on activities',
+                      'Community access'
+                    ]).slice(0, 5).map((benefit, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-sm">
+                        <Check 
+                          className="w-4 h-4 mt-0.5 shrink-0" 
+                          style={{ color: tier?.badge_color || 'hsl(var(--primary))' }}
+                        />
+                        <span>{benefit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Next Tier Preview */}
+                {nextTier && nextTier.benefits && nextTier.benefits.length > 0 && (
+                  <>
+                    <Separator />
+                    <div className="space-y-3">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                        <TrendingUp className="w-3 h-3" />
+                        {nextTier.display_name} Unlocks
+                      </p>
+                      <ul className="space-y-2 opacity-60">
+                        {nextTier.benefits.slice(0, 2).map((benefit, idx) => (
+                          <li key={idx} className="flex items-start gap-2 text-sm">
+                            <Lock className="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground" />
+                            <span>{benefit}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="text-xs text-muted-foreground">
+                        Lock {(nextTier.min_nctr_360_locked - total360Locked).toLocaleString()} more NCTR to unlock
+                      </p>
+                    </div>
+                  </>
+                )}
+
+                <Separator />
+
+                {/* Balance Summary */}
+                <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Available NCTR</span>
                     <span className="font-semibold">{crescendoData.available_nctr.toLocaleString()}</span>
@@ -439,6 +549,7 @@ export function ProfilePage() {
                     <span className="font-semibold">{crescendoData.claim_balance.toLocaleString()}</span>
                   </div>
                 </div>
+                
                 <BuyClaims 
                   currentBalance={crescendoData.claim_balance} 
                   onPurchaseSuccess={refreshUnifiedProfile}
