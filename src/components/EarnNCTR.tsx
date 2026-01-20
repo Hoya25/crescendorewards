@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { ArrowLeft, CheckCircle2, ExternalLink, Users, Share2, Calendar, Zap, Store, Trophy, Gift, Lock, Loader2, ShoppingBag, CreditCard, BarChart3, Sparkles } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { NCTRLogo } from './NCTRLogo';
 import { SEO } from './SEO';

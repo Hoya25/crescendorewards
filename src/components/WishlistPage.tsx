@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Heart, Trash2, Gift } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';

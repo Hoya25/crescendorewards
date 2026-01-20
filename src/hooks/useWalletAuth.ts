@@ -1,5 +1,5 @@
 import { useAccount, useSignMessage } from 'wagmi';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 export function useWalletAuth() {

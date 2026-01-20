@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Lock, TrendingUp, Calendar } from 'lucide-react';

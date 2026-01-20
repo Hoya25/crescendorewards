@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { Search, Filter, MoreHorizontal, Eye, Coins, Gift, Copy, Check, ChevronLeft, ChevronRight } from 'lucide-react';
