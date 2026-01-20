@@ -27,6 +27,7 @@ import { CrescendoLogo } from '@/components/CrescendoLogo';
 import { BetaBadge } from '@/components/BetaBadge';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { FavoritesIndicator } from '@/components/FavoritesIndicator';
+import { ClaimsBalanceIndicator } from '@/components/claims/ClaimsBalanceIndicator';
 import { NotificationsDropdown } from '@/components/NotificationsDropdown';
 import { SEO } from '@/components/SEO';
 import { Footer } from '@/components/Footer';
@@ -611,17 +612,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
             {/* Right: Balance, Theme & Profile */}
             <div className="flex items-center gap-3">
-              {/* Claim Balance */}
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full">
-                <Coins className="w-4 h-4 text-primary" />
-                <span className="font-bold text-primary">{claimBalance}</span>
-                <span className="text-xs text-muted-foreground">Claims</span>
-              </div>
-              
-              <BuyClaims 
-                currentBalance={claimBalance} 
-                onPurchaseSuccess={onClaimSuccess}
-              />
+              {/* Claims Balance Indicator */}
+              {isAuthenticated && <ClaimsBalanceIndicator />}
               
               <FavoritesIndicator />
               <NotificationsDropdown />

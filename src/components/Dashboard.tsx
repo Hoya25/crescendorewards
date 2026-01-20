@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
-import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt, Crown, BarChart3, UtensilsCrossed, Heart, ShoppingBag, ExternalLink, AlertCircle, ClipboardList } from "lucide-react";
+import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt, Crown, BarChart3, UtensilsCrossed, Heart, ShoppingBag, ExternalLink, AlertCircle, ClipboardList, Ticket } from "lucide-react";
 import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
 import { BetaBadge } from "./BetaBadge";
@@ -15,6 +15,7 @@ import { OnboardingProgress } from "./OnboardingProgress";
 import { NeedsAttention } from "./NeedsAttention";
 import { ActivityFeed } from "./ActivityFeed";
 import { FavoritesIndicator } from "./FavoritesIndicator";
+import { ClaimsBalanceIndicator } from "./claims/ClaimsBalanceIndicator";
 import { StatusBadge } from "./StatusBadge";
 import { SEO } from "./SEO";
 import { NotificationsDropdown } from "./NotificationsDropdown";
@@ -313,9 +314,10 @@ export function Dashboard() {
                     className="gap-2"
                     size="sm"
                   >
-                    <Gift className="w-4 h-4" />
+                  <Gift className="w-4 h-4" />
                     Rewards
                   </Button>
+                  <ClaimsBalanceIndicator compact />
                   <FavoritesIndicator />
                   <NotificationsDropdown />
                   <ThemeToggle />
@@ -373,6 +375,7 @@ export function Dashboard() {
                     <Gift className="w-4 h-4" />
                     Rewards
                   </Button>
+                  <ClaimsBalanceIndicator />
                   <FavoritesIndicator />
                   <NotificationsDropdown />
                   <ThemeToggle />
