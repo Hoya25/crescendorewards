@@ -606,6 +606,7 @@ export type Database = {
       rewards: {
         Row: {
           brand_id: string | null
+          campaign_id: string | null
           category: string
           cost: number
           created_at: string
@@ -614,13 +615,17 @@ export type Database = {
           image_url: string | null
           is_active: boolean
           is_featured: boolean
+          is_sponsored: boolean | null
+          min_status_tier: string | null
           minimum_token_balance: number | null
           sponsor_enabled: boolean
           sponsor_end_date: string | null
           sponsor_link: string | null
           sponsor_logo: string | null
+          sponsor_logo_url: string | null
           sponsor_name: string | null
           sponsor_start_date: string | null
+          status_tier_claims_cost: Json | null
           stock_quantity: number | null
           title: string
           token_contract_address: string | null
@@ -631,6 +636,7 @@ export type Database = {
         }
         Insert: {
           brand_id?: string | null
+          campaign_id?: string | null
           category: string
           cost: number
           created_at?: string
@@ -639,13 +645,17 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           is_featured?: boolean
+          is_sponsored?: boolean | null
+          min_status_tier?: string | null
           minimum_token_balance?: number | null
           sponsor_enabled?: boolean
           sponsor_end_date?: string | null
           sponsor_link?: string | null
           sponsor_logo?: string | null
+          sponsor_logo_url?: string | null
           sponsor_name?: string | null
           sponsor_start_date?: string | null
+          status_tier_claims_cost?: Json | null
           stock_quantity?: number | null
           title: string
           token_contract_address?: string | null
@@ -656,6 +666,7 @@ export type Database = {
         }
         Update: {
           brand_id?: string | null
+          campaign_id?: string | null
           category?: string
           cost?: number
           created_at?: string
@@ -664,13 +675,17 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           is_featured?: boolean
+          is_sponsored?: boolean | null
+          min_status_tier?: string | null
           minimum_token_balance?: number | null
           sponsor_enabled?: boolean
           sponsor_end_date?: string | null
           sponsor_link?: string | null
           sponsor_logo?: string | null
+          sponsor_logo_url?: string | null
           sponsor_name?: string | null
           sponsor_start_date?: string | null
+          status_tier_claims_cost?: Json | null
           stock_quantity?: number | null
           title?: string
           token_contract_address?: string | null
@@ -685,6 +700,13 @@ export type Database = {
             columns: ["brand_id"]
             isOneToOne: false
             referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rewards_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "sponsored_campaigns"
             referencedColumns: ["id"]
           },
         ]
@@ -723,6 +745,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sponsored_campaigns: {
+        Row: {
+          campaign_name: string
+          created_at: string | null
+          display_priority: number | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          sponsor_logo_url: string | null
+          sponsor_name: string
+          start_date: string | null
+        }
+        Insert: {
+          campaign_name: string
+          created_at?: string | null
+          display_priority?: number | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          sponsor_logo_url?: string | null
+          sponsor_name: string
+          start_date?: string | null
+        }
+        Update: {
+          campaign_name?: string
+          created_at?: string | null
+          display_priority?: number | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          sponsor_logo_url?: string | null
+          sponsor_name?: string
+          start_date?: string | null
+        }
+        Relationships: []
       }
       sponsors: {
         Row: {
