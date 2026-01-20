@@ -5,11 +5,11 @@ export const STRIPE_PUBLISHABLE_KEY = 'pk_test_51Srj7TL2izU9EyCBe1hdPxvurYTLOosi
 
 // Stripe price IDs for claim packages
 export const STRIPE_PRICES = {
-  starter: 'price_1STt82LH9lB6iuZgexn693ld',
-  popular: 'price_1STt8GLH9lB6iuZg0ZXNlYAf',
-  premium: 'price_1STt8aLH9lB6iuZgjKuIc0vh',
-  ultimate: 'price_1STtAoLH9lB6iuZghenXBMFK',
-  mega: 'price_1STtB2LH9lB6iuZgL4qyz4lC',
+  starter: 'price_1SrkBlL2izU9EyCBbjOqLpOd',   // $50 - 10 Claims
+  popular: 'price_1SrkC1L2izU9EyCBvPzjf0Zs',   // $125 - 25 Claims
+  premium: 'price_1SrkCUL2izU9EyCBlPiUk6BX',   // $250 - 50 Claims
+  ultimate: 'price_1SrkDHL2izU9EyCBkD9Qeu9a',  // $500 - 100 Claims
+  mega: 'price_1SrkDUL2izU9EyCBIJ9FknaF',      // $1000 - 210 Claims
 } as const;
 
 export type StripePriceId = keyof typeof STRIPE_PRICES;
