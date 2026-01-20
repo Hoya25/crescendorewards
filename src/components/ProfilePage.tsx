@@ -452,7 +452,7 @@ export function ProfilePage() {
               </CardHeader>
               <CardContent className="space-y-5 pt-4">
                 {/* 360LOCK Progress */}
-                <div className="space-y-2">
+                <div className="space-y-2 animate-fade-in" style={{ animationDelay: '0.1s' }}>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground flex items-center gap-1.5">
                       <Lock className="w-3.5 h-3.5" />
@@ -463,10 +463,25 @@ export function ProfilePage() {
                   
                   {nextTier && (
                     <div className="space-y-1.5">
-                      <Progress 
-                        value={progressToNextTier} 
-                        className="h-2"
-                      />
+                      <div className="relative h-2 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className="absolute inset-y-0 left-0 rounded-full transition-all duration-1000 ease-out"
+                          style={{ 
+                            width: `${progressToNextTier}%`,
+                            background: `linear-gradient(90deg, ${tier?.badge_color || 'hsl(var(--primary))'}, ${nextTier?.badge_color || 'hsl(var(--primary))'})`,
+                            animation: 'progress-fill 1.5s ease-out forwards'
+                          }}
+                        />
+                        {/* Shimmer effect */}
+                        <div 
+                          className="absolute inset-0 opacity-30"
+                          style={{
+                            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
+                            animation: 'shimmer 2s infinite',
+                            animationDelay: '1s'
+                          }}
+                        />
+                      </div>
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span>{Math.round(progressToNextTier)}% to next level</span>
                         <span className="flex items-center gap-1">
@@ -479,7 +494,7 @@ export function ProfilePage() {
                   
                   {!nextTier && (
                     <div 
-                      className="flex items-center gap-2 text-xs p-2 rounded-lg"
+                      className="flex items-center gap-2 text-xs p-2 rounded-lg animate-pulse"
                       style={{ backgroundColor: `${tier?.badge_color}10` }}
                     >
                       <Sparkles className="w-4 h-4" style={{ color: tier?.badge_color }} />
@@ -490,9 +505,9 @@ export function ProfilePage() {
 
                 <Separator />
 
-                {/* Benefits List */}
+                {/* Benefits List with staggered animations */}
                 <div className="space-y-3">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide animate-fade-in" style={{ animationDelay: '0.2s' }}>
                     Your Benefits
                   </p>
                   <ul className="space-y-2">
@@ -501,12 +516,26 @@ export function ProfilePage() {
                       'Earn 1x NCTR on activities',
                       'Community access'
                     ]).slice(0, 5).map((benefit, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-sm">
-                        <Check 
-                          className="w-4 h-4 mt-0.5 shrink-0" 
-                          style={{ color: tier?.badge_color || 'hsl(var(--primary))' }}
-                        />
-                        <span>{benefit}</span>
+                      <li 
+                        key={idx} 
+                        className="flex items-start gap-2 text-sm animate-fade-in opacity-0"
+                        style={{ 
+                          animationDelay: `${0.3 + idx * 0.1}s`,
+                          animationFillMode: 'forwards'
+                        }}
+                      >
+                        <div 
+                          className="w-4 h-4 mt-0.5 shrink-0 rounded-full flex items-center justify-center transition-transform hover:scale-110"
+                          style={{ 
+                            backgroundColor: `${tier?.badge_color || 'hsl(var(--primary))'}20`
+                          }}
+                        >
+                          <Check 
+                            className="w-3 h-3" 
+                            style={{ color: tier?.badge_color || 'hsl(var(--primary))' }}
+                          />
+                        </div>
+                        <span className="transition-colors hover:text-foreground">{benefit}</span>
                       </li>
                     ))}
                   </ul>
@@ -516,15 +545,21 @@ export function ProfilePage() {
                 {nextTier && nextTier.benefits && nextTier.benefits.length > 0 && (
                   <>
                     <Separator />
-                    <div className="space-y-3">
+                    <div className="space-y-3 animate-fade-in" style={{ animationDelay: '0.6s' }}>
                       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
                         <TrendingUp className="w-3 h-3" />
                         {nextTier.display_name} Unlocks
                       </p>
-                      <ul className="space-y-2 opacity-60">
+                      <ul className="space-y-2">
                         {nextTier.benefits.slice(0, 2).map((benefit, idx) => (
-                          <li key={idx} className="flex items-start gap-2 text-sm">
-                            <Lock className="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground" />
+                          <li 
+                            key={idx} 
+                            className="flex items-start gap-2 text-sm opacity-50 hover:opacity-80 transition-opacity cursor-pointer group"
+                            onClick={() => navigate('/membership')}
+                          >
+                            <div className="w-4 h-4 mt-0.5 shrink-0 rounded-full flex items-center justify-center bg-muted group-hover:bg-muted/80 transition-colors">
+                              <Lock className="w-3 h-3 text-muted-foreground" />
+                            </div>
                             <span>{benefit}</span>
                           </li>
                         ))}
