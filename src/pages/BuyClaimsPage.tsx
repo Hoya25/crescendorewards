@@ -84,7 +84,7 @@ export function BuyClaimsPage() {
   const bestValueId = getBestValuePackageId();
 
   // Stripe publishable key - safe to include in frontend code
-  const stripeKey = 'pk_test_51RwFPnLH9lB6iuZgY3VNUFCYzHGJmD2qjZCZbZZZzzzzz'; // TODO: Replace with your actual pk_test_ key
+  const stripeKey = 'pk_test_51Srj7TL2izU9EyCBe1hdPxvurYTLOosixrNjw8M9Pr8QVzu4dSAFvWxIHihZOIoaLOTq96W3kkpyRh2tJioygC8z000ZBWuji4';
   console.log('Stripe Key:', stripeKey.substring(0, 12) + '...');
 
   // Check for payment success in URL
