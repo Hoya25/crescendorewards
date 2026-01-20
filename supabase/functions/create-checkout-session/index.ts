@@ -27,11 +27,13 @@ serve(async (req) => {
       throw new Error("User not authenticated or email not available");
     }
 
-    const { priceId, packageId } = await req.json();
+    const { priceId, packageId, successUrl, cancelUrl } = await req.json();
     
     if (!priceId) {
       throw new Error("Price ID is required");
     }
+
+    const origin = req.headers.get("origin") || "http://localhost:3000";
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
       apiVersion: "2025-08-27.basil",
@@ -56,8 +58,8 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${req.headers.get("origin")}/?payment=success`,
-      cancel_url: `${req.headers.get("origin")}/?payment=canceled`,
+      success_url: successUrl || `${origin}/?payment=success`,
+      cancel_url: cancelUrl || `${origin}/?payment=canceled`,
       metadata: {
         user_id: user.id,
         package_id: packageId,

@@ -1,4 +1,4 @@
-import { Store, LayoutDashboard, Gift, Trophy, Crown, User, Heart, FileCheck, Receipt, BarChart3, Settings, UtensilsCrossed, Coins, Shield, ShoppingBag, ExternalLink, CheckCircle2, ChevronRight, TrendingUp } from 'lucide-react';
+import { Store, LayoutDashboard, Gift, Trophy, Crown, User, Heart, FileCheck, Receipt, BarChart3, Settings, UtensilsCrossed, Coins, Shield, ShoppingBag, ExternalLink, CheckCircle2, ChevronRight, TrendingUp, Ticket } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
@@ -34,6 +34,7 @@ const mainNavItems = [
   { title: 'Rewards', url: '/rewards', icon: Gift },
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Membership', url: '/membership', icon: Trophy },
+  { title: 'Get Claims', url: '/buy-claims', icon: Ticket, highlight: true },
   // Earn now links to The Garden - handled separately
 ];
 
@@ -228,11 +229,21 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
                       "cursor-pointer",
                       isActive(item.url) 
                         ? "bg-accent text-accent-foreground" 
-                        : "hover:bg-accent hover:text-accent-foreground"
+                        : "hover:bg-accent hover:text-accent-foreground",
+                      item.highlight && !isActive(item.url) && "hover:bg-violet-50 dark:hover:bg-violet-900/20"
                     )}
                   >
-                    <item.icon className="h-4 w-4" />
-                    {open && <span>{item.title}</span>}
+                    <item.icon className={cn(
+                      "h-4 w-4",
+                      item.highlight && "text-violet-600 dark:text-violet-400"
+                    )} />
+                    {open && (
+                      <span className={cn(
+                        item.highlight && "text-violet-700 dark:text-violet-400 font-medium"
+                      )}>
+                        {item.title}
+                      </span>
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

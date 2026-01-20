@@ -35,6 +35,7 @@ const SubmitRewardsPage = lazy(() => import('./components/SubmitRewardsPage').th
 const MySubmissionsPage = lazy(() => import('./components/MySubmissionsPage').then(m => ({ default: m.MySubmissionsPage })));
 const PurchaseHistoryPage = lazy(() => import('./components/PurchaseHistoryPage').then(m => ({ default: m.PurchaseHistoryPage })));
 const FoodBeveragePage = lazy(() => import('./components/FoodBeveragePage').then(m => ({ default: m.FoodBeveragePage })));
+const BuyClaimsPage = lazy(() => import('./pages/BuyClaimsPage').then(m => ({ default: m.BuyClaimsPage })));
 const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
 const NotFound = lazy(() => import('./pages/NotFound'));
@@ -174,6 +175,14 @@ function AppRoutes() {
               element={
                 <ProtectedRoute>
                   <PurchaseHistoryPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/buy-claims" 
+              element={
+                <ProtectedRoute>
+                  <BuyClaimsPage />
                 </ProtectedRoute>
               } 
             />
