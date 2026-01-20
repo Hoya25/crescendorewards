@@ -88,7 +88,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { isAuthenticated, signOut, setShowAuthModal, setAuthMode } = useAuthContext();
-  const { profile } = useUnifiedUser();
+  const { profile, tier } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   const { isWatching, toggleWatch, isAnimating: isWatchAnimating, getWatchCount, fetchWatchCounts } = useWatchlist();
   const [rewards, setRewards] = useState<Reward[]>([]);
@@ -764,6 +764,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                   onToggleWatch={outOfStock ? toggleWatch : undefined}
                   isAnimatingWatch={outOfStock ? isWatchAnimating(reward.id) : false}
                   watchCount={outOfStock ? getWatchCount(reward.id) : 0}
+                  userTier={tier?.tier_name?.toLowerCase() || 'droplet'}
                 />
               );
             })}

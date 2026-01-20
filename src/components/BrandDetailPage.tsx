@@ -43,7 +43,7 @@ const statusMultipliers: Record<number, number> = {
 export function BrandDetailPage() {
   const { id: brandId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { profile } = useUnifiedUser();
+  const { profile, tier } = useUnifiedUser();
   const [brand, setBrand] = useState<Brand | null>(null);
   const [rewards, setRewards] = useState<RewardCardData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,7 +92,8 @@ export function BrandDetailPage() {
       setBrand({ ...brandResult.data, earn_opportunities: (brandResult.data.earn_opportunities as any) || [] });
       
       if (rewardsResult.data) {
-        setRewards(rewardsResult.data.map(r => ({ ...r, brand_name: brandResult.data.name })));
+        // Cast to RewardCardData type to handle Json type from Supabase
+        setRewards(rewardsResult.data.map(r => ({ ...r, brand_name: brandResult.data.name })) as unknown as RewardCardData[]);
       }
     } catch (err: any) {
       console.error('Error loading brand:', err);
@@ -302,6 +303,7 @@ export function BrandDetailPage() {
                   onClick={() => navigate(`/rewards/${reward.id}`)}
                   isAnimatingHeart={animatingHeartId === reward.id}
                   claimBalance={claimBalance}
+                  userTier={tier?.tier_name?.toLowerCase() || 'droplet'}
                 />
               ))}
             </div>
