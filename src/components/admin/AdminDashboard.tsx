@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import { 
   Users, 
   Activity, 
@@ -20,10 +21,13 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  Award
+  Award,
+  Download,
+  Flag
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow, subDays, format, startOfDay } from 'date-fns';
+import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import {
   LineChart,
   Line,
@@ -90,6 +94,8 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [totalContributors, setTotalContributors] = useState(0);
   const [loading, setLoading] = useState(true);
   const [activityLoading, setActivityLoading] = useState(true);
+  
+  const { pendingSubmissions, pendingClaims } = useAdminNotifications();
 
   useEffect(() => {
     loadStats();
@@ -278,6 +284,63 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     }
   };
 
+  const handleExportData = async () => {
+    try {
+      // Gather key metrics data
+      const [claimsData, rewardsData, usersData, submissionsData] = await Promise.all([
+        supabase.from('rewards_claims').select('id, status, claimed_at'),
+        supabase.from('rewards').select('id, title, category, cost, is_active'),
+        supabase.from('profiles').select('id, created_at, full_name, email'),
+        supabase.from('reward_submissions').select('id, status, created_at').eq('is_latest_version', true),
+      ]);
+
+      const csvData = [
+        '=== Key Metrics Export ===',
+        `Export Date: ${format(new Date(), 'yyyy-MM-dd HH:mm:ss')}`,
+        '',
+        '--- Summary ---',
+        `Total Users: ${usersData.data?.length || 0}`,
+        `Active Rewards: ${rewardsData.data?.filter(r => r.is_active).length || 0}`,
+        `Total Claims: ${claimsData.data?.length || 0}`,
+        `Pending Submissions: ${submissionsData.data?.filter(s => s.status === 'pending').length || 0}`,
+        '',
+        '--- Claims by Status ---',
+        `Pending: ${claimsData.data?.filter(c => c.status === 'pending').length || 0}`,
+        `Approved: ${claimsData.data?.filter(c => c.status === 'approved').length || 0}`,
+        `Processing: ${claimsData.data?.filter(c => c.status === 'processing').length || 0}`,
+        `Completed: ${claimsData.data?.filter(c => c.status === 'completed').length || 0}`,
+        '',
+        '--- Rewards by Category ---',
+        ...Object.entries((rewardsData.data || []).reduce((acc, reward) => {
+          const category = reward.category || 'Other';
+          acc[category] = (acc[category] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>)).map(([cat, count]) => `${cat}: ${count}`),
+      ].join('\n');
+
+      // Create and download file
+      const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `admin-metrics-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast({
+        title: 'Export Complete',
+        description: 'Key metrics have been exported to CSV.',
+      });
+    } catch (error: any) {
+      console.error('Error exporting data:', error);
+      toast({
+        title: 'Export Failed',
+        description: error.message || 'Failed to export data',
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -409,6 +472,71 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           </Card>
         ))}
       </div>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">Quick Actions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-3">
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => handleNavigate('submissions')}
+            >
+              <FileText className="w-4 h-4" />
+              Review Submissions
+              {pendingSubmissions > 0 && (
+                <Badge variant="destructive" className="ml-1 px-1.5 py-0.5 text-xs">
+                  {pendingSubmissions}
+                </Badge>
+              )}
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => handleNavigate('claims')}
+            >
+              <ClipboardList className="w-4 h-4" />
+              Manage Claims
+              {pendingClaims > 0 && (
+                <Badge variant="secondary" className="ml-1 px-1.5 py-0.5 text-xs">
+                  {pendingClaims}
+                </Badge>
+              )}
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => handleNavigate('rewards')}
+            >
+              <Gift className="w-4 h-4" />
+              Manage Rewards
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => handleNavigate('users')}
+            >
+              <Flag className="w-4 h-4" />
+              User Reports
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={handleExportData}
+            >
+              <Download className="w-4 h-4" />
+              Export Data
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Row 2: Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
