@@ -23,8 +23,11 @@ import {
   Clock,
   Award,
   Download,
-  Flag
+  Flag,
+  RefreshCw,
+  Loader2
 } from 'lucide-react';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/supabase';
 import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow, subDays, format, startOfDay } from 'date-fns';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
@@ -94,6 +97,8 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [totalContributors, setTotalContributors] = useState(0);
   const [loading, setLoading] = useState(true);
   const [activityLoading, setActivityLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<{ created: number; updated: number; errors: number } | null>(null);
   
   const { pendingSubmissions, pendingClaims } = useAdminNotifications();
 
@@ -281,6 +286,50 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const handleNavigate = (tab: string) => {
     if (onNavigate) {
       onNavigate(tab);
+    }
+  };
+
+  const handleSyncProfiles = async () => {
+    try {
+      setSyncing(true);
+      setSyncResult(null);
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        throw new Error('You must be logged in to sync profiles');
+      }
+
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/sync-crescendo-profiles`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Sync failed');
+      }
+
+      setSyncResult(result.summary);
+      
+      toast({
+        title: 'Sync Complete',
+        description: `Created: ${result.summary.created}, Updated: ${result.summary.updated}, Errors: ${result.summary.errors}`,
+      });
+    } catch (error: any) {
+      console.error('Error syncing profiles:', error);
+      toast({
+        title: 'Sync Failed',
+        description: error.message || 'Failed to sync profiles',
+        variant: 'destructive',
+      });
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -533,6 +582,25 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             >
               <Download className="w-4 h-4" />
               Export Data
+            </Button>
+            
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={handleSyncProfiles}
+              disabled={syncing}
+            >
+              {syncing ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4" />
+              )}
+              {syncing ? 'Syncing...' : 'Sync to Unified'}
+              {syncResult && !syncing && (
+                <Badge variant="secondary" className="ml-1 px-1.5 py-0.5 text-xs">
+                  {syncResult.created + syncResult.updated}
+                </Badge>
+              )}
             </Button>
           </div>
         </CardContent>
