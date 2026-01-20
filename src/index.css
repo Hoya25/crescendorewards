@@ -198,4 +198,46 @@ All colors MUST be HSL.
   .animate-heart-bounce {
     animation: heartBounce 0.4s ease-in-out;
   }
+
+  /* Progress bar fill animation */
+  @keyframes progress-fill {
+    from {
+      width: 0%;
+    }
+  }
+
+  /* Shimmer effect for progress bars */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Staggered fade-in for lists */
+  .animate-fade-in {
+    animation: fadeInUp 0.4s ease-out forwards;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Benefit item hover effect */
+  .benefit-item {
+    @apply transition-all duration-200;
+  }
+
+  .benefit-item:hover {
+    @apply translate-x-1;
+  }
 }
