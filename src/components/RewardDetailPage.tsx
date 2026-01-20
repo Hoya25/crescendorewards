@@ -21,6 +21,7 @@ import { DataErrorState } from '@/components/DataErrorState';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { getRewardPriceForUser, canUserClaimReward, type Reward as RewardType, type TierPricing } from '@/utils/getRewardPrice';
+import { RewardPriceDisplay } from '@/components/rewards/RewardPriceDisplay';
 
 interface Reward {
   id: string;
@@ -495,36 +496,24 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
 
             <Card>
               <CardContent className="p-4 space-y-4">
-                {/* Tier-based pricing display */}
+                {/* Tier-based pricing display using reusable component */}
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Cost</span>
-                  <div className="text-right">
-                    {tierPricing.discount > 0 ? (
-                      <div className="flex flex-col items-end gap-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm line-through text-muted-foreground">
-                            {tierPricing.originalPrice} Claims
-                          </span>
-                          <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
-                            <Percent className="w-3 h-3 mr-1" />
-                            {tierPricing.discount}% Off
-                          </Badge>
-                        </div>
-                        <span className="text-2xl font-bold flex items-center gap-2">
-                          <Zap className="w-5 h-5 text-emerald-500" />
-                          {tierPricing.isFree ? 'FREE' : `${tierPricing.price} Claims`}
-                        </span>
-                        <span className="text-xs text-muted-foreground capitalize">
-                          {userTier} Status Price
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-2xl font-bold flex items-center gap-2">
-                        <Zap className="w-5 h-5 text-amber-500" />
-                        {reward.cost} Claims
-                      </span>
-                    )}
-                  </div>
+                  <RewardPriceDisplay
+                    reward={{
+                      id: reward.id,
+                      cost: reward.cost,
+                      is_sponsored: reward.is_sponsored,
+                      status_tier_claims_cost: reward.status_tier_claims_cost,
+                      min_status_tier: reward.min_status_tier,
+                      stock_quantity: reward.stock_quantity,
+                      is_active: reward.is_active,
+                    }}
+                    userTier={userTier}
+                    userBalance={crescendoData.claim_balance}
+                    size="lg"
+                    showTierBenefit={true}
+                  />
                 </div>
 
                 {reward.stock_quantity !== null && (

@@ -3,10 +3,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { 
-  Gift, Sparkles, ShoppingBag, CreditCard, Coins, 
-  Lock, Heart, Trophy, Zap, Music, Ticket, Package
+  Gift, Sparkles, ShoppingBag, CreditCard, Coins,
+  Heart, Trophy, Zap, Music, Ticket, Package
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { RewardPriceCompact } from './RewardPriceDisplay';
+import { type Reward } from '@/utils/getRewardPrice';
 
 export interface VisualRewardCardData {
   id: string;
@@ -84,30 +86,6 @@ function getTierDisplayName(tier: string): string {
   return names[tier.toLowerCase()] || tier;
 }
 
-function getUserTierPrice(
-  baseCost: number,
-  tierCosts: Record<string, number> | null | undefined,
-  userTierName: string
-): { price: number; isFree: boolean; isDiscounted: boolean; originalPrice: number } {
-  if (!tierCosts || Object.keys(tierCosts).length === 0) {
-    return { price: baseCost, isFree: false, isDiscounted: false, originalPrice: baseCost };
-  }
-
-  const userTierLower = userTierName.toLowerCase();
-  const tierPrice = tierCosts[userTierLower];
-
-  if (tierPrice !== undefined) {
-    return {
-      price: tierPrice,
-      isFree: tierPrice === 0,
-      isDiscounted: tierPrice < baseCost,
-      originalPrice: baseCost,
-    };
-  }
-
-  return { price: baseCost, isFree: false, isDiscounted: false, originalPrice: baseCost };
-}
-
 function getFreeTierName(tierCosts: Record<string, number> | null | undefined): string | null {
   if (!tierCosts) return null;
   
@@ -150,16 +128,20 @@ export function VisualRewardCard({
   const sponsorName = reward.sponsor_name;
   const sponsorLogo = reward.sponsor_logo_url || reward.sponsor_logo;
   
-  const pricing = getUserTierPrice(
-    reward.cost,
-    reward.status_tier_claims_cost,
-    userTier.tierName
-  );
-  
   const freeTierName = getFreeTierName(reward.status_tier_claims_cost);
   const isEligible = isUserTierEligible(reward.min_status_tier, userTier.tierName);
-  const affordable = claimBalance >= pricing.price;
   const remainingStock = reward.stock_quantity;
+  
+  // Build reward object for price display
+  const rewardForPricing: Reward = {
+    id: reward.id,
+    cost: reward.cost,
+    is_sponsored: reward.is_sponsored,
+    status_tier_claims_cost: reward.status_tier_claims_cost,
+    min_status_tier: reward.min_status_tier,
+    stock_quantity: reward.stock_quantity,
+    is_active: reward.is_active,
+  };
 
   return (
     <Card
@@ -274,47 +256,11 @@ export function VisualRewardCard({
           </p>
         )}
 
-        {/* Price Section */}
-        <div className="space-y-1">
-          {!isEligible ? (
-            // Not eligible - locked
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Lock className="w-4 h-4" />
-              <span className="text-sm font-medium">
-                Unlock at {getTierDisplayName(reward.min_status_tier || '')}
-              </span>
-            </div>
-          ) : pricing.isFree ? (
-            // FREE for user's tier
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-black text-emerald-500">FREE</span>
-              <Badge variant="outline" className="text-emerald-600 border-emerald-500/30 text-xs">
-                {userTier.tierName} Perk
-              </Badge>
-            </div>
-          ) : pricing.isDiscounted ? (
-            // Discounted price
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold text-primary flex items-center">
-                <Coins className="w-4 h-4 mr-1" />
-                {pricing.price}
-              </span>
-              <span className="text-sm text-muted-foreground line-through">
-                {pricing.originalPrice}
-              </span>
-              <Badge variant="secondary" className="text-xs bg-emerald-500/10 text-emerald-600">
-                {userTier.tierName} Price
-              </Badge>
-            </div>
-          ) : (
-            // Regular price
-            <div className="flex items-center gap-1">
-              <Coins className="w-4 h-4 text-primary" />
-              <span className="text-xl font-bold text-primary">{pricing.price}</span>
-              <span className="text-sm text-muted-foreground ml-1">claims</span>
-            </div>
-          )}
-        </div>
+        {/* Price Section - using reusable component */}
+        <RewardPriceCompact 
+          reward={rewardForPricing} 
+          userTier={userTier.tierName} 
+        />
 
         {/* View Details Button - appears on hover */}
         <Button
