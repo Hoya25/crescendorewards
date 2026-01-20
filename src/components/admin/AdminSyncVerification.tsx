@@ -22,9 +22,39 @@ import {
   Layers,
   Play,
   Eye,
-  Diff
+  Diff,
+  Clock,
+  Calendar,
+  Pause,
+  Trash2,
+  Timer
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
+
+interface CronJob {
+  jobid: number;
+  jobname: string;
+  schedule: string;
+  command: string;
+  nodename: string;
+  nodeport: number;
+  database: string;
+  username: string;
+  active: boolean;
+}
+
+interface CronJobRun {
+  runid: number;
+  jobid: number;
+  job_pid: number;
+  database: string;
+  username: string;
+  command: string;
+  status: string;
+  return_message: string;
+  start_time: string;
+  end_time: string;
+}
 
 interface ProfileData {
   id: string;
@@ -78,6 +108,12 @@ export function AdminSyncVerification() {
   const [reverseTestResult, setReverseTestResult] = useState<{success: boolean; message: string} | null>(null);
   const [testDisplayName, setTestDisplayName] = useState('');
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
+  
+  // Cron job state
+  const [cronJobs, setCronJobs] = useState<CronJob[]>([]);
+  const [cronJobRuns, setCronJobRuns] = useState<CronJobRun[]>([]);
+  const [loadingCron, setLoadingCron] = useState(false);
+  const [syncHistory, setSyncHistory] = useState<any[]>([]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -104,8 +140,33 @@ export function AdminSyncVerification() {
     }
   };
 
+  const fetchCronData = async () => {
+    setLoadingCron(true);
+    try {
+      // Fetch sync history from activity log
+      const { data: history, error: historyError } = await supabase
+        .from('cross_platform_activity_log')
+        .select('*')
+        .eq('action_type', 'profile_sync')
+        .eq('platform', 'crescendo')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (historyError) {
+        console.error('Error fetching sync history:', historyError);
+      } else {
+        setSyncHistory(history || []);
+      }
+    } catch (error: any) {
+      console.error('Error fetching cron data:', error);
+    } finally {
+      setLoadingCron(false);
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    fetchCronData();
   }, []);
 
   const runForwardSync = async () => {
@@ -364,10 +425,10 @@ export function AdminSyncVerification() {
             </Button>
 
             {syncResult && (
-              <div className={`p-3 rounded-lg ${syncResult.success ? 'bg-green-500/10 border border-green-500/20' : 'bg-destructive/10 border border-destructive/20'}`}>
+              <div className={`p-3 rounded-lg ${syncResult.success ? 'bg-primary/10 border border-primary/20' : 'bg-destructive/10 border border-destructive/20'}`}>
                 <div className="flex items-center gap-2 mb-2">
                   {syncResult.success ? (
-                    <Check className="h-4 w-4 text-green-500" />
+                    <Check className="h-4 w-4 text-primary" />
                   ) : (
                     <X className="h-4 w-4 text-destructive" />
                   )}
@@ -464,12 +525,12 @@ export function AdminSyncVerification() {
             </Button>
 
             {reverseTestResult && (
-              <div className={`p-3 rounded-lg ${reverseTestResult.success ? 'bg-green-500/10 border border-green-500/20' : 'bg-amber-500/10 border border-amber-500/20'}`}>
+              <div className={`p-3 rounded-lg ${reverseTestResult.success ? 'bg-primary/10 border border-primary/20' : 'bg-muted/50 border border-muted'}`}>
                 <div className="flex items-center gap-2">
                   {reverseTestResult.success ? (
-                    <Check className="h-4 w-4 text-green-500" />
+                    <Check className="h-4 w-4 text-primary" />
                   ) : (
-                    <AlertTriangle className="h-4 w-4 text-amber-500" />
+                    <AlertTriangle className="h-4 w-4 text-muted-foreground" />
                   )}
                   <span className="text-sm">{reverseTestResult.message}</span>
                 </div>
@@ -545,11 +606,11 @@ export function AdminSyncVerification() {
                               </div>
                               <div key={`${comp.field}-status`} className="col-span-2">
                                 {comp.match ? (
-                                  <span className="text-green-500 flex items-center gap-1">
+                                  <span className="text-primary flex items-center gap-1">
                                     <Check className="h-3 w-3" /> Match
                                   </span>
                                 ) : (
-                                  <span className="text-amber-500 flex items-center gap-1">
+                                  <span className="text-muted-foreground flex items-center gap-1">
                                     <AlertTriangle className="h-3 w-3" /> Mismatch
                                   </span>
                                 )}
@@ -573,6 +634,140 @@ export function AdminSyncVerification() {
         </CardContent>
       </Card>
 
+      {/* Scheduled Jobs & Sync History */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Scheduled Jobs & Sync History
+              </CardTitle>
+              <CardDescription>
+                View scheduled cron jobs and recent sync executions
+              </CardDescription>
+            </div>
+            <Button variant="outline" size="sm" onClick={fetchCronData} disabled={loadingCron}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${loadingCron ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Scheduled Job Info */}
+          <div className="space-y-3">
+            <h4 className="font-medium flex items-center gap-2">
+              <Timer className="h-4 w-4" />
+              Active Scheduled Job
+            </h4>
+            <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Badge variant="default" className="flex items-center gap-1">
+                    <Play className="h-3 w-3" />
+                    Active
+                  </Badge>
+                  <span className="font-medium">daily-crescendo-profile-sync</span>
+                </div>
+                <Badge variant="outline" className="font-mono text-xs">
+                  0 6 * * *
+                </Badge>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  <span>Runs daily at 06:00 UTC</span>
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground bg-background/50 rounded p-2 font-mono break-all">
+                Calls: /functions/v1/sync-crescendo-profiles
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Sync History */}
+          <div className="space-y-3">
+            <h4 className="font-medium flex items-center gap-2">
+              <Eye className="h-4 w-4" />
+              Recent Sync Executions
+            </h4>
+            {loadingCron ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : syncHistory.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No sync history found. Run a sync to see execution logs here.
+              </div>
+            ) : (
+              <ScrollArea className="h-[250px]">
+                <div className="space-y-2">
+                  {syncHistory.map((entry) => {
+                    const actionData = entry.action_data || {};
+                    const isSuccess = actionData.errors === 0;
+                    const isScheduled = actionData.scheduled;
+                    
+                    return (
+                      <div 
+                        key={entry.id} 
+                        className={`p-3 rounded-lg border ${
+                          isSuccess 
+                            ? 'bg-primary/5 border-primary/20' 
+                            : 'bg-destructive/5 border-destructive/20'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            {isSuccess ? (
+                              <Check className="h-4 w-4 text-primary" />
+                            ) : (
+                              <X className="h-4 w-4 text-destructive" />
+                            )}
+                            <span className="font-medium text-sm">
+                              {isSuccess ? 'Sync Successful' : 'Sync Had Errors'}
+                            </span>
+                            {isScheduled && (
+                              <Badge variant="secondary" className="text-xs">
+                                <Clock className="h-3 w-3 mr-1" />
+                                Scheduled
+                              </Badge>
+                            )}
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {formatDistanceToNow(new Date(entry.created_at), { addSuffix: true })}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Created:</span>{' '}
+                            <span className="font-medium">{actionData.created || 0}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Updated:</span>{' '}
+                            <span className="font-medium">{actionData.updated || 0}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Errors:</span>{' '}
+                            <span className={`font-medium ${actionData.errors > 0 ? 'text-destructive' : ''}`}>
+                              {actionData.errors || 0}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-2">
+                          {format(new Date(entry.created_at), 'PPpp')}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Stats Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <Card>
@@ -589,7 +784,7 @@ export function AdminSyncVerification() {
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-green-500">
+            <div className="text-2xl font-bold text-primary">
               {profiles.filter(p => getMatchingUnifiedProfile(p.id)).length}
             </div>
             <p className="text-sm text-muted-foreground">Linked Profiles</p>
@@ -597,7 +792,7 @@ export function AdminSyncVerification() {
         </Card>
         <Card>
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-amber-500">
+            <div className="text-2xl font-bold text-muted-foreground">
               {profiles.filter(p => !getMatchingUnifiedProfile(p.id)).length}
             </div>
             <p className="text-sm text-muted-foreground">Unlinked Profiles</p>
