@@ -1000,6 +1000,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                       isAnimatingHeart={favAnimatingIds.has(reward.id)}
                       claimBalance={claimBalance}
                       userTier={userTier}
+                      isAdmin={isAdmin}
+                      onAdminEdit={(rewardId) => navigate(`/admin?tab=rewards&edit=${rewardId}`)}
                     />
                   ) : (
                     <RewardCard

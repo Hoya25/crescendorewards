@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { 
   Gift, Sparkles, ShoppingBag, CreditCard, Coins,
-  Heart, Trophy, Zap, Music, Ticket, Package
+  Heart, Trophy, Zap, Music, Ticket, Package, Pencil
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RewardPriceCompact } from './RewardPriceDisplay';
@@ -47,6 +47,8 @@ interface VisualRewardCardProps {
   claimBalance?: number;
   userTier?: UserTierInfo;
   claimCount?: number;
+  isAdmin?: boolean;
+  onAdminEdit?: (rewardId: string) => void;
 }
 
 const categoryIcons: Record<string, React.ElementType> = {
@@ -120,6 +122,8 @@ export function VisualRewardCard({
   claimBalance = 0,
   userTier = { tierName: 'Droplet', tierLevel: 1 },
   claimCount = 0,
+  isAdmin = false,
+  onAdminEdit,
 }: VisualRewardCardProps) {
   const Icon = categoryIcons[reward.category] || Gift;
   const gradient = categoryGradients[reward.category] || 'from-gray-500/20 via-slate-500/10 to-zinc-500/20';
@@ -215,6 +219,24 @@ export function VisualRewardCard({
             <Gift className="w-3 h-3 mr-1" />
             FREE for {freeTierName}
           </Badge>
+        )}
+
+        {/* Admin Edit Button */}
+        {isAdmin && onAdminEdit && (
+          <button
+            className={cn(
+              "absolute top-3 z-10 w-9 h-9 rounded-full flex items-center justify-center",
+              "bg-amber-500/90 hover:bg-amber-600 backdrop-blur-md shadow-lg",
+              "transition-all duration-200 hover:scale-110",
+              isSponsored ? "right-[165px]" : "right-14"
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              onAdminEdit(reward.id);
+            }}
+          >
+            <Pencil className="h-4 w-4 text-white" />
+          </button>
         )}
 
         {/* Favorites Heart Button - Floating */}
