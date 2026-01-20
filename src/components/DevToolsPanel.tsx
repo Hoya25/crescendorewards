@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { supabase, SUPABASE_URL } from '@/lib/supabase';
@@ -58,6 +58,19 @@ export function DevToolsPanel() {
   } = useUnifiedUser();
 
   const isExternalDb = SUPABASE_URL.includes('rndivcsonsojgelzewkb');
+
+  // Keyboard shortcut handler (Ctrl+Shift+D)
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'd') {
+      event.preventDefault();
+      setIsOpen(prev => !prev);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
   const fetchDbStats = async () => {
     setLoadingStats(true);
@@ -133,6 +146,7 @@ export function DevToolsPanel() {
             variant="outline"
             size="sm"
             className="absolute bottom-4 left-4 gap-2 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-border shadow-lg"
+            title="Toggle DevTools (Ctrl+Shift+D)"
           >
             <Bug className="h-4 w-4" />
             DevTools
