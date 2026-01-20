@@ -56,7 +56,8 @@ const categoryIcons: Record<string, any> = {
   experiences: Sparkles,
   merch: ShoppingBag,
   gift_cards: CreditCard,
-  opportunity: Trophy,
+  wellness: Heart,
+  subscriptions: Trophy,
 };
 
 const categoryLabels: Record<string, string> = {
@@ -64,7 +65,8 @@ const categoryLabels: Record<string, string> = {
   experiences: 'Experiences',
   merch: 'Merch',
   gift_cards: 'Gift Cards',
-  opportunity: 'Opportunity',
+  wellness: 'Wellness & Health',
+  subscriptions: 'Subscriptions',
 };
 
 // Helper to extract Crescendo data from unified profile
