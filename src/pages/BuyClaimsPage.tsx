@@ -40,7 +40,7 @@ const claimPackages: ClaimPackage[] = [
   { id: 'popular', claims: 25, price: 125, label: 'Popular Pack', popular: true, bonus: calculateBonusNCTR(125) },
   { id: 'premium', claims: 50, price: 250, label: 'Premium Pack', bonus: calculateBonusNCTR(250) },
   { id: 'ultimate', claims: 100, price: 500, label: 'Ultimate Pack', bonus: calculateBonusNCTR(500) },
-  { id: 'mega', claims: 210, price: 1000, label: 'Mega Pack', bonus: calculateBonusNCTR(1000) },
+  { id: 'mega', claims: 220, price: 1000, label: 'Mega Pack', bonus: calculateBonusNCTR(1000) },
 ];
 
 const calculateSavings = (claims: number, price: number): number => {
