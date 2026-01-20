@@ -19,6 +19,7 @@ import { StatusBadge } from "./StatusBadge";
 import { SEO } from "./SEO";
 import { NotificationsDropdown } from "./NotificationsDropdown";
 import { Footer } from "./Footer";
+import { SponsoredRewardsCarousel } from "./rewards/SponsoredRewardsCarousel";
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress, getNCTRNeededForNextLevel } from '@/utils/membershipLevels';
 import { useTheme } from "./ThemeProvider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
@@ -418,6 +419,9 @@ export function Dashboard() {
 
               {/* Quick Actions */}
               <QuickActionsWithFavorites navigate={navigate} />
+
+              {/* Sponsored Opportunities */}
+              <SponsoredRewardsCarousel />
 
               {/* Claim Balance & Buy Claims */}
               <div className="grid md:grid-cols-2 gap-6">
