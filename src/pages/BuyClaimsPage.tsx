@@ -27,16 +27,8 @@ import { AppSidebar } from '@/components/AppSidebar';
 import { NCTRLogo } from '@/components/NCTRLogo';
 import { ClaimsPackageCard, ClaimPackage } from '@/components/claims/ClaimsPackageCard';
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress } from '@/utils/membershipLevels';
+import { STRIPE_PRICES } from '@/config/stripe';
 import confetti from 'canvas-confetti';
-
-// Stripe price IDs for each package
-const STRIPE_PRICES = {
-  starter: 'price_1STt82LH9lB6iuZgexn693ld',
-  popular: 'price_1STt8GLH9lB6iuZg0ZXNlYAf',
-  premium: 'price_1STt8aLH9lB6iuZgjKuIc0vh',
-  ultimate: 'price_1STtAoLH9lB6iuZghenXBMFK',
-  mega: 'price_1STtB2LH9lB6iuZgL4qyz4lC',
-};
 
 // Calculate bonus NCTR: 3 NCTR per $1 spent (all bonus is 360LOCK)
 const calculateBonusNCTR = (priceInDollars: number): number => {
@@ -82,10 +74,6 @@ export function BuyClaimsPage() {
 
   const currentBalance = profile?.crescendo_data?.claims_balance || 0;
   const bestValueId = getBestValuePackageId();
-
-  // Stripe publishable key - safe to include in frontend code
-  const stripeKey = 'pk_test_51Srj7TL2izU9EyCBe1hdPxvurYTLOosixrNjw8M9Pr8QVzu4dSAFvWxIHihZOIoaLOTq96W3kkpyRh2tJioygC8z000ZBWuji4';
-  console.log('Stripe Key:', stripeKey.substring(0, 12) + '...');
 
   // Check for payment success in URL
   useEffect(() => {
