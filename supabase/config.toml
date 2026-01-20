@@ -3,3 +3,7 @@ project_id = "yhwcaodofmbusjurawhp"
 # Allow Stripe (and other third parties) to call this webhook endpoint without JWT auth.
 [functions.stripe-webhook]
 verify_jwt = false
+
+# Wallet auth needs public access for challenge-response flow
+[functions.wallet-auth]
+verify_jwt = false
