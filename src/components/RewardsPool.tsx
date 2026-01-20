@@ -37,7 +37,7 @@ interface Reward {
   id: string;
   title: string;
   description: string;
-  category: 'alliance_tokens' | 'experiences' | 'merch' | 'gift_cards' | 'wellness';
+  category: 'alliance_tokens' | 'experiences' | 'merch' | 'gift_cards' | 'wellness' | 'subscriptions';
   cost: number;
   image_url: string | null;
   stock_quantity: number | null;
@@ -75,11 +75,12 @@ const categoryIcons = {
   merch: ShoppingBag,
   gift_cards: CreditCard,
   wellness: Heart,
+  subscriptions: Trophy,
 };
 
 // Valid filter values for URL params
 const VALID_SORTS = ['newest', 'oldest', 'priceLowToHigh', 'priceHighToLow', 'popularity'];
-const VALID_CATEGORIES = ['all', 'alliance_tokens', 'experiences', 'merch', 'gift_cards', 'wellness'];
+const VALID_CATEGORIES = ['all', 'alliance_tokens', 'experiences', 'merch', 'gift_cards', 'wellness', 'subscriptions'];
 const VALID_PRICE_FILTERS = ['all', 'free', 'under100', 'under500', 'over500'];
 const VALID_AVAILABILITY_FILTERS = ['all', 'inStock', 'lowStock'];
 
@@ -538,8 +539,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80 pb-20 w-full max-w-[100vw] overflow-x-hidden">
       <SEO 
-        title="Rewards Marketplace"
-        description="Browse and claim exclusive rewards including experiences, merchandise, gift cards, and more. Member-built, member-owned."
+        title="Opportunity & Rewards Marketplace"
+        description="Browse and claim exclusive rewards including experiences, merchandise, subscriptions, and more. Member-built, member-owned."
       />
       {/* Top Navigation Bar */}
       <nav className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b w-full">
@@ -670,9 +671,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               )}
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                  Rewards Marketplace
+                  Opportunity & Rewards Marketplace
                 </h1>
-                <p className="text-muted-foreground text-sm md:text-base">Redeem your tokens for amazing rewards</p>
+                <p className="text-muted-foreground text-sm md:text-base">Discover opportunities and redeem rewards</p>
               </div>
             </div>
             
