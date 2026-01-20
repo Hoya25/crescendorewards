@@ -1,4 +1,4 @@
-import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, Heart, TrendingUp, Building2 } from 'lucide-react';
+import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, Heart, TrendingUp, Building2, RefreshCw } from 'lucide-react';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { cn } from '@/lib/utils';
 import {
@@ -52,6 +52,7 @@ const menuItems = [
   { title: 'Sponsors', view: 'sponsors', icon: Building2, badgeKey: null },
   { title: 'Wishlists', view: 'wishlists', icon: Heart, badgeKey: null },
   { title: 'Wishlist Analytics', view: 'wishlist-analytics', icon: TrendingUp, badgeKey: null },
+  { title: 'Sync Verification', view: 'sync-verification', icon: RefreshCw, badgeKey: null },
 ];
 
 export function AdminSidebar({ onNavigate, currentView }: AdminSidebarProps) {
