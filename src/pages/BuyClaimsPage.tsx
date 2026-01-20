@@ -83,6 +83,14 @@ export function BuyClaimsPage() {
   const currentBalance = profile?.crescendo_data?.claims_balance || 0;
   const bestValueId = getBestValuePackageId();
 
+  // Log Stripe key for verification (first 12 chars only for security)
+  const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+  console.log('Stripe Key:', stripeKey ? stripeKey.substring(0, 12) + '...' : 'NOT SET');
+  
+  if (!stripeKey || !stripeKey.startsWith('pk_')) {
+    console.warn('⚠️ Stripe publishable key is missing or invalid. It should start with "pk_test_" or "pk_live_"');
+  }
+
   // Check for payment success in URL
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
