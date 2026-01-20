@@ -1,7 +1,7 @@
 import { Store, LayoutDashboard, Gift, Trophy, Crown, User, Heart, FileCheck, Receipt, BarChart3, Settings, UtensilsCrossed, Coins, Shield, ShoppingBag, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
-import { useAuthContext } from '@/contexts/AuthContext';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { useProfileCompletion } from '@/hooks/useProfileCompletion';
 
 import {
@@ -50,8 +50,8 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAdmin, loading: adminLoading } = useAdminRole();
-  const { profile } = useAuthContext();
-  const { percentage, isComplete, loading: completionLoading } = useProfileCompletion(profile);
+  const { profile } = useUnifiedUser();
+  const { percentage, isComplete, loading: completionLoading } = useProfileCompletion(profile as any);
 
   const isActive = (path: string) => location.pathname === path;
 

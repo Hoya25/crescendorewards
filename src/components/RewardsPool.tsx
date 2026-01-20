@@ -26,6 +26,7 @@ import { NotificationsDropdown } from '@/components/NotificationsDropdown';
 import { SEO } from '@/components/SEO';
 import { Footer } from '@/components/Footer';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { RewardsGridSkeleton } from '@/components/skeletons/RewardCardSkeleton';
 import { NoRewardsEmpty } from '@/components/EmptyState';
 import { DataErrorState } from '@/components/DataErrorState';
@@ -85,7 +86,8 @@ const VALID_AVAILABILITY_FILTERS = ['all', 'inStock', 'lowStock'];
 export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBack, onNavigateToBrands, onViewRewardDetail, carouselAutoplayDelay = 5000 }: RewardsPoolProps) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { profile, isAuthenticated, signOut, setShowAuthModal, setAuthMode } = useAuthContext();
+  const { isAuthenticated, signOut, setShowAuthModal, setAuthMode } = useAuthContext();
+  const { profile } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   const { isWatching, toggleWatch, isAnimating: isWatchAnimating, getWatchCount, fetchWatchCounts } = useWatchlist();
   const [rewards, setRewards] = useState<Reward[]>([]);

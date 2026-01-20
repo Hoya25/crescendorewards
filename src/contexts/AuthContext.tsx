@@ -1,16 +1,13 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
-import type { Profile } from '@/types';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
-  profile: Profile | null;
   loading: boolean;
   isAuthenticated: boolean;
   signOut: () => Promise<void>;
-  refreshProfile: () => Promise<void>;
   showAuthModal: boolean;
   setShowAuthModal: (show: boolean) => void;
   authMode: 'signin' | 'signup';
@@ -22,42 +19,75 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
 
-  const fetchProfile = async (userId: string) => {
+  // Ensure unified profile exists for new users
+  const ensureUnifiedProfile = async (authUser: User) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      // Check if unified profile exists
+      const { data: existingProfile, error: fetchError } = await supabase
+        .from('unified_profiles')
+        .select('id')
+        .eq('auth_user_id', authUser.id)
+        .maybeSingle();
 
-      if (error) {
-        console.error('Error fetching profile:', error);
+      if (fetchError) {
+        console.error('Error checking unified profile:', fetchError);
         return;
       }
 
-      setProfile(data);
+      // If no profile exists, create one
+      if (!existingProfile) {
+        console.log('Creating unified profile for new user:', authUser.id);
+        
+        // Get default tier (Droplet)
+        const { data: defaultTier } = await supabase
+          .from('status_tiers')
+          .select('id')
+          .eq('tier_name', 'droplet')
+          .single();
+
+        const { error: insertError } = await supabase
+          .from('unified_profiles')
+          .insert({
+            auth_user_id: authUser.id,
+            email: authUser.email,
+            display_name: authUser.user_metadata?.full_name || null,
+            current_tier_id: defaultTier?.id || null,
+            crescendo_data: {
+              claims_balance: 0,
+              available_nctr: 100, // Welcome bonus
+              role: 'member'
+            },
+            garden_data: {},
+            last_active_crescendo: new Date().toISOString()
+          });
+
+        if (insertError) {
+          console.error('Error creating unified profile:', insertError);
+        } else {
+          console.log('Unified profile created successfully');
+        }
+      }
     } catch (error) {
-      console.error('Error in fetchProfile:', error);
+      console.error('Error in ensureUnifiedProfile:', error);
     }
   };
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
 
-        if (session?.user) {
+        // On sign in or sign up, ensure unified profile exists
+        if (session?.user && (event === 'SIGNED_IN' || event === 'USER_UPDATED')) {
+          // Use setTimeout to avoid potential Supabase auth deadlock
           setTimeout(() => {
-            fetchProfile(session.user.id);
+            ensureUnifiedProfile(session.user);
           }, 0);
-        } else {
-          setProfile(null);
         }
 
         setLoading(false);
@@ -70,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (session?.user) {
         setTimeout(() => {
-          fetchProfile(session.user.id);
+          ensureUnifiedProfile(session.user);
         }, 0);
       }
 
@@ -84,13 +114,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
-    setProfile(null);
-  };
-
-  const refreshProfile = async () => {
-    if (user) {
-      await fetchProfile(user.id);
-    }
   };
 
   return (
@@ -98,11 +121,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         session,
-        profile,
         loading,
         isAuthenticated: !!user,
         signOut,
-        refreshProfile,
         showAuthModal,
         setShowAuthModal,
         authMode,

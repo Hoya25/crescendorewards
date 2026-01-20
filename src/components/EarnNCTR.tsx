@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { NCTRLogo } from './NCTRLogo';
 import { SEO } from './SEO';
 import { useNavigate } from 'react-router-dom';
-import { useAuthContext } from '@/contexts/AuthContext';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 
 interface EarnTask {
   task_id: string;
@@ -46,7 +46,7 @@ const categoryConfig = {
 
 export function EarnNCTR() {
   const navigate = useNavigate();
-  const { refreshProfile } = useAuthContext();
+  const { refreshUnifiedProfile } = useUnifiedUser();
   const [tasks, setTasks] = useState<EarnTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [completingTask, setCompletingTask] = useState<string | null>(null);
