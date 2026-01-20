@@ -12,7 +12,7 @@ import { MobileNav } from "./MobileNav";
 import { Footer } from "./Footer";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 
 interface FeaturedBrand {
   id: string;
