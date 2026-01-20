@@ -19,10 +19,24 @@ import {
   CreditCard,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
+  Award
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, subDays, format, startOfDay } from 'date-fns';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from 'recharts';
 
 interface DashboardStats {
   total_users: number;
@@ -45,19 +59,45 @@ interface ActivityItem {
   metadata: Record<string, any>;
 }
 
+interface ClaimsChartData {
+  date: string;
+  claims: number;
+}
+
+interface CategoryChartData {
+  name: string;
+  value: number;
+}
+
 interface AdminDashboardProps {
   onNavigate?: (tab: string) => void;
 }
 
+const CATEGORY_COLORS = [
+  'hsl(var(--primary))',
+  'hsl(var(--chart-2))',
+  'hsl(var(--chart-3))',
+  'hsl(var(--chart-4))',
+  'hsl(var(--chart-5))',
+];
+
 export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const [claimsChartData, setClaimsChartData] = useState<ClaimsChartData[]>([]);
+  const [categoryChartData, setCategoryChartData] = useState<CategoryChartData[]>([]);
+  const [claimsThisWeek, setClaimsThisWeek] = useState(0);
+  const [totalContributors, setTotalContributors] = useState(0);
   const [loading, setLoading] = useState(true);
   const [activityLoading, setActivityLoading] = useState(true);
 
   useEffect(() => {
     loadStats();
     loadActivity();
+    loadClaimsChartData();
+    loadCategoryChartData();
+    loadClaimsThisWeek();
+    loadContributors();
   }, []);
 
   const loadStats = async () => {
@@ -93,6 +133,117 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
     } finally {
       setActivityLoading(false);
     }
+  };
+
+  const loadClaimsChartData = async () => {
+    try {
+      const thirtyDaysAgo = subDays(new Date(), 30).toISOString();
+      
+      const { data, error } = await supabase
+        .from('rewards_claims')
+        .select('claimed_at')
+        .gte('claimed_at', thirtyDaysAgo)
+        .order('claimed_at', { ascending: true });
+
+      if (error) throw error;
+
+      // Group by date
+      const claimsByDate: Record<string, number> = {};
+      
+      // Initialize all 30 days with 0
+      for (let i = 29; i >= 0; i--) {
+        const date = format(subDays(new Date(), i), 'MMM dd');
+        claimsByDate[date] = 0;
+      }
+
+      // Count claims per day
+      (data || []).forEach((claim) => {
+        const date = format(new Date(claim.claimed_at), 'MMM dd');
+        if (claimsByDate[date] !== undefined) {
+          claimsByDate[date]++;
+        }
+      });
+
+      const chartData = Object.entries(claimsByDate).map(([date, claims]) => ({
+        date,
+        claims,
+      }));
+
+      setClaimsChartData(chartData);
+    } catch (error) {
+      console.error('Error loading claims chart data:', error);
+    }
+  };
+
+  const loadCategoryChartData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('rewards')
+        .select('category')
+        .eq('is_active', true);
+
+      if (error) throw error;
+
+      // Count rewards per category
+      const categoryCount: Record<string, number> = {};
+      (data || []).forEach((reward) => {
+        const category = reward.category || 'Other';
+        categoryCount[category] = (categoryCount[category] || 0) + 1;
+      });
+
+      const chartData = Object.entries(categoryCount)
+        .map(([name, value]) => ({
+          name: formatCategoryName(name),
+          value,
+        }))
+        .sort((a, b) => b.value - a.value);
+
+      setCategoryChartData(chartData);
+    } catch (error) {
+      console.error('Error loading category chart data:', error);
+    }
+  };
+
+  const loadClaimsThisWeek = async () => {
+    try {
+      const sevenDaysAgo = subDays(startOfDay(new Date()), 7).toISOString();
+      
+      const { count, error } = await supabase
+        .from('rewards_claims')
+        .select('*', { count: 'exact', head: true })
+        .gte('claimed_at', sevenDaysAgo);
+
+      if (error) throw error;
+
+      setClaimsThisWeek(count || 0);
+    } catch (error) {
+      console.error('Error loading claims this week:', error);
+    }
+  };
+
+  const loadContributors = async () => {
+    try {
+      // Contributors = users who have submitted at least one reward
+      const { data, error } = await supabase
+        .from('reward_submissions')
+        .select('user_id')
+        .eq('is_latest_version', true);
+
+      if (error) throw error;
+
+      // Count unique contributors
+      const uniqueContributors = new Set((data || []).map(s => s.user_id));
+      setTotalContributors(uniqueContributors.size);
+    } catch (error) {
+      console.error('Error loading contributors:', error);
+    }
+  };
+
+  const formatCategoryName = (category: string) => {
+    return category
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
 
   const formatCurrency = (cents: number) => {
@@ -150,30 +301,11 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           ))}
         </div>
 
-        {/* Needs Attention Skeletons */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="h-20" />
-          ))}
+        {/* Charts Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Skeleton className="h-80" />
+          <Skeleton className="h-80" />
         </div>
-
-        {/* Activity Feed Skeleton */}
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-6 w-40" />
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <Skeleton className="h-8 w-8 rounded-full" />
-                <div className="flex-1">
-                  <Skeleton className="h-4 w-48" />
-                  <Skeleton className="h-3 w-24 mt-1" />
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
       </div>
     );
   }
@@ -189,25 +321,25 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       bgColor: 'bg-blue-500/10',
     },
     {
-      title: 'Active This Week',
-      value: stats.active_users_7d.toLocaleString(),
-      icon: Activity,
+      title: 'Total Contributors',
+      value: totalContributors.toLocaleString(),
+      icon: Award,
+      color: 'text-purple-500',
+      bgColor: 'bg-purple-500/10',
+    },
+    {
+      title: 'Active Rewards',
+      value: stats.total_rewards.toLocaleString(),
+      icon: Gift,
       color: 'text-green-500',
       bgColor: 'bg-green-500/10',
     },
     {
-      title: 'Monthly Revenue',
-      value: formatCurrency(stats.revenue_this_month),
-      icon: DollarSign,
+      title: 'Claims This Week',
+      value: claimsThisWeek.toLocaleString(),
+      icon: ShoppingCart,
       color: 'text-amber-500',
       bgColor: 'bg-amber-500/10',
-    },
-    {
-      title: 'All-Time Revenue',
-      value: formatCurrency(stats.revenue_all_time),
-      icon: TrendingUp,
-      color: 'text-purple-500',
-      bgColor: 'bg-purple-500/10',
     },
   ];
 
@@ -259,7 +391,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         </p>
       </div>
 
-      {/* Key Metrics Cards */}
+      {/* Row 1: Key Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {keyMetrics.map((metric, index) => (
           <Card key={index} className="hover:shadow-md transition-shadow">
@@ -276,6 +408,108 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Row 2: Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Claims Over Last 30 Days - Line Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              Claims Over Last 30 Days
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={claimsChartData}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis 
+                    dataKey="date" 
+                    tick={{ fontSize: 11 }}
+                    interval="preserveStartEnd"
+                    tickFormatter={(value, index) => index % 5 === 0 ? value : ''}
+                    className="text-muted-foreground"
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 12 }}
+                    allowDecimals={false}
+                    className="text-muted-foreground"
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--popover))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      color: 'hsl(var(--popover-foreground))'
+                    }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="claims" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={2}
+                    dot={false}
+                    activeDot={{ r: 6, fill: 'hsl(var(--primary))' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Rewards by Category - Pie Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Gift className="w-5 h-5 text-primary" />
+              Rewards by Category
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-72">
+              {categoryChartData.length === 0 ? (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  No category data available
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={categoryChartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={90}
+                      paddingAngle={2}
+                      dataKey="value"
+                      label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                      labelLine={{ stroke: 'hsl(var(--muted-foreground))' }}
+                    >
+                      {categoryChartData.map((_, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={CATEGORY_COLORS[index % CATEGORY_COLORS.length]} 
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--popover))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                        color: 'hsl(var(--popover-foreground))'
+                      }}
+                      formatter={(value: number) => [`${value} rewards`, 'Count']}
+                    />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Needs Attention Section */}
@@ -352,7 +586,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
         </div>
       </div>
 
-      {/* Platform Overview */}
+      {/* Platform Overview & Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Stats Summary */}
         <Card>
@@ -362,8 +596,12 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between py-2 border-b">
-                <span className="text-muted-foreground">Active Rewards</span>
-                <span className="font-semibold">{stats.total_rewards}</span>
+                <span className="text-muted-foreground">Monthly Revenue</span>
+                <span className="font-semibold text-green-600">{formatCurrency(stats.revenue_this_month)}</span>
+              </div>
+              <div className="flex items-center justify-between py-2 border-b">
+                <span className="text-muted-foreground">All-Time Revenue</span>
+                <span className="font-semibold">{formatCurrency(stats.revenue_all_time)}</span>
               </div>
               <div className="flex items-center justify-between py-2 border-b">
                 <span className="text-muted-foreground">Pending Claims</span>
