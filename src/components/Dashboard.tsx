@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
-import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt, Crown, BarChart3, UtensilsCrossed, Heart, ShoppingBag, ExternalLink } from "lucide-react";
+import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt, Crown, BarChart3, UtensilsCrossed, Heart, ShoppingBag, ExternalLink, AlertCircle, ClipboardList } from "lucide-react";
 import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
 import { BetaBadge } from "./BetaBadge";
@@ -29,6 +29,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 import { useAdminRole } from "@/hooks/useAdminRole";
+import { useAdminNotifications } from "@/hooks/useAdminNotifications";
 import { toast } from "sonner";
 import { DashboardSkeleton } from "./skeletons/DashboardSkeleton";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -98,6 +99,63 @@ function QuickActionsWithFavorites({ navigate }: { navigate: (path: string) => v
           <p className="text-sm text-muted-foreground">Contribute ideas</p>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+// Admin Stats Banner Component
+function AdminStatsBanner({ navigate }: { navigate: (path: string) => void }) {
+  const { pendingClaims, pendingSubmissions, loading, totalPending } = useAdminNotifications();
+
+  if (loading || totalPending === 0) return null;
+
+  return (
+    <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 border-b border-amber-500/20">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
+              <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+            </div>
+            <span className="font-medium text-amber-700 dark:text-amber-300">Admin Quick Stats</span>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-3">
+            {pendingClaims > 0 && (
+              <button
+                onClick={() => navigate('/admin?tab=claims')}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 transition-colors"
+              >
+                <Gift className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                <span className="text-sm font-medium text-amber-700 dark:text-amber-300">
+                  {pendingClaims} Pending Claim{pendingClaims !== 1 ? 's' : ''}
+                </span>
+              </button>
+            )}
+            
+            {pendingSubmissions > 0 && (
+              <button
+                onClick={() => navigate('/admin?tab=submissions')}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 transition-colors"
+              >
+                <ClipboardList className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                <span className="text-sm font-medium text-orange-700 dark:text-orange-300">
+                  {pendingSubmissions} Pending Submission{pendingSubmissions !== 1 ? 's' : ''}
+                </span>
+              </button>
+            )}
+            
+            <Button
+              onClick={() => navigate('/admin')}
+              size="sm"
+              className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0"
+            >
+              <Crown className="w-4 h-4" />
+              Open Admin
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -373,6 +431,9 @@ export function Dashboard() {
               </div>
             </div>
           </nav>
+
+          {/* Admin Quick Stats Banner */}
+          {isAdmin && <AdminStatsBanner navigate={navigate} />}
 
           {/* Main Content */}
           <main className="flex-1 p-4 md:p-6">
