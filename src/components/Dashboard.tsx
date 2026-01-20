@@ -12,6 +12,7 @@ import { ReferralCard } from "./ReferralCard";
 import { BuyClaims } from "./BuyClaims";
 import { WelcomeModal } from "./WelcomeModal";
 import { OnboardingProgress } from "./OnboardingProgress";
+import { NeedsAttention } from "./NeedsAttention";
 import { SEO } from "./SEO";
 import { NotificationsDropdown } from "./NotificationsDropdown";
 import { Footer } from "./Footer";
@@ -269,6 +270,9 @@ export function Dashboard() {
           {/* Main Content */}
           <main className="flex-1 p-4 md:p-6">
             <div className="max-w-7xl mx-auto space-y-6">
+
+              {/* Needs Your Attention */}
+              <NeedsAttention />
 
               {/* Membership Progress Card */}
               <Card className={`border-2 ${currentLevelStyle.border} dark:border-neutral-700`}>
