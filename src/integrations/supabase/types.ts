@@ -470,6 +470,38 @@ export type Database = {
           },
         ]
       }
+      reward_watchlist: {
+        Row: {
+          created_at: string
+          id: string
+          notified: boolean
+          reward_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notified?: boolean
+          reward_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notified?: boolean
+          reward_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_watchlist_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reward_wishlists: {
         Row: {
           created_at: string
@@ -724,6 +756,7 @@ export type Database = {
           title: string
         }[]
       }
+      get_reward_watch_count: { Args: { p_reward_id: string }; Returns: number }
       get_user_activity: {
         Args: { p_limit?: number; p_user_id: string }
         Returns: {

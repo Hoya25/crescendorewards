@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, ShoppingBag, Star, Package, Zap, CheckCircle2, AlertTriangle, Coins, CreditCard, Sparkles, Gift, Clock, Lock, Share2, Twitter, Facebook, Linkedin, Link2, Check, Heart, Trophy, Store, ExternalLink, AlertCircle, Pencil } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Star, Package, Zap, CheckCircle2, AlertTriangle, Coins, CreditCard, Sparkles, Gift, Clock, Lock, Share2, Twitter, Facebook, Linkedin, Link2, Check, Heart, Trophy, Store, ExternalLink, AlertCircle, Pencil, Bell, Eye } from 'lucide-react';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { ConfirmationDialog } from '@/components/ConfirmationDialog';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
@@ -18,6 +18,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { DataErrorState } from '@/components/DataErrorState';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useWatchlist } from '@/hooks/useWatchlist';
 
 interface Reward {
   id: string;
@@ -70,6 +71,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const { id: rewardId } = useParams<{ id: string }>();
   const { profile, refreshProfile, setShowAuthModal, setAuthMode } = useAuthContext();
   const { isAdmin } = useAdminRole();
+  const { isWatching, toggleWatch, isAnimating: isWatchAnimating, getWatchCount, fetchWatchCounts } = useWatchlist();
   const [reward, setReward] = useState<Reward | null>(null);
   const [brand, setBrand] = useState<Brand | null>(null);
   const [loading, setLoading] = useState(true);
@@ -100,8 +102,10 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
       if (profile) {
         checkWishlistStatus();
       }
+      // Fetch watch count for this reward
+      fetchWatchCounts([rewardId]);
     }
-  }, [rewardId, profile]);
+  }, [rewardId, profile, fetchWatchCounts]);
 
   useEffect(() => {
     if (reward && profile?.referral_code) {
@@ -472,6 +476,14 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                   </div>
                 )}
 
+                {/* Watching count for out-of-stock items */}
+                {!inStock && rewardId && getWatchCount(rewardId) > 0 && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-md px-3 py-2">
+                    <Eye className="w-4 h-4" />
+                    <span>{getWatchCount(rewardId)} {getWatchCount(rewardId) === 1 ? 'person' : 'people'} watching</span>
+                  </div>
+                )}
+
                 {profile && (
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">Your Balance</span>
@@ -516,8 +528,23 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                   Claim Now
                 </Button>
               ) : !inStock ? (
-                <Button size="lg" disabled className="w-full">
-                  Out of Stock
+                <Button 
+                  size="lg" 
+                  className={`w-full transition-all ${isWatchAnimating(rewardId || '') ? 'scale-95' : ''}`}
+                  variant={isWatching(rewardId || '') ? "secondary" : "outline"}
+                  onClick={() => rewardId && toggleWatch(rewardId)}
+                >
+                  {isWatching(rewardId || '') ? (
+                    <>
+                      <Check className="w-4 h-4 mr-2 text-green-500" />
+                      Watching
+                    </>
+                  ) : (
+                    <>
+                      <Bell className="w-4 h-4 mr-2" />
+                      Notify Me When Available
+                    </>
+                  )}
                 </Button>
               ) : (
                 <Button

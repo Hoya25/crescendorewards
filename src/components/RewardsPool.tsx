@@ -30,6 +30,7 @@ import { RewardsGridSkeleton } from '@/components/skeletons/RewardCardSkeleton';
 import { NoRewardsEmpty } from '@/components/EmptyState';
 import { DataErrorState } from '@/components/DataErrorState';
 import { useAdminRole } from '@/hooks/useAdminRole';
+import { useWatchlist } from '@/hooks/useWatchlist';
 
 interface Reward {
   id: string;
@@ -86,7 +87,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const [searchParams, setSearchParams] = useSearchParams();
   const { profile, isAuthenticated, signOut, setShowAuthModal, setAuthMode } = useAuthContext();
   const { isAdmin } = useAdminRole();
-  
+  const { isWatching, toggleWatch, isAnimating: isWatchAnimating, getWatchCount, fetchWatchCounts } = useWatchlist();
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [featuredRewards, setFeaturedRewards] = useState<Reward[]>([]);
   const [filteredRewards, setFilteredRewards] = useState<Reward[]>([]);
@@ -280,7 +281,15 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
     setFilteredRewards(sortedFiltered);
     setFeaturedRewards(sortedFeatured);
-  }, [activeCategory, rewards, sortBy, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, searchQuery]);
+
+    // Fetch watch counts for out-of-stock rewards
+    const outOfStockIds = sortedFiltered
+      .filter(r => r.stock_quantity !== null && r.stock_quantity <= 0)
+      .map(r => r.id);
+    if (outOfStockIds.length > 0) {
+      fetchWatchCounts(outOfStockIds);
+    }
+  }, [activeCategory, rewards, sortBy, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, searchQuery, fetchWatchCounts]);
 
   const loadRewards = async (isRetry = false) => {
     try {
@@ -734,20 +743,27 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           <NoRewardsEmpty />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {filteredRewards.map((reward) => (
-              <RewardCard
-                key={reward.id}
-                reward={reward}
-                isInWishlist={wishlistItems.has(reward.id)}
-                onToggleWishlist={toggleWishlist}
-                onImageZoom={handleImageZoom}
-                onClick={() => handleRewardClick(reward)}
-                isAnimatingHeart={animatingHearts.has(reward.id)}
-                claimBalance={claimBalance}
-                isAdmin={isAdmin}
-                onAdminEdit={(rewardId) => navigate(`/admin?tab=rewards&edit=${rewardId}`)}
-              />
-            ))}
+            {filteredRewards.map((reward) => {
+              const outOfStock = reward.stock_quantity !== null && reward.stock_quantity <= 0;
+              return (
+                <RewardCard
+                  key={reward.id}
+                  reward={reward}
+                  isInWishlist={wishlistItems.has(reward.id)}
+                  onToggleWishlist={toggleWishlist}
+                  onImageZoom={handleImageZoom}
+                  onClick={() => handleRewardClick(reward)}
+                  isAnimatingHeart={animatingHearts.has(reward.id)}
+                  claimBalance={claimBalance}
+                  isAdmin={isAdmin}
+                  onAdminEdit={(rewardId) => navigate(`/admin?tab=rewards&edit=${rewardId}`)}
+                  isWatching={outOfStock ? isWatching(reward.id) : false}
+                  onToggleWatch={outOfStock ? toggleWatch : undefined}
+                  isAnimatingWatch={outOfStock ? isWatchAnimating(reward.id) : false}
+                  watchCount={outOfStock ? getWatchCount(reward.id) : 0}
+                />
+              );
+            })}
           </div>
         )}
       </div>
