@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { Resend } from "https://esm.sh/resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -25,6 +26,51 @@ interface Profile {
   updated_at: string;
 }
 
+// Send failure notification email
+async function sendFailureNotification(errorMessage: string, details: Record<string, unknown>) {
+  const resendApiKey = Deno.env.get("RESEND_API_KEY");
+  if (!resendApiKey) {
+    console.error("RESEND_API_KEY not configured - skipping email notification");
+    return;
+  }
+
+  const resend = new Resend(resendApiKey);
+  const adminEmail = "anderson@projectbutterfly.io";
+
+  try {
+    await resend.emails.send({
+      from: "Crescendo Alerts <onboarding@resend.dev>",
+      to: [adminEmail],
+      subject: "🚨 Crescendo Profile Sync Failed",
+      html: `
+        <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
+            <h1 style="margin: 0; font-size: 24px;">⚠️ Sync Failure Alert</h1>
+          </div>
+          <div style="background: #1a1a1a; color: #e5e5e5; padding: 24px; border-radius: 0 0 12px 12px;">
+            <p style="font-size: 16px; margin-bottom: 16px;">
+              The Crescendo profile sync encountered an error:
+            </p>
+            <div style="background: #2a2a2a; padding: 16px; border-radius: 8px; border-left: 4px solid #dc2626; margin-bottom: 20px;">
+              <code style="color: #fca5a5; word-break: break-all;">${errorMessage}</code>
+            </div>
+            <h3 style="color: #fbbf24; margin-bottom: 12px;">Details</h3>
+            <pre style="background: #2a2a2a; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 12px; color: #a3a3a3;">
+${JSON.stringify(details, null, 2)}
+            </pre>
+            <p style="color: #737373; font-size: 12px; margin-top: 20px;">
+              Timestamp: ${new Date().toISOString()}
+            </p>
+          </div>
+        </div>
+      `,
+    });
+    console.log("Failure notification email sent successfully");
+  } catch (emailError) {
+    console.error("Failed to send notification email:", emailError);
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -32,6 +78,9 @@ serve(async (req) => {
   }
 
   try {
+    const url = new URL(req.url);
+    const testMode = url.searchParams.get("test") === "true";
+
     // Create admin client with service role
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -73,13 +122,46 @@ serve(async (req) => {
       );
     }
 
+    // Test mode - simulate a failure and send email
+    if (testMode) {
+      console.log("Test mode activated - simulating sync failure");
+      
+      const testError = "Simulated sync failure for testing email notifications";
+      const testDetails = {
+        test_mode: true,
+        triggered_by: user.email || user.id,
+        simulated_error: "Database connection timeout",
+        profiles_attempted: 0,
+        timestamp: new Date().toISOString(),
+      };
+
+      await sendFailureNotification(testError, testDetails);
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: "Test email notification sent! Check your inbox.",
+          test_details: testDetails,
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, "Content-Type": "application/json" } 
+        }
+      );
+    }
+
     // Fetch all Crescendo profiles
     const { data: profiles, error: profilesError } = await supabaseAdmin
       .from("profiles")
       .select("*");
 
     if (profilesError) {
-      throw new Error(`Failed to fetch profiles: ${profilesError.message}`);
+      const errorMsg = `Failed to fetch profiles: ${profilesError.message}`;
+      await sendFailureNotification(errorMsg, { 
+        error_code: profilesError.code,
+        stage: "fetch_profiles" 
+      });
+      throw new Error(errorMsg);
     }
 
     const results = {
@@ -166,6 +248,19 @@ serve(async (req) => {
 
     console.log("Sync completed:", results);
 
+    // If there were errors during sync, send notification
+    if (results.errors.length > 0) {
+      await sendFailureNotification(
+        `Sync completed with ${results.errors.length} errors`,
+        {
+          synced: results.synced,
+          created: results.created,
+          updated: results.updated,
+          errors: results.errors,
+        }
+      );
+    }
+
     // Log sync activity for status indicator
     const summary = {
       created: results.created,
@@ -198,6 +293,13 @@ serve(async (req) => {
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error("Sync error:", error);
+    
+    // Send failure notification for critical errors
+    await sendFailureNotification(errorMessage, {
+      stage: "critical_failure",
+      timestamp: new Date().toISOString(),
+    });
+
     return new Response(
       JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

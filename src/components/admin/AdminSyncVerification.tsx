@@ -27,7 +27,8 @@ import {
   Calendar,
   Pause,
   Trash2,
-  Timer
+  Timer,
+  Mail
 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 
@@ -104,6 +105,8 @@ export function AdminSyncVerification() {
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [testingReverse, setTestingReverse] = useState(false);
+  const [testingEmail, setTestingEmail] = useState(false);
+  const [emailTestResult, setEmailTestResult] = useState<{success: boolean; message: string} | null>(null);
   const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
   const [reverseTestResult, setReverseTestResult] = useState<{success: boolean; message: string} | null>(null);
   const [testDisplayName, setTestDisplayName] = useState('');
@@ -114,6 +117,61 @@ export function AdminSyncVerification() {
   const [cronJobRuns, setCronJobRuns] = useState<CronJobRun[]>([]);
   const [loadingCron, setLoadingCron] = useState(false);
   const [syncHistory, setSyncHistory] = useState<any[]>([]);
+
+  // Test email notification
+  const testEmailNotification = async () => {
+    if (!session?.access_token) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to test email notifications',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setTestingEmail(true);
+    setEmailTestResult(null);
+
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/sync-crescendo-profiles?test=true`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Test email failed');
+      }
+
+      setEmailTestResult({
+        success: true,
+        message: result.message || 'Test email notification sent! Check your inbox.',
+      });
+
+      toast({
+        title: 'Test Email Sent',
+        description: 'Check your inbox for the sync failure notification test email.',
+      });
+    } catch (error: any) {
+      console.error('Error testing email notification:', error);
+      setEmailTestResult({
+        success: false,
+        message: error.message,
+      });
+      toast({
+        title: 'Email Test Failed',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setTestingEmail(false);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -682,6 +740,47 @@ export function AdminSyncVerification() {
               <div className="text-xs text-muted-foreground bg-background/50 rounded p-2 font-mono break-all">
                 Calls: /functions/v1/sync-crescendo-profiles
               </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Email Notification Test */}
+          <div className="space-y-3">
+            <h4 className="font-medium flex items-center gap-2">
+              <Mail className="h-4 w-4" />
+              Email Notification Test
+            </h4>
+            <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Test the sync failure email notification system. This will send a test email to the admin address.
+              </p>
+              <Button 
+                onClick={testEmailNotification} 
+                disabled={testingEmail}
+                variant="outline"
+                className="w-full"
+              >
+                {testingEmail ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Mail className="h-4 w-4 mr-2" />
+                )}
+                {testingEmail ? 'Sending Test Email...' : 'Send Test Failure Email'}
+              </Button>
+
+              {emailTestResult && (
+                <div className={`p-3 rounded-lg ${emailTestResult.success ? 'bg-primary/10 border border-primary/20' : 'bg-destructive/10 border border-destructive/20'}`}>
+                  <div className="flex items-center gap-2">
+                    {emailTestResult.success ? (
+                      <Check className="h-4 w-4 text-primary" />
+                    ) : (
+                      <X className="h-4 w-4 text-destructive" />
+                    )}
+                    <span className="text-sm">{emailTestResult.message}</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
