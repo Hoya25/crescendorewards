@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthContext } from '@/contexts/AuthContext';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { getMembershipTierByNCTR } from '@/utils/membershipLevels';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
@@ -69,7 +69,7 @@ const statusMultipliers: Record<number, number> = {
 
 export function BrandPartnersPage() {
   const navigate = useNavigate();
-  const { profile } = useAuthContext();
+  const { profile } = useUnifiedUser();
   const [brands, setBrands] = useState<Brand[]>([]);
   const [filteredBrands, setFilteredBrands] = useState<Brand[]>([]);
   const [featuredBrands, setFeaturedBrands] = useState<Brand[]>([]);
@@ -79,7 +79,8 @@ export function BrandPartnersPage() {
   const [loading, setLoading] = useState(true);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   
-  const membershipTier = getMembershipTierByNCTR(profile?.locked_nctr || 0);
+  const crescendoData = profile?.crescendo_data || {};
+  const membershipTier = getMembershipTierByNCTR(crescendoData.locked_nctr || 0);
   const multiplier = membershipTier.multiplier;
 
   useEffect(() => {

@@ -103,8 +103,8 @@ function QuickActionsWithFavorites({ navigate }: { navigate: (path: string) => v
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const { profile, signOut, refreshProfile } = useAuthContext();
-  const { tier } = useUnifiedUser();
+  const { signOut } = useAuthContext();
+  const { profile, tier, refreshUnifiedProfile } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   const { theme } = useTheme();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
@@ -136,33 +136,40 @@ export function Dashboard() {
     );
   }
 
+  // Get crescendo data from unified profile
+  const crescendoData = profile?.crescendo_data || {};
+  const lockedNCTR = crescendoData.locked_nctr || 0;
+  const availableNCTR = crescendoData.available_nctr || 100;
+  const claimBalance = crescendoData.claims_balance || 0;
+  const hasStatusAccessPass = crescendoData.has_status_access_pass || false;
+  const hasClaimedSignupBonus = crescendoData.has_claimed_signup_bonus || false;
+  const referralCode = crescendoData.referral_code || 'CRES-LOADING';
+
   // Calculate tier based on locked NCTR (360LOCK)
-  const currentTier = getMembershipTierByNCTR(profile.locked_nctr);
-  const nextTier = getNextMembershipTier(profile.locked_nctr);
-  const progressPercent = getMembershipProgress(profile.locked_nctr);
-  const nctrNeeded = getNCTRNeededForNextLevel(profile.locked_nctr);
+  const currentTier = getMembershipTierByNCTR(lockedNCTR);
+  const nextTierData = getNextMembershipTier(lockedNCTR);
+  const progressPercent = getMembershipProgress(lockedNCTR);
+  const nctrNeeded = getNCTRNeededForNextLevel(lockedNCTR);
 
   const userData = {
     level: currentTier.level,
     tier: currentTier.name,
-    lockedNCTR: profile.locked_nctr,
-    nextLevelThreshold: nextTier?.requirement || currentTier.requirement,
+    lockedNCTR: lockedNCTR,
+    nextLevelThreshold: nextTierData?.requirement || currentTier.requirement,
     multiplier: currentTier.multiplier.toString() + 'x',
-    claimBalance: profile.claim_balance,
+    claimBalance: claimBalance,
     claimsPerYear: currentTier.claims,
     discount: currentTier.discount + '%',
-    hasStatusAccessPass: profile.has_status_access_pass,
+    hasStatusAccessPass: hasStatusAccessPass,
   };
 
   // Mock referral data (will be calculated from referrals table in future)
   const referralStats = {
     totalReferrals: 0,
-    totalEarned: profile.has_claimed_signup_bonus ? profile.available_nctr : 0,
+    totalEarned: hasClaimedSignupBonus ? availableNCTR : 0,
     signupBonus: 100,
-    hasClaimedSignupBonus: profile.has_claimed_signup_bonus,
+    hasClaimedSignupBonus: hasClaimedSignupBonus,
   };
-
-  const referralCode = profile.referral_code || 'CRES-LOADING';
 
   const levelColors = {
     0: { gradient: 'from-slate-400 to-gray-500', bg: 'bg-slate-50', border: 'border-slate-200' },
@@ -303,7 +310,7 @@ export function Dashboard() {
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="gap-2">
                         <User className="w-4 h-4" />
-                        {profile.full_name || profile.email?.split('@')[0] || 'User'}
+                        {profile?.display_name || profile?.email?.split('@')[0] || 'User'}
                         <ChevronDown className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -383,17 +390,17 @@ export function Dashboard() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {nextTier && (
+                  {nextTierData && (
                     <>
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Progress to {nextTier.name}</span>
+                        <span className="text-muted-foreground">Progress to {nextTierData.name}</span>
                         <span className="font-medium flex items-center gap-1">
                           {userData.lockedNCTR.toLocaleString()} / {userData.nextLevelThreshold.toLocaleString()} <NCTRLogo />
                         </span>
                       </div>
                       <Progress value={progressPercent} className="h-3" />
                       <p className="text-sm text-muted-foreground flex items-center gap-1">
-                        Lock {nctrNeeded.toLocaleString()} more <NCTRLogo /> to reach {nextTier.name}
+                        Lock {nctrNeeded.toLocaleString()} more <NCTRLogo /> to reach {nextTierData.name}
                       </p>
                     </>
                   )}
@@ -430,7 +437,7 @@ export function Dashboard() {
                   </CardContent>
                 </Card>
 
-                <BuyClaims currentBalance={userData.claimBalance} onPurchaseSuccess={refreshProfile} />
+                <BuyClaims currentBalance={userData.claimBalance} onPurchaseSuccess={refreshUnifiedProfile} />
               </div>
 
               {/* Referral Card */}

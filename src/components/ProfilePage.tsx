@@ -23,13 +23,16 @@ import { getMembershipTierByNCTR } from '@/utils/membershipLevels';
 import { validateImageFile } from '@/lib/image-validation';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
+import { NoWishlistItemsEmpty } from '@/components/EmptyState';
 import { ProfilePageSkeleton } from '@/components/skeletons/ProfileSkeleton';
 import { NoWishlistItemsEmpty } from '@/components/EmptyState';
 import { ProfileCompletion } from '@/components/ProfileCompletion';
 
 export function ProfilePage() {
   const navigate = useNavigate();
-  const { profile, signOut, refreshProfile } = useAuthContext();
+  const { signOut } = useAuthContext();
+  const { profile, refreshUnifiedProfile } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   const [fullName, setFullName] = useState(profile?.full_name || '');
   const [bio, setBio] = useState(profile?.bio || '');

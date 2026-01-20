@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthContext } from '@/contexts/AuthContext';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -25,7 +25,7 @@ import { TierUpgradeCelebration } from './TierUpgradeCelebration';
 
 export function MembershipLevelPage() {
   const navigate = useNavigate();
-  const { profile } = useAuthContext();
+  const { profile } = useUnifiedUser();
   const [showLockDialog, setShowLockDialog] = useState(false);
   const [showConfirmLock, setShowConfirmLock] = useState(false);
   const [selectedTier, setSelectedTier] = useState<typeof membershipTiers[0] | null>(null);
@@ -36,8 +36,10 @@ export function MembershipLevelPage() {
 
   if (!profile) return null;
 
-  const currentLockedNCTR = profile.locked_nctr || 0;
-  const availableNCTR = profile.available_nctr || 0;
+  // Get crescendo data from unified profile
+  const crescendoData = profile.crescendo_data || {};
+  const currentLockedNCTR = crescendoData.locked_nctr || 0;
+  const availableNCTR = crescendoData.available_nctr || 0;
   const currentTier = getMembershipTierByNCTR(currentLockedNCTR);
   const nextTier = getNextMembershipTier(currentLockedNCTR);
   const progress = getMembershipProgress(currentLockedNCTR);

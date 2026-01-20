@@ -44,7 +44,7 @@ export function DevToolsPanel() {
   const [loadingStats, setLoadingStats] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
-  const { user, session, profile, loading: authLoading, isAuthenticated } = useAuthContext();
+  const { user, session, loading: authLoading, isAuthenticated } = useAuthContext();
   const { 
     profile: unifiedProfile, 
     tier, 
@@ -235,26 +235,22 @@ export function DevToolsPanel() {
                         )}
                       </div>
                       <div>
-                        <h4 className="font-medium text-muted-foreground mb-2">Legacy Profile</h4>
-                        {profile ? (
+                        <h4 className="font-medium text-muted-foreground mb-2">Unified Profile Data</h4>
+                        {unifiedProfile ? (
                           <div className="space-y-1">
                             <div className="flex items-center justify-between">
                               <span className="text-muted-foreground">Name:</span>
-                              <span>{profile.full_name || 'N/A'}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-muted-foreground">Level:</span>
-                              <Badge variant="secondary">{profile.level}</Badge>
+                              <span>{unifiedProfile.display_name || 'N/A'}</span>
                             </div>
                             <div className="flex items-center justify-between">
                               <span className="text-muted-foreground">Claims:</span>
-                              <span>{profile.claim_balance}</span>
+                              <span>{unifiedProfile.crescendo_data?.claims_balance || 0}</span>
                             </div>
                             <div className="flex items-center justify-between">
                               <span className="text-muted-foreground">Wallet:</span>
                               <span className="text-xs">
-                                {profile.wallet_address 
-                                  ? `${profile.wallet_address.slice(0, 6)}...${profile.wallet_address.slice(-4)}`
+                                {unifiedProfile.wallet_address 
+                                  ? `${unifiedProfile.wallet_address.slice(0, 6)}...${unifiedProfile.wallet_address.slice(-4)}`
                                   : 'Not connected'}
                               </span>
                             </div>

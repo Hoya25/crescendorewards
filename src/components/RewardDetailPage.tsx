@@ -16,6 +16,7 @@ import { toast } from '@/hooks/use-toast';
 import { BuyClaims } from '@/components/BuyClaims';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { DataErrorState } from '@/components/DataErrorState';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useWatchlist } from '@/hooks/useWatchlist';
@@ -69,7 +70,8 @@ const categoryLabels: Record<string, string> = {
 export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const navigate = useNavigate();
   const { id: rewardId } = useParams<{ id: string }>();
-  const { profile, refreshProfile, setShowAuthModal, setAuthMode } = useAuthContext();
+  const { setShowAuthModal, setAuthMode } = useAuthContext();
+  const { profile, refreshUnifiedProfile } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   const { isWatching, toggleWatch, isAnimating: isWatchAnimating, getWatchCount, fetchWatchCounts } = useWatchlist();
   const [reward, setReward] = useState<Reward | null>(null);

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,7 +46,9 @@ interface RewardSubmission {
 
 export function MySubmissionsPage() {
   const navigate = useNavigate();
-  const { user, profile } = useAuthContext();
+  const { user } = useAuthContext();
+  const { profile } = useUnifiedUser();
+  const crescendoData = profile?.crescendo_data || {};
   const [submissions, setSubmissions] = useState<RewardSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -186,12 +189,12 @@ export function MySubmissionsPage() {
 
   const generateShareUrl = (submissionId: string) => {
     const baseUrl = window.location.origin;
-    const referralCode = profile?.referral_code || '';
+    const referralCode = crescendoData.referral_code || '';
     return `${baseUrl}/?submission=${submissionId}&ref=${referralCode}`;
   };
 
   const trackShare = async (platform: string) => {
-    if (!profile?.referral_code || !selectedSubmission) return;
+    if (!crescendoData.referral_code || !selectedSubmission || !profile) return;
 
     try {
       const { error } = await supabase
@@ -199,7 +202,7 @@ export function MySubmissionsPage() {
         .insert({
           user_id: profile.id,
           reward_id: selectedSubmission.id,
-          referral_code: profile.referral_code,
+          referral_code: crescendoData.referral_code,
           share_platform: platform,
         });
 
@@ -715,9 +718,9 @@ export function MySubmissionsPage() {
                 </div>
               </div>
 
-              {profile?.referral_code && (
+              {crescendoData.referral_code && (
                 <p className="text-xs text-muted-foreground text-center">
-                  Your referral code: <span className="font-mono font-semibold text-foreground">{profile.referral_code}</span>
+                  Your referral code: <span className="font-mono font-semibold text-foreground">{crescendoData.referral_code}</span>
                 </p>
               )}
             </div>

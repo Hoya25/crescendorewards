@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuthContext } from '@/contexts/AuthContext';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -43,7 +43,7 @@ const statusMultipliers: Record<number, number> = {
 export function BrandDetailPage() {
   const { id: brandId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { profile } = useAuthContext();
+  const { profile } = useUnifiedUser();
   const [brand, setBrand] = useState<Brand | null>(null);
   const [rewards, setRewards] = useState<RewardCardData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,9 +52,10 @@ export function BrandDetailPage() {
   const [wishlist, setWishlist] = useState<Set<string>>(new Set());
   const [animatingHeartId, setAnimatingHeartId] = useState<string | null>(null);
 
-  const membershipTier = getMembershipTierByNCTR(profile?.locked_nctr || 0);
+  const crescendoData = profile?.crescendo_data || {};
+  const membershipTier = getMembershipTierByNCTR(crescendoData.locked_nctr || 0);
   const multiplier = membershipTier.multiplier;
-  const claimBalance = profile?.claim_balance || 0;
+  const claimBalance = crescendoData.claims_balance || 0;
 
   const calculateMultipliedRate = (baseRate: number) => {
     return (baseRate * multiplier).toFixed(2);

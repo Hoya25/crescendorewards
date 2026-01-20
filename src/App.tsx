@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { queryClient } from './lib/queryClient';
 import { ThemeProvider } from "./components/ThemeProvider";
 import { AuthProvider, useAuthContext } from "./contexts/AuthContext";
-import { UnifiedUserProvider } from "./contexts/UnifiedUserContext";
+import { UnifiedUserProvider, useUnifiedUser } from "./contexts/UnifiedUserContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminRoute } from "./components/AdminRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -45,14 +45,13 @@ const AdminPanel = lazy(() => import('./components/admin/AdminPanel').then(m => 
 function AppRoutes() {
   const { 
     isAuthenticated, 
-    profile, 
     loading,
     showAuthModal,
     setShowAuthModal,
     authMode,
     setAuthMode,
-    refreshProfile,
   } = useAuthContext();
+  const { profile, refreshUnifiedProfile } = useUnifiedUser();
 
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
@@ -86,12 +85,12 @@ function AppRoutes() {
               path="/rewards" 
               element={
                 <ErrorBoundary>
-                  <RewardsPool claimBalance={profile?.claim_balance || 0} onClaimSuccess={refreshProfile} />
+                  <RewardsPool claimBalance={profile?.crescendo_data?.claims_balance || 0} onClaimSuccess={refreshUnifiedProfile} />
                 </ErrorBoundary>
               } 
             />
-            <Route path="/rewards/:id" element={<RewardDetailPage onClaimSuccess={refreshProfile} />} />
-            <Route path="/food-beverage" element={<FoodBeveragePage claimBalance={profile?.claim_balance || 0} />} />
+            <Route path="/rewards/:id" element={<RewardDetailPage onClaimSuccess={refreshUnifiedProfile} />} />
+            <Route path="/food-beverage" element={<FoodBeveragePage claimBalance={profile?.crescendo_data?.claims_balance || 0} />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
 
@@ -190,7 +189,7 @@ function AppRoutes() {
               path="/wishlist" 
               element={
                 <ProtectedRoute>
-                  <WishlistPage claimBalance={profile?.claim_balance || 0} />
+                  <WishlistPage claimBalance={profile?.crescendo_data?.claims_balance || 0} />
                 </ProtectedRoute>
               } 
             />
@@ -198,7 +197,7 @@ function AppRoutes() {
               path="/favorites" 
               element={
                 <ProtectedRoute>
-                  <FavoritesPage claimBalance={profile?.claim_balance || 0} />
+                  <FavoritesPage claimBalance={profile?.crescendo_data?.claims_balance || 0} />
                 </ProtectedRoute>
               } 
             />
