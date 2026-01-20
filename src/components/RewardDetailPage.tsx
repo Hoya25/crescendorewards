@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { ConfirmationDialog } from '@/components/ConfirmationDialog';
+import { ClaimConfirmationDialog } from '@/components/ClaimConfirmationDialog';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { toast } from '@/hooks/use-toast';
 import { BuyClaims } from '@/components/BuyClaims';
@@ -939,23 +940,24 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Confirm Claim Dialog */}
-      <ConfirmationDialog
+      {/* Confirm Claim Dialog - Status-aware */}
+      <ClaimConfirmationDialog
         isOpen={showConfirmClaim}
         onClose={() => setShowConfirmClaim(false)}
         onConfirm={() => {
           setShowConfirmClaim(false);
           handleClaim();
         }}
-        title="Confirm Claim"
-        description={pricing.isFree 
-          ? `You're about to claim "${reward?.title}" for FREE!`
-          : `This will use ${pricing.price} Claims from your balance. Your new balance will be ${crescendoData.claim_balance - pricing.price} Claims.`
-        }
-        confirmText={pricing.isFree ? "Claim for Free" : "Confirm Claim"}
-        cancelText="Go Back"
-        icon={<AlertCircle className="w-5 h-5 text-primary" />}
+        rewardTitle={reward?.title || ''}
         isLoading={claiming}
+        userTierEmoji={tier?.badge_emoji || tierEmojis[userTier] || '💧'}
+        userTierName={tier?.display_name || getTierDisplayName(userTier)}
+        userTierColor={tier?.badge_color || 'hsl(var(--primary))'}
+        userPrice={pricing.price}
+        originalPrice={pricing.originalPrice}
+        isFree={pricing.isFree}
+        discount={pricing.discount}
+        currentBalance={crescendoData.claim_balance}
       />
 
       {/* Buy Claims Modal */}

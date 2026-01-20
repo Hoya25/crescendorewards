@@ -1,8 +1,9 @@
-import { Store, LayoutDashboard, Gift, Trophy, Crown, User, Heart, FileCheck, Receipt, BarChart3, Settings, UtensilsCrossed, Coins, Shield, ShoppingBag, ExternalLink, CheckCircle2 } from 'lucide-react';
+import { Store, LayoutDashboard, Gift, Trophy, Crown, User, Heart, FileCheck, Receipt, BarChart3, Settings, UtensilsCrossed, Coins, Shield, ShoppingBag, ExternalLink, CheckCircle2, ChevronRight, TrendingUp } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { useProfileCompletion } from '@/hooks/useProfileCompletion';
+import { StatusBadge, TierProgress } from '@/components/StatusBadge';
 
 import {
   Sidebar,
@@ -18,6 +19,11 @@ import {
 } from '@/components/ui/sidebar';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
 interface AppSidebarProps {
@@ -50,7 +56,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAdmin, loading: adminLoading } = useAdminRole();
-  const { profile } = useUnifiedUser();
+  const { profile, tier, nextTier, progressToNextTier, total360Locked } = useUnifiedUser();
   const { percentage, isComplete, loading: completionLoading } = useProfileCompletion(profile as any);
 
   const isActive = (path: string) => location.pathname === path;
@@ -99,6 +105,114 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
             </SidebarGroup>
             <SidebarSeparator />
           </>
+        )}
+
+        {/* Status Display Section */}
+        {profile && (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <div 
+                    className={cn(
+                      "cursor-pointer rounded-lg p-3 mx-2 transition-colors border",
+                      "hover:bg-accent/50"
+                    )}
+                    style={{
+                      borderColor: tier?.badge_color ? `${tier.badge_color}30` : 'hsl(var(--border))',
+                      backgroundColor: tier?.badge_color ? `${tier.badge_color}08` : undefined
+                    }}
+                  >
+                    {open ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">{tier?.badge_emoji || '💧'}</span>
+                            <span className="font-semibold text-sm" style={{ color: tier?.badge_color }}>
+                              {tier?.display_name || 'Droplet'}
+                            </span>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                        {nextTier && (
+                          <div className="space-y-1">
+                            <Progress value={progressToNextTier} className="h-1" />
+                            <p className="text-[10px] text-muted-foreground">
+                              {Math.round(progressToNextTier)}% to {nextTier.display_name}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center">
+                        <span className="text-lg">{tier?.badge_emoji || '💧'}</span>
+                      </div>
+                    )}
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent side="right" align="start" className="w-72 p-4">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl">{tier?.badge_emoji || '💧'}</span>
+                      <div>
+                        <p className="font-bold text-lg" style={{ color: tier?.badge_color }}>
+                          {tier?.display_name || 'Droplet'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {total360Locked.toLocaleString()} NCTR in 360LOCK
+                        </p>
+                      </div>
+                    </div>
+
+                    {tier?.benefits && tier.benefits.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          Your Benefits
+                        </p>
+                        <ul className="space-y-1.5">
+                          {tier.benefits.slice(0, 4).map((benefit, idx) => (
+                            <li key={idx} className="flex items-start gap-2 text-xs">
+                              <TrendingUp 
+                                className="w-3 h-3 mt-0.5 shrink-0" 
+                                style={{ color: tier.badge_color }}
+                              />
+                              <span>{benefit}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {nextTier && (
+                      <div 
+                        className="p-3 rounded-lg"
+                        style={{ backgroundColor: `${nextTier.badge_color}10` }}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-medium">Next: {nextTier.badge_emoji} {nextTier.display_name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {(nextTier.min_nctr_360_locked - total360Locked).toLocaleString()} NCTR needed
+                          </span>
+                        </div>
+                        <Progress value={progressToNextTier} className="h-1.5" />
+                      </div>
+                    )}
+
+                    <button
+                      onClick={() => handleNavigation('/membership')}
+                      className="w-full text-center text-sm font-medium py-2 rounded-lg transition-colors"
+                      style={{ 
+                        backgroundColor: tier?.badge_color || 'hsl(var(--primary))',
+                        color: 'white'
+                      }}
+                    >
+                      View Status Details
+                    </button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </SidebarGroupContent>
+          </SidebarGroup>
         )}
 
         {/* Main Navigation */}
