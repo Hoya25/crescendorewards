@@ -14,6 +14,7 @@ import { WelcomeModal } from "./WelcomeModal";
 import { OnboardingProgress } from "./OnboardingProgress";
 import { NeedsAttention } from "./NeedsAttention";
 import { ActivityFeed } from "./ActivityFeed";
+import { FavoritesIndicator } from "./FavoritesIndicator";
 import { SEO } from "./SEO";
 import { NotificationsDropdown } from "./NotificationsDropdown";
 import { Footer } from "./Footer";
@@ -27,8 +28,76 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "sonner";
 import { DashboardSkeleton } from "./skeletons/DashboardSkeleton";
+import { useFavorites } from "@/hooks/useFavorites";
 
 const WELCOME_SEEN_KEY = "crescendo_welcome_seen";
+
+// Quick Actions component with Favorites
+function QuickActionsWithFavorites({ navigate }: { navigate: (path: string) => void }) {
+  const { favoritesCount } = useFavorites();
+  
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <Card 
+        className="cursor-pointer hover:border-primary/30 transition-colors"
+        onClick={() => navigate('/rewards')}
+      >
+        <CardContent className="p-4 text-center">
+          <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center">
+            <Gift className="w-6 h-6 text-violet-600 dark:text-violet-400" />
+          </div>
+          <h3 className="font-medium">Browse Rewards</h3>
+          <p className="text-sm text-muted-foreground">Explore marketplace</p>
+        </CardContent>
+      </Card>
+      
+      <Card 
+        className="cursor-pointer hover:border-primary/30 transition-colors group"
+        onClick={() => window.open('https://thegarden.nctr.live/', '_blank')}
+      >
+        <CardContent className="p-4 text-center relative">
+          <ExternalLink className="w-3 h-3 absolute top-2 right-2 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-emerald-500/20 to-green-500/20 flex items-center justify-center">
+            <ShoppingBag className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <h3 className="font-medium">Earn NCTR</h3>
+          <p className="text-sm text-muted-foreground">Via The Garden</p>
+        </CardContent>
+      </Card>
+      
+      <Card 
+        className="cursor-pointer hover:border-primary/30 transition-colors"
+        onClick={() => navigate('/favorites')}
+      >
+        <CardContent className="p-4 text-center">
+          <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-red-500/20 to-pink-500/20 flex items-center justify-center relative">
+            <Heart className="w-6 h-6 text-red-500" />
+            {favoritesCount > 0 && (
+              <Badge className="absolute -top-1 -right-1 h-5 min-w-5 px-1.5 text-xs bg-red-500 hover:bg-red-500 text-white border-0">
+                {favoritesCount}
+              </Badge>
+            )}
+          </div>
+          <h3 className="font-medium">My Favorites</h3>
+          <p className="text-sm text-muted-foreground">{favoritesCount} saved</p>
+        </CardContent>
+      </Card>
+      
+      <Card 
+        className="cursor-pointer hover:border-primary/30 transition-colors"
+        onClick={() => navigate('/submit-reward')}
+      >
+        <CardContent className="p-4 text-center">
+          <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-amber-500/20 to-yellow-500/20 flex items-center justify-center">
+            <Plus className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+          </div>
+          <h3 className="font-medium">Submit Reward</h3>
+          <p className="text-sm text-muted-foreground">Contribute ideas</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -167,6 +236,7 @@ export function Dashboard() {
                     <Gift className="w-4 h-4" />
                     Rewards
                   </Button>
+                  <FavoritesIndicator />
                   <NotificationsDropdown />
                   <ThemeToggle />
                 </div>
@@ -212,6 +282,7 @@ export function Dashboard() {
                     <Gift className="w-4 h-4" />
                     Rewards
                   </Button>
+                  <FavoritesIndicator />
                   <NotificationsDropdown />
                   <ThemeToggle />
                 </div>
@@ -333,54 +404,7 @@ export function Dashboard() {
               </Card>
 
               {/* Quick Actions */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <Card 
-                  className="cursor-pointer hover:border-violet-300 transition-colors"
-                  onClick={() => navigate('/rewards')}
-                >
-                  <CardContent className="p-4 text-center">
-                    <Gift className="w-8 h-8 mx-auto mb-2 text-violet-600" />
-                    <h3 className="font-medium">Browse Rewards</h3>
-                    <p className="text-sm text-muted-foreground">Explore marketplace</p>
-                  </CardContent>
-                </Card>
-                <Card 
-                  className="cursor-pointer hover:border-emerald-300 transition-colors group"
-                  onClick={() => window.open('https://thegarden.nctr.live/', '_blank')}
-                >
-                  <CardContent className="p-4 text-center relative">
-                    <ExternalLink className="w-3 h-3 absolute top-2 right-2 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <ShoppingBag className="w-8 h-8 mx-auto mb-2 text-emerald-600" />
-                    <h3 className="font-medium">Earn NCTR</h3>
-                    <p className="text-sm text-muted-foreground">Via The Garden</p>
-                  </CardContent>
-                </Card>
-                {/* HIDDEN FOR REWARDS-FOCUSED PHASE - TODO: Restore when re-enabling brand partnerships */}
-                {false && (
-                  <>
-                    <Card 
-                      className="cursor-pointer hover:border-blue-300 transition-colors"
-                      onClick={() => navigate('/brands')}
-                    >
-                      <CardContent className="p-4 text-center">
-                        <Store className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-                        <h3 className="font-medium">Crescendo Brands</h3>
-                        <p className="text-sm text-muted-foreground">Exclusive rewards</p>
-                      </CardContent>
-                    </Card>
-                    <Card 
-                      className="cursor-pointer hover:border-amber-300 transition-colors"
-                      onClick={() => navigate('/food-beverage')}
-                    >
-                      <CardContent className="p-4 text-center">
-                        <UtensilsCrossed className="w-8 h-8 mx-auto mb-2 text-amber-600" />
-                        <h3 className="font-medium">Food & Beverage</h3>
-                        <p className="text-sm text-muted-foreground">Local rewards</p>
-                      </CardContent>
-                    </Card>
-                  </>
-                )}
-              </div>
+              <QuickActionsWithFavorites navigate={navigate} />
 
               {/* Claim Balance & Buy Claims */}
               <div className="grid md:grid-cols-2 gap-6">
