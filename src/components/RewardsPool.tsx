@@ -22,6 +22,7 @@ import { CrescendoLogo } from '@/components/CrescendoLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { NotificationsDropdown } from '@/components/NotificationsDropdown';
 import { SEO } from '@/components/SEO';
+import { Footer } from '@/components/Footer';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { RewardsGridSkeleton } from '@/components/skeletons/RewardCardSkeleton';
 import { NoRewardsEmpty } from '@/components/EmptyState';
@@ -924,6 +925,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           </div>
         </div>
       )}
+
+      <Footer />
     </div>
   );
 }

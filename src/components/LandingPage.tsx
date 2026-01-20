@@ -8,6 +8,7 @@ import { CrescendoLogo } from "./CrescendoLogo";
 import { ImageWithFallback } from "./ImageWithFallback";
 import { SEO } from "./SEO";
 import { MobileNav } from "./MobileNav";
+import { Footer } from "./Footer";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -279,6 +280,8 @@ export function LandingPage() {
           </Button>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 }
