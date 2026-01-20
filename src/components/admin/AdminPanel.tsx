@@ -12,6 +12,8 @@ import { AdminWishlists } from './AdminWishlists';
 import { AdminUsers } from './AdminUsers';
 import { AdminSponsors } from './AdminSponsors';
 import { AdminSyncVerification } from './AdminSyncVerification';
+import { AdminSponsoredRewards } from './AdminSponsoredRewards';
+import { AdminCampaigns } from './AdminCampaigns';
 import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -28,6 +30,10 @@ export function AdminPanel() {
         return <AdminSubmissions />;
       case 'rewards':
         return <AdminRewards />;
+      case 'sponsored-rewards':
+        return <AdminSponsoredRewards />;
+      case 'campaigns':
+        return <AdminCampaigns />;
       case 'claims':
         return <AdminClaims />;
       case 'purchases':

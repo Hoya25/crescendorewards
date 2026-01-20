@@ -1,4 +1,4 @@
-import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, Heart, TrendingUp, Building2, RefreshCw } from 'lucide-react';
+import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, Heart, TrendingUp, Building2, RefreshCw, Sparkles, Megaphone } from 'lucide-react';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { cn } from '@/lib/utils';
 import {
@@ -46,6 +46,8 @@ const menuItems = [
   { title: 'Users', view: 'users', icon: Users, badgeKey: null },
   { title: 'Submissions', view: 'submissions', icon: FileCheck, badgeKey: 'submissions' as const },
   { title: 'Rewards', view: 'rewards', icon: Gift, badgeKey: null },
+  { title: 'Sponsored Rewards', view: 'sponsored-rewards', icon: Sparkles, badgeKey: null },
+  { title: 'Campaigns', view: 'campaigns', icon: Megaphone, badgeKey: null },
   { title: 'Claims', view: 'claims', icon: ShoppingBag, badgeKey: 'claims' as const },
   { title: 'Purchases', view: 'purchases', icon: Receipt, badgeKey: null },
   { title: 'Brands', view: 'brands', icon: Store, badgeKey: null },
