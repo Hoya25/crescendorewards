@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { ShoppingCart, Check, Sparkles, Award, Gift, HelpCircle, TrendingUp } from 'lucide-react';
+import { ShoppingCart, Check, Sparkles, Award, Gift, HelpCircle, TrendingUp, Loader2, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/hooks/use-toast';
 import { NCTRLogo } from './NCTRLogo';
@@ -16,6 +16,8 @@ interface BuyClaimsProps {
   onPurchaseSuccess: () => void;
   trigger?: React.ReactNode;
 }
+
+type CheckoutState = 'idle' | 'processing' | 'success' | 'timeout';
 
 interface ClaimPackage {
   id: string;
@@ -74,6 +76,52 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
   const [selectedPackage, setSelectedPackage] = useState<ClaimPackage | null>(null);
   const [processing, setProcessing] = useState(false);
   const [lockedNCTR, setLockedNCTR] = useState(0);
+  const [checkoutState, setCheckoutState] = useState<CheckoutState>('idle');
+  const [initialBalance, setInitialBalance] = useState(currentBalance);
+
+  // Poll for balance changes after checkout
+  const pollForBalanceUpdate = useCallback(async (expectedClaims: number) => {
+    const maxAttempts = 30; // 30 seconds max
+    let attempts = 0;
+    
+    const poll = async (): Promise<boolean> => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('claim_balance')
+        .eq('id', user.id)
+        .single();
+
+      if (profile && profile.claim_balance >= initialBalance + expectedClaims) {
+        return true;
+      }
+      return false;
+    };
+
+    while (attempts < maxAttempts) {
+      attempts++;
+      const success = await poll();
+      if (success) {
+        setCheckoutState('success');
+        onPurchaseSuccess();
+        toast({
+          title: "Purchase Complete! 🎉",
+          description: `${expectedClaims} claims have been added to your balance.`,
+        });
+        setTimeout(() => {
+          setCheckoutState('idle');
+          setOpen(false);
+        }, 2000);
+        return;
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    // Timeout - still show option to refresh
+    setCheckoutState('timeout');
+  }, [initialBalance, onPurchaseSuccess]);
 
   useEffect(() => {
     const fetchLockedNCTR = async () => {
@@ -82,17 +130,19 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('locked_nctr')
+        .select('locked_nctr, claim_balance')
         .eq('id', user.id)
         .single();
 
       if (profile) {
         setLockedNCTR(profile.locked_nctr);
+        setInitialBalance(profile.claim_balance);
       }
     };
 
     if (open) {
       fetchLockedNCTR();
+      setCheckoutState('idle');
     }
   }, [open]);
 
@@ -123,13 +173,15 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
       if (error) throw error;
 
       if (data?.url) {
-        // Redirect to Stripe Checkout
+        // Open Stripe Checkout in new tab
         window.open(data.url, '_blank');
-        setOpen(false);
+        setCheckoutState('processing');
         toast({
-          title: "Redirecting to checkout",
-          description: "Complete your purchase to receive claim passes.",
+          title: "Checkout opened",
+          description: "Complete your purchase in the new tab. We'll update your balance automatically.",
         });
+        // Start polling for balance update
+        pollForBalanceUpdate(selectedPackage.claims);
       }
     } catch (error) {
       console.error('Error creating checkout session:', error);
@@ -154,8 +206,73 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
         )}
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={(isOpen) => {
+        if (checkoutState === 'processing') return; // Prevent closing while processing
+        setOpen(isOpen);
+      }}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          {checkoutState === 'processing' || checkoutState === 'success' || checkoutState === 'timeout' ? (
+            <div className="flex flex-col items-center justify-center py-12 gap-6">
+              {checkoutState === 'processing' && (
+                <>
+                  <div className="relative">
+                    <Loader2 className="w-16 h-16 text-primary animate-spin" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <ShoppingCart className="w-6 h-6 text-primary" />
+                    </div>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <h3 className="text-xl font-semibold">Processing Your Purchase</h3>
+                    <p className="text-muted-foreground">
+                      Complete checkout in the new tab. Your balance will update automatically.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Waiting for confirmation...</span>
+                  </div>
+                </>
+              )}
+              {checkoutState === 'success' && (
+                <>
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                      <CheckCircle2 className="w-10 h-10 text-green-600 dark:text-green-400" />
+                    </div>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <h3 className="text-xl font-semibold text-green-600 dark:text-green-400">Purchase Complete! 🎉</h3>
+                    <p className="text-muted-foreground">
+                      {selectedPackage?.claims} claims have been added to your balance.
+                    </p>
+                  </div>
+                </>
+              )}
+              {checkoutState === 'timeout' && (
+                <>
+                  <div className="text-center space-y-2">
+                    <h3 className="text-xl font-semibold">Still Processing</h3>
+                    <p className="text-muted-foreground">
+                      Your purchase may still be processing. If you completed checkout, your claims will appear shortly.
+                    </p>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button variant="outline" onClick={() => setOpen(false)}>
+                      Close
+                    </Button>
+                    <Button onClick={() => {
+                      onPurchaseSuccess();
+                      setOpen(false);
+                    }}>
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Refresh Balance
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+          <>
           <DialogHeader>
             <DialogTitle className="text-2xl">Purchase Claim Passes</DialogTitle>
             <DialogDescription>
@@ -407,6 +524,8 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
               {processing ? 'Processing...' : `Purchase ${selectedPackage?.claims || 0} Claims`}
             </Button>
           </DialogFooter>
+          </>
+          )}
         </DialogContent>
       </Dialog>
     </>
