@@ -67,25 +67,26 @@ export function FeedbackButton() {
 
   return (
     <>
-      {/* Floating feedback button */}
+      {/* Floating feedback button - mobile-optimized with safe area */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary/90 text-primary-foreground shadow-lg hover:bg-primary transition-all hover:scale-105 backdrop-blur-sm"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex items-center justify-center gap-2 w-12 h-12 sm:w-auto sm:h-auto sm:px-4 sm:py-2.5 rounded-full bg-primary/90 text-primary-foreground shadow-lg hover:bg-primary active:scale-95 sm:hover:scale-105 transition-all backdrop-blur-sm touch-manipulation"
+        style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}
         aria-label="Send feedback"
       >
-        <MessageSquare className="w-4 h-4" />
+        <MessageSquare className="w-5 h-5 sm:w-4 sm:h-4" />
         <span className="text-sm font-medium hidden sm:inline">Feedback</span>
       </button>
 
-      {/* Feedback dialog */}
+      {/* Feedback dialog - mobile-optimized full-screen on small devices */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="w-[calc(100%-2rem)] max-w-md mx-auto sm:mx-0 max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-lg">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-lg">
               <MessageSquare className="w-5 h-5 text-primary" />
               Beta Feedback
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-sm">
               Help us improve Crescendo! Your feedback is invaluable.
             </DialogDescription>
           </DialogHeader>
@@ -100,7 +101,7 @@ export function FeedbackButton() {
                 placeholder="Tell us what you like..."
                 value={whatsWorking}
                 onChange={(e) => setWhatsWorking(e.target.value)}
-                className="min-h-[80px] resize-none"
+                className="min-h-[80px] resize-none text-base sm:text-sm"
               />
             </div>
 
@@ -113,21 +114,29 @@ export function FeedbackButton() {
                 placeholder="Tell us about issues or improvements..."
                 value={whatsBroken}
                 onChange={(e) => setWhatsBroken(e.target.value)}
-                className="min-h-[80px] resize-none"
+                className="min-h-[80px] resize-none text-base sm:text-sm"
               />
             </div>
 
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground truncate">
               Page: {location.pathname}
               {user && ' • Logged in'}
             </p>
           </div>
 
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsOpen(false)}
+              className="w-full sm:w-auto h-11 sm:h-10"
+            >
               Cancel
             </Button>
-            <Button onClick={handleSubmit} disabled={isSubmitting}>
+            <Button 
+              onClick={handleSubmit} 
+              disabled={isSubmitting}
+              className="w-full sm:w-auto h-11 sm:h-10"
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
