@@ -31,7 +31,8 @@ serve(async (req) => {
 
   try {
     const body = await req.text();
-    const event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    // Deno uses WebCrypto (async). Stripe requires constructEventAsync in this runtime.
+    const event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
 
     console.log("Webhook event type:", event.type);
 
@@ -109,6 +110,33 @@ serve(async (req) => {
       }
 
       console.log(`Successfully added ${package_info.claims} claims and ${bonusNCTR} bonus NCTR (360LOCK) to user ${userId}`);
+
+      // Keep the unified profile in sync (UI reads claims_balance from unified_profiles.crescendo_data)
+      const { data: unified } = await supabaseClient
+        .from("unified_profiles")
+        .select("id, crescendo_data")
+        .eq("auth_user_id", userId)
+        .maybeSingle();
+
+      if (unified?.id) {
+        const cd = (unified.crescendo_data ?? {}) as Record<string, unknown>;
+        const currentClaims = Number((cd as any).claims_balance ?? (cd as any).claim_balance ?? 0);
+        const currentLocked = Number((cd as any).locked_nctr ?? 0);
+        const nextCrescendoData = {
+          ...(cd as any),
+          claims_balance: currentClaims + package_info.claims,
+          locked_nctr: currentLocked + bonusNCTR,
+        };
+
+        const { error: unifiedErr } = await supabaseClient
+          .from("unified_profiles")
+          .update({ crescendo_data: nextCrescendoData })
+          .eq("id", unified.id);
+
+        if (unifiedErr) {
+          console.error("Error updating unified profile crescendo_data:", unifiedErr);
+        }
+      }
     }
 
     return new Response(JSON.stringify({ received: true }), {
