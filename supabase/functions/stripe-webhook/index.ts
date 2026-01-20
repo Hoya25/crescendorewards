@@ -109,6 +109,7 @@ serve(async (req) => {
         // Don't fail the webhook if we can't record the purchase
       }
 
+      const newBalance = profile.claim_balance + package_info.claims;
       console.log(`Successfully added ${package_info.claims} claims and ${bonusNCTR} bonus NCTR (360LOCK) to user ${userId}`);
 
       // Keep the unified profile in sync (UI reads claims_balance from unified_profiles.crescendo_data)
@@ -136,6 +137,37 @@ serve(async (req) => {
         if (unifiedErr) {
           console.error("Error updating unified profile crescendo_data:", unifiedErr);
         }
+      }
+
+      // Send purchase confirmation email
+      try {
+        const emailResponse = await fetch(
+          `${Deno.env.get("SUPABASE_URL")}/functions/v1/send-purchase-confirmation`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+            },
+            body: JSON.stringify({
+              userId,
+              packageName: package_info.name,
+              claimsAmount: package_info.claims,
+              bonusNCTR,
+              amountPaid: package_info.price,
+              newBalance,
+            }),
+          }
+        );
+        
+        if (!emailResponse.ok) {
+          console.error("Failed to send purchase confirmation email:", await emailResponse.text());
+        } else {
+          console.log("Purchase confirmation email sent successfully");
+        }
+      } catch (emailError) {
+        console.error("Error sending purchase confirmation email:", emailError);
+        // Don't fail the webhook if email fails
       }
     }
 
