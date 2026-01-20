@@ -15,6 +15,7 @@ import { OnboardingProgress } from "./OnboardingProgress";
 import { NeedsAttention } from "./NeedsAttention";
 import { ActivityFeed } from "./ActivityFeed";
 import { FavoritesIndicator } from "./FavoritesIndicator";
+import { StatusBadge } from "./StatusBadge";
 import { SEO } from "./SEO";
 import { NotificationsDropdown } from "./NotificationsDropdown";
 import { Footer } from "./Footer";
@@ -25,6 +26,7 @@ import { SidebarProvider, SidebarTrigger } from "./ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "sonner";
 import { DashboardSkeleton } from "./skeletons/DashboardSkeleton";
@@ -102,6 +104,7 @@ function QuickActionsWithFavorites({ navigate }: { navigate: (path: string) => v
 export function Dashboard() {
   const navigate = useNavigate();
   const { profile, signOut, refreshProfile } = useAuthContext();
+  const { tier } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   const { theme } = useTheme();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
@@ -242,6 +245,7 @@ export function Dashboard() {
                 </div>
 
             <div className="flex flex-wrap items-center justify-center gap-2">
+              <StatusBadge tier={tier} size="sm" showTooltip={false} />
               <Badge className="gap-2 px-3 py-1.5 bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
                 <div className="w-2 h-2 bg-green-500 rounded-full" />
                 Wallet Connected
@@ -287,7 +291,9 @@ export function Dashboard() {
                   <ThemeToggle />
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <StatusBadge tier={tier} size="sm" />
+                  
                   <Badge className="gap-2 px-3 py-1.5 bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
                     <div className="w-2 h-2 bg-green-500 rounded-full" />
                     Wallet Connected

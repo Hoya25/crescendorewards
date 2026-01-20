@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { queryClient } from './lib/queryClient';
 import { ThemeProvider } from "./components/ThemeProvider";
 import { AuthProvider, useAuthContext } from "./contexts/AuthContext";
+import { UnifiedUserProvider } from "./contexts/UnifiedUserContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminRoute } from "./components/AdminRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -244,7 +245,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
-            <AppRoutes />
+            <UnifiedUserProvider>
+              <AppRoutes />
+            </UnifiedUserProvider>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
