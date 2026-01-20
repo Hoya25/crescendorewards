@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useAuthContext } from '@/contexts/AuthContext';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { toast } from 'sonner';
 
 interface UseFavoritesReturn {
@@ -13,13 +13,13 @@ interface UseFavoritesReturn {
 }
 
 export function useFavorites(): UseFavoritesReturn {
-  const { user } = useAuthContext();
+  const { profile } = useUnifiedUser();
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
 
   const fetchFavorites = useCallback(async () => {
-    if (!user) {
+    if (!profile) {
       setFavorites(new Set());
       setLoading(false);
       return;
@@ -29,7 +29,7 @@ export function useFavorites(): UseFavoritesReturn {
       const { data, error } = await supabase
         .from('reward_wishlists')
         .select('reward_id')
-        .eq('user_id', user.id);
+        .eq('user_id', profile.id);
 
       if (error) throw error;
       setFavorites(new Set(data?.map(item => item.reward_id) || []));
@@ -38,7 +38,7 @@ export function useFavorites(): UseFavoritesReturn {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [profile]);
 
   useEffect(() => {
     fetchFavorites();
@@ -49,7 +49,7 @@ export function useFavorites(): UseFavoritesReturn {
   }, [favorites]);
 
   const toggleFavorite = useCallback(async (rewardId: string) => {
-    if (!user) {
+    if (!profile) {
       toast.error('Please sign in to save favorites');
       return;
     }
@@ -82,7 +82,7 @@ export function useFavorites(): UseFavoritesReturn {
         const { error } = await supabase
           .from('reward_wishlists')
           .delete()
-          .eq('user_id', user.id)
+          .eq('user_id', profile.id)
           .eq('reward_id', rewardId);
 
         if (error) throw error;
@@ -91,7 +91,7 @@ export function useFavorites(): UseFavoritesReturn {
         const { error } = await supabase
           .from('reward_wishlists')
           .insert({
-            user_id: user.id,
+            user_id: profile.id,
             reward_id: rewardId,
           });
 
@@ -112,7 +112,7 @@ export function useFavorites(): UseFavoritesReturn {
       console.error('Error toggling favorite:', error);
       toast.error(error.message || 'Failed to update favorites');
     }
-  }, [user, favorites]);
+  }, [profile, favorites]);
 
   return {
     favorites,

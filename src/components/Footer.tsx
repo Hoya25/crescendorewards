@@ -20,6 +20,7 @@ export function Footer() {
   useEffect(() => {
     const fetchLastSync = async () => {
       try {
+        // Try to fetch sync status - this table may not exist yet
         const { data, error } = await supabase
           .from('cross_platform_activity_log')
           .select('created_at, action_data')
@@ -29,7 +30,11 @@ export function Footer() {
           .limit(1)
           .maybeSingle();
 
-        if (error) throw error;
+        if (error) {
+          // Table might not exist - fail silently
+          setSyncStatus({ lastSync: null, status: 'unknown', created: 0, updated: 0 });
+          return;
+        }
 
         if (data) {
           const actionData = data.action_data as any;
@@ -43,7 +48,7 @@ export function Footer() {
           setSyncStatus({ lastSync: null, status: 'unknown', created: 0, updated: 0 });
         }
       } catch (error) {
-        console.error('Error fetching sync status:', error);
+        // Silently handle errors - table may not exist
         setSyncStatus({ lastSync: null, status: 'unknown', created: 0, updated: 0 });
       }
     };

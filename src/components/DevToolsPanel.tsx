@@ -75,11 +75,10 @@ export function DevToolsPanel() {
   const fetchDbStats = async () => {
     setLoadingStats(true);
     try {
-      const [rewards, users, claims, unifiedProfiles, tiers] = await Promise.all([
+      const [rewards, unifiedProfiles, claims, tiers] = await Promise.all([
         supabase.from('rewards').select('id, is_active', { count: 'exact' }),
-        supabase.from('profiles').select('id', { count: 'exact', head: true }),
-        supabase.from('rewards_claims').select('id', { count: 'exact', head: true }),
         supabase.from('unified_profiles').select('id', { count: 'exact', head: true }),
+        supabase.from('rewards_claims').select('id', { count: 'exact', head: true }),
         supabase.from('status_tiers').select('id', { count: 'exact', head: true }),
       ]);
 
@@ -88,7 +87,7 @@ export function DevToolsPanel() {
       setDbStats({
         total_rewards: rewards.count || 0,
         active_rewards: activeRewards,
-        total_users: users.count || 0,
+        total_users: unifiedProfiles.count || 0,
         total_claims: claims.count || 0,
         unified_profiles_count: unifiedProfiles.count || 0,
         status_tiers_count: tiers.count || 0,
