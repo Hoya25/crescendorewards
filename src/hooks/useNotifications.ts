@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useAuthContext } from '@/contexts/AuthContext';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 
 export interface Notification {
   id: string;
@@ -14,13 +14,13 @@ export interface Notification {
 }
 
 export function useNotifications() {
-  const { user } = useAuthContext();
+  const { profile } = useUnifiedUser();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   const fetchNotifications = async () => {
-    if (!user) {
+    if (!profile) {
       setNotifications([]);
       setUnreadCount(0);
       setLoading(false);
@@ -31,7 +31,7 @@ export function useNotifications() {
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', profile.id)
         .order('created_at', { ascending: false })
         .limit(20);
 
@@ -66,13 +66,13 @@ export function useNotifications() {
   };
 
   const markAllAsRead = async () => {
-    if (!user) return;
+    if (!profile) return;
 
     try {
       const { error } = await supabase
         .from('notifications')
         .update({ is_read: true })
-        .eq('user_id', user.id)
+        .eq('user_id', profile.id)
         .eq('is_read', false);
 
       if (error) throw error;
@@ -87,7 +87,7 @@ export function useNotifications() {
   useEffect(() => {
     fetchNotifications();
 
-    if (!user) return;
+    if (!profile) return;
 
     // Subscribe to realtime notifications
     const channel = supabase
@@ -98,7 +98,7 @@ export function useNotifications() {
           event: 'INSERT',
           schema: 'public',
           table: 'notifications',
-          filter: `user_id=eq.${user.id}`,
+          filter: `user_id=eq.${profile.id}`,
         },
         (payload) => {
           const newNotification = payload.new as Notification;
@@ -111,7 +111,7 @@ export function useNotifications() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [profile]);
 
   return {
     notifications,

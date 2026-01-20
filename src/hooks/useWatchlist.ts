@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useAuthContext } from '@/contexts/AuthContext';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { toast } from '@/hooks/use-toast';
 
 interface WatchlistItem {
@@ -15,7 +15,7 @@ interface WatchCount {
 }
 
 export function useWatchlist() {
-  const { user } = useAuthContext();
+  const { profile } = useUnifiedUser();
   const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
   const [watchCounts, setWatchCounts] = useState<Map<string, number>>(new Map());
   const [loading, setLoading] = useState(true);
@@ -23,7 +23,7 @@ export function useWatchlist() {
 
   // Fetch user's watchlist
   const fetchWatchlist = useCallback(async () => {
-    if (!user) {
+    if (!profile) {
       setWatchlist([]);
       setLoading(false);
       return;
@@ -33,7 +33,7 @@ export function useWatchlist() {
       const { data, error } = await supabase
         .from('reward_watchlist')
         .select('reward_id, notified, created_at')
-        .eq('user_id', user.id);
+        .eq('user_id', profile.id);
 
       if (error) throw error;
       setWatchlist(data || []);
@@ -42,7 +42,7 @@ export function useWatchlist() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [profile]);
 
   // Fetch watch counts for specific rewards
   const fetchWatchCounts = useCallback(async (rewardIds: string[]) => {
@@ -87,7 +87,7 @@ export function useWatchlist() {
       e.stopPropagation();
     }
 
-    if (!user) {
+    if (!profile) {
       toast({
         title: "Sign in required",
         description: "Please sign in to get notified about restocks",
@@ -136,7 +136,7 @@ export function useWatchlist() {
         const { error } = await supabase
           .from('reward_watchlist')
           .delete()
-          .eq('user_id', user.id)
+          .eq('user_id', profile.id)
           .eq('reward_id', rewardId);
 
         if (error) throw error;
@@ -148,7 +148,7 @@ export function useWatchlist() {
       } else {
         const { error } = await supabase
           .from('reward_watchlist')
-          .insert({ user_id: user.id, reward_id: rewardId });
+          .insert({ user_id: profile.id, reward_id: rewardId });
 
         if (error) throw error;
 
@@ -167,7 +167,7 @@ export function useWatchlist() {
         variant: "destructive",
       });
     }
-  }, [user, isWatching, fetchWatchlist]);
+  }, [profile, isWatching, fetchWatchlist]);
 
   // Check if animation is active for a reward
   const isAnimating = useCallback((rewardId: string): boolean => {

@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Heart, Gift, Sparkles, ShoppingBag, CreditCard, Coins, ArrowUpDown, Filter, Package } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
-import { useAuthContext } from '@/contexts/AuthContext';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFavorites } from '@/hooks/useFavorites';
 import { SEO } from '@/components/SEO';
@@ -66,7 +66,7 @@ interface FavoritesPageProps {
 export function FavoritesPage({ claimBalance }: FavoritesPageProps) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user } = useAuthContext();
+  const { profile } = useUnifiedUser();
   const { toggleFavorite, animatingIds } = useFavorites();
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,13 +76,13 @@ export function FavoritesPage({ claimBalance }: FavoritesPageProps) {
   const sortBy = searchParams.get('sort') || 'newest';
 
   useEffect(() => {
-    if (user) {
+    if (profile) {
       fetchFavorites();
     }
-  }, [user]);
+  }, [profile]);
 
   const fetchFavorites = async () => {
-    if (!user) return;
+    if (!profile) return;
     
     try {
       const { data, error } = await supabase
@@ -99,7 +99,7 @@ export function FavoritesPage({ claimBalance }: FavoritesPageProps) {
             stock_quantity
           )
         `)
-        .eq('user_id', user.id)
+        .eq('user_id', profile.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;

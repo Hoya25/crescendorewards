@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthContext } from '@/contexts/AuthContext';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,7 +41,7 @@ const lockPeriods = [
 
 export function SubmitRewardsPage() {
   const navigate = useNavigate();
-  const { user, profile } = useAuthContext();
+  const { profile } = useUnifiedUser();
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
@@ -87,7 +87,7 @@ export function SubmitRewardsPage() {
   };
 
   const uploadImage = async (): Promise<string | null> => {
-    if (!selectedImage || !user) return null;
+    if (!selectedImage || !profile) return null;
 
     setUploading(true);
     try {
@@ -103,7 +103,7 @@ export function SubmitRewardsPage() {
       }
 
       const fileExt = compressedFile.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      const fileName = `${profile.id}/${Date.now()}.${fileExt}`;
       
       const { error: uploadError, data } = await supabase.storage
         .from('reward-images')
@@ -143,7 +143,7 @@ export function SubmitRewardsPage() {
   const handleSubmitClick = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!user) {
+    if (!profile) {
       toast.error('You must be logged in to submit rewards');
       return;
     }
@@ -174,7 +174,7 @@ export function SubmitRewardsPage() {
       const { error } = await supabase
         .from('reward_submissions')
         .insert({
-          user_id: user.id,
+          user_id: profile?.id,
           lock_rate: selectedLockRate,
           reward_type: selectedType,
           title: formData.title,

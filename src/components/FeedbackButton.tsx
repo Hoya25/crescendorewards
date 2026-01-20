@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { supabase } from '@/lib/supabase';
-import { useAuthContext } from '@/contexts/AuthContext';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { toast } from '@/hooks/use-toast';
 
 export function FeedbackButton() {
@@ -21,7 +21,7 @@ export function FeedbackButton() {
   const [whatsBroken, setWhatsBroken] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const location = useLocation();
-  const { user } = useAuthContext();
+  const { profile } = useUnifiedUser();
 
   const handleSubmit = async () => {
     if (!whatsWorking.trim() && !whatsBroken.trim()) {
@@ -37,7 +37,7 @@ export function FeedbackButton() {
 
     try {
       const { error } = await supabase.from('feedback').insert({
-        user_id: user?.id || null,
+        user_id: profile?.id || null,
         page_url: location.pathname + location.search,
         whats_working: whatsWorking.trim() || null,
         whats_broken: whatsBroken.trim() || null,
@@ -120,7 +120,7 @@ export function FeedbackButton() {
 
             <p className="text-xs text-muted-foreground truncate">
               Page: {location.pathname}
-              {user && ' • Logged in'}
+              {profile && ' • Logged in'}
             </p>
           </div>
 
