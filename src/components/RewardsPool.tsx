@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -74,8 +74,15 @@ const categoryIcons = {
   wellness: Heart,
 };
 
+// Valid filter values for URL params
+const VALID_SORTS = ['newest', 'oldest', 'priceLowToHigh', 'priceHighToLow', 'popularity'];
+const VALID_CATEGORIES = ['all', 'alliance_tokens', 'experiences', 'merch', 'gift_cards', 'wellness'];
+const VALID_PRICE_FILTERS = ['all', 'free', 'under100', 'under500', 'over500'];
+const VALID_AVAILABILITY_FILTERS = ['all', 'inStock', 'lowStock'];
+
 export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBack, onNavigateToBrands, onViewRewardDetail, carouselAutoplayDelay = 5000 }: RewardsPoolProps) {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { profile, isAuthenticated, signOut, setShowAuthModal, setAuthMode } = useAuthContext();
   const { isAdmin } = useAdminRole();
   
@@ -85,13 +92,33 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<Error | null>(null);
   const [retrying, setRetrying] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<string>('newest');
-  const [priceFilter, setPriceFilter] = useState<string>('all');
-  const [availabilityFilter, setAvailabilityFilter] = useState<string>('all');
-  const [exclusiveFilter, setExclusiveFilter] = useState<string>('all');
-  const [highValueFilter, setHighValueFilter] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  
+  // Initialize state from URL params with validation
+  const getValidParam = (param: string | null, validValues: string[], defaultValue: string) => {
+    return param && validValues.includes(param) ? param : defaultValue;
+  };
+
+  const [activeCategory, setActiveCategory] = useState<string>(() => 
+    getValidParam(searchParams.get('category'), VALID_CATEGORIES, 'all')
+  );
+  const [sortBy, setSortBy] = useState<string>(() => 
+    getValidParam(searchParams.get('sort'), VALID_SORTS, 'newest')
+  );
+  const [priceFilter, setPriceFilter] = useState<string>(() => 
+    getValidParam(searchParams.get('price'), VALID_PRICE_FILTERS, 'all')
+  );
+  const [availabilityFilter, setAvailabilityFilter] = useState<string>(() => 
+    getValidParam(searchParams.get('availability'), VALID_AVAILABILITY_FILTERS, 'all')
+  );
+  const [exclusiveFilter, setExclusiveFilter] = useState<string>(() => 
+    getValidParam(searchParams.get('exclusive'), ['all', 'exclusive'], 'all')
+  );
+  const [highValueFilter, setHighValueFilter] = useState<string>(() => 
+    getValidParam(searchParams.get('value'), ['all', 'highValue'], 'all')
+  );
+  const [searchQuery, setSearchQuery] = useState<string>(() => 
+    searchParams.get('q') || ''
+  );
   const [selectedReward, setSelectedReward] = useState<Reward | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
@@ -108,6 +135,27 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     zip: '',
     country: '',
   });
+
+  // Sync filter state to URL params
+  const updateUrlParams = useCallback(() => {
+    const params = new URLSearchParams();
+    
+    // Only add non-default values to keep URL clean
+    if (sortBy !== 'newest') params.set('sort', sortBy);
+    if (activeCategory !== 'all') params.set('category', activeCategory);
+    if (priceFilter !== 'all') params.set('price', priceFilter);
+    if (availabilityFilter !== 'all') params.set('availability', availabilityFilter);
+    if (exclusiveFilter !== 'all') params.set('exclusive', exclusiveFilter);
+    if (highValueFilter !== 'all') params.set('value', highValueFilter);
+    if (searchQuery.trim()) params.set('q', searchQuery.trim());
+    
+    setSearchParams(params, { replace: true });
+  }, [sortBy, activeCategory, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, searchQuery, setSearchParams]);
+
+  // Update URL when filters change
+  useEffect(() => {
+    updateUrlParams();
+  }, [updateUrlParams]);
 
   const handleSignOut = async () => {
     await signOut();
