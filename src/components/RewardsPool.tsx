@@ -22,6 +22,7 @@ import { RewardFilters } from '@/components/rewards/RewardFilters';
 import { FeaturedCarousel } from '@/components/rewards/FeaturedCarousel';
 import { SponsoredRewardsCarousel } from '@/components/rewards/SponsoredRewardsCarousel';
 import { SponsoredBanner } from '@/components/rewards/SponsoredBanner';
+import { StatusBenefitsBanner } from '@/components/user/StatusBenefitsBanner';
 import { CrescendoLogo } from '@/components/CrescendoLogo';
 import { BetaBadge } from '@/components/BetaBadge';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -759,6 +760,13 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       {!loading && activeCategory === 'all' && (
         <div className="container mx-auto px-4 py-6 md:py-8 max-w-full">
           <SponsoredRewardsCarousel />
+        </div>
+      )}
+
+      {/* Status Benefits Banner - Show user their tier benefits */}
+      {isAuthenticated && !loading && (
+        <div className="container mx-auto px-4 pb-4 max-w-full">
+          <StatusBenefitsBanner />
         </div>
       )}
 
