@@ -21,6 +21,8 @@ import { SubmitRewardsPage } from "./components/SubmitRewardsPage";
 import { MySubmissionsPage } from "./components/MySubmissionsPage";
 import { PurchaseHistoryPage } from "./components/PurchaseHistoryPage";
 import { FoodBeveragePage } from "./components/FoodBeveragePage";
+import { TermsPage } from "./pages/TermsPage";
+import { PrivacyPage } from "./pages/PrivacyPage";
 import { AuthModal } from "./components/AuthModal";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { AuthProvider, useAuthContext } from "./contexts/AuthContext";
@@ -80,7 +82,8 @@ function AppRoutes() {
         <Route path="/rewards" element={<ErrorBoundary><RewardsPool claimBalance={profile?.claim_balance || 0} onClaimSuccess={refreshProfile} /></ErrorBoundary>} />
         <Route path="/rewards/:id" element={<RewardDetailPage onClaimSuccess={refreshProfile} />} />
         <Route path="/food-beverage" element={<FoodBeveragePage claimBalance={profile?.claim_balance || 0} />} />
-
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
           {/* Protected Routes */}
           <Route 
             path="/dashboard" 
