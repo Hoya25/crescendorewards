@@ -21,6 +21,7 @@ import { FeaturedCarousel } from '@/components/rewards/FeaturedCarousel';
 import { CrescendoLogo } from '@/components/CrescendoLogo';
 import { BetaBadge } from '@/components/BetaBadge';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { FavoritesIndicator } from '@/components/FavoritesIndicator';
 import { NotificationsDropdown } from '@/components/NotificationsDropdown';
 import { SEO } from '@/components/SEO';
 import { Footer } from '@/components/Footer';
@@ -582,6 +583,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 onPurchaseSuccess={onClaimSuccess}
               />
               
+              <FavoritesIndicator />
               <NotificationsDropdown />
               <ThemeToggle />
 
