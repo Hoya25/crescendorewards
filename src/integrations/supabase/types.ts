@@ -41,6 +41,33 @@ export type Database = {
         }
         Relationships: []
       }
+      auth_nonces: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          nonce: string
+          used: boolean
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          nonce: string
+          used?: boolean
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          nonce?: string
+          used?: boolean
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       brands: {
         Row: {
           base_earning_rate: number
@@ -1004,6 +1031,7 @@ export type Database = {
         Args: { p_reward_id: string; p_shipping_info?: Json }
         Returns: Json
       }
+      cleanup_expired_nonces: { Args: never; Returns: undefined }
       generate_referral_code: { Args: never; Returns: string }
       get_admin_dashboard_stats: { Args: never; Returns: Json }
       get_admin_stats: { Args: never; Returns: Json }
