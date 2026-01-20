@@ -12,6 +12,7 @@ import { BuyClaims } from "./BuyClaims";
 import { WelcomeModal } from "./WelcomeModal";
 import { OnboardingProgress } from "./OnboardingProgress";
 import { SEO } from "./SEO";
+import { NotificationsDropdown } from "./NotificationsDropdown";
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress, getNCTRNeededForNextLevel } from '@/utils/membershipLevels';
 import { useTheme } from "./ThemeProvider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
@@ -161,6 +162,7 @@ export function Dashboard() {
                     <Gift className="w-4 h-4" />
                     Rewards
                   </Button>
+                  <NotificationsDropdown />
                   <ThemeToggle />
                 </div>
 
@@ -204,6 +206,7 @@ export function Dashboard() {
                     <Gift className="w-4 h-4" />
                     Rewards
                   </Button>
+                  <NotificationsDropdown />
                   <ThemeToggle />
                 </div>
 
