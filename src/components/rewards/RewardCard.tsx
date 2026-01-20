@@ -7,7 +7,8 @@ import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { SponsorBadge } from '@/components/rewards/SponsorBadge';
 import { 
   Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, 
-  Lock, AlertTriangle, Package, Flame, Clock, Heart, Pencil 
+  Lock, AlertTriangle, Package, Flame, Clock, Heart, Pencil,
+  Bell, BellOff, Eye, Check
 } from 'lucide-react';
 
 export interface RewardCardData {
@@ -53,6 +54,11 @@ interface RewardCardProps {
   claimBalance?: number;
   isAdmin?: boolean;
   onAdminEdit?: (rewardId: string) => void;
+  // Watchlist props
+  isWatching?: boolean;
+  onToggleWatch?: (rewardId: string, e: React.MouseEvent) => void;
+  isAnimatingWatch?: boolean;
+  watchCount?: number;
 }
 
 export function RewardCard({
@@ -65,6 +71,10 @@ export function RewardCard({
   claimBalance = 0,
   isAdmin = false,
   onAdminEdit,
+  isWatching = false,
+  onToggleWatch,
+  isAnimatingWatch = false,
+  watchCount = 0,
 }: RewardCardProps) {
   const Icon = categoryIcons[reward.category as keyof typeof categoryIcons] || Gift;
   const affordable = claimBalance >= reward.cost;
@@ -207,23 +217,54 @@ export function RewardCard({
           </div>
         )}
 
+        {/* Watching Count Badge */}
+        {outOfStock && watchCount > 0 && (
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 rounded-md px-2 py-1.5">
+            <Eye className="w-3 h-3" />
+            <span>{watchCount} {watchCount === 1 ? 'person' : 'people'} watching</span>
+          </div>
+        )}
+
         {/* Action Button */}
-        <Button
-          className="w-full"
-          variant={affordable && !outOfStock ? "default" : "secondary"}
-          disabled={!affordable || outOfStock}
-          onClick={(e) => {
-            e.stopPropagation();
-            onClick();
-          }}
-        >
-          {outOfStock ? 'Out of Stock' : affordable ? (
-            <>
-              <Gift className="w-4 h-4 mr-2" />
-              Claim Reward
-            </>
-          ) : 'Insufficient Balance'}
-        </Button>
+        {outOfStock ? (
+          <Button
+            className={`w-full transition-all ${isAnimatingWatch ? 'scale-95' : ''}`}
+            variant={isWatching ? "secondary" : "outline"}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleWatch?.(reward.id, e);
+            }}
+          >
+            {isWatching ? (
+              <>
+                <Check className="w-4 h-4 mr-2 text-green-500" />
+                Watching
+              </>
+            ) : (
+              <>
+                <Bell className="w-4 h-4 mr-2" />
+                Notify Me
+              </>
+            )}
+          </Button>
+        ) : (
+          <Button
+            className="w-full"
+            variant={affordable ? "default" : "secondary"}
+            disabled={!affordable}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick();
+            }}
+          >
+            {affordable ? (
+              <>
+                <Gift className="w-4 h-4 mr-2" />
+                Claim Reward
+              </>
+            ) : 'Insufficient Balance'}
+          </Button>
+        )}
 
         {/* Delivery Info */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2 border-t border-border/50">
