@@ -711,13 +711,38 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                   {pricing.isFree ? 'Claim Now — FREE' : `Claim for ${pricing.price} Claims`}
                 </Button>
               ) : (
-                <Button
-                  size="lg"
-                  className="w-full h-14 text-lg"
-                  onClick={() => setShowBuyClaimsModal(true)}
-                >
-                  Get More Claims
-                </Button>
+                <div className="space-y-3">
+                  {/* Insufficient balance warning */}
+                  <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertTriangle className="w-5 h-5 text-amber-600" />
+                      <span className="font-semibold text-amber-800 dark:text-amber-300">
+                        Need {pricing.price - crescendoData.claim_balance} more claims
+                      </span>
+                    </div>
+                    <p className="text-sm text-amber-700 dark:text-amber-400 mb-3">
+                      You have {crescendoData.claim_balance} claims, but this reward costs {pricing.price} claims.
+                    </p>
+                    <Button
+                      size="lg"
+                      className="w-full h-12 text-base gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-none"
+                      onClick={() => navigate('/buy-claims')}
+                    >
+                      <Coins className="w-5 h-5" />
+                      Get More Claims
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  
+                  {/* Secondary option: buy claims modal */}
+                  <Button
+                    variant="ghost"
+                    className="w-full text-muted-foreground"
+                    onClick={() => setShowBuyClaimsModal(true)}
+                  >
+                    Quick purchase without leaving
+                  </Button>
+                </div>
               )}
 
               <div className="flex gap-2">
@@ -859,8 +884,13 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
               Claim Now
             </Button>
           ) : (
-            <Button size="lg" onClick={() => setShowBuyClaimsModal(true)}>
-              Get Claims
+            <Button 
+              size="lg" 
+              className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+              onClick={() => navigate('/buy-claims')}
+            >
+              <Coins className="w-4 h-4" />
+              Get {pricing.price - crescendoData.claim_balance} More Claims
             </Button>
           )}
         </div>
