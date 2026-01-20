@@ -166,11 +166,28 @@ serve(async (req) => {
 
     console.log("Sync completed:", results);
 
+    // Log sync activity for status indicator
+    const summary = {
+      created: results.created,
+      updated: results.updated,
+      errors: results.errors.length,
+      total_synced: results.synced,
+      synced_at: new Date().toISOString(),
+    };
+
+    await supabaseAdmin
+      .from("cross_platform_activity_log")
+      .insert({
+        platform: "crescendo",
+        action_type: "profile_sync",
+        action_data: summary,
+      });
+
     return new Response(
       JSON.stringify({
         success: true,
         message: `Synced ${results.synced} profiles (${results.created} created, ${results.updated} updated)`,
-        results,
+        summary,
       }),
       { 
         status: 200, 

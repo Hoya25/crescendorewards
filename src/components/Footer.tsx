@@ -1,11 +1,59 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { CrescendoLogo } from './CrescendoLogo';
 import { NCTRLogo } from './NCTRLogo';
-import { Twitter, MessageCircle, Mail, ExternalLink, Database } from 'lucide-react';
-import { SUPABASE_URL } from '@/lib/supabase';
+import { Twitter, MessageCircle, Mail, Database, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
+import { supabase, SUPABASE_URL } from '@/lib/supabase';
+import { formatDistanceToNow } from 'date-fns';
+
+interface SyncStatus {
+  lastSync: Date | null;
+  status: 'success' | 'error' | 'unknown';
+  created: number;
+  updated: number;
+}
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
+
+  useEffect(() => {
+    const fetchLastSync = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('cross_platform_activity_log')
+          .select('created_at, action_data')
+          .eq('action_type', 'profile_sync')
+          .eq('platform', 'crescendo')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (data) {
+          const actionData = data.action_data as any;
+          setSyncStatus({
+            lastSync: new Date(data.created_at),
+            status: actionData?.errors > 0 ? 'error' : 'success',
+            created: actionData?.created || 0,
+            updated: actionData?.updated || 0,
+          });
+        } else {
+          setSyncStatus({ lastSync: null, status: 'unknown', created: 0, updated: 0 });
+        }
+      } catch (error) {
+        console.error('Error fetching sync status:', error);
+        setSyncStatus({ lastSync: null, status: 'unknown', created: 0, updated: 0 });
+      }
+    };
+
+    fetchLastSync();
+    
+    // Refresh every 5 minutes
+    const interval = setInterval(fetchLastSync, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <footer className="border-t bg-background">
@@ -92,15 +140,41 @@ export function Footer() {
             Beta version — Building the future of member-owned rewards.
           </p>
           
-          {/* Debug: Connection Status Indicator */}
+          {/* Debug: Connection & Sync Status Indicator */}
           <div className="mt-3 pt-3 border-t border-dashed border-muted-foreground/20">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 text-xs font-mono">
-              <Database className="w-3 h-3" />
-              <span className="text-muted-foreground">DB:</span>
-              <span className={SUPABASE_URL.includes('rndivcsonsojgelzewkb') ? 'text-accent-foreground' : 'text-destructive'}>
-                {SUPABASE_URL.includes('rndivcsonsojgelzewkb') ? 'The Garden (Shared)' : 'Lovable Cloud'}
-              </span>
-              <span className="w-2 h-2 rounded-full bg-accent animate-pulse" title="Connected" />
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {/* Database Connection */}
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 text-xs font-mono">
+                <Database className="w-3 h-3" />
+                <span className="text-muted-foreground">DB:</span>
+                <span className={SUPABASE_URL.includes('rndivcsonsojgelzewkb') ? 'text-accent-foreground' : 'text-destructive'}>
+                  {SUPABASE_URL.includes('rndivcsonsojgelzewkb') ? 'The Garden' : 'Lovable Cloud'}
+                </span>
+                <span className="w-2 h-2 rounded-full bg-accent animate-pulse" title="Connected" />
+              </div>
+              
+              {/* Sync Status */}
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 text-xs font-mono">
+                <RefreshCw className="w-3 h-3" />
+                <span className="text-muted-foreground">Sync:</span>
+                {syncStatus?.lastSync ? (
+                  <>
+                    {syncStatus.status === 'success' ? (
+                      <CheckCircle className="w-3 h-3 text-green-500" />
+                    ) : syncStatus.status === 'error' ? (
+                      <AlertCircle className="w-3 h-3 text-destructive" />
+                    ) : null}
+                    <span 
+                      className="text-foreground" 
+                      title={`Last sync: ${syncStatus.lastSync.toLocaleString()}\nCreated: ${syncStatus.created}, Updated: ${syncStatus.updated}`}
+                    >
+                      {formatDistanceToNow(syncStatus.lastSync, { addSuffix: true })}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-muted-foreground">Never</span>
+                )}
+              </div>
             </div>
           </div>
         </div>
