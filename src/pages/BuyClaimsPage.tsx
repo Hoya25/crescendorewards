@@ -141,7 +141,13 @@ export function BuyClaimsPage() {
       if (error) throw error;
 
       if (data?.url) {
-        window.location.href = data.url;
+        // Stripe Checkout cannot render inside Lovable's preview iframe.
+        // Open in a new tab to avoid a blank/blocked iframe navigation.
+        const opened = window.open(data.url, '_blank', 'noopener,noreferrer');
+        if (!opened) {
+          // Fallback if popup is blocked
+          window.location.href = data.url;
+        }
       }
     } catch (error) {
       console.error('Error creating checkout session:', error);
