@@ -10,7 +10,7 @@ export function TermsPage() {
     <>
       <SEO 
         title="Terms of Service | Crescendo"
-        description="Read the terms of service for using the Crescendo Rewards Marketplace."
+        description="Read the terms of service for using the Crescendo Opportunity & Rewards Marketplace."
       />
       <div className="min-h-screen flex flex-col bg-background">
         {/* Header */}
@@ -37,7 +37,7 @@ export function TermsPage() {
             <section>
               <h2 className="text-xl font-semibold mb-3">1. Acceptance of Terms</h2>
               <p className="text-muted-foreground leading-relaxed">
-                By accessing or using the Crescendo Rewards Marketplace ("Service"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.
+                By accessing or using the Crescendo Opportunity & Rewards Marketplace ("Service"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.
               </p>
             </section>
 

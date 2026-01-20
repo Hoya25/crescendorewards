@@ -67,8 +67,8 @@ export function LandingPage() {
   return (
     <div className="min-h-screen w-full overflow-x-hidden">
       <SEO 
-        title="The People's Rewards Marketplace"
-        description="Member-built, member-owned rewards marketplace. Lock NCTR to unlock rewards, opportunities, and experiences."
+        title="The People's Opportunity & Rewards Marketplace"
+        description="Member-built, member-owned opportunity and rewards marketplace. Lock NCTR to unlock rewards, opportunities, and experiences."
       />
       {/* Navigation */}
       <nav className="flex items-center justify-between p-4 md:p-6 w-full max-w-7xl mx-auto">
@@ -180,7 +180,7 @@ export function LandingPage() {
           <div className="text-center mb-8 md:mb-12">
             <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">Why Crescendo?</h2>
             <p className="text-base md:text-lg text-neutral-600 max-w-2xl mx-auto">
-              A loyalty program that actually works for you
+              An opportunity and rewards marketplace that actually works for you
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">

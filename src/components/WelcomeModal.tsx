@@ -119,7 +119,7 @@ export const WelcomeModal = ({ isOpen, onClose }: WelcomeModalProps) => {
                 className="text-muted-foreground mb-8"
                 variants={headerVariants}
               >
-                The rewards marketplace built by members, owned by members
+                The opportunity and rewards marketplace built by members, owned by members
               </motion.p>
 
               {/* Steps */}
