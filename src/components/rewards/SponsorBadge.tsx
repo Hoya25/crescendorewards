@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { isSponsorshipVisible, type SponsorshipData } from '@/lib/sponsorship-utils';
-import { useTheme } from 'next-themes';
 
 interface SponsorBadgeProps {
   sponsorData: SponsorshipData;
@@ -11,29 +10,23 @@ interface SponsorBadgeProps {
 }
 
 /**
- * Gets the appropriate logo URL based on theme for known sponsors
+ * Gets the appropriate logo URL for the sponsor
+ * NCTR Alliance always uses yellow logo for brand consistency on dark backgrounds
  */
-function getThemedLogoUrl(logoUrl: string | null, sponsorName: string | null, theme: string | undefined): string | null {
-  // Handle NCTR Alliance theme-aware logos
+function getLogoUrl(logoUrl: string | null, sponsorName: string | null): string | null {
+  // NCTR Alliance always uses yellow logo on gunmetal background
   if (sponsorName?.toLowerCase().includes('nctr alliance') || logoUrl?.includes('nctr-alliance')) {
-    return theme === 'dark' 
-      ? '/brands/nctr-alliance-yellow.png' 
-      : '/brands/nctr-alliance-grey.png';
+    return '/brands/nctr-alliance-yellow.png';
   }
   
-  // Return the provided logo URL if it exists
-  if (logoUrl) return logoUrl;
-  
-  return null;
+  return logoUrl || null;
 }
 
 /**
- * Displays a subtle, premium "Sponsored by" badge for rewards
+ * Displays an elegant, premium "Sponsored by" badge with gunmetal styling
  * Only shows when sponsorship is active and within date range
  */
 export function SponsorBadge({ sponsorData, variant = 'card', className }: SponsorBadgeProps) {
-  const { theme, resolvedTheme } = useTheme();
-  const currentTheme = resolvedTheme || theme;
   const [imageError, setImageError] = useState(false);
   
   // Don't render if sponsorship shouldn't be visible
@@ -41,16 +34,20 @@ export function SponsorBadge({ sponsorData, variant = 'card', className }: Spons
     return null;
   }
 
-  const logoUrl = getThemedLogoUrl(sponsorData.sponsor_logo, sponsorData.sponsor_name, currentTheme);
+  const logoUrl = getLogoUrl(sponsorData.sponsor_logo, sponsorData.sponsor_name);
 
   const content = (
     <div
       className={cn(
-        'flex items-center gap-2 transition-all',
+        'flex items-center gap-2.5 transition-all duration-200',
+        // Gunmetal grey background with subtle gradient and premium styling
+        'bg-gradient-to-r from-[#2a2d32] via-[#373b42] to-[#2a2d32]',
+        'border border-[#4a4f58]/50',
+        'shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.05)]',
         variant === 'card' 
-          ? 'px-2.5 py-1.5 bg-background/95 backdrop-blur-sm rounded-full shadow-sm border border-border/50'
-          : 'px-3 py-2 bg-muted/50 rounded-lg border border-border/30',
-        sponsorData.sponsor_link && 'cursor-pointer hover:bg-muted/80 hover:border-primary/30',
+          ? 'px-3 py-1.5 rounded-full'
+          : 'px-4 py-2.5 rounded-lg',
+        sponsorData.sponsor_link && 'cursor-pointer hover:from-[#32363c] hover:via-[#3f444c] hover:to-[#32363c] hover:border-amber-500/30 hover:shadow-[0_2px_12px_rgba(251,191,36,0.15),inset_0_1px_0_rgba(255,255,255,0.08)]',
         className
       )}
     >
@@ -60,27 +57,34 @@ export function SponsorBadge({ sponsorData, variant = 'card', className }: Spons
           src={logoUrl}
           alt={sponsorData.sponsor_name || 'Sponsor'}
           className={cn(
-            'object-contain',
-            variant === 'card' ? 'h-5 w-auto max-w-[70px]' : 'h-8 w-auto max-w-[100px]'
+            'object-contain drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]',
+            variant === 'card' ? 'h-4 w-auto max-w-[60px]' : 'h-6 w-auto max-w-[80px]'
           )}
           onError={() => setImageError(true)}
         />
       )}
       
+      {/* Divider */}
+      <div className={cn(
+        'w-px bg-gradient-to-b from-transparent via-amber-500/40 to-transparent',
+        variant === 'card' ? 'h-3' : 'h-4'
+      )} />
+      
       {/* Sponsored by text */}
       <span className={cn(
-        'text-muted-foreground whitespace-nowrap',
+        'whitespace-nowrap tracking-wide',
         variant === 'card' ? 'text-[10px]' : 'text-xs'
       )}>
-        Sponsored by{' '}
-        <span className="font-medium text-foreground">
+        <span className="text-[#9ca3af] font-light">Sponsored by</span>
+        {' '}
+        <span className="font-semibold text-amber-400/90">
           {sponsorData.sponsor_name}
         </span>
       </span>
 
       {/* External link indicator */}
       {sponsorData.sponsor_link && variant === 'detail' && (
-        <ExternalLink className="w-3 h-3 text-muted-foreground" />
+        <ExternalLink className="w-3 h-3 text-amber-500/60 ml-0.5" />
       )}
     </div>
   );
