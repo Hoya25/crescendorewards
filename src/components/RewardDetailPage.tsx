@@ -29,6 +29,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { getRewardPriceForUser, canUserClaimReward, getTierDisplayName, getAllTierPrices, type Reward as RewardType } from '@/utils/getRewardPrice';
 import { cn } from '@/lib/utils';
+import { useTheme } from 'next-themes';
 
 interface Reward {
   id: string;
@@ -118,6 +119,8 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const { profile, tier, refreshUnifiedProfile } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   const { isWatching, toggleWatch, isAnimating: isWatchAnimating, getWatchCount, fetchWatchCounts } = useWatchlist();
+  const { theme, resolvedTheme } = useTheme();
+  const currentTheme = resolvedTheme || theme;
   const [reward, setReward] = useState<Reward | null>(null);
   const [brand, setBrand] = useState<Brand | null>(null);
   const [loading, setLoading] = useState(true);
@@ -384,8 +387,31 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const allTierPrices = getAllTierPrices(rewardForPricing);
   
   const isSponsored = reward.is_sponsored || reward.sponsor_enabled;
-  const sponsorLogo = reward.sponsor_logo_url || reward.sponsor_logo;
   const sponsorName = reward.sponsor_name;
+  
+  // Get theme-aware sponsor logo
+  const getThemedSponsorLogo = (): string | null => {
+    const rawLogo = reward.sponsor_logo_url || reward.sponsor_logo;
+    
+    // Handle NCTR Alliance theme-aware logos (fallback if no logo is set)
+    if (sponsorName?.toLowerCase().includes('nctr alliance')) {
+      if (rawLogo?.includes('nctr-alliance')) {
+        return currentTheme === 'dark' 
+          ? '/brands/nctr-alliance-yellow.png' 
+          : '/brands/nctr-alliance-grey.png';
+      }
+      // Default NCTR Alliance logo if none set
+      if (!rawLogo) {
+        return currentTheme === 'dark' 
+          ? '/brands/nctr-alliance-yellow.png' 
+          : '/brands/nctr-alliance-grey.png';
+      }
+    }
+    
+    return rawLogo || null;
+  };
+  
+  const sponsorLogo = getThemedSponsorLogo();
   
   const inStock = reward.stock_quantity === null || reward.stock_quantity > 0;
   const canAfford = eligibility.canClaim;
@@ -462,30 +488,34 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
               )}
             </div>
 
-            {/* Sponsor Section */}
+            {/* Sponsor Section - Logo First Layout */}
             {isSponsored && sponsorName && (
-              <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/20 border-amber-200/50 dark:border-amber-800/30">
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-5">
+              <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/20 border-amber-200/50 dark:border-amber-800/30 overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="flex flex-col items-center text-center p-6">
+                    {/* Large Logo - Primary Visual */}
                     {sponsorLogo && (
-                      <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl bg-white dark:bg-black/50 p-3 flex items-center justify-center shadow-sm">
+                      <div className="w-28 h-28 md:w-36 md:h-36 rounded-2xl bg-white dark:bg-black/50 p-4 flex items-center justify-center shadow-md mb-4">
                         <img src={sponsorLogo} alt={sponsorName} className="max-w-full max-h-full object-contain" />
                       </div>
                     )}
-                    <div className="flex-1">
-                      <p className="text-xs text-amber-600 dark:text-amber-400 font-semibold uppercase tracking-wider">Brought to you by</p>
-                      <p className="font-bold text-xl md:text-2xl mt-0.5">{sponsorName}</p>
-                      {reward.sponsor_link && (
-                        <a 
-                          href={reward.sponsor_link} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-sm text-primary hover:underline inline-flex items-center gap-1 mt-2"
-                        >
-                          Learn more <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
-                    </div>
+                    
+                    {/* Subordinate Text */}
+                    <p className="text-xs text-amber-600 dark:text-amber-400 font-semibold uppercase tracking-wider">
+                      Brought to you by
+                    </p>
+                    <p className="font-bold text-lg md:text-xl mt-1">{sponsorName}</p>
+                    
+                    {reward.sponsor_link && (
+                      <a 
+                        href={reward.sponsor_link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-sm text-primary hover:underline inline-flex items-center gap-1 mt-3"
+                      >
+                        Learn more <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
                   </div>
                 </CardContent>
               </Card>
