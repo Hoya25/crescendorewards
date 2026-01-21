@@ -18,6 +18,7 @@ import { AdminCampaigns } from './AdminCampaigns';
 import { AdminManagement } from './AdminManagement';
 import { AdminActivityLog } from './AdminActivityLog';
 import { WishlistAnalytics } from '@/components/WishlistAnalytics';
+import AdminGifts from './AdminGifts';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 
@@ -39,6 +40,8 @@ export function AdminPanel() {
         return <AdminCampaigns />;
       case 'claims':
         return <AdminClaims />;
+      case 'gifts':
+        return <AdminGifts />;
       case 'purchases':
         return <AdminPurchases />;
       case 'packages':

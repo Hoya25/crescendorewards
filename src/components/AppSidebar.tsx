@@ -35,6 +35,7 @@ const mainNavItems = [
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Membership', url: '/membership', icon: Trophy },
   { title: 'Get Claims', url: '/buy-claims', icon: Ticket, highlight: true },
+  { title: 'Gift Claims', url: '/gift-claims', icon: Coins },
   // Earn now links to The Garden - handled separately
 ];
 
