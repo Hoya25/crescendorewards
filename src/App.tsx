@@ -27,6 +27,7 @@ const RewardsPool = lazy(() => import('./components/RewardsPool').then(m => ({ d
 const SponsorsPage = lazy(() => import('./components/SponsorsPage').then(m => ({ default: m.SponsorsPage })));
 const BecomeASponsorPage = lazy(() => import('./components/BecomeASponsorPage').then(m => ({ default: m.BecomeASponsorPage })));
 const SponsorProfilePage = lazy(() => import('./components/SponsorProfilePage').then(m => ({ default: m.SponsorProfilePage })));
+const SponsorDashboard = lazy(() => import('./components/sponsor/SponsorDashboard').then(m => ({ default: m.SponsorDashboard })));
 const WishlistPage = lazy(() => import('./components/WishlistPage').then(m => ({ default: m.WishlistPage })));
 const FavoritesPage = lazy(() => import('./components/FavoritesPage').then(m => ({ default: m.FavoritesPage })));
 const ProfilePage = lazy(() => import('./components/ProfilePage').then(m => ({ default: m.ProfilePage })));
@@ -111,6 +112,14 @@ function AppRoutes() {
 
             {/* Protected Routes */}
             <Route 
+              path="/sponsor/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <SponsorDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route
               path="/dashboard" 
               element={
                 <ProtectedRoute>
