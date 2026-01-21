@@ -565,7 +565,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
               {isSponsored && sponsorLogo && (
                 <div className="absolute bottom-4 right-4 bg-gradient-to-br from-[#2a2d32] via-[#373b42] to-[#2a2d32] backdrop-blur rounded-xl p-3 shadow-[0_4px_16px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.05)] border border-[#4a4f58]/50">
                   <img 
-                    src="/brands/nctr-alliance-yellow.png" 
+                    src={sponsorLogo} 
                     alt={sponsorName || 'Sponsor'} 
                     className="h-8 w-auto max-w-[100px] object-contain drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
                   />
@@ -586,7 +586,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                       <div className="absolute inset-0 bg-amber-400/20 blur-xl rounded-full" />
                       <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-gradient-to-br from-[#3a3f47] to-[#2a2d32] p-4 flex items-center justify-center shadow-[0_4px_12px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.08)] border border-[#4a4f58]/30">
                         <img 
-                          src="/brands/nctr-alliance-yellow.png" 
+                          src={sponsorLogo} 
                           alt={sponsorName} 
                           className="max-w-full max-h-full object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" 
                         />
