@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { supabase } from '@/lib/supabase';
-import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
 export function FeedbackButton() {
@@ -24,7 +24,7 @@ export function FeedbackButton() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
-  const { profile } = useUnifiedUser();
+  const { user } = useAuthContext();
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -111,7 +111,7 @@ export function FeedbackButton() {
       }
 
       const { error } = await supabase.from('feedback').insert({
-        user_id: profile?.id || null,
+        user_id: user?.id || null,
         page_url: location.pathname + location.search,
         whats_working: whatsWorking.trim() || null,
         whats_broken: whatsBroken.trim() || null,
@@ -237,7 +237,7 @@ export function FeedbackButton() {
 
             <p className="text-xs text-muted-foreground truncate">
               Page: {location.pathname}
-              {profile && ' • Logged in'}
+              {user && ' • Logged in'}
             </p>
           </div>
 
