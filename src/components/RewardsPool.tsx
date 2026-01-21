@@ -147,6 +147,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const [affordableFilter, setAffordableFilter] = useState<boolean>(() => 
     searchParams.get('affordable') === 'true'
   );
+  const [sponsoredFilter, setSponsoredFilter] = useState<boolean>(() => 
+    searchParams.get('sponsored') === 'true'
+  );
   const [searchQuery, setSearchQuery] = useState<string>(() => 
     searchParams.get('q') || ''
   );
@@ -179,10 +182,11 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     if (exclusiveFilter !== 'all') params.set('exclusive', exclusiveFilter);
     if (highValueFilter !== 'all') params.set('value', highValueFilter);
     if (affordableFilter) params.set('affordable', 'true');
+    if (sponsoredFilter) params.set('sponsored', 'true');
     if (searchQuery.trim()) params.set('q', searchQuery.trim());
     
     setSearchParams(params, { replace: true });
-  }, [sortBy, activeCategory, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, affordableFilter, searchQuery, setSearchParams]);
+  }, [sortBy, activeCategory, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, affordableFilter, sponsoredFilter, searchQuery, setSearchParams]);
 
   // Update URL when filters change
   useEffect(() => {
@@ -267,6 +271,11 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       filtered = filtered.filter(r => r.cost <= claimBalance);
     }
 
+    // Apply sponsored filter - show only sponsored rewards
+    if (sponsoredFilter) {
+      filtered = filtered.filter(r => r.sponsor_enabled || r.is_sponsored);
+    }
+
     // Apply sorting with prioritization for customized rewards
     const sortedFiltered = [...filtered].sort((a, b) => {
       // Prioritize customized rewards
@@ -324,7 +333,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     if (outOfStockIds.length > 0) {
       fetchWatchCounts(outOfStockIds);
     }
-  }, [activeCategory, rewards, sortBy, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, affordableFilter, claimBalance, searchQuery, fetchWatchCounts]);
+  }, [activeCategory, rewards, sortBy, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, affordableFilter, sponsoredFilter, claimBalance, searchQuery, fetchWatchCounts]);
 
   const loadRewards = async (isRetry = false) => {
     try {
@@ -715,20 +724,22 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             </div>
           </div>
 
-          {/* Simplified Category Tabs - includes "Can Afford" */}
+          {/* Simplified Category Tabs - includes quick filters */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
             {[
-              { key: 'all', label: 'All', icon: Gift, isAffordable: false },
-              { key: 'affordable', label: 'Accessible', icon: Coins, isAffordable: true },
-              { key: 'free', label: 'Free', icon: Gift, isAffordable: false },
-              { key: 'experiences', label: 'Experiences', icon: Sparkles, isAffordable: false },
-              { key: 'subscriptions', label: 'Subscriptions', icon: Trophy, isAffordable: false },
-            ].map(({ key, label, icon: Icon, isAffordable }) => {
-              const isActive = key === 'affordable' 
-                ? affordableFilter 
-                : key === 'free' 
-                  ? priceFilter === 'free' && !affordableFilter
-                  : activeCategory === key && !affordableFilter && priceFilter !== 'free';
+              { key: 'all', label: 'All', icon: Gift, filter: 'category' },
+              { key: 'accessible', label: 'Accessible', icon: Coins, filter: 'affordable' },
+              { key: 'free', label: 'Free', icon: Gift, filter: 'price' },
+              { key: 'experiences', label: 'Experiences', icon: Sparkles, filter: 'category' },
+              { key: 'subscriptions', label: 'Subscriptions', icon: Trophy, filter: 'category' },
+              { key: 'alliance_tokens', label: 'Opportunities', icon: Coins, filter: 'category' },
+              { key: 'sponsored', label: 'Sponsored', icon: Sparkles, filter: 'sponsored' },
+            ].map(({ key, label, icon: Icon, filter }) => {
+              const isActive = 
+                key === 'accessible' ? affordableFilter :
+                key === 'free' ? priceFilter === 'free' && !affordableFilter && !sponsoredFilter :
+                key === 'sponsored' ? sponsoredFilter :
+                filter === 'category' && activeCategory === key && !affordableFilter && priceFilter !== 'free' && !sponsoredFilter;
               
               return (
                 <Button
@@ -737,19 +748,28 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                   size="sm"
                   className={cn(
                     "flex-shrink-0 gap-2 rounded-full transition-all",
-                    isActive && "shadow-md"
+                    isActive && "shadow-md",
+                    key === 'sponsored' && "border-amber-400/50 hover:border-amber-500"
                   )}
                   onClick={() => {
-                    if (key === 'affordable') {
+                    if (key === 'accessible') {
                       setAffordableFilter(true);
+                      setSponsoredFilter(false);
                       setActiveCategory('all');
                       setPriceFilter('all');
                     } else if (key === 'free') {
                       setAffordableFilter(false);
+                      setSponsoredFilter(false);
                       setActiveCategory('all');
                       setPriceFilter('free');
+                    } else if (key === 'sponsored') {
+                      setSponsoredFilter(true);
+                      setAffordableFilter(false);
+                      setActiveCategory('all');
+                      setPriceFilter('all');
                     } else {
                       setAffordableFilter(false);
+                      setSponsoredFilter(false);
                       setActiveCategory(key);
                       setPriceFilter('all');
                     }
@@ -868,13 +888,14 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             </Button>
 
             {/* Clear Filters (if active) */}
-            {(affordableFilter || priceFilter !== 'all' || activeCategory !== 'all') && (
+            {(affordableFilter || sponsoredFilter || priceFilter !== 'all' || activeCategory !== 'all') && (
               <Button
                 variant="ghost"
                 size="sm"
                 className="h-9 text-muted-foreground"
                 onClick={() => {
                   setAffordableFilter(false);
+                  setSponsoredFilter(false);
                   setPriceFilter('all');
                   setActiveCategory('all');
                   setAvailabilityFilter('all');
