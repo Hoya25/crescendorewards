@@ -428,13 +428,13 @@ export function ProfilePage() {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-3xl">{tier?.badge_emoji || '💧'}</span>
+                    <span className="text-3xl">{tier?.badge_emoji || '🥉'}</span>
                     <div>
                       <CardTitle 
                         className="text-lg"
                         style={{ color: tier?.badge_color }}
                       >
-                        {tier?.display_name || 'Droplet'}
+                        {tier?.display_name || 'Bronze'}
                       </CardTitle>
                       <CardDescription>Your current status</CardDescription>
                     </div>

@@ -9,11 +9,11 @@ import { Sparkles, Percent, Wand2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface TierPricing {
-  droplet: number;
-  eddy: number;
-  spiral: number;
-  surge: number;
-  torus: number;
+  bronze: number;
+  silver: number;
+  gold: number;
+  platinum: number;
+  diamond: number;
 }
 
 interface TierPricingEditorProps {
@@ -23,11 +23,11 @@ interface TierPricingEditorProps {
 }
 
 const TIERS = [
-  { key: 'droplet', name: 'Droplet', icon: '💧', color: 'bg-blue-500/10 text-blue-600 border-blue-200' },
-  { key: 'eddy', name: 'Eddy', icon: '🌀', color: 'bg-cyan-500/10 text-cyan-600 border-cyan-200' },
-  { key: 'spiral', name: 'Spiral', icon: '🌊', color: 'bg-teal-500/10 text-teal-600 border-teal-200' },
-  { key: 'surge', name: 'Surge', icon: '⚡', color: 'bg-amber-500/10 text-amber-600 border-amber-200' },
-  { key: 'torus', name: 'Torus', icon: '🔮', color: 'bg-purple-500/10 text-purple-600 border-purple-200' },
+  { key: 'bronze', name: 'Bronze', icon: '🥉', color: 'bg-orange-500/10 text-orange-600 border-orange-200' },
+  { key: 'silver', name: 'Silver', icon: '🥈', color: 'bg-slate-400/10 text-slate-600 border-slate-300' },
+  { key: 'gold', name: 'Gold', icon: '🥇', color: 'bg-amber-500/10 text-amber-600 border-amber-200' },
+  { key: 'platinum', name: 'Platinum', icon: '💎', color: 'bg-slate-500/10 text-slate-700 border-slate-300' },
+  { key: 'diamond', name: 'Diamond', icon: '👑', color: 'bg-cyan-500/10 text-cyan-600 border-cyan-200' },
 ] as const;
 
 const DISCOUNT_PRESETS = [
@@ -40,11 +40,11 @@ const DISCOUNT_PRESETS = [
 export function TierPricingEditor({ baseCost, pricing, onChange }: TierPricingEditorProps) {
   const [localPricing, setLocalPricing] = useState<TierPricing>(() => 
     pricing || {
-      droplet: baseCost,
-      eddy: baseCost,
-      spiral: baseCost,
-      surge: baseCost,
-      torus: baseCost,
+      bronze: baseCost,
+      silver: baseCost,
+      gold: baseCost,
+      platinum: baseCost,
+      diamond: baseCost,
     }
   );
 
@@ -52,11 +52,11 @@ export function TierPricingEditor({ baseCost, pricing, onChange }: TierPricingEd
   useEffect(() => {
     if (!pricing) {
       const defaultPricing = {
-        droplet: baseCost,
-        eddy: baseCost,
-        spiral: baseCost,
-        surge: baseCost,
-        torus: baseCost,
+        bronze: baseCost,
+        silver: baseCost,
+        gold: baseCost,
+        platinum: baseCost,
+        diamond: baseCost,
       };
       setLocalPricing(defaultPricing);
       onChange(defaultPricing);
@@ -71,11 +71,11 @@ export function TierPricingEditor({ baseCost, pricing, onChange }: TierPricingEd
 
   const applyDiscountPattern = (discounts: number[]) => {
     const newPricing: TierPricing = {
-      droplet: Math.round(baseCost * (1 - discounts[0] / 100)),
-      eddy: Math.round(baseCost * (1 - discounts[1] / 100)),
-      spiral: Math.round(baseCost * (1 - discounts[2] / 100)),
-      surge: Math.round(baseCost * (1 - discounts[3] / 100)),
-      torus: Math.round(baseCost * (1 - discounts[4] / 100)),
+      bronze: Math.round(baseCost * (1 - discounts[0] / 100)),
+      silver: Math.round(baseCost * (1 - discounts[1] / 100)),
+      gold: Math.round(baseCost * (1 - discounts[2] / 100)),
+      platinum: Math.round(baseCost * (1 - discounts[3] / 100)),
+      diamond: Math.round(baseCost * (1 - discounts[4] / 100)),
     };
     setLocalPricing(newPricing);
     onChange(newPricing);

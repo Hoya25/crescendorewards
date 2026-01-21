@@ -778,7 +778,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             rewardTitle={sponsoredRewards[0]?.title}
             sponsorName={sponsoredRewards[0]?.sponsor_name || undefined}
             sponsorLogo={sponsoredRewards[0]?.sponsor_logo || undefined}
-            minTier={sponsoredRewards[0]?.min_status_tier || 'Spiral'}
+            minTier={sponsoredRewards[0]?.min_status_tier || 'Gold'}
           />
         </div>
       )}
@@ -1072,7 +1072,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           )}>
             {filteredRewards.map((reward, index) => {
               const outOfStock = reward.stock_quantity !== null && reward.stock_quantity <= 0;
-              const userTier = tier ? { tierName: tier.display_name || tier.tier_name, tierLevel: tier.sort_order } : { tierName: 'Droplet', tierLevel: 1 };
+              const userTier = tier ? { tierName: tier.display_name || tier.tier_name, tierLevel: tier.sort_order } : { tierName: 'Bronze', tierLevel: 1 };
               
               return (
                 <div 
@@ -1115,7 +1115,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                       onToggleWatch={outOfStock ? toggleWatch : undefined}
                       isAnimatingWatch={outOfStock ? isWatchAnimating(reward.id) : false}
                       watchCount={outOfStock ? getWatchCount(reward.id) : 0}
-                      userTier={tier?.tier_name?.toLowerCase() || 'droplet'}
+                      userTier={tier?.tier_name?.toLowerCase() || 'bronze'}
                     />
                   )}
                 </div>

@@ -31,8 +31,8 @@ export function StatusBadge({
           className
         )}
       >
-        <span>💧</span>
-        {showName && <span>Droplet</span>}
+        <span>🥉</span>
+        {showName && <span>Bronze</span>}
       </Badge>
     );
   }

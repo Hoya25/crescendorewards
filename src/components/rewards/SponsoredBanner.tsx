@@ -19,13 +19,13 @@ export function SponsoredBanner({
   sponsorLogo,
   rewardId,
   rewardTitle = 'Exclusive Partner Reward',
-  minTier = 'Spiral',
+  minTier = 'Gold',
   className,
 }: SponsoredBannerProps) {
   const navigate = useNavigate();
   const { tier } = useUnifiedUser();
 
-  const userTierName = tier?.display_name || tier?.tier_name || 'Droplet';
+  const userTierName = tier?.display_name || tier?.tier_name || 'Bronze';
 
   const handleClick = () => {
     if (rewardId) {

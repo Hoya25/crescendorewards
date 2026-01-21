@@ -12,34 +12,34 @@ interface StatusBenefitsBannerProps {
 
 // Status tier benefits mapping
 const TIER_BENEFITS: Record<string, { discount: string; description: string }> = {
-  droplet: { discount: 'Standard pricing', description: 'Access to all rewards' },
-  eddy: { discount: 'up to 25% off', description: 'sponsored rewards' },
-  spiral: { discount: 'up to 50% off', description: 'sponsored rewards' },
-  surge: { discount: 'up to 75% off', description: 'sponsored rewards' },
-  torus: { discount: 'FREE access', description: 'to exclusive rewards' },
+  bronze: { discount: 'Standard pricing', description: 'Access to all rewards' },
+  silver: { discount: 'up to 25% off', description: 'sponsored rewards' },
+  gold: { discount: 'up to 50% off', description: 'sponsored rewards' },
+  platinum: { discount: 'up to 75% off', description: 'sponsored rewards' },
+  diamond: { discount: 'FREE access', description: 'to exclusive rewards' },
 };
 
 const NEXT_TIER_BENEFITS: Record<string, string> = {
-  droplet: 'Eddys get up to 25% off sponsored rewards',
-  eddy: 'Spirals get up to 50% off sponsored rewards',
-  spiral: 'Surges get up to 75% off sponsored rewards',
-  surge: 'Torus members get FREE access to exclusive rewards',
-  torus: '',
+  bronze: 'Silver members get up to 25% off sponsored rewards',
+  silver: 'Gold members get up to 50% off sponsored rewards',
+  gold: 'Platinum members get up to 75% off sponsored rewards',
+  platinum: 'Diamond members get FREE access to exclusive rewards',
+  diamond: '',
 };
 
 export function StatusBenefitsBanner({ className, variant = 'default' }: StatusBenefitsBannerProps) {
   const navigate = useNavigate();
   const { tier, nextTier, progressToNextTier, profile } = useUnifiedUser();
   
-  const tierName = tier?.tier_name?.toLowerCase() || 'droplet';
-  const currentBenefit = TIER_BENEFITS[tierName] || TIER_BENEFITS.droplet;
+  const tierName = tier?.tier_name?.toLowerCase() || 'bronze';
+  const currentBenefit = TIER_BENEFITS[tierName] || TIER_BENEFITS.bronze;
   const nextTierBenefit = NEXT_TIER_BENEFITS[tierName];
   const isCloseToLevelUp = progressToNextTier >= 70;
 
   // Get tier colors
   const tierColor = tier?.badge_color || 'hsl(var(--primary))';
-  const tierEmoji = tier?.badge_emoji || '💧';
-  const tierDisplayName = tier?.display_name || 'Droplet';
+  const tierEmoji = tier?.badge_emoji || '🥉';
+  const tierDisplayName = tier?.display_name || 'Bronze';
 
   if (variant === 'compact') {
     return (

@@ -75,15 +75,15 @@ const categoryGradients: Record<string, string> = {
   events: 'from-orange-500/20 via-amber-500/10 to-yellow-500/20',
 };
 
-const tierOrder = ['droplet', 'eddy', 'spiral', 'surge', 'torus'];
+const tierOrder = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
 
 function getTierDisplayName(tier: string): string {
   const names: Record<string, string> = {
-    droplet: 'Droplet',
-    eddy: 'Eddy',
-    spiral: 'Spiral',
-    surge: 'Surge',
-    torus: 'Torus',
+    bronze: 'Bronze',
+    silver: 'Silver',
+    gold: 'Gold',
+    platinum: 'Platinum',
+    diamond: 'Diamond',
   };
   return names[tier.toLowerCase()] || tier;
 }
@@ -120,7 +120,7 @@ export function VisualRewardCard({
   onClick,
   isAnimatingHeart = false,
   claimBalance = 0,
-  userTier = { tierName: 'Droplet', tierLevel: 1 },
+  userTier = { tierName: 'Bronze', tierLevel: 1 },
   claimCount = 0,
   isAdmin = false,
   onAdminEdit,

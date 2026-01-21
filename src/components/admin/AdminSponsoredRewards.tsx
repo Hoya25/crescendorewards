@@ -64,11 +64,11 @@ const STATUS_OPTIONS = [
 
 const TIER_OPTIONS = [
   { value: 'all', label: 'All Tiers' },
-  { value: 'droplet', label: '💧 Droplet' },
-  { value: 'eddy', label: '🌀 Eddy' },
-  { value: 'spiral', label: '🌊 Spiral' },
-  { value: 'surge', label: '⚡ Surge' },
-  { value: 'torus', label: '🔮 Torus' },
+  { value: 'bronze', label: '🥉 Bronze' },
+  { value: 'silver', label: '🥈 Silver' },
+  { value: 'gold', label: '🥇 Gold' },
+  { value: 'platinum', label: '💎 Platinum' },
+  { value: 'diamond', label: '👑 Diamond' },
 ];
 
 export function AdminSponsoredRewards() {
@@ -271,7 +271,7 @@ export function AdminSponsoredRewards() {
     
     return (
       <div className="flex gap-1">
-        {['droplet', 'eddy', 'spiral', 'surge', 'torus'].map((tier) => {
+        {['bronze', 'silver', 'gold', 'platinum', 'diamond'].map((tier) => {
           const price = pricing[tier] ?? reward.cost;
           const isFree = price === 0;
           return (

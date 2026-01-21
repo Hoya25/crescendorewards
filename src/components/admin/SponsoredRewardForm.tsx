@@ -22,11 +22,11 @@ import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 import { cn } from '@/lib/utils';
 
 interface TierPricing {
-  droplet: number;
-  eddy: number;
-  spiral: number;
-  surge: number;
-  torus: number;
+  bronze: number;
+  silver: number;
+  gold: number;
+  platinum: number;
+  diamond: number;
 }
 
 interface Campaign {
@@ -61,7 +61,7 @@ const CATEGORIES = [
   { value: 'opportunity', label: 'Opportunity' },
 ];
 
-const TIERS = ['droplet', 'eddy', 'spiral', 'surge', 'torus'];
+const TIERS = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
 
 export function SponsoredRewardForm({ open, onClose, reward, onSave }: SponsoredRewardFormProps) {
   const [activeTab, setActiveTab] = useState('basic');
@@ -72,7 +72,7 @@ export function SponsoredRewardForm({ open, onClose, reward, onSave }: Sponsored
   const [isDragging, setIsDragging] = useState(false);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
-  const [previewTier, setPreviewTier] = useState('droplet');
+  const [previewTier, setPreviewTier] = useState('bronze');
 
   const [formData, setFormData] = useState({
     // Basic
