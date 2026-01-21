@@ -14,6 +14,8 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { RouteLoading, PageLoading } from "./components/RouteLoading";
 import { FeedbackButton } from "./components/FeedbackButton";
 import { DevToolsPanel } from "./components/DevToolsPanel";
+import { MobileBottomNav } from "./components/navigation/MobileBottomNav";
+import { BetaBanner } from "./components/BetaBanner";
 import { useClaimDeliveryNotifications } from "./hooks/useClaimDeliveryNotifications";
 
 // Eagerly loaded components (critical path)
@@ -45,6 +47,7 @@ const BuyClaimsPage = lazy(() => import('./pages/BuyClaimsPage').then(m => ({ de
 const GiftClaimsPage = lazy(() => import('./components/GiftClaimsPage'));
 const ClaimGiftPage = lazy(() => import('./components/ClaimGiftPage'));
 const ClaimsPage = lazy(() => import('./components/ClaimsPage'));
+const HelpPage = lazy(() => import('./pages/HelpPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
 const NotFound = lazy(() => import('./pages/NotFound'));
@@ -80,6 +83,9 @@ function AppRoutes() {
 
   return (
     <div className="w-full max-w-[100vw] overflow-x-hidden">
+      {/* Beta Banner - Top of page */}
+      <BetaBanner />
+      
       <ErrorBoundary>
         <Suspense fallback={<RouteLoading />}>
           <Routes>
@@ -106,6 +112,8 @@ function AppRoutes() {
             <Route path="/food-beverage" element={<FoodBeveragePage claimBalance={profile?.crescendo_data?.claims_balance || 0} />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/help" element={<HelpPage />} />
+            <Route path="/faq" element={<HelpPage />} />
             <Route path="/claim" element={<ClaimGiftPage />} />
             <Route path="/sponsors" element={<SponsorsPage />} />
             <Route path="/become-sponsor" element={<BecomeASponsorPage />} />
@@ -287,6 +295,9 @@ function AppRoutes() {
           onToggleMode={handleToggleMode}
         />
       )}
+
+      {/* Mobile Bottom Navigation - only for authenticated users */}
+      {isAuthenticated && <MobileBottomNav />}
 
       {/* Global feedback button */}
       <FeedbackButton />
