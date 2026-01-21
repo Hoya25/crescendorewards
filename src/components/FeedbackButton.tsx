@@ -69,14 +69,15 @@ export function FeedbackButton() {
   };
 
   const uploadImage = async (): Promise<string | null> => {
-    if (!selectedImage) return null;
+    if (!selectedImage || !user) return null;
 
     const fileExt = selectedImage.name.split('.').pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-    const filePath = `feedback/${fileName}`;
+    // Path must start with user ID to satisfy RLS policy
+    const filePath = `${user.id}/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
-      .from('avatars') // Using avatars bucket which is public
+      .from('avatars')
       .upload(filePath, selectedImage);
 
     if (uploadError) {
