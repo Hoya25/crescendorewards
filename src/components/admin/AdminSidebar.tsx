@@ -74,6 +74,7 @@ const adminManagementItems: MenuItem[] = [
   { title: 'Team', view: 'team', icon: Shield, badgeKey: null, permission: 'admins_view' },
   { title: 'Activity Log', view: 'activity', icon: Activity, badgeKey: null, permission: 'admins_view' },
   { title: 'Feedback', view: 'feedback', icon: MessageSquare, badgeKey: null, permission: 'admins_view' },
+  { title: 'Settings', view: 'settings', icon: Settings, badgeKey: null, permission: 'settings_edit' },
 ];
 
 export function AdminSidebar({ onNavigate, currentView }: AdminSidebarProps) {
