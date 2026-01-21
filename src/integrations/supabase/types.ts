@@ -637,6 +637,8 @@ export type Database = {
           category: string
           cost: number
           created_at: string
+          delivery_instructions: string | null
+          delivery_method: string | null
           description: string
           id: string
           image_url: string | null
@@ -645,6 +647,7 @@ export type Database = {
           is_sponsored: boolean | null
           min_status_tier: string | null
           minimum_token_balance: number | null
+          required_user_data: Json | null
           sponsor_enabled: boolean
           sponsor_end_date: string | null
           sponsor_link: string | null
@@ -667,6 +670,8 @@ export type Database = {
           category: string
           cost: number
           created_at?: string
+          delivery_instructions?: string | null
+          delivery_method?: string | null
           description: string
           id?: string
           image_url?: string | null
@@ -675,6 +680,7 @@ export type Database = {
           is_sponsored?: boolean | null
           min_status_tier?: string | null
           minimum_token_balance?: number | null
+          required_user_data?: Json | null
           sponsor_enabled?: boolean
           sponsor_end_date?: string | null
           sponsor_link?: string | null
@@ -697,6 +703,8 @@ export type Database = {
           category?: string
           cost?: number
           created_at?: string
+          delivery_instructions?: string | null
+          delivery_method?: string | null
           description?: string
           id?: string
           image_url?: string | null
@@ -705,6 +713,7 @@ export type Database = {
           is_sponsored?: boolean | null
           min_status_tier?: string | null
           minimum_token_balance?: number | null
+          required_user_data?: Json | null
           sponsor_enabled?: boolean
           sponsor_end_date?: string | null
           sponsor_link?: string | null
@@ -741,6 +750,10 @@ export type Database = {
       rewards_claims: {
         Row: {
           claimed_at: string
+          delivered_at: string | null
+          delivery_data: Json | null
+          delivery_method: string | null
+          delivery_status: string | null
           id: string
           reward_id: string
           shipping_info: Json | null
@@ -749,6 +762,10 @@ export type Database = {
         }
         Insert: {
           claimed_at?: string
+          delivered_at?: string | null
+          delivery_data?: Json | null
+          delivery_method?: string | null
+          delivery_status?: string | null
           id?: string
           reward_id: string
           shipping_info?: Json | null
@@ -757,6 +774,10 @@ export type Database = {
         }
         Update: {
           claimed_at?: string
+          delivered_at?: string | null
+          delivery_data?: Json | null
+          delivery_method?: string | null
+          delivery_status?: string | null
           id?: string
           reward_id?: string
           shipping_info?: Json | null
@@ -939,6 +960,86 @@ export type Database = {
             columns: ["current_tier_id"]
             isOneToOne: false
             referencedRelation: "status_tiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_delivery_profiles: {
+        Row: {
+          created_at: string | null
+          discord_username: string | null
+          email: string | null
+          id: string
+          instagram_handle: string | null
+          phone: string | null
+          shipping_address_line1: string | null
+          shipping_address_line2: string | null
+          shipping_city: string | null
+          shipping_country: string | null
+          shipping_name: string | null
+          shipping_state: string | null
+          shipping_zip: string | null
+          telegram_handle: string | null
+          tiktok_handle: string | null
+          twitch_username: string | null
+          twitter_handle: string | null
+          updated_at: string | null
+          user_id: string
+          wallet_address: string | null
+          youtube_channel: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          discord_username?: string | null
+          email?: string | null
+          id?: string
+          instagram_handle?: string | null
+          phone?: string | null
+          shipping_address_line1?: string | null
+          shipping_address_line2?: string | null
+          shipping_city?: string | null
+          shipping_country?: string | null
+          shipping_name?: string | null
+          shipping_state?: string | null
+          shipping_zip?: string | null
+          telegram_handle?: string | null
+          tiktok_handle?: string | null
+          twitch_username?: string | null
+          twitter_handle?: string | null
+          updated_at?: string | null
+          user_id: string
+          wallet_address?: string | null
+          youtube_channel?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          discord_username?: string | null
+          email?: string | null
+          id?: string
+          instagram_handle?: string | null
+          phone?: string | null
+          shipping_address_line1?: string | null
+          shipping_address_line2?: string | null
+          shipping_city?: string | null
+          shipping_country?: string | null
+          shipping_name?: string | null
+          shipping_state?: string | null
+          shipping_zip?: string | null
+          telegram_handle?: string | null
+          tiktok_handle?: string | null
+          twitch_username?: string | null
+          twitter_handle?: string | null
+          updated_at?: string | null
+          user_id?: string
+          wallet_address?: string | null
+          youtube_channel?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_delivery_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "unified_profiles"
             referencedColumns: ["id"]
           },
         ]

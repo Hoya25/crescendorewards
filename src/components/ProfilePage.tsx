@@ -12,7 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { NCTRLogo } from './NCTRLogo';
 import { toast } from '@/hooks/use-toast';
-import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift, X, Crown, ChevronRight, FileText, Check, Lock, TrendingUp, Sparkles } from 'lucide-react';
+import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift, X, Crown, ChevronRight, FileText, Check, Lock, TrendingUp, Sparkles, Truck, Package } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
@@ -29,6 +29,7 @@ import { NoWishlistItemsEmpty } from '@/components/EmptyState';
 import { ProfilePageSkeleton } from '@/components/skeletons/ProfileSkeleton';
 import { ProfileCompletion } from '@/components/ProfileCompletion';
 import type { Profile } from '@/types';
+import { useDeliveryProfile } from '@/hooks/useDeliveryProfile';
 
 // Helper to extract Crescendo data from unified profile
 const getCrescendoData = (profile: any) => {
@@ -797,6 +798,33 @@ export function ProfilePage() {
                     View Full Wishlist
                   </Button>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* Delivery Profile Card */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Truck className="w-5 h-5" />
+                    Delivery Profile
+                  </CardTitle>
+                </div>
+                <CardDescription>Manage your delivery preferences</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Complete your delivery profile for faster reward claims
+                </p>
+                <Button
+                  variant="outline"
+                  className="w-full gap-2"
+                  onClick={() => navigate('/profile/delivery')}
+                >
+                  <Package className="w-4 h-4" />
+                  Manage Delivery Info
+                  <ChevronRight className="w-4 h-4 ml-auto" />
+                </Button>
               </CardContent>
             </Card>
 
