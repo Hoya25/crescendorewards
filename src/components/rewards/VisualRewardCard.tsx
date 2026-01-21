@@ -159,8 +159,8 @@ export function VisualRewardCard({
       )}
       onClick={onClick}
     >
-      {/* IMAGE SECTION - 60% of card */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden">
+      {/* IMAGE SECTION - 60% of card height with gradient overlay */}
+      <div className="relative aspect-[3/2] w-full overflow-hidden">
         {/* Background - Image or Gradient */}
         {reward.image_url ? (
           <ImageWithFallback
@@ -175,77 +175,29 @@ export function VisualRewardCard({
             "w-full h-full flex items-center justify-center bg-gradient-to-br",
             gradient
           )}>
-            <Icon className="w-20 h-20 text-muted-foreground/40" />
+            <Icon className="w-16 h-16 text-muted-foreground/40" />
           </div>
         )}
 
-        {/* Overlay Gradient for better badge visibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20" />
+        {/* Gradient Overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-        {/* TOP-LEFT: Category Badge */}
-        <Badge 
-          className="absolute top-3 left-3 bg-black/50 text-white backdrop-blur-md border-0 text-xs font-medium"
-        >
-          <Icon className="w-3 h-3 mr-1" />
-          {reward.category.replace('_', ' ')}
-        </Badge>
-
-        {/* TOP-RIGHT: Sponsored Badge */}
+        {/* TOP-LEFT: Sponsored Badge */}
         {isSponsored && (
           <Badge 
-            className="absolute top-3 right-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-black border-0 text-xs font-bold shadow-lg"
+            className="absolute top-2.5 left-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-black border-0 text-[10px] font-bold shadow-lg px-2 py-0.5"
           >
-            <Sparkles className="w-3 h-3 mr-1" />
+            <Sparkles className="w-2.5 h-2.5 mr-1" />
             SPONSORED
           </Badge>
         )}
 
-        {/* BOTTOM-LEFT: Sponsor Logo */}
-        {isSponsored && sponsorLogo && (
-          <div className="absolute bottom-3 left-3 bg-white/90 dark:bg-black/70 backdrop-blur-md rounded-lg p-1.5 shadow-lg">
-            <img 
-              src={sponsorLogo} 
-              alt={sponsorName || 'Sponsor'} 
-              className="h-6 w-auto max-w-[80px] object-contain"
-            />
-          </div>
-        )}
-
-        {/* BOTTOM-RIGHT: Free for Tier Badge */}
-        {freeTierName && (
-          <Badge 
-            className="absolute bottom-3 right-3 bg-gradient-to-r from-emerald-500 to-green-500 text-white border-0 text-xs font-bold shadow-lg"
-          >
-            <Gift className="w-3 h-3 mr-1" />
-            FREE for {freeTierName}
-          </Badge>
-        )}
-
-        {/* Admin Edit Button */}
-        {isAdmin && onAdminEdit && (
-          <button
-            className={cn(
-              "absolute top-3 z-10 w-9 h-9 rounded-full flex items-center justify-center",
-              "bg-amber-500/90 hover:bg-amber-600 backdrop-blur-md shadow-lg",
-              "transition-all duration-200 hover:scale-110",
-              isSponsored ? "right-[165px]" : "right-14"
-            )}
-            onClick={(e) => {
-              e.stopPropagation();
-              onAdminEdit(reward.id);
-            }}
-          >
-            <Pencil className="h-4 w-4 text-white" />
-          </button>
-        )}
-
-        {/* Favorites Heart Button - Floating */}
+        {/* TOP-RIGHT: Favorites Heart */}
         <button
           className={cn(
-            "absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center",
+            "absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full flex items-center justify-center",
             "bg-white/90 dark:bg-black/70 backdrop-blur-md shadow-lg",
-            "transition-all duration-200 hover:scale-110",
-            isSponsored && "right-[120px]"
+            "transition-all duration-200 hover:scale-110"
           )}
           onClick={(e) => {
             e.stopPropagation();
@@ -254,7 +206,7 @@ export function VisualRewardCard({
         >
           <Heart
             className={cn(
-              "h-5 w-5 transition-all duration-200",
+              "h-4 w-4 transition-all duration-200",
               isInFavorites
                 ? "fill-red-500 text-red-500"
                 : "text-gray-600 dark:text-gray-300",
@@ -262,59 +214,73 @@ export function VisualRewardCard({
             )}
           />
         </button>
-      </div>
 
-      {/* CONTENT SECTION - 40% of card */}
-      <div className="p-4 space-y-3 bg-background">
-        {/* Title */}
-        <h3 className="font-bold text-base leading-tight line-clamp-2 group-hover:text-primary transition-colors">
-          {reward.title}
-        </h3>
-
-        {/* Sponsor Name */}
-        {isSponsored && sponsorName && (
-          <p className="text-xs text-amber-600 dark:text-amber-400 font-medium">
-            Sponsored by {sponsorName}
-          </p>
+        {/* Admin Edit Button */}
+        {isAdmin && onAdminEdit && (
+          <button
+            className="absolute top-2.5 right-12 z-10 w-8 h-8 rounded-full flex items-center justify-center bg-amber-500/90 hover:bg-amber-600 backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAdminEdit(reward.id);
+            }}
+          >
+            <Pencil className="h-3.5 w-3.5 text-white" />
+          </button>
         )}
 
-        {/* Price Section - using reusable component */}
-        <RewardPriceCompact 
-          reward={rewardForPricing} 
-          userTier={userTier.tierName} 
-        />
-
-        {/* View Details Button - appears on hover */}
-        <Button
-          variant="default"
-          size="sm"
-          className={cn(
-            "w-full opacity-0 group-hover:opacity-100 transition-opacity duration-200",
-            !isEligible && "pointer-events-none"
+        {/* BOTTOM: Title + Price overlay on image */}
+        <div className="absolute bottom-0 left-0 right-0 p-3">
+          {/* Free for Tier Badge */}
+          {freeTierName && (
+            <Badge 
+              className="mb-2 bg-gradient-to-r from-emerald-500 to-green-500 text-white border-0 text-[10px] font-bold shadow-lg px-2 py-0.5"
+            >
+              <Gift className="w-2.5 h-2.5 mr-1" />
+              FREE for {freeTierName}
+            </Badge>
           )}
-          disabled={!isEligible}
-        >
-          View Details
-        </Button>
-
-        {/* Footer Stats */}
-        <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/50">
-          <div className="flex items-center gap-3">
-            {remainingStock !== null && (
-              <span className="flex items-center gap-1">
-                <Package className="w-3 h-3" />
-                {remainingStock} left
-              </span>
-            )}
-            {claimCount > 0 && (
-              <span className="flex items-center gap-1">
-                <Gift className="w-3 h-3" />
-                {claimCount} claimed
-              </span>
-            )}
-          </div>
+          
+          {/* Title - max 2 lines */}
+          <h3 className="font-bold text-sm text-white leading-tight line-clamp-2 drop-shadow-md">
+            {reward.title}
+          </h3>
         </div>
+      </div>
+
+      {/* CONTENT SECTION - 40% of card, simplified */}
+      <div className="p-3 space-y-2 bg-background">
+        {/* Price Section - Prominent display */}
+        <div className="flex items-center justify-between">
+          <RewardPriceCompact 
+            reward={rewardForPricing} 
+            userTier={userTier.tierName} 
+          />
+          
+          {/* Sponsor Logo (small) */}
+          {isSponsored && sponsorLogo && (
+            <div className="bg-muted/50 rounded p-1">
+              <img 
+                src={sponsorLogo} 
+                alt={sponsorName || 'Sponsor'} 
+                className="h-4 w-auto max-w-[50px] object-contain opacity-70"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Footer: Stock info only */}
+        {remainingStock !== null && remainingStock <= 20 && (
+          <div className="flex items-center text-[11px] text-muted-foreground">
+            <Package className="w-3 h-3 mr-1" />
+            <span className={cn(
+              remainingStock <= 5 && "text-orange-500 font-medium"
+            )}>
+              {remainingStock} left
+            </span>
+          </div>
+        )}
       </div>
     </Card>
   );
 }
+
