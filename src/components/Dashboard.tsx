@@ -3,13 +3,12 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { Progress } from "./ui/progress";
-import { Sparkles, Lock, Gift, Trophy, TrendingUp, ChevronRight, Plus, Calendar, UserPlus, Moon, Sun, Store, Wallet, User, Settings, ChevronDown, LogOut, Coins, CheckCircle2, Zap, FileCheck, Receipt, Crown, BarChart3, UtensilsCrossed, Heart, ShoppingBag, ExternalLink, AlertCircle, ClipboardList, Ticket } from "lucide-react";
+import { Gift, Trophy, TrendingUp, ChevronRight, ChevronDown, LogOut, Zap, FileCheck, Receipt, Crown, BarChart3, Heart, ShoppingBag, User, UserPlus } from "lucide-react";
 import { NCTRLogo } from "./NCTRLogo";
 import { CrescendoLogo } from "./CrescendoLogo";
 import { BetaBadge } from "./BetaBadge";
 import { ThemeToggle } from "./ThemeToggle";
 import { ReferralCard } from "./ReferralCard";
-import { BuyClaims } from "./BuyClaims";
 import { WelcomeModal } from "./WelcomeModal";
 import { OnboardingProgress } from "./OnboardingProgress";
 import { NeedsAttention } from "./NeedsAttention";
@@ -33,78 +32,157 @@ import { useAdminRole } from "@/hooks/useAdminRole";
 import { useAdminNotifications } from "@/hooks/useAdminNotifications";
 import { toast } from "sonner";
 import { DashboardSkeleton } from "./skeletons/DashboardSkeleton";
-import { useFavorites } from "@/hooks/useFavorites";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 
 const WELCOME_SEEN_KEY = "crescendo_welcome_seen";
 
-// Quick Actions component with Favorites
-function QuickActionsWithFavorites({ navigate }: { navigate: (path: string) => void }) {
-  const { favoritesCount } = useFavorites();
+// Simplified Quick Actions - 3 cards only
+function SimplifiedQuickActions({ navigate, claimBalance }: { navigate: (path: string) => void; claimBalance: number }) {
+  const showGetClaimsHighlight = claimBalance < 20;
   
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Primary: Browse Rewards */}
       <Card 
-        className="cursor-pointer hover:border-primary/30 transition-colors"
+        className="cursor-pointer border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10 hover:border-primary/50 transition-all hover:shadow-md"
         onClick={() => navigate('/rewards')}
       >
-        <CardContent className="p-4 text-center">
-          <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center">
-            <Gift className="w-6 h-6 text-violet-600 dark:text-violet-400" />
+        <CardContent className="p-5 flex items-center gap-4">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg">
+            <Gift className="w-7 h-7 text-primary-foreground" />
           </div>
-          <h3 className="font-medium">Browse Rewards</h3>
-          <p className="text-sm text-muted-foreground">Explore marketplace</p>
+          <div>
+            <h3 className="font-semibold text-lg">Browse Rewards</h3>
+            <p className="text-sm text-muted-foreground">Explore the marketplace</p>
+          </div>
+          <ChevronRight className="w-5 h-5 text-muted-foreground ml-auto" />
         </CardContent>
       </Card>
       
+      {/* Earn Free Claims */}
       <Card 
-        className="cursor-pointer hover:border-primary/30 transition-colors group"
-        onClick={() => window.open('https://thegarden.nctr.live/', '_blank')}
+        className={`cursor-pointer transition-all hover:shadow-md ${showGetClaimsHighlight ? 'border-amber-400/50 bg-gradient-to-br from-amber-500/5 to-amber-500/10' : 'hover:border-primary/30'}`}
+        onClick={() => navigate('/buy-claims')}
       >
-        <CardContent className="p-4 text-center relative">
-          <ExternalLink className="w-3 h-3 absolute top-2 right-2 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-          <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-emerald-500/20 to-green-500/20 flex items-center justify-center">
-            <ShoppingBag className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+        <CardContent className="p-5 flex items-center gap-4">
+          <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg ${showGetClaimsHighlight ? 'bg-gradient-to-br from-amber-500 to-amber-600' : 'bg-gradient-to-br from-emerald-500 to-green-500'}`}>
+            <Zap className="w-7 h-7 text-white" />
           </div>
-          <h3 className="font-medium">Earn NCTR</h3>
-          <p className="text-sm text-muted-foreground">Via The Garden</p>
+          <div>
+            <h3 className="font-semibold text-lg">
+              {showGetClaimsHighlight ? 'Get More Claims' : 'Earn Free Claims'}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {showGetClaimsHighlight ? 'Low balance - top up now' : 'Purchase claim packs'}
+            </p>
+          </div>
+          <ChevronRight className="w-5 h-5 text-muted-foreground ml-auto" />
         </CardContent>
       </Card>
       
+      {/* Invite Friends */}
       <Card 
-        className="cursor-pointer hover:border-primary/30 transition-colors"
-        onClick={() => navigate('/favorites')}
+        className="cursor-pointer hover:border-primary/30 transition-all hover:shadow-md"
+        onClick={() => navigate('/referrals')}
       >
-        <CardContent className="p-4 text-center">
-          <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-red-500/20 to-pink-500/20 flex items-center justify-center relative">
-            <Heart className="w-6 h-6 text-red-500" />
-            {favoritesCount > 0 && (
-              <Badge className="absolute -top-1 -right-1 h-5 min-w-5 px-1.5 text-xs bg-red-500 hover:bg-red-500 text-white border-0">
-                {favoritesCount}
-              </Badge>
-            )}
+        <CardContent className="p-5 flex items-center gap-4">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center shadow-lg">
+            <UserPlus className="w-7 h-7 text-white" />
           </div>
-          <h3 className="font-medium">My Favorites</h3>
-          <p className="text-sm text-muted-foreground">{favoritesCount} saved</p>
-        </CardContent>
-      </Card>
-      
-      <Card 
-        className="cursor-pointer hover:border-primary/30 transition-colors"
-        onClick={() => navigate('/submit-reward')}
-      >
-        <CardContent className="p-4 text-center">
-          <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-amber-500/20 to-yellow-500/20 flex items-center justify-center">
-            <Plus className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+          <div>
+            <h3 className="font-semibold text-lg">Invite Friends</h3>
+            <p className="text-sm text-muted-foreground">Earn bonus claims</p>
           </div>
-          <h3 className="font-medium">Submit Reward</h3>
-          <p className="text-sm text-muted-foreground">Contribute ideas</p>
+          <ChevronRight className="w-5 h-5 text-muted-foreground ml-auto" />
         </CardContent>
       </Card>
     </div>
   );
 }
 
-// Admin Stats Banner Component
+// Consolidated Hero Card
+function HeroCard({ 
+  userName, 
+  tier, 
+  claimBalance, 
+  lockedNCTR,
+  nextTier,
+  progressPercent,
+  nctrNeeded,
+  navigate 
+}: { 
+  userName: string;
+  tier: any;
+  claimBalance: number;
+  lockedNCTR: number;
+  nextTier: any;
+  progressPercent: number;
+  nctrNeeded: number;
+  navigate: (path: string) => void;
+}) {
+  const showGetMore = claimBalance < 20;
+  
+  return (
+    <Card className="border-2 border-primary/20 bg-gradient-to-br from-background to-primary/5">
+      <CardContent className="p-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          {/* Left: Welcome + Status */}
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+              <Trophy className="w-8 h-8 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold">Welcome back, {userName}!</h1>
+              <div className="flex items-center gap-2 mt-1">
+                <StatusBadge tier={tier} size="md" showTooltip={false} />
+                {nextTier && (
+                  <span className="text-sm text-muted-foreground">
+                    · {nctrNeeded.toLocaleString()} NCTR to {nextTier.name}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          {/* Right: Claims Balance */}
+          <div className="flex items-center gap-4 md:gap-6">
+            <div className="text-right">
+              <p className="text-sm text-muted-foreground mb-1">Claims Balance</p>
+              <div className="flex items-center gap-2 justify-end">
+                <span className="text-4xl font-bold">{claimBalance}</span>
+                <Zap className="w-6 h-6 text-amber-500" />
+              </div>
+            </div>
+            {showGetMore && (
+              <Button 
+                onClick={() => navigate('/buy-claims')} 
+                size="sm"
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+              >
+                Get More
+              </Button>
+            )}
+          </div>
+        </div>
+        
+        {/* Progress bar (subtle) */}
+        {nextTier && (
+          <div className="mt-6 pt-4 border-t border-border/50">
+            <div className="flex justify-between text-sm mb-2">
+              <span className="text-muted-foreground">Tier Progress</span>
+              <span className="font-medium flex items-center gap-1">
+                {lockedNCTR.toLocaleString()} / {nextTier.requirement.toLocaleString()} <NCTRLogo />
+              </span>
+            </div>
+            <Progress value={progressPercent} className="h-2" />
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// Admin Stats Banner Component (unchanged)
 function AdminStatsBanner({ navigate }: { navigate: (path: string) => void }) {
   const { pendingClaims, pendingSubmissions, loading, totalPending } = useAdminNotifications();
 
@@ -116,7 +194,7 @@ function AdminStatsBanner({ navigate }: { navigate: (path: string) => void }) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
-              <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+              <Crown className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             </div>
             <span className="font-medium text-amber-700 dark:text-amber-300">Admin Quick Stats</span>
           </div>
@@ -139,7 +217,7 @@ function AdminStatsBanner({ navigate }: { navigate: (path: string) => void }) {
                 onClick={() => navigate('/admin?tab=submissions')}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500/20 hover:bg-orange-500/30 transition-colors"
               >
-                <ClipboardList className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                <FileCheck className="w-4 h-4 text-orange-600 dark:text-orange-400" />
                 <span className="text-sm font-medium text-orange-700 dark:text-orange-300">
                   {pendingSubmissions} Pending Submission{pendingSubmissions !== 1 ? 's' : ''}
                 </span>
@@ -168,6 +246,7 @@ export function Dashboard() {
   const { isAdmin } = useAdminRole();
   const { theme } = useTheme();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [activityOpen, setActivityOpen] = useState(false);
 
   useEffect(() => {
     const hasSeenWelcome = localStorage.getItem(WELCOME_SEEN_KEY);
@@ -201,29 +280,18 @@ export function Dashboard() {
   const lockedNCTR = crescendoData.locked_nctr || 0;
   const availableNCTR = crescendoData.available_nctr || 100;
   const claimBalance = crescendoData.claims_balance || 0;
-  const hasStatusAccessPass = crescendoData.has_status_access_pass || false;
   const hasClaimedSignupBonus = crescendoData.has_claimed_signup_bonus || false;
   const referralCode = crescendoData.referral_code || 'CRES-LOADING';
 
-  // Calculate tier based on locked NCTR (360LOCK)
+  // Calculate tier based on locked NCTR
   const currentTier = getMembershipTierByNCTR(lockedNCTR);
   const nextTierData = getNextMembershipTier(lockedNCTR);
   const progressPercent = getMembershipProgress(lockedNCTR);
   const nctrNeeded = getNCTRNeededForNextLevel(lockedNCTR);
 
-  const userData = {
-    level: currentTier.level,
-    tier: currentTier.name,
-    lockedNCTR: lockedNCTR,
-    nextLevelThreshold: nextTierData?.requirement || currentTier.requirement,
-    multiplier: currentTier.multiplier.toString() + 'x',
-    claimBalance: claimBalance,
-    claimsPerYear: currentTier.claims,
-    discount: currentTier.discount + '%',
-    hasStatusAccessPass: hasStatusAccessPass,
-  };
+  const userName = profile?.display_name || profile?.email?.split('@')[0] || 'User';
 
-  // Mock referral data (will be calculated from referrals table in future)
+  // Referral stats
   const referralStats = {
     totalReferrals: 0,
     totalEarned: hasClaimedSignupBonus ? availableNCTR : 0,
@@ -231,34 +299,10 @@ export function Dashboard() {
     hasClaimedSignupBonus: hasClaimedSignupBonus,
   };
 
-  const levelColors = {
-    0: { gradient: 'from-slate-400 to-gray-500', bg: 'bg-slate-50', border: 'border-slate-200' },
-    1: { gradient: 'from-emerald-400 to-green-500', bg: 'bg-emerald-50', border: 'border-emerald-200' },
-    2: { gradient: 'from-blue-400 to-cyan-500', bg: 'bg-blue-50', border: 'border-blue-200' },
-    3: { gradient: 'from-purple-400 to-violet-500', bg: 'bg-purple-50', border: 'border-purple-200' },
-    4: { gradient: 'from-amber-400 to-yellow-500', bg: 'bg-amber-50', border: 'border-amber-200' },
-    5: { gradient: 'from-cyan-400 to-blue-600', bg: 'bg-cyan-50', border: 'border-cyan-200' },
-  };
-
-  const currentLevelStyle = levelColors[userData.level as keyof typeof levelColors];
-
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
     toast.success("Signed out successfully");
-  };
-
-  const handleConnectWallet = () => {
-    toast.info("Wallet connection coming soon!");
-  };
-
-  const handleLockTokens = () => {
-    toast.info("Lock tokens modal coming soon!");
-  };
-
-
-  const handleLevelUp = () => {
-    toast.info("Level up modal coming soon!");
   };
 
   return (
@@ -274,68 +318,32 @@ export function Dashboard() {
           {/* Navigation */}
           <nav className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800">
             <div className="max-w-7xl mx-auto px-6 py-4">
-              {/* Mobile Layout - Stacked */}
+              {/* Mobile Layout */}
               <div className="flex flex-col gap-4 md:hidden">
-                <div className="flex items-center justify-center gap-4">
-                  <SidebarTrigger />
-                  <button
-                    onClick={() => navigate('/rewards')}
-                    className="hover:opacity-80 transition-opacity cursor-pointer flex items-center"
-                  >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <SidebarTrigger />
                     <CrescendoLogo />
                     <BetaBadge />
-                  </button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <NotificationsDropdown />
+                    <ThemeToggle />
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-2">
-                  {/* Admin Quick Access - Mobile */}
-                  {isAdmin && (
-                    <Button
-                      onClick={() => navigate('/admin')}
-                      size="sm"
-                      className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0"
-                    >
-                      <Crown className="w-4 h-4" />
-                      Admin
-                    </Button>
-                  )}
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate('/membership')}
-                    className="gap-2"
-                    size="sm"
-                  >
-                    <Trophy className="w-4 h-4" />
-                    Membership
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ClaimsBalanceIndicator compact />
+                    <FavoritesIndicator />
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4" />
                   </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate('/rewards')}
-                    className="gap-2"
-                    size="sm"
-                  >
-                  <Gift className="w-4 h-4" />
-                    Rewards
-                  </Button>
-                  <ClaimsBalanceIndicator compact />
-                  <FavoritesIndicator />
-                  <NotificationsDropdown />
-                  <ThemeToggle />
                 </div>
+              </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              <StatusBadge tier={tier} size="sm" showTooltip={false} />
-              <Badge className="gap-2 px-3 py-1.5 bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
-                Wallet Connected
-              </Badge>
-              <Button variant="ghost" onClick={handleSignOut} size="sm">
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-
-              {/* Desktop Layout - Single Row */}
+              {/* Desktop Layout */}
               <div className="hidden md:flex items-center justify-between gap-6">
                 <div className="flex items-center gap-4">
                   <SidebarTrigger />
@@ -349,7 +357,6 @@ export function Dashboard() {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  {/* Admin Quick Access Button - Prominent placement */}
                   {isAdmin && (
                     <Button
                       onClick={() => navigate('/admin')}
@@ -359,19 +366,7 @@ export function Dashboard() {
                       Admin Panel
                     </Button>
                   )}
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate('/membership')}
-                    className="gap-2"
-                  >
-                    <Trophy className="w-4 h-4" />
-                    Membership
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate('/rewards')}
-                    className="gap-2"
-                  >
+                  <Button variant="outline" onClick={() => navigate('/rewards')} className="gap-2">
                     <Gift className="w-4 h-4" />
                     Rewards
                   </Button>
@@ -382,18 +377,16 @@ export function Dashboard() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <StatusBadge tier={tier} size="sm" />
-                  
                   <Badge className="gap-2 px-3 py-1.5 bg-green-50 text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
                     <div className="w-2 h-2 bg-green-500 rounded-full" />
-                    Wallet Connected
+                    Connected
                   </Badge>
                   
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="gap-2">
                         <User className="w-4 h-4" />
-                        {profile?.display_name || profile?.email?.split('@')[0] || 'User'}
+                        {userName}
                         <ChevronDown className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -401,6 +394,10 @@ export function Dashboard() {
                       <DropdownMenuItem onClick={() => navigate('/profile')}>
                         <User className="w-4 h-4 mr-2" />
                         Profile
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/membership')}>
+                        <Trophy className="w-4 h-4 mr-2" />
+                        Membership
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate('/my-submissions')}>
                         <FileCheck className="w-4 h-4 mr-2" />
@@ -440,94 +437,39 @@ export function Dashboard() {
 
           {/* Main Content */}
           <main className="flex-1 p-4 md:p-6">
-            <div className="max-w-7xl mx-auto space-y-6">
+            <div className="max-w-7xl mx-auto space-y-8">
 
-              {/* Needs Your Attention */}
+              {/* Needs Your Attention (kept) */}
               <NeedsAttention />
 
-              {/* Membership Progress Card */}
-              <Card className={`border-2 ${currentLevelStyle.border} dark:border-neutral-700`}>
-                <CardHeader className="pb-4">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-16 h-16 rounded-full bg-gradient-to-r ${currentLevelStyle.gradient} flex items-center justify-center shadow-lg`}>
-                        <Trophy className="w-8 h-8 text-white" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-2xl">{userData.tier}</CardTitle>
-                        <p className="text-muted-foreground">Level {userData.level + 1} Membership</p>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="secondary" className="gap-1">
-                        <TrendingUp className="w-3 h-3" />
-                        {userData.multiplier} Multiplier
-                      </Badge>
-                      <Badge variant="secondary" className="gap-1">
-                        <Gift className="w-3 h-3" />
-                        {userData.claimsPerYear}
-                      </Badge>
-                      {Number(userData.discount.replace('%', '')) > 0 && (
-                        <Badge variant="secondary" className="gap-1">
-                          {userData.discount} Off
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {nextTierData && (
-                    <>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Progress to {nextTierData.name}</span>
-                        <span className="font-medium flex items-center gap-1">
-                          {userData.lockedNCTR.toLocaleString()} / {userData.nextLevelThreshold.toLocaleString()} <NCTRLogo />
-                        </span>
-                      </div>
-                      <Progress value={progressPercent} className="h-3" />
-                      <p className="text-sm text-muted-foreground flex items-center gap-1">
-                        Lock {nctrNeeded.toLocaleString()} more <NCTRLogo /> to reach {nextTierData.name}
-                      </p>
-                    </>
-                  )}
-                  <div className="flex flex-col md:flex-row gap-3 pt-2">
-                    <Button onClick={handleLockTokens} className="flex-1 gap-2">
-                      <Lock className="w-4 h-4" />
-                      Lock More NCTR
-                    </Button>
-                    <Button onClick={() => navigate('/membership')} variant="outline" className="flex-1 gap-2">
-                      View All Levels <ChevronRight className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* 1. Consolidated Hero Card */}
+              <HeroCard 
+                userName={userName}
+                tier={tier}
+                claimBalance={claimBalance}
+                lockedNCTR={lockedNCTR}
+                nextTier={nextTierData}
+                progressPercent={progressPercent}
+                nctrNeeded={nctrNeeded}
+                navigate={navigate}
+              />
 
-              {/* Quick Actions */}
-              <QuickActionsWithFavorites navigate={navigate} />
+              {/* 2. Simplified Quick Actions (3 cards) */}
+              <SimplifiedQuickActions navigate={navigate} claimBalance={claimBalance} />
 
-              {/* Sponsored Opportunities */}
-              <SponsoredRewardsCarousel />
-
-              {/* Claim Balance & Buy Claims */}
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Zap className="w-5 h-5 text-amber-500" />
-                      Claim Balance
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-4xl font-bold mb-2">{userData.claimBalance}</div>
-                    <p className="text-muted-foreground mb-4">Claims available to redeem rewards</p>
-                    <Button onClick={() => navigate('/rewards')} className="w-full">
-                      Use Claims <ChevronRight className="ml-2 w-4 h-4" />
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <BuyClaims currentBalance={userData.claimBalance} onPurchaseSuccess={refreshUnifiedProfile} />
-              </div>
+              {/* 3. Featured Rewards Section */}
+              <section>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold flex items-center gap-2">
+                    <Gift className="w-5 h-5 text-primary" />
+                    Rewards You Can Claim
+                  </h2>
+                  <Button variant="ghost" size="sm" onClick={() => navigate('/rewards')} className="gap-1">
+                    View All <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+                <SponsoredRewardsCarousel />
+              </section>
 
               {/* Referral Card */}
               <ReferralCard
@@ -535,8 +477,21 @@ export function Dashboard() {
                 stats={referralStats}
               />
 
-              {/* Recent Activity */}
-              <ActivityFeed />
+              {/* Collapsible Activity Feed */}
+              <Collapsible open={activityOpen} onOpenChange={setActivityOpen}>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" className="w-full justify-between py-3 text-muted-foreground hover:text-foreground">
+                    <span className="flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4" />
+                      Recent Activity
+                    </span>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${activityOpen ? 'rotate-180' : ''}`} />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <ActivityFeed />
+                </CollapsibleContent>
+              </Collapsible>
             </div>
           </main>
           <Footer />
