@@ -90,11 +90,11 @@ const categoryLabels: Record<string, string> = {
 };
 
 const tierEmojis: Record<string, string> = {
-  droplet: '💧',
-  eddy: '🌊',
-  spiral: '🌀',
-  surge: '⚡',
-  torus: '🔮',
+  bronze: '🥉',
+  silver: '🥈',
+  gold: '🥇',
+  platinum: '💎',
+  diamond: '👑',
 };
 
 // Helper to extract Crescendo data from unified profile
@@ -108,8 +108,8 @@ const getCrescendoData = (profile: any) => {
 
 // Helper to get user tier from unified profile
 const getUserTier = (tier: any): string => {
-  if (!tier) return 'droplet';
-  return tier.tier_name?.toLowerCase() || 'droplet';
+  if (!tier) return 'bronze';
+  return tier.tier_name?.toLowerCase() || 'bronze';
 };
 
 export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
@@ -369,7 +369,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const CategoryIcon = categoryIcons[reward.category] || Gift;
   const userTier = getUserTier(tier);
   const userTierDisplay = getTierDisplayName(userTier);
-  const userTierEmoji = tierEmojis[userTier] || '💧';
+  const userTierEmoji = tierEmojis[userTier] || '🥉';
   
   // Pricing calculations
   const rewardForPricing: RewardType = {
@@ -418,7 +418,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const isLocked = !eligibility.canClaim && eligibility.reason?.includes('Requires');
   
   // Compare price: show what Droplet tier pays as comparison
-  const dropletPrice = allTierPrices.find(p => p.tier === 'droplet')?.price || reward.cost;
+  const bronzePrice = allTierPrices.find(p => p.tier === 'bronze')?.price || reward.cost;
 
   return (
     <div className="min-h-screen bg-background">
@@ -627,7 +627,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                       </p>
                     )}
                     <p className="text-sm text-muted-foreground mt-2">
-                      Explorers pay {dropletPrice} claims
+                      Bronze members pay {bronzePrice} claims
                     </p>
                   </div>
                 ) : (
@@ -645,9 +645,9 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                         </Badge>
                       </p>
                     )}
-                    {dropletPrice > pricing.price && (
+                    {bronzePrice > pricing.price && (
                       <p className="text-sm text-muted-foreground mt-2">
-                        Explorers pay {dropletPrice} claims
+                        Bronze members pay {bronzePrice} claims
                       </p>
                     )}
                   </div>

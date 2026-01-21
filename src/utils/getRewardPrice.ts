@@ -2,11 +2,11 @@
 // Calculates tier-specific prices for sponsored rewards
 
 export interface TierPricing {
-  droplet: number;
-  eddy: number;
-  spiral: number;
-  surge: number;
-  torus: number;
+  bronze: number;
+  silver: number;
+  gold: number;
+  platinum: number;
+  diamond: number;
 }
 
 export interface Reward {
@@ -32,7 +32,7 @@ export interface ClaimEligibility {
 }
 
 // Tier order from lowest to highest
-const TIER_ORDER = ['droplet', 'eddy', 'spiral', 'surge', 'torus'] as const;
+const TIER_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'] as const;
 type TierName = typeof TIER_ORDER[number];
 
 /**
@@ -57,7 +57,7 @@ export function getRewardPriceForUser(
 
   const tierPricing = reward.status_tier_claims_cost as TierPricing;
   const tierPrice = tierPricing[normalizedTier as keyof TierPricing] ?? reward.cost;
-  const originalPrice = tierPricing.droplet ?? reward.cost;
+  const originalPrice = tierPricing.bronze ?? reward.cost;
 
   return {
     price: tierPrice,
@@ -129,11 +129,11 @@ export function canUserClaimReward(
  */
 export function getTierDisplayName(tier: string): string {
   const tierMap: Record<string, string> = {
-    droplet: 'Droplet 💧',
-    eddy: 'Eddy 🌀',
-    spiral: 'Spiral 🌊',
-    surge: 'Surge ⚡',
-    torus: 'Torus 🔮'
+    bronze: 'Bronze 🥉',
+    silver: 'Silver 🥈',
+    gold: 'Gold 🥇',
+    platinum: 'Platinum 💎',
+    diamond: 'Diamond 👑'
   };
   return tierMap[tier.toLowerCase()] || tier;
 }
