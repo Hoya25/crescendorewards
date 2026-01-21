@@ -21,11 +21,13 @@ import { getSponsorshipStatus, formatSponsorshipStatus, type SponsorshipData } f
 import { 
   Plus, Pencil, Trash2, Upload, X, Image as ImageIcon, Lock, 
   MoreHorizontal, Copy, ExternalLink, Gift, ChevronUp, ChevronDown,
-  Minus, Search, Star, AlertTriangle, Heart, ShoppingCart, Package, Megaphone
+  Minus, Search, Star, AlertTriangle, Heart, ShoppingCart, Package, Megaphone, Truck
 } from 'lucide-react';
 import { validateImageFile } from '@/lib/image-validation';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 import { cn } from '@/lib/utils';
+import type { DeliveryMethod, RequiredDataField } from '@/types/delivery';
+import { DELIVERY_METHOD_LABELS, DELIVERY_METHOD_REQUIRED_FIELDS } from '@/types/delivery';
 
 interface Reward {
   id: string;
@@ -53,6 +55,10 @@ interface Reward {
   sponsor_link: string | null;
   sponsor_start_date: string | null;
   sponsor_end_date: string | null;
+  // Delivery fields
+  delivery_method: DeliveryMethod | null;
+  required_user_data: RequiredDataField[] | null;
+  delivery_instructions: string | null;
 }
 
 interface Brand {
@@ -155,6 +161,10 @@ export function AdminRewards() {
     sponsor_link: null as string | null,
     sponsor_start_date: null as string | null,
     sponsor_end_date: null as string | null,
+    // Delivery fields
+    delivery_method: 'email' as DeliveryMethod,
+    required_user_data: ['email'] as RequiredDataField[],
+    delivery_instructions: null as string | null,
   });
 
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -193,6 +203,9 @@ export function AdminRewards() {
           sponsor_link: rewardToEdit.sponsor_link,
           sponsor_start_date: rewardToEdit.sponsor_start_date,
           sponsor_end_date: rewardToEdit.sponsor_end_date,
+          delivery_method: (rewardToEdit.delivery_method as DeliveryMethod) || 'email',
+          required_user_data: rewardToEdit.required_user_data || ['email'],
+          delivery_instructions: rewardToEdit.delivery_instructions,
         });
         setImagePreview(rewardToEdit.image_url);
         setImageFile(null);
@@ -249,11 +262,13 @@ export function AdminRewards() {
       // Merge data
       const enrichedRewards = (rewardsData || []).map(reward => ({
         ...reward,
+        delivery_method: (reward.delivery_method || 'email') as DeliveryMethod,
+        required_user_data: reward.required_user_data as RequiredDataField[] | null,
         claim_count: claimCounts[reward.id] || 0,
         wishlist_count: wishlistCounts[reward.id] || 0,
       }));
 
-      setRewards(enrichedRewards);
+      setRewards(enrichedRewards as Reward[]);
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -370,6 +385,9 @@ export function AdminRewards() {
         sponsor_link: reward.sponsor_link,
         sponsor_start_date: reward.sponsor_start_date,
         sponsor_end_date: reward.sponsor_end_date,
+        delivery_method: (reward.delivery_method as DeliveryMethod) || 'email',
+        required_user_data: reward.required_user_data || ['email'],
+        delivery_instructions: reward.delivery_instructions,
       });
       setImagePreview(reward.image_url);
     } else {
@@ -395,6 +413,9 @@ export function AdminRewards() {
         sponsor_link: null,
         sponsor_start_date: null,
         sponsor_end_date: null,
+        delivery_method: 'email',
+        required_user_data: ['email'],
+        delivery_instructions: null,
       });
       setImagePreview(null);
     }
@@ -425,6 +446,9 @@ export function AdminRewards() {
       sponsor_link: null,
       sponsor_start_date: null,
       sponsor_end_date: null,
+      delivery_method: (reward.delivery_method as DeliveryMethod) || 'email',
+      required_user_data: reward.required_user_data || ['email'],
+      delivery_instructions: reward.delivery_instructions,
     });
     setImagePreview(reward.image_url);
     setImageFile(null);
@@ -1380,6 +1404,102 @@ export function AdminRewards() {
               }}
               onChange={(updates) => setFormData({ ...formData, ...updates })}
             />
+
+            {/* Delivery Configuration */}
+            <div className="space-y-4 pt-4 border-t">
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4" />
+                <Label className="text-base font-semibold">Delivery Configuration</Label>
+              </div>
+              
+              <div className="space-y-3 pl-4 border-l-2 border-muted">
+                {/* Delivery Method */}
+                <div className="space-y-2">
+                  <Label className="text-sm">Delivery Method</Label>
+                  <Select 
+                    value={formData.delivery_method} 
+                    onValueChange={(v) => {
+                      const method = v as DeliveryMethod;
+                      // Auto-populate required fields based on method
+                      const defaultFields = DELIVERY_METHOD_REQUIRED_FIELDS[method] || ['email'];
+                      setFormData({ 
+                        ...formData, 
+                        delivery_method: method,
+                        required_user_data: defaultFields
+                      });
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(DELIVERY_METHOD_LABELS).map(([value, { label, description }]) => (
+                        <SelectItem key={value} value={value}>
+                          <div>
+                            <span>{label}</span>
+                            <span className="text-xs text-muted-foreground ml-2">- {description}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Required User Data */}
+                <div className="space-y-2">
+                  <Label className="text-sm">Required User Data</Label>
+                  <p className="text-xs text-muted-foreground">Select what info is needed from users to claim this reward</p>
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    {([
+                      { field: 'email', label: 'Email Address' },
+                      { field: 'phone', label: 'Phone Number' },
+                      { field: 'shipping_address', label: 'Shipping Address' },
+                      { field: 'wallet_address', label: 'Wallet Address' },
+                      { field: 'twitter_handle', label: 'X (Twitter)' },
+                      { field: 'instagram_handle', label: 'Instagram' },
+                      { field: 'discord_username', label: 'Discord' },
+                      { field: 'twitch_username', label: 'Twitch' },
+                      { field: 'telegram_handle', label: 'Telegram' },
+                      { field: 'youtube_channel', label: 'YouTube' },
+                    ] as { field: RequiredDataField; label: string }[]).map(({ field, label }) => (
+                      <div key={field} className="flex items-center space-x-2">
+                        <Checkbox 
+                          id={`field-${field}`}
+                          checked={formData.required_user_data.includes(field)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setFormData({
+                                ...formData,
+                                required_user_data: [...formData.required_user_data, field]
+                              });
+                            } else {
+                              setFormData({
+                                ...formData,
+                                required_user_data: formData.required_user_data.filter(f => f !== field)
+                              });
+                            }
+                          }}
+                        />
+                        <label htmlFor={`field-${field}`} className="text-xs cursor-pointer">
+                          {label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Delivery Instructions */}
+                <div className="space-y-2">
+                  <Label className="text-sm">Delivery Instructions (Optional)</Label>
+                  <Textarea 
+                    value={formData.delivery_instructions || ''}
+                    onChange={(e) => setFormData({ ...formData, delivery_instructions: e.target.value || null })}
+                    placeholder="Instructions shown to user after claiming (e.g., how to redeem, what to expect)..."
+                    rows={2}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
