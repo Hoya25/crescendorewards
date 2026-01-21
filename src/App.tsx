@@ -26,6 +26,7 @@ const RewardsPool = lazy(() => import('./components/RewardsPool').then(m => ({ d
 const WishlistPage = lazy(() => import('./components/WishlistPage').then(m => ({ default: m.WishlistPage })));
 const FavoritesPage = lazy(() => import('./components/FavoritesPage').then(m => ({ default: m.FavoritesPage })));
 const ProfilePage = lazy(() => import('./components/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const DeliveryProfilePage = lazy(() => import('./pages/DeliveryProfilePage'));
 const MembershipLevelPage = lazy(() => import('./components/MembershipLevelPage').then(m => ({ default: m.MembershipLevelPage })));
 const MembershipHistoryPage = lazy(() => import('./components/MembershipHistoryPage').then(m => ({ default: m.MembershipHistoryPage })));
 const MembershipStatisticsPage = lazy(() => import('./components/MembershipStatisticsPage').then(m => ({ default: m.MembershipStatisticsPage })));
@@ -119,6 +120,14 @@ function AppRoutes() {
               element={
                 <ProtectedRoute>
                   <ProfilePage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile/delivery" 
+              element={
+                <ProtectedRoute>
+                  <DeliveryProfilePage />
                 </ProtectedRoute>
               } 
             />
