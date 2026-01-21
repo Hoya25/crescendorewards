@@ -293,7 +293,7 @@ export function ClaimsAccountDashboard() {
               variant="ghost" 
               size="sm" 
               className="text-xs gap-1 h-7"
-              onClick={() => navigate('/purchase-history')}
+              onClick={() => navigate('/claims')}
             >
               View All <ArrowRight className="w-3 h-3" />
             </Button>
