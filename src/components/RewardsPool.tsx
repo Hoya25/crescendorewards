@@ -724,24 +724,18 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             </div>
           </div>
 
-          {/* Category Tabs - some filters are admin-only */}
+          {/* Category Tabs - main visible filters */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
             {[
-              { key: 'all', label: 'All', icon: Gift, filter: 'category', adminOnly: false },
-              { key: 'accessible', label: 'Accessible', icon: Coins, filter: 'affordable', adminOnly: true },
-              { key: 'free', label: 'Free', icon: Gift, filter: 'price', adminOnly: true },
-              { key: 'experiences', label: 'Experiences', icon: Sparkles, filter: 'category', adminOnly: false },
-              { key: 'subscriptions', label: 'Subscriptions', icon: Trophy, filter: 'category', adminOnly: false },
-              { key: 'alliance_tokens', label: 'Opportunities', icon: Coins, filter: 'category', adminOnly: false },
-              { key: 'sponsored', label: 'Sponsored', icon: Sparkles, filter: 'sponsored', adminOnly: false },
-            ]
-            .filter(tab => !tab.adminOnly || isAdmin)
-            .map(({ key, label, icon: Icon, filter }) => {
+              { key: 'all', label: 'All', icon: Gift, filter: 'category' },
+              { key: 'experiences', label: 'Experiences', icon: Sparkles, filter: 'category' },
+              { key: 'subscriptions', label: 'Subscriptions', icon: Trophy, filter: 'category' },
+              { key: 'alliance_tokens', label: 'Opportunities', icon: Coins, filter: 'category' },
+              { key: 'sponsored', label: 'Sponsored', icon: Sparkles, filter: 'sponsored' },
+            ].map(({ key, label, icon: Icon, filter }) => {
               const isActive = 
-                key === 'accessible' ? affordableFilter :
-                key === 'free' ? priceFilter === 'free' && !affordableFilter && !sponsoredFilter :
                 key === 'sponsored' ? sponsoredFilter :
-                filter === 'category' && activeCategory === key && !affordableFilter && priceFilter !== 'free' && !sponsoredFilter;
+                filter === 'category' && activeCategory === key && !sponsoredFilter;
               
               return (
                 <Button
@@ -754,17 +748,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                     key === 'sponsored' && "border-amber-400/50 hover:border-amber-500"
                   )}
                   onClick={() => {
-                    if (key === 'accessible') {
-                      setAffordableFilter(true);
-                      setSponsoredFilter(false);
-                      setActiveCategory('all');
-                      setPriceFilter('all');
-                    } else if (key === 'free') {
-                      setAffordableFilter(false);
-                      setSponsoredFilter(false);
-                      setActiveCategory('all');
-                      setPriceFilter('free');
-                    } else if (key === 'sponsored') {
+                    if (key === 'sponsored') {
                       setSponsoredFilter(true);
                       setAffordableFilter(false);
                       setActiveCategory('all');
@@ -976,6 +960,44 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                   <SelectItem value="exclusive">Exclusive Only</SelectItem>
                 </SelectContent>
               </Select>
+
+              {/* Admin-only quick filters */}
+              {isAdmin && (
+                <>
+                  <div className="h-6 w-px bg-border" />
+                  <span className="text-xs text-muted-foreground font-medium">Admin:</span>
+                  <Button
+                    variant={affordableFilter ? 'default' : 'outline'}
+                    size="sm"
+                    className="h-9 gap-1.5"
+                    onClick={() => {
+                      setAffordableFilter(!affordableFilter);
+                      if (!affordableFilter) {
+                        setSponsoredFilter(false);
+                        setPriceFilter('all');
+                      }
+                    }}
+                  >
+                    <Coins className="w-3.5 h-3.5" />
+                    Accessible
+                  </Button>
+                  <Button
+                    variant={priceFilter === 'free' ? 'default' : 'outline'}
+                    size="sm"
+                    className="h-9 gap-1.5"
+                    onClick={() => {
+                      setPriceFilter(priceFilter === 'free' ? 'all' : 'free');
+                      if (priceFilter !== 'free') {
+                        setAffordableFilter(false);
+                        setSponsoredFilter(false);
+                      }
+                    }}
+                  >
+                    <Gift className="w-3.5 h-3.5" />
+                    Free
+                  </Button>
+                </>
+              )}
             </div>
           )}
         </div>
