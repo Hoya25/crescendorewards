@@ -724,17 +724,19 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             </div>
           </div>
 
-          {/* Simplified Category Tabs - includes quick filters */}
+          {/* Category Tabs - some filters are admin-only */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
             {[
-              { key: 'all', label: 'All', icon: Gift, filter: 'category' },
-              { key: 'accessible', label: 'Accessible', icon: Coins, filter: 'affordable' },
-              { key: 'free', label: 'Free', icon: Gift, filter: 'price' },
-              { key: 'experiences', label: 'Experiences', icon: Sparkles, filter: 'category' },
-              { key: 'subscriptions', label: 'Subscriptions', icon: Trophy, filter: 'category' },
-              { key: 'alliance_tokens', label: 'Opportunities', icon: Coins, filter: 'category' },
-              { key: 'sponsored', label: 'Sponsored', icon: Sparkles, filter: 'sponsored' },
-            ].map(({ key, label, icon: Icon, filter }) => {
+              { key: 'all', label: 'All', icon: Gift, filter: 'category', adminOnly: false },
+              { key: 'accessible', label: 'Accessible', icon: Coins, filter: 'affordable', adminOnly: true },
+              { key: 'free', label: 'Free', icon: Gift, filter: 'price', adminOnly: true },
+              { key: 'experiences', label: 'Experiences', icon: Sparkles, filter: 'category', adminOnly: false },
+              { key: 'subscriptions', label: 'Subscriptions', icon: Trophy, filter: 'category', adminOnly: false },
+              { key: 'alliance_tokens', label: 'Opportunities', icon: Coins, filter: 'category', adminOnly: false },
+              { key: 'sponsored', label: 'Sponsored', icon: Sparkles, filter: 'sponsored', adminOnly: false },
+            ]
+            .filter(tab => !tab.adminOnly || isAdmin)
+            .map(({ key, label, icon: Icon, filter }) => {
               const isActive = 
                 key === 'accessible' ? affordableFilter :
                 key === 'free' ? priceFilter === 'free' && !affordableFilter && !sponsoredFilter :
