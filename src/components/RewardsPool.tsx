@@ -719,7 +719,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
             {[
               { key: 'all', label: 'All', icon: Gift, isAffordable: false },
-              { key: 'affordable', label: 'Can Afford', icon: Coins, isAffordable: true },
+              { key: 'affordable', label: 'Accessible', icon: Coins, isAffordable: true },
               { key: 'free', label: 'Free', icon: Gift, isAffordable: false },
               { key: 'experiences', label: 'Experiences', icon: Sparkles, isAffordable: false },
               { key: 'subscriptions', label: 'Subscriptions', icon: Trophy, isAffordable: false },
