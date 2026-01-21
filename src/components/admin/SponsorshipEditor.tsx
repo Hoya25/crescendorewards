@@ -6,7 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Megaphone, Calendar, Link as LinkIcon, Image as ImageIcon, AlertTriangle, Upload, Loader2, X, CheckCircle2, Library, Eye, AlertCircle, ImageOff } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Megaphone, Calendar, Link as LinkIcon, Image as ImageIcon, AlertTriangle, Upload, Loader2, X, CheckCircle2, Library, Eye, AlertCircle, ImageOff, ArrowRight } from 'lucide-react';
 import { SponsorBadge } from '@/components/rewards/SponsorBadge';
 import { getSponsorshipStatus, formatSponsorshipStatus, type SponsorshipData } from '@/lib/sponsorship-utils';
 import { cn } from '@/lib/utils';
@@ -42,6 +43,12 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
   const [logoError, setLogoError] = useState<string | null>(null);
   const [showFullPreview, setShowFullPreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Logo change confirmation state
+  const [showLogoConfirmation, setShowLogoConfirmation] = useState(false);
+  const [pendingLogoUrl, setPendingLogoUrl] = useState<string | null>(null);
+  const [originalLogo] = useState<string | null>(formData.sponsor_logo);
+
 
   const sponsorData: SponsorshipData = {
     sponsor_enabled: formData.sponsor_enabled,
@@ -148,8 +155,14 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
         .from('sponsor-logos')
         .getPublicUrl(fileName);
 
-      onChange({ sponsor_logo: publicUrl });
-      toast.success('Logo uploaded successfully');
+      // If there's an existing logo, show confirmation dialog
+      if (originalLogo && originalLogo !== publicUrl) {
+        setPendingLogoUrl(publicUrl);
+        setShowLogoConfirmation(true);
+      } else {
+        onChange({ sponsor_logo: publicUrl });
+        toast.success('Logo uploaded successfully');
+      }
     } catch (error) {
       console.error('Upload error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to upload logo');
@@ -161,6 +174,40 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
         fileInputRef.current.value = '';
       }
     }
+  };
+
+  // Handle logo selection from library with confirmation
+  const handleLibrarySelect = (logoUrl: string) => {
+    if (originalLogo && originalLogo !== logoUrl) {
+      setPendingLogoUrl(logoUrl);
+      setShowLogoConfirmation(true);
+    } else {
+      onChange({ sponsor_logo: logoUrl });
+    }
+  };
+
+  // Handle URL input with confirmation
+  const handleUrlChange = (url: string) => {
+    // For URL input, we don't show confirmation on every keystroke
+    // Only when there's a meaningful change (blur or enter)
+    onChange({ sponsor_logo: url || null });
+  };
+
+  // Confirm logo change
+  const confirmLogoChange = () => {
+    if (pendingLogoUrl) {
+      onChange({ sponsor_logo: pendingLogoUrl });
+      toast.success('Logo updated successfully');
+    }
+    setShowLogoConfirmation(false);
+    setPendingLogoUrl(null);
+  };
+
+  // Cancel logo change
+  const cancelLogoChange = () => {
+    setShowLogoConfirmation(false);
+    setPendingLogoUrl(null);
+    setCompressionInfo(null);
   };
 
   const handleRemoveLogo = () => {
@@ -262,7 +309,7 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
                 <SponsorLogoLibrary
                   currentLogo={formData.sponsor_logo}
                   onSelect={(url) => {
-                    onChange({ sponsor_logo: url });
+                    handleLibrarySelect(url);
                     setCompressionInfo(null);
                   }}
                 />
@@ -562,6 +609,84 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
           )}
         </div>
       )}
+
+      {/* Logo Change Confirmation Dialog */}
+      <Dialog open={showLogoConfirmation} onOpenChange={setShowLogoConfirmation}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-amber-500" />
+              Confirm Logo Change
+            </DialogTitle>
+            <DialogDescription>
+              You're about to replace the current sponsor logo. Please review the change below.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <div className="flex items-center justify-center gap-4">
+              {/* Current Logo */}
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Current</span>
+                <div className="w-28 h-28 rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/50 flex items-center justify-center p-3">
+                  {originalLogo ? (
+                    <img
+                      src={originalLogo}
+                      alt="Current logo"
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  ) : (
+                    <div className="text-center text-muted-foreground">
+                      <ImageOff className="w-8 h-8 mx-auto mb-1 opacity-50" />
+                      <span className="text-xs">No logo</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Arrow */}
+              <div className="flex flex-col items-center justify-center">
+                <ArrowRight className="w-6 h-6 text-muted-foreground" />
+              </div>
+              
+              {/* New Logo */}
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-xs font-medium text-primary uppercase tracking-wider">New</span>
+                <div className="w-28 h-28 rounded-lg border-2 border-primary/50 bg-primary/5 flex items-center justify-center p-3 ring-2 ring-primary/20">
+                  {pendingLogoUrl ? (
+                    <img
+                      src={pendingLogoUrl}
+                      alt="New logo"
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  ) : (
+                    <div className="text-center text-muted-foreground">
+                      <ImageOff className="w-8 h-8 mx-auto mb-1 opacity-50" />
+                      <span className="text-xs">No logo</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            {compressionInfo && (
+              <p className="text-xs text-muted-foreground text-center mt-4">
+                {compressionInfo}
+              </p>
+            )}
+          </div>
+          
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={cancelLogoChange}>
+              Cancel
+            </Button>
+            <Button onClick={confirmLogoChange}>
+              <CheckCircle2 className="w-4 h-4 mr-2" />
+              Confirm Change
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
