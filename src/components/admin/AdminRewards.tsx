@@ -71,6 +71,7 @@ const CATEGORIES = [
   { value: 'gift_cards', label: 'Gift Cards' },
   { value: 'gaming', label: 'Gaming' },
   { value: 'entertainment', label: 'Entertainment' },
+  { value: 'subscriptions', label: 'Subscriptions' },
   { value: 'crypto', label: 'Crypto' },
   { value: 'opportunity', label: 'Opportunity' },
 ];
