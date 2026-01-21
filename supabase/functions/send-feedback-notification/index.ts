@@ -37,12 +37,10 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { data: admins, error: adminError } = await supabase
+    // Get admin user IDs first
+    const { data: adminUsers, error: adminError } = await supabase
       .from("admin_users")
-      .select(`
-        user_id,
-        unified_profiles!inner(email)
-      `)
+      .select("user_id")
       .eq("is_active", true);
 
     if (adminError) {
@@ -50,9 +48,29 @@ const handler = async (req: Request): Promise<Response> => {
       throw adminError;
     }
 
+    if (!adminUsers || adminUsers.length === 0) {
+      console.log("No active admins found");
+      return new Response(
+        JSON.stringify({ message: "No admins to notify" }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Get emails from unified_profiles
+    const adminUserIds = adminUsers.map(a => a.user_id);
+    const { data: profiles, error: profileError } = await supabase
+      .from("unified_profiles")
+      .select("email")
+      .in("id", adminUserIds);
+
+    if (profileError) {
+      console.error("Error fetching admin profiles:", profileError);
+      throw profileError;
+    }
+
     // Extract admin emails
-    const adminEmails = admins
-      ?.map((a: any) => a.unified_profiles?.email)
+    const adminEmails = profiles
+      ?.map((p: any) => p.email)
       .filter((email: string | null) => email) || [];
 
     if (adminEmails.length === 0) {
@@ -137,7 +155,7 @@ const handler = async (req: Request): Promise<Response> => {
         "Authorization": `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Crescendo Beta <notifications@nctr.io>",
+        from: "Crescendo Beta <onboarding@resend.dev>",
         to: adminEmails,
         subject: `${feedbackType} - Crescendo Beta`,
         html: emailHtml,
