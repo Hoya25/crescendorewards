@@ -1187,12 +1187,12 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                   <div className="flex items-center justify-between py-2 border-b border-border/50">
                     <span className="text-sm font-medium">Cost:</span>
                     <Badge variant="default" className="text-base font-bold px-3 py-1">
-                      {selectedReward.cost} tokens
+                      {selectedReward.cost} Claims
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between py-2 border-b border-border/50">
                     <span className="text-sm font-medium">Your Balance:</span>
-                    <span className="text-base font-bold text-primary">{claimBalance} tokens</span>
+                    <span className="text-base font-bold text-primary">{claimBalance} Claims</span>
                   </div>
                   {selectedReward.stock_quantity !== null && (
                     <div className="flex items-center justify-between py-2">
