@@ -4,6 +4,28 @@ import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { toast } from 'sonner';
 import type { ClaimGift } from '@/types/gifts';
 
+// Helper to send gift notification emails
+const sendGiftNotification = async (params: {
+  type: "gift_sent" | "gift_claimed" | "gift_expiring";
+  giftId: string;
+  recipientEmail: string;
+  senderName?: string;
+  claimsAmount: number;
+  message?: string;
+  giftCode?: string;
+  expiresAt?: string;
+  claimedByName?: string;
+}) => {
+  try {
+    await supabase.functions.invoke('send-gift-notification', {
+      body: params
+    });
+  } catch (err) {
+    console.error('Error sending gift notification:', err);
+    // Don't throw - notification failure shouldn't block the action
+  }
+};
+
 export function useGiftClaims() {
   const { profile, refreshUnifiedProfile } = useUnifiedUser();
   const [isLoading, setIsLoading] = useState(false);
@@ -28,10 +50,23 @@ export function useGiftClaims() {
 
       if (error) throw error;
 
-      const result = data as { success: boolean; gift_code?: string; error?: string };
+      const result = data as { success: boolean; gift_code?: string; gift_id?: string; expires_at?: string; error?: string };
       
       if (result.success) {
         await refreshUnifiedProfile();
+        
+        // Send email notification to recipient
+        sendGiftNotification({
+          type: 'gift_sent',
+          giftId: result.gift_id || '',
+          recipientEmail,
+          senderName: profile.display_name || profile.email || 'A Crescendo member',
+          claimsAmount,
+          message,
+          giftCode: result.gift_code,
+          expiresAt: result.expires_at
+        });
+        
         toast.success(`Gift sent! ${claimsAmount} Claims are on their way.`);
         return { success: true, giftCode: result.gift_code };
       } else {
@@ -45,7 +80,7 @@ export function useGiftClaims() {
     } finally {
       setIsLoading(false);
     }
-  }, [profile?.id, refreshUnifiedProfile]);
+  }, [profile?.id, profile?.display_name, profile?.email, refreshUnifiedProfile]);
 
   const claimGift = useCallback(async (
     giftCode: string
@@ -56,6 +91,9 @@ export function useGiftClaims() {
 
     setIsLoading(true);
     try {
+      // First get the gift details for notification
+      const giftDetails = await getGiftByCode(giftCode);
+      
       const { data, error } = await supabase.rpc('claim_gift', {
         p_gift_code: giftCode,
         p_user_id: profile.id
@@ -67,6 +105,18 @@ export function useGiftClaims() {
       
       if (result.success) {
         await refreshUnifiedProfile();
+        
+        // Send notification to sender that gift was claimed
+        if (giftDetails?.sender?.email && !giftDetails.is_admin_gift) {
+          sendGiftNotification({
+            type: 'gift_claimed',
+            giftId: giftDetails.id,
+            recipientEmail: giftDetails.sender.email,
+            claimsAmount: result.claims_received || giftDetails.claims_amount,
+            claimedByName: profile.display_name || profile.email || 'The recipient'
+          });
+        }
+        
         toast.success(`🎁 You received ${result.claims_received} Claims!`);
         return { 
           success: true, 
@@ -84,7 +134,28 @@ export function useGiftClaims() {
     } finally {
       setIsLoading(false);
     }
-  }, [profile?.id, refreshUnifiedProfile]);
+  }, [profile?.id, profile?.display_name, profile?.email, refreshUnifiedProfile]);
+
+  const getGiftByCode = useCallback(async (
+    giftCode: string
+  ): Promise<ClaimGift | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('claim_gifts')
+        .select(`
+          *,
+          sender:unified_profiles!claim_gifts_sender_id_fkey(id, display_name, email, avatar_url)
+        `)
+        .eq('gift_code', giftCode)
+        .single();
+
+      if (error) return null;
+      return data as unknown as ClaimGift;
+    } catch (err) {
+      console.error('Error fetching gift by code:', err);
+      return null;
+    }
+  }, []);
 
   const getSentGifts = useCallback(async (): Promise<ClaimGift[]> => {
     if (!profile?.id) return [];
@@ -189,27 +260,6 @@ export function useGiftClaims() {
       setIsLoading(false);
     }
   }, [profile?.id, refreshUnifiedProfile]);
-
-  const getGiftByCode = useCallback(async (
-    giftCode: string
-  ): Promise<ClaimGift | null> => {
-    try {
-      const { data, error } = await supabase
-        .from('claim_gifts')
-        .select(`
-          *,
-          sender:unified_profiles!claim_gifts_sender_id_fkey(id, display_name, email, avatar_url)
-        `)
-        .eq('gift_code', giftCode)
-        .single();
-
-      if (error) return null;
-      return data as unknown as ClaimGift;
-    } catch (err) {
-      console.error('Error fetching gift by code:', err);
-      return null;
-    }
-  }, []);
 
   return {
     isLoading,

@@ -4,6 +4,26 @@ import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { toast } from 'sonner';
 import type { ClaimGift, GiftStats, GiftFilters } from '@/types/gifts';
 
+// Helper to send gift notification emails
+const sendGiftNotification = async (params: {
+  type: "gift_sent" | "gift_claimed" | "gift_expiring";
+  giftId: string;
+  recipientEmail: string;
+  senderName?: string;
+  claimsAmount: number;
+  message?: string;
+  giftCode?: string;
+  expiresAt?: string;
+}) => {
+  try {
+    await supabase.functions.invoke('send-gift-notification', {
+      body: params
+    });
+  } catch (err) {
+    console.error('Error sending gift notification:', err);
+  }
+};
+
 export function useAdminGifts() {
   const { profile } = useUnifiedUser();
   const [isLoading, setIsLoading] = useState(false);
@@ -72,8 +92,12 @@ export function useAdminGifts() {
       if (codeError) throw codeError;
       const giftCode = codeData as string;
 
+      // Calculate expiry
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+
       // Create the gift
-      const { error } = await supabase
+      const { data: giftData, error } = await supabase
         .from('claim_gifts')
         .insert({
           sender_id: profile.id,
@@ -84,10 +108,25 @@ export function useAdminGifts() {
           gift_code: giftCode,
           status: 'pending',
           is_admin_gift: true,
-          admin_notes: adminNotes
-        });
+          admin_notes: adminNotes,
+          expires_at: expiresAt.toISOString()
+        })
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Send notification email
+      sendGiftNotification({
+        type: 'gift_sent',
+        giftId: giftData?.id || '',
+        recipientEmail,
+        senderName: 'Crescendo Team',
+        claimsAmount: amount,
+        message,
+        giftCode,
+        expiresAt: expiresAt.toISOString()
+      });
 
       toast.success(`Gift code sent to ${recipientEmail}`);
       return { success: true, giftCode };
