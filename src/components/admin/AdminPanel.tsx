@@ -8,6 +8,7 @@ import { AdminRewards } from './AdminRewards';
 import { AdminClaims } from './AdminClaims';
 import { AdminBrands } from './AdminBrands';
 import { AdminPurchases } from './AdminPurchases';
+import { AdminPackages } from './AdminPackages';
 import { AdminWishlists } from './AdminWishlists';
 import { AdminUsers } from './AdminUsers';
 import { AdminSponsors } from './AdminSponsors';
@@ -40,6 +41,8 @@ export function AdminPanel() {
         return <AdminClaims />;
       case 'purchases':
         return <AdminPurchases />;
+      case 'packages':
+        return <AdminPackages />;
       case 'brands':
         return <AdminBrands />;
       case 'sponsors':

@@ -217,6 +217,54 @@ export type Database = {
         }
         Relationships: []
       }
+      claim_packages: {
+        Row: {
+          bonus_nctr: number
+          claims_amount: number
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          is_popular: boolean
+          name: string
+          price_cents: number
+          sort_order: number
+          stripe_price_id: string | null
+          stripe_product_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          bonus_nctr?: number
+          claims_amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_popular?: boolean
+          name: string
+          price_cents: number
+          sort_order?: number
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bonus_nctr?: number
+          claims_amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_popular?: boolean
+          name?: string
+          price_cents?: number
+          sort_order?: number
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cross_platform_activity_log: {
         Row: {
           action_data: Json | null
