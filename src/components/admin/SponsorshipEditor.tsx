@@ -87,12 +87,11 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
       // Generate unique filename with correct extension
       const fileExt = result.hasTransparency ? 'png' : 'jpg';
       const fileName = `sponsor-logo-${Date.now()}.${fileExt}`;
-      const filePath = `sponsor-logos/${fileName}`;
 
       // Upload to Supabase storage
       const { error: uploadError } = await supabase.storage
-        .from('rewards')
-        .upload(filePath, result.file, {
+        .from('sponsor-logos')
+        .upload(fileName, result.file, {
           cacheControl: '3600',
           upsert: true
         });
@@ -101,8 +100,8 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('rewards')
-        .getPublicUrl(filePath);
+        .from('sponsor-logos')
+        .getPublicUrl(fileName);
 
       onChange({ sponsor_logo: publicUrl });
       toast.success('Logo uploaded successfully');
