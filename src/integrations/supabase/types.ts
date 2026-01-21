@@ -1141,6 +1141,10 @@ export type Database = {
         Returns: {
           claim_id: string
           claimed_at: string
+          delivered_at: string
+          delivery_data: Json
+          delivery_method: string
+          delivery_status: string
           reward_cost: number
           reward_id: string
           reward_title: string
@@ -1262,6 +1266,10 @@ export type Database = {
       }
       track_reward_conversion: {
         Args: { p_referral_code: string; p_reward_id: string }
+        Returns: Json
+      }
+      update_claim_delivery_status: {
+        Args: { p_claim_id: string; p_delivery_status: string }
         Returns: Json
       }
       update_claim_status: {
