@@ -32,10 +32,14 @@ import {
   Truck,
   XCircle,
   Loader2,
-  PartyPopper
+  PartyPopper,
+  Mail,
+  Wallet,
+  Send
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DateRange } from 'react-day-picker';
+import { DELIVERY_METHOD_LABELS } from '@/types/delivery';
 
 interface Claim {
   claim_id: string;
@@ -48,13 +52,20 @@ interface Claim {
   status: string;
   claimed_at: string;
   shipping_info: any;
+  delivery_method: string | null;
+  delivery_status: string | null;
+  delivery_data: any;
+  delivered_at: string | null;
 }
 
-type SortField = 'claimed_at' | 'status' | 'reward_cost' | 'user_name';
+type SortField = 'claimed_at' | 'status' | 'reward_cost' | 'user_name' | 'delivery_status';
 type SortOrder = 'asc' | 'desc';
 
 const STATUS_TABS = ['all', 'pending', 'processing', 'shipped', 'completed', 'cancelled'] as const;
 type StatusTab = typeof STATUS_TABS[number];
+
+const DELIVERY_STATUS_OPTIONS = ['pending', 'processing', 'shipped', 'delivered', 'failed'] as const;
+type DeliveryStatus = typeof DELIVERY_STATUS_OPTIONS[number];
 
 const CATEGORIES = ['All Categories', 'Merchandise', 'Gift Cards', 'Experiences', 'Digital', 'Partner Rewards', 'Luxury', 'Limited Edition'];
 
@@ -351,6 +362,89 @@ export function AdminClaims() {
     );
   };
 
+  const getDeliveryStatusBadge = (status: string | null) => {
+    if (!status) return <span className="text-muted-foreground text-sm">—</span>;
+    
+    const config: Record<string, { className: string; icon: React.ReactNode }> = {
+      pending: { 
+        className: 'bg-amber-500/10 text-amber-600 border-amber-500/20', 
+        icon: <Clock className="w-3 h-3 mr-1" /> 
+      },
+      processing: { 
+        className: 'bg-blue-500/10 text-blue-600 border-blue-500/20', 
+        icon: <Loader2 className="w-3 h-3 mr-1 animate-spin" /> 
+      },
+      shipped: { 
+        className: 'bg-purple-500/10 text-purple-600 border-purple-500/20', 
+        icon: <Truck className="w-3 h-3 mr-1" /> 
+      },
+      delivered: { 
+        className: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20', 
+        icon: <CheckCircle2 className="w-3 h-3 mr-1" /> 
+      },
+      failed: { 
+        className: 'bg-red-500/10 text-red-600 border-red-500/20', 
+        icon: <XCircle className="w-3 h-3 mr-1" /> 
+      },
+    };
+    const { className, icon } = config[status] || { className: 'bg-muted', icon: null };
+    return (
+      <Badge variant="outline" className={cn('flex items-center w-fit text-xs', className)}>
+        {icon}
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </Badge>
+    );
+  };
+
+  const getDeliveryMethodBadge = (method: string | null) => {
+    if (!method) return <span className="text-muted-foreground text-sm">—</span>;
+    
+    const label = DELIVERY_METHOD_LABELS[method as keyof typeof DELIVERY_METHOD_LABELS]?.label || method;
+    const iconMap: Record<string, React.ReactNode> = {
+      email: <Mail className="w-3 h-3 mr-1" />,
+      wallet_transfer: <Wallet className="w-3 h-3 mr-1" />,
+      shipping: <Truck className="w-3 h-3 mr-1" />,
+      instant_code: <CheckCircle2 className="w-3 h-3 mr-1" />,
+      platform_delivery: <Send className="w-3 h-3 mr-1" />,
+    };
+    
+    return (
+      <Badge variant="secondary" className="flex items-center w-fit text-xs">
+        {iconMap[method] || null}
+        {label}
+      </Badge>
+    );
+  };
+
+  const handleUpdateDeliveryStatus = async (claimId: string, newDeliveryStatus: string) => {
+    try {
+      const { data, error } = await supabase.rpc('update_claim_delivery_status', {
+        p_claim_id: claimId,
+        p_delivery_status: newDeliveryStatus,
+      });
+
+      if (error) throw error;
+
+      const result = data as { success: boolean; error?: string };
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to update delivery status');
+      }
+
+      toast({
+        title: 'Success',
+        description: `Delivery status updated to ${newDeliveryStatus}`,
+      });
+
+      loadClaims();
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update delivery status',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const getNextStatusOptions = (currentStatus: string) => {
     const transitions: Record<string, string[]> = {
       pending: ['processing', 'cancelled'],
@@ -533,6 +627,10 @@ export function AdminClaims() {
                 <TableHead>
                   <SortableHeader field="status">Status</SortableHeader>
                 </TableHead>
+                <TableHead>Delivery</TableHead>
+                <TableHead>
+                  <SortableHeader field="delivery_status">Fulfillment</SortableHeader>
+                </TableHead>
                 <TableHead>
                   <SortableHeader field="claimed_at">Claimed</SortableHeader>
                 </TableHead>
@@ -549,13 +647,15 @@ export function AdminClaims() {
                     <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-16" /></TableCell>
                     <TableCell><Skeleton className="h-6 w-20" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-16" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-20" /></TableCell>
                     <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                     <TableCell><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
                   </TableRow>
                 ))
               ) : filteredClaims.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-16">
+                  <TableCell colSpan={10} className="text-center py-16">
                     <div className="flex flex-col items-center gap-2">
                       <PartyPopper className="h-12 w-12 text-muted-foreground/50" />
                       <p className="text-lg font-medium">No {activeTab !== 'all' ? activeTab : ''} claims</p>
@@ -603,6 +703,8 @@ export function AdminClaims() {
                         <TableCell className="font-medium">{claim.reward_title}</TableCell>
                         <TableCell>{claim.reward_cost} claims</TableCell>
                         <TableCell>{getStatusBadge(claim.status)}</TableCell>
+                        <TableCell>{getDeliveryMethodBadge(claim.delivery_method)}</TableCell>
+                        <TableCell>{getDeliveryStatusBadge(claim.delivery_status)}</TableCell>
                         <TableCell>
                           <div className="text-sm">
                             {format(new Date(claim.claimed_at), 'MMM dd, yyyy')}
@@ -623,6 +725,8 @@ export function AdminClaims() {
                                 View Details
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
+                              {/* Claim Status Options */}
+                              <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Claim Status</div>
                               {getNextStatusOptions(claim.status).map(status => (
                                 <DropdownMenuItem
                                   key={status}
@@ -642,6 +746,22 @@ export function AdminClaims() {
                                   }}
                                 >
                                   Mark as {status.charAt(0).toUpperCase() + status.slice(1)}
+                                </DropdownMenuItem>
+                              ))}
+                              <DropdownMenuSeparator />
+                              {/* Delivery Status Options */}
+                              <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Fulfillment Status</div>
+                              {DELIVERY_STATUS_OPTIONS.filter(s => s !== claim.delivery_status).map(deliveryStatus => (
+                                <DropdownMenuItem
+                                  key={deliveryStatus}
+                                  onClick={() => handleUpdateDeliveryStatus(claim.claim_id, deliveryStatus)}
+                                >
+                                  {deliveryStatus === 'delivered' && <CheckCircle2 className="mr-2 h-4 w-4 text-emerald-500" />}
+                                  {deliveryStatus === 'shipped' && <Truck className="mr-2 h-4 w-4 text-purple-500" />}
+                                  {deliveryStatus === 'processing' && <Loader2 className="mr-2 h-4 w-4 text-blue-500" />}
+                                  {deliveryStatus === 'failed' && <XCircle className="mr-2 h-4 w-4 text-red-500" />}
+                                  {deliveryStatus === 'pending' && <Clock className="mr-2 h-4 w-4 text-amber-500" />}
+                                  Set {deliveryStatus.charAt(0).toUpperCase() + deliveryStatus.slice(1)}
                                 </DropdownMenuItem>
                               ))}
                               <DropdownMenuSeparator />
@@ -773,6 +893,10 @@ export function AdminClaims() {
                     <p><span className="text-muted-foreground">Reward:</span> {selectedClaim.reward_title}</p>
                     <p><span className="text-muted-foreground">Cost:</span> {selectedClaim.reward_cost} claims</p>
                     <p><span className="text-muted-foreground">Claimed:</span> {format(new Date(selectedClaim.claimed_at), 'PPP')}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-muted-foreground">Delivery:</span>
+                      {getDeliveryMethodBadge(selectedClaim.delivery_method)}
+                    </div>
                   </div>
                 </div>
 
@@ -794,21 +918,47 @@ export function AdminClaims() {
                   </div>
                 )}
 
-                <div>
-                  <h4 className="font-semibold mb-2">Update Status</h4>
-                  <Select value={newStatus} onValueChange={setNewStatus}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="processing">Processing</SelectItem>
-                      <SelectItem value="shipped">Shipped</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="font-semibold mb-2">Claim Status</h4>
+                    <Select value={newStatus} onValueChange={setNewStatus}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="processing">Processing</SelectItem>
+                        <SelectItem value="shipped">Shipped</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">Fulfillment Status</h4>
+                    <Select 
+                      value={selectedClaim.delivery_status || 'pending'} 
+                      onValueChange={(value) => handleUpdateDeliveryStatus(selectedClaim.claim_id, value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="processing">Processing</SelectItem>
+                        <SelectItem value="shipped">Shipped</SelectItem>
+                        <SelectItem value="delivered">Delivered</SelectItem>
+                        <SelectItem value="failed">Failed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
+
+                {selectedClaim.delivered_at && (
+                  <div className="text-sm text-muted-foreground">
+                    Delivered on: {format(new Date(selectedClaim.delivered_at), 'PPP')}
+                  </div>
+                )}
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setShowDetailModal(false)}>
