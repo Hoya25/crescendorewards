@@ -13,7 +13,8 @@ import {
   ArrowLeft, ShoppingBag, Star, Package, CheckCircle2, AlertTriangle, Coins, 
   CreditCard, Sparkles, Gift, Lock, Share2, Twitter, Facebook, Linkedin, 
   Link2, Check, Heart, Trophy, ExternalLink, AlertCircle, Pencil, Bell, 
-  Eye, PartyPopper, Clock, Users, ChevronRight, ArrowUpCircle
+  Eye, PartyPopper, Clock, Users, ChevronRight, ArrowUpCircle, Mail, Wallet, 
+  User, MapPin
 } from 'lucide-react';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { ConfirmationDialog } from '@/components/ConfirmationDialog';
@@ -138,6 +139,9 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
     zip: '',
     country: '',
     notes: '',
+    // Digital asset fields
+    walletAddress: '',
+    walletType: 'base', // 'base', 'ethereum', 'solana', 'polygon', 'other'
   });
   const [isOnWishlist, setIsOnWishlist] = useState(false);
   const [addingToWishlist, setAddingToWishlist] = useState(false);
@@ -937,72 +941,214 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
         </div>
       </div>
 
-      {/* Claim Modal */}
+      {/* Claim Modal - Category-Aware Form */}
       <Dialog open={showClaimModal} onOpenChange={setShowClaimModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Claim {reward.title}</DialogTitle>
-            <DialogDescription>Please provide your shipping information</DialogDescription>
+            <DialogDescription>
+              {reward.category === 'merch' || reward.category === 'experiences' 
+                ? 'Please provide your shipping information'
+                : reward.category === 'crypto' || reward.category === 'nft' || reward.category === 'tokens'
+                ? 'Please provide your wallet address for delivery'
+                : 'Please confirm your delivery details'}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
+            {/* Always show email */}
             <div className="space-y-2">
-              <Label>Full Name</Label>
+              <Label className="flex items-center gap-2">
+                <Mail className="w-4 h-4 text-muted-foreground" />
+                Email Address
+              </Label>
               <Input
-                value={shippingInfo.name}
-                onChange={(e) => setShippingInfo({ ...shippingInfo, name: e.target.value })}
-                placeholder="John Doe"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Email</Label>
-              <Input
+                type="email"
                 value={shippingInfo.email}
                 onChange={(e) => setShippingInfo({ ...shippingInfo, email: e.target.value })}
-                placeholder="john@example.com"
+                placeholder="your@email.com"
+                className="bg-muted/50"
               />
+              <p className="text-xs text-muted-foreground">We'll send confirmation and delivery updates here</p>
             </div>
-            <div className="space-y-2">
-              <Label>Address</Label>
-              <Textarea
-                value={shippingInfo.address}
-                onChange={(e) => setShippingInfo({ ...shippingInfo, address: e.target.value })}
-                placeholder="123 Main St, Apt 4"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>City</Label>
-                <Input
-                  value={shippingInfo.city}
-                  onChange={(e) => setShippingInfo({ ...shippingInfo, city: e.target.value })}
-                />
+
+            {/* Digital Asset Fields - for crypto, nft, tokens categories */}
+            {(reward.category === 'crypto' || reward.category === 'nft' || reward.category === 'tokens') && (
+              <>
+                <Separator />
+                <div className="space-y-3">
+                  <Label className="flex items-center gap-2">
+                    <Wallet className="w-4 h-4 text-muted-foreground" />
+                    Wallet Type
+                  </Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { value: 'base', label: 'Base', icon: '🔵' },
+                      { value: 'ethereum', label: 'Ethereum', icon: '⟠' },
+                      { value: 'solana', label: 'Solana', icon: '◎' },
+                    ].map((wallet) => (
+                      <Button
+                        key={wallet.value}
+                        type="button"
+                        variant={shippingInfo.walletType === wallet.value ? 'default' : 'outline'}
+                        size="sm"
+                        className="flex items-center gap-1.5"
+                        onClick={() => setShippingInfo({ ...shippingInfo, walletType: wallet.value })}
+                      >
+                        <span>{wallet.icon}</span>
+                        <span className="text-xs">{wallet.label}</span>
+                      </Button>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { value: 'polygon', label: 'Polygon', icon: '⬡' },
+                      { value: 'other', label: 'Other', icon: '🔗' },
+                    ].map((wallet) => (
+                      <Button
+                        key={wallet.value}
+                        type="button"
+                        variant={shippingInfo.walletType === wallet.value ? 'default' : 'outline'}
+                        size="sm"
+                        className="flex items-center gap-1.5"
+                        onClick={() => setShippingInfo({ ...shippingInfo, walletType: wallet.value })}
+                      >
+                        <span>{wallet.icon}</span>
+                        <span className="text-xs">{wallet.label}</span>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    Wallet Address
+                  </Label>
+                  <Input
+                    value={shippingInfo.walletAddress}
+                    onChange={(e) => setShippingInfo({ ...shippingInfo, walletAddress: e.target.value })}
+                    placeholder={
+                      shippingInfo.walletType === 'solana' 
+                        ? 'Enter your Solana wallet address' 
+                        : '0x...'
+                    }
+                    className="font-mono text-sm bg-muted/50"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {shippingInfo.walletType === 'base' && 'Enter your Base network compatible wallet address'}
+                    {shippingInfo.walletType === 'ethereum' && 'Enter your Ethereum mainnet wallet address'}
+                    {shippingInfo.walletType === 'solana' && 'Enter your Solana wallet address'}
+                    {shippingInfo.walletType === 'polygon' && 'Enter your Polygon network wallet address'}
+                    {shippingInfo.walletType === 'other' && 'Specify your wallet address and network in notes'}
+                  </p>
+                </div>
+
+                {shippingInfo.walletType === 'other' && (
+                  <div className="space-y-2">
+                    <Label>Network / Protocol Notes</Label>
+                    <Textarea
+                      value={shippingInfo.notes}
+                      onChange={(e) => setShippingInfo({ ...shippingInfo, notes: e.target.value })}
+                      placeholder="Specify the blockchain network or protocol..."
+                      rows={2}
+                    />
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Physical Shipping Fields - for merch, experiences */}
+            {(reward.category === 'merch' || reward.category === 'experiences') && (
+              <>
+                <Separator />
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-muted-foreground" />
+                    Full Name
+                  </Label>
+                  <Input
+                    value={shippingInfo.name}
+                    onChange={(e) => setShippingInfo({ ...shippingInfo, name: e.target.value })}
+                    placeholder="Your full name"
+                    className="bg-muted/50"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-muted-foreground" />
+                    Street Address
+                  </Label>
+                  <Textarea
+                    value={shippingInfo.address}
+                    onChange={(e) => setShippingInfo({ ...shippingInfo, address: e.target.value })}
+                    placeholder="123 Main St, Apt 4"
+                    rows={2}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>City</Label>
+                    <Input
+                      value={shippingInfo.city}
+                      onChange={(e) => setShippingInfo({ ...shippingInfo, city: e.target.value })}
+                      placeholder="Denver"
+                      className="bg-muted/50"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>State / Province</Label>
+                    <Input
+                      value={shippingInfo.state}
+                      onChange={(e) => setShippingInfo({ ...shippingInfo, state: e.target.value })}
+                      placeholder="CO"
+                      className="bg-muted/50"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>ZIP / Postal Code</Label>
+                    <Input
+                      value={shippingInfo.zip}
+                      onChange={(e) => setShippingInfo({ ...shippingInfo, zip: e.target.value })}
+                      placeholder="80211"
+                      className="bg-muted/50"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Country</Label>
+                    <Input
+                      value={shippingInfo.country}
+                      onChange={(e) => setShippingInfo({ ...shippingInfo, country: e.target.value })}
+                      placeholder="United States"
+                      className="bg-muted/50"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Digital (non-crypto) rewards - subscriptions, streaming, etc. */}
+            {reward.category !== 'merch' && 
+             reward.category !== 'experiences' && 
+             reward.category !== 'crypto' && 
+             reward.category !== 'nft' && 
+             reward.category !== 'tokens' && (
+              <div className="p-4 bg-muted/30 rounded-lg border border-border/50">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Gift className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Digital Delivery</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Your reward code or access link will be sent to your email address after claiming.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label>State</Label>
-                <Input
-                  value={shippingInfo.state}
-                  onChange={(e) => setShippingInfo({ ...shippingInfo, state: e.target.value })}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>ZIP Code</Label>
-                <Input
-                  value={shippingInfo.zip}
-                  onChange={(e) => setShippingInfo({ ...shippingInfo, zip: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Country</Label>
-                <Input
-                  value={shippingInfo.country}
-                  onChange={(e) => setShippingInfo({ ...shippingInfo, country: e.target.value })}
-                />
-              </div>
-            </div>
+            )}
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setShowClaimModal(false)}>Cancel</Button>
             <Button onClick={() => setShowConfirmClaim(true)} disabled={claiming}>
               Continue
