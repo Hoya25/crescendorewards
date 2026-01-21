@@ -6,13 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Megaphone, Calendar, Link as LinkIcon, Image as ImageIcon, AlertTriangle, Upload, Loader2, X, CheckCircle2 } from 'lucide-react';
+import { Megaphone, Calendar, Link as LinkIcon, Image as ImageIcon, AlertTriangle, Upload, Loader2, X, CheckCircle2, Library } from 'lucide-react';
 import { SponsorBadge } from '@/components/rewards/SponsorBadge';
 import { getSponsorshipStatus, formatSponsorshipStatus, type SponsorshipData } from '@/lib/sponsorship-utils';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { compressLogo, validateLogoFile, getCompressionSummary, type LogoCompressionResult } from '@/lib/logo-compression';
 import { toast } from 'sonner';
+import { SponsorLogoLibrary } from './SponsorLogoLibrary';
 
 interface SponsorshipFormData {
   sponsor_enabled: boolean;
@@ -34,9 +35,7 @@ interface SponsorshipEditorProps {
 export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps) {
   const [uploading, setUploading] = useState(false);
   const [compressionInfo, setCompressionInfo] = useState<string | null>(null);
-  const [logoInputMethod, setLogoInputMethod] = useState<'upload' | 'url'>(
-    formData.sponsor_logo?.startsWith('http') ? 'url' : 'upload'
-  );
+  const [logoInputMethod, setLogoInputMethod] = useState<'library' | 'upload' | 'url'>('library');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const sponsorData: SponsorshipData = {
@@ -169,15 +168,48 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
               <ImageIcon className="w-3 h-3" /> Sponsor Logo *
             </Label>
             
-            <Tabs value={logoInputMethod} onValueChange={(v) => setLogoInputMethod(v as 'upload' | 'url')}>
+            <Tabs value={logoInputMethod} onValueChange={(v) => setLogoInputMethod(v as 'library' | 'upload' | 'url')}>
               <TabsList className="h-8">
-                <TabsTrigger value="upload" className="text-xs px-3 py-1">
+                <TabsTrigger value="library" className="text-xs px-2 py-1">
+                  <Library className="w-3 h-3 mr-1" /> Library
+                </TabsTrigger>
+                <TabsTrigger value="upload" className="text-xs px-2 py-1">
                   <Upload className="w-3 h-3 mr-1" /> Upload
                 </TabsTrigger>
-                <TabsTrigger value="url" className="text-xs px-3 py-1">
+                <TabsTrigger value="url" className="text-xs px-2 py-1">
                   <LinkIcon className="w-3 h-3 mr-1" /> URL
                 </TabsTrigger>
               </TabsList>
+              
+              <TabsContent value="library" className="mt-2">
+                <SponsorLogoLibrary
+                  currentLogo={formData.sponsor_logo}
+                  onSelect={(url) => {
+                    onChange({ sponsor_logo: url });
+                    setCompressionInfo(null);
+                  }}
+                />
+                {formData.sponsor_logo && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="p-2 bg-muted rounded border">
+                      <img
+                        src={formData.sponsor_logo}
+                        alt="Selected logo"
+                        className="h-10 w-auto object-contain"
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs text-destructive hover:text-destructive"
+                      onClick={handleRemoveLogo}
+                    >
+                      <X className="w-3 h-3 mr-1" /> Clear
+                    </Button>
+                  </div>
+                )}
+              </TabsContent>
               
               <TabsContent value="upload" className="mt-2">
                 <div className="space-y-2">
