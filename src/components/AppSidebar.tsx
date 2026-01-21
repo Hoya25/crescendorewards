@@ -1,4 +1,4 @@
-import { Store, LayoutDashboard, Gift, Trophy, Crown, User, Heart, FileCheck, Receipt, BarChart3, Settings, UtensilsCrossed, Coins, Shield, ShoppingBag, ExternalLink, CheckCircle2, ChevronRight, TrendingUp, Ticket } from 'lucide-react';
+import { Store, LayoutDashboard, Gift, Trophy, Crown, User, Heart, FileCheck, Receipt, BarChart3, Settings, UtensilsCrossed, Coins, Shield, ShoppingBag, ExternalLink, CheckCircle2, ChevronRight, TrendingUp, Ticket, Building2, Sparkles } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
@@ -34,6 +34,7 @@ const mainNavItems = [
   { title: 'Rewards', url: '/rewards', icon: Gift },
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Membership', url: '/membership', icon: Trophy },
+  { title: 'Sponsors', url: '/sponsors', icon: Building2 },
   { title: 'Get Claims', url: '/buy-claims', icon: Ticket, highlight: true },
   { title: 'Gift Claims', url: '/gift-claims', icon: Coins },
   // Earn now links to The Garden - handled separately
@@ -51,6 +52,7 @@ const accountItems = [
   { title: 'My Submissions', url: '/my-submissions', icon: FileCheck },
   { title: 'Purchase History', url: '/purchase-history', icon: Receipt },
   { title: 'Referral Analytics', url: '/referrals', icon: BarChart3 },
+  { title: 'Become a Sponsor', url: '/become-sponsor', icon: Sparkles },
 ];
 
 export function AppSidebar({ onNavigate }: AppSidebarProps) {
