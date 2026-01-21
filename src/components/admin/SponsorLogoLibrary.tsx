@@ -31,8 +31,8 @@ export function SponsorLogoLibrary({ onSelect, currentLogo }: SponsorLogoLibrary
     
     try {
       const { data, error: listError } = await supabase.storage
-        .from('rewards')
-        .list('sponsor-logos', {
+        .from('sponsor-logos')
+        .list('', {
           limit: 50,
           sortBy: { column: 'created_at', order: 'desc' }
         });
@@ -49,8 +49,8 @@ export function SponsorLogoLibrary({ onSelect, currentLogo }: SponsorLogoLibrary
         .filter(file => file.name && !file.name.startsWith('.'))
         .map(file => {
           const { data: urlData } = supabase.storage
-            .from('rewards')
-            .getPublicUrl(`sponsor-logos/${file.name}`);
+            .from('sponsor-logos')
+            .getPublicUrl(file.name);
           
           return {
             name: file.name,
