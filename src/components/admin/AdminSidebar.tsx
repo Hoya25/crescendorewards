@@ -1,4 +1,4 @@
-import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, Heart, TrendingUp, Building2, RefreshCw, Sparkles, Megaphone, Shield, Activity, Package } from 'lucide-react';
+import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, Heart, TrendingUp, Building2, RefreshCw, Sparkles, Megaphone, Shield, Activity, Package, MessageSquare } from 'lucide-react';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { cn } from '@/lib/utils';
@@ -73,6 +73,7 @@ const menuItems: MenuItem[] = [
 const adminManagementItems: MenuItem[] = [
   { title: 'Team', view: 'team', icon: Shield, badgeKey: null, permission: 'admins_view' },
   { title: 'Activity Log', view: 'activity', icon: Activity, badgeKey: null, permission: 'admins_view' },
+  { title: 'Feedback', view: 'feedback', icon: MessageSquare, badgeKey: null, permission: 'admins_view' },
 ];
 
 export function AdminSidebar({ onNavigate, currentView }: AdminSidebarProps) {
