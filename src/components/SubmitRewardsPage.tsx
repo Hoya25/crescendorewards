@@ -20,6 +20,7 @@ import { ConfirmationDialog } from '@/components/ConfirmationDialog';
 import { validateImageFile } from '@/lib/image-validation';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 import { NCTRLogo } from './NCTRLogo';
+import { ClaimsToNCTRCalculator } from '@/components/rewards/ClaimsToNCTRCalculator';
 
 const rewardTypes = [
   { id: 'physical', label: 'Physical Product', icon: Package },
@@ -670,6 +671,13 @@ export function SubmitRewardsPage() {
 
             {/* Right Column - Progress & Tips */}
             <div className="space-y-6">
+              {/* Claims to NCTR Calculator */}
+              <ClaimsToNCTRCalculator 
+                selectedLockRate={selectedLockRate}
+                onLockRateChange={setSelectedLockRate}
+                defaultClaims={parseInt(formData.claimPassRequired) || 1}
+              />
+
               {/* Submission Progress */}
               <Card className="sticky top-24">
                 <CardHeader>
