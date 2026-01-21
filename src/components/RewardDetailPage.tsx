@@ -488,37 +488,48 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
               )}
             </div>
 
-            {/* Sponsor Section - Logo First Layout */}
+            {/* Sponsor Section - Elegant Gunmetal Design */}
             {isSponsored && sponsorName && (
-              <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/20 border-amber-200/50 dark:border-amber-800/30 overflow-hidden">
-                <CardContent className="p-0">
-                  <div className="flex flex-col items-center text-center p-6">
-                    {/* Large Logo - Primary Visual */}
-                    {sponsorLogo && (
-                      <div className="w-28 h-28 md:w-36 md:h-36 rounded-2xl bg-white dark:bg-black/50 p-4 flex items-center justify-center shadow-md mb-4">
-                        <img src={sponsorLogo} alt={sponsorName} className="max-w-full max-h-full object-contain" />
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#2a2d32] via-[#373b42] to-[#2a2d32] border border-[#4a4f58]/50 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+                {/* Subtle pattern overlay */}
+                <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_30%_20%,white_1px,transparent_1px)] bg-[length:20px_20px]" />
+                
+                <div className="relative flex flex-col items-center text-center p-8">
+                  {/* Logo Container with glow effect */}
+                  {sponsorLogo && (
+                    <div className="relative mb-5">
+                      <div className="absolute inset-0 bg-amber-400/20 blur-xl rounded-full" />
+                      <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-gradient-to-br from-[#3a3f47] to-[#2a2d32] p-4 flex items-center justify-center shadow-[0_4px_12px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.08)] border border-[#4a4f58]/30">
+                        <img 
+                          src="/brands/nctr-alliance-yellow.png" 
+                          alt={sponsorName} 
+                          className="max-w-full max-h-full object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" 
+                        />
                       </div>
-                    )}
-                    
-                    {/* Subordinate Text */}
-                    <p className="text-xs text-amber-600 dark:text-amber-400 font-semibold uppercase tracking-wider">
-                      Brought to you by
-                    </p>
-                    <p className="font-bold text-lg md:text-xl mt-1">{sponsorName}</p>
-                    
-                    {reward.sponsor_link && (
-                      <a 
-                        href={reward.sponsor_link} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-sm text-primary hover:underline inline-flex items-center gap-1 mt-3"
-                      >
-                        Learn more <ExternalLink className="w-3 h-3" />
-                      </a>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                    </div>
+                  )}
+                  
+                  {/* Divider line */}
+                  <div className="w-12 h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent mb-4" />
+                  
+                  {/* Subordinate Text */}
+                  <p className="text-[11px] text-amber-400/80 font-semibold uppercase tracking-[0.2em]">
+                    Brought to you by
+                  </p>
+                  <p className="font-bold text-xl md:text-2xl mt-1.5 text-white">{sponsorName}</p>
+                  
+                  {reward.sponsor_link && (
+                    <a 
+                      href={reward.sponsor_link} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-sm text-amber-400 hover:text-amber-300 inline-flex items-center gap-1.5 mt-4 transition-colors"
+                    >
+                      Learn more <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+              </div>
             )}
 
             {/* Share Section - Desktop */}
