@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { MessageSquare, X, Send, Loader2 } from 'lucide-react';
+import { MessageSquare, Send, Loader2, Image, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -20,8 +20,76 @@ export function FeedbackButton() {
   const [whatsWorking, setWhatsWorking] = useState('');
   const [whatsBroken, setWhatsBroken] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const location = useLocation();
   const { profile } = useUnifiedUser();
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Invalid file type',
+        description: 'Please select an image file (PNG, JPG, etc.)',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'File too large',
+        description: 'Please select an image under 5MB',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setSelectedImage(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImagePreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!selectedImage) return null;
+
+    const fileExt = selectedImage.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    const filePath = `feedback/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars') // Using avatars bucket which is public
+      .upload(filePath, selectedImage);
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      throw new Error('Failed to upload screenshot');
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
 
   const handleSubmit = async () => {
     if (!whatsWorking.trim() && !whatsBroken.trim()) {
@@ -36,11 +104,18 @@ export function FeedbackButton() {
     setIsSubmitting(true);
 
     try {
+      // Upload image if selected
+      let imageUrl: string | null = null;
+      if (selectedImage) {
+        imageUrl = await uploadImage();
+      }
+
       const { error } = await supabase.from('feedback').insert({
         user_id: profile?.id || null,
         page_url: location.pathname + location.search,
         whats_working: whatsWorking.trim() || null,
         whats_broken: whatsBroken.trim() || null,
+        image_url: imageUrl,
       });
 
       if (error) throw error;
@@ -52,6 +127,8 @@ export function FeedbackButton() {
 
       setWhatsWorking('');
       setWhatsBroken('');
+      setSelectedImage(null);
+      setImagePreview(null);
       setIsOpen(false);
     } catch (error: any) {
       console.error('Error submitting feedback:', error);
@@ -115,6 +192,46 @@ export function FeedbackButton() {
                 value={whatsBroken}
                 onChange={(e) => setWhatsBroken(e.target.value)}
                 className="min-h-[80px] resize-none text-base sm:text-sm"
+              />
+            </div>
+
+            {/* Screenshot upload section */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">
+                Attach a screenshot (optional) 📸
+              </Label>
+              
+              {imagePreview ? (
+                <div className="relative rounded-lg overflow-hidden border bg-muted">
+                  <img 
+                    src={imagePreview} 
+                    alt="Screenshot preview" 
+                    className="w-full h-32 object-cover"
+                  />
+                  <button
+                    onClick={removeImage}
+                    className="absolute top-2 right-2 p-1 rounded-full bg-background/80 hover:bg-background text-foreground shadow-sm"
+                    aria-label="Remove screenshot"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full h-20 border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-1 text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors"
+                >
+                  <Image className="w-5 h-5" />
+                  <span className="text-xs">Click to add screenshot</span>
+                </button>
+              )}
+              
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                className="hidden"
               />
             </div>
 
