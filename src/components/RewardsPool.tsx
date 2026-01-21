@@ -144,6 +144,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const [highValueFilter, setHighValueFilter] = useState<string>(() => 
     getValidParam(searchParams.get('value'), ['all', 'highValue'], 'all')
   );
+  const [affordableFilter, setAffordableFilter] = useState<boolean>(() => 
+    searchParams.get('affordable') === 'true'
+  );
   const [searchQuery, setSearchQuery] = useState<string>(() => 
     searchParams.get('q') || ''
   );
@@ -175,10 +178,11 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     if (availabilityFilter !== 'all') params.set('availability', availabilityFilter);
     if (exclusiveFilter !== 'all') params.set('exclusive', exclusiveFilter);
     if (highValueFilter !== 'all') params.set('value', highValueFilter);
+    if (affordableFilter) params.set('affordable', 'true');
     if (searchQuery.trim()) params.set('q', searchQuery.trim());
     
     setSearchParams(params, { replace: true });
-  }, [sortBy, activeCategory, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, searchQuery, setSearchParams]);
+  }, [sortBy, activeCategory, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, affordableFilter, searchQuery, setSearchParams]);
 
   // Update URL when filters change
   useEffect(() => {
@@ -258,6 +262,11 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       filtered = filtered.filter(r => r.cost >= 500);
     }
 
+    // Apply affordable filter - show only rewards user can afford
+    if (affordableFilter) {
+      filtered = filtered.filter(r => r.cost <= claimBalance);
+    }
+
     // Apply sorting with prioritization for customized rewards
     const sortedFiltered = [...filtered].sort((a, b) => {
       // Prioritize customized rewards
@@ -315,7 +324,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     if (outOfStockIds.length > 0) {
       fetchWatchCounts(outOfStockIds);
     }
-  }, [activeCategory, rewards, sortBy, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, searchQuery, fetchWatchCounts]);
+  }, [activeCategory, rewards, sortBy, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, affordableFilter, claimBalance, searchQuery, fetchWatchCounts]);
 
   const loadRewards = async (isRetry = false) => {
     try {
@@ -706,31 +715,51 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             </div>
           </div>
 
-          {/* Category Quick Links (horizontal scroll on mobile) */}
+          {/* Simplified Category Tabs - includes "Can Afford" */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
             {[
-              { key: 'all', label: 'All', icon: Gift },
-              { key: 'experiences', label: 'Experiences', icon: Sparkles },
-              { key: 'subscriptions', label: 'Subscriptions', icon: Trophy },
-              { key: 'gift_cards', label: 'Gift Cards', icon: CreditCard },
-              { key: 'merch', label: 'Merch', icon: ShoppingBag },
-              { key: 'alliance_tokens', label: 'Alliance Tokens', icon: Coins },
-              { key: 'wellness', label: 'Wellness', icon: Heart },
-            ].map(({ key, label, icon: Icon }) => (
-              <Button
-                key={key}
-                variant={activeCategory === key ? 'default' : 'outline'}
-                size="sm"
-                className={cn(
-                  "flex-shrink-0 gap-2 rounded-full transition-all",
-                  activeCategory === key && "shadow-md"
-                )}
-                onClick={() => setActiveCategory(key)}
-              >
-                <Icon className="w-4 h-4" />
-                {label}
-              </Button>
-            ))}
+              { key: 'all', label: 'All', icon: Gift, isAffordable: false },
+              { key: 'affordable', label: 'Can Afford', icon: Coins, isAffordable: true },
+              { key: 'free', label: 'Free', icon: Gift, isAffordable: false },
+              { key: 'experiences', label: 'Experiences', icon: Sparkles, isAffordable: false },
+              { key: 'subscriptions', label: 'Subscriptions', icon: Trophy, isAffordable: false },
+            ].map(({ key, label, icon: Icon, isAffordable }) => {
+              const isActive = key === 'affordable' 
+                ? affordableFilter 
+                : key === 'free' 
+                  ? priceFilter === 'free' && !affordableFilter
+                  : activeCategory === key && !affordableFilter && priceFilter !== 'free';
+              
+              return (
+                <Button
+                  key={key}
+                  variant={isActive ? 'default' : 'outline'}
+                  size="sm"
+                  className={cn(
+                    "flex-shrink-0 gap-2 rounded-full transition-all",
+                    isActive && "shadow-md"
+                  )}
+                  onClick={() => {
+                    if (key === 'affordable') {
+                      setAffordableFilter(true);
+                      setActiveCategory('all');
+                      setPriceFilter('all');
+                    } else if (key === 'free') {
+                      setAffordableFilter(false);
+                      setActiveCategory('all');
+                      setPriceFilter('free');
+                    } else {
+                      setAffordableFilter(false);
+                      setActiveCategory(key);
+                      setPriceFilter('all');
+                    }
+                  }}
+                >
+                  <Icon className="w-4 h-4" />
+                  {label}
+                </Button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -762,19 +791,19 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         </div>
       )}
 
-      {/* Filter Bar */}
+      {/* Simplified Filter Bar - Search + Sort + View + More Filters */}
       <div className="sticky top-[64px] z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b">
         <div className="container mx-auto px-4 py-3 max-w-full">
           <div className="flex flex-wrap items-center gap-3">
             {/* Search Input */}
-            <div className="relative flex-1 min-w-[200px] max-w-md">
+            <div className="relative flex-1 min-w-[180px] max-w-sm">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Search rewards..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-background"
+                className="pl-10 h-9 bg-background"
               />
               {searchQuery && (
                 <Button
@@ -790,24 +819,24 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
             {/* Sort Dropdown */}
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[160px] bg-background">
-                <ArrowUpDown className="w-4 h-4 mr-2" />
+              <SelectTrigger className="w-[140px] h-9 bg-background">
+                <ArrowUpDown className="w-3.5 h-3.5 mr-1.5" />
                 <SelectValue placeholder="Sort" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="newest">Newest</SelectItem>
                 <SelectItem value="priceLowToHigh">Price: Low-High</SelectItem>
                 <SelectItem value="priceHighToLow">Price: High-Low</SelectItem>
-                <SelectItem value="popularity">Most Popular</SelectItem>
+                <SelectItem value="popularity">Popular</SelectItem>
               </SelectContent>
             </Select>
 
             {/* View Toggle */}
-            <div className="flex items-center border rounded-lg overflow-hidden">
+            <div className="flex items-center border rounded-lg overflow-hidden h-9">
               <Button
                 variant={viewMode === 'grid' ? 'default' : 'ghost'}
                 size="sm"
-                className="rounded-none h-9 px-3"
+                className="rounded-none h-full px-2.5"
                 onClick={() => setViewMode('grid')}
               >
                 <LayoutGrid className="w-4 h-4" />
@@ -815,7 +844,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               <Button
                 variant={viewMode === 'list' ? 'default' : 'ghost'}
                 size="sm"
-                className="rounded-none h-9 px-3"
+                className="rounded-none h-full px-2.5"
                 onClick={() => setViewMode('list')}
               >
                 <List className="w-4 h-4" />
@@ -826,32 +855,71 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             <Button
               variant="outline"
               size="sm"
-              className="gap-2"
+              className="gap-1.5 h-9"
               onClick={() => setShowFiltersDrawer(!showFiltersDrawer)}
             >
-              <SlidersHorizontal className="w-4 h-4" />
-              <span className="hidden sm:inline">Filters</span>
-              {(priceFilter !== 'all' || availabilityFilter !== 'all' || exclusiveFilter !== 'exclusive') && (
-                <Badge variant="secondary" className="h-5 w-5 p-0 flex items-center justify-center text-[10px]">
-                  {[priceFilter !== 'all', availabilityFilter !== 'all', exclusiveFilter === 'exclusive'].filter(Boolean).length}
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">More</span>
+              {(priceFilter !== 'all' && priceFilter !== 'free') || availabilityFilter !== 'all' || exclusiveFilter !== 'all' ? (
+                <Badge variant="secondary" className="h-4 w-4 p-0 flex items-center justify-center text-[10px]">
+                  {[priceFilter !== 'all' && priceFilter !== 'free', availabilityFilter !== 'all', exclusiveFilter === 'exclusive'].filter(Boolean).length}
                 </Badge>
-              )}
+              ) : null}
             </Button>
 
+            {/* Clear Filters (if active) */}
+            {(affordableFilter || priceFilter !== 'all' || activeCategory !== 'all') && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-9 text-muted-foreground"
+                onClick={() => {
+                  setAffordableFilter(false);
+                  setPriceFilter('all');
+                  setActiveCategory('all');
+                  setAvailabilityFilter('all');
+                  setExclusiveFilter('all');
+                }}
+              >
+                <X className="w-3.5 h-3.5 mr-1" />
+                Clear
+              </Button>
+            )}
+
             {/* Results Count */}
-            <div className="ml-auto hidden sm:block">
-              <Badge variant="secondary" className="gap-1">
+            <div className="ml-auto">
+              <Badge variant="secondary" className="gap-1 text-xs">
                 {filteredRewards.length} {filteredRewards.length === 1 ? 'reward' : 'rewards'}
               </Badge>
             </div>
           </div>
 
-          {/* Expanded Filters (shown when showFiltersDrawer is true) */}
+          {/* Expanded Advanced Filters */}
           {showFiltersDrawer && (
             <div className="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t animate-fade-in">
+              {/* Category Filter */}
+              <Select value={activeCategory} onValueChange={(val) => {
+                setActiveCategory(val);
+                setAffordableFilter(false);
+              }}>
+                <SelectTrigger className="w-[150px] h-9 bg-background">
+                  <Gift className="w-3.5 h-3.5 mr-1.5" />
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="experiences">Experiences</SelectItem>
+                  <SelectItem value="subscriptions">Subscriptions</SelectItem>
+                  <SelectItem value="gift_cards">Gift Cards</SelectItem>
+                  <SelectItem value="merch">Merchandise</SelectItem>
+                  <SelectItem value="alliance_tokens">Alliance Tokens</SelectItem>
+                  <SelectItem value="wellness">Wellness</SelectItem>
+                </SelectContent>
+              </Select>
+
               <Select value={priceFilter} onValueChange={setPriceFilter}>
-                <SelectTrigger className="w-[140px] bg-background">
-                  <Coins className="w-4 h-4 mr-2" />
+                <SelectTrigger className="w-[130px] h-9 bg-background">
+                  <Coins className="w-3.5 h-3.5 mr-1.5" />
                   <SelectValue placeholder="Price" />
                 </SelectTrigger>
                 <SelectContent>
@@ -864,8 +932,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               </Select>
 
               <Select value={availabilityFilter} onValueChange={setAvailabilityFilter}>
-                <SelectTrigger className="w-[140px] bg-background">
-                  <Package className="w-4 h-4 mr-2" />
+                <SelectTrigger className="w-[130px] h-9 bg-background">
+                  <Package className="w-3.5 h-3.5 mr-1.5" />
                   <SelectValue placeholder="Stock" />
                 </SelectTrigger>
                 <SelectContent>
@@ -876,8 +944,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               </Select>
 
               <Select value={exclusiveFilter} onValueChange={setExclusiveFilter}>
-                <SelectTrigger className="w-[160px] bg-background">
-                  <Crown className="w-4 h-4 mr-2" />
+                <SelectTrigger className="w-[150px] h-9 bg-background">
+                  <Crown className="w-3.5 h-3.5 mr-1.5" />
                   <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -885,22 +953,6 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                   <SelectItem value="exclusive">Exclusive Only</SelectItem>
                 </SelectContent>
               </Select>
-
-              {(priceFilter !== 'all' || availabilityFilter !== 'all' || exclusiveFilter !== 'all') && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground"
-                  onClick={() => {
-                    setPriceFilter('all');
-                    setAvailabilityFilter('all');
-                    setExclusiveFilter('all');
-                  }}
-                >
-                  <X className="w-4 h-4 mr-1" />
-                  Clear
-                </Button>
-              )}
             </div>
           )}
         </div>
