@@ -73,11 +73,10 @@ export function FeedbackButton() {
 
     const fileExt = selectedImage.name.split('.').pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-    // Path must start with user ID to satisfy RLS policy
     const filePath = `${user.id}/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
-      .from('avatars')
+      .from('feedback-screenshots')
       .upload(filePath, selectedImage);
 
     if (uploadError) {
@@ -86,7 +85,7 @@ export function FeedbackButton() {
     }
 
     const { data: { publicUrl } } = supabase.storage
-      .from('avatars')
+      .from('feedback-screenshots')
       .getPublicUrl(filePath);
 
     return publicUrl;
