@@ -12,6 +12,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
+import { PermissionGate } from '@/components/admin/PermissionGate';
+import { useAdminRole } from '@/hooks/useAdminRole';
 import {
   Table,
   TableBody,
@@ -91,6 +93,7 @@ function getInitials(name: string | null, email: string | null): string {
 export function AdminUsers() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { hasPermission, logActivity } = useAdminRole();
   
   // State
   const [search, setSearch] = useState('');
@@ -420,14 +423,16 @@ export function AdminUsers() {
                             <Eye className="h-4 w-4 mr-2" />
                             View Profile
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => { setSelectedUser(user); setAdjustModalOpen(true); }}>
-                            <Coins className="h-4 w-4 mr-2" />
-                            Adjust Claims
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => { setSelectedUser(user); setGiftModalOpen(true); }}>
-                            <Gift className="h-4 w-4 mr-2" />
-                            Gift Reward
-                          </DropdownMenuItem>
+                          <PermissionGate permission="users_edit">
+                            <DropdownMenuItem onClick={() => { setSelectedUser(user); setAdjustModalOpen(true); }}>
+                              <Coins className="h-4 w-4 mr-2" />
+                              Adjust Claims
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => { setSelectedUser(user); setGiftModalOpen(true); }}>
+                              <Gift className="h-4 w-4 mr-2" />
+                              Gift Reward
+                            </DropdownMenuItem>
+                          </PermissionGate>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

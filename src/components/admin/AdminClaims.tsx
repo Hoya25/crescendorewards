@@ -15,6 +15,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from '@/hooks/use-toast';
+import { PermissionGate } from '@/components/admin/PermissionGate';
+import { useAdminRole } from '@/hooks/useAdminRole';
 import { format, formatDistanceToNow } from 'date-fns';
 import { 
   Search, 
@@ -70,6 +72,7 @@ type DeliveryStatus = typeof DELIVERY_STATUS_OPTIONS[number];
 const CATEGORIES = ['All Categories', 'Merchandise', 'Gift Cards', 'Experiences', 'Digital', 'Partner Rewards', 'Luxury', 'Limited Edition'];
 
 export function AdminClaims() {
+  const { hasPermission, logActivity } = useAdminRole();
   const [claims, setClaims] = useState<Claim[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedClaim, setSelectedClaim] = useState<Claim | null>(null);
@@ -596,31 +599,33 @@ export function AdminClaims() {
               <span className="text-sm font-medium">
                 {selectedIds.size} item{selectedIds.size !== 1 && 's'} selected
               </span>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleBulkUpdateStatus('processing')}
-                  disabled={bulkUpdating}
-                >
-                  Mark as Processing
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleBulkShipped}
-                  disabled={bulkUpdating}
-                >
-                  Mark as Shipped
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => handleBulkUpdateStatus('completed')}
-                  disabled={bulkUpdating}
-                >
-                  Mark as Completed
-                </Button>
-              </div>
+              <PermissionGate permission="claims_process">
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleBulkUpdateStatus('processing')}
+                    disabled={bulkUpdating}
+                  >
+                    Mark as Processing
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleBulkShipped}
+                    disabled={bulkUpdating}
+                  >
+                    Mark as Shipped
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => handleBulkUpdateStatus('completed')}
+                    disabled={bulkUpdating}
+                  >
+                    Mark as Completed
+                  </Button>
+                </div>
+              </PermissionGate>
             </div>
           </CardContent>
         </Card>
@@ -748,44 +753,46 @@ export function AdminClaims() {
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               {/* Claim Status Options */}
-                              <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Claim Status</div>
-                              {getNextStatusOptions(claim.status).map(status => (
-                                <DropdownMenuItem
-                                  key={status}
-                                  onClick={async () => {
-                                    setSelectedClaim(claim);
-                                    setNewStatus(status);
-                                    const { error } = await supabase.rpc('update_claim_status', {
-                                      p_claim_id: claim.claim_id,
-                                      p_status: status,
-                                    });
-                                    if (error) {
-                                      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-                                    } else {
-                                      toast({ title: 'Success', description: `Marked as ${status}` });
-                                      loadClaims();
-                                    }
-                                  }}
-                                >
-                                  Mark as {status.charAt(0).toUpperCase() + status.slice(1)}
-                                </DropdownMenuItem>
-                              ))}
-                              <DropdownMenuSeparator />
-                              {/* Delivery Status Options */}
-                              <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Fulfillment Status</div>
-                              {DELIVERY_STATUS_OPTIONS.filter(s => s !== claim.delivery_status).map(deliveryStatus => (
-                                <DropdownMenuItem
-                                  key={deliveryStatus}
-                                  onClick={() => handleUpdateDeliveryStatus(claim.claim_id, deliveryStatus)}
-                                >
-                                  {deliveryStatus === 'delivered' && <CheckCircle2 className="mr-2 h-4 w-4 text-emerald-500" />}
-                                  {deliveryStatus === 'shipped' && <Truck className="mr-2 h-4 w-4 text-purple-500" />}
-                                  {deliveryStatus === 'processing' && <Loader2 className="mr-2 h-4 w-4 text-blue-500" />}
-                                  {deliveryStatus === 'failed' && <XCircle className="mr-2 h-4 w-4 text-red-500" />}
-                                  {deliveryStatus === 'pending' && <Clock className="mr-2 h-4 w-4 text-amber-500" />}
-                                  Set {deliveryStatus.charAt(0).toUpperCase() + deliveryStatus.slice(1)}
-                                </DropdownMenuItem>
-                              ))}
+                              <PermissionGate permission="claims_process">
+                                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Claim Status</div>
+                                {getNextStatusOptions(claim.status).map(status => (
+                                  <DropdownMenuItem
+                                    key={status}
+                                    onClick={async () => {
+                                      setSelectedClaim(claim);
+                                      setNewStatus(status);
+                                      const { error } = await supabase.rpc('update_claim_status', {
+                                        p_claim_id: claim.claim_id,
+                                        p_status: status,
+                                      });
+                                      if (error) {
+                                        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+                                      } else {
+                                        toast({ title: 'Success', description: `Marked as ${status}` });
+                                        loadClaims();
+                                      }
+                                    }}
+                                  >
+                                    Mark as {status.charAt(0).toUpperCase() + status.slice(1)}
+                                  </DropdownMenuItem>
+                                ))}
+                                <DropdownMenuSeparator />
+                                {/* Delivery Status Options */}
+                                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Fulfillment Status</div>
+                                {DELIVERY_STATUS_OPTIONS.filter(s => s !== claim.delivery_status).map(deliveryStatus => (
+                                  <DropdownMenuItem
+                                    key={deliveryStatus}
+                                    onClick={() => handleUpdateDeliveryStatus(claim.claim_id, deliveryStatus)}
+                                  >
+                                    {deliveryStatus === 'delivered' && <CheckCircle2 className="mr-2 h-4 w-4 text-emerald-500" />}
+                                    {deliveryStatus === 'shipped' && <Truck className="mr-2 h-4 w-4 text-purple-500" />}
+                                    {deliveryStatus === 'processing' && <Loader2 className="mr-2 h-4 w-4 text-blue-500" />}
+                                    {deliveryStatus === 'failed' && <XCircle className="mr-2 h-4 w-4 text-red-500" />}
+                                    {deliveryStatus === 'pending' && <Clock className="mr-2 h-4 w-4 text-amber-500" />}
+                                    Set {deliveryStatus.charAt(0).toUpperCase() + deliveryStatus.slice(1)}
+                                  </DropdownMenuItem>
+                                ))}
+                              </PermissionGate>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem asChild>
                                 <a href={`/profile/${claim.user_id}`} target="_blank" rel="noopener noreferrer">
