@@ -6,12 +6,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Megaphone, Calendar, Link as LinkIcon, Image as ImageIcon, AlertTriangle, Upload, Loader2, X } from 'lucide-react';
+import { Megaphone, Calendar, Link as LinkIcon, Image as ImageIcon, AlertTriangle, Upload, Loader2, X, CheckCircle2 } from 'lucide-react';
 import { SponsorBadge } from '@/components/rewards/SponsorBadge';
 import { getSponsorshipStatus, formatSponsorshipStatus, type SponsorshipData } from '@/lib/sponsorship-utils';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
-import { compressImage } from '@/lib/image-compression';
+import { compressLogo, validateLogoFile, getCompressionSummary, type LogoCompressionResult } from '@/lib/logo-compression';
 import { toast } from 'sonner';
 
 interface SponsorshipFormData {
@@ -33,6 +33,7 @@ interface SponsorshipEditorProps {
  */
 export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps) {
   const [uploading, setUploading] = useState(false);
+  const [compressionInfo, setCompressionInfo] = useState<string | null>(null);
   const [logoInputMethod, setLogoInputMethod] = useState<'upload' | 'url'>(
     formData.sponsor_logo?.startsWith('http') ? 'url' : 'upload'
   );
@@ -66,33 +67,33 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be less than 5MB');
+    // Validate using logo-specific validation
+    const validation = validateLogoFile(file);
+    if (!validation.valid) {
+      toast.error(validation.error);
       return;
     }
 
     setUploading(true);
+    setCompressionInfo(null);
 
     try {
-      // Compress image
-      const compressedFile = await compressImage(file);
+      // Compress logo with optimized settings
+      const result: LogoCompressionResult = await compressLogo(file);
+      
+      // Show compression summary
+      const summary = getCompressionSummary(result);
+      setCompressionInfo(summary);
 
-      // Generate unique filename
-      const fileExt = 'jpg';
+      // Generate unique filename with correct extension
+      const fileExt = result.hasTransparency ? 'png' : 'jpg';
       const fileName = `sponsor-logo-${Date.now()}.${fileExt}`;
       const filePath = `sponsor-logos/${fileName}`;
 
       // Upload to Supabase storage
       const { error: uploadError } = await supabase.storage
         .from('rewards')
-        .upload(filePath, compressedFile, {
+        .upload(filePath, result.file, {
           cacheControl: '3600',
           upsert: true
         });
@@ -108,7 +109,8 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
       toast.success('Logo uploaded successfully');
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error('Failed to upload logo');
+      toast.error(error instanceof Error ? error.message : 'Failed to upload logo');
+      setCompressionInfo(null);
     } finally {
       setUploading(false);
       // Reset input
@@ -120,6 +122,7 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
 
   const handleRemoveLogo = () => {
     onChange({ sponsor_logo: null });
+    setCompressionInfo(null);
   };
 
   return (
@@ -187,26 +190,34 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
                   />
                   
                   {formData.sponsor_logo ? (
-                    <div className="relative inline-block">
-                      <div className="p-2 bg-muted rounded border">
-                        <img
-                          src={formData.sponsor_logo}
-                          alt="Sponsor logo"
-                          className="h-12 w-auto object-contain"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
-                        />
+                    <div className="space-y-2">
+                      <div className="relative inline-block">
+                        <div className="p-2 bg-muted rounded border">
+                          <img
+                            src={formData.sponsor_logo}
+                            alt="Sponsor logo"
+                            className="h-12 w-auto object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute -top-2 -right-2 h-5 w-5"
+                          onClick={handleRemoveLogo}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
                       </div>
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="absolute -top-2 -right-2 h-5 w-5"
-                        onClick={handleRemoveLogo}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
+                      {compressionInfo && (
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <CheckCircle2 className="w-3 h-3 text-green-500" />
+                          {compressionInfo}
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <Button
