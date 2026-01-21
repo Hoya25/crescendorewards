@@ -9,7 +9,7 @@ import { CrescendoLogo } from "./CrescendoLogo";
 import { BetaBadge } from "./BetaBadge";
 import { ThemeToggle } from "./ThemeToggle";
 import { ReferralCard } from "./ReferralCard";
-import { WelcomeModal } from "./WelcomeModal";
+import { WelcomeFlow, hasBeenOnboarded } from "./onboarding/WelcomeFlow";
 import { OnboardingProgress } from "./OnboardingProgress";
 import { NeedsAttention } from "./NeedsAttention";
 import { ActivityFeed } from "./ActivityFeed";
@@ -34,8 +34,7 @@ import { useAdminNotifications } from "@/hooks/useAdminNotifications";
 import { toast } from "sonner";
 import { DashboardSkeleton } from "./skeletons/DashboardSkeleton";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
-
-const WELCOME_SEEN_KEY = "crescendo_welcome_seen";
+import { trackEvent } from "@/lib/analytics";
 
 // Simplified Quick Actions - 3 cards only
 function SimplifiedQuickActions({ navigate, claimBalance }: { navigate: (path: string) => void; claimBalance: number }) {
@@ -250,15 +249,14 @@ export function Dashboard() {
   const [activityOpen, setActivityOpen] = useState(false);
 
   useEffect(() => {
-    const hasSeenWelcome = localStorage.getItem(WELCOME_SEEN_KEY);
-    if (hasSeenWelcome !== "true") {
+    if (!hasBeenOnboarded()) {
       setShowWelcomeModal(true);
     }
   }, []);
 
   const handleWelcomeClose = () => {
-    localStorage.setItem(WELCOME_SEEN_KEY, "true");
     setShowWelcomeModal(false);
+    trackEvent('onboarding_completed');
   };
 
   if (!profile) {
@@ -501,12 +499,19 @@ export function Dashboard() {
                   <ActivityFeed />
                 </CollapsibleContent>
               </Collapsible>
+              
+              {/* Bottom padding for mobile nav */}
+              <div className="h-20 md:hidden" />
             </div>
           </main>
           <Footer />
         </div>
       </div>
-      <WelcomeModal isOpen={showWelcomeModal} onClose={handleWelcomeClose} />
+      <WelcomeFlow 
+        isOpen={showWelcomeModal} 
+        onClose={handleWelcomeClose} 
+        claimsBalance={claimBalance}
+      />
       <OnboardingProgress />
     </SidebarProvider>
   );

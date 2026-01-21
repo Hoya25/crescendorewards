@@ -77,16 +77,16 @@ export function Footer() {
           {/* Center: Navigation Links */}
           <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
             <Link 
-              to="/about" 
+              to="/rewards" 
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
-              About
+              Rewards
             </Link>
             <Link 
-              to="/faq" 
+              to="/help" 
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
-              FAQ
+              Help & FAQ
             </Link>
             <Link 
               to="/terms" 
