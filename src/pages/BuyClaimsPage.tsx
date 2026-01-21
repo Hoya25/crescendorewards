@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,7 +18,8 @@ import {
   CheckCircle2,
   HelpCircle,
   Ticket,
-  Mail
+  Mail,
+  ArrowRight
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/hooks/use-toast';
@@ -322,13 +323,40 @@ export function BuyClaimsPage() {
                 
                 {/* Contact for custom packages note */}
                 {claimPackages.some(pkg => pkg.price >= 1000) && (
-                  <div className="text-center mb-8 p-4 bg-muted/50 rounded-lg border border-border">
+                  <div className="text-center mb-6 p-4 bg-muted/50 rounded-lg border border-border">
                     <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                       <Mail className="w-4 h-4" />
                       <span>Looking for higher volumes? <a href="mailto:support@nctr.io" className="text-primary underline hover:no-underline">Contact us for custom packages</a></span>
                     </div>
                   </div>
                 )}
+
+                {/* Send as Gift CTA */}
+                <Card className="mb-8 border-dashed border-2 border-violet-500/30 bg-gradient-to-r from-violet-500/5 to-purple-500/5 hover:border-violet-500/50 transition-colors">
+                  <CardContent className="py-5">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-violet-500/10 flex items-center justify-center">
+                          <Gift className="w-5 h-5 text-violet-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium">Buying for someone else?</p>
+                          <p className="text-sm text-muted-foreground">Send Claims as a gift to a friend or family member</p>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        className="border-violet-500/30 text-violet-600 hover:bg-violet-500/10 hover:text-violet-700 shrink-0"
+                        asChild
+                      >
+                        <Link to="/gift-claims">
+                          Send as Gift
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Link>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </>
             )}
 
