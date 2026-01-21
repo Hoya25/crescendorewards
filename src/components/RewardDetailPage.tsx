@@ -141,6 +141,8 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [showBuyClaimsModal, setShowBuyClaimsModal] = useState(false);
   const [deliveryData, setDeliveryData] = useState<Record<string, string>>({});
+  const [showClaimSuccess, setShowClaimSuccess] = useState(false);
+  const [claimCode, setClaimCode] = useState<string | null>(null);
   const [shippingInfo, setShippingInfo] = useState({
     name: '',
     email: profile?.email || '',
@@ -342,10 +344,18 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
         p_shipping_info: claimData,
       });
       if (error) throw error;
-      const result = data as { success: boolean; error?: string };
+      const result = data as { success: boolean; error?: string; claim_code?: string };
       if (!result.success) throw new Error(result.error || 'Claim failed');
       
-      toast({ title: 'Reward Claimed!', description: `You've successfully claimed ${reward.title}` });
+      // Store claim code if returned (for instant_code delivery)
+      if (result.claim_code) {
+        setClaimCode(result.claim_code);
+      }
+      
+      // Show success state instead of just toast
+      setShowConfirmClaim(false);
+      setShowClaimSuccess(true);
+      
       setShowClaimModal(false);
       setDeliveryData({});
       onClaimSuccess?.();
@@ -1228,12 +1238,15 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Confirm Claim Dialog - Status-aware */}
+      {/* Confirm Claim Dialog - Status-aware with Success State */}
       <ClaimConfirmationDialog
-        isOpen={showConfirmClaim}
-        onClose={() => setShowConfirmClaim(false)}
-        onConfirm={() => {
+        isOpen={showConfirmClaim || showClaimSuccess}
+        onClose={() => {
           setShowConfirmClaim(false);
+          setShowClaimSuccess(false);
+          setClaimCode(null);
+        }}
+        onConfirm={() => {
           handleClaim();
         }}
         rewardTitle={reward?.title || ''}
@@ -1246,6 +1259,13 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
         isFree={pricing.isFree}
         discount={pricing.discount}
         currentBalance={crescendoData.claim_balance}
+        deliveryMethod={reward?.delivery_method}
+        showSuccess={showClaimSuccess}
+        claimCode={claimCode}
+        onViewClaims={() => {
+          setShowClaimSuccess(false);
+          navigate('/status');
+        }}
       />
 
       {/* Smart Delivery Data Collection Modal */}
