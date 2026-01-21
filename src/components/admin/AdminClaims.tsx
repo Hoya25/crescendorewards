@@ -417,6 +417,9 @@ export function AdminClaims() {
   };
 
   const handleUpdateDeliveryStatus = async (claimId: string, newDeliveryStatus: string) => {
+    // Find the claim to get user info for notification
+    const claim = claims.find(c => c.claim_id === claimId);
+    
     try {
       const { data, error } = await supabase.rpc('update_claim_delivery_status', {
         p_claim_id: claimId,
@@ -428,6 +431,25 @@ export function AdminClaims() {
       const result = data as { success: boolean; error?: string };
       if (!result.success) {
         throw new Error(result.error || 'Failed to update delivery status');
+      }
+
+      // Send email notification in background
+      if (claim) {
+        supabase.functions.invoke('send-delivery-notification', {
+          body: {
+            claimId: claimId,
+            userId: claim.user_id,
+            rewardTitle: claim.reward_title,
+            deliveryStatus: newDeliveryStatus,
+            deliveryMethod: claim.delivery_method,
+          },
+        }).then(({ error: emailError }) => {
+          if (emailError) {
+            console.error('Failed to send delivery notification email:', emailError);
+          } else {
+            console.log('Delivery notification email sent successfully');
+          }
+        });
       }
 
       toast({
