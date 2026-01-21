@@ -64,7 +64,7 @@ export function NoClaimedRewardsEmpty() {
     <EmptyState
       icon={ShoppingBag}
       title="You haven't claimed any rewards yet"
-      description="Browse our marketplace to find exclusive rewards you can claim with your tokens."
+      description="Browse our marketplace to find exclusive rewards you can claim with your Claims balance."
       actionLabel="Browse Rewards"
       actionHref="/rewards"
     />
