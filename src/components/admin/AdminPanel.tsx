@@ -14,6 +14,8 @@ import { AdminSponsors } from './AdminSponsors';
 import { AdminSyncVerification } from './AdminSyncVerification';
 import { AdminSponsoredRewards } from './AdminSponsoredRewards';
 import { AdminCampaigns } from './AdminCampaigns';
+import { AdminManagement } from './AdminManagement';
+import { AdminActivityLog } from './AdminActivityLog';
 import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -50,6 +52,10 @@ export function AdminPanel() {
         return <AdminUsers />;
       case 'sync-verification':
         return <AdminSyncVerification />;
+      case 'team':
+        return <AdminManagement />;
+      case 'activity':
+        return <AdminActivityLog />;
       default:
         return <AdminDashboard onNavigate={setCurrentView} />;
     }
