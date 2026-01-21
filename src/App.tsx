@@ -187,6 +187,10 @@ function AppRoutes() {
               } 
             />
             <Route 
+              path="/status" 
+              element={<Navigate to="/membership" replace />} 
+            />
+            <Route 
               path="/brands" 
               element={<Navigate to="/rewards" replace />} 
             />
