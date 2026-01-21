@@ -218,7 +218,7 @@ export function AdminUsers() {
     enabled: giftModalOpen,
   });
 
-  // Adjust claims mutation
+  // Adjust claims mutation with activity logging
   const adjustClaimsMutation = useMutation({
     mutationFn: async () => {
       if (!selectedUser || !adjustAmount) return;
@@ -226,17 +226,57 @@ export function AdminUsers() {
       const amount = parseInt(adjustAmount);
       const newBalance = adjustType === 'add' 
         ? selectedUser.claim_balance + amount 
-        : selectedUser.claim_balance - amount;
+        : Math.max(0, selectedUser.claim_balance - amount);
       
+      // Update profiles table
       const { error } = await supabase
         .from('profiles')
-        .update({ claim_balance: Math.max(0, newBalance) })
+        .update({ claim_balance: newBalance, updated_at: new Date().toISOString() })
         .eq('id', selectedUser.id);
       
       if (error) throw error;
+
+      // Also update unified_profiles crescendo_data
+      const { data: unifiedProfile } = await supabase
+        .from('unified_profiles')
+        .select('id, crescendo_data')
+        .eq('auth_user_id', selectedUser.id)
+        .single();
+
+      if (unifiedProfile) {
+        const crescendoData = (unifiedProfile.crescendo_data || {}) as Record<string, unknown>;
+        await supabase
+          .from('unified_profiles')
+          .update({
+            crescendo_data: { ...crescendoData, claim_balance: newBalance },
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', unifiedProfile.id);
+      }
+
+      // Log admin activity
+      await logActivity(
+        'adjust_claims',
+        'user',
+        selectedUser.id,
+        {
+          user_email: selectedUser.email,
+          adjustment_type: adjustType,
+          amount: amount,
+          previous_balance: selectedUser.claim_balance,
+          new_balance: newBalance,
+          reason: adjustReason,
+          notes: adjustNotes || null
+        }
+      );
+
+      return { newBalance, amount };
     },
-    onSuccess: () => {
-      toast({ title: 'Claims adjusted successfully' });
+    onSuccess: (data) => {
+      toast({ 
+        title: 'Claims adjusted successfully',
+        description: `${adjustType === 'add' ? 'Added' : 'Subtracted'} ${data?.amount} claims. New balance: ${data?.newBalance}`
+      });
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       setAdjustModalOpen(false);
       resetAdjustForm();
@@ -594,7 +634,38 @@ export function AdminUsers() {
                   value={adjustAmount}
                   onChange={(e) => setAdjustAmount(e.target.value)}
                 />
+                {/* Quick preset buttons */}
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {[100, 500, 1000, 2500, 5000].map((preset) => (
+                    <Button
+                      key={preset}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAdjustAmount(preset.toString())}
+                      className="text-xs"
+                    >
+                      +{preset.toLocaleString()}
+                    </Button>
+                  ))}
+                </div>
               </div>
+
+              {/* Preview new balance */}
+              {adjustAmount && (
+                <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                  <p className="text-sm text-muted-foreground">New Balance Preview</p>
+                  <p className="text-xl font-bold font-mono text-primary">
+                    {(adjustType === 'add' 
+                      ? selectedUser.claim_balance + parseInt(adjustAmount || '0')
+                      : Math.max(0, selectedUser.claim_balance - parseInt(adjustAmount || '0'))
+                    ).toLocaleString()} Claims
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {adjustType === 'add' ? '+' : '-'}{parseInt(adjustAmount || '0').toLocaleString()} from current
+                  </p>
+                </div>
+              )}
               
               <div className="space-y-2">
                 <Label>Reason</Label>
@@ -607,6 +678,8 @@ export function AdminUsers() {
                     <SelectItem value="promotion">Promotion</SelectItem>
                     <SelectItem value="correction">Correction</SelectItem>
                     <SelectItem value="gift">Gift</SelectItem>
+                    <SelectItem value="purchase_issue">Purchase Issue</SelectItem>
+                    <SelectItem value="refund">Refund</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
