@@ -1,12 +1,18 @@
+import { useState, useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Megaphone, Calendar, Link as LinkIcon, Image as ImageIcon, AlertTriangle } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Megaphone, Calendar, Link as LinkIcon, Image as ImageIcon, AlertTriangle, Upload, Loader2, X } from 'lucide-react';
 import { SponsorBadge } from '@/components/rewards/SponsorBadge';
 import { getSponsorshipStatus, formatSponsorshipStatus, type SponsorshipData } from '@/lib/sponsorship-utils';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { compressImage } from '@/lib/image-compression';
+import { toast } from 'sonner';
 
 interface SponsorshipFormData {
   sponsor_enabled: boolean;
@@ -26,6 +32,12 @@ interface SponsorshipEditorProps {
  * Admin component for editing reward sponsorship details
  */
 export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps) {
+  const [uploading, setUploading] = useState(false);
+  const [logoInputMethod, setLogoInputMethod] = useState<'upload' | 'url'>(
+    formData.sponsor_logo?.startsWith('http') ? 'url' : 'upload'
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const sponsorData: SponsorshipData = {
     sponsor_enabled: formData.sponsor_enabled,
     sponsor_name: formData.sponsor_name,
@@ -49,6 +61,66 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
   const endBeforeStart = formData.sponsor_start_date && 
     formData.sponsor_end_date && 
     new Date(formData.sponsor_end_date) < new Date(formData.sponsor_start_date);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      // Compress image
+      const compressedFile = await compressImage(file);
+
+      // Generate unique filename
+      const fileExt = 'jpg';
+      const fileName = `sponsor-logo-${Date.now()}.${fileExt}`;
+      const filePath = `sponsor-logos/${fileName}`;
+
+      // Upload to Supabase storage
+      const { error: uploadError } = await supabase.storage
+        .from('rewards')
+        .upload(filePath, compressedFile, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('rewards')
+        .getPublicUrl(filePath);
+
+      onChange({ sponsor_logo: publicUrl });
+      toast.success('Logo uploaded successfully');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload logo');
+    } finally {
+      setUploading(false);
+      // Reset input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    onChange({ sponsor_logo: null });
+  };
 
   return (
     <div className="space-y-4 pt-4 border-t">
@@ -89,27 +161,118 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
           </div>
 
           {/* Sponsor Logo */}
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Label className="text-xs flex items-center gap-1">
-              <ImageIcon className="w-3 h-3" /> Sponsor Logo URL *
+              <ImageIcon className="w-3 h-3" /> Sponsor Logo *
             </Label>
-            <Input
-              value={formData.sponsor_logo || ''}
-              onChange={(e) => onChange({ sponsor_logo: e.target.value || null })}
-              placeholder="https://..."
-            />
-            {formData.sponsor_logo && (
-              <div className="mt-2 p-2 bg-muted rounded border">
-                <img
-                  src={formData.sponsor_logo}
-                  alt="Logo preview"
-                  className="h-8 w-auto object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
+            
+            <Tabs value={logoInputMethod} onValueChange={(v) => setLogoInputMethod(v as 'upload' | 'url')}>
+              <TabsList className="h-8">
+                <TabsTrigger value="upload" className="text-xs px-3 py-1">
+                  <Upload className="w-3 h-3 mr-1" /> Upload
+                </TabsTrigger>
+                <TabsTrigger value="url" className="text-xs px-3 py-1">
+                  <LinkIcon className="w-3 h-3 mr-1" /> URL
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="upload" className="mt-2">
+                <div className="space-y-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                  
+                  {formData.sponsor_logo ? (
+                    <div className="relative inline-block">
+                      <div className="p-2 bg-muted rounded border">
+                        <img
+                          src={formData.sponsor_logo}
+                          alt="Sponsor logo"
+                          className="h-12 w-auto object-contain"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -top-2 -right-2 h-5 w-5"
+                        onClick={handleRemoveLogo}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="w-full"
+                    >
+                      {uploading ? (
+                        <>
+                          <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-3 h-3 mr-2" />
+                          Select Logo Image
+                        </>
+                      )}
+                    </Button>
+                  )}
+                  
+                  {formData.sponsor_logo && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="text-xs"
+                    >
+                      {uploading ? (
+                        <>
+                          <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        'Replace Logo'
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="url" className="mt-2">
+                <Input
+                  value={formData.sponsor_logo || ''}
+                  onChange={(e) => onChange({ sponsor_logo: e.target.value || null })}
+                  placeholder="https://example.com/logo.png"
                 />
-              </div>
-            )}
+                {formData.sponsor_logo && (
+                  <div className="mt-2 p-2 bg-muted rounded border">
+                    <img
+                      src={formData.sponsor_logo}
+                      alt="Logo preview"
+                      className="h-8 w-auto object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           </div>
 
           {/* Sponsor Link */}
