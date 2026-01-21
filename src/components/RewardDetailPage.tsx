@@ -476,13 +476,13 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                 </Badge>
               )}
               
-              {/* Sponsor Logo - Bottom Right */}
+              {/* Sponsor Logo - Bottom Right - Gunmetal Style */}
               {isSponsored && sponsorLogo && (
-                <div className="absolute bottom-4 right-4 bg-white/95 dark:bg-black/80 backdrop-blur rounded-xl p-3 shadow-xl">
+                <div className="absolute bottom-4 right-4 bg-gradient-to-br from-[#2a2d32] via-[#373b42] to-[#2a2d32] backdrop-blur rounded-xl p-3 shadow-[0_4px_16px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.05)] border border-[#4a4f58]/50">
                   <img 
-                    src={sponsorLogo} 
+                    src="/brands/nctr-alliance-yellow.png" 
                     alt={sponsorName || 'Sponsor'} 
-                    className="h-10 w-auto max-w-[120px] object-contain"
+                    className="h-8 w-auto max-w-[100px] object-contain drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
                   />
                 </div>
               )}
