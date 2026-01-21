@@ -380,6 +380,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          image_url: string | null
           page_url: string
           user_id: string | null
           whats_broken: string | null
@@ -388,6 +389,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          image_url?: string | null
           page_url: string
           user_id?: string | null
           whats_broken?: string | null
@@ -396,6 +398,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          image_url?: string | null
           page_url?: string
           user_id?: string | null
           whats_broken?: string | null
