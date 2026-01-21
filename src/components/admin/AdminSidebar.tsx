@@ -64,6 +64,7 @@ const menuItems: MenuItem[] = [
   { title: 'Packages', view: 'packages', icon: Package, badgeKey: null, permission: 'rewards_edit' },
   { title: 'Brands', view: 'brands', icon: Store, badgeKey: null, permission: 'brands_view' },
   { title: 'Sponsors', view: 'sponsors', icon: Building2, badgeKey: null, permission: 'sponsors_view' },
+  { title: 'Sponsor Applications', view: 'sponsor-applications', icon: FileCheck, badgeKey: null, permission: 'sponsors_view' },
   { title: 'Wishlists', view: 'wishlists', icon: Heart, badgeKey: null, permission: 'users_view' },
   { title: 'Wishlist Analytics', view: 'wishlist-analytics', icon: TrendingUp, badgeKey: null, permission: 'users_view' },
   { title: 'Sync Verification', view: 'sync-verification', icon: RefreshCw, badgeKey: null, permission: 'settings_view' },
