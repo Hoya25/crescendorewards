@@ -93,6 +93,8 @@ serve(async (req) => {
       
       const userId = session.metadata?.user_id;
       const packageId = session.metadata?.package_id;
+      const customAmount = session.metadata?.custom_amount;
+      const customClaims = session.metadata?.custom_claims;
       const stripePriceId = session.line_items?.[0]?.price?.id;
 
       if (!userId) {
@@ -107,8 +109,23 @@ serve(async (req) => {
         { auth: { persistSession: false } }
       );
 
-      // Get package info from database (with fallback)
-      const package_info = await getPackageInfo(supabaseClient, packageId || '', stripePriceId);
+      let package_info: { claims: number; name: string; price: number; bonusNCTR: number } | null = null;
+
+      // Handle custom purchases
+      if (packageId === 'custom' && customAmount && customClaims) {
+        const amountInCents = parseInt(customAmount) * 100;
+        const claims = parseInt(customClaims);
+        package_info = {
+          claims,
+          name: `Custom Pack - ${claims} Claims`,
+          price: amountInCents,
+          bonusNCTR: calculateBonusNCTR(amountInCents),
+        };
+        console.log(`Custom purchase: $${customAmount} for ${claims} claims`);
+      } else {
+        // Get package info from database (with fallback)
+        package_info = await getPackageInfo(supabaseClient, packageId || '', stripePriceId);
+      }
       
       if (!package_info) {
         console.error("Invalid package - not found in DB or fallbacks:", { packageId, stripePriceId });

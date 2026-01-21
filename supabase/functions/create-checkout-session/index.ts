@@ -28,10 +28,11 @@ serve(async (req) => {
       throw new Error("User not authenticated or email not available");
     }
 
-    const { priceId, packageId, successUrl, cancelUrl } = await req.json();
+    const { priceId, packageId, successUrl, cancelUrl, customAmount, customClaims } = await req.json();
     
-    if (!priceId) {
-      throw new Error("Price ID is required");
+    // Either priceId (for predefined packages) or customAmount (for custom purchases) is required
+    if (!priceId && !customAmount) {
+      throw new Error("Price ID or custom amount is required");
     }
 
     const origin = req.headers.get("origin") || "http://localhost:3000";
@@ -47,24 +48,55 @@ serve(async (req) => {
       customerId = customers.data[0].id;
     }
 
+    // Build line items based on whether it's a predefined package or custom amount
+    let lineItems;
+    let metadata;
+
+    if (customAmount && customClaims) {
+      // Custom amount purchase using price_data
+      lineItems = [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `Custom Pack - ${customClaims} Claims`,
+              description: `${customClaims} Claim Passes + ${customAmount * 3} Bonus NCTR (360LOCK)`,
+            },
+            unit_amount: customAmount * 100, // Convert dollars to cents
+          },
+          quantity: 1,
+        },
+      ];
+      metadata = {
+        user_id: user.id,
+        package_id: 'custom',
+        custom_amount: customAmount.toString(),
+        custom_claims: customClaims.toString(),
+      };
+    } else {
+      // Predefined package
+      lineItems = [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ];
+      metadata = {
+        user_id: user.id,
+        package_id: packageId,
+      };
+    }
+
     // Create checkout session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
+      line_items: lineItems,
       mode: "payment",
       success_url: successUrl || `${origin}/?payment=success`,
       cancel_url: cancelUrl || `${origin}/?payment=canceled`,
-      metadata: {
-        user_id: user.id,
-        package_id: packageId,
-      },
+      metadata,
     });
 
     return new Response(JSON.stringify({ url: session.url }), {

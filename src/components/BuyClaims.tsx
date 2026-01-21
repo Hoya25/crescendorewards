@@ -5,7 +5,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { ShoppingCart, Check, Sparkles, Award, Gift, HelpCircle, TrendingUp, Loader2, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ShoppingCart, Check, Sparkles, Award, Gift, HelpCircle, TrendingUp, Loader2, RefreshCw, CheckCircle2, DollarSign } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/hooks/use-toast';
 import { NCTRLogo } from './NCTRLogo';
@@ -26,6 +27,7 @@ interface ClaimPackage {
   label: string;
   popular?: boolean;
   bonus?: number;
+  isCustom?: boolean;
 }
 
 // Stripe price IDs for each package
@@ -42,6 +44,13 @@ const calculateBonusNCTR = (priceInDollars: number): number => {
   return Math.floor(priceInDollars * 3);
 };
 
+// Calculate claims for custom amount (using the mega pack rate as best value)
+const calculateCustomClaims = (priceInDollars: number): number => {
+  // Mega pack rate: $1000 = 210 claims = 0.21 claims per dollar
+  // Using a slightly better rate for larger purchases: 0.22 claims per dollar
+  return Math.floor(priceInDollars * 0.22);
+};
+
 const claimPackages: ClaimPackage[] = [
   { id: 'starter', claims: 10, price: 50, label: 'Starter Pack', bonus: calculateBonusNCTR(50) },
   { id: 'popular', claims: 25, price: 125, label: 'Popular Pack', popular: true, bonus: calculateBonusNCTR(125) },
@@ -49,6 +58,8 @@ const claimPackages: ClaimPackage[] = [
   { id: 'ultimate', claims: 100, price: 500, label: 'Ultimate Pack', bonus: calculateBonusNCTR(500) },
   { id: 'mega', claims: 210, price: 1000, label: 'Mega Pack', bonus: calculateBonusNCTR(1000) },
 ];
+
+const MIN_CUSTOM_AMOUNT = 1500; // $1,500 minimum for custom purchases
 
 const calculateSavings = (claims: number, price: number): number => {
   const basePrice = 5.99;
@@ -78,6 +89,8 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
   const [lockedNCTR, setLockedNCTR] = useState(0);
   const [checkoutState, setCheckoutState] = useState<CheckoutState>('idle');
   const [initialBalance, setInitialBalance] = useState(currentBalance);
+  const [customAmountInput, setCustomAmountInput] = useState('');
+  const [showCustomInput, setShowCustomInput] = useState(false);
 
   // Poll for balance changes after checkout
   const pollForBalanceUpdate = useCallback(async (expectedClaims: number) => {
@@ -143,8 +156,34 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
     if (open) {
       fetchLockedNCTR();
       setCheckoutState('idle');
+      setShowCustomInput(false);
+      setCustomAmountInput('');
     }
   }, [open]);
+
+  // Handle custom amount input
+  const handleCustomAmountChange = (value: string) => {
+    // Only allow numbers
+    const numericValue = value.replace(/[^0-9]/g, '');
+    setCustomAmountInput(numericValue);
+    
+    if (numericValue && parseInt(numericValue) >= MIN_CUSTOM_AMOUNT) {
+      const amount = parseInt(numericValue);
+      const claims = calculateCustomClaims(amount);
+      setSelectedPackage({
+        id: 'custom',
+        claims,
+        price: amount,
+        label: 'Custom Pack',
+        bonus: calculateBonusNCTR(amount),
+        isCustom: true,
+      });
+    } else {
+      if (selectedPackage?.isCustom) {
+        setSelectedPackage(null);
+      }
+    }
+  };
 
   const handlePurchase = async () => {
     if (!selectedPackage) return;
@@ -161,13 +200,25 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
 
     setProcessing(true);
     try {
-      const priceId = STRIPE_PRICES[selectedPackage.id as keyof typeof STRIPE_PRICES];
+      let requestBody;
+      
+      if (selectedPackage.isCustom) {
+        // Custom amount purchase
+        requestBody = {
+          customAmount: selectedPackage.price,
+          customClaims: selectedPackage.claims,
+        };
+      } else {
+        // Predefined package
+        const priceId = STRIPE_PRICES[selectedPackage.id as keyof typeof STRIPE_PRICES];
+        requestBody = {
+          priceId,
+          packageId: selectedPackage.id,
+        };
+      }
       
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
-        body: { 
-          priceId,
-          packageId: selectedPackage.id
-        },
+        body: requestBody,
       });
 
       if (error) throw error;
@@ -374,6 +425,88 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                 </Card>
               );
             })}
+            
+            {/* Custom Amount Card */}
+            <Card
+              className={`cursor-pointer transition-all col-span-1 md:col-span-2 ${
+                showCustomInput || selectedPackage?.isCustom
+                  ? 'ring-2 ring-primary border-primary'
+                  : 'hover:border-primary/50 border-dashed'
+              }`}
+              onClick={() => {
+                if (!showCustomInput) {
+                  setShowCustomInput(true);
+                  if (!selectedPackage?.isCustom) {
+                    setSelectedPackage(null);
+                  }
+                }
+              }}
+            >
+              <CardContent className="p-5">
+                <div className="flex items-center gap-2 mb-1">
+                  <Badge variant="outline" className="gap-1">
+                    <DollarSign className="w-3 h-3" />
+                    Custom
+                  </Badge>
+                </div>
+                
+                <h3 className="font-semibold text-lg">Custom Amount</h3>
+                <p className="text-sm text-muted-foreground mb-3">
+                  For purchases of ${MIN_CUSTOM_AMOUNT.toLocaleString()}+ (best rates)
+                </p>
+                
+                {showCustomInput ? (
+                  <div className="space-y-3">
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        type="text"
+                        inputMode="numeric"
+                        placeholder={`${MIN_CUSTOM_AMOUNT.toLocaleString()} minimum`}
+                        value={customAmountInput}
+                        onChange={(e) => handleCustomAmountChange(e.target.value)}
+                        className="pl-8 text-lg font-semibold"
+                        onClick={(e) => e.stopPropagation()}
+                        autoFocus
+                      />
+                    </div>
+                    
+                    {customAmountInput && parseInt(customAmountInput) >= MIN_CUSTOM_AMOUNT && (
+                      <div className="p-3 bg-muted/50 rounded-lg space-y-2">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">You'll receive:</span>
+                          <span className="font-bold text-lg">{calculateCustomClaims(parseInt(customAmountInput)).toLocaleString()} Claims</span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Rate:</span>
+                          <span className="text-primary font-medium">
+                            ${(parseInt(customAmountInput) / calculateCustomClaims(parseInt(customAmountInput))).toFixed(2)} per claim
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <Gift className="w-4 h-4 text-primary" />
+                          <span className="text-muted-foreground">Bonus:</span>
+                          <span className="font-medium text-primary">+{calculateBonusNCTR(parseInt(customAmountInput)).toLocaleString()} NCTR (360LOCK)</span>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {customAmountInput && parseInt(customAmountInput) < MIN_CUSTOM_AMOUNT && (
+                      <p className="text-sm text-destructive">
+                        Minimum custom amount is ${MIN_CUSTOM_AMOUNT.toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between pt-1">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <TrendingUp className="w-4 h-4 text-primary shrink-0" />
+                      <span>Best rate for large purchases</span>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           <div className="bg-muted/50 rounded-lg p-4 mb-4">
