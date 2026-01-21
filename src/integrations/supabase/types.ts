@@ -857,7 +857,9 @@ export type Database = {
           brand_id: string | null
           campaign_id: string | null
           category: string
+          contribution_model: string | null
           cost: number
+          cost_per_claim: number | null
           created_at: string
           delivery_instructions: string | null
           delivery_method: string | null
@@ -867,14 +869,19 @@ export type Database = {
           is_active: boolean
           is_featured: boolean
           is_sponsored: boolean | null
+          linked_sponsor_id: string | null
           min_status_tier: string | null
           minimum_token_balance: number | null
           required_user_data: Json | null
+          revenue_share_percent: number | null
+          sponsor_cta_text: string | null
+          sponsor_cta_url: string | null
           sponsor_enabled: boolean
           sponsor_end_date: string | null
           sponsor_link: string | null
           sponsor_logo: string | null
           sponsor_logo_url: string | null
+          sponsor_message: string | null
           sponsor_name: string | null
           sponsor_start_date: string | null
           status_tier_claims_cost: Json | null
@@ -890,7 +897,9 @@ export type Database = {
           brand_id?: string | null
           campaign_id?: string | null
           category: string
+          contribution_model?: string | null
           cost: number
+          cost_per_claim?: number | null
           created_at?: string
           delivery_instructions?: string | null
           delivery_method?: string | null
@@ -900,14 +909,19 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           is_sponsored?: boolean | null
+          linked_sponsor_id?: string | null
           min_status_tier?: string | null
           minimum_token_balance?: number | null
           required_user_data?: Json | null
+          revenue_share_percent?: number | null
+          sponsor_cta_text?: string | null
+          sponsor_cta_url?: string | null
           sponsor_enabled?: boolean
           sponsor_end_date?: string | null
           sponsor_link?: string | null
           sponsor_logo?: string | null
           sponsor_logo_url?: string | null
+          sponsor_message?: string | null
           sponsor_name?: string | null
           sponsor_start_date?: string | null
           status_tier_claims_cost?: Json | null
@@ -923,7 +937,9 @@ export type Database = {
           brand_id?: string | null
           campaign_id?: string | null
           category?: string
+          contribution_model?: string | null
           cost?: number
+          cost_per_claim?: number | null
           created_at?: string
           delivery_instructions?: string | null
           delivery_method?: string | null
@@ -933,14 +949,19 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           is_sponsored?: boolean | null
+          linked_sponsor_id?: string | null
           min_status_tier?: string | null
           minimum_token_balance?: number | null
           required_user_data?: Json | null
+          revenue_share_percent?: number | null
+          sponsor_cta_text?: string | null
+          sponsor_cta_url?: string | null
           sponsor_enabled?: boolean
           sponsor_end_date?: string | null
           sponsor_link?: string | null
           sponsor_logo?: string | null
           sponsor_logo_url?: string | null
+          sponsor_message?: string | null
           sponsor_name?: string | null
           sponsor_start_date?: string | null
           status_tier_claims_cost?: Json | null
@@ -965,6 +986,13 @@ export type Database = {
             columns: ["campaign_id"]
             isOneToOne: false
             referencedRelation: "sponsored_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rewards_linked_sponsor_id_fkey"
+            columns: ["linked_sponsor_id"]
+            isOneToOne: false
+            referencedRelation: "sponsors"
             referencedColumns: ["id"]
           },
         ]
@@ -1016,6 +1044,72 @@ export type Database = {
           },
         ]
       }
+      sponsor_applications: {
+        Row: {
+          admin_notes: string | null
+          company_name: string
+          contact_email: string
+          contact_name: string
+          created_at: string | null
+          description: string | null
+          id: string
+          intended_contribution: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          type: string
+          user_id: string | null
+          website_url: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          company_name: string
+          contact_email: string
+          contact_name: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          intended_contribution?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          type: string
+          user_id?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          company_name?: string
+          contact_email?: string
+          contact_name?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          intended_contribution?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          type?: string
+          user_id?: string | null
+          website_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sponsor_applications_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sponsor_applications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sponsored_campaigns: {
         Row: {
           campaign_name: string
@@ -1054,33 +1148,201 @@ export type Database = {
       }
       sponsors: {
         Row: {
+          contact_email: string | null
+          cover_image_url: string | null
           created_at: string
+          description: string | null
           id: string
           is_active: boolean
+          is_verified: boolean | null
           logo_url: string | null
           name: string
+          settings: Json | null
+          slug: string | null
+          social_links: Json | null
+          tier: string | null
+          total_claims: number | null
+          total_sponsored_value: number | null
+          type: string | null
           updated_at: string
+          user_id: string | null
           website_url: string | null
         }
         Insert: {
+          contact_email?: string | null
+          cover_image_url?: string | null
           created_at?: string
+          description?: string | null
           id?: string
           is_active?: boolean
+          is_verified?: boolean | null
           logo_url?: string | null
           name: string
+          settings?: Json | null
+          slug?: string | null
+          social_links?: Json | null
+          tier?: string | null
+          total_claims?: number | null
+          total_sponsored_value?: number | null
+          type?: string | null
           updated_at?: string
+          user_id?: string | null
           website_url?: string | null
         }
         Update: {
+          contact_email?: string | null
+          cover_image_url?: string | null
           created_at?: string
+          description?: string | null
           id?: string
           is_active?: boolean
+          is_verified?: boolean | null
           logo_url?: string | null
           name?: string
+          settings?: Json | null
+          slug?: string | null
+          social_links?: Json | null
+          tier?: string | null
+          total_claims?: number | null
+          total_sponsored_value?: number | null
+          type?: string | null
           updated_at?: string
+          user_id?: string | null
           website_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "sponsors_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sponsorship_campaigns: {
+        Row: {
+          budget_spent: number | null
+          budget_total: number | null
+          campaign_type: string | null
+          created_at: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          sponsor_id: string
+          start_date: string | null
+          target_mission_engine: string | null
+          target_tiers: string[] | null
+        }
+        Insert: {
+          budget_spent?: number | null
+          budget_total?: number | null
+          campaign_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          sponsor_id: string
+          start_date?: string | null
+          target_mission_engine?: string | null
+          target_tiers?: string[] | null
+        }
+        Update: {
+          budget_spent?: number | null
+          budget_total?: number | null
+          campaign_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          sponsor_id?: string
+          start_date?: string | null
+          target_mission_engine?: string | null
+          target_tiers?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sponsorship_campaigns_sponsor_id_fkey"
+            columns: ["sponsor_id"]
+            isOneToOne: false
+            referencedRelation: "sponsors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sponsorship_transactions: {
+        Row: {
+          amount: number
+          campaign_id: string | null
+          created_at: string | null
+          details: Json | null
+          id: string
+          member_id: string | null
+          member_tier: string | null
+          reward_id: string | null
+          sponsor_id: string
+          transaction_type: string
+        }
+        Insert: {
+          amount: number
+          campaign_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          member_id?: string | null
+          member_tier?: string | null
+          reward_id?: string | null
+          sponsor_id: string
+          transaction_type: string
+        }
+        Update: {
+          amount?: number
+          campaign_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          member_id?: string | null
+          member_tier?: string | null
+          reward_id?: string | null
+          sponsor_id?: string
+          transaction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sponsorship_transactions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "sponsorship_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sponsorship_transactions_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sponsorship_transactions_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sponsorship_transactions_sponsor_id_fkey"
+            columns: ["sponsor_id"]
+            isOneToOne: false
+            referencedRelation: "sponsors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       status_tiers: {
         Row: {
@@ -1397,6 +1659,10 @@ export type Database = {
         }[]
       }
       get_gift_stats: { Args: never; Returns: Json }
+      get_member_reward_price: {
+        Args: { p_member_tier: string; p_reward_id: string }
+        Returns: Json
+      }
       get_public_stats: { Args: never; Returns: Json }
       get_recent_admin_activity: {
         Args: { p_limit?: number }
@@ -1410,6 +1676,7 @@ export type Database = {
         }[]
       }
       get_reward_watch_count: { Args: { p_reward_id: string }; Returns: number }
+      get_sponsor_stats: { Args: { p_sponsor_id: string }; Returns: Json }
       get_user_activity: {
         Args: { p_limit?: number; p_user_id: string }
         Returns: {
