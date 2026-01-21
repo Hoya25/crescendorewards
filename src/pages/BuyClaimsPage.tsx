@@ -17,7 +17,8 @@ import {
   TrendingUp,
   CheckCircle2,
   HelpCircle,
-  Ticket
+  Ticket,
+  Mail
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/hooks/use-toast';
@@ -27,41 +28,34 @@ import { AppSidebar } from '@/components/AppSidebar';
 import { NCTRLogo } from '@/components/NCTRLogo';
 import { ClaimsPackageCard, ClaimPackage } from '@/components/claims/ClaimsPackageCard';
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress } from '@/utils/membershipLevels';
-import { STRIPE_PRICES } from '@/config/stripe';
 import confetti from 'canvas-confetti';
 
-// Calculate bonus NCTR: 3 NCTR per $1 spent (all bonus is 360LOCK)
-const calculateBonusNCTR = (priceInDollars: number): number => {
-  return Math.floor(priceInDollars * 3);
+// Format numbers with commas
+const formatNumber = (num: number): string => {
+  return num.toLocaleString();
 };
 
-const claimPackages: ClaimPackage[] = [
-  { id: 'starter', claims: 10, price: 50, label: 'Starter Pack', bonus: calculateBonusNCTR(50) },
-  { id: 'popular', claims: 25, price: 125, label: 'Popular Pack', popular: true, bonus: calculateBonusNCTR(125) },
-  { id: 'premium', claims: 50, price: 250, label: 'Premium Pack', bonus: calculateBonusNCTR(250) },
-  { id: 'ultimate', claims: 100, price: 500, label: 'Ultimate Pack', bonus: calculateBonusNCTR(500) },
-  { id: 'mega', claims: 220, price: 1000, label: 'Mega Pack', bonus: calculateBonusNCTR(1000) },
-];
-
-const calculateSavings = (claims: number, price: number): number => {
-  const basePrice = 5.99;
-  const regularPrice = claims * basePrice;
-  return regularPrice - price;
+// Get tier badge info for packages
+const getTierBadge = (name: string): { emoji: string; label: string } | null => {
+  switch (name) {
+    case 'Pro': return { emoji: '⭐', label: 'Most Popular' };
+    case 'Elite': return { emoji: '🔥', label: 'Hot' };
+    case 'Ultra': return { emoji: '💎', label: 'Best Value' };
+    case 'Max': return { emoji: '👑', label: 'VIP' };
+    default: return null;
+  }
 };
 
-const getBestValuePackageId = (): string => {
-  let maxSavings = 0;
-  let bestPackageId = '';
-  
-  claimPackages.forEach(pkg => {
-    const savings = calculateSavings(pkg.claims, pkg.price);
-    if (savings > maxSavings) {
-      maxSavings = savings;
-      bestPackageId = pkg.id;
-    }
-  });
-  
-  return bestPackageId;
+// Get multiplier badge for high-tier packages
+const getMultiplierBadge = (name: string): string | null => {
+  switch (name) {
+    case 'Pro': return '3x Bonus';
+    case 'Elite': return '5x Bonus';
+    case 'Mega': return '6x Bonus';
+    case 'Ultra': return '7.5x Bonus';
+    case 'Max': return '10x Bonus';
+    default: return null;
+  }
 };
 
 export function BuyClaimsPage() {
@@ -71,9 +65,50 @@ export function BuyClaimsPage() {
   const [processing, setProcessing] = useState(false);
   const [lockedNCTR, setLockedNCTR] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [claimPackages, setClaimPackages] = useState<ClaimPackage[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const currentBalance = profile?.crescendo_data?.claims_balance || 0;
-  const bestValueId = getBestValuePackageId();
+
+  // Fetch packages from database
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('claim_packages')
+          .select('*')
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true });
+
+        if (error) throw error;
+
+        if (data) {
+          const packages: ClaimPackage[] = data.map(pkg => ({
+            id: pkg.id,
+            claims: pkg.claims_amount,
+            price: pkg.price_cents / 100, // Convert cents to dollars
+            label: pkg.name,
+            popular: pkg.is_popular,
+            bonus: pkg.bonus_nctr,
+            tierBadge: getTierBadge(pkg.name),
+            multiplierBadge: getMultiplierBadge(pkg.name),
+          }));
+          setClaimPackages(packages);
+        }
+      } catch (error) {
+        console.error('Error fetching packages:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load packages. Please refresh the page.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPackages();
+  }, []);
 
   // Check for payment success in URL
   useEffect(() => {
@@ -127,11 +162,20 @@ export function BuyClaimsPage() {
 
     setProcessing(true);
     try {
-      const priceId = STRIPE_PRICES[selectedPackage.id as keyof typeof STRIPE_PRICES];
+      // Fetch the stripe_price_id from the database
+      const { data: pkgData, error: pkgError } = await supabase
+        .from('claim_packages')
+        .select('stripe_price_id')
+        .eq('id', selectedPackage.id)
+        .single();
+
+      if (pkgError || !pkgData?.stripe_price_id) {
+        throw new Error('Package not properly configured for checkout');
+      }
       
       const { data, error } = await supabase.functions.invoke('create-checkout-session', {
         body: { 
-          priceId,
+          priceId: pkgData.stripe_price_id,
           packageId: selectedPackage.id,
           successUrl: `${window.location.origin}/buy-claims?payment=success`,
           cancelUrl: `${window.location.origin}/buy-claims?payment=canceled`,
@@ -248,29 +292,45 @@ export function BuyClaimsPage() {
               </div>
             </div>
 
-            {/* Packages Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {claimPackages.slice(0, 3).map((pkg) => (
-                <ClaimsPackageCard
-                  key={pkg.id}
-                  package={pkg}
-                  isSelected={selectedPackage?.id === pkg.id}
-                  onSelect={() => setSelectedPackage(pkg)}
-                  isBestValue={pkg.id === bestValueId}
-                />
-              ))}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {claimPackages.slice(3).map((pkg) => (
-                <ClaimsPackageCard
-                  key={pkg.id}
-                  package={pkg}
-                  isSelected={selectedPackage?.id === pkg.id}
-                  onSelect={() => setSelectedPackage(pkg)}
-                  isBestValue={pkg.id === bestValueId}
-                />
-              ))}
-            </div>
+            {/* Packages Grid - First row: 5 packages */}
+            {loading ? (
+              <div className="flex justify-center py-12">
+                <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
+                  {claimPackages.slice(0, 5).map((pkg) => (
+                    <ClaimsPackageCard
+                      key={pkg.id}
+                      package={pkg}
+                      isSelected={selectedPackage?.id === pkg.id}
+                      onSelect={() => setSelectedPackage(pkg)}
+                    />
+                  ))}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
+                  {claimPackages.slice(5).map((pkg) => (
+                    <ClaimsPackageCard
+                      key={pkg.id}
+                      package={pkg}
+                      isSelected={selectedPackage?.id === pkg.id}
+                      onSelect={() => setSelectedPackage(pkg)}
+                    />
+                  ))}
+                </div>
+                
+                {/* Contact for custom packages note */}
+                {claimPackages.some(pkg => pkg.price >= 1000) && (
+                  <div className="text-center mb-8 p-4 bg-muted/50 rounded-lg border border-border">
+                    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                      <Mail className="w-4 h-4" />
+                      <span>Looking for higher volumes? <a href="mailto:support@nctr.io" className="text-primary underline hover:no-underline">Contact us for custom packages</a></span>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
 
             {/* Payment Section */}
             {selectedPackage && (
@@ -289,31 +349,31 @@ export function BuyClaimsPage() {
                   <div className="bg-background/80 rounded-lg p-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="font-medium">{selectedPackage.label}</span>
-                      <span className="font-semibold">${selectedPackage.price}.00</span>
+                      <span className="font-semibold">${formatNumber(selectedPackage.price)}</span>
                     </div>
                     <Separator />
                     <div className="flex items-center justify-between text-sm text-muted-foreground">
                       <span>Claims included</span>
-                      <span>{selectedPackage.claims} Claims</span>
+                      <span>{formatNumber(selectedPackage.claims)} Claims</span>
                     </div>
                     {selectedPackage.bonus && (
                       <div className="flex items-center justify-between text-sm">
                         <span className="flex items-center gap-1 text-violet-600">
                           <Gift className="w-4 h-4" />
-                          Bonus NCTR (360LOCK)
+                          360LOCK NCTR Bonus
                         </span>
                         <span className="font-medium text-violet-600 flex items-center gap-1">
-                          +{selectedPackage.bonus} <NCTRLogo size="xs" />
+                          +{formatNumber(selectedPackage.bonus)} <NCTRLogo size="xs" />
                         </span>
                       </div>
                     )}
                     <Separator />
                     <div className="flex items-center justify-between font-bold text-lg">
                       <span>Total</span>
-                      <span>${selectedPackage.price}.00</span>
+                      <span>${formatNumber(selectedPackage.price)}</span>
                     </div>
                     <p className="text-xs text-muted-foreground text-center">
-                      for {selectedPackage.claims} Claims {selectedPackage.bonus && `+ ${selectedPackage.bonus} Bonus NCTR`}
+                      for {formatNumber(selectedPackage.claims)} Claims {selectedPackage.bonus && `+ ${formatNumber(selectedPackage.bonus)} 360LOCK NCTR`}
                     </p>
                   </div>
 

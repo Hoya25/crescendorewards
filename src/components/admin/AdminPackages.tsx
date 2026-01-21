@@ -209,7 +209,8 @@ export function AdminPackages() {
     }
   };
 
-  const formatPrice = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+  const formatPrice = (cents: number) => `$${(cents / 100).toLocaleString()}`;
+  const formatNumber = (num: number) => num.toLocaleString();
 
   const calculateBonusFromPrice = (priceCents: number) => Math.floor((priceCents / 100) * 3);
 
@@ -307,7 +308,7 @@ export function AdminPackages() {
                 <TableHead>Package</TableHead>
                 <TableHead>Claims</TableHead>
                 <TableHead>Price</TableHead>
-                <TableHead>Bonus NCTR</TableHead>
+                <TableHead>360LOCK NCTR Bonus</TableHead>
                 <TableHead>Stripe</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -328,11 +329,11 @@ export function AdminPackages() {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="font-semibold">{pkg.claims_amount}</TableCell>
+                  <TableCell className="font-semibold">{formatNumber(pkg.claims_amount)}</TableCell>
                   <TableCell>{formatPrice(pkg.price_cents)}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
-                      <span>+{pkg.bonus_nctr}</span>
+                      <span>+{formatNumber(pkg.bonus_nctr)}</span>
                       <NCTRLogo size="xs" />
                     </div>
                   </TableCell>
