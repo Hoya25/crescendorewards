@@ -382,6 +382,9 @@ export type Database = {
           id: string
           image_url: string | null
           page_url: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
           user_id: string | null
           whats_broken: string | null
           whats_working: string | null
@@ -391,6 +394,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           page_url: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
           user_id?: string | null
           whats_broken?: string | null
           whats_working?: string | null
@@ -400,6 +406,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           page_url?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
           user_id?: string | null
           whats_broken?: string | null
           whats_working?: string | null
