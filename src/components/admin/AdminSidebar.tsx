@@ -1,5 +1,6 @@
-import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, Heart, TrendingUp, Building2, RefreshCw, Sparkles, Megaphone } from 'lucide-react';
+import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, Heart, TrendingUp, Building2, RefreshCw, Sparkles, Megaphone, Shield, Activity } from 'lucide-react';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
+import { useAdminRole } from '@/hooks/useAdminRole';
 import { cn } from '@/lib/utils';
 import {
   Sidebar,
@@ -12,6 +13,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { AdminPermission } from '@/types/admin';
 
 interface AdminSidebarProps {
   onNavigate: (view: string) => void;
@@ -41,25 +43,39 @@ function NotificationBadge({ count, pulse = false }: BadgeProps) {
   );
 }
 
-const menuItems = [
-  { title: 'Dashboard', view: 'dashboard', icon: LayoutDashboard, badgeKey: 'total' as const },
-  { title: 'Users', view: 'users', icon: Users, badgeKey: null },
-  { title: 'Submissions', view: 'submissions', icon: FileCheck, badgeKey: 'submissions' as const },
-  { title: 'Rewards', view: 'rewards', icon: Gift, badgeKey: null },
-  { title: 'Sponsored Rewards', view: 'sponsored-rewards', icon: Sparkles, badgeKey: null },
-  { title: 'Campaigns', view: 'campaigns', icon: Megaphone, badgeKey: null },
-  { title: 'Claims', view: 'claims', icon: ShoppingBag, badgeKey: 'claims' as const },
-  { title: 'Purchases', view: 'purchases', icon: Receipt, badgeKey: null },
-  { title: 'Brands', view: 'brands', icon: Store, badgeKey: null },
-  { title: 'Sponsors', view: 'sponsors', icon: Building2, badgeKey: null },
-  { title: 'Wishlists', view: 'wishlists', icon: Heart, badgeKey: null },
-  { title: 'Wishlist Analytics', view: 'wishlist-analytics', icon: TrendingUp, badgeKey: null },
-  { title: 'Sync Verification', view: 'sync-verification', icon: RefreshCw, badgeKey: null },
+interface MenuItem {
+  title: string;
+  view: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badgeKey: 'total' | 'claims' | 'submissions' | null;
+  permission?: AdminPermission;
+}
+
+const menuItems: MenuItem[] = [
+  { title: 'Dashboard', view: 'dashboard', icon: LayoutDashboard, badgeKey: 'total' },
+  { title: 'Users', view: 'users', icon: Users, badgeKey: null, permission: 'users_view' },
+  { title: 'Submissions', view: 'submissions', icon: FileCheck, badgeKey: 'submissions', permission: 'submissions_view' },
+  { title: 'Rewards', view: 'rewards', icon: Gift, badgeKey: null, permission: 'rewards_view' },
+  { title: 'Sponsored Rewards', view: 'sponsored-rewards', icon: Sparkles, badgeKey: null, permission: 'rewards_view' },
+  { title: 'Campaigns', view: 'campaigns', icon: Megaphone, badgeKey: null, permission: 'sponsors_view' },
+  { title: 'Claims', view: 'claims', icon: ShoppingBag, badgeKey: 'claims', permission: 'claims_view' },
+  { title: 'Purchases', view: 'purchases', icon: Receipt, badgeKey: null, permission: 'claims_view' },
+  { title: 'Brands', view: 'brands', icon: Store, badgeKey: null, permission: 'brands_view' },
+  { title: 'Sponsors', view: 'sponsors', icon: Building2, badgeKey: null, permission: 'sponsors_view' },
+  { title: 'Wishlists', view: 'wishlists', icon: Heart, badgeKey: null, permission: 'users_view' },
+  { title: 'Wishlist Analytics', view: 'wishlist-analytics', icon: TrendingUp, badgeKey: null, permission: 'users_view' },
+  { title: 'Sync Verification', view: 'sync-verification', icon: RefreshCw, badgeKey: null, permission: 'settings_view' },
+];
+
+const adminManagementItems: MenuItem[] = [
+  { title: 'Team', view: 'team', icon: Shield, badgeKey: null, permission: 'admins_view' },
+  { title: 'Activity Log', view: 'activity', icon: Activity, badgeKey: null, permission: 'admins_view' },
 ];
 
 export function AdminSidebar({ onNavigate, currentView }: AdminSidebarProps) {
   const { open } = useSidebar();
   const { pendingClaims, pendingSubmissions, totalPending } = useAdminNotifications();
+  const { hasPermission, isSuperAdmin } = useAdminRole();
 
   const getBadgeCount = (badgeKey: 'total' | 'claims' | 'submissions' | null): number => {
     switch (badgeKey) {
@@ -73,6 +89,15 @@ export function AdminSidebar({ onNavigate, currentView }: AdminSidebarProps) {
         return 0;
     }
   };
+
+  const canViewItem = (item: MenuItem): boolean => {
+    if (isSuperAdmin) return true;
+    if (!item.permission) return true;
+    return hasPermission(item.permission);
+  };
+
+  const visibleMenuItems = menuItems.filter(canViewItem);
+  const visibleAdminItems = adminManagementItems.filter(canViewItem);
 
   return (
     <Sidebar className={open ? 'w-60' : 'w-14'} collapsible="icon">
@@ -88,7 +113,7 @@ export function AdminSidebar({ onNavigate, currentView }: AdminSidebarProps) {
           <SidebarGroupLabel>Management</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => {
+              {visibleMenuItems.map((item) => {
                 const badgeCount = getBadgeCount(item.badgeKey);
                 
                 return (
@@ -118,6 +143,29 @@ export function AdminSidebar({ onNavigate, currentView }: AdminSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {visibleAdminItems.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Admin Team</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {visibleAdminItems.map((item) => (
+                  <SidebarMenuItem key={item.view}>
+                    <SidebarMenuButton
+                      onClick={() => onNavigate(item.view)}
+                      className={`cursor-pointer ${
+                        currentView === item.view ? 'bg-accent text-accent-foreground' : ''
+                      }`}
+                    >
+                      <item.icon className="h-4 w-4 shrink-0" />
+                      {open && <span>{item.title}</span>}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
     </Sidebar>
   );
