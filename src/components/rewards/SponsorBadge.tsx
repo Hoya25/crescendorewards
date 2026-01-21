@@ -61,7 +61,7 @@ export function SponsorBadge({ sponsorData, variant = 'card', className }: Spons
           alt={sponsorData.sponsor_name || 'Sponsor'}
           className={cn(
             'object-contain',
-            variant === 'card' ? 'h-4 w-auto max-w-[60px]' : 'h-6 w-auto max-w-[80px]'
+            variant === 'card' ? 'h-5 w-auto max-w-[70px]' : 'h-8 w-auto max-w-[100px]'
           )}
           onError={() => setImageError(true)}
         />
