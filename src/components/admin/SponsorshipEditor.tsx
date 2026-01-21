@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Megaphone, Calendar, Link as LinkIcon, Image as ImageIcon, AlertTriangle, Upload, Loader2, X, CheckCircle2, Library } from 'lucide-react';
+import { Megaphone, Calendar, Link as LinkIcon, Image as ImageIcon, AlertTriangle, Upload, Loader2, X, CheckCircle2, Library, Eye, AlertCircle, ImageOff } from 'lucide-react';
 import { SponsorBadge } from '@/components/rewards/SponsorBadge';
 import { getSponsorshipStatus, formatSponsorshipStatus, type SponsorshipData } from '@/lib/sponsorship-utils';
 import { cn } from '@/lib/utils';
@@ -29,6 +29,8 @@ interface SponsorshipEditorProps {
   onChange: (data: Partial<SponsorshipFormData>) => void;
 }
 
+type LogoValidationState = 'idle' | 'loading' | 'valid' | 'error';
+
 /**
  * Admin component for editing reward sponsorship details
  */
@@ -36,6 +38,9 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
   const [uploading, setUploading] = useState(false);
   const [compressionInfo, setCompressionInfo] = useState<string | null>(null);
   const [logoInputMethod, setLogoInputMethod] = useState<'library' | 'upload' | 'url'>('library');
+  const [logoValidation, setLogoValidation] = useState<LogoValidationState>('idle');
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const [showFullPreview, setShowFullPreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const sponsorData: SponsorshipData = {
@@ -50,12 +55,51 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
   const status = getSponsorshipStatus(sponsorData);
   const statusDisplay = formatSponsorshipStatus(status);
 
+  // Validate logo URL whenever it changes
+  useEffect(() => {
+    if (!formData.sponsor_logo) {
+      setLogoValidation('idle');
+      setLogoError(null);
+      return;
+    }
+
+    setLogoValidation('loading');
+    setLogoError(null);
+
+    const img = new Image();
+    img.onload = () => {
+      // Check image dimensions
+      if (img.width < 50 || img.height < 50) {
+        setLogoValidation('error');
+        setLogoError('Image is too small (min 50x50px)');
+        return;
+      }
+      if (img.width > 2000 || img.height > 2000) {
+        setLogoValidation('error');
+        setLogoError('Image is too large (max 2000x2000px)');
+        return;
+      }
+      setLogoValidation('valid');
+    };
+    img.onerror = () => {
+      setLogoValidation('error');
+      setLogoError('Failed to load image. Check the URL is correct and accessible.');
+    };
+    img.src = formData.sponsor_logo;
+
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [formData.sponsor_logo]);
+
   // Validation
   const isValid = !formData.sponsor_enabled || (
     formData.sponsor_name &&
     formData.sponsor_logo &&
     formData.sponsor_start_date &&
-    formData.sponsor_end_date
+    formData.sponsor_end_date &&
+    logoValidation === 'valid'
   );
 
   const endBeforeStart = formData.sponsor_start_date && 
@@ -121,6 +165,39 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
   const handleRemoveLogo = () => {
     onChange({ sponsor_logo: null });
     setCompressionInfo(null);
+    setLogoValidation('idle');
+    setLogoError(null);
+  };
+
+  // Render logo validation status indicator
+  const renderLogoStatus = () => {
+    if (!formData.sponsor_logo) return null;
+    
+    switch (logoValidation) {
+      case 'loading':
+        return (
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Loader2 className="w-3 h-3 animate-spin" />
+            Validating image...
+          </div>
+        );
+      case 'valid':
+        return (
+          <div className="flex items-center gap-1.5 text-xs text-green-600">
+            <CheckCircle2 className="w-3 h-3" />
+            Image loaded successfully
+          </div>
+        );
+      case 'error':
+        return (
+          <div className="flex items-center gap-1.5 text-xs text-destructive">
+            <AlertCircle className="w-3 h-3" />
+            {logoError}
+          </div>
+        );
+      default:
+        return null;
+    }
   };
 
   return (
@@ -189,23 +266,26 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
                   }}
                 />
                 {formData.sponsor_logo && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <div className="p-2 bg-muted rounded border">
-                      <img
-                        src={formData.sponsor_logo}
-                        alt="Selected logo"
-                        className="h-10 w-auto object-contain"
-                      />
+                  <div className="mt-2 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 bg-muted rounded border">
+                        <img
+                          src={formData.sponsor_logo}
+                          alt="Selected logo"
+                          className="h-10 w-auto object-contain"
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs text-destructive hover:text-destructive"
+                        onClick={handleRemoveLogo}
+                      >
+                        <X className="w-3 h-3 mr-1" /> Clear
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs text-destructive hover:text-destructive"
-                      onClick={handleRemoveLogo}
-                    >
-                      <X className="w-3 h-3 mr-1" /> Clear
-                    </Button>
+                    {renderLogoStatus()}
                   </div>
                 )}
               </TabsContent>
@@ -223,15 +303,21 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
                   {formData.sponsor_logo ? (
                     <div className="space-y-2">
                       <div className="relative inline-block">
-                        <div className="p-2 bg-muted rounded border">
-                          <img
-                            src={formData.sponsor_logo}
-                            alt="Sponsor logo"
-                            className="h-12 w-auto object-contain"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                            }}
-                          />
+                        <div className={cn(
+                          "p-2 bg-muted rounded border",
+                          logoValidation === 'error' && "border-destructive"
+                        )}>
+                          {logoValidation === 'error' ? (
+                            <div className="h-12 w-20 flex items-center justify-center">
+                              <ImageOff className="w-6 h-6 text-muted-foreground" />
+                            </div>
+                          ) : (
+                            <img
+                              src={formData.sponsor_logo}
+                              alt="Sponsor logo"
+                              className="h-12 w-auto object-contain"
+                            />
+                          )}
                         </div>
                         <Button
                           type="button"
@@ -249,6 +335,7 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
                           {compressionInfo}
                         </div>
                       )}
+                      {renderLogoStatus()}
                     </div>
                   ) : (
                     <Button
@@ -295,22 +382,33 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
                 </div>
               </TabsContent>
               
-              <TabsContent value="url" className="mt-2">
+              <TabsContent value="url" className="mt-2 space-y-2">
                 <Input
                   value={formData.sponsor_logo || ''}
                   onChange={(e) => onChange({ sponsor_logo: e.target.value || null })}
                   placeholder="https://example.com/logo.png"
+                  className={cn(logoValidation === 'error' && "border-destructive")}
                 />
                 {formData.sponsor_logo && (
-                  <div className="mt-2 p-2 bg-muted rounded border">
-                    <img
-                      src={formData.sponsor_logo}
-                      alt="Logo preview"
-                      className="h-8 w-auto object-contain"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
+                  <div className="space-y-2">
+                    <div className={cn(
+                      "p-2 bg-muted rounded border",
+                      logoValidation === 'error' && "border-destructive"
+                    )}>
+                      {logoValidation === 'error' ? (
+                        <div className="h-8 flex items-center justify-center gap-2 text-muted-foreground">
+                          <ImageOff className="w-4 h-4" />
+                          <span className="text-xs">Unable to load image</span>
+                        </div>
+                      ) : (
+                        <img
+                          src={formData.sponsor_logo}
+                          alt="Logo preview"
+                          className="h-8 w-auto object-contain"
+                        />
+                      )}
+                    </div>
+                    {renderLogoStatus()}
                   </div>
                 )}
               </TabsContent>
@@ -365,37 +463,98 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
           {formData.sponsor_enabled && !isValid && !endBeforeStart && (
             <div className="flex items-center gap-2 text-amber-600 text-xs">
               <AlertTriangle className="w-3 h-3" />
-              Please fill in all required fields (*)
+              {logoValidation === 'error' 
+                ? 'Logo validation failed. Please use a valid image.'
+                : 'Please fill in all required fields (*)'}
             </div>
           )}
 
-          {/* Preview */}
-          {formData.sponsor_name && formData.sponsor_logo && (
-            <Card className="bg-muted/30">
-              <CardContent className="p-3">
-                <Label className="text-xs text-muted-foreground mb-2 block">Preview</Label>
-                <div className="flex flex-col gap-2">
+          {/* Preview Section */}
+          {formData.sponsor_name && formData.sponsor_logo && logoValidation === 'valid' && (
+            <Card className="bg-muted/30 overflow-hidden">
+              <CardContent className="p-0">
+                {/* Preview Header */}
+                <div className="flex items-center justify-between p-3 border-b bg-muted/50">
+                  <div className="flex items-center gap-2">
+                    <Eye className="w-4 h-4 text-muted-foreground" />
+                    <Label className="text-xs font-medium">Live Preview</Label>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={() => setShowFullPreview(!showFullPreview)}
+                  >
+                    {showFullPreview ? 'Hide Details' : 'Show All Views'}
+                  </Button>
+                </div>
+                
+                <div className="p-3 space-y-4">
+                  {/* Card Badge Preview */}
                   <div>
-                    <span className="text-xs text-muted-foreground">Card view:</span>
-                    <div className="mt-1">
+                    <span className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Reward Card Badge</span>
+                    <div className="mt-2">
                       <SponsorBadge sponsorData={{
                         ...sponsorData,
-                        // Force show preview even if dates aren't in range
                         sponsor_start_date: null,
                         sponsor_end_date: null,
                       }} variant="card" />
                     </div>
                   </div>
-                  <div>
-                    <span className="text-xs text-muted-foreground">Detail view:</span>
-                    <div className="mt-1">
-                      <SponsorBadge sponsorData={{
-                        ...sponsorData,
-                        sponsor_start_date: null,
-                        sponsor_end_date: null,
-                      }} variant="detail" />
-                    </div>
-                  </div>
+
+                  {showFullPreview && (
+                    <>
+                      {/* Detail Badge Preview */}
+                      <div>
+                        <span className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Detail Page Badge</span>
+                        <div className="mt-2">
+                          <SponsorBadge sponsorData={{
+                            ...sponsorData,
+                            sponsor_start_date: null,
+                            sponsor_end_date: null,
+                          }} variant="detail" />
+                        </div>
+                      </div>
+
+                      {/* Full Sponsor Block Preview */}
+                      <div>
+                        <span className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium">Detail Page Sponsor Block</span>
+                        <div className="mt-2 rounded-xl overflow-hidden bg-gradient-to-br from-[#2a2d32] via-[#373b42] to-[#2a2d32] border border-[#4a4f58]/50">
+                          <div className="relative flex flex-col items-center text-center p-6">
+                            {/* Logo Container */}
+                            <div className="relative mb-4">
+                              <div className="absolute inset-0 bg-amber-400/20 blur-xl rounded-full" />
+                              <div className="relative w-20 h-20 rounded-xl bg-gradient-to-br from-[#3a3f47] to-[#2a2d32] p-3 flex items-center justify-center shadow-lg border border-[#4a4f58]/30">
+                                <img 
+                                  src={formData.sponsor_logo} 
+                                  alt={formData.sponsor_name || 'Sponsor'} 
+                                  className="max-w-full max-h-full object-contain" 
+                                />
+                              </div>
+                            </div>
+                            
+                            {/* Divider */}
+                            <div className="w-10 h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent mb-3" />
+                            
+                            {/* Text */}
+                            <p className="text-[10px] text-amber-400/80 font-semibold uppercase tracking-[0.2em]">
+                              Brought to you by
+                            </p>
+                            <p className="font-bold text-lg mt-1 text-white">{formData.sponsor_name}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Validation Summary */}
+                      <div className="pt-2 border-t">
+                        <div className="flex items-center gap-2 text-xs text-green-600">
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span className="font-medium">Logo validates correctly and will display as shown above</span>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
