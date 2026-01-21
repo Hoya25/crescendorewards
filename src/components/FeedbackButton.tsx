@@ -110,15 +110,31 @@ export function FeedbackButton() {
         imageUrl = await uploadImage();
       }
 
+      const pageUrl = location.pathname + location.search;
+      const workingText = whatsWorking.trim() || null;
+      const brokenText = whatsBroken.trim() || null;
+
       const { error } = await supabase.from('feedback').insert({
         user_id: user?.id || null,
-        page_url: location.pathname + location.search,
-        whats_working: whatsWorking.trim() || null,
-        whats_broken: whatsBroken.trim() || null,
+        page_url: pageUrl,
+        whats_working: workingText,
+        whats_broken: brokenText,
         image_url: imageUrl,
       });
 
       if (error) throw error;
+
+      // Send email notification to admins (fire and forget)
+      supabase.functions.invoke('send-feedback-notification', {
+        body: {
+          feedback_id: crypto.randomUUID(),
+          page_url: pageUrl,
+          whats_working: workingText,
+          whats_broken: brokenText,
+          image_url: imageUrl,
+          user_email: user?.email || null,
+        },
+      }).catch(err => console.log('Notification skipped:', err));
 
       toast({
         title: 'Thank you!',
