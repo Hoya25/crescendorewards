@@ -44,6 +44,7 @@ const FoodBeveragePage = lazy(() => import('./components/FoodBeveragePage').then
 const BuyClaimsPage = lazy(() => import('./pages/BuyClaimsPage').then(m => ({ default: m.BuyClaimsPage })));
 const GiftClaimsPage = lazy(() => import('./components/GiftClaimsPage'));
 const ClaimGiftPage = lazy(() => import('./components/ClaimGiftPage'));
+const ClaimsPage = lazy(() => import('./components/ClaimsPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
 const NotFound = lazy(() => import('./pages/NotFound'));
@@ -222,6 +223,14 @@ function AppRoutes() {
               element={
                 <ProtectedRoute>
                   <GiftClaimsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/claims" 
+              element={
+                <ProtectedRoute>
+                  <ClaimsPage />
                 </ProtectedRoute>
               } 
             />

@@ -33,10 +33,11 @@ interface AppSidebarProps {
 const mainNavItems = [
   { title: 'Rewards', url: '/rewards', icon: Gift },
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
+  { title: 'My Claims', url: '/claims', icon: Ticket, highlight: true },
   { title: 'Membership', url: '/membership', icon: Trophy },
   { title: 'Sponsors', url: '/sponsors', icon: Building2 },
-  { title: 'Get Claims', url: '/buy-claims', icon: Ticket, highlight: true },
-  { title: 'Gift Claims', url: '/gift-claims', icon: Coins },
+  { title: 'Get Claims', url: '/buy-claims', icon: Coins },
+  { title: 'Gift Claims', url: '/gift-claims', icon: Gift },
   // Earn now links to The Garden - handled separately
 ];
 
