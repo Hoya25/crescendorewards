@@ -14,6 +14,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { RouteLoading, PageLoading } from "./components/RouteLoading";
 import { FeedbackButton } from "./components/FeedbackButton";
 import { DevToolsPanel } from "./components/DevToolsPanel";
+import { useClaimDeliveryNotifications } from "./hooks/useClaimDeliveryNotifications";
 
 // Eagerly loaded components (critical path)
 import { LandingPage } from "./components/LandingPage";
@@ -54,6 +55,9 @@ function AppRoutes() {
     setAuthMode,
   } = useAuthContext();
   const { profile, refreshUnifiedProfile } = useUnifiedUser();
+
+  // Enable real-time toast notifications for claim delivery status updates
+  useClaimDeliveryNotifications();
 
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
