@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { PermissionGate } from '@/components/admin/PermissionGate';
+import { useAdminRole } from '@/hooks/useAdminRole';
 import { 
   CheckCircle, XCircle, Clock, Search, 
   Package, User, Calendar, DollarSign, Lock,
@@ -70,6 +72,7 @@ const CATEGORIES = [
 ];
 
 export function AdminSubmissions() {
+  const { hasPermission, logActivity } = useAdminRole();
   const [submissions, setSubmissions] = useState<RewardSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('pending');
@@ -717,23 +720,25 @@ export function AdminSubmissions() {
               {/* Sticky Action Bar */}
               {selectedSubmission.status === 'pending' && (
                 <div className="p-4 border-t bg-card flex flex-wrap gap-2">
-                  <Button
-                    onClick={() => updateSubmissionStatus(selectedSubmission.id, 'approved')}
-                    disabled={updating}
-                    className="bg-green-600 hover:bg-green-700 gap-2"
-                  >
-                    <CheckCircle className="w-4 h-4" />
-                    Approve
-                  </Button>
-                  <Button
-                    onClick={openApproveEditModal}
-                    disabled={updating}
-                    variant="default"
-                    className="gap-2"
-                  >
-                    <Pencil className="w-4 h-4" />
-                    Approve & Edit
-                  </Button>
+                  <PermissionGate permission="submissions_approve">
+                    <Button
+                      onClick={() => updateSubmissionStatus(selectedSubmission.id, 'approved')}
+                      disabled={updating}
+                      className="bg-green-600 hover:bg-green-700 gap-2"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                      Approve
+                    </Button>
+                    <Button
+                      onClick={openApproveEditModal}
+                      disabled={updating}
+                      variant="default"
+                      className="gap-2"
+                    >
+                      <Pencil className="w-4 h-4" />
+                      Approve & Edit
+                    </Button>
+                  </PermissionGate>
                   <Button
                     onClick={() => setShowRequestChangesModal(true)}
                     disabled={updating}
@@ -743,15 +748,17 @@ export function AdminSubmissions() {
                     <MessageSquare className="w-4 h-4" />
                     Request Changes
                   </Button>
-                  <Button
-                    onClick={() => setShowRejectModal(true)}
-                    disabled={updating}
-                    variant="destructive"
-                    className="gap-2"
-                  >
-                    <XCircle className="w-4 h-4" />
-                    Reject
-                  </Button>
+                  <PermissionGate permission="submissions_reject">
+                    <Button
+                      onClick={() => setShowRejectModal(true)}
+                      disabled={updating}
+                      variant="destructive"
+                      className="gap-2"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      Reject
+                    </Button>
+                  </PermissionGate>
                 </div>
               )}
             </>

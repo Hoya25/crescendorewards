@@ -18,6 +18,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
 import { SponsorshipEditor } from '@/components/admin/SponsorshipEditor';
 import { getSponsorshipStatus, formatSponsorshipStatus, type SponsorshipData } from '@/lib/sponsorship-utils';
+import { PermissionGate } from '@/components/admin/PermissionGate';
+import { useAdminRole } from '@/hooks/useAdminRole';
 import { 
   Plus, Pencil, Trash2, Upload, X, Image as ImageIcon, Lock, 
   MoreHorizontal, Copy, ExternalLink, Gift, ChevronUp, ChevronDown,
@@ -93,6 +95,7 @@ const STATUS_FILTERS = [
 ];
 
 export function AdminRewards() {
+  const { hasPermission, logActivity } = useAdminRole();
   const [searchParams, setSearchParams] = useSearchParams();
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [loading, setLoading] = useState(true);
@@ -916,10 +919,12 @@ export function AdminRewards() {
           <h2 className="text-3xl font-bold">Rewards Management</h2>
           <p className="text-muted-foreground mt-1">Create and manage rewards</p>
         </div>
-        <Button onClick={() => handleOpenModal()} size="lg" className="gap-2">
-          <Plus className="w-5 h-5" />
-          Add Reward
-        </Button>
+        <PermissionGate permission="rewards_create">
+          <Button onClick={() => handleOpenModal()} size="lg" className="gap-2">
+            <Plus className="w-5 h-5" />
+            Add Reward
+          </Button>
+        </PermissionGate>
       </div>
 
       {/* Filters */}
@@ -1220,14 +1225,18 @@ export function AdminRewards() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem onClick={() => handleOpenModal(reward)}>
-                            <Pencil className="w-4 h-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDuplicate(reward)}>
-                            <Copy className="w-4 h-4 mr-2" />
-                            Duplicate
-                          </DropdownMenuItem>
+                          <PermissionGate permission="rewards_edit">
+                            <DropdownMenuItem onClick={() => handleOpenModal(reward)}>
+                              <Pencil className="w-4 h-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                          </PermissionGate>
+                          <PermissionGate permission="rewards_create">
+                            <DropdownMenuItem onClick={() => handleDuplicate(reward)}>
+                              <Copy className="w-4 h-4 mr-2" />
+                              Duplicate
+                            </DropdownMenuItem>
+                          </PermissionGate>
                           <DropdownMenuItem onClick={() => window.open(`/rewards/${reward.id}`, '_blank')}>
                             <ExternalLink className="w-4 h-4 mr-2" />
                             View in Marketplace
@@ -1240,16 +1249,20 @@ export function AdminRewards() {
                             Gift to User
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => toggleActive(reward.id, reward.is_active)}>
-                            {reward.is_active ? 'Deactivate' : 'Activate'}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => confirmDelete(reward)}
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
+                          <PermissionGate permission="rewards_edit">
+                            <DropdownMenuItem onClick={() => toggleActive(reward.id, reward.is_active)}>
+                              {reward.is_active ? 'Deactivate' : 'Activate'}
+                            </DropdownMenuItem>
+                          </PermissionGate>
+                          <PermissionGate permission="rewards_delete">
+                            <DropdownMenuItem 
+                              onClick={() => confirmDelete(reward)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </PermissionGate>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

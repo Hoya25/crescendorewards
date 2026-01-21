@@ -45,6 +45,8 @@ import { toast } from 'sonner';
 import { validateImageFile } from '@/lib/image-validation';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 import { NCTRLogo } from '@/components/NCTRLogo';
+import { PermissionGate } from '@/components/admin/PermissionGate';
+import { useAdminRole } from '@/hooks/useAdminRole';
 
 interface Brand {
   id: string;
@@ -84,6 +86,7 @@ const logoColors = [
 ];
 
 export function AdminBrands() {
+  const { hasPermission, logActivity } = useAdminRole();
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -734,10 +737,12 @@ export function AdminBrands() {
           <h2 className="text-3xl font-bold">Brand Partners</h2>
           <p className="text-muted-foreground">Manage alliance brand partnerships</p>
         </div>
-        <Button onClick={() => setShowAddDialog(true)} className="gap-2">
-          <Plus className="w-4 h-4" />
-          Add Brand
-        </Button>
+        <PermissionGate permission="brands_edit">
+          <Button onClick={() => setShowAddDialog(true)} className="gap-2">
+            <Plus className="w-4 h-4" />
+            Add Brand
+          </Button>
+        </PermissionGate>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
@@ -959,20 +964,22 @@ export function AdminBrands() {
                         >
                           <ExternalLink className="w-4 h-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openEditDialog(brand)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openDeleteDialog(brand)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <PermissionGate permission="brands_edit">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openEditDialog(brand)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openDeleteDialog(brand)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </PermissionGate>
                       </div>
                     </TableCell>
                   </TableRow>
