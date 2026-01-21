@@ -19,6 +19,7 @@ import {
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { ConfirmationDialog } from '@/components/ConfirmationDialog';
 import { ClaimConfirmationDialog } from '@/components/ClaimConfirmationDialog';
+import { ClaimDeliveryModal } from '@/components/rewards/ClaimDeliveryModal';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { toast } from '@/hooks/use-toast';
 import { BuyClaims } from '@/components/BuyClaims';
@@ -28,9 +29,12 @@ import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { DataErrorState } from '@/components/DataErrorState';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useWatchlist } from '@/hooks/useWatchlist';
+import { useDeliveryProfile } from '@/hooks/useDeliveryProfile';
 import { getRewardPriceForUser, canUserClaimReward, getTierDisplayName, getAllTierPrices, type Reward as RewardType } from '@/utils/getRewardPrice';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
+import type { DeliveryMethod, RequiredDataField } from '@/types/delivery';
+import { DELIVERY_METHOD_REQUIRED_FIELDS } from '@/types/delivery';
 
 interface Reward {
   id: string;
@@ -58,6 +62,10 @@ interface Reward {
   sponsor_link?: string | null;
   status_tier_claims_cost?: Record<string, number> | null;
   min_status_tier?: string | null;
+  // Delivery fields
+  delivery_method?: DeliveryMethod | null;
+  required_user_data?: RequiredDataField[] | null;
+  delivery_instructions?: string | null;
 }
 
 interface Brand {
@@ -120,6 +128,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const { profile, tier, refreshUnifiedProfile } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   const { isWatching, toggleWatch, isAnimating: isWatchAnimating, getWatchCount, fetchWatchCounts } = useWatchlist();
+  const { checkRequiredFields, profile: deliveryProfile } = useDeliveryProfile();
   const { theme, resolvedTheme } = useTheme();
   const currentTheme = resolvedTheme || theme;
   const [reward, setReward] = useState<Reward | null>(null);
@@ -129,7 +138,9 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const [retrying, setRetrying] = useState(false);
   const [claiming, setClaiming] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [showBuyClaimsModal, setShowBuyClaimsModal] = useState(false);
+  const [deliveryData, setDeliveryData] = useState<Record<string, string>>({});
   const [shippingInfo, setShippingInfo] = useState({
     name: '',
     email: profile?.email || '',
@@ -263,13 +274,72 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
     }
   };
 
+  // Get required fields for this reward based on delivery method or category fallback
+  const getRequiredFields = (): RequiredDataField[] => {
+    if (!reward) return ['email'];
+    
+    // Use configured required_user_data if available
+    if (reward.required_user_data && reward.required_user_data.length > 0) {
+      return reward.required_user_data;
+    }
+    
+    // Use delivery method defaults if set
+    if (reward.delivery_method) {
+      return DELIVERY_METHOD_REQUIRED_FIELDS[reward.delivery_method] || ['email'];
+    }
+    
+    // Fallback to category-based defaults
+    switch (reward.category) {
+      case 'merch':
+      case 'experiences':
+        return ['email', 'phone', 'shipping_address'];
+      case 'crypto':
+      case 'nft':
+      case 'tokens':
+        return ['email', 'wallet_address'];
+      default:
+        return ['email'];
+    }
+  };
+
+  // Smart claim flow - check delivery data before confirming
+  const initiateClaimFlow = () => {
+    if (!profile || !reward) return;
+    
+    const requiredFields = getRequiredFields();
+    const { complete, missing } = checkRequiredFields(requiredFields);
+    
+    if (complete) {
+      // All required data available, go directly to confirmation
+      setShowConfirmClaim(true);
+    } else {
+      // Missing data, show delivery modal to collect it
+      setShowDeliveryModal(true);
+    }
+  };
+
+  // Handle delivery data collection complete
+  const handleDeliveryComplete = (data: Record<string, string>) => {
+    setDeliveryData(data);
+    setShowDeliveryModal(false);
+    // Now show confirmation dialog
+    setShowConfirmClaim(true);
+  };
+
   const handleClaim = async () => {
     if (!profile || !reward) return;
     setClaiming(true);
     try {
+      // Combine delivery data with any shipping info
+      const claimData = {
+        ...shippingInfo,
+        ...deliveryData,
+        delivery_method: reward.delivery_method || 'email',
+      };
+      
       const { data, error } = await supabase.rpc('claim_reward', {
         p_reward_id: reward.id,
-        p_shipping_info: shippingInfo,
+        p_shipping_info: claimData,
       });
       if (error) throw error;
       const result = data as { success: boolean; error?: string };
@@ -277,6 +347,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
       
       toast({ title: 'Reward Claimed!', description: `You've successfully claimed ${reward.title}` });
       setShowClaimModal(false);
+      setDeliveryData({});
       onClaimSuccess?.();
       refreshUnifiedProfile();
       fetchReward();
@@ -750,7 +821,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                 <Button
                   size="lg"
                   className="w-full h-14 text-lg gap-2 bg-gradient-to-r from-primary to-primary/80"
-                  onClick={() => setShowClaimModal(true)}
+                  onClick={initiateClaimFlow}
                 >
                   <CheckCircle2 className="w-5 h-5" />
                   {pricing.isFree ? 'Claim Now — FREE' : `Claim for ${pricing.price} Claims`}
@@ -1176,6 +1247,18 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
         discount={pricing.discount}
         currentBalance={crescendoData.claim_balance}
       />
+
+      {/* Smart Delivery Data Collection Modal */}
+      {reward && (
+        <ClaimDeliveryModal
+          open={showDeliveryModal}
+          onClose={() => setShowDeliveryModal(false)}
+          onComplete={handleDeliveryComplete}
+          rewardTitle={reward.title}
+          deliveryMethod={reward.delivery_method || 'email'}
+          requiredFields={getRequiredFields()}
+        />
+      )}
 
       {/* Buy Claims Modal */}
       <Dialog open={showBuyClaimsModal} onOpenChange={setShowBuyClaimsModal}>
