@@ -217,6 +217,82 @@ export type Database = {
         }
         Relationships: []
       }
+      claim_gifts: {
+        Row: {
+          admin_notes: string | null
+          claimed_at: string | null
+          claims_amount: number
+          created_at: string | null
+          expires_at: string | null
+          gift_code: string | null
+          id: string
+          is_admin_gift: boolean | null
+          is_purchased: boolean | null
+          message: string | null
+          purchased_package_id: string | null
+          recipient_email: string | null
+          recipient_id: string | null
+          sender_id: string | null
+          status: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          claimed_at?: string | null
+          claims_amount: number
+          created_at?: string | null
+          expires_at?: string | null
+          gift_code?: string | null
+          id?: string
+          is_admin_gift?: boolean | null
+          is_purchased?: boolean | null
+          message?: string | null
+          purchased_package_id?: string | null
+          recipient_email?: string | null
+          recipient_id?: string | null
+          sender_id?: string | null
+          status?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          claimed_at?: string | null
+          claims_amount?: number
+          created_at?: string | null
+          expires_at?: string | null
+          gift_code?: string | null
+          id?: string
+          is_admin_gift?: boolean | null
+          is_purchased?: boolean | null
+          message?: string | null
+          purchased_package_id?: string | null
+          recipient_email?: string | null
+          recipient_id?: string | null
+          sender_id?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_gifts_purchased_package_id_fkey"
+            columns: ["purchased_package_id"]
+            isOneToOne: false
+            referencedRelation: "claim_packages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claim_gifts_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claim_gifts_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       claim_packages: {
         Row: {
           bonus_nctr: number
@@ -1269,16 +1345,35 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_credit_claims: {
+        Args: {
+          p_admin_id: string
+          p_admin_notes?: string
+          p_claims_amount: number
+          p_message?: string
+          p_recipient_id: string
+        }
+        Returns: Json
+      }
       admin_gift_reward: {
         Args: { p_admin_notes?: string; p_reward_id: string; p_user_id: string }
         Returns: Json
       }
       calculate_user_tier: { Args: { p_user_id: string }; Returns: string }
+      cancel_gift: {
+        Args: { p_gift_id: string; p_user_id: string }
+        Returns: Json
+      }
+      claim_gift: {
+        Args: { p_gift_code: string; p_user_id: string }
+        Returns: Json
+      }
       claim_reward: {
         Args: { p_reward_id: string; p_shipping_info?: Json }
         Returns: Json
       }
       cleanup_expired_nonces: { Args: never; Returns: undefined }
+      generate_gift_code: { Args: never; Returns: string }
       generate_referral_code: { Args: never; Returns: string }
       get_admin_dashboard_stats: { Args: never; Returns: Json }
       get_admin_stats: { Args: never; Returns: Json }
@@ -1301,6 +1396,7 @@ export type Database = {
           user_name: string
         }[]
       }
+      get_gift_stats: { Args: never; Returns: Json }
       get_public_stats: { Args: never; Returns: Json }
       get_recent_admin_activity: {
         Args: { p_limit?: number }
@@ -1396,6 +1492,15 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      send_gift_from_balance: {
+        Args: {
+          p_claims_amount: number
+          p_message?: string
+          p_recipient_email: string
+          p_sender_id: string
+        }
+        Returns: Json
       }
       submit_reward_version: {
         Args: {
