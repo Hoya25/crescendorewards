@@ -17,6 +17,7 @@ import { AdminSponsoredRewards } from './AdminSponsoredRewards';
 import { AdminCampaigns } from './AdminCampaigns';
 import { AdminManagement } from './AdminManagement';
 import { AdminActivityLog } from './AdminActivityLog';
+import { AdminFeedback } from './AdminFeedback';
 import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import AdminGifts from './AdminGifts';
 import { Button } from '@/components/ui/button';
@@ -62,6 +63,8 @@ export function AdminPanel() {
         return <AdminManagement />;
       case 'activity':
         return <AdminActivityLog />;
+      case 'feedback':
+        return <AdminFeedback />;
       default:
         return <AdminDashboard onNavigate={setCurrentView} />;
     }
