@@ -128,9 +128,10 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
       const summary = getCompressionSummary(result);
       setCompressionInfo(summary);
 
-      // Generate unique filename with correct extension
+      // Generate unique filename with correct extension and random suffix to prevent collisions
       const fileExt = result.hasTransparency ? 'png' : 'jpg';
-      const fileName = `sponsor-logo-${Date.now()}.${fileExt}`;
+      const randomSuffix = Math.random().toString(36).substring(2, 8);
+      const fileName = `sponsor-logo-${Date.now()}-${randomSuffix}.${fileExt}`;
 
       // Upload to Supabase storage
       const { error: uploadError } = await supabase.storage
