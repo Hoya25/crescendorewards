@@ -35,6 +35,27 @@ serve(async (req) => {
       throw new Error("Price ID or custom amount is required");
     }
 
+    // Fetch price floor setting from database
+    let priceFloor = 4; // Default $4 per claim
+    try {
+      const { data: settingData } = await supabaseClient
+        .from('admin_settings')
+        .select('setting_value')
+        .eq('setting_key', 'claim_price_floor')
+        .single();
+      
+      if (settingData?.setting_value) {
+        const value = typeof settingData.setting_value === 'string'
+          ? parseFloat(settingData.setting_value.replace(/"/g, ''))
+          : Number(settingData.setting_value);
+        if (!isNaN(value) && value > 0) {
+          priceFloor = value;
+        }
+      }
+    } catch (e) {
+      console.log('Using default price floor:', priceFloor);
+    }
+
     const origin = req.headers.get("origin") || "http://localhost:3000";
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
@@ -53,6 +74,12 @@ serve(async (req) => {
     let metadata;
 
     if (customAmount && customClaims) {
+      // Validate price floor for custom purchases
+      const minRequiredAmount = customClaims * priceFloor;
+      if (customAmount < minRequiredAmount) {
+        throw new Error(`Price floor violation: $${customAmount} is below minimum $${minRequiredAmount} for ${customClaims} claims (floor: $${priceFloor}/claim)`);
+      }
+
       // Custom amount purchase using price_data
       lineItems = [
         {
@@ -72,6 +99,7 @@ serve(async (req) => {
         package_id: 'custom',
         custom_amount: customAmount.toString(),
         custom_claims: customClaims.toString(),
+        price_floor: priceFloor.toString(),
       };
     } else {
       // Predefined package

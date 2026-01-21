@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { toast } from '@/hooks/use-toast';
 import { NCTRLogo } from './NCTRLogo';
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress } from '@/utils/membershipLevels';
+import { useClaimPriceFloor } from '@/hooks/useClaimPriceFloor';
 
 interface BuyClaimsProps {
   currentBalance: number;
@@ -42,13 +43,6 @@ const STRIPE_PRICES = {
 // Calculate bonus NCTR: 3 NCTR per $1 spent (all bonus is 360LOCK)
 const calculateBonusNCTR = (priceInDollars: number): number => {
   return Math.floor(priceInDollars * 3);
-};
-
-// Calculate claims for custom amount (using the mega pack rate as best value)
-const calculateCustomClaims = (priceInDollars: number): number => {
-  // Mega pack rate: $1000 = 210 claims = 0.21 claims per dollar
-  // Using a slightly better rate for larger purchases: 0.22 claims per dollar
-  return Math.floor(priceInDollars * 0.22);
 };
 
 const claimPackages: ClaimPackage[] = [
@@ -91,6 +85,14 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
   const [initialBalance, setInitialBalance] = useState(currentBalance);
   const [customAmountInput, setCustomAmountInput] = useState('');
   const [showCustomInput, setShowCustomInput] = useState(false);
+  const { priceFloor, getMaxClaimsForAmount } = useClaimPriceFloor();
+
+  // Calculate claims for custom amount respecting price floor
+  const calculateCustomClaims = useCallback((priceInDollars: number): number => {
+    // Use the price floor to calculate max claims
+    // Price floor is $/claim, so claims = amount / priceFloor
+    return getMaxClaimsForAmount(priceInDollars);
+  }, [getMaxClaimsForAmount]);
 
   // Poll for balance changes after checkout
   const pollForBalanceUpdate = useCallback(async (expectedClaims: number) => {
