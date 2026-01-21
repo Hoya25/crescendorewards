@@ -465,22 +465,22 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
             {/* Sponsor Section */}
             {isSponsored && sponsorName && (
               <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/20 border-amber-200/50 dark:border-amber-800/30">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-4">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-5">
                     {sponsorLogo && (
-                      <div className="w-16 h-16 rounded-xl bg-white dark:bg-black/50 p-2 flex items-center justify-center">
+                      <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl bg-white dark:bg-black/50 p-3 flex items-center justify-center shadow-sm">
                         <img src={sponsorLogo} alt={sponsorName} className="max-w-full max-h-full object-contain" />
                       </div>
                     )}
                     <div className="flex-1">
-                      <p className="text-xs text-amber-600 dark:text-amber-400 font-medium uppercase tracking-wide">Brought to you by</p>
-                      <p className="font-bold text-lg">{sponsorName}</p>
+                      <p className="text-xs text-amber-600 dark:text-amber-400 font-semibold uppercase tracking-wider">Brought to you by</p>
+                      <p className="font-bold text-xl md:text-2xl mt-0.5">{sponsorName}</p>
                       {reward.sponsor_link && (
                         <a 
                           href={reward.sponsor_link} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-sm text-primary hover:underline inline-flex items-center gap-1 mt-1"
+                          className="text-sm text-primary hover:underline inline-flex items-center gap-1 mt-2"
                         >
                           Learn more <ExternalLink className="w-3 h-3" />
                         </a>
