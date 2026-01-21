@@ -8,18 +8,70 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
 
 const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET") || "";
 
-const claimPackages = {
-  'starter': { claims: 10, name: 'Starter Pack', price: 5000 }, // $50
-  'popular': { claims: 25, name: 'Popular Pack', price: 12500 }, // $125
-  'premium': { claims: 50, name: 'Premium Pack', price: 25000 }, // $250
-  'ultimate': { claims: 100, name: 'Ultimate Pack', price: 50000 }, // $500
-  'mega': { claims: 220, name: 'Mega Pack', price: 100000 }, // $1000
+// Fallback hardcoded packages (used if DB fetch fails)
+const fallbackPackages: Record<string, { claims: number; name: string; price: number }> = {
+  'starter': { claims: 10, name: 'Starter Pack', price: 5000 },
+  'popular': { claims: 25, name: 'Popular Pack', price: 12500 },
+  'premium': { claims: 50, name: 'Premium Pack', price: 25000 },
+  'ultimate': { claims: 100, name: 'Ultimate Pack', price: 50000 },
+  'mega': { claims: 220, name: 'Mega Pack', price: 100000 },
 };
 
 // Calculate bonus NCTR: 3 NCTR per $1 spent
 function calculateBonusNCTR(amountInCents: number): number {
   const dollars = amountInCents / 100;
   return Math.floor(dollars * 3);
+}
+
+interface ClaimPackageRow {
+  claims_amount: number;
+  name: string;
+  price_cents: number;
+  bonus_nctr: number | null;
+}
+
+// Fetch package from database by stripe_price_id or package_id
+async function getPackageInfo(
+  supabaseClient: any,
+  packageId: string,
+  stripePriceId?: string
+): Promise<{ claims: number; name: string; price: number; bonusNCTR: number } | null> {
+  // Try to fetch from claim_packages table
+  let query = supabaseClient.from('claim_packages').select('claims_amount, name, price_cents, bonus_nctr');
+  
+  if (stripePriceId) {
+    query = query.eq('stripe_price_id', stripePriceId);
+  } else if (packageId) {
+    // Try matching by package_id (legacy support)
+    query = query.ilike('name', `%${packageId}%`);
+  }
+  
+  const { data, error } = await query.maybeSingle();
+  
+  if (error) {
+    console.error('Error fetching package from DB:', error);
+  }
+  
+  if (data) {
+    const row = data as ClaimPackageRow;
+    return {
+      claims: row.claims_amount,
+      name: row.name,
+      price: row.price_cents,
+      bonusNCTR: row.bonus_nctr || calculateBonusNCTR(row.price_cents),
+    };
+  }
+  
+  // Fallback to hardcoded packages
+  const fallback = fallbackPackages[packageId as keyof typeof fallbackPackages];
+  if (fallback) {
+    return {
+      ...fallback,
+      bonusNCTR: calculateBonusNCTR(fallback.price),
+    };
+  }
+  
+  return null;
 }
 
 serve(async (req) => {
@@ -41,24 +93,29 @@ serve(async (req) => {
       
       const userId = session.metadata?.user_id;
       const packageId = session.metadata?.package_id;
+      const stripePriceId = session.line_items?.[0]?.price?.id;
 
-      if (!userId || !packageId) {
-        console.error("Missing metadata:", { userId, packageId });
-        return new Response("Missing metadata", { status: 400 });
+      if (!userId) {
+        console.error("Missing user_id in metadata");
+        return new Response("Missing user_id", { status: 400 });
       }
 
-      const package_info = claimPackages[packageId as keyof typeof claimPackages];
-      if (!package_info) {
-        console.error("Invalid package ID:", packageId);
-        return new Response("Invalid package", { status: 400 });
-      }
-
-      // Update user's claim balance
+      // Create supabase client first so we can fetch package info
       const supabaseClient = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
         Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
         { auth: { persistSession: false } }
       );
+
+      // Get package info from database (with fallback)
+      const package_info = await getPackageInfo(supabaseClient, packageId || '', stripePriceId);
+      
+      if (!package_info) {
+        console.error("Invalid package - not found in DB or fallbacks:", { packageId, stripePriceId });
+        return new Response("Invalid package", { status: 400 });
+      }
+
+      console.log(`Processing package: ${package_info.name}, claims: ${package_info.claims}, bonus: ${package_info.bonusNCTR}`);
 
       // First get current balance and locked NCTR
       const { data: profile } = await supabaseClient
@@ -72,9 +129,9 @@ serve(async (req) => {
         return new Response("Profile not found", { status: 404 });
       }
 
-      // Calculate bonus NCTR (automatically added to 360LOCK)
-      const bonusNCTR = calculateBonusNCTR(package_info.price);
-      console.log(`Calculated bonus NCTR: ${bonusNCTR} for purchase amount: $${package_info.price / 100}`);
+      // Use bonus NCTR from package (database value or calculated)
+      const bonusNCTR = package_info.bonusNCTR;
+      console.log(`Using bonus NCTR: ${bonusNCTR} for package: ${package_info.name}`);
 
       // Update with new balance and bonus locked NCTR
       const { error } = await supabaseClient

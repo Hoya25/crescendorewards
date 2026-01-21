@@ -1,4 +1,4 @@
-import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, Heart, TrendingUp, Building2, RefreshCw, Sparkles, Megaphone, Shield, Activity } from 'lucide-react';
+import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, Heart, TrendingUp, Building2, RefreshCw, Sparkles, Megaphone, Shield, Activity, Package } from 'lucide-react';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { cn } from '@/lib/utils';
@@ -60,6 +60,7 @@ const menuItems: MenuItem[] = [
   { title: 'Campaigns', view: 'campaigns', icon: Megaphone, badgeKey: null, permission: 'sponsors_view' },
   { title: 'Claims', view: 'claims', icon: ShoppingBag, badgeKey: 'claims', permission: 'claims_view' },
   { title: 'Purchases', view: 'purchases', icon: Receipt, badgeKey: null, permission: 'claims_view' },
+  { title: 'Packages', view: 'packages', icon: Package, badgeKey: null, permission: 'rewards_edit' },
   { title: 'Brands', view: 'brands', icon: Store, badgeKey: null, permission: 'brands_view' },
   { title: 'Sponsors', view: 'sponsors', icon: Building2, badgeKey: null, permission: 'sponsors_view' },
   { title: 'Wishlists', view: 'wishlists', icon: Heart, badgeKey: null, permission: 'users_view' },
