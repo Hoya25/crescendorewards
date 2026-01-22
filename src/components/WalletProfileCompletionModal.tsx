@@ -32,6 +32,8 @@ const profileSchema = z.object({
     .max(255, 'Email must be less than 255 characters'),
 });
 
+const MERGE_FUNCTION_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/merge-wallet-user`;
+
 export function WalletProfileCompletionModal({
   open,
   onClose,
@@ -65,37 +67,41 @@ export function WalletProfileCompletionModal({
     setLoading(true);
 
     try {
-      const fullName = `${result.data.firstName} ${result.data.lastName}`;
-      
-      // Update the profiles table with name and email
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          full_name: fullName,
-          email: result.data.email,
-        })
-        .eq('id', userId);
+      // Call the merge-wallet-user edge function to handle merging or updating
+      const response = await fetch(MERGE_FUNCTION_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({
+          wallet_user_id: userId,
+          target_email: result.data.email,
+          wallet_address: walletAddress,
+          first_name: result.data.firstName,
+          last_name: result.data.lastName,
+        }),
+      });
 
-      if (profileError) throw profileError;
+      const data = await response.json();
 
-      // Also update unified_profiles
-      const { error: unifiedError } = await supabase
-        .from('unified_profiles')
-        .update({
-          display_name: fullName,
-          email: result.data.email,
-        })
-        .eq('auth_user_id', userId);
-
-      if (unifiedError) {
-        console.error('Error updating unified profile:', unifiedError);
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update profile');
       }
 
-      toast.success('Profile updated successfully!');
+      if (data.merged) {
+        toast.success('Wallet linked to your existing account! 🎉');
+        // User was merged - they should sign out and sign back in with their email
+        await supabase.auth.signOut();
+        toast.info('Please sign in with your email to continue.');
+      } else {
+        toast.success('Profile updated successfully!');
+      }
+      
       onComplete();
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Failed to update profile. Please try again.');
+      toast.error(error instanceof Error ? error.message : 'Failed to update profile. Please try again.');
     } finally {
       setLoading(false);
     }

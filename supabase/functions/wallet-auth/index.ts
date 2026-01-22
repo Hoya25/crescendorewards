@@ -145,20 +145,24 @@ Deno.serve(async (req) => {
         .update({ used: true })
         .eq('id', nonceData.id);
 
-      // Check if user exists with this wallet
+      // Check if user exists with this wallet address in profiles table
       const { data: existingProfile } = await supabase
         .from('profiles')
-        .select('id, email')
+        .select('id, email, full_name')
         .eq('wallet_address', walletAddress)
         .maybeSingle();
 
       if (existingProfile) {
-        // User exists - generate a magic link or return success for existing session
+        // User exists with this wallet - return success
+        const isPlaceholderEmail = existingProfile.email?.includes('@wallet.crescendo.app');
+        
         return new Response(
           JSON.stringify({ 
             success: true, 
             user_exists: true,
             user_id: existingProfile.id,
+            email: existingProfile.email,
+            needs_profile_completion: isPlaceholderEmail || !existingProfile.full_name,
             message: 'Wallet verified successfully'
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
