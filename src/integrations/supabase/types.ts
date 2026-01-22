@@ -376,6 +376,87 @@ export type Database = {
           },
         ]
       }
+      earning_opportunities: {
+        Row: {
+          background_color: string | null
+          category: string
+          coming_soon_text: string | null
+          created_at: string | null
+          cta_text: string | null
+          cta_url: string | null
+          description: string
+          earn_potential: string | null
+          earn_type: string
+          icon_name: string | null
+          icon_url: string | null
+          id: string
+          is_active: boolean | null
+          is_coming_soon: boolean | null
+          is_featured: boolean | null
+          name: string
+          opens_in_new_tab: boolean | null
+          requirements: Json | null
+          short_description: string | null
+          slug: string
+          sort_order: number | null
+          stats: Json | null
+          tags: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          background_color?: string | null
+          category: string
+          coming_soon_text?: string | null
+          created_at?: string | null
+          cta_text?: string | null
+          cta_url?: string | null
+          description: string
+          earn_potential?: string | null
+          earn_type: string
+          icon_name?: string | null
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_coming_soon?: boolean | null
+          is_featured?: boolean | null
+          name: string
+          opens_in_new_tab?: boolean | null
+          requirements?: Json | null
+          short_description?: string | null
+          slug: string
+          sort_order?: number | null
+          stats?: Json | null
+          tags?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          background_color?: string | null
+          category?: string
+          coming_soon_text?: string | null
+          created_at?: string | null
+          cta_text?: string | null
+          cta_url?: string | null
+          description?: string
+          earn_potential?: string | null
+          earn_type?: string
+          icon_name?: string | null
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_coming_soon?: boolean | null
+          is_featured?: boolean | null
+          name?: string
+          opens_in_new_tab?: boolean | null
+          requirements?: Json | null
+          short_description?: string | null
+          slug?: string
+          sort_order?: number | null
+          stats?: Json | null
+          tags?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           created_at: string
