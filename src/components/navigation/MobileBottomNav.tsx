@@ -13,7 +13,7 @@ const navItems: NavItem[] = [
   { icon: Home, label: "Home", route: "/dashboard" },
   { icon: Gift, label: "Rewards", route: "/rewards" },
   { icon: Plus, label: "Get Claims", route: "/buy-claims", highlight: true },
-  { icon: Clock, label: "History", route: "/claims" },
+  { icon: Clock, label: "My Claims", route: "/claims" },
   { icon: User, label: "Profile", route: "/profile" },
 ];
 

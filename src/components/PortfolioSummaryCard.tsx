@@ -170,7 +170,7 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
             <Wallet className="w-5 h-5 text-primary" />
-            Your NCTR Portfolio
+            Your NCTR
           </CardTitle>
           <div className="flex items-center gap-2">
             {tier && (

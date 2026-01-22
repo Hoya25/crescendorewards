@@ -80,10 +80,10 @@ export function EarnNCTR() {
               <div>
                 <h1 className="text-2xl font-bold flex items-center gap-2">
                   <TrendingUp className="w-6 h-6 text-primary" />
-                  Earn NCTR
+                  Get Free Claims
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  Multiple ways to grow your NCTR portfolio
+                  Multiple ways to earn free claims
                 </p>
               </div>
             </div>

@@ -80,7 +80,7 @@ export function EarnNCTRQuickCard() {
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-emerald-500" />
-            Earn NCTR
+            Get Free Claims
           </CardTitle>
           <Button 
             variant="ghost" 

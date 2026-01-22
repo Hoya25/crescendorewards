@@ -34,7 +34,7 @@ const mainNavItems = [
   { title: 'Rewards', url: '/rewards', icon: Gift },
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'My Claims', url: '/claims', icon: Ticket, highlight: true },
-  { title: 'Earn NCTR', url: '/earn', icon: TrendingUp },
+  { title: 'Get Free Claims', url: '/earn', icon: TrendingUp },
   { title: 'Membership', url: '/membership', icon: Trophy },
   { title: 'Sponsors', url: '/sponsors', icon: Building2 },
   { title: 'Get Claims', url: '/buy-claims', icon: Coins },
@@ -49,7 +49,7 @@ const browseItems = [
 
 const accountItems = [
   { title: 'Profile', url: '/profile', icon: User },
-  { title: 'Portfolio', url: '/profile#portfolio', icon: PieChart },
+  { title: 'Your NCTR', url: '/profile#portfolio', icon: PieChart },
   { title: 'Wishlist', url: '/wishlist', icon: Heart },
   { title: 'Submit Reward', url: '/submit-reward', icon: Send },
   { title: 'My Submissions', url: '/my-submissions', icon: FileCheck },

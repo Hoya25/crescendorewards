@@ -27,8 +27,8 @@ const initialSteps: OnboardingStep[] = [
   },
   {
     id: "earn",
-    title: "Start Earning",
-    description: "Earn NCTR through The Garden",
+    title: "Get Free Claims",
+    description: "Earn free claims to redeem rewards",
     icon: Coins,
     route: "/earn",
     completed: false,
