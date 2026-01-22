@@ -7,12 +7,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Mail, Phone, MapPin, Wallet, Twitter, Instagram, 
-  MessageCircle, Send, Youtube, Video, Loader2, Package
+  MessageCircle, Send, Youtube, Video, Loader2, Package, AlertCircle
 } from 'lucide-react';
 import { useDeliveryProfile } from '@/hooks/useDeliveryProfile';
 import { useAccount } from 'wagmi';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import type { RequiredDataField, DeliveryMethod } from '@/types/delivery';
 import { DELIVERY_FIELD_CONFIGS } from '@/types/delivery';
 
@@ -240,12 +242,24 @@ export function ClaimDeliveryModal({
             }
 
             if (field === 'wallet_address') {
+              const needsWallet = !formData[field]?.trim() && !connectedWallet;
+              
               return (
                 <div key={field} className="space-y-2">
                   <Label className="flex items-center gap-2">
                     <FieldIcon field={field} />
-                    {config.label}
+                    {config.label} <span className="text-destructive">*</span>
                   </Label>
+                  
+                  {needsWallet && !formData[field] ? (
+                    <Alert className="border-amber-500/50 bg-amber-500/10">
+                      <AlertCircle className="h-4 w-4 text-amber-600" />
+                      <AlertDescription className="text-sm">
+                        A wallet address is required for blockchain-based rewards.
+                      </AlertDescription>
+                    </Alert>
+                  ) : null}
+                  
                   <div className="flex gap-2">
                     <Input
                       value={formData[field] || ''}
@@ -253,12 +267,30 @@ export function ClaimDeliveryModal({
                       placeholder={config.placeholder}
                       className="font-mono text-sm flex-1"
                     />
-                    {connectedWallet && (
+                    {connectedWallet ? (
                       <Button type="button" variant="outline" size="sm" onClick={useConnectedWallet}>
                         Use Wallet
                       </Button>
+                    ) : (
+                      <ConnectButton.Custom>
+                        {({ openConnectModal, mounted }) => (
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={openConnectModal}
+                            disabled={!mounted}
+                          >
+                            <Wallet className="w-4 h-4 mr-1" />
+                            Connect
+                          </Button>
+                        )}
+                      </ConnectButton.Custom>
                     )}
                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    Connect your wallet or enter your Base wallet address manually
+                  </p>
                 </div>
               );
             }
