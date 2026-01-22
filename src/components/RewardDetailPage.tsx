@@ -27,6 +27,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { DataErrorState } from '@/components/DataErrorState';
+import { BetaTestingNotice } from '@/components/BetaTestingNotice';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { useDeliveryProfile } from '@/hooks/useDeliveryProfile';
@@ -533,6 +534,9 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
 
       {/* Main Content - Two Columns */}
       <div className="max-w-7xl mx-auto px-4 py-6 lg:py-10">
+        {/* Beta Testing Notice */}
+        <BetaTestingNotice variant="rewards" className="mb-6" />
+        
         <div className="grid lg:grid-cols-[55%_45%] gap-8 lg:gap-12">
           
           {/* LEFT COLUMN - Image Gallery */}

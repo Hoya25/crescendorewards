@@ -27,6 +27,7 @@ import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { NCTRLogo } from '@/components/NCTRLogo';
+import { BetaTestingNotice } from '@/components/BetaTestingNotice';
 import { ClaimsPackageCard, ClaimPackage } from '@/components/claims/ClaimsPackageCard';
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress } from '@/utils/membershipLevels';
 import confetti from 'canvas-confetti';
@@ -279,7 +280,7 @@ export function BuyClaimsPage() {
                     Purchase Claims to unlock rewards and opportunities
                   </p>
                 </div>
-                <Card className="bg-gradient-to-r from-violet-500/10 to-purple-500/10 border-violet-500/20">
+                <Card className="bg-gradient-to-r from-violet-500/10 to-purple-500/10 border-violet-500/20 hidden md:block">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
                       <Ticket className="w-6 h-6 text-violet-600" />
@@ -292,6 +293,9 @@ export function BuyClaimsPage() {
                 </Card>
               </div>
             </div>
+
+            {/* Beta Notice - Claims protected */}
+            <BetaTestingNotice variant="claims" className="mb-6" />
 
             {/* Packages Grid - First row: 5 packages */}
             {loading ? (
