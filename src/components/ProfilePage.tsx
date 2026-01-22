@@ -30,6 +30,8 @@ import { ProfilePageSkeleton } from '@/components/skeletons/ProfileSkeleton';
 import { ProfileCompletion } from '@/components/ProfileCompletion';
 import type { Profile } from '@/types';
 import { useDeliveryProfile } from '@/hooks/useDeliveryProfile';
+import { PortfolioSummaryCard } from '@/components/PortfolioSummaryCard';
+import { ProfileActivityStats } from '@/components/profile/ProfileActivityStats';
 
 // Helper to extract Crescendo data from unified profile
 const getCrescendoData = (profile: any) => {
@@ -801,7 +803,8 @@ export function ProfilePage() {
               </CardContent>
             </Card>
 
-            {/* Delivery Profile Card */}
+            {/* Portfolio Summary */}
+            <PortfolioSummaryCard showLink={true} />
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -854,6 +857,9 @@ export function ProfilePage() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Activity Stats */}
+            <ProfileActivityStats />
           </div>
 
           {/* Right Column - Account Details */}
