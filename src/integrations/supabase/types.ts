@@ -1056,6 +1056,75 @@ export type Database = {
           },
         ]
       }
+      shop_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          minimum_purchase: number | null
+          nctr_per_dollar: number | null
+          store_identifier: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          minimum_purchase?: number | null
+          nctr_per_dollar?: number | null
+          store_identifier: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          minimum_purchase?: number | null
+          nctr_per_dollar?: number | null
+          store_identifier?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      shop_transactions: {
+        Row: {
+          created_at: string | null
+          customer_email: string | null
+          customer_name: string | null
+          id: string
+          metadata: Json | null
+          nctr_earned: number
+          order_number: string
+          order_total: number
+          status: string | null
+          store_identifier: string
+        }
+        Insert: {
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          id?: string
+          metadata?: Json | null
+          nctr_earned: number
+          order_number: string
+          order_total: number
+          status?: string | null
+          store_identifier: string
+        }
+        Update: {
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          id?: string
+          metadata?: Json | null
+          nctr_earned?: number
+          order_number?: string
+          order_total?: number
+          status?: string | null
+          store_identifier?: string
+        }
+        Relationships: []
+      }
       sponsor_applications: {
         Row: {
           admin_notes: string | null

@@ -68,6 +68,7 @@ const menuItems: MenuItem[] = [
   { title: 'Wishlists', view: 'wishlists', icon: Heart, badgeKey: null, permission: 'users_view' },
   { title: 'Wishlist Analytics', view: 'wishlist-analytics', icon: TrendingUp, badgeKey: null, permission: 'users_view' },
   { title: 'Sync Verification', view: 'sync-verification', icon: RefreshCw, badgeKey: null, permission: 'settings_view' },
+  { title: 'Shop Settings', view: 'shop-settings', icon: ShoppingBag, badgeKey: null, permission: 'settings_edit' },
 ];
 
 const adminManagementItems: MenuItem[] = [
