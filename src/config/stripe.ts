@@ -1,8 +1,7 @@
 // Stripe configuration - LIVE MODE
 // Publishable keys are safe to include in frontend code - they're designed to be public
 
-// TODO: Replace with your live publishable key (pk_live_...)
-export const STRIPE_PUBLISHABLE_KEY = 'pk_test_51Srj7TL2izU9EyCBe1hdPxvurYTLOosixrNjw8M9Pr8QVzu4dSAFvWxIHihZOIoaLOTq96W3kkpyRh2tJioygC8z000ZBWuji4';
+export const STRIPE_PUBLISHABLE_KEY = 'pk_live_51STsp5LH9lB6iuZgjT1CExwA8L11tx5Ixf5zBsZg0xSu5j0MwYcw1FRdtNUe97XFlav6dcYrnNfoaaZpij3rFyfY00ywbg2Y7n';
 
 // Stripe price IDs for claim packages (LIVE MODE)
 export const STRIPE_PRICES = {
