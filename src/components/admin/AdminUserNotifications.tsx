@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { formatDistanceToNow } from 'date-fns';
-import { Search, Bell, BellOff, Filter, User, Mail, AlertCircle, CheckCircle, Info, RefreshCw } from 'lucide-react';
+import { Search, Bell, BellOff, Filter, User, Mail, AlertCircle, CheckCircle, Info, RefreshCw, Send } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { SendNotificationModal } from './SendNotificationModal';
 import {
   Table,
   TableBody,
@@ -41,6 +42,7 @@ interface Notification {
 export function AdminUserNotifications() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [sendModalOpen, setSendModalOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
 
   // Fetch all notifications with user info
@@ -163,12 +165,18 @@ export function AdminUserNotifications() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">User Notifications</h2>
-          <p className="text-muted-foreground">View all notifications sent to users</p>
+          <p className="text-muted-foreground">View and send notifications to users</p>
         </div>
-        <Button variant="outline" size="sm" onClick={() => refetch()}>
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setSendModalOpen(true)}>
+            <Send className="h-4 w-4 mr-2" />
+            Send Notification
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -313,6 +321,11 @@ export function AdminUserNotifications() {
           </TableBody>
         </Table>
       </div>
+
+      <SendNotificationModal
+        open={sendModalOpen}
+        onOpenChange={setSendModalOpen}
+      />
     </div>
   );
 }
