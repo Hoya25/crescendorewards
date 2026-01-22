@@ -9,6 +9,7 @@ import { Button } from "./ui/button";
 import { supabase } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
+import { usePortfolioSync } from "@/hooks/usePortfolioSync";
 
 interface PortfolioSummaryCardProps {
   compact?: boolean;
@@ -18,6 +19,12 @@ interface PortfolioSummaryCardProps {
 export function PortfolioSummaryCard({ compact = false, showLink = true }: PortfolioSummaryCardProps) {
   const { tier, portfolio, profile, total360Locked, nextTier, progressToNextTier, loading, refreshUnifiedProfile } = useUnifiedUser();
   const [syncing, setSyncing] = useState(false);
+  
+  // Use the portfolio sync hook for optimistic updates
+  const { isSyncing: hookSyncing } = usePortfolioSync({ 
+    userId: profile?.id,
+    onSyncSuccess: () => refreshUnifiedProfile(),
+  });
 
   const handleSyncFromGarden = async () => {
     setSyncing(true);
@@ -67,6 +74,8 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
       setSyncing(false);
     }
   };
+  
+  const isCurrentlySyncing = syncing || hookSyncing;
 
   if (loading) {
     return (
@@ -144,9 +153,9 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
                 size="icon"
                 className="h-8 w-8"
                 onClick={handleSyncFromGarden}
-                disabled={syncing}
+                disabled={isCurrentlySyncing}
               >
-                <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-4 h-4 ${isCurrentlySyncing ? 'animate-spin' : ''}`} />
               </Button>
             </div>
           </div>
@@ -178,10 +187,10 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
               size="icon"
               className="h-8 w-8"
               onClick={handleSyncFromGarden}
-              disabled={syncing}
+              disabled={isCurrentlySyncing}
               title="Sync from The Garden"
             >
-              <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${isCurrentlySyncing ? 'animate-spin' : ''}`} />
             </Button>
           </div>
         </div>
@@ -201,10 +210,10 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
             </div>
             <Button 
               onClick={handleSyncFromGarden}
-              disabled={syncing}
+              disabled={isCurrentlySyncing}
               className="gap-2"
             >
-              {syncing ? (
+              {isCurrentlySyncing ? (
                 <RefreshCw className="w-4 h-4 animate-spin" />
               ) : (
                 <ExternalLink className="w-4 h-4" />
