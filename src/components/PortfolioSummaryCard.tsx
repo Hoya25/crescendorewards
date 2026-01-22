@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Lock, Wallet, TrendingUp, ExternalLink } from "lucide-react";
+import { Lock, Wallet, TrendingUp, ExternalLink, RefreshCw } from "lucide-react";
 import { NCTRLogo } from "./NCTRLogo";
 import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 import { Button } from "./ui/button";
+import { supabase } from "@/lib/supabase";
+import { toast } from "@/hooks/use-toast";
 
 interface PortfolioSummaryCardProps {
   compact?: boolean;
@@ -12,7 +15,59 @@ interface PortfolioSummaryCardProps {
 }
 
 export function PortfolioSummaryCard({ compact = false, showLink = true }: PortfolioSummaryCardProps) {
-  const { tier, portfolio, total360Locked, nextTier, progressToNextTier, loading } = useUnifiedUser();
+  const { tier, portfolio, total360Locked, nextTier, progressToNextTier, loading, refreshUnifiedProfile } = useUnifiedUser();
+  const [syncing, setSyncing] = useState(false);
+
+  const handleSyncFromGarden = async () => {
+    setSyncing(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Not authenticated",
+          description: "Please sign in to sync your portfolio",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const response = await supabase.functions.invoke('sync-garden-portfolio', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      const data = response.data;
+      
+      if (data.portfolio?.length > 0) {
+        toast({
+          title: "Portfolio synced!",
+          description: `Found ${data.portfolio.length} wallet(s) with data`,
+        });
+        await refreshUnifiedProfile();
+      } else {
+        // Open The Garden to sync
+        toast({
+          title: "No portfolio data found",
+          description: "Opening The Garden to sync your wallet...",
+        });
+        window.open('https://thegarden.nctr.live', '_blank');
+      }
+    } catch (error) {
+      console.error('Sync error:', error);
+      toast({
+        title: "Sync failed",
+        description: error instanceof Error ? error.message : "Failed to sync portfolio",
+        variant: "destructive",
+      });
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -34,6 +89,7 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
   const total90Locked = portfolio?.reduce((sum, w) => sum + (w.nctr_90_locked || 0), 0) || 0;
   const totalBalance = portfolio?.reduce((sum, w) => sum + (w.nctr_balance || 0), 0) || 0;
   const totalUnlocked = portfolio?.reduce((sum, w) => sum + (w.nctr_unlocked || 0), 0) || 0;
+  const hasPortfolioData = portfolio && portfolio.length > 0 && (total360Locked > 0 || total90Locked > 0 || totalBalance > 0);
 
   if (compact) {
     return (
@@ -49,15 +105,26 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
                 <p className="text-xl font-bold">{(total360Locked + total90Locked + totalBalance).toLocaleString()}</p>
               </div>
             </div>
-            {tier && (
-              <Badge 
-                variant="outline" 
-                className="gap-1"
-                style={{ borderColor: tier.badge_color, color: tier.badge_color }}
+            <div className="flex items-center gap-2">
+              {tier && (
+                <Badge 
+                  variant="outline" 
+                  className="gap-1"
+                  style={{ borderColor: tier.badge_color, color: tier.badge_color }}
+                >
+                  {tier.badge_emoji} {tier.display_name}
+                </Badge>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={handleSyncFromGarden}
+                disabled={syncing}
               >
-                {tier.badge_emoji} {tier.display_name}
-              </Badge>
-            )}
+                <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -72,74 +139,115 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
             <Wallet className="w-5 h-5 text-primary" />
             Your NCTR Portfolio
           </CardTitle>
-          {tier && (
-            <Badge 
-              variant="outline" 
-              className="gap-1 px-3 py-1"
-              style={{ borderColor: tier.badge_color, color: tier.badge_color }}
+          <div className="flex items-center gap-2">
+            {tier && (
+              <Badge 
+                variant="outline" 
+                className="gap-1 px-3 py-1"
+                style={{ borderColor: tier.badge_color, color: tier.badge_color }}
+              >
+                {tier.badge_emoji} {tier.display_name}
+              </Badge>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={handleSyncFromGarden}
+              disabled={syncing}
+              title="Sync from The Garden"
             >
-              {tier.badge_emoji} {tier.display_name}
-            </Badge>
-          )}
+              <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Total Balance */}
-        <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-          <span className="text-muted-foreground">Total NCTR</span>
-          <span className="text-2xl font-bold flex items-center gap-2">
-            {(total360Locked + total90Locked + totalBalance).toLocaleString()}
-            <NCTRLogo className="w-5 h-5" />
-          </span>
-        </div>
+        {!hasPortfolioData ? (
+          // No portfolio data - show sync prompt
+          <div className="text-center py-6 space-y-4">
+            <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
+              <Wallet className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="font-medium">No portfolio data found</p>
+              <p className="text-sm text-muted-foreground">
+                Sync your wallet from The Garden to see your NCTR holdings
+              </p>
+            </div>
+            <Button 
+              onClick={handleSyncFromGarden}
+              disabled={syncing}
+              className="gap-2"
+            >
+              {syncing ? (
+                <RefreshCw className="w-4 h-4 animate-spin" />
+              ) : (
+                <ExternalLink className="w-4 h-4" />
+              )}
+              Sync from The Garden
+            </Button>
+          </div>
+        ) : (
+          <>
+            {/* Total Balance */}
+            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+              <span className="text-muted-foreground">Total NCTR</span>
+              <span className="text-2xl font-bold flex items-center gap-2">
+                {(total360Locked + total90Locked + totalBalance).toLocaleString()}
+                <NCTRLogo className="w-5 h-5" />
+              </span>
+            </div>
 
-        {/* Breakdown */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
-            <div className="flex items-center gap-1 text-primary mb-1">
-              <Lock className="w-3 h-3" />
-              <span className="text-xs font-medium">360LOCK</span>
+            {/* Breakdown */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
+                <div className="flex items-center gap-1 text-primary mb-1">
+                  <Lock className="w-3 h-3" />
+                  <span className="text-xs font-medium">360LOCK</span>
+                </div>
+                <p className="font-semibold">{total360Locked.toLocaleString()}</p>
+              </div>
+              
+              <div className="p-3 rounded-lg bg-secondary/50 border border-secondary">
+                <div className="flex items-center gap-1 text-secondary-foreground mb-1">
+                  <Lock className="w-3 h-3" />
+                  <span className="text-xs font-medium">90LOCK</span>
+                </div>
+                <p className="font-semibold">{total90Locked.toLocaleString()}</p>
+              </div>
+              
+              <div className="p-3 rounded-lg bg-accent/50 border border-accent">
+                <div className="flex items-center gap-1 text-accent-foreground mb-1">
+                  <TrendingUp className="w-3 h-3" />
+                  <span className="text-xs font-medium">Available</span>
+                </div>
+                <p className="font-semibold">{(totalBalance + totalUnlocked).toLocaleString()}</p>
+              </div>
             </div>
-            <p className="font-semibold">{total360Locked.toLocaleString()}</p>
-          </div>
-          
-          <div className="p-3 rounded-lg bg-secondary/50 border border-secondary">
-            <div className="flex items-center gap-1 text-secondary-foreground mb-1">
-              <Lock className="w-3 h-3" />
-              <span className="text-xs font-medium">90LOCK</span>
-            </div>
-            <p className="font-semibold">{total90Locked.toLocaleString()}</p>
-          </div>
-          
-          <div className="p-3 rounded-lg bg-accent/50 border border-accent">
-            <div className="flex items-center gap-1 text-accent-foreground mb-1">
-              <TrendingUp className="w-3 h-3" />
-              <span className="text-xs font-medium">Available</span>
-            </div>
-            <p className="font-semibold">{(totalBalance + totalUnlocked).toLocaleString()}</p>
-          </div>
-        </div>
 
-        {/* Tier Progress */}
-        {nextTier && (
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Progress to {nextTier.display_name}</span>
-              <span className="font-medium">{Math.round(progressToNextTier)}%</span>
-            </div>
-            <Progress value={progressToNextTier} className="h-2" />
-            <p className="text-xs text-muted-foreground">
-              Lock {(nextTier.min_nctr_360_locked - total360Locked).toLocaleString()} more NCTR to reach {nextTier.display_name}
-            </p>
-          </div>
+            {/* Tier Progress */}
+            {nextTier && (
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Progress to {nextTier.display_name}</span>
+                  <span className="font-medium">{Math.round(progressToNextTier)}%</span>
+                </div>
+                <Progress value={progressToNextTier} className="h-2" />
+                <p className="text-xs text-muted-foreground">
+                  Lock {(nextTier.min_nctr_360_locked - total360Locked).toLocaleString()} more NCTR to reach {nextTier.display_name}
+                </p>
+              </div>
+            )}
+          </>
         )}
 
         {/* Link to The Garden */}
-        {showLink && (
+        {showLink && hasPortfolioData && (
           <Button 
             variant="outline" 
             className="w-full gap-2"
-            onClick={() => window.open('https://thegarden.app', '_blank')}
+            onClick={() => window.open('https://thegarden.nctr.live', '_blank')}
           >
             Manage in The Garden
             <ExternalLink className="w-4 h-4" />
