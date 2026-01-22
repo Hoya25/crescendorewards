@@ -52,17 +52,19 @@ export function EarningOpportunityCard({
     return (
       <Card 
         className={cn(
-          "relative overflow-hidden border-0 cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group",
+          "relative overflow-hidden border-0 cursor-pointer transition-all duration-300",
+          "hover:-translate-y-1 hover:shadow-xl group h-full",
+          "rounded-2xl min-w-[280px]",
           opportunity.isComingSoon && "opacity-75"
         )}
         style={{ 
-          background: `linear-gradient(135deg, ${opportunity.backgroundColor}20, ${opportunity.backgroundColor}40)`,
+          background: `linear-gradient(135deg, ${opportunity.backgroundColor}15, ${opportunity.backgroundColor}30)`,
           borderLeft: `4px solid ${opportunity.backgroundColor}`
         }}
         onClick={handleClick}
       >
         {opportunity.isComingSoon && (
-          <div className="absolute top-3 right-3 z-10">
+          <div className="absolute top-4 right-4 z-10">
             <Badge variant="secondary" className="gap-1 bg-muted/90">
               <Clock className="w-3 h-3" />
               {opportunity.comingSoonText || 'Coming Soon'}
@@ -70,62 +72,65 @@ export function EarningOpportunityCard({
           </div>
         )}
         
-        <CardContent className="p-6">
-          <div className="flex items-start gap-4">
-            <div 
-              className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 shadow-lg overflow-hidden"
-              style={{ backgroundColor: hasLogoImage ? 'transparent' : opportunity.backgroundColor }}
-            >
-              {hasLogoImage ? (
-                <img 
-                  src={opportunity.iconUrl} 
-                  alt={opportunity.name}
-                  className="w-full h-full object-contain"
-                />
-              ) : (
-                <IconComponent className="w-7 h-7 text-white" />
-              )}
-            </div>
-            
-            <div className="flex-1 min-w-0">
-              <h3 className="text-xl font-bold mb-1 group-hover:text-primary transition-colors">
-                {opportunity.name}
-              </h3>
-              
-              {opportunity.earnPotential && (
-                <Badge 
-                  variant="outline" 
-                  className="mb-2 border-primary/30 text-primary"
-                >
-                  <TrendingUp className="w-3 h-3 mr-1" />
-                  {opportunity.earnPotential}
-                </Badge>
-              )}
-              
-              <p className="text-muted-foreground text-sm line-clamp-2">
-                {opportunity.shortDescription || opportunity.description}
-              </p>
-            </div>
-
-            <Button 
-              size="sm"
-              className="shrink-0 gap-1"
-              style={{ 
-                backgroundColor: opportunity.isComingSoon ? undefined : opportunity.backgroundColor,
-                color: opportunity.isComingSoon ? undefined : 'white'
-              }}
-              variant={opportunity.isComingSoon ? "outline" : "default"}
-              disabled={opportunity.isComingSoon}
-            >
-              {opportunity.ctaText}
-              {!opportunity.isComingSoon && opportunity.ctaUrl?.startsWith('http') && (
-                <ExternalLink className="w-3 h-3" />
-              )}
-              {!opportunity.isComingSoon && !opportunity.ctaUrl?.startsWith('http') && (
-                <ArrowRight className="w-3 h-3" />
-              )}
-            </Button>
+        <CardContent className="p-6 flex flex-col h-full">
+          {/* Icon */}
+          <div 
+            className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 shadow-lg overflow-hidden mb-4"
+            style={{ backgroundColor: hasLogoImage ? 'transparent' : opportunity.backgroundColor }}
+          >
+            {hasLogoImage ? (
+              <img 
+                src={opportunity.iconUrl} 
+                alt={opportunity.name}
+                className="w-full h-full object-contain"
+              />
+            ) : (
+              <IconComponent className="w-7 h-7 text-white" />
+            )}
           </div>
+          
+          {/* Title */}
+          <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
+            {opportunity.name}
+          </h3>
+          
+          {/* Earn potential badge */}
+          {opportunity.earnPotential && (
+            <Badge 
+              variant="outline" 
+              className="w-fit mb-3 border-primary/30 text-primary text-xs"
+            >
+              <TrendingUp className="w-3 h-3 mr-1" />
+              {opportunity.earnPotential}
+            </Badge>
+          )}
+          
+          {/* Description */}
+          <p className="text-muted-foreground text-sm flex-1 mb-4">
+            {opportunity.shortDescription || opportunity.description}
+          </p>
+
+          {/* CTA Button - pill shaped */}
+          <Button 
+            className={cn(
+              "w-full rounded-full gap-2 font-medium whitespace-nowrap",
+              "transition-all duration-200"
+            )}
+            style={{ 
+              backgroundColor: opportunity.isComingSoon ? undefined : opportunity.backgroundColor,
+              color: opportunity.isComingSoon ? undefined : 'white'
+            }}
+            variant={opportunity.isComingSoon ? "outline" : "default"}
+            disabled={opportunity.isComingSoon}
+          >
+            {opportunity.ctaText}
+            {!opportunity.isComingSoon && opportunity.ctaUrl?.startsWith('http') && (
+              <ExternalLink className="w-4 h-4 shrink-0" />
+            )}
+            {!opportunity.isComingSoon && !opportunity.ctaUrl?.startsWith('http') && (
+              <ArrowRight className="w-4 h-4 shrink-0" />
+            )}
+          </Button>
         </CardContent>
       </Card>
     );
