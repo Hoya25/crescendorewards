@@ -1,4 +1,4 @@
-import { Store, LayoutDashboard, Gift, Trophy, Crown, User, Heart, FileCheck, Receipt, BarChart3, Settings, UtensilsCrossed, Coins, Shield, ShoppingBag, ExternalLink, CheckCircle2, ChevronRight, TrendingUp, Ticket, Building2, Sparkles, PieChart } from 'lucide-react';
+import { Store, LayoutDashboard, Gift, Trophy, Crown, User, Heart, FileCheck, Receipt, BarChart3, Settings, UtensilsCrossed, Coins, Shield, ShoppingBag, ExternalLink, CheckCircle2, ChevronRight, TrendingUp, Ticket, Building2, Sparkles, PieChart, Send } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
@@ -51,6 +51,7 @@ const accountItems = [
   { title: 'Profile', url: '/profile', icon: User },
   { title: 'Portfolio', url: '/profile#portfolio', icon: PieChart },
   { title: 'Wishlist', url: '/wishlist', icon: Heart },
+  { title: 'Submit Reward', url: '/submit-reward', icon: Send },
   { title: 'My Submissions', url: '/my-submissions', icon: FileCheck },
   { title: 'Purchase History', url: '/purchase-history', icon: Receipt },
   { title: 'Referral Analytics', url: '/referrals', icon: BarChart3 },
