@@ -18,6 +18,7 @@ import { ClaimsBalanceIndicator } from "./claims/ClaimsBalanceIndicator";
 import { ClaimsAccountDashboard } from "./claims/ClaimsAccountDashboard";
 import { PortfolioSummaryCard } from "./PortfolioSummaryCard";
 import { StatusBadge } from "./StatusBadge";
+import { PortfolioIndicator } from "./PortfolioIndicator";
 import { SEO } from "./SEO";
 import { NotificationsDropdown } from "./NotificationsDropdown";
 import { Footer } from "./Footer";
@@ -356,7 +357,7 @@ export function Dashboard() {
                   </button>
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                   {isAdmin && (
                     <Button
                       onClick={() => navigate('/admin')}
@@ -370,6 +371,7 @@ export function Dashboard() {
                     <Gift className="w-4 h-4" />
                     Rewards
                   </Button>
+                  <PortfolioIndicator />
                   <ClaimsBalanceIndicator />
                   <FavoritesIndicator />
                   <NotificationsDropdown />
