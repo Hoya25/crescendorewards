@@ -21,6 +21,7 @@ import { useClaimDeliveryNotifications } from "./hooks/useClaimDeliveryNotificat
 // Eagerly loaded components (critical path)
 import { LandingPage } from "./components/LandingPage";
 import { AuthModal } from "./components/AuthModal";
+import { WalletProfileCompletionModal } from "./components/WalletProfileCompletionModal";
 
 // Lazy loaded components for code splitting
 const Dashboard = lazy(() => import('./components/Dashboard').then(m => ({ default: m.Dashboard })));
@@ -63,6 +64,10 @@ function AppRoutes() {
     setShowAuthModal,
     authMode,
     setAuthMode,
+    showProfileCompletion,
+    setShowProfileCompletion,
+    walletAddress,
+    user,
   } = useAuthContext();
   const { profile, refreshUnifiedProfile } = useUnifiedUser();
 
@@ -297,6 +302,20 @@ function AppRoutes() {
           onClose={() => setShowAuthModal(false)}
           onSuccess={handleAuthSuccess}
           onToggleMode={handleToggleMode}
+        />
+      )}
+
+      {/* Wallet Profile Completion Modal - for wallet users missing name/email */}
+      {showProfileCompletion && user && walletAddress && (
+        <WalletProfileCompletionModal
+          open={showProfileCompletion}
+          onClose={() => setShowProfileCompletion(false)}
+          onComplete={() => {
+            setShowProfileCompletion(false);
+            refreshUnifiedProfile();
+          }}
+          userId={user.id}
+          walletAddress={walletAddress}
         />
       )}
 

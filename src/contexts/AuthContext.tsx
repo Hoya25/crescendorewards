@@ -12,6 +12,11 @@ interface AuthContextType {
   setShowAuthModal: (show: boolean) => void;
   authMode: 'signin' | 'signup';
   setAuthMode: (mode: 'signin' | 'signup') => void;
+  // Profile completion for wallet users
+  showProfileCompletion: boolean;
+  setShowProfileCompletion: (show: boolean) => void;
+  walletAddress: string | null;
+  needsProfileCompletion: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,6 +27,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
+  const [showProfileCompletion, setShowProfileCompletion] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [needsProfileCompletion, setNeedsProfileCompletion] = useState(false);
+
+  // Check if user needs to complete their profile (wallet users without real email/name)
+  const checkProfileCompletion = async (authUser: User) => {
+    try {
+      const email = authUser.email;
+      const fullName = authUser.user_metadata?.full_name;
+      
+      // Check if this is a wallet-generated email
+      const isWalletEmail = email?.includes('@wallet.crescendo.app');
+      
+      if (isWalletEmail) {
+        // Get the profile to check if they have real name/email
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, email, wallet_address')
+          .eq('id', authUser.id)
+          .single();
+        
+        if (profile) {
+          setWalletAddress(profile.wallet_address);
+          
+          // Check if profile has real name and non-wallet email
+          const hasRealName = profile.full_name && 
+            !profile.full_name.startsWith('User 0x');
+          const hasRealEmail = profile.email && 
+            !profile.email.includes('@wallet.crescendo.app');
+          
+          if (!hasRealName || !hasRealEmail) {
+            setNeedsProfileCompletion(true);
+            // Show modal on first load only
+            setShowProfileCompletion(true);
+          } else {
+            setNeedsProfileCompletion(false);
+          }
+        }
+      } else {
+        setNeedsProfileCompletion(false);
+      }
+    } catch (error) {
+      console.error('Error checking profile completion:', error);
+    }
+  };
 
   // Ensure unified profile exists for new users
   const ensureUnifiedProfile = async (authUser: User) => {
@@ -103,6 +153,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Use setTimeout to avoid potential Supabase auth deadlock
           setTimeout(() => {
             ensureUnifiedProfile(session.user);
+            checkProfileCompletion(session.user);
             // Track login activity on SIGNED_IN event
             if (event === 'SIGNED_IN') {
               trackLoginActivity(session.user.id);
@@ -121,6 +172,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (session?.user) {
         setTimeout(() => {
           ensureUnifiedProfile(session.user);
+          checkProfileCompletion(session.user);
           // Track activity on session restore (returning user)
           trackLoginActivity(session.user.id);
         }, 0);
@@ -136,6 +188,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
+    setNeedsProfileCompletion(false);
+    setWalletAddress(null);
   };
 
   return (
@@ -150,6 +204,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setShowAuthModal,
         authMode,
         setAuthMode,
+        showProfileCompletion,
+        setShowProfileCompletion,
+        walletAddress,
+        needsProfileCompletion,
       }}
     >
       {children}
