@@ -87,10 +87,19 @@ export function WelcomeFlow({ isOpen, onClose, claimsBalance = 0 }: WelcomeFlowP
     onClose();
   };
 
+  // Handle dialog close from any source (overlay click, escape key, etc.)
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      // Always persist onboarded state when closing
+      localStorage.setItem(ONBOARDED_KEY, "true");
+      onClose();
+    }
+  };
+
   const step = steps[currentStep];
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md p-0 overflow-hidden">
         <button
           onClick={handleDismiss}
