@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Users, Copy, Check, Share2, Gift, Lock } from 'lucide-react';
+import { Users, Copy, Check, Share2, Gift } from 'lucide-react';
 import { toast } from 'sonner';
 import { NCTRLogo } from './NCTRLogo';
+import { Skeleton } from './ui/skeleton';
 
 interface ReferralStats {
   totalReferrals: number;
+  successfulReferrals: number;
   totalEarned: number;
   signupBonus: number;
   hasClaimedSignupBonus: boolean;
@@ -16,9 +18,10 @@ interface ReferralStats {
 interface ReferralCardProps {
   stats: ReferralStats;
   referralCode: string;
+  isLoading?: boolean;
 }
 
-export function ReferralCard({ stats, referralCode }: ReferralCardProps) {
+export function ReferralCard({ stats, referralCode, isLoading }: ReferralCardProps) {
   const [copied, setCopied] = useState(false);
 
   const referralLink = `https://crescendo.app/signup?ref=${referralCode}`;
@@ -60,14 +63,30 @@ export function ReferralCard({ stats, referralCode }: ReferralCardProps) {
         )}
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-3">
           <div className="bg-white/80 dark:bg-gray-900/50 rounded-lg p-4 border border-violet-200/50 dark:border-violet-800/50">
-            <div className="text-2xl font-bold text-violet-600 dark:text-violet-400">{stats.totalReferrals}</div>
-            <div className="text-sm text-neutral-600 dark:text-neutral-400">Total Referrals</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-12 mb-1" />
+            ) : (
+              <div className="text-2xl font-bold text-violet-600 dark:text-violet-400">{stats.totalReferrals}</div>
+            )}
+            <div className="text-xs text-muted-foreground">Total Referrals</div>
           </div>
           <div className="bg-white/80 dark:bg-gray-900/50 rounded-lg p-4 border border-violet-200/50 dark:border-violet-800/50">
-            <div className="text-2xl font-bold text-violet-600 dark:text-violet-400">{stats.totalEarned}</div>
-            <div className="text-sm text-neutral-600 dark:text-neutral-400">NCTR Earned</div>
+            {isLoading ? (
+              <Skeleton className="h-8 w-12 mb-1" />
+            ) : (
+              <div className="text-2xl font-bold text-violet-600 dark:text-violet-400">{stats.successfulReferrals}</div>
+            )}
+            <div className="text-xs text-muted-foreground">Successful</div>
+          </div>
+          <div className="bg-white/80 dark:bg-gray-900/50 rounded-lg p-4 border border-violet-200/50 dark:border-violet-800/50">
+            {isLoading ? (
+              <Skeleton className="h-8 w-12 mb-1" />
+            ) : (
+              <div className="text-2xl font-bold text-violet-600 dark:text-violet-400">{stats.totalEarned}</div>
+            )}
+            <div className="text-xs text-muted-foreground">NCTR Earned</div>
           </div>
         </div>
 
