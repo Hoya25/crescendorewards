@@ -50,12 +50,10 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
         });
         await refreshUnifiedProfile();
       } else {
-        // Open The Garden to sync
         toast({
-          title: "No portfolio data found",
-          description: "Opening The Garden to sync your wallet...",
+          title: "No portfolio data yet",
+          description: "Your account is synced but no wallet data found. Link a wallet in The Garden first.",
         });
-        window.open('https://thegarden.nctr.live', '_blank');
       }
     } catch (error) {
       console.error('Sync error:', error);

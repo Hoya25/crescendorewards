@@ -48,8 +48,10 @@ export function PortfolioIndicator({ className }: PortfolioIndicatorProps) {
         toast({ title: "Portfolio synced!" });
         await refreshUnifiedProfile();
       } else {
-        toast({ title: "Opening The Garden to sync...", description: "Link your wallet there first" });
-        window.open('https://thegarden.nctr.live', '_blank');
+        toast({ 
+          title: "No portfolio data yet", 
+          description: "Link your wallet in The Garden first" 
+        });
       }
     } catch (error) {
       console.error('Sync error:', error);
