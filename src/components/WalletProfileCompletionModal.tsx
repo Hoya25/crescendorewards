@@ -18,10 +18,14 @@ interface WalletProfileCompletionModalProps {
 }
 
 const profileSchema = z.object({
-  fullName: z.string()
+  firstName: z.string()
     .trim()
-    .min(2, 'Name must be at least 2 characters')
-    .max(100, 'Name must be less than 100 characters'),
+    .min(1, 'First name is required')
+    .max(50, 'First name must be less than 50 characters'),
+  lastName: z.string()
+    .trim()
+    .min(1, 'Last name is required')
+    .max(50, 'Last name must be less than 50 characters'),
   email: z.string()
     .trim()
     .email('Please enter a valid email address')
@@ -35,21 +39,23 @@ export function WalletProfileCompletionModal({
   userId,
   walletAddress,
 }: WalletProfileCompletionModalProps) {
-  const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ fullName?: string; email?: string }>({});
+  const [errors, setErrors] = useState<{ firstName?: string; lastName?: string; email?: string }>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
 
     // Validate input
-    const result = profileSchema.safeParse({ fullName, email });
+    const result = profileSchema.safeParse({ firstName, lastName, email });
     if (!result.success) {
-      const fieldErrors: { fullName?: string; email?: string } = {};
+      const fieldErrors: { firstName?: string; lastName?: string; email?: string } = {};
       result.error.errors.forEach((err) => {
-        if (err.path[0] === 'fullName') fieldErrors.fullName = err.message;
+        if (err.path[0] === 'firstName') fieldErrors.firstName = err.message;
+        if (err.path[0] === 'lastName') fieldErrors.lastName = err.message;
         if (err.path[0] === 'email') fieldErrors.email = err.message;
       });
       setErrors(fieldErrors);
@@ -59,11 +65,13 @@ export function WalletProfileCompletionModal({
     setLoading(true);
 
     try {
+      const fullName = `${result.data.firstName} ${result.data.lastName}`;
+      
       // Update the profiles table with name and email
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
-          full_name: result.data.fullName,
+          full_name: fullName,
           email: result.data.email,
         })
         .eq('id', userId);
@@ -74,7 +82,7 @@ export function WalletProfileCompletionModal({
       const { error: unifiedError } = await supabase
         .from('unified_profiles')
         .update({
-          display_name: result.data.fullName,
+          display_name: fullName,
           email: result.data.email,
         })
         .eq('auth_user_id', userId);
@@ -125,23 +133,43 @@ export function WalletProfileCompletionModal({
           </Alert>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="fullName" className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                Full Name <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="fullName"
-                type="text"
-                placeholder="Enter your full name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                disabled={loading}
-                className={errors.fullName ? 'border-destructive' : ''}
-              />
-              {errors.fullName && (
-                <p className="text-sm text-destructive">{errors.fullName}</p>
-              )}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="firstName" className="flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  First Name <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="firstName"
+                  type="text"
+                  placeholder="First name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  disabled={loading}
+                  className={errors.firstName ? 'border-destructive' : ''}
+                />
+                {errors.firstName && (
+                  <p className="text-sm text-destructive">{errors.firstName}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="lastName" className="flex items-center gap-2">
+                  Last Name <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="lastName"
+                  type="text"
+                  placeholder="Last name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  disabled={loading}
+                  className={errors.lastName ? 'border-destructive' : ''}
+                />
+                {errors.lastName && (
+                  <p className="text-sm text-destructive">{errors.lastName}</p>
+                )}
+              </div>
             </div>
 
             <div className="space-y-2">
