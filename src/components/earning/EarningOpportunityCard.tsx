@@ -2,13 +2,13 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { EarningOpportunity } from '@/types/earning';
+import { EarningOpportunity, CATEGORY_CONFIG } from '@/types/earning';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { 
   Leaf, ShoppingBag, Zap, Target, Users, Rocket, Gift, 
   ExternalLink, Clock, TrendingUp, Coins, Store, Smartphone,
-  Handshake, Star, ArrowRight
+  Handshake, Star, ArrowRight, ChevronRight
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -190,73 +190,93 @@ export function EarningOpportunityCard({
     );
   }
 
-  // Standard variant
+  // Standard variant - horizontal card layout
+  const categoryLabel = CATEGORY_CONFIG[opportunity.category]?.label || opportunity.category;
+  
   return (
-    <Card 
+    <div 
       className={cn(
-        "relative overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group h-full",
+        "relative flex items-center gap-4 p-4 rounded-xl border bg-card cursor-pointer",
+        "transition-all duration-200 ease-out",
+        "hover:shadow-lg hover:-translate-y-0.5 hover:border-primary/20",
+        "group",
         opportunity.isComingSoon && "opacity-70"
       )}
       onClick={handleClick}
     >
-      {opportunity.isComingSoon && (
-        <div className="absolute top-2 right-2 z-10">
-          <Badge variant="secondary" className="gap-1 text-xs">
-            <Clock className="w-3 h-3" />
-            Soon
-          </Badge>
-        </div>
-      )}
-
-      <CardContent className="p-5 flex flex-col h-full">
-        <div 
-          className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 shadow-md overflow-hidden"
-          style={{ backgroundColor: hasLogoImage ? 'transparent' : opportunity.backgroundColor }}
-        >
-          {hasLogoImage ? (
-            <img 
-              src={opportunity.iconUrl} 
-              alt={opportunity.name}
-              className="w-full h-full object-contain"
-            />
-          ) : (
-            <IconComponent className="w-6 h-6 text-white" />
+      {/* Icon/Logo - 48px */}
+      <div 
+        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm overflow-hidden"
+        style={{ backgroundColor: hasLogoImage ? 'transparent' : opportunity.backgroundColor }}
+      >
+        {hasLogoImage ? (
+          <img 
+            src={opportunity.iconUrl} 
+            alt={opportunity.name}
+            className="w-full h-full object-contain"
+          />
+        ) : (
+          <IconComponent className="w-6 h-6 text-white" />
+        )}
+      </div>
+      
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="font-bold text-base group-hover:text-primary transition-colors truncate">
+            {opportunity.name}
+          </h3>
+          {opportunity.isComingSoon && (
+            <Badge variant="secondary" className="gap-1 text-xs shrink-0">
+              <Clock className="w-3 h-3" />
+              Soon
+            </Badge>
           )}
         </div>
         
-        <h3 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors">
-          {opportunity.name}
-        </h3>
+        <p className="text-muted-foreground text-sm line-clamp-2 mb-2">
+          {opportunity.shortDescription || opportunity.description}
+        </p>
         
+        {/* Category tag */}
+        <Badge 
+          variant="outline" 
+          className="text-xs"
+          style={{ 
+            borderColor: `${opportunity.backgroundColor}40`,
+            color: opportunity.backgroundColor
+          }}
+        >
+          {categoryLabel}
+        </Badge>
+      </div>
+      
+      {/* Earning badge + Arrow */}
+      <div className="flex items-center gap-3 shrink-0">
         {opportunity.earnPotential && (
           <Badge 
-            variant="outline" 
-            className="w-fit mb-2 text-xs border-primary/30 text-primary"
+            className="text-xs font-semibold whitespace-nowrap"
+            style={{ 
+              backgroundColor: `${opportunity.backgroundColor}15`,
+              color: opportunity.backgroundColor
+            }}
           >
+            <TrendingUp className="w-3 h-3 mr-1" />
             {opportunity.earnPotential}
           </Badge>
         )}
         
-        <p className="text-muted-foreground text-sm flex-1 line-clamp-3 mb-4">
-          {opportunity.shortDescription || opportunity.description}
-        </p>
-        
-        <Button 
-          size="sm"
-          className="w-full gap-1"
-          style={{ 
-            backgroundColor: opportunity.isComingSoon ? undefined : opportunity.backgroundColor,
-            color: opportunity.isComingSoon ? undefined : 'white'
-          }}
-          variant={opportunity.isComingSoon ? "outline" : "default"}
-          disabled={opportunity.isComingSoon}
-        >
-          {opportunity.ctaText}
-          {!opportunity.isComingSoon && opportunity.ctaUrl?.startsWith('http') && (
-            <ExternalLink className="w-3 h-3" />
+        <div className={cn(
+          "w-8 h-8 rounded-full flex items-center justify-center",
+          "bg-muted group-hover:bg-primary/10 transition-colors"
+        )}>
+          {opportunity.ctaUrl?.startsWith('http') ? (
+            <ExternalLink className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+          ) : (
+            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
           )}
-        </Button>
-      </CardContent>
-    </Card>
+        </div>
+      </div>
+    </div>
   );
 }
