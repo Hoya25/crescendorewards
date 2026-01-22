@@ -150,17 +150,50 @@ Deno.serve(async (req) => {
         .maybeSingle();
 
       if (existingProfile) {
-        // User exists with this wallet - return success
-        const isPlaceholderEmail = existingProfile.email?.includes('@wallet.crescendo.app');
-        
+        // User exists with this wallet - generate a token_hash we can exchange client-side
+
+        // Ensure we have an email to generate the link for
+        let authEmail = existingProfile.email ?? null;
+        if (!authEmail) {
+          const { data: authUserData, error: authUserError } = await supabase.auth.admin.getUserById(existingProfile.id);
+          if (authUserError) {
+            console.error('Failed to fetch auth user for existing wallet profile:', authUserError);
+          }
+          authEmail = authUserData?.user?.email ?? null;
+        }
+
+        if (!authEmail) {
+          return new Response(
+            JSON.stringify({ error: 'Wallet user email not found' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+          type: 'magiclink',
+          email: authEmail,
+        });
+
+        if (linkError || !linkData?.properties?.hashed_token) {
+          console.error('Failed to generate session token for existing wallet user:', linkError);
+          return new Response(
+            JSON.stringify({ error: 'Failed to generate session token' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        const isPlaceholderEmail = authEmail.includes('@wallet.crescendo.app');
+
         return new Response(
-          JSON.stringify({ 
-            success: true, 
+          JSON.stringify({
+            success: true,
             user_exists: true,
             user_id: existingProfile.id,
-            email: existingProfile.email,
+            email: authEmail,
+            token_hash: linkData.properties.hashed_token,
+            verification_type: linkData.properties.verification_type,
             needs_profile_completion: isPlaceholderEmail || !existingProfile.full_name,
-            message: 'Wallet verified successfully'
+            message: 'Wallet verified successfully',
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -196,20 +229,30 @@ Deno.serve(async (req) => {
 
       // Update profile with wallet address
       if (signUpData.user) {
+        const placeholderName = `User ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
         await supabase
           .from('profiles')
-          .update({ wallet_address: walletAddress })
+          .update({
+            wallet_address: walletAddress,
+            email: walletEmail,
+            full_name: placeholderName,
+            updated_at: new Date().toISOString(),
+          })
           .eq('id', signUpData.user.id);
       }
 
-      // Generate a session for the new user
-      const { data: sessionData, error: sessionError } = await supabase.auth.admin.generateLink({
+      // Generate a token_hash we can exchange client-side for a real session
+      const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
         type: 'magiclink',
         email: walletEmail,
       });
 
-      if (sessionError) {
-        console.error('Failed to generate session:', sessionError);
+      if (linkError || !linkData?.properties?.hashed_token) {
+        console.error('Failed to generate session token:', linkError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to generate session token' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       return new Response(
@@ -218,6 +261,9 @@ Deno.serve(async (req) => {
           user_exists: false,
           user_id: signUpData.user?.id,
           email: walletEmail,
+          token_hash: linkData.properties.hashed_token,
+          verification_type: linkData.properties.verification_type,
+          needs_profile_completion: true,
           message: 'Account created successfully'
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
