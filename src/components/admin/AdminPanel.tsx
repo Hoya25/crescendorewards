@@ -23,6 +23,7 @@ import { AdminShopSettings } from './AdminShopSettings';
 import { AdminEarningOpportunities } from './AdminEarningOpportunities';
 import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import AdminGifts from './AdminGifts';
+import { AdminUserNotifications } from './AdminUserNotifications';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 
@@ -60,6 +61,8 @@ export function AdminPanel() {
         return <WishlistAnalytics />;
       case 'users':
         return <AdminUsers />;
+      case 'user-notifications':
+        return <AdminUserNotifications />;
       case 'sync-verification':
         return <AdminSyncVerification />;
       case 'team':

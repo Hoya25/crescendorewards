@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { Search, Filter, MoreHorizontal, Eye, Coins, Gift, Copy, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Filter, MoreHorizontal, Eye, Coins, Gift, Copy, Check, ChevronLeft, ChevronRight, Bell, AlertCircle, CheckCircle, Info } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
 import { PermissionGate } from '@/components/admin/PermissionGate';
 import { useAdminRole } from '@/hooks/useAdminRole';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Table,
   TableBody,
@@ -117,6 +119,23 @@ export function AdminUsers() {
   const [rewardSearch, setRewardSearch] = useState('');
   const [selectedReward, setSelectedReward] = useState<Reward | null>(null);
   const [copiedAddress, setCopiedAddress] = useState(false);
+
+  // Fetch user notifications when profile modal is open
+  const { data: userNotifications, isLoading: notificationsLoading } = useQuery({
+    queryKey: ['admin-user-notifications', selectedUser?.id],
+    queryFn: async () => {
+      if (!selectedUser) return [];
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', selectedUser.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!selectedUser && profileModalOpen,
+  });
 
   // Fetch users
   const { data: usersData, isLoading } = useQuery({
@@ -515,80 +534,145 @@ export function AdminUsers() {
 
       {/* View Profile Modal */}
       <Dialog open={profileModalOpen} onOpenChange={setProfileModalOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle>User Profile</DialogTitle>
-            <DialogDescription>View detailed user information</DialogDescription>
+            <DialogDescription>View detailed user information and activity</DialogDescription>
           </DialogHeader>
           
           {selectedUser && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src={selectedUser.avatar_url || undefined} />
-                  <AvatarFallback className="text-lg">{getInitials(selectedUser.full_name, selectedUser.email)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="font-semibold text-lg">{selectedUser.full_name || 'Unnamed User'}</h3>
-                  <p className="text-muted-foreground">{selectedUser.email}</p>
-                  <Badge className={tierConfig[selectedUser.level]?.color || tierConfig[0].color}>
-                    {tierConfig[selectedUser.level]?.name || 'Level 1'}
-                  </Badge>
-                </div>
-              </div>
+            <Tabs defaultValue="profile" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="profile">Profile</TabsTrigger>
+                <TabsTrigger value="notifications" className="flex items-center gap-2">
+                  <Bell className="h-4 w-4" />
+                  Notifications
+                  {userNotifications && userNotifications.length > 0 && (
+                    <Badge variant="secondary" className="ml-1 h-5 px-1.5">{userNotifications.length}</Badge>
+                  )}
+                </TabsTrigger>
+              </TabsList>
               
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Locked NCTR</p>
-                  <p className="font-mono font-medium">{selectedUser.locked_nctr.toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Available NCTR</p>
-                  <p className="font-mono font-medium">{selectedUser.available_nctr.toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Claim Balance</p>
-                  <p className="font-mono font-medium">{selectedUser.claim_balance.toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Referral Code</p>
-                  <p className="font-mono">{selectedUser.referral_code || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Referred By</p>
-                  <p className="font-mono">{selectedUser.referred_by || 'None'}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Status Access Pass</p>
-                  <p>{selectedUser.has_status_access_pass ? 'Yes' : 'No'}</p>
-                </div>
-              </div>
-              
-              {selectedUser.wallet_address && (
-                <div>
-                  <p className="text-muted-foreground text-sm mb-1">Wallet Address</p>
-                  <div className="flex items-center gap-2">
-                    <code className="flex-1 bg-muted px-3 py-2 rounded text-xs font-mono truncate">
-                      {selectedUser.wallet_address}
-                    </code>
-                    <Button variant="outline" size="icon" onClick={handleCopyAddress}>
-                      {copiedAddress ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                    </Button>
+              <TabsContent value="profile" className="mt-4">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <Avatar className="h-16 w-16">
+                      <AvatarImage src={selectedUser.avatar_url || undefined} />
+                      <AvatarFallback className="text-lg">{getInitials(selectedUser.full_name, selectedUser.email)}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="font-semibold text-lg">{selectedUser.full_name || 'Unnamed User'}</h3>
+                      <p className="text-muted-foreground">{selectedUser.email}</p>
+                      <Badge className={tierConfig[selectedUser.level]?.color || tierConfig[0].color}>
+                        {tierConfig[selectedUser.level]?.name || 'Level 1'}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-muted-foreground">Locked NCTR</p>
+                      <p className="font-mono font-medium">{selectedUser.locked_nctr.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Available NCTR</p>
+                      <p className="font-mono font-medium">{selectedUser.available_nctr.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Claim Balance</p>
+                      <p className="font-mono font-medium">{selectedUser.claim_balance.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Referral Code</p>
+                      <p className="font-mono">{selectedUser.referral_code || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Referred By</p>
+                      <p className="font-mono">{selectedUser.referred_by || 'None'}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Status Access Pass</p>
+                      <p>{selectedUser.has_status_access_pass ? 'Yes' : 'No'}</p>
+                    </div>
+                  </div>
+                  
+                  {selectedUser.wallet_address && (
+                    <div>
+                      <p className="text-muted-foreground text-sm mb-1">Wallet Address</p>
+                      <div className="flex items-center gap-2">
+                        <code className="flex-1 bg-muted px-3 py-2 rounded text-xs font-mono truncate">
+                          {selectedUser.wallet_address}
+                        </code>
+                        <Button variant="outline" size="icon" onClick={handleCopyAddress}>
+                          {copiedAddress ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="grid grid-cols-2 gap-4 text-sm border-t pt-4">
+                    <div>
+                      <p className="text-muted-foreground">Created</p>
+                      <p>{new Date(selectedUser.created_at).toLocaleDateString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Last Active</p>
+                      <p>{formatDistanceToNow(new Date(selectedUser.updated_at), { addSuffix: true })}</p>
+                    </div>
                   </div>
                 </div>
-              )}
+              </TabsContent>
               
-              <div className="grid grid-cols-2 gap-4 text-sm border-t pt-4">
-                <div>
-                  <p className="text-muted-foreground">Created</p>
-                  <p>{new Date(selectedUser.created_at).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Last Active</p>
-                  <p>{formatDistanceToNow(new Date(selectedUser.updated_at), { addSuffix: true })}</p>
-                </div>
-              </div>
-            </div>
+              <TabsContent value="notifications" className="mt-4">
+                <ScrollArea className="h-[350px] pr-4">
+                  {notificationsLoading ? (
+                    <div className="space-y-3">
+                      {[1, 2, 3].map((i) => (
+                        <Skeleton key={i} className="h-16 w-full" />
+                      ))}
+                    </div>
+                  ) : userNotifications && userNotifications.length > 0 ? (
+                    <div className="space-y-3">
+                      {userNotifications.map((notif: any) => (
+                        <div
+                          key={notif.id}
+                          className={`p-3 rounded-lg border ${!notif.is_read ? 'bg-muted/50 border-primary/20' : 'bg-background'}`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="shrink-0 mt-0.5">
+                              {notif.type.includes('approved') ? (
+                                <CheckCircle className="h-4 w-4 text-green-500" />
+                              ) : notif.type.includes('rejected') ? (
+                                <AlertCircle className="h-4 w-4 text-destructive" />
+                              ) : (
+                                <Info className="h-4 w-4 text-blue-500" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2">
+                                <p className="font-medium text-sm">{notif.title}</p>
+                                <Badge variant={notif.is_read ? 'secondary' : 'default'} className="shrink-0 text-xs">
+                                  {notif.is_read ? 'Read' : 'Unread'}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground mt-0.5">{notif.message}</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {formatDistanceToNow(new Date(notif.created_at), { addSuffix: true })}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
+                      <Bell className="h-8 w-8 mb-2 opacity-50" />
+                      <p>No notifications for this user</p>
+                    </div>
+                  )}
+                </ScrollArea>
+              </TabsContent>
+            </Tabs>
           )}
         </DialogContent>
       </Dialog>
