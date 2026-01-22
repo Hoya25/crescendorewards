@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { Search, Filter, MoreHorizontal, Eye, Coins, Gift, Copy, Check, ChevronLeft, ChevronRight, Bell, AlertCircle, CheckCircle, Info } from 'lucide-react';
+import { Search, Filter, MoreHorizontal, Eye, Coins, Gift, Copy, Check, ChevronLeft, ChevronRight, Bell, AlertCircle, CheckCircle, Info, Send } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,7 @@ import { PermissionGate } from '@/components/admin/PermissionGate';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { SendNotificationModal } from './SendNotificationModal';
 import {
   Table,
   TableBody,
@@ -108,6 +109,7 @@ export function AdminUsers() {
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [adjustModalOpen, setAdjustModalOpen] = useState(false);
   const [giftModalOpen, setGiftModalOpen] = useState(false);
+  const [notifyModalOpen, setNotifyModalOpen] = useState(false);
   
   // Adjust claims form state
   const [adjustType, setAdjustType] = useState<'add' | 'subtract'>('add');
@@ -491,6 +493,10 @@ export function AdminUsers() {
                               <Gift className="h-4 w-4 mr-2" />
                               Gift Reward
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => { setSelectedUser(user); setNotifyModalOpen(true); }}>
+                              <Send className="h-4 w-4 mr-2" />
+                              Send Notification
+                            </DropdownMenuItem>
                           </PermissionGate>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -862,6 +868,14 @@ export function AdminUsers() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Send Notification Modal */}
+      <SendNotificationModal
+        open={notifyModalOpen}
+        onOpenChange={setNotifyModalOpen}
+        preselectedUserId={selectedUser?.id}
+        preselectedUserName={selectedUser?.full_name || selectedUser?.email || undefined}
+      />
     </div>
   );
 }
