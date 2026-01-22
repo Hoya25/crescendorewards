@@ -12,9 +12,15 @@ import { CATEGORY_CONFIG, EarningCategory } from '@/types/earning';
 import { SEO } from '@/components/SEO';
 import { cn } from '@/lib/utils';
 import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { 
   TrendingUp, Coins, ArrowLeft, RefreshCw, Sparkles, 
   ShoppingBag, Smartphone, Users, Rocket, Handshake, AlertCircle,
-  ExternalLink, Mail
+  ExternalLink, Mail, Info, Gift
 } from 'lucide-react';
 
 const categoryIcons: Record<EarningCategory | 'all', React.ElementType> = {
@@ -70,43 +76,79 @@ export function EarnNCTR() {
       
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={() => navigate('/dashboard')}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between gap-4">
+            {/* Left: Back button + Title */}
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => navigate('/dashboard')}
+                className="h-9 px-3"
+              >
+                <ArrowLeft className="w-4 h-4 mr-1.5" />
+                <span className="hidden sm:inline">Back</span>
               </Button>
+              
+              <div className="h-6 w-px bg-border hidden sm:block" />
+              
               <div>
-                <h1 className="text-2xl font-bold flex items-center gap-2">
-                  <TrendingUp className="w-6 h-6 text-primary" />
+                <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+                  <Gift className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   Get Free Claims
                 </h1>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   Multiple ways to earn free claims
                 </p>
               </div>
             </div>
             
-            {/* User's NCTR Balance */}
-            <div 
-              className="hidden md:flex items-center gap-3 px-4 py-2 rounded-lg border cursor-pointer hover:bg-accent/50 transition-colors"
-              onClick={() => navigate('/profile')}
-            >
-              <NCTRLogo className="w-5 h-5" />
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground">Your 360LOCK</p>
-                <p className="font-bold">{total360Locked.toLocaleString()}</p>
-              </div>
-              {tier && (
-                <Badge 
-                  variant="outline"
-                  style={{ borderColor: tier.badge_color, color: tier.badge_color }}
-                >
-                  {tier.badge_emoji}
-                </Badge>
-              )}
-            </div>
+            {/* Right: 360LOCK Badge */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div 
+                    className="hidden md:flex items-center gap-3 px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 cursor-pointer hover:bg-muted hover:border-primary/20 transition-all duration-200"
+                    onClick={() => navigate('/profile')}
+                  >
+                    <NCTRLogo className="w-5 h-5" />
+                    <div className="text-right">
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <span>Your 360LOCK</span>
+                        <Info className="w-3 h-3" />
+                      </div>
+                      <p className="font-bold text-sm">{total360Locked.toLocaleString()} NCTR</p>
+                    </div>
+                    {tier && (
+                      <Badge 
+                        variant="outline"
+                        className="ml-1"
+                        style={{ borderColor: tier.badge_color, color: tier.badge_color }}
+                      >
+                        {tier.badge_emoji} {tier.display_name}
+                      </Badge>
+                    )}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs">
+                  <p className="font-medium mb-1">What is 360LOCK?</p>
+                  <p className="text-xs text-muted-foreground">
+                    NCTR tokens locked for 360 days. Higher locks mean better membership tier, 
+                    lower reward costs, and exclusive benefits.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
+        
+        {/* Value Proposition Banner */}
+        <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border-t border-primary/10">
+          <div className="container mx-auto px-4 py-2.5">
+            <p className="text-center text-sm text-muted-foreground">
+              <Sparkles className="w-3.5 h-3.5 inline-block mr-1.5 text-primary" />
+              Every purchase and action earns you <span className="font-medium text-foreground">NCTR toward free rewards</span>
+            </p>
           </div>
         </div>
       </div>
