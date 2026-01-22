@@ -23,6 +23,7 @@ import { SEO } from "./SEO";
 import { NotificationsDropdown } from "./NotificationsDropdown";
 import { Footer } from "./Footer";
 import { SponsoredRewardsCarousel } from "./rewards/SponsoredRewardsCarousel";
+import { EarnNCTRQuickCard } from "./dashboard/EarnNCTRQuickCard";
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress, getNCTRNeededForNextLevel } from '@/utils/membershipLevels';
 import { useTheme } from "./ThemeProvider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
@@ -459,10 +460,11 @@ export function Dashboard() {
               {/* 2. Simplified Quick Actions (3 cards) */}
               <SimplifiedQuickActions navigate={navigate} claimBalance={claimBalance} />
 
-              {/* 3. Portfolio & Claims Section */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* 3. Portfolio, Claims & Earn Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <PortfolioSummaryCard />
                 <ClaimsAccountDashboard />
+                <EarnNCTRQuickCard />
               </div>
 
               {/* 4. Featured Rewards Section */}
