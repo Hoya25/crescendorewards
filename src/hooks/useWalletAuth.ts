@@ -14,6 +14,9 @@ interface VerifyResponse {
   user_exists: boolean;
   user_id?: string;
   email?: string;
+  token_hash?: string;
+  verification_type?: string;
+  needs_profile_completion?: boolean;
   message: string;
   error?: string;
 }
@@ -108,29 +111,34 @@ export function useWalletAuth() {
         return { success: false };
       }
 
-      // Step 4: Handle authentication based on user status
-      if (verifyResult.user_exists) {
-        // Existing user - try to sign in with wallet email
-        const walletEmail = `${address.toLowerCase()}@wallet.crescendo.app`;
-        
-        // Check if current user is already signed in
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (user && user.id === verifyResult.user_id) {
-          toast.success('Wallet connected successfully! 🎉');
-          return { success: true, isNewUser: false };
-        }
+      // Step 4: Exchange token_hash for a real session
+      if (!verifyResult.token_hash) {
+        toast.error('Server did not return session token');
+        return { success: false };
+      }
 
-        // User exists but not signed in - they need to link or have existing session
-        toast.success('Wallet verified! 🎉');
-        return { success: true, isNewUser: false };
+      const { data: otpData, error: otpError } = await supabase.auth.verifyOtp({
+        token_hash: verifyResult.token_hash,
+        type: 'magiclink',
+      });
+
+      if (otpError || !otpData?.session) {
+        console.error('Failed to establish session:', otpError);
+        toast.error('Failed to sign in with wallet');
+        return { success: false };
+      }
+
+      // Successfully signed in
+      if (verifyResult.user_exists) {
+        if (verifyResult.needs_profile_completion) {
+          toast.success('Wallet connected! Please complete your profile.');
+        } else {
+          toast.success('Wallet connected successfully! 🎉');
+        }
+        return { success: true, isNewUser: false, needsProfileCompletion: verifyResult.needs_profile_completion };
       } else {
-        // New user was created server-side
-        // Sign them in with the wallet email
-        const walletEmail = verifyResult.email || `${address.toLowerCase()}@wallet.crescendo.app`;
-        
         toast.success('Account created with wallet! Welcome to Crescendo! 🎉');
-        return { success: true, isNewUser: true };
+        return { success: true, isNewUser: true, needsProfileCompletion: true };
       }
     } catch (error: unknown) {
       console.error('Wallet auth error:', error);
