@@ -21,7 +21,8 @@ interface AuthModalProps {
 export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { authenticateWallet, isConnected } = useWalletAuth();
@@ -34,6 +35,10 @@ export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalP
 
   const validatePassword = (password: string) => {
     return password.length >= 6;
+  };
+
+  const validateName = (name: string) => {
+    return name.trim().length >= 1 && name.trim().length <= 50;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,21 +56,30 @@ export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalP
       return;
     }
 
-    if (mode === 'signup' && !fullName.trim()) {
-      setError('Please enter your full name');
-      return;
+    if (mode === 'signup') {
+      if (!validateName(firstName)) {
+        setError('Please enter your first name');
+        return;
+      }
+      if (!validateName(lastName)) {
+        setError('Please enter your last name');
+        return;
+      }
     }
 
     setLoading(true);
 
     try {
       if (mode === 'signup') {
+        const fullName = `${firstName.trim()} ${lastName.trim()}`;
         const { data, error: signUpError } = await supabase.auth.signUp({
           email: email.trim(),
           password,
           options: {
             data: {
-              full_name: fullName.trim(),
+              full_name: fullName,
+              first_name: firstName.trim(),
+              last_name: lastName.trim(),
             },
             emailRedirectTo: `${window.location.origin}/`,
           },
@@ -173,17 +187,31 @@ export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalP
           {/* Email & Password Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="Enter your full name"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  disabled={loading}
-                  required
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    type="text"
+                    placeholder="First name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    disabled={loading}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    placeholder="Last name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    disabled={loading}
+                    required
+                  />
+                </div>
               </div>
             )}
 
