@@ -1758,6 +1758,10 @@ export type Database = {
       }
       get_reward_watch_count: { Args: { p_reward_id: string }; Returns: number }
       get_sponsor_stats: { Args: { p_sponsor_id: string }; Returns: Json }
+      get_unified_user_profile: {
+        Args: { p_auth_user_id: string }
+        Returns: Json
+      }
       get_user_activity: {
         Args: { p_limit?: number; p_user_id: string }
         Returns: {
