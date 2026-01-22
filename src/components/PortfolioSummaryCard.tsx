@@ -2,12 +2,13 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Lock, Wallet, TrendingUp, ExternalLink, RefreshCw } from "lucide-react";
+import { Lock, Wallet, TrendingUp, ExternalLink, RefreshCw, Clock } from "lucide-react";
 import { NCTRLogo } from "./NCTRLogo";
 import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 import { Button } from "./ui/button";
 import { supabase } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
+import { formatDistanceToNow } from "date-fns";
 
 interface PortfolioSummaryCardProps {
   compact?: boolean;
@@ -88,6 +89,13 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
   const totalBalance = portfolio?.reduce((sum, w) => sum + (w.nctr_balance || 0), 0) || 0;
   const totalUnlocked = portfolio?.reduce((sum, w) => sum + (w.nctr_unlocked || 0), 0) || 0;
   const hasPortfolioData = portfolio && portfolio.length > 0 && (total360Locked > 0 || total90Locked > 0 || totalBalance > 0);
+  
+  // Get the most recent sync time from all wallets
+  const lastSyncedAt = portfolio?.reduce((latest, w) => {
+    if (!w.last_synced_at) return latest;
+    const syncDate = new Date(w.last_synced_at);
+    return !latest || syncDate > latest ? syncDate : latest;
+  }, null as Date | null);
 
   if (compact) {
     return (
@@ -235,6 +243,13 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
                 <p className="text-xs text-muted-foreground">
                   Lock {(nextTier.min_nctr_360_locked - total360Locked).toLocaleString()} more NCTR to reach {nextTier.display_name}
                 </p>
+              </div>
+            )}
+            {/* Last Synced Indicator */}
+            {lastSyncedAt && (
+              <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+                <Clock className="w-3 h-3" />
+                <span>Synced {formatDistanceToNow(lastSyncedAt, { addSuffix: true })}</span>
               </div>
             )}
           </>
