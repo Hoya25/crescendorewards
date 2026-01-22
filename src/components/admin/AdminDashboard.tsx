@@ -431,6 +431,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       icon: Users,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/10',
+      navigateTo: 'users' as const,
     },
     {
       title: 'Total Contributors',
@@ -438,6 +439,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       icon: Award,
       color: 'text-purple-500',
       bgColor: 'bg-purple-500/10',
+      navigateTo: 'submissions' as const,
     },
     {
       title: 'Active Rewards',
@@ -445,6 +447,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       icon: Gift,
       color: 'text-green-500',
       bgColor: 'bg-green-500/10',
+      navigateTo: 'rewards' as const,
     },
     {
       title: 'Claims This Week',
@@ -452,6 +455,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       icon: ShoppingCart,
       color: 'text-amber-500',
       bgColor: 'bg-amber-500/10',
+      navigateTo: 'claims' as const,
     },
   ];
 
@@ -506,7 +510,11 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
       {/* Row 1: Key Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {keyMetrics.map((metric, index) => (
-          <Card key={index} className="hover:shadow-md transition-shadow">
+          <Card 
+            key={index} 
+            className="hover:shadow-md transition-shadow cursor-pointer hover:border-primary/50"
+            onClick={() => handleNavigate(metric.navigateTo)}
+          >
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 {metric.title}
