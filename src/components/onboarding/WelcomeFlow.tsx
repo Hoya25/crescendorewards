@@ -74,9 +74,8 @@ export function WelcomeFlow({ isOpen, onClose, claimsBalance = 0 }: WelcomeFlowP
   };
 
   const handleComplete = (destination: string) => {
-    if (dontShowAgain) {
-      localStorage.setItem(ONBOARDED_KEY, "true");
-    }
+    // Always mark as onboarded when completing the flow
+    localStorage.setItem(ONBOARDED_KEY, "true");
     onClose();
     if (destination) {
       navigate(destination);
