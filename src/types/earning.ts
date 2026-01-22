@@ -1,5 +1,5 @@
-export type EarningCategory = 'shopping' | 'apps' | 'partners' | 'community' | 'missions';
-export type EarnType = 'cashback' | 'task' | 'referral' | 'purchase' | 'activity';
+export type EarningCategory = 'shopping' | 'apps' | 'partners' | 'community' | 'impact';
+export type EarnType = 'nctr' | 'task' | 'referral' | 'purchase' | 'activity';
 
 export interface EarningOpportunity {
   id: string;
@@ -35,5 +35,5 @@ export const CATEGORY_CONFIG: Record<EarningCategory, { label: string; icon: str
   apps: { label: 'Apps', icon: 'Smartphone', description: 'Earn through NCTR apps' },
   partners: { label: 'Partners', icon: 'Handshake', description: 'Earn with partner brands' },
   community: { label: 'Community', icon: 'Users', description: 'Earn by growing the community' },
-  missions: { label: 'Missions', icon: 'Rocket', description: 'Earn in Mission Engines' },
+  impact: { label: 'Impact', icon: 'Rocket', description: 'Earn in Impact Engines' },
 };

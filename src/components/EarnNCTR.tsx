@@ -23,7 +23,7 @@ const categoryIcons: Record<EarningCategory | 'all', React.ElementType> = {
   apps: Smartphone,
   partners: Handshake,
   community: Users,
-  missions: Rocket,
+  impact: Rocket,
 };
 
 export function EarnNCTR() {

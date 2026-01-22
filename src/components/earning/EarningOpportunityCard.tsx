@@ -27,6 +27,7 @@ export function EarningOpportunityCard({
 }: EarningOpportunityCardProps) {
   const navigate = useNavigate();
   const IconComponent = iconMap[opportunity.iconName] || Gift;
+  const hasLogoImage = opportunity.iconUrl && opportunity.iconUrl.length > 0;
 
   const handleClick = () => {
     if (opportunity.isComingSoon) {
@@ -72,10 +73,18 @@ export function EarningOpportunityCard({
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
             <div 
-              className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 shadow-lg"
-              style={{ backgroundColor: opportunity.backgroundColor }}
+              className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 shadow-lg overflow-hidden"
+              style={{ backgroundColor: hasLogoImage ? 'transparent' : opportunity.backgroundColor }}
             >
-              <IconComponent className="w-7 h-7 text-white" />
+              {hasLogoImage ? (
+                <img 
+                  src={opportunity.iconUrl} 
+                  alt={opportunity.name}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <IconComponent className="w-7 h-7 text-white" />
+              )}
             </div>
             
             <div className="flex-1 min-w-0">
@@ -132,13 +141,21 @@ export function EarningOpportunityCard({
         onClick={handleClick}
       >
         <div 
-          className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
-          style={{ backgroundColor: `${opportunity.backgroundColor}20` }}
+          className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 overflow-hidden"
+          style={{ backgroundColor: hasLogoImage ? 'transparent' : `${opportunity.backgroundColor}20` }}
         >
-          <IconComponent 
-            className="w-5 h-5" 
-            style={{ color: opportunity.backgroundColor }} 
-          />
+          {hasLogoImage ? (
+            <img 
+              src={opportunity.iconUrl} 
+              alt={opportunity.name}
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <IconComponent 
+              className="w-5 h-5" 
+              style={{ color: opportunity.backgroundColor }} 
+            />
+          )}
         </div>
         
         <div className="flex-1 min-w-0">
@@ -188,10 +205,18 @@ export function EarningOpportunityCard({
 
       <CardContent className="p-5 flex flex-col h-full">
         <div 
-          className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 shadow-md"
-          style={{ backgroundColor: opportunity.backgroundColor }}
+          className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 shadow-md overflow-hidden"
+          style={{ backgroundColor: hasLogoImage ? 'transparent' : opportunity.backgroundColor }}
         >
-          <IconComponent className="w-6 h-6 text-white" />
+          {hasLogoImage ? (
+            <img 
+              src={opportunity.iconUrl} 
+              alt={opportunity.name}
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <IconComponent className="w-6 h-6 text-white" />
+          )}
         </div>
         
         <h3 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors">
