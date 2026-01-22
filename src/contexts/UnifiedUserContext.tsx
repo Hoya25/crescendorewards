@@ -307,6 +307,33 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
     }
   }, [user, fetchUnifiedProfile]);
 
+  // Real-time subscription to wallet_portfolio changes
+  useEffect(() => {
+    if (!profile?.id) return;
+
+    const channel = supabase
+      .channel(`wallet_portfolio_${profile.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'wallet_portfolio',
+          filter: `user_id=eq.${profile.id}`,
+        },
+        (payload) => {
+          console.log('Portfolio updated via realtime:', payload);
+          // Refresh the profile to get updated data
+          fetchUnifiedProfile();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.id, fetchUnifiedProfile]);
+
   return (
     <UnifiedUserContext.Provider
       value={{
