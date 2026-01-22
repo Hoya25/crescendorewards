@@ -36,11 +36,11 @@ const categoryOptions = [
   { value: 'apps', label: 'Apps' },
   { value: 'partners', label: 'Partners' },
   { value: 'community', label: 'Community' },
-  { value: 'missions', label: 'Missions' },
+  { value: 'impact', label: 'Impact' },
 ];
 
 const earnTypeOptions = [
-  { value: 'cashback', label: 'Cashback' },
+  { value: 'nctr', label: 'NCTR' },
   { value: 'task', label: 'Task' },
   { value: 'referral', label: 'Referral' },
   { value: 'purchase', label: 'Purchase' },
@@ -54,6 +54,7 @@ interface EarningOpportunityRow {
   description: string;
   short_description: string | null;
   icon_name: string;
+  icon_url: string | null;
   background_color: string;
   category: string;
   earn_type: string;
@@ -73,9 +74,10 @@ const defaultFormData = {
   description: '',
   short_description: '',
   icon_name: 'Gift',
+  icon_url: '',
   background_color: '#8B5CF6',
   category: 'shopping',
-  earn_type: 'cashback',
+  earn_type: 'nctr',
   earn_potential: '',
   cta_text: 'Start Earning',
   cta_url: '',
@@ -134,6 +136,7 @@ export function AdminEarningOpportunities() {
       description: opp.description,
       short_description: opp.short_description || '',
       icon_name: opp.icon_name,
+      icon_url: opp.icon_url || '',
       background_color: opp.background_color,
       category: opp.category,
       earn_type: opp.earn_type,
@@ -169,6 +172,7 @@ export function AdminEarningOpportunities() {
       description: formData.description,
       short_description: formData.short_description || null,
       icon_name: formData.icon_name,
+      icon_url: formData.icon_url || null,
       background_color: formData.background_color,
       category: formData.category,
       earn_type: formData.earn_type,
@@ -312,10 +316,14 @@ export function AdminEarningOpportunities() {
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <div 
-                          className="w-8 h-8 rounded-lg flex items-center justify-center"
-                          style={{ backgroundColor: opp.background_color }}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden"
+                          style={{ backgroundColor: opp.icon_url ? 'transparent' : opp.background_color }}
                         >
-                          <IconComp className="w-4 h-4 text-white" />
+                          {opp.icon_url ? (
+                            <img src={opp.icon_url} alt={opp.name} className="w-full h-full object-contain" />
+                          ) : (
+                            <IconComp className="w-4 h-4 text-white" />
+                          )}
                         </div>
                         <span className="font-medium">{opp.name}</span>
                       </div>
@@ -329,7 +337,7 @@ export function AdminEarningOpportunities() {
                     <TableCell>
                       <div className="flex gap-1">
                         {opp.is_active ? (
-                          <Badge className="bg-green-500">Active</Badge>
+                          <Badge className="bg-primary text-primary-foreground">Active</Badge>
                         ) : (
                           <Badge variant="secondary">Inactive</Badge>
                         )}
@@ -428,9 +436,21 @@ export function AdminEarningOpportunities() {
               />
             </div>
 
+            <div className="space-y-2">
+              <Label>Logo Image URL (optional - overrides icon)</Label>
+              <Input
+                value={formData.icon_url}
+                onChange={e => setFormData(prev => ({ ...prev, icon_url: e.target.value }))}
+                placeholder="https://example.com/logo.png"
+              />
+              <p className="text-xs text-muted-foreground">
+                Upload logos to Storage then paste the URL here. If set, this overrides the icon below.
+              </p>
+            </div>
+
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>Icon</Label>
+                <Label>Fallback Icon</Label>
                 <Select 
                   value={formData.icon_name}
                   onValueChange={v => setFormData(prev => ({ ...prev, icon_name: v }))}
@@ -469,10 +489,14 @@ export function AdminEarningOpportunities() {
               <div className="space-y-2">
                 <Label>Preview</Label>
                 <div 
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: formData.background_color }}
+                  className="w-12 h-12 rounded-xl flex items-center justify-center overflow-hidden"
+                  style={{ backgroundColor: formData.icon_url ? 'transparent' : formData.background_color }}
                 >
-                  <IconPreview className="w-6 h-6 text-white" />
+                  {formData.icon_url ? (
+                    <img src={formData.icon_url} alt="Preview" className="w-full h-full object-contain" />
+                  ) : (
+                    <IconPreview className="w-6 h-6 text-white" />
+                  )}
                 </div>
               </div>
             </div>
