@@ -120,13 +120,13 @@ export function EarnNCTR() {
           </div>
           
           {isLoading ? (
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[1, 2, 3].map(i => (
-                <Skeleton key={i} className="h-40 rounded-xl" />
+                <Skeleton key={i} className="h-64 rounded-2xl" />
               ))}
             </div>
           ) : (
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {featured.map(opportunity => (
                 <EarningOpportunityCard 
                   key={opportunity.id}
