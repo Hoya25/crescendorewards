@@ -23,6 +23,7 @@ import { SEO } from "./SEO";
 import { NotificationsDropdown } from "./NotificationsDropdown";
 import { Footer } from "./Footer";
 import { SponsoredRewardsCarousel } from "./rewards/SponsoredRewardsCarousel";
+import { BetaTestingNotice } from "./BetaTestingNotice";
 import { EarnNCTRQuickCard } from "./dashboard/EarnNCTRQuickCard";
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress, getNCTRNeededForNextLevel } from '@/utils/membershipLevels';
 import { useTheme } from "./ThemeProvider";
@@ -441,6 +442,9 @@ export function Dashboard() {
           {/* Main Content */}
           <main className="flex-1 p-4 md:p-6">
             <div className="max-w-7xl mx-auto space-y-8">
+              
+              {/* Beta Testing Notice */}
+              <BetaTestingNotice variant="compact" />
 
               {/* Needs Your Attention (kept) */}
               <NeedsAttention />
