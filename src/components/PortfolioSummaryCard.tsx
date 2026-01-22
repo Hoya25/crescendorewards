@@ -16,7 +16,7 @@ interface PortfolioSummaryCardProps {
 }
 
 export function PortfolioSummaryCard({ compact = false, showLink = true }: PortfolioSummaryCardProps) {
-  const { tier, portfolio, total360Locked, nextTier, progressToNextTier, loading, refreshUnifiedProfile } = useUnifiedUser();
+  const { tier, portfolio, profile, total360Locked, nextTier, progressToNextTier, loading, refreshUnifiedProfile } = useUnifiedUser();
   const [syncing, setSyncing] = useState(false);
 
   const handleSyncFromGarden = async () => {
@@ -85,10 +85,22 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
   }
 
   // Calculate totals from portfolio
-  const total90Locked = portfolio?.reduce((sum, w) => sum + (w.nctr_90_locked || 0), 0) || 0;
-  const totalBalance = portfolio?.reduce((sum, w) => sum + (w.nctr_balance || 0), 0) || 0;
-  const totalUnlocked = portfolio?.reduce((sum, w) => sum + (w.nctr_unlocked || 0), 0) || 0;
-  const hasPortfolioData = portfolio && portfolio.length > 0 && (total360Locked > 0 || total90Locked > 0 || totalBalance > 0);
+  const portfolioTotal90 = portfolio?.reduce((sum, w) => sum + (w.nctr_90_locked || 0), 0) || 0;
+  const portfolioBalance = portfolio?.reduce((sum, w) => sum + (w.nctr_balance || 0), 0) || 0;
+  const portfolioUnlocked = portfolio?.reduce((sum, w) => sum + (w.nctr_unlocked || 0), 0) || 0;
+  
+  // Fallback to crescendo_data if wallet_portfolio is empty
+  const crescendoLocked = (profile?.crescendo_data?.locked_nctr as number) || 0;
+  const crescendoAvailable = (profile?.crescendo_data?.available_nctr as number) || 0;
+  const hasWalletData = portfolio && portfolio.length > 0 && (portfolioTotal90 > 0 || portfolioBalance > 0 || portfolioUnlocked > 0);
+  
+  // Use wallet data if available, otherwise use crescendo_data
+  const total90Locked = hasWalletData ? portfolioTotal90 : 0;
+  const totalBalance = hasWalletData ? portfolioBalance : crescendoAvailable;
+  const totalUnlocked = hasWalletData ? portfolioUnlocked : 0;
+  
+  // Has data if either wallet_portfolio or crescendo_data has values
+  const hasPortfolioData = (portfolio && portfolio.length > 0) || total360Locked > 0 || totalBalance > 0;
   
   // Get the most recent sync time from all wallets
   const lastSyncedAt = portfolio?.reduce((latest, w) => {
@@ -96,6 +108,12 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
     const syncDate = new Date(w.last_synced_at);
     return !latest || syncDate > latest ? syncDate : latest;
   }, null as Date | null);
+  
+  // Fallback sync time from crescendo_data
+  const crescendoSyncedAt = profile?.crescendo_data?.synced_at 
+    ? new Date(profile.crescendo_data.synced_at as string) 
+    : null;
+  const displaySyncTime = lastSyncedAt || crescendoSyncedAt;
 
   if (compact) {
     return (
@@ -246,10 +264,10 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
               </div>
             )}
             {/* Last Synced Indicator */}
-            {lastSyncedAt && (
+            {displaySyncTime && (
               <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
                 <Clock className="w-3 h-3" />
-                <span>Synced {formatDistanceToNow(lastSyncedAt, { addSuffix: true })}</span>
+                <span>Synced {formatDistanceToNow(displaySyncTime, { addSuffix: true })}</span>
               </div>
             )}
           </>

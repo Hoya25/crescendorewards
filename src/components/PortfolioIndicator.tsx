@@ -19,15 +19,20 @@ interface PortfolioIndicatorProps {
 }
 
 export function PortfolioIndicator({ className }: PortfolioIndicatorProps) {
-  const { tier, total360Locked, nextTier, progressToNextTier, portfolio, loading, refreshUnifiedProfile } = useUnifiedUser();
+  const { tier, total360Locked, nextTier, progressToNextTier, portfolio, profile, loading, refreshUnifiedProfile } = useUnifiedUser();
   const navigate = useNavigate();
   const [syncing, setSyncing] = useState(false);
 
-  // Calculate totals
-  const total90Locked = portfolio?.reduce((sum, w) => sum + (w.nctr_90_locked || 0), 0) || 0;
-  const totalBalance = portfolio?.reduce((sum, w) => sum + (w.nctr_balance || 0), 0) || 0;
+  // Calculate totals with fallback to crescendo_data
+  const portfolioTotal90 = portfolio?.reduce((sum, w) => sum + (w.nctr_90_locked || 0), 0) || 0;
+  const portfolioBalance = portfolio?.reduce((sum, w) => sum + (w.nctr_balance || 0), 0) || 0;
+  const crescendoAvailable = (profile?.crescendo_data?.available_nctr as number) || 0;
+  const hasWalletData = portfolio && portfolio.length > 0;
+  
+  const total90Locked = hasWalletData ? portfolioTotal90 : 0;
+  const totalBalance = hasWalletData ? portfolioBalance : crescendoAvailable;
   const totalNCTR = total360Locked + total90Locked + totalBalance;
-  const hasPortfolioData = portfolio && portfolio.length > 0 && totalNCTR > 0;
+  const hasPortfolioData = total360Locked > 0 || totalNCTR > 0;
 
   const handleSync = async () => {
     setSyncing(true);
