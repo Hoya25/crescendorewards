@@ -84,8 +84,13 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  // Calculate total 360LOCK from all wallets
-  const total360Locked = portfolio?.reduce((sum, w) => sum + (w.nctr_360_locked || 0), 0) || 0;
+  // Calculate total 360LOCK from all wallets, with fallback to crescendo_data
+  const portfolioTotal360 = portfolio?.reduce((sum, w) => sum + (w.nctr_360_locked || 0), 0) || 0;
+  const crescendoLocked = (profile?.crescendo_data?.locked_nctr as number) || 0;
+  const crescendoAvailable = (profile?.crescendo_data?.available_nctr as number) || 0;
+  
+  // Use wallet_portfolio if available, otherwise fall back to crescendo_data
+  const total360Locked = portfolioTotal360 > 0 ? portfolioTotal360 : crescendoLocked;
 
   // Calculate next tier and progress
   const nextTier = allTiers.find(t => 
