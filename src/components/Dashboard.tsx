@@ -16,6 +16,7 @@ import { ActivityFeed } from "./ActivityFeed";
 import { FavoritesIndicator } from "./FavoritesIndicator";
 import { ClaimsBalanceIndicator } from "./claims/ClaimsBalanceIndicator";
 import { ClaimsAccountDashboard } from "./claims/ClaimsAccountDashboard";
+import { PortfolioSummaryCard } from "./PortfolioSummaryCard";
 import { StatusBadge } from "./StatusBadge";
 import { SEO } from "./SEO";
 import { NotificationsDropdown } from "./NotificationsDropdown";
@@ -456,27 +457,25 @@ export function Dashboard() {
               {/* 2. Simplified Quick Actions (3 cards) */}
               <SimplifiedQuickActions navigate={navigate} claimBalance={claimBalance} />
 
-              {/* 3. Claims Account Dashboard - prominent balance view */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-1">
-                  <ClaimsAccountDashboard />
-                </div>
-                <div className="lg:col-span-2">
-                  {/* Featured Rewards Section */}
-                  <section>
-                    <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-xl font-semibold flex items-center gap-2">
-                        <Gift className="w-5 h-5 text-primary" />
-                        Rewards You Can Claim
-                      </h2>
-                      <Button variant="ghost" size="sm" onClick={() => navigate('/rewards')} className="gap-1">
-                        View All <ChevronRight className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    <SponsoredRewardsCarousel />
-                  </section>
-                </div>
+              {/* 3. Portfolio & Claims Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <PortfolioSummaryCard />
+                <ClaimsAccountDashboard />
               </div>
+
+              {/* 4. Featured Rewards Section */}
+              <section>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold flex items-center gap-2">
+                    <Gift className="w-5 h-5 text-primary" />
+                    Rewards You Can Claim
+                  </h2>
+                  <Button variant="ghost" size="sm" onClick={() => navigate('/rewards')} className="gap-1">
+                    View All <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+                <SponsoredRewardsCarousel />
+              </section>
 
               {/* Referral Card */}
               <ReferralCard
