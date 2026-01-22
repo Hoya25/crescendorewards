@@ -20,6 +20,7 @@ import { AdminActivityLog } from './AdminActivityLog';
 import { AdminFeedback } from './AdminFeedback';
 import { AdminSettings } from './AdminSettings';
 import { AdminShopSettings } from './AdminShopSettings';
+import { AdminEarningOpportunities } from './AdminEarningOpportunities';
 import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import AdminGifts from './AdminGifts';
 import { Button } from '@/components/ui/button';
@@ -71,6 +72,8 @@ export function AdminPanel() {
         return <AdminSettings />;
       case 'shop-settings':
         return <AdminShopSettings />;
+      case 'earning':
+        return <AdminEarningOpportunities />;
       default:
         return <AdminDashboard onNavigate={setCurrentView} />;
     }

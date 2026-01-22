@@ -34,11 +34,11 @@ const mainNavItems = [
   { title: 'Rewards', url: '/rewards', icon: Gift },
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'My Claims', url: '/claims', icon: Ticket, highlight: true },
+  { title: 'Earn NCTR', url: '/earn', icon: TrendingUp },
   { title: 'Membership', url: '/membership', icon: Trophy },
   { title: 'Sponsors', url: '/sponsors', icon: Building2 },
   { title: 'Get Claims', url: '/buy-claims', icon: Coins },
   { title: 'Gift Claims', url: '/gift-claims', icon: Gift },
-  // Earn now links to The Garden - handled separately
 ];
 
 // HIDDEN FOR REWARDS-FOCUSED PHASE - TODO: Restore when re-enabling brand partnerships
@@ -252,21 +252,6 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-              {/* The Garden - Primary Earn Method */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => window.open('https://thegarden.nctr.live/', '_blank')}
-                  className="cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/20 group"
-                >
-                  <ShoppingBag className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                  {open && (
-                    <span className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
-                      Earn NCTR
-                      <ExternalLink className="h-3 w-3 opacity-50 group-hover:opacity-100 transition-opacity" />
-                    </span>
-                  )}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
