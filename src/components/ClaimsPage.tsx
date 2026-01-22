@@ -43,6 +43,7 @@ import { cn } from '@/lib/utils';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { SEO } from '@/components/SEO';
+import { BetaTestingNotice } from '@/components/BetaTestingNotice';
 
 interface Transaction {
   id: string;
@@ -343,6 +344,9 @@ export function ClaimsPage() {
             </header>
 
             <main className="flex-1 p-4 lg:p-6 space-y-6">
+              {/* Beta Testing Notice */}
+              <BetaTestingNotice variant="claims" />
+              
               {/* Balance Card */}
               <Card className="overflow-hidden">
                 <CardContent className="p-6">
