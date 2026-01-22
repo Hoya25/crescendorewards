@@ -76,17 +76,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Track login activity by updating last_active_crescendo
+  const trackLoginActivity = async (authUserId: string) => {
+    try {
+      const { error } = await supabase
+        .from('unified_profiles')
+        .update({ last_active_crescendo: new Date().toISOString() })
+        .eq('auth_user_id', authUserId);
+      
+      if (error) {
+        console.error('Error tracking login activity:', error);
+      }
+    } catch (error) {
+      console.error('Error in trackLoginActivity:', error);
+    }
+  };
+
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
 
-        // On sign in or sign up, ensure unified profile exists
+        // On sign in or sign up, ensure unified profile exists and track login
         if (session?.user && (event === 'SIGNED_IN' || event === 'USER_UPDATED')) {
           // Use setTimeout to avoid potential Supabase auth deadlock
           setTimeout(() => {
             ensureUnifiedProfile(session.user);
+            // Track login activity on SIGNED_IN event
+            if (event === 'SIGNED_IN') {
+              trackLoginActivity(session.user.id);
+            }
           }, 0);
         }
 
@@ -101,6 +121,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (session?.user) {
         setTimeout(() => {
           ensureUnifiedProfile(session.user);
+          // Track activity on session restore (returning user)
+          trackLoginActivity(session.user.id);
         }, 0);
       }
 

@@ -62,6 +62,8 @@ interface UserProfile {
   created_at: string;
   updated_at: string;
   has_status_access_pass: boolean;
+  // From unified_profiles join
+  last_active?: string | null;
 }
 
 interface Reward {
@@ -139,10 +141,11 @@ export function AdminUsers() {
     enabled: !!selectedUser && profileModalOpen,
   });
 
-  // Fetch users
+  // Fetch users with last_active from unified_profiles
   const { data: usersData, isLoading } = useQuery({
     queryKey: ['admin-users', search, filter, sortBy, page],
     queryFn: async () => {
+      // First fetch profiles
       let query = supabase
         .from('profiles')
         .select('*', { count: 'exact' });
@@ -168,7 +171,6 @@ export function AdminUsers() {
       }
       
       // Apply sorting
-      const ascending = sortBy === 'created_at' ? false : true;
       switch (sortBy) {
         case 'created_at':
           query = query.order('created_at', { ascending: false });
@@ -189,11 +191,37 @@ export function AdminUsers() {
       const to = from + USERS_PER_PAGE - 1;
       query = query.range(from, to);
       
-      const { data, error, count } = await query;
+      const { data: profilesData, error, count } = await query;
       
       if (error) throw error;
       
-      return { users: data as UserProfile[], totalCount: count || 0 };
+      // Fetch last_active from unified_profiles for these users
+      const userIds = (profilesData || []).map(p => p.id);
+      let lastActiveMap: Record<string, string | null> = {};
+      
+      if (userIds.length > 0) {
+        const { data: unifiedData } = await supabase
+          .from('unified_profiles')
+          .select('auth_user_id, last_active_crescendo')
+          .in('auth_user_id', userIds);
+        
+        if (unifiedData) {
+          lastActiveMap = unifiedData.reduce((acc, up) => {
+            if (up.auth_user_id) {
+              acc[up.auth_user_id] = up.last_active_crescendo;
+            }
+            return acc;
+          }, {} as Record<string, string | null>);
+        }
+      }
+      
+      // Merge last_active into users
+      const usersWithActivity = (profilesData || []).map(user => ({
+        ...user,
+        last_active: lastActiveMap[user.id] || null
+      }));
+      
+      return { users: usersWithActivity as UserProfile[], totalCount: count || 0 };
     },
   });
 
@@ -408,6 +436,7 @@ export function AdminUsers() {
               <TableHead className="text-right">Locked NCTR</TableHead>
               <TableHead className="text-right">Claims</TableHead>
               <TableHead className="text-right">Total Claims</TableHead>
+              <TableHead>Last Active</TableHead>
               <TableHead>Joined</TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
@@ -430,12 +459,13 @@ export function AdminUsers() {
                   <TableCell><Skeleton className="h-4 w-12 ml-auto" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-8 ml-auto" /></TableCell>
                   <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                   <TableCell><Skeleton className="h-8 w-8" /></TableCell>
                 </TableRow>
               ))
             ) : usersData?.users?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                   No users found
                 </TableCell>
               </TableRow>
@@ -468,6 +498,12 @@ export function AdminUsers() {
                     </TableCell>
                     <TableCell className="text-right font-mono">
                       {claimsCounts?.[user.id] || 0}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {user.last_active 
+                        ? formatDistanceToNow(new Date(user.last_active), { addSuffix: true })
+                        : <span className="text-muted-foreground/50">Never</span>
+                      }
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {formatDistanceToNow(new Date(user.created_at), { addSuffix: true })}
