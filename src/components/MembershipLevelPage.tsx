@@ -25,7 +25,7 @@ import { TierUpgradeCelebration } from './TierUpgradeCelebration';
 
 export function MembershipLevelPage() {
   const navigate = useNavigate();
-  const { profile } = useUnifiedUser();
+  const { profile, tier, portfolio, nextTier, progressToNextTier, total360Locked, allTiers } = useUnifiedUser();
   const [showLockDialog, setShowLockDialog] = useState(false);
   const [showConfirmLock, setShowConfirmLock] = useState(false);
   const [selectedTier, setSelectedTier] = useState<typeof membershipTiers[0] | null>(null);
@@ -36,18 +36,54 @@ export function MembershipLevelPage() {
 
   if (!profile) return null;
 
-  // Get crescendo data from unified profile
-  const crescendoData = profile.crescendo_data || {};
-  const currentLockedNCTR = crescendoData.locked_nctr || 0;
-  const availableNCTR = crescendoData.available_nctr || 0;
-  const currentTier = getMembershipTierByNCTR(currentLockedNCTR);
-  const nextTier = getNextMembershipTier(currentLockedNCTR);
-  const progress = getMembershipProgress(currentLockedNCTR);
-  const nctrNeeded = getNCTRNeededForNextLevel(currentLockedNCTR);
+  // Use wallet_portfolio data for 360LOCK (primary source of truth)
+  const portfolioData = portfolio?.[0];
+  const currentLockedNCTR = total360Locked;
+  
+  // Calculate available NCTR from portfolio or fallback to crescendo_data
+  const portfolioAvailable = portfolioData?.nctr_unlocked || portfolioData?.nctr_balance || 0;
+  const crescendoAvailable = (profile.crescendo_data?.available_nctr as number) || 0;
+  const availableNCTR = portfolioData ? portfolioAvailable : crescendoAvailable;
+  
+  // Get current tier info - use database tier if available, fallback to calculated
+  const currentTier = tier 
+    ? {
+        level: allTiers.findIndex(t => t.id === tier.id),
+        name: tier.display_name,
+        requirement: tier.min_nctr_360_locked,
+        description: '',
+        multiplier: 1 + (allTiers.findIndex(t => t.id === tier.id) * 0.1),
+        claims: tier.benefits?.[0] || 'Access to rewards',
+        discount: allTiers.findIndex(t => t.id === tier.id) * 5,
+        benefits: tier.benefits || [],
+        nftBadges: [],
+        color: tier.badge_color || 'hsl(43 96% 56%)',
+        bgColor: tier.badge_color ? `${tier.badge_color}20` : 'hsl(43 96% 96%)'
+      }
+    : getMembershipTierByNCTR(currentLockedNCTR);
+  
+  // Create a MembershipTier-compatible object from StatusTier for next tier
+  const nextTierDisplay = nextTier ? {
+    level: allTiers.findIndex(t => t.id === nextTier.id),
+    name: nextTier.display_name,
+    requirement: nextTier.min_nctr_360_locked,
+    description: '',
+    multiplier: 1 + (allTiers.findIndex(t => t.id === nextTier.id) * 0.2),
+    claims: nextTier.benefits?.[0] || 'Access to rewards',
+    discount: allTiers.findIndex(t => t.id === nextTier.id) * 5,
+    benefits: nextTier.benefits || [],
+    nftBadges: [],
+    color: nextTier.badge_color || 'hsl(180 100% 50%)',
+    bgColor: nextTier.badge_color ? `${nextTier.badge_color}20` : 'hsl(180 100% 96%)'
+  } : null;
+  
+  // Calculate progress to next tier
+  const progress = progressToNextTier;
+  const nctrNeeded = nextTier ? Math.max(0, nextTier.min_nctr_360_locked - currentLockedNCTR) : 0;
 
-  const handleUpgrade = (tier: typeof membershipTiers[0]) => {
-    setSelectedTier(tier);
-    const needed = Math.max(0, tier.requirement - currentLockedNCTR);
+  const handleUpgrade = (targetTier: MembershipTier) => {
+    setSelectedTier(targetTier);
+    const needed = Math.max(0, targetTier.requirement - currentLockedNCTR);
     setLockAmount(needed.toString());
     setShowLockDialog(true);
   };
@@ -172,10 +208,10 @@ export function MembershipLevelPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {nextTier && (
+            {nextTierDisplay && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Progress to {nextTier.name}</span>
+                  <span className="text-muted-foreground">Progress to {nextTierDisplay.name}</span>
                   <span className="font-medium">{nctrNeeded.toLocaleString()} NCTR needed</span>
                 </div>
                 <Progress value={progress} className="h-3" />
@@ -187,10 +223,10 @@ export function MembershipLevelPage() {
                 <p className="text-sm text-muted-foreground">Available NCTR</p>
                 <p className="text-2xl font-bold">{availableNCTR.toLocaleString()}</p>
               </div>
-              {nextTier && (
-                <Button onClick={() => handleUpgrade(nextTier)} className="gap-2">
+              {nextTierDisplay && (
+                <Button onClick={() => handleUpgrade(nextTierDisplay)} className="gap-2">
                   <Lock className="w-4 h-4" />
-                  Upgrade to {nextTier.name}
+                  Upgrade to {nextTierDisplay.name}
                 </Button>
               )}
             </div>
