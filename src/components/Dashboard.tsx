@@ -9,6 +9,7 @@ import { CrescendoLogo } from "./CrescendoLogo";
 import { BetaBadge } from "./BetaBadge";
 import { ThemeToggle } from "./ThemeToggle";
 import { ReferralCard } from "./ReferralCard";
+import { useReferralStats } from "@/hooks/useReferralStats";
 import { WelcomeFlow, hasBeenOnboarded } from "./onboarding/WelcomeFlow";
 import { OnboardingProgress } from "./OnboardingProgress";
 import { NeedsAttention } from "./NeedsAttention";
@@ -249,6 +250,7 @@ export function Dashboard() {
   const { profile, tier, refreshUnifiedProfile } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   const { theme } = useTheme();
+  const { data: referralStats, isLoading: referralLoading } = useReferralStats();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
 
@@ -294,10 +296,11 @@ export function Dashboard() {
 
   const userName = profile?.display_name || profile?.email?.split('@')[0] || 'User';
 
-  // Referral stats
-  const referralStats = {
+  // Default referral stats while loading
+  const defaultReferralStats = {
     totalReferrals: 0,
-    totalEarned: hasClaimedSignupBonus ? availableNCTR : 0,
+    successfulReferrals: 0,
+    totalEarned: 0,
     signupBonus: 100,
     hasClaimedSignupBonus: hasClaimedSignupBonus,
   };
@@ -488,7 +491,8 @@ export function Dashboard() {
               {/* Referral Card */}
               <ReferralCard
                 referralCode={referralCode}
-                stats={referralStats}
+                stats={referralStats || defaultReferralStats}
+                isLoading={referralLoading}
               />
 
               {/* Collapsible Activity Feed */}
