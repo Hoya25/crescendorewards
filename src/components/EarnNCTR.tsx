@@ -103,7 +103,37 @@ export function EarnNCTR() {
               </div>
             </div>
             
-            {/* Right: 360LOCK Badge */}
+            {/* Right: 360LOCK Badge - Mobile Compact */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div 
+                    className="flex md:hidden items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 border border-border/50 cursor-pointer hover:bg-muted transition-all duration-200"
+                    onClick={() => navigate('/profile')}
+                  >
+                    {tier ? (
+                      <span className="text-lg">{tier.badge_emoji}</span>
+                    ) : (
+                      <NCTRLogo className="w-4 h-4" />
+                    )}
+                    <div className="text-right">
+                      <p className="font-bold text-sm leading-tight">{total360Locked.toLocaleString()}</p>
+                      <p className="text-[10px] text-muted-foreground leading-tight">360LOCK</p>
+                    </div>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs">
+                  <p className="font-medium mb-1">
+                    {tier ? `${tier.badge_emoji} ${tier.display_name}` : 'Your 360LOCK'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {total360Locked.toLocaleString()} NCTR locked for 360 days. Tap to view your full profile and tier benefits.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            {/* Right: 360LOCK Badge - Desktop Full */}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
