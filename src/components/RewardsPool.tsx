@@ -36,6 +36,7 @@ import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { RewardsGridSkeleton } from '@/components/skeletons/RewardCardSkeleton';
 import { NoRewardsEmpty } from '@/components/EmptyState';
 import { DataErrorState } from '@/components/DataErrorState';
+import { BetaTestingNotice } from '@/components/BetaTestingNotice';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -787,6 +788,13 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       {!loading && activeCategory === 'all' && (
         <div className="container mx-auto px-4 py-6 md:py-8 max-w-full">
           <SponsoredRewardsCarousel />
+        </div>
+      )}
+
+      {/* Beta Testing Notice */}
+      {!loading && (
+        <div className="container mx-auto px-4 pb-4 max-w-full">
+          <BetaTestingNotice variant="compact" />
         </div>
       )}
 
