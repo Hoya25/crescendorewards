@@ -11,6 +11,7 @@ import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { CATEGORY_CONFIG, EarningCategory } from '@/types/earning';
 import { SEO } from '@/components/SEO';
 import { cn } from '@/lib/utils';
+import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { 
   Tooltip,
   TooltipContent,
@@ -117,7 +118,9 @@ export function EarnNCTR() {
                       <NCTRLogo className="w-4 h-4" />
                     )}
                     <div className="text-right">
-                      <p className="font-bold text-sm leading-tight">{total360Locked.toLocaleString()}</p>
+                      <p className="font-bold text-sm leading-tight">
+                        <AnimatedCounter value={total360Locked} className="font-bold" />
+                      </p>
                       <p className="text-[10px] text-muted-foreground leading-tight">360LOCK</p>
                     </div>
                   </div>
@@ -147,7 +150,9 @@ export function EarnNCTR() {
                         <span>Your 360LOCK</span>
                         <Info className="w-3 h-3" />
                       </div>
-                      <p className="font-bold text-sm">{total360Locked.toLocaleString()} NCTR</p>
+                      <p className="font-bold text-sm">
+                        <AnimatedCounter value={total360Locked} className="font-bold" /> NCTR
+                      </p>
                     </div>
                     {tier && (
                       <Badge 
