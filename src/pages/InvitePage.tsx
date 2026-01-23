@@ -1,12 +1,9 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { 
-  Users, Copy, Check, Share2, Gift, Lock, Sparkles, ArrowLeft, 
-  Trophy, Twitter, MessageCircle, Mail, Link2, TrendingUp, Target,
-  ChevronRight, UserPlus
+  Users, Copy, Check, Gift, Lock, Sparkles, ArrowLeft, 
+  Trophy, Link2, TrendingUp, ChevronRight, UserPlus
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { NCTRLogo } from '@/components/NCTRLogo';
@@ -18,15 +15,8 @@ import { useNavigate } from 'react-router-dom';
 import { SEO } from '@/components/SEO';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
-
-// Milestones for gamification
-const MILESTONES = [
-  { count: 1, reward: 'First Friend Bonus', bonus: 100, icon: '🎉' },
-  { count: 3, reward: 'Social Butterfly', bonus: 250, icon: '🦋' },
-  { count: 5, reward: 'Community Builder', bonus: 500, icon: '🏗️' },
-  { count: 10, reward: 'Influencer Status', bonus: 1000, icon: '⭐' },
-  { count: 25, reward: 'Ambassador Elite', bonus: 2500, icon: '👑' },
-];
+import { SocialShareButtons } from '@/components/referral/SocialShareButtons';
+import { MilestoneProgress } from '@/components/referral/MilestoneProgress';
 
 export default function InvitePage() {
   const [copied, setCopied] = useState(false);
@@ -49,44 +39,13 @@ export default function InvitePage() {
       setCopied(true);
       toast.success('Copied to clipboard!');
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
+    } catch {
       toast.error('Failed to copy');
-    }
-  };
-
-  const handleShare = (platform: string) => {
-    const text = `Join me on Crescendo and earn ${allocation360Lock} NCTR in 360LOCK! 🚀`;
-    const url = referralLink;
-    
-    let shareUrl = '';
-    switch (platform) {
-      case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-        break;
-      case 'discord':
-        handleCopy(`${text} ${url}`);
-        toast.success('Link copied! Paste it in Discord');
-        return;
-      case 'email':
-        shareUrl = `mailto:?subject=${encodeURIComponent('Join me on Crescendo!')}&body=${encodeURIComponent(`${text}\n\n${url}`)}`;
-        break;
-      default:
-        handleCopy(url);
-        return;
-    }
-    
-    if (shareUrl) {
-      window.open(shareUrl, '_blank');
     }
   };
 
   // Calculate milestone progress
   const totalReferrals = stats?.totalReferrals || 0;
-  const currentMilestone = MILESTONES.find(m => totalReferrals < m.count) || MILESTONES[MILESTONES.length - 1];
-  const prevMilestone = MILESTONES[MILESTONES.indexOf(currentMilestone) - 1];
-  const progressToMilestone = prevMilestone 
-    ? ((totalReferrals - prevMilestone.count) / (currentMilestone.count - prevMilestone.count)) * 100
-    : (totalReferrals / currentMilestone.count) * 100;
 
   return (
     <SidebarProvider>
@@ -166,7 +125,7 @@ export default function InvitePage() {
                   Share this link with friends to earn rewards
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -184,33 +143,11 @@ export default function InvitePage() {
                   </Button>
                 </div>
                 
-                {/* Quick Share Buttons */}
-                <div className="flex flex-wrap gap-3">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => handleShare('twitter')}
-                    className="gap-2 flex-1 min-w-[140px]"
-                  >
-                    <Twitter className="w-4 h-4" />
-                    Twitter / X
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => handleShare('discord')}
-                    className="gap-2 flex-1 min-w-[140px]"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    Discord
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => handleShare('email')}
-                    className="gap-2 flex-1 min-w-[140px]"
-                  >
-                    <Mail className="w-4 h-4" />
-                    Email
-                  </Button>
-                </div>
+                {/* Enhanced Social Share Buttons */}
+                <SocialShareButtons 
+                  referralLink={referralLink} 
+                  allocation={allocation360Lock}
+                />
               </CardContent>
             </Card>
 
@@ -255,59 +192,16 @@ export default function InvitePage() {
               <Card>
                 <CardContent className="p-4 text-center">
                   <Trophy className="w-6 h-6 mx-auto mb-2 text-amber-500" />
-                  <p className="text-3xl font-bold">{currentMilestone?.icon}</p>
+                  <p className="text-3xl font-bold">🎯</p>
                   <p className="text-xs text-muted-foreground">Next Milestone</p>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Milestone Progress */}
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="w-5 h-5" />
-                  Referral Milestones
-                </CardTitle>
-                <CardDescription>
-                  Unlock bonus rewards as you invite more friends
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-4">
-                  <div className="flex justify-between text-sm mb-2">
-                    <span>{totalReferrals} referrals</span>
-                    <span className="font-medium">{currentMilestone?.count} for {currentMilestone?.reward}</span>
-                  </div>
-                  <Progress value={Math.min(progressToMilestone, 100)} className="h-3" />
-                </div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                  {MILESTONES.map((milestone) => {
-                    const achieved = totalReferrals >= milestone.count;
-                    return (
-                      <div 
-                        key={milestone.count}
-                        className={`p-3 rounded-lg text-center border-2 transition-all ${
-                          achieved 
-                            ? 'bg-primary/10 border-primary' 
-                            : 'bg-muted/30 border-transparent'
-                        }`}
-                      >
-                        <span className="text-2xl">{milestone.icon}</span>
-                        <p className="text-xs font-medium mt-1">{milestone.count} friends</p>
-                        <p className="text-[10px] text-muted-foreground">+{milestone.bonus} NCTR</p>
-                        {achieved && (
-                          <Badge variant="default" className="mt-1 text-[10px]">
-                            <Check className="w-3 h-3 mr-1" />
-                            Done
-                          </Badge>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
+            {/* Milestone Progress - Using new component */}
+            <div className="mb-6">
+              <MilestoneProgress currentReferrals={totalReferrals} />
+            </div>
 
             {/* How It Works */}
             <Card>
