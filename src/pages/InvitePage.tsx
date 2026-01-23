@@ -262,6 +262,7 @@ export default function InvitePage() {
                 standardLink={standardLink}
                 personalizedLink={personalizedLink}
                 referralCode={referralCode}
+                inviterName={profile?.display_name}
               />
             </div>
 
