@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, FlaskConical } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { openUserbackWidget } from "@/lib/userback";
 
 const BETA_BANNER_DISMISSED_KEY = "crescendo_beta_banner_dismissed";
 
@@ -27,12 +26,7 @@ export function BetaBanner() {
         <span className="font-medium">Beta</span>
         <span className="hidden sm:inline">—</span>
         <span className="hidden sm:inline">Help us improve!</span>
-        <button
-          onClick={openUserbackWidget}
-          className="underline underline-offset-2 hover:no-underline font-medium"
-        >
-          Your feedback shapes the future
-        </button>
+        <span className="font-medium">Your feedback shapes the future</span>
         <Button
           variant="ghost"
           size="icon"

@@ -15,9 +15,8 @@ import { RouteLoading, PageLoading } from "./components/RouteLoading";
 import { DevToolsPanel } from "./components/DevToolsPanel";
 import { MobileBottomNav } from "./components/navigation/MobileBottomNav";
 import { BetaBanner } from "./components/BetaBanner";
-import { FeedbackButton } from "./components/FeedbackButton";
 import { useClaimDeliveryNotifications } from "./hooks/useClaimDeliveryNotifications";
-import { initUserback, identifyUserbackUser } from "./lib/userback";
+import { identifyUserbackUser } from "./lib/userback";
 
 // Eagerly loaded components (critical path)
 import { LandingPage } from "./components/LandingPage";
@@ -75,10 +74,7 @@ function AppRoutes() {
   // Enable real-time toast notifications for claim delivery status updates
   useClaimDeliveryNotifications();
 
-  // Initialize Userback and identify user when authenticated
-  useEffect(() => {
-    initUserback();
-  }, []);
+  // Identify user to Userback when authenticated
 
   useEffect(() => {
     if (user && isAuthenticated) {
@@ -338,8 +334,7 @@ function AppRoutes() {
       {/* Mobile Bottom Navigation - only for authenticated users */}
       {isAuthenticated && <MobileBottomNav />}
 
-      {/* Floating Feedback Button - always visible */}
-      <FeedbackButton />
+      {/* Userback feedback widget loads automatically via index.html script */}
       
       {/* Developer tools panel */}
       <DevToolsPanel />
