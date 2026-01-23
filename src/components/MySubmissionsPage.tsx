@@ -194,9 +194,9 @@ export function MySubmissionsPage() {
   };
 
   const generateShareUrl = (submissionId: string) => {
-    const baseUrl = window.location.origin;
+    // Always use production domain for referral links
     const referralCode = crescendoData.referral_code || '';
-    return `${baseUrl}/?submission=${submissionId}&ref=${referralCode}`;
+    return `https://crescendo.nctr.live/?submission=${submissionId}&ref=${referralCode}`;
   };
 
   const trackShare = async (platform: string) => {

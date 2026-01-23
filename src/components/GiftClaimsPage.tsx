@@ -99,7 +99,8 @@ export default function GiftClaimsPage() {
   };
 
   const copyGiftLink = () => {
-    const link = `${window.location.origin}/claim?code=${sentGiftCode}`;
+    // Always use production domain for gift claim links
+    const link = `https://crescendo.nctr.live/claim?code=${sentGiftCode}`;
     navigator.clipboard.writeText(link);
     toast.success('Gift link copied!');
   };

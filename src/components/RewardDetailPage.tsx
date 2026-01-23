@@ -179,8 +179,10 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
 
   useEffect(() => {
     if (reward && crescendoData.referral_code) {
-      const baseUrl = window.location.origin;
-      setShareUrl(`${baseUrl}/rewards/${reward.id}?ref=${crescendoData.referral_code}`);
+      // Import and use production domain for consistent referral attribution
+      import('@/lib/referral-links').then(({ generateRewardShareLink }) => {
+        setShareUrl(generateRewardShareLink(reward.id, crescendoData.referral_code));
+      });
     }
   }, [reward, crescendoData.referral_code]);
 
