@@ -25,6 +25,7 @@ import { SEO } from "./SEO";
 import { NotificationsDropdown } from "./NotificationsDropdown";
 import { Footer } from "./Footer";
 import { SponsoredRewardsCarousel } from "./rewards/SponsoredRewardsCarousel";
+import { FeaturedRewardsCarousel } from "./rewards/FeaturedRewardsCarousel";
 import { BetaTestingNotice } from "./BetaTestingNotice";
 import { InviteHeaderCTA } from "./navigation/InviteHeaderCTA";
 import { EarnNCTRQuickCard } from "./dashboard/EarnNCTRQuickCard";
@@ -488,7 +489,10 @@ export function Dashboard() {
                 <EarnNCTRQuickCard />
               </div>
 
-              {/* 5. Featured Rewards Section */}
+              {/* 5. Featured Rewards Carousel */}
+              <FeaturedRewardsCarousel />
+
+              {/* 6. Sponsored Rewards Section */}
               <section>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-semibold flex items-center gap-2">
