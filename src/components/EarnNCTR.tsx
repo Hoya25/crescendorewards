@@ -38,6 +38,16 @@ export function EarnNCTR() {
   const { total360Locked, tier } = useUnifiedUser();
   const { featured, active, comingSoon, isLoading, error, refresh } = useEarningOpportunities();
   const [selectedCategory, setSelectedCategory] = useState<EarningCategory | 'all'>('all');
+  const [isPulsing, setIsPulsing] = useState(false);
+
+  const handleBalanceAnimationStart = () => {
+    setIsPulsing(true);
+  };
+
+  const handleBalanceAnimationEnd = () => {
+    // Keep pulse for a moment after animation ends
+    setTimeout(() => setIsPulsing(false), 600);
+  };
 
   const filteredOpportunities = selectedCategory === 'all' 
     ? active.filter(o => !o.isFeatured)
@@ -109,7 +119,12 @@ export function EarnNCTR() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div 
-                    className="flex md:hidden items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 border border-border/50 cursor-pointer hover:bg-muted transition-all duration-200"
+                    className={cn(
+                      "flex md:hidden items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 border cursor-pointer hover:bg-muted transition-all duration-200",
+                      isPulsing 
+                        ? "border-primary/50 shadow-[0_0_12px_rgba(var(--primary)/0.3)] animate-pulse" 
+                        : "border-border/50"
+                    )}
                     onClick={() => navigate('/profile')}
                   >
                     {tier ? (
@@ -119,7 +134,12 @@ export function EarnNCTR() {
                     )}
                     <div className="text-right">
                       <p className="font-bold text-sm leading-tight">
-                        <AnimatedCounter value={total360Locked} className="font-bold" />
+                        <AnimatedCounter 
+                          value={total360Locked} 
+                          className="font-bold"
+                          onAnimationStart={handleBalanceAnimationStart}
+                          onAnimationEnd={handleBalanceAnimationEnd}
+                        />
                       </p>
                       <p className="text-[10px] text-muted-foreground leading-tight">360LOCK</p>
                     </div>
@@ -141,7 +161,12 @@ export function EarnNCTR() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div 
-                    className="hidden md:flex items-center gap-3 px-4 py-2.5 rounded-xl bg-muted/50 border border-border/50 cursor-pointer hover:bg-muted hover:border-primary/20 transition-all duration-200"
+                    className={cn(
+                      "hidden md:flex items-center gap-3 px-4 py-2.5 rounded-xl bg-muted/50 border cursor-pointer hover:bg-muted transition-all duration-200",
+                      isPulsing 
+                        ? "border-primary/50 shadow-[0_0_16px_rgba(var(--primary)/0.25)] animate-pulse" 
+                        : "border-border/50 hover:border-primary/20"
+                    )}
                     onClick={() => navigate('/profile')}
                   >
                     <NCTRLogo className="w-5 h-5" />
@@ -151,7 +176,12 @@ export function EarnNCTR() {
                         <Info className="w-3 h-3" />
                       </div>
                       <p className="font-bold text-sm">
-                        <AnimatedCounter value={total360Locked} className="font-bold" /> NCTR
+                        <AnimatedCounter 
+                          value={total360Locked} 
+                          className="font-bold"
+                          onAnimationStart={handleBalanceAnimationStart}
+                          onAnimationEnd={handleBalanceAnimationEnd}
+                        /> NCTR
                       </p>
                     </div>
                     {tier && (
