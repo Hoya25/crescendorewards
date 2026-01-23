@@ -182,14 +182,32 @@ export function VisualRewardCard({
         {/* Gradient Overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-        {/* TOP-LEFT: Sponsored Badge */}
+        {/* BOTTOM SPONSOR BAR - Replaces generic SPONSORED badge */}
         {isSponsored && (
-          <Badge 
-            className="absolute top-2.5 left-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-black border-0 text-[10px] font-bold shadow-lg px-2 py-0.5"
+          <div 
+            className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#1a1d21]/95 via-[#2a2d32]/90 to-transparent backdrop-blur-[2px] px-3 py-2"
           >
-            <Sparkles className="w-2.5 h-2.5 mr-1" />
-            SPONSORED
-          </Badge>
+            <div className="flex items-center gap-2">
+              {sponsorLogo && (
+                <img 
+                  src={sponsorLogo} 
+                  alt={sponsorName || 'Sponsor'} 
+                  className="h-4 w-auto max-w-[40px] object-contain drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
+                  onError={(e) => {
+                    // Hide broken images
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              )}
+              <span className="text-[10px] text-white/80 truncate">
+                <span className="font-light">Sponsored by</span>
+                {' '}
+                <span className="font-semibold text-amber-300/90">
+                  {sponsorName || 'Partner'}
+                </span>
+              </span>
+            </div>
+          </div>
         )}
 
         {/* TOP-RIGHT: Favorites Heart */}
@@ -228,8 +246,11 @@ export function VisualRewardCard({
           </button>
         )}
 
-        {/* BOTTOM: Title + Price overlay on image */}
-        <div className="absolute bottom-0 left-0 right-0 p-3">
+        {/* BOTTOM: Title + Price overlay on image - positioned above sponsor bar if sponsored */}
+        <div className={cn(
+          "absolute left-0 right-0 p-3",
+          isSponsored ? "bottom-10" : "bottom-0"
+        )}>
           {/* Free for Tier Badge */}
           {freeTierName && (
             <Badge 
@@ -255,17 +276,6 @@ export function VisualRewardCard({
             reward={rewardForPricing} 
             userTier={userTier.tierName} 
           />
-          
-          {/* Sponsor Logo (small) */}
-          {isSponsored && sponsorLogo && (
-            <div className="bg-muted/50 rounded p-1">
-              <img 
-                src={sponsorLogo} 
-                alt={sponsorName || 'Sponsor'} 
-                className="h-4 w-auto max-w-[50px] object-contain opacity-70"
-              />
-            </div>
-          )}
         </div>
 
         {/* Footer: Stock info only */}

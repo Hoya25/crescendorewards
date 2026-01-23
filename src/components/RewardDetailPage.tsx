@@ -549,11 +549,12 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
               images={[reward.image_url || '/placeholder.svg']}
               title={reward.title}
             >
-              {/* Sponsored Badge - Top Left */}
+              {/* Sponsored Badge - Top Left - Now shows sponsor name */}
               {isSponsored && (
-                <Badge className="absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-yellow-500 text-black border-0 font-bold shadow-lg">
-                  <Sparkles className="w-3 h-3 mr-1" />
-                  SPONSORED
+                <Badge className="absolute top-4 left-4 bg-gradient-to-r from-[#2a2d32] via-[#373b42] to-[#2a2d32] text-white border border-[#4a4f58]/50 font-medium shadow-lg px-3 py-1">
+                  <Sparkles className="w-3 h-3 mr-1.5 text-amber-400" />
+                  <span className="text-[11px]">Sponsored by </span>
+                  <span className="text-amber-300 font-semibold ml-1">{sponsorName || 'Partner'}</span>
                 </Badge>
               )}
               
