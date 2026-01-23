@@ -223,6 +223,36 @@ export function AdminSubmissions() {
     }
   };
 
+  const sendSubmissionNotificationEmail = async (
+    submission: RewardSubmission,
+    status: 'pending' | 'approved' | 'rejected' | 'needs_changes',
+    rejectionReason?: string,
+    adminNotes?: string,
+    rewardId?: string
+  ) => {
+    try {
+      const { error } = await supabase.functions.invoke('send-submission-notification', {
+        body: {
+          submissionId: submission.id,
+          userId: submission.user_id,
+          rewardTitle: submission.title,
+          status,
+          rejectionReason,
+          adminNotes,
+          rewardId
+        }
+      });
+      
+      if (error) {
+        console.error('Failed to send submission email notification:', error);
+      } else {
+        console.log('Submission email notification sent successfully');
+      }
+    } catch (error) {
+      console.error('Error sending submission email notification:', error);
+    }
+  };
+
   const handleApproveAndEdit = async () => {
     if (!selectedSubmission) return;
     
@@ -252,28 +282,41 @@ export function AdminSubmissions() {
 
       if (submitError) throw submitError;
 
+      let rewardId: string | undefined;
+
       // The trigger will create the reward automatically
       // Now update the featured status if needed
-      if (editFormData.is_featured) {
-        // Wait a moment for the trigger to create the reward
-        await new Promise(resolve => setTimeout(resolve, 1000));
+      // Wait a moment for the trigger to create the reward
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Try to find the newly created reward
+      const { data: newReward } = await supabase
+        .from('rewards')
+        .select('id')
+        .eq('title', editFormData.title)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (newReward) {
+        rewardId = newReward.id;
         
-        // Try to find the newly created reward
-        const { data: newReward } = await supabase
-          .from('rewards')
-          .select('id')
-          .eq('title', editFormData.title)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single();
-        
-        if (newReward) {
+        if (editFormData.is_featured) {
           await supabase
             .from('rewards')
             .update({ is_featured: true })
             .eq('id', newReward.id);
         }
       }
+
+      // Send email notification for approval
+      await sendSubmissionNotificationEmail(
+        { ...selectedSubmission, title: editFormData.title },
+        'approved',
+        undefined,
+        undefined,
+        rewardId
+      );
 
       toast.success('Submission approved and edited successfully');
       setShowApproveEditModal(false);
@@ -336,6 +379,14 @@ export function AdminSubmissions() {
       if (notifError) {
         console.error('Failed to create rejection notification:', notifError);
       }
+      
+      // Send email notification for rejection
+      await sendSubmissionNotificationEmail(
+        selectedSubmission,
+        'rejected',
+        fullMessage,
+        customRejectionMessage || undefined
+      );
       
       setShowRejectModal(false);
       setRejectionReason('');
