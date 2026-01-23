@@ -6,13 +6,17 @@ interface AnimatedCounterProps {
   duration?: number;
   className?: string;
   formatOptions?: Intl.NumberFormatOptions;
+  onAnimationStart?: () => void;
+  onAnimationEnd?: () => void;
 }
 
 export function AnimatedCounter({ 
   value, 
   duration = 800, 
   className,
-  formatOptions = {}
+  formatOptions = {},
+  onAnimationStart,
+  onAnimationEnd
 }: AnimatedCounterProps) {
   const [displayValue, setDisplayValue] = useState(value);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -28,6 +32,7 @@ export function AnimatedCounter({
     const startTime = performance.now();
     
     setIsAnimating(true);
+    onAnimationStart?.();
 
     const animate = (currentTime: number) => {
       const elapsed = currentTime - startTime;
@@ -45,6 +50,7 @@ export function AnimatedCounter({
         setDisplayValue(endValue);
         setIsAnimating(false);
         previousValue.current = endValue;
+        onAnimationEnd?.();
       }
     };
 
@@ -55,7 +61,7 @@ export function AnimatedCounter({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [value, duration]);
+  }, [value, duration, onAnimationStart, onAnimationEnd]);
 
   // Update ref when value changes without animation (initial mount)
   useEffect(() => {
