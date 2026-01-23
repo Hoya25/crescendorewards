@@ -15,6 +15,7 @@ import { RouteLoading, PageLoading } from "./components/RouteLoading";
 import { DevToolsPanel } from "./components/DevToolsPanel";
 import { MobileBottomNav } from "./components/navigation/MobileBottomNav";
 import { BetaBanner } from "./components/BetaBanner";
+import { FeedbackButton } from "./components/FeedbackButton";
 import { useClaimDeliveryNotifications } from "./hooks/useClaimDeliveryNotifications";
 import { initUserback, identifyUserbackUser } from "./lib/userback";
 
@@ -337,7 +338,8 @@ function AppRoutes() {
       {/* Mobile Bottom Navigation - only for authenticated users */}
       {isAuthenticated && <MobileBottomNav />}
 
-      {/* Userback feedback widget is loaded globally via index.html */}
+      {/* Floating Feedback Button - always visible */}
+      <FeedbackButton />
       
       {/* Developer tools panel */}
       <DevToolsPanel />
