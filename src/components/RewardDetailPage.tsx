@@ -21,6 +21,7 @@ import { ConfirmationDialog } from '@/components/ConfirmationDialog';
 import { ClaimConfirmationDialog } from '@/components/ClaimConfirmationDialog';
 import { ClaimDeliveryModal } from '@/components/rewards/ClaimDeliveryModal';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
+import { ImageGalleryCarousel } from '@/components/rewards/ImageGalleryCarousel';
 import { toast } from '@/hooks/use-toast';
 import { BuyClaims } from '@/components/BuyClaims';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -541,14 +542,11 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
           
           {/* LEFT COLUMN - Image Gallery */}
           <div className="space-y-4">
-            {/* Main Image */}
-            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-muted">
-              <ImageWithFallback
-                src={reward.image_url || '/placeholder.svg'}
-                alt={reward.title}
-                className="w-full h-full object-cover"
-              />
-              
+            {/* Image Gallery Carousel */}
+            <ImageGalleryCarousel
+              images={[reward.image_url || '/placeholder.svg']}
+              title={reward.title}
+            >
               {/* Sponsored Badge - Top Left */}
               {isSponsored && (
                 <Badge className="absolute top-4 left-4 bg-gradient-to-r from-amber-500 to-yellow-500 text-black border-0 font-bold shadow-lg">
@@ -575,7 +573,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                   />
                 </div>
               )}
-            </div>
+            </ImageGalleryCarousel>
 
             {/* Sponsor Section - Elegant Gunmetal Design */}
             {isSponsored && sponsorName && (
