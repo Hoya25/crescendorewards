@@ -579,6 +579,7 @@ export type Database = {
           referral_code: string | null
           referral_count: number | null
           referral_milestones_claimed: Json | null
+          referral_slug: string | null
           referred_by: string | null
           updated_at: string
           wallet_address: string | null
@@ -599,6 +600,7 @@ export type Database = {
           referral_code?: string | null
           referral_count?: number | null
           referral_milestones_claimed?: Json | null
+          referral_slug?: string | null
           referred_by?: string | null
           updated_at?: string
           wallet_address?: string | null
@@ -619,6 +621,7 @@ export type Database = {
           referral_code?: string | null
           referral_count?: number | null
           referral_milestones_claimed?: Json | null
+          referral_slug?: string | null
           referred_by?: string | null
           updated_at?: string
           wallet_address?: string | null
@@ -716,6 +719,7 @@ export type Database = {
           created_at: string
           id: string
           is_paid: boolean
+          link_type: string | null
           referral_bonus: number
           referred_id: string
           referrer_id: string
@@ -724,6 +728,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_paid?: boolean
+          link_type?: string | null
           referral_bonus?: number
           referred_id: string
           referrer_id: string
@@ -732,6 +737,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_paid?: boolean
+          link_type?: string | null
           referral_bonus?: number
           referred_id?: string
           referrer_id?: string
@@ -1861,6 +1867,10 @@ export type Database = {
         Returns: Json
       }
       check_referral_milestones: { Args: { p_user_id: string }; Returns: Json }
+      check_slug_availability: {
+        Args: { p_slug: string; p_user_id?: string }
+        Returns: Json
+      }
       claim_gift: {
         Args: { p_gift_code: string; p_user_id: string }
         Returns: Json
@@ -1910,6 +1920,7 @@ export type Database = {
           title: string
         }[]
       }
+      get_referral_code_by_slug: { Args: { p_slug: string }; Returns: Json }
       get_reward_watch_count: { Args: { p_reward_id: string }; Returns: number }
       get_sponsor_stats: { Args: { p_sponsor_id: string }; Returns: Json }
       get_unified_user_profile: {
@@ -1999,10 +2010,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_reserved_slug: { Args: { slug: string }; Returns: boolean }
+      is_valid_slug: { Args: { slug: string }; Returns: boolean }
       process_referral: {
         Args: { p_referred_id: string; p_referrer_code: string }
         Returns: Json
       }
+      save_referral_slug: { Args: { p_slug: string }; Returns: Json }
       send_gift_from_balance: {
         Args: {
           p_claims_amount: number

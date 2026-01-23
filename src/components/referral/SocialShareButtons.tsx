@@ -7,27 +7,29 @@ interface SocialShareButtonsProps {
   referralLink: string;
   allocation: number;
   variant?: 'default' | 'compact';
+  /** Optional cleaner display link (e.g., /join/username) for social messages */
+  displayLink?: string;
 }
 
-// Pre-written share messages
-const SHARE_MESSAGES = {
-  twitter: (allocation: number) => 
-    `I'm earning rewards just for shopping and living my life on @CrescendoApp 🎁 Join me and we both get ${allocation} NCTR →`,
-  discord: (allocation: number) => 
-    `Check out Crescendo - finally a rewards platform that doesn't suck. Use my link and we both earn ${allocation} NCTR 🔥`,
-  telegram: (allocation: number) => 
-    `Hey! Join me on Crescendo and we both get ${allocation} NCTR when you sign up →`,
-  whatsapp: (allocation: number) => 
-    `I found this cool rewards app - if you sign up with my link we both get ${allocation} NCTR:`,
+// Pre-written share messages - use cleaner personalized links when available
+const getShareMessages = (allocation: number, displayLink?: string) => ({
+  twitter: `I'm earning rewards on @CrescendoApp 🎁 Join me → ${displayLink || ''}`,
+  discord: `Check out Crescendo - finally a rewards platform that doesn't suck. Use my link and we both earn ${allocation} NCTR 🔥`,
+  telegram: `Hey! Join me on Crescendo and we both get ${allocation} NCTR when you sign up →`,
+  whatsapp: `I found this cool rewards app - if you sign up with my link we both get ${allocation} NCTR:`,
   email: {
     subject: "Join me on Crescendo - we both get rewarded",
-    body: (allocation: number, link: string) => 
+    body: (link: string) => 
       `Hey!\n\nI've been using Crescendo to earn rewards and thought you'd like it too.\n\nIf you sign up with my link, we both get ${allocation} NCTR to start.\n\n${link}\n\nSee you there!`
   }
-};
+});
 
-export function SocialShareButtons({ referralLink, allocation, variant = 'default' }: SocialShareButtonsProps) {
+export function SocialShareButtons({ referralLink, allocation, variant = 'default', displayLink }: SocialShareButtonsProps) {
   const [copied, setCopied] = useState(false);
+  
+  // Use displayLink for cleaner social shares, but referralLink for actual functionality
+  const shareLink = displayLink || referralLink;
+  const messages = getShareMessages(allocation, displayLink);
 
   const handleCopy = async () => {
     try {
@@ -41,32 +43,29 @@ export function SocialShareButtons({ referralLink, allocation, variant = 'defaul
   };
 
   const handleShare = (platform: string) => {
-    const message = SHARE_MESSAGES[platform as keyof typeof SHARE_MESSAGES];
     let shareUrl = '';
 
     switch (platform) {
       case 'twitter':
-        const twitterText = typeof message === 'function' ? message(allocation) : '';
-        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(twitterText)}&url=${encodeURIComponent(referralLink)}`;
+        // Twitter: Use clean personalized link in the message if available
+        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(messages.twitter)}${displayLink ? '' : `&url=${encodeURIComponent(referralLink)}`}`;
         break;
       case 'discord':
         // Discord doesn't have a share URL, copy the message instead
-        const discordMessage = `${typeof message === 'function' ? message(allocation) : ''} ${referralLink}`;
+        const discordMessage = `${messages.discord} ${shareLink}`;
         navigator.clipboard.writeText(discordMessage);
         toast.success('Discord message copied! Paste it in your server');
         return;
       case 'telegram':
-        const telegramText = typeof message === 'function' ? message(allocation) : '';
-        shareUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(telegramText)}`;
+        shareUrl = `https://t.me/share/url?url=${encodeURIComponent(shareLink)}&text=${encodeURIComponent(messages.telegram)}`;
         break;
       case 'whatsapp':
-        const whatsappText = `${typeof message === 'function' ? message(allocation) : ''} ${referralLink}`;
+        const whatsappText = `${messages.whatsapp} ${shareLink}`;
         shareUrl = `https://wa.me/?text=${encodeURIComponent(whatsappText)}`;
         break;
       case 'email':
-        const emailConfig = SHARE_MESSAGES.email;
-        const emailBody = emailConfig.body(allocation, referralLink);
-        shareUrl = `mailto:?subject=${encodeURIComponent(emailConfig.subject)}&body=${encodeURIComponent(emailBody)}`;
+        const emailBody = messages.email.body(shareLink);
+        shareUrl = `mailto:?subject=${encodeURIComponent(messages.email.subject)}&body=${encodeURIComponent(emailBody)}`;
         break;
     }
 

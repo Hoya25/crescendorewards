@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Users, Copy, Check, Gift, Lock, Sparkles, ArrowLeft, 
@@ -20,47 +19,47 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 import { SocialShareButtons } from '@/components/referral/SocialShareButtons';
 import { MilestoneProgress } from '@/components/referral/MilestoneProgress';
+import { SlugSetupCard } from '@/components/referral/SlugSetupCard';
+import { useReferralSlug } from '@/hooks/useReferralSlug';
 import { 
   generateReferralLink, 
-  generatePersonalizedLink, 
-  getAllLinkVariants,
   PRODUCTION_DOMAIN 
 } from '@/lib/referral-links';
 
 export default function InvitePage() {
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
-  const [customAlias, setCustomAlias] = useState('');
-  const [selectedLinkType, setSelectedLinkType] = useState<'standard' | 'personalized' | 'custom'>('standard');
+  const [selectedLinkType, setSelectedLinkType] = useState<'standard' | 'personalized'>('standard');
   const navigate = useNavigate();
   const { data: referralSettings } = useReferralSettings();
   const { data: stats, isLoading } = useReferralStats();
   const { profile } = useUnifiedUser();
+  const { currentSlug, isLoadingSlug } = useReferralSlug();
 
   const crescendoData = profile?.crescendo_data || {};
   const referralCode = crescendoData.referral_code || 'LOADING';
-  const displayName = profile?.display_name || crescendoData.full_name || null;
   const allocation360Lock = referralSettings?.allocation360Lock ?? 500;
   
-  // Generate all link variants using production domain
-  const linkVariants = getAllLinkVariants({
-    code: referralCode,
-    displayName,
-    customAlias: customAlias.trim() || null
-  });
+  // Generate links - standard and personalized (with saved slug)
+  const standardLink = generateReferralLink(referralCode);
+  const personalizedLink = useMemo(() => {
+    if (currentSlug) {
+      return `${PRODUCTION_DOMAIN}/join/${currentSlug}`;
+    }
+    return null;
+  }, [currentSlug]);
   
   // Get the active referral link based on selection
   const getActiveReferralLink = () => {
-    switch (selectedLinkType) {
-      case 'personalized':
-        return linkVariants.personalized || linkVariants.standard;
-      case 'custom':
-        return linkVariants.custom || linkVariants.standard;
-      default:
-        return linkVariants.standard;
+    if (selectedLinkType === 'personalized' && personalizedLink) {
+      return personalizedLink;
     }
+    return standardLink;
   };
   
   const referralLink = getActiveReferralLink();
+  
+  // Display link for social shares - prefer personalized if available
+  const displayLink = personalizedLink || undefined;
 
   const handleCopy = async (text: string, label?: string) => {
     try {
@@ -143,135 +142,115 @@ export default function InvitePage() {
               </div>
             </div>
 
+            {/* Personalized Link Setup Card - Show if no slug yet */}
+            {!isLoadingSlug && !currentSlug && (
+              <div className="mb-6">
+                <SlugSetupCard 
+                  onSlugSaved={(slug) => {
+                    setSelectedLinkType('personalized');
+                    toast.success('Your personalized link is now active!');
+                  }} 
+                />
+              </div>
+            )}
+
             {/* Referral Link Card */}
             <Card className="mb-6 border-2 border-primary/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Link2 className="w-5 h-5 text-primary" />
-                  Your Personal Invite Link
+                  Your Invite Link
                 </CardTitle>
                 <CardDescription>
-                  Choose your preferred link style. All links use <span className="font-mono text-xs">crescendo.nctr.live</span>
+                  Share your link to earn rewards. All links use <span className="font-mono text-xs">crescendo.nctr.live</span>
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Link Type Tabs */}
-                <Tabs value={selectedLinkType} onValueChange={(v) => setSelectedLinkType(v as typeof selectedLinkType)}>
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="standard" className="gap-1.5 text-xs sm:text-sm">
-                      <Link2 className="w-3.5 h-3.5" />
-                      Standard
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="personalized" 
-                      className="gap-1.5 text-xs sm:text-sm"
-                      disabled={!linkVariants.personalized}
-                    >
-                      <User className="w-3.5 h-3.5" />
-                      Personal
-                    </TabsTrigger>
-                    <TabsTrigger value="custom" className="gap-1.5 text-xs sm:text-sm">
-                      <Wand2 className="w-3.5 h-3.5" />
-                      Custom
-                    </TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="standard" className="mt-4 space-y-3">
+                {/* Link Type Tabs - Only show if user has personalized link */}
+                {personalizedLink ? (
+                  <Tabs value={selectedLinkType} onValueChange={(v) => setSelectedLinkType(v as typeof selectedLinkType)}>
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="personalized" className="gap-1.5 text-xs sm:text-sm">
+                        <Wand2 className="w-3.5 h-3.5" />
+                        Personal Link
+                      </TabsTrigger>
+                      <TabsTrigger value="standard" className="gap-1.5 text-xs sm:text-sm">
+                        <Link2 className="w-3.5 h-3.5" />
+                        Standard Link
+                      </TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="personalized" className="mt-4 space-y-3">
+                      <p className="text-sm text-muted-foreground">
+                        Your memorable personalized invite link
+                      </p>
+                      <div className="flex gap-2">
+                        <Input
+                          value={personalizedLink}
+                          readOnly
+                          className="flex-1 font-mono text-sm"
+                        />
+                        <Button
+                          onClick={() => handleCopy(personalizedLink, 'Personal link')}
+                          size="lg"
+                          className="gap-2"
+                        >
+                          {copiedLink === personalizedLink ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                          {copiedLink === personalizedLink ? 'Copied!' : 'Copy'}
+                        </Button>
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="standard" className="mt-4 space-y-3">
+                      <p className="text-sm text-muted-foreground">
+                        Your unique referral code link
+                      </p>
+                      <div className="flex gap-2">
+                        <Input
+                          value={standardLink}
+                          readOnly
+                          className="flex-1 font-mono text-sm"
+                        />
+                        <Button
+                          onClick={() => handleCopy(standardLink, 'Standard link')}
+                          size="lg"
+                          className="gap-2"
+                        >
+                          {copiedLink === standardLink ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                          {copiedLink === standardLink ? 'Copied!' : 'Copy'}
+                        </Button>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                ) : (
+                  // No personalized link yet - just show standard
+                  <div className="space-y-3">
                     <p className="text-sm text-muted-foreground">
                       Your unique referral code link
                     </p>
                     <div className="flex gap-2">
                       <Input
-                        value={linkVariants.standard}
+                        value={standardLink}
                         readOnly
                         className="flex-1 font-mono text-sm"
                       />
                       <Button
-                        onClick={() => handleCopy(linkVariants.standard, 'Standard link')}
+                        onClick={() => handleCopy(standardLink, 'Link')}
                         size="lg"
                         className="gap-2"
                       >
-                        {copiedLink === linkVariants.standard ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-                        {copiedLink === linkVariants.standard ? 'Copied!' : 'Copy'}
+                        {copiedLink === standardLink ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                        {copiedLink === standardLink ? 'Copied!' : 'Copy'}
                       </Button>
                     </div>
-                  </TabsContent>
-                  
-                  <TabsContent value="personalized" className="mt-4 space-y-3">
-                    {linkVariants.personalized ? (
-                      <>
-                        <p className="text-sm text-muted-foreground">
-                          A friendly link with your name
-                        </p>
-                        <div className="flex gap-2">
-                          <Input
-                            value={linkVariants.personalized}
-                            readOnly
-                            className="flex-1 font-mono text-sm"
-                          />
-                          <Button
-                            onClick={() => handleCopy(linkVariants.personalized!, 'Personal link')}
-                            size="lg"
-                            className="gap-2"
-                          >
-                            {copiedLink === linkVariants.personalized ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-                            {copiedLink === linkVariants.personalized ? 'Copied!' : 'Copy'}
-                          </Button>
-                        </div>
-                      </>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        Add a display name to your profile to unlock personalized links
-                      </p>
-                    )}
-                  </TabsContent>
-                  
-                  <TabsContent value="custom" className="mt-4 space-y-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="custom-alias">Create your custom alias</Label>
-                      <div className="flex gap-2">
-                        <div className="flex-1 flex items-center gap-0 border rounded-lg overflow-hidden bg-muted/50">
-                          <span className="px-3 py-2 text-sm text-muted-foreground bg-muted border-r">
-                            crescendo.nctr.live/join/
-                          </span>
-                          <Input
-                            id="custom-alias"
-                            value={customAlias}
-                            onChange={(e) => setCustomAlias(e.target.value.replace(/[^a-zA-Z0-9-_]/g, '').toLowerCase())}
-                            placeholder="your-alias"
-                            className="border-0 shadow-none focus-visible:ring-0"
-                            maxLength={30}
-                          />
-                        </div>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Letters, numbers, dashes, and underscores only
-                      </p>
-                    </div>
-                    {linkVariants.custom && (
-                      <div className="flex gap-2">
-                        <Input
-                          value={linkVariants.custom}
-                          readOnly
-                          className="flex-1 font-mono text-sm"
-                        />
-                        <Button
-                          onClick={() => handleCopy(linkVariants.custom!, 'Custom link')}
-                          size="lg"
-                          className="gap-2"
-                        >
-                          {copiedLink === linkVariants.custom ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-                          {copiedLink === linkVariants.custom ? 'Copied!' : 'Copy'}
-                        </Button>
-                      </div>
-                    )}
-                  </TabsContent>
-                </Tabs>
+                  </div>
+                )}
                 
-                {/* Enhanced Social Share Buttons */}
+                {/* Enhanced Social Share Buttons - Pass displayLink for cleaner social shares */}
                 <SocialShareButtons 
                   referralLink={referralLink} 
                   allocation={allocation360Lock}
+                  displayLink={displayLink}
                 />
               </CardContent>
             </Card>
