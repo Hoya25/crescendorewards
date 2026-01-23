@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
+import { useAdminRole } from '@/hooks/useAdminRole';
 import { supabase, SUPABASE_URL } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -45,6 +46,7 @@ export function DevToolsPanel() {
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const { user, session, loading: authLoading, isAuthenticated } = useAuthContext();
+  const { isAdmin, isLoading: adminLoading } = useAdminRole();
   const { 
     profile: unifiedProfile, 
     tier, 
@@ -59,13 +61,14 @@ export function DevToolsPanel() {
 
   const isExternalDb = SUPABASE_URL.includes('rndivcsonsojgelzewkb');
 
-  // Keyboard shortcut handler (Ctrl+Shift+D)
+  // Keyboard shortcut handler (Ctrl+Shift+D) - only for admins
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (!isAdmin) return;
     if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'd') {
       event.preventDefault();
       setIsOpen(prev => !prev);
     }
-  }, []);
+  }, [isAdmin]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -104,6 +107,11 @@ export function DevToolsPanel() {
       fetchDbStats();
     }
   }, [isOpen, activeTab]);
+
+  // Only render for admins - return null after all hooks
+  if (!adminLoading && !isAdmin) {
+    return null;
+  }
 
   const copyToClipboard = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
