@@ -263,6 +263,7 @@ export default function InvitePage() {
                 personalizedLink={personalizedLink}
                 referralCode={referralCode}
                 inviterName={profile?.display_name}
+                allocation={allocation360Lock}
               />
             </div>
 
