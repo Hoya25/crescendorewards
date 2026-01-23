@@ -54,6 +54,7 @@ export function SubmitRewardsPage() {
     category: '',
     brand: '',
     stockQuantity: '',
+    minStatusTier: 'all', // 'all', 'bronze', 'silver', 'gold', 'platinum', 'diamond'
   });
 
   const floorAmountNum = parseFloat(floorAmount) || 0;
@@ -238,6 +239,8 @@ export function SubmitRewardsPage() {
           nctr_rate_at_submission: NCTR_RATE,
           claims_required: claimsRequired,
           claim_value_at_submission: claimValue,
+          // Status access requirement
+          min_status_tier: formData.minStatusTier === 'all' ? null : formData.minStatusTier,
         });
 
       if (error) throw error;
@@ -256,6 +259,7 @@ export function SubmitRewardsPage() {
         category: '',
         brand: '',
         stockQuantity: '',
+        minStatusTier: 'all',
       });
     } catch (error) {
       console.error('Error submitting reward:', error);
@@ -546,6 +550,89 @@ export function SubmitRewardsPage() {
                     onChange={(e) => handleInputChange('stockQuantity', e.target.value)}
                     min="1"
                   />
+                </div>
+
+                {/* Status Access Settings */}
+                <div className="space-y-3 pt-4 border-t">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-primary" />
+                    <Label className="text-base font-semibold">Status Access Settings</Label>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Choose which Crescendo Status levels can claim this reward. Higher tiers unlock exclusive rewards.
+                  </p>
+                  <Select
+                    value={formData.minStatusTier}
+                    onValueChange={(value) => handleInputChange('minStatusTier', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select minimum status requirement" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">
+                        <div className="flex items-center gap-2">
+                          <span>🔓</span>
+                          <div>
+                            <span className="font-medium">All Members</span>
+                            <span className="text-muted-foreground text-xs ml-2">Anyone can claim</span>
+                          </div>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="bronze">
+                        <div className="flex items-center gap-2">
+                          <span>🥉</span>
+                          <div>
+                            <span className="font-medium">Bronze+</span>
+                            <span className="text-muted-foreground text-xs ml-2">Bronze, Silver, Gold, Platinum, Diamond</span>
+                          </div>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="silver">
+                        <div className="flex items-center gap-2">
+                          <span>🥈</span>
+                          <div>
+                            <span className="font-medium">Silver+</span>
+                            <span className="text-muted-foreground text-xs ml-2">Silver, Gold, Platinum, Diamond</span>
+                          </div>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="gold">
+                        <div className="flex items-center gap-2">
+                          <span>🥇</span>
+                          <div>
+                            <span className="font-medium">Gold+</span>
+                            <span className="text-muted-foreground text-xs ml-2">Gold, Platinum, Diamond</span>
+                          </div>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="platinum">
+                        <div className="flex items-center gap-2">
+                          <span>💎</span>
+                          <div>
+                            <span className="font-medium">Platinum+</span>
+                            <span className="text-muted-foreground text-xs ml-2">Platinum, Diamond only</span>
+                          </div>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="diamond">
+                        <div className="flex items-center gap-2">
+                          <span>👑</span>
+                          <div>
+                            <span className="font-medium">Diamond Only</span>
+                            <span className="text-muted-foreground text-xs ml-2">Exclusive to Diamond members</span>
+                          </div>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {formData.minStatusTier !== 'all' && (
+                    <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                      <span className="text-amber-500 text-lg">⚡</span>
+                      <p className="text-sm text-amber-700 dark:text-amber-400">
+                        Restricting access can make your reward more exclusive and desirable to higher-tier members.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2">
