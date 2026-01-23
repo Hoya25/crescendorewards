@@ -20,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { RewardVersionHistory } from '@/components/RewardVersionHistory';
+import { SubmissionComparisonModal } from '@/components/admin/SubmissionComparisonModal';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
@@ -90,6 +91,7 @@ export function AdminSubmissions() {
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [versionHistoryId, setVersionHistoryId] = useState<string | null>(null);
   const [previewAsCard, setPreviewAsCard] = useState(false);
+  const [showComparisonModal, setShowComparisonModal] = useState(false);
   
   // Modal states
   const [showApproveEditModal, setShowApproveEditModal] = useState(false);
@@ -667,22 +669,13 @@ export function AdminSubmissions() {
                         <div className="flex gap-2">
                           {selectedSubmission.parent_submission_id && (
                             <Button
-                              variant="outline"
+                              variant="default"
                               size="sm"
-                              onClick={async () => {
-                                const { data } = await supabase
-                                  .from('reward_submissions')
-                                  .select('*')
-                                  .eq('id', selectedSubmission.parent_submission_id)
-                                  .single();
-                                if (data) {
-                                  toast.info(`Previous version: "${data.title}" - Status: ${data.status}`);
-                                }
-                              }}
-                              className="gap-1"
+                              onClick={() => setShowComparisonModal(true)}
+                              className="gap-1 bg-amber-600 hover:bg-amber-700"
                             >
                               <History className="w-4 h-4" />
-                              View Previous
+                              Compare Versions
                             </Button>
                           )}
                           {selectedSubmission.version > 1 && (
@@ -1178,6 +1171,16 @@ export function AdminSubmissions() {
           open={showVersionHistory}
           onClose={() => setShowVersionHistory(false)}
           submissionId={versionHistoryId}
+        />
+      )}
+
+      {/* Comparison Modal for Resubmissions */}
+      {selectedSubmission && selectedSubmission.parent_submission_id && (
+        <SubmissionComparisonModal
+          open={showComparisonModal}
+          onClose={() => setShowComparisonModal(false)}
+          currentSubmission={selectedSubmission}
+          parentSubmissionId={selectedSubmission.parent_submission_id}
         />
       )}
     </div>
