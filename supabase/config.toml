@@ -7,3 +7,7 @@ verify_jwt = false
 # Wallet auth needs public access for challenge-response flow
 [functions.wallet-auth]
 verify_jwt = false
+
+# Session tracking via sendBeacon (no auth header)
+[functions.track-session-end]
+verify_jwt = false

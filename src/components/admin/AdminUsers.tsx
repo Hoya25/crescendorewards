@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { Search, Filter, MoreHorizontal, Eye, Coins, Gift, Copy, Check, ChevronLeft, ChevronRight, Bell, AlertCircle, CheckCircle, Info, Send } from 'lucide-react';
+import { Search, Filter, MoreHorizontal, Eye, Coins, Gift, Copy, Check, ChevronLeft, ChevronRight, Bell, AlertCircle, CheckCircle, Info, Send, Activity } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,7 @@ import { useAdminRole } from '@/hooks/useAdminRole';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SendNotificationModal } from './SendNotificationModal';
+import { ClickableUsername } from '@/components/ClickableUsername';
 import {
   Table,
   TableBody,
@@ -482,7 +483,13 @@ export function AdminUsers() {
                           <AvatarFallback>{getInitials(user.full_name, user.email)}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium">{user.full_name || 'Unnamed User'}</p>
+                          <ClickableUsername
+                            userId={user.id}
+                            displayName={user.full_name || 'Unnamed User'}
+                            email={user.email || undefined}
+                            avatarUrl={user.avatar_url || undefined}
+                            className="font-medium"
+                          />
                           <p className="text-sm text-muted-foreground">{user.email}</p>
                         </div>
                       </div>

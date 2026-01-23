@@ -8,6 +8,7 @@ import { queryClient } from './lib/queryClient';
 import { ThemeProvider } from "./components/ThemeProvider";
 import { AuthProvider, useAuthContext } from "./contexts/AuthContext";
 import { UnifiedUserProvider, useUnifiedUser } from "./contexts/UnifiedUserContext";
+import { ActivityTrackerProvider } from "./contexts/ActivityTrackerContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminRoute } from "./components/AdminRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -366,7 +367,9 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <UnifiedUserProvider>
-              <AppRoutes />
+              <ActivityTrackerProvider>
+                <AppRoutes />
+              </ActivityTrackerProvider>
             </UnifiedUserProvider>
           </AuthProvider>
         </BrowserRouter>

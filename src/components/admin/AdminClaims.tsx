@@ -17,6 +17,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { toast } from '@/hooks/use-toast';
 import { PermissionGate } from '@/components/admin/PermissionGate';
 import { useAdminRole } from '@/hooks/useAdminRole';
+import { ClickableUsername } from '@/components/ClickableUsername';
 import { format, formatDistanceToNow } from 'date-fns';
 import { 
   Search, 
@@ -723,7 +724,12 @@ export function AdminClaims() {
                         </TableCell>
                         <TableCell>
                           <div>
-                            <div className="font-medium">{claim.user_name || 'Unknown'}</div>
+                            <ClickableUsername
+                              userId={claim.user_id}
+                              displayName={claim.user_name || 'Unknown'}
+                              email={claim.user_email}
+                              className="font-medium"
+                            />
                             <div className="text-sm text-muted-foreground">{claim.user_email}</div>
                           </div>
                         </TableCell>
