@@ -106,6 +106,9 @@ export function AdminSubmissions() {
     is_featured: false,
   });
   
+  // Track calculated claims for showing override info
+  const [calculatedClaims, setCalculatedClaims] = useState<number | null>(null);
+  
   // Reject form data
   const [rejectionReason, setRejectionReason] = useState('');
   const [customRejectionMessage, setCustomRejectionMessage] = useState('');
@@ -226,6 +229,12 @@ export function AdminSubmissions() {
     try {
       setUpdating(true);
       
+      // Determine if claims were manually adjusted
+      const wasManuallyAdjusted = calculatedClaims !== null && editFormData.cost !== calculatedClaims;
+      const adjustmentNote = wasManuallyAdjusted 
+        ? ` | Claims adjusted from ${calculatedClaims} to ${editFormData.cost} by admin.`
+        : '';
+      
       // First approve the submission with the edited data
       const { error: submitError } = await supabase
         .from('reward_submissions')
@@ -233,10 +242,11 @@ export function AdminSubmissions() {
           status: 'approved',
           title: editFormData.title,
           description: editFormData.description,
+          claims_required: editFormData.cost,
           claim_passes_required: editFormData.cost,
           category: editFormData.category,
           stock_quantity: editFormData.stock_quantity,
-          admin_notes: `Edited and approved by admin. Original title: ${selectedSubmission.title}`
+          admin_notes: `Edited and approved by admin. Original title: ${selectedSubmission.title}${adjustmentNote}`
         })
         .eq('id', selectedSubmission.id);
 
@@ -308,10 +318,23 @@ export function AdminSubmissions() {
 
   const openApproveEditModal = () => {
     if (!selectedSubmission) return;
+    
+    // Calculate the expected claims based on floor amount
+    const claimValueAtSubmission = selectedSubmission.claim_value_at_submission || 5;
+    const calculated = selectedSubmission.floor_usd_amount 
+      ? Math.ceil(selectedSubmission.floor_usd_amount / claimValueAtSubmission)
+      : selectedSubmission.claims_required || selectedSubmission.claim_passes_required;
+    
+    // Use claims_required if available, otherwise fall back
+    const currentCost = selectedSubmission.claims_required 
+      || calculated 
+      || selectedSubmission.claim_passes_required;
+    
+    setCalculatedClaims(calculated);
     setEditFormData({
       title: selectedSubmission.title,
       description: selectedSubmission.description,
-      cost: selectedSubmission.claim_passes_required,
+      cost: currentCost,
       category: selectedSubmission.category,
       stock_quantity: selectedSubmission.stock_quantity,
       is_featured: false,
@@ -883,29 +906,59 @@ export function AdminSubmissions() {
                 rows={3}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-cost">Cost (Claims)</Label>
-                <Input
-                  id="edit-cost"
-                  type="number"
-                  value={editFormData.cost}
-                  onChange={(e) => setEditFormData({ ...editFormData, cost: parseInt(e.target.value) || 0 })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-stock">Stock Quantity</Label>
-                <Input
-                  id="edit-stock"
-                  type="number"
-                  placeholder="Unlimited"
-                  value={editFormData.stock_quantity ?? ''}
-                  onChange={(e) => setEditFormData({ 
-                    ...editFormData, 
-                    stock_quantity: e.target.value ? parseInt(e.target.value) : null 
-                  })}
-                />
-              </div>
+            {/* Claims Required with Override */}
+            <div className="space-y-2">
+              <Label htmlFor="edit-cost">Claims Required</Label>
+              <Input
+                id="edit-cost"
+                type="number"
+                min={1}
+                value={editFormData.cost}
+                onChange={(e) => setEditFormData({ ...editFormData, cost: parseInt(e.target.value) || 1 })}
+              />
+              {calculatedClaims !== null && (
+                <div className="text-xs space-y-1">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <span>Calculated: {calculatedClaims} Claims</span>
+                    {selectedSubmission?.floor_usd_amount && selectedSubmission?.claim_value_at_submission && (
+                      <span className="text-muted-foreground/70">
+                        (${selectedSubmission.floor_usd_amount} ÷ ${selectedSubmission.claim_value_at_submission})
+                      </span>
+                    )}
+                  </div>
+                  {editFormData.cost !== calculatedClaims && (
+                    <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                      <AlertCircle className="w-3 h-3" />
+                      <span>Manual override: {editFormData.cost > calculatedClaims ? '+' : ''}{editFormData.cost - calculatedClaims} from calculated</span>
+                    </div>
+                  )}
+                  {editFormData.cost !== calculatedClaims && (
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 text-xs px-2"
+                      onClick={() => setEditFormData({ ...editFormData, cost: calculatedClaims })}
+                    >
+                      Reset to calculated
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit-stock">Stock Quantity</Label>
+              <Input
+                id="edit-stock"
+                type="number"
+                placeholder="Unlimited"
+                value={editFormData.stock_quantity ?? ''}
+                onChange={(e) => setEditFormData({ 
+                  ...editFormData, 
+                  stock_quantity: e.target.value ? parseInt(e.target.value) : null 
+                })}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-category">Category</Label>
