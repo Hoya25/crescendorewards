@@ -17,7 +17,7 @@ import {
   TrendingUp, DollarSign, Lightbulb
 } from 'lucide-react';
 import { ConfirmationDialog } from '@/components/ConfirmationDialog';
-import { validateImageFile } from '@/lib/image-validation';
+import { validateImageFile, validateImageDimensions } from '@/lib/image-validation';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 import { NCTRLogo } from './NCTRLogo';
 import { LockOptionCards, NCTR_RATE, LOCK_OPTIONS } from '@/components/rewards/LockOptionCards';
@@ -66,13 +66,22 @@ export function SubmitRewardsPage() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const validation = validateImageFile(file);
-    if (!validation.valid) {
-      toast.error(validation.error);
+    // Basic validation (format, size)
+    const basicValidation = validateImageFile(file);
+    if (!basicValidation.valid) {
+      toast.error(basicValidation.error);
+      e.target.value = '';
+      return;
+    }
+
+    // Dimension validation (async)
+    const dimensionValidation = await validateImageDimensions(file);
+    if (!dimensionValidation.valid) {
+      toast.error(dimensionValidation.error);
       e.target.value = '';
       return;
     }
@@ -494,24 +503,28 @@ export function SubmitRewardsPage() {
                   <Label htmlFor="imageUpload">Reward Image (Optional)</Label>
                   <div className="space-y-3">
                     {imagePreview && (
-                      <div className="relative w-full h-48 rounded-lg overflow-hidden border border-border">
-                        <img 
-                          src={imagePreview} 
-                          alt="Preview" 
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedImage(null);
-                            setImagePreview('');
-                          }}
-                          className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        </button>
+                      <div className="space-y-2">
+                        <p className="text-xs text-muted-foreground font-medium">Preview (as it will appear in marketplace):</p>
+                        <div className="relative w-full max-w-[240px] aspect-[4/5] rounded-lg overflow-hidden border border-border bg-muted/20">
+                          <img 
+                            src={imagePreview} 
+                            alt="Preview" 
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedImage(null);
+                              setImagePreview('');
+                            }}
+                            className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                          </button>
+                        </div>
+                        <p className="text-xs text-muted-foreground/70">Your image will be cropped to fit the card. Center important content.</p>
                       </div>
                     )}
                     <div className="flex gap-2">
@@ -534,12 +547,12 @@ export function SubmitRewardsPage() {
                       </Button>
                     </div>
                     <div className="text-xs text-muted-foreground space-y-1">
-                      <p className="font-medium">Optimized Image Specs:</p>
+                      <p className="font-medium">Image Guidelines:</p>
                       <ul className="list-disc list-inside space-y-0.5 text-muted-foreground/80">
-                        <li><span className="font-medium">Dimensions:</span> 800×600px or 4:3 aspect ratio</li>
-                        <li><span className="font-medium">Format:</span> PNG (transparent) or JPG</li>
-                        <li><span className="font-medium">Max size:</span> 5MB (under 1MB preferred)</li>
-                        <li><span className="font-medium">Background:</span> Clean, uncluttered preferred</li>
+                        <li><span className="font-medium">Size:</span> At least 600px on shortest side (800px+ recommended)</li>
+                        <li><span className="font-medium">Aspect ratio:</span> Square, portrait, or landscape accepted</li>
+                        <li><span className="font-medium">Format:</span> JPG, PNG, WebP, or GIF</li>
+                        <li><span className="font-medium">Max file size:</span> 5MB (under 1MB preferred)</li>
                       </ul>
                     </div>
                   </div>
@@ -624,7 +637,7 @@ export function SubmitRewardsPage() {
                         </div>
                         <div className="flex gap-2">
                           <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
-                          <p>Add high-quality images (800×600px, under 1MB)</p>
+                          <p>Add high-quality images (600px+ on shortest side)</p>
                         </div>
                       </div>
                     </div>
