@@ -49,6 +49,8 @@ interface RewardSubmission {
   floor_usd_amount: number | null;
   lock_option: string | null;
   nctr_rate_at_submission: number | null;
+  claims_required: number | null;
+  claim_value_at_submission: number | null;
   profiles?: {
     full_name: string | null;
     email: string | null;
@@ -615,13 +617,28 @@ export function AdminSubmissions() {
                             <DollarSign className="w-3.5 h-3.5" />
                             Contributor Compensation Request
                           </Label>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                             <div>
                               <div className="text-xs text-muted-foreground mb-1">Floor Amount</div>
                               <div className="font-bold text-lg">
                                 {selectedSubmission.floor_usd_amount 
                                   ? `$${selectedSubmission.floor_usd_amount.toLocaleString()}`
                                   : 'N/A'}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-1">Claims Required</div>
+                              <div className="font-bold text-lg text-primary">
+                                {selectedSubmission.claims_required 
+                                  ? `${selectedSubmission.claims_required} Claims`
+                                  : selectedSubmission.floor_usd_amount 
+                                    ? `${Math.ceil(selectedSubmission.floor_usd_amount / (selectedSubmission.claim_value_at_submission || 5))} Claims`
+                                    : 'N/A'}
+                                {selectedSubmission.claim_value_at_submission && (
+                                  <span className="text-xs font-normal text-muted-foreground ml-1">
+                                    (at ${selectedSubmission.claim_value_at_submission})
+                                  </span>
+                                )}
                               </div>
                             </div>
                             <div>

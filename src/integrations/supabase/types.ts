@@ -796,6 +796,8 @@ export type Database = {
           brand: string | null
           category: string
           claim_passes_required: number
+          claim_value_at_submission: number | null
+          claims_required: number | null
           created_at: string
           description: string
           floor_usd_amount: number | null
@@ -821,6 +823,8 @@ export type Database = {
           brand?: string | null
           category: string
           claim_passes_required?: number
+          claim_value_at_submission?: number | null
+          claims_required?: number | null
           created_at?: string
           description: string
           floor_usd_amount?: number | null
@@ -846,6 +850,8 @@ export type Database = {
           brand?: string | null
           category?: string
           claim_passes_required?: number
+          claim_value_at_submission?: number | null
+          claims_required?: number | null
           created_at?: string
           description?: string
           floor_usd_amount?: number | null

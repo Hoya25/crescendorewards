@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 import { 
   ArrowLeft, Upload, Send, Sparkles, Gift, Shirt, CreditCard, 
   Ticket, Zap, Package, Star, CheckCircle2, Shield,
-  TrendingUp, DollarSign, Lightbulb
+  TrendingUp, DollarSign, Lightbulb, Users
 } from 'lucide-react';
 import { ConfirmationDialog } from '@/components/ConfirmationDialog';
 import { validateImageFile, validateImageDimensions } from '@/lib/image-validation';
@@ -22,6 +22,7 @@ import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 import { NCTRLogo } from './NCTRLogo';
 import { LockOptionCards, NCTR_RATE, LOCK_OPTIONS } from '@/components/rewards/LockOptionCards';
 import { SubmissionSummary } from '@/components/rewards/SubmissionSummary';
+import { useClaimValue } from '@/hooks/useClaimValue';
 
 const rewardTypes = [
   { id: 'physical', label: 'Physical Product', icon: Package },
@@ -37,6 +38,7 @@ const rewardTypes = [
 export function SubmitRewardsPage() {
   const navigate = useNavigate();
   const { profile } = useUnifiedUser();
+  const { claimValue, getClaimsRequired } = useClaimValue();
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
@@ -61,6 +63,7 @@ export function SubmitRewardsPage() {
   const baseNCTR = floorAmountNum > 0 ? Math.round(floorAmountNum / NCTR_RATE) : 0;
   const selectedOption = LOCK_OPTIONS.find(o => o.id === selectedLockOption);
   const calculatedNCTR = selectedOption ? Math.round(baseNCTR * selectedOption.multiplier) : 0;
+  const claimsRequired = getClaimsRequired(floorAmountNum);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -193,13 +196,15 @@ export function SubmitRewardsPage() {
           category: formData.category,
           brand: formData.brand || null,
           nctr_value: calculatedNCTR,
-          claim_passes_required: 1,
+          claim_passes_required: claimsRequired,
           stock_quantity: formData.stockQuantity ? parseInt(formData.stockQuantity) : null,
           image_url: imageUrl,
           // New compensation fields
           floor_usd_amount: floorAmountNum,
           lock_option: selectedLockOption,
           nctr_rate_at_submission: NCTR_RATE,
+          claims_required: claimsRequired,
+          claim_value_at_submission: claimValue,
         });
 
       if (error) throw error;
@@ -344,6 +349,17 @@ export function SubmitRewardsPage() {
                       <span className="inline-block w-1.5 h-1.5 rounded-full bg-destructive" />
                       Minimum floor amount is ${MIN_FLOOR_AMOUNT}
                     </p>
+                  )}
+                  
+                  {/* Claims Required Display */}
+                  {floorAmountNum >= MIN_FLOOR_AMOUNT && claimsRequired > 0 && (
+                    <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                      <Users className="w-4 h-4 text-primary" />
+                      <p className="text-sm">
+                        Your <span className="font-semibold">${floorAmountNum.toLocaleString()}</span> floor = <span className="font-bold text-primary">{claimsRequired} Claims</span> required from members
+                        <span className="text-muted-foreground ml-1">(at ${claimValue} each)</span>
+                      </p>
+                    </div>
                   )}
                   
                   {isFloorHigh && (
