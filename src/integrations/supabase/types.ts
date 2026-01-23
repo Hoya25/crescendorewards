@@ -975,6 +975,7 @@ export type Database = {
           delivery_instructions: string | null
           delivery_method: string | null
           description: string
+          display_order: number | null
           id: string
           image_url: string | null
           is_active: boolean
@@ -1015,6 +1016,7 @@ export type Database = {
           delivery_instructions?: string | null
           delivery_method?: string | null
           description: string
+          display_order?: number | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -1055,6 +1057,7 @@ export type Database = {
           delivery_instructions?: string | null
           delivery_method?: string | null
           description?: string
+          display_order?: number | null
           id?: string
           image_url?: string | null
           is_active?: boolean
