@@ -3,11 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Save, DollarSign, Settings, AlertCircle } from 'lucide-react';
+import { Loader2, Save, DollarSign, Settings, AlertCircle, Users, Lock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Json } from '@/integrations/supabase/types';
+import { NCTRLogo } from '@/components/NCTRLogo';
 
 interface AdminSetting {
   id: string;
@@ -21,7 +22,9 @@ export function AdminSettings() {
   const [settings, setSettings] = useState<AdminSetting[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingReferral, setSavingReferral] = useState(false);
   const [priceFloor, setPriceFloor] = useState('4');
+  const [referralAllocation, setReferralAllocation] = useState('500');
 
   useEffect(() => {
     fetchSettings();
@@ -42,11 +45,19 @@ export function AdminSettings() {
       // Extract price floor setting
       const priceFloorSetting = data?.find(s => s.setting_key === 'claim_price_floor');
       if (priceFloorSetting) {
-        // Handle both string and number JSON values
         const value = typeof priceFloorSetting.setting_value === 'string' 
           ? priceFloorSetting.setting_value.replace(/"/g, '')
           : String(priceFloorSetting.setting_value);
         setPriceFloor(value);
+      }
+
+      // Extract referral 360LOCK allocation setting
+      const referralSetting = data?.find(s => s.setting_key === 'referral_360lock_allocation');
+      if (referralSetting) {
+        const value = typeof referralSetting.setting_value === 'string' 
+          ? referralSetting.setting_value.replace(/"/g, '')
+          : String(referralSetting.setting_value);
+        setReferralAllocation(value);
       }
     } catch (error) {
       console.error('Error fetching settings:', error);
@@ -99,6 +110,48 @@ export function AdminSettings() {
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSaveReferralAllocation = async () => {
+    const value = parseInt(referralAllocation);
+    if (isNaN(value) || value < 0) {
+      toast({
+        title: 'Invalid Value',
+        description: 'Referral allocation must be a positive number',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setSavingReferral(true);
+      
+      const { error } = await supabase
+        .from('admin_settings')
+        .update({ 
+          setting_value: value,
+          updated_at: new Date().toISOString()
+        })
+        .eq('setting_key', 'referral_360lock_allocation');
+
+      if (error) throw error;
+
+      toast({
+        title: 'Settings Saved',
+        description: `Referral 360LOCK allocation updated to ${value} NCTR`,
+      });
+      
+      await fetchSettings();
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save settings',
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingReferral(false);
     }
   };
 
@@ -164,6 +217,61 @@ export function AdminSettings() {
             <AlertDescription>
               Current rate: Custom purchases calculate at $4.55 per claim (0.22 claims/$). 
               The price floor ensures no purchase can get claims cheaper than ${priceFloor || '4'}/claim.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            Referral Program Settings
+          </CardTitle>
+          <CardDescription>
+            Configure NCTR 360LOCK allocation for referrals
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="referralAllocation" className="flex items-center gap-2">
+              <Lock className="w-4 h-4" />
+              360LOCK Allocation Per Referral
+            </Label>
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1 max-w-[200px]">
+                <NCTRLogo size="xs" className="absolute left-3 top-1/2 -translate-y-1/2" />
+                <Input
+                  id="referralAllocation"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={referralAllocation}
+                  onChange={(e) => setReferralAllocation(e.target.value)}
+                  className="pl-10"
+                  placeholder="500"
+                />
+              </div>
+              <Button onClick={handleSaveReferralAllocation} disabled={savingReferral}>
+                {savingReferral ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
+                Save
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Amount of NCTR 360LOCK allocated to both referrer and referred user for each successful referral. 
+              This appears as a prominent CTA in the member's referral card.
+            </p>
+          </div>
+
+          <Alert className="bg-violet-50 dark:bg-violet-950/30 border-violet-200 dark:border-violet-800">
+            <Lock className="h-4 w-4 text-violet-600" />
+            <AlertDescription className="text-violet-900 dark:text-violet-100">
+              Current allocation: <span className="font-bold">{referralAllocation || '500'} NCTR</span> per successful referral. 
+              This 360LOCK allocation helps members progress toward higher tiers.
             </AlertDescription>
           </Alert>
         </CardContent>
