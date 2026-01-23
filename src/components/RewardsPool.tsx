@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Clock, Package, Heart, Store, Trophy, User, ChevronDown, LogOut, LayoutDashboard, FileCheck, Receipt, BarChart3, Crown, ArrowLeft, Shield, Settings, Plus, Pencil, Search, ArrowUpDown, LayoutGrid, List, SlidersHorizontal } from 'lucide-react';
+import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Clock, Package, Heart, Store, Trophy, User, ChevronDown, LogOut, LayoutDashboard, FileCheck, Receipt, BarChart3, Crown, ArrowLeft, Shield, Settings, Plus, Pencil, Search, ArrowUpDown, LayoutGrid, List, SlidersHorizontal, Star, Megaphone } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -151,6 +151,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const [sponsoredFilter, setSponsoredFilter] = useState<boolean>(() => 
     searchParams.get('sponsored') === 'true'
   );
+  const [featuredFilter, setFeaturedFilter] = useState<boolean>(() => 
+    searchParams.get('featured') === 'true'
+  );
   const [searchQuery, setSearchQuery] = useState<string>(() => 
     searchParams.get('q') || ''
   );
@@ -184,10 +187,11 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     if (highValueFilter !== 'all') params.set('value', highValueFilter);
     if (affordableFilter) params.set('affordable', 'true');
     if (sponsoredFilter) params.set('sponsored', 'true');
+    if (featuredFilter) params.set('featured', 'true');
     if (searchQuery.trim()) params.set('q', searchQuery.trim());
     
     setSearchParams(params, { replace: true });
-  }, [sortBy, activeCategory, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, affordableFilter, sponsoredFilter, searchQuery, setSearchParams]);
+  }, [sortBy, activeCategory, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, affordableFilter, sponsoredFilter, featuredFilter, searchQuery, setSearchParams]);
 
   // Update URL when filters change
   useEffect(() => {
@@ -277,6 +281,12 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       filtered = filtered.filter(r => r.sponsor_enabled || r.is_sponsored);
     }
 
+    // Apply featured filter - show only featured rewards
+    if (featuredFilter) {
+      // Include featured rewards from the main list too
+      filtered = rewards.filter(r => r.is_featured);
+    }
+
     // Apply sorting with prioritization for customized rewards
     const sortedFiltered = [...filtered].sort((a, b) => {
       // Prioritize customized rewards
@@ -334,7 +344,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     if (outOfStockIds.length > 0) {
       fetchWatchCounts(outOfStockIds);
     }
-  }, [activeCategory, rewards, sortBy, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, affordableFilter, sponsoredFilter, claimBalance, searchQuery, fetchWatchCounts]);
+  }, [activeCategory, rewards, sortBy, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, affordableFilter, sponsoredFilter, featuredFilter, claimBalance, searchQuery, fetchWatchCounts]);
 
   const loadRewards = async (isRetry = false) => {
     try {
@@ -729,14 +739,16 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
             {[
               { key: 'all', label: 'All', icon: Gift, filter: 'category' },
+              { key: 'featured', label: 'Featured', icon: Star, filter: 'featured' },
+              { key: 'sponsored', label: 'Sponsored', icon: Megaphone, filter: 'sponsored' },
               { key: 'experiences', label: 'Experiences', icon: Sparkles, filter: 'category' },
               { key: 'subscriptions', label: 'Subscriptions', icon: Trophy, filter: 'category' },
               { key: 'alliance_tokens', label: 'Opportunities', icon: Coins, filter: 'category' },
-              { key: 'sponsored', label: 'Sponsored', icon: Sparkles, filter: 'sponsored' },
             ].map(({ key, label, icon: Icon, filter }) => {
               const isActive = 
                 key === 'sponsored' ? sponsoredFilter :
-                filter === 'category' && activeCategory === key && !sponsoredFilter;
+                key === 'featured' ? featuredFilter :
+                filter === 'category' && activeCategory === key && !sponsoredFilter && !featuredFilter;
               
               return (
                 <Button
@@ -746,17 +758,26 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                   className={cn(
                     "flex-shrink-0 gap-2 rounded-full transition-all",
                     isActive && "shadow-md",
-                    key === 'sponsored' && "border-amber-400/50 hover:border-amber-500"
+                    key === 'featured' && "border-amber-400/50 hover:border-amber-500",
+                    key === 'sponsored' && "border-primary/50 hover:border-primary"
                   )}
                   onClick={() => {
-                    if (key === 'sponsored') {
+                    if (key === 'featured') {
+                      setFeaturedFilter(true);
+                      setSponsoredFilter(false);
+                      setAffordableFilter(false);
+                      setActiveCategory('all');
+                      setPriceFilter('all');
+                    } else if (key === 'sponsored') {
                       setSponsoredFilter(true);
+                      setFeaturedFilter(false);
                       setAffordableFilter(false);
                       setActiveCategory('all');
                       setPriceFilter('all');
                     } else {
                       setAffordableFilter(false);
                       setSponsoredFilter(false);
+                      setFeaturedFilter(false);
                       setActiveCategory(key);
                       setPriceFilter('all');
                     }

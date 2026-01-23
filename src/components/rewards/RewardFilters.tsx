@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Gift, Sparkles, ShoppingBag, CreditCard, Coins, X, 
-  Package, ArrowUpDown, Search, Trophy, Heart, Wallet, SlidersHorizontal
+  Package, ArrowUpDown, Search, Trophy, Heart, Wallet, SlidersHorizontal, Star, Megaphone
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
@@ -26,6 +26,10 @@ interface RewardFiltersProps {
   onHighValueFilterChange?: (filter: string) => void;
   affordableFilter?: boolean;
   onAffordableFilterChange?: (enabled: boolean) => void;
+  featuredFilter?: boolean;
+  onFeaturedFilterChange?: (enabled: boolean) => void;
+  sponsoredFilter?: boolean;
+  onSponsoredFilterChange?: (enabled: boolean) => void;
   resultsCount?: number;
   userBalance?: number;
 }
@@ -33,6 +37,8 @@ interface RewardFiltersProps {
 // Simplified category tabs for main filter row
 const quickCategories = [
   { key: 'all', label: 'All', icon: Gift },
+  { key: 'featured', label: 'Featured', icon: Star },
+  { key: 'sponsored', label: 'Sponsored', icon: Megaphone },
   { key: 'affordable', label: 'Can Afford', icon: Wallet },
   { key: 'free', label: 'Free', icon: Gift },
   { key: 'experiences', label: 'Experiences', icon: Sparkles },
@@ -54,33 +60,55 @@ export function RewardFilters({
   onExclusiveFilterChange,
   affordableFilter = false,
   onAffordableFilterChange,
+  featuredFilter = false,
+  onFeaturedFilterChange,
+  sponsoredFilter = false,
+  onSponsoredFilterChange,
   resultsCount = 0,
   userBalance = 0,
 }: RewardFiltersProps) {
-  const hasActiveFilters = priceFilter !== 'all' || availabilityFilter !== 'all' || exclusiveFilter !== 'all';
+  const hasActiveFilters = priceFilter !== 'all' || availabilityFilter !== 'all' || exclusiveFilter !== 'all' || featuredFilter || sponsoredFilter;
   const activeFilterCount = [
     priceFilter !== 'all',
     availabilityFilter !== 'all',
-    exclusiveFilter !== 'all'
+    exclusiveFilter !== 'all',
+    featuredFilter,
+    sponsoredFilter
   ].filter(Boolean).length;
 
+  const clearSpecialFilters = () => {
+    onAffordableFilterChange?.(false);
+    onFeaturedFilterChange?.(false);
+    onSponsoredFilterChange?.(false);
+    if (priceFilter === 'free') onPriceFilterChange('all');
+  };
+
   const handleQuickCategory = (key: string) => {
-    if (key === 'affordable') {
+    if (key === 'featured') {
+      clearSpecialFilters();
+      onFeaturedFilterChange?.(true);
+      onCategoryChange('all');
+    } else if (key === 'sponsored') {
+      clearSpecialFilters();
+      onSponsoredFilterChange?.(true);
+      onCategoryChange('all');
+    } else if (key === 'affordable') {
+      clearSpecialFilters();
       onAffordableFilterChange?.(true);
       onCategoryChange('all');
-      onPriceFilterChange('all');
     } else if (key === 'free') {
-      onAffordableFilterChange?.(false);
+      clearSpecialFilters();
       onCategoryChange('all');
       onPriceFilterChange('free');
     } else {
-      onAffordableFilterChange?.(false);
+      clearSpecialFilters();
       onCategoryChange(key);
-      if (priceFilter === 'free') onPriceFilterChange('all');
     }
   };
 
   const getActiveTab = () => {
+    if (featuredFilter) return 'featured';
+    if (sponsoredFilter) return 'sponsored';
     if (affordableFilter) return 'affordable';
     if (priceFilter === 'free' && activeCategory === 'all') return 'free';
     return activeCategory;
@@ -245,6 +273,8 @@ export function RewardFilters({
                     onAvailabilityFilterChange('all');
                     onExclusiveFilterChange?.('all');
                     onAffordableFilterChange?.(false);
+                    onFeaturedFilterChange?.(false);
+                    onSponsoredFilterChange?.(false);
                   }}
                 >
                   <X className="w-4 h-4 mr-2" />
