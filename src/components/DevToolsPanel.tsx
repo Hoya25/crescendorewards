@@ -172,19 +172,30 @@ export function DevToolsPanel() {
                     </Badge>
                   </div>
                 </div>
-                <div className="flex gap-1">
-                  {tabs.map((tab) => (
-                    <Button
-                      key={tab.id}
-                      variant={activeTab === tab.id ? 'secondary' : 'ghost'}
-                      size="sm"
-                      className="h-7 text-xs gap-1"
-                      onClick={() => setActiveTab(tab.id)}
-                    >
-                      <tab.icon className="h-3 w-3" />
-                      {tab.label}
-                    </Button>
-                  ))}
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1">
+                    {tabs.map((tab) => (
+                      <Button
+                        key={tab.id}
+                        variant={activeTab === tab.id ? 'secondary' : 'ghost'}
+                        size="sm"
+                        className="h-7 text-xs gap-1"
+                        onClick={() => setActiveTab(tab.id)}
+                      >
+                        <tab.icon className="h-3 w-3" />
+                        {tab.label}
+                      </Button>
+                    ))}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0"
+                    onClick={() => setIsOpen(false)}
+                    title="Close DevTools"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             </CardHeader>
