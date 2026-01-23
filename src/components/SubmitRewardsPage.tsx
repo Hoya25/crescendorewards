@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 import { 
   ArrowLeft, Upload, Send, Sparkles, Gift, Shirt, CreditCard, 
   Ticket, Zap, Package, Star, CheckCircle2, Shield,
-  TrendingUp, DollarSign, Lightbulb, Users
+  TrendingUp, DollarSign, Lightbulb, Users, Crown
 } from 'lucide-react';
 import { ConfirmationDialog } from '@/components/ConfirmationDialog';
 import { validateImageFile, validateImageDimensions } from '@/lib/image-validation';
@@ -22,6 +22,7 @@ import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 import { NCTRLogo } from './NCTRLogo';
 import { LockOptionCards, NCTR_RATE, LOCK_OPTIONS } from '@/components/rewards/LockOptionCards';
 import { SubmissionSummary } from '@/components/rewards/SubmissionSummary';
+import { ContributorTierPricing } from '@/components/rewards/ContributorTierPricing';
 import { useClaimValue } from '@/hooks/useClaimValue';
 
 const rewardTypes = [
@@ -56,6 +57,16 @@ export function SubmitRewardsPage() {
     stockQuantity: '',
     minStatusTier: 'all', // 'all', 'bronze', 'silver', 'gold', 'platinum', 'diamond'
   });
+  
+  // Tier-based pricing state for contributors
+  const [tierPricingEnabled, setTierPricingEnabled] = useState(false);
+  const [tierPricing, setTierPricing] = useState<{
+    bronze: number;
+    silver: number;
+    gold: number;
+    platinum: number;
+    diamond: number;
+  } | null>(null);
 
   const floorAmountNum = parseFloat(floorAmount) || 0;
   const MIN_FLOOR_AMOUNT = 5;
@@ -253,6 +264,8 @@ export function SubmitRewardsPage() {
       setFloorAmount('');
       setSelectedImages([]);
       setImagePreviews([]);
+      setTierPricingEnabled(false);
+      setTierPricing(null);
       setFormData({
         title: '',
         description: '',
@@ -633,6 +646,25 @@ export function SubmitRewardsPage() {
                       </p>
                     </div>
                   )}
+                </div>
+
+                {/* Tier-Based Pricing (Optional) */}
+                <div className="space-y-3 pt-4 border-t">
+                  <div className="flex items-center gap-2">
+                    <Crown className="w-4 h-4 text-primary" />
+                    <Label className="text-base font-semibold">Tier-Based Pricing (Optional)</Label>
+                    <Badge variant="outline" className="text-xs">Advanced</Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Offer discounts to higher-tier members. Admins may adjust during review.
+                  </p>
+                  <ContributorTierPricing
+                    baseCost={claimsRequired}
+                    enabled={tierPricingEnabled}
+                    pricing={tierPricing}
+                    onEnabledChange={setTierPricingEnabled}
+                    onPricingChange={setTierPricing}
+                  />
                 </div>
 
                 <div className="space-y-2">
