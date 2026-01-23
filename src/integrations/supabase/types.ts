@@ -803,6 +803,7 @@ export type Database = {
           floor_usd_amount: number | null
           id: string
           image_url: string | null
+          image_urls: string[] | null
           is_latest_version: boolean
           lock_option: string | null
           lock_rate: string
@@ -830,6 +831,7 @@ export type Database = {
           floor_usd_amount?: number | null
           id?: string
           image_url?: string | null
+          image_urls?: string[] | null
           is_latest_version?: boolean
           lock_option?: string | null
           lock_rate: string
@@ -857,6 +859,7 @@ export type Database = {
           floor_usd_amount?: number | null
           id?: string
           image_url?: string | null
+          image_urls?: string[] | null
           is_latest_version?: boolean
           lock_option?: string | null
           lock_rate?: string

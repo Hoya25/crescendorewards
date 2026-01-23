@@ -45,8 +45,9 @@ export function SubmitRewardsPage() {
   const [selectedType, setSelectedType] = useState<string>('');
   const [selectedLockOption, setSelectedLockOption] = useState<'30' | '90' | '360' | '720'>('360');
   const [floorAmount, setFloorAmount] = useState<string>('');
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const MAX_IMAGES = 4;
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -70,69 +71,100 @@ export function SubmitRewardsPage() {
   };
 
   const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    // Basic validation (format, size)
-    const basicValidation = validateImageFile(file);
-    if (!basicValidation.valid) {
-      toast.error(basicValidation.error);
+    const remainingSlots = MAX_IMAGES - selectedImages.length;
+    if (remainingSlots <= 0) {
+      toast.error(`Maximum ${MAX_IMAGES} images allowed`);
       e.target.value = '';
       return;
     }
 
-    // Dimension validation (async)
-    const dimensionValidation = await validateImageDimensions(file);
-    if (!dimensionValidation.valid) {
-      toast.error(dimensionValidation.error);
-      e.target.value = '';
-      return;
-    }
+    const filesToProcess = Array.from(files).slice(0, remainingSlots);
+    const validFiles: File[] = [];
+    const newPreviews: string[] = [];
 
-    setSelectedImage(file);
-    
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const uploadImage = async (): Promise<string | null> => {
-    if (!selectedImage || !profile) return null;
-
-    setUploading(true);
-    try {
-      const { file: compressedFile, originalSize, compressedSize, compressionRatio } = 
-        await compressImageWithStats(selectedImage);
-
-      if (compressionRatio > 0.1) {
-        toast.success(
-          `Image compressed: ${formatBytes(originalSize)} → ${formatBytes(compressedSize)} (${(compressionRatio * 100).toFixed(0)}% reduction)`
-        );
+    for (const file of filesToProcess) {
+      // Basic validation (format, size)
+      const basicValidation = validateImageFile(file);
+      if (!basicValidation.valid) {
+        toast.error(`${file.name}: ${basicValidation.error}`);
+        continue;
       }
 
-      const fileExt = compressedFile.name.split('.').pop();
-      const fileName = `${profile.id}/${Date.now()}.${fileExt}`;
-      
-      const { error: uploadError, data } = await supabase.storage
-        .from('reward-images')
-        .upload(fileName, compressedFile, {
-          cacheControl: '3600',
-          upsert: false
-        });
+      // Dimension validation (async)
+      const dimensionValidation = await validateImageDimensions(file);
+      if (!dimensionValidation.valid) {
+        toast.error(`${file.name}: ${dimensionValidation.error}`);
+        continue;
+      }
 
-      if (uploadError) throw uploadError;
+      validFiles.push(file);
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('reward-images')
-        .getPublicUrl(fileName);
+      // Create preview
+      const preview = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+      newPreviews.push(preview);
+    }
 
-      return publicUrl;
+    if (validFiles.length > 0) {
+      setSelectedImages(prev => [...prev, ...validFiles]);
+      setImagePreviews(prev => [...prev, ...newPreviews]);
+    }
+
+    e.target.value = '';
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadImages = async (): Promise<string[]> => {
+    if (selectedImages.length === 0 || !profile) return [];
+
+    setUploading(true);
+    const uploadedUrls: string[] = [];
+
+    try {
+      for (const image of selectedImages) {
+        const { file: compressedFile, originalSize, compressedSize, compressionRatio } = 
+          await compressImageWithStats(image);
+
+        if (compressionRatio > 0.1) {
+          toast.success(
+            `Image compressed: ${formatBytes(originalSize)} → ${formatBytes(compressedSize)} (${(compressionRatio * 100).toFixed(0)}% reduction)`
+          );
+        }
+
+        const fileExt = compressedFile.name.split('.').pop();
+        const fileName = `${profile.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('reward-images')
+          .upload(fileName, compressedFile, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('reward-images')
+          .getPublicUrl(fileName);
+
+        uploadedUrls.push(publicUrl);
+      }
+
+      return uploadedUrls;
     } catch (error) {
-      console.error('Error uploading image:', error);
-      toast.error('Failed to upload image');
-      return null;
+      console.error('Error uploading images:', error);
+      toast.error('Failed to upload images');
+      return uploadedUrls; // Return any that succeeded
     } finally {
       setUploading(false);
     }
@@ -176,10 +208,10 @@ export function SubmitRewardsPage() {
     setSubmitting(true);
 
     try {
-      let imageUrl: string | null = null;
-      if (selectedImage) {
-        imageUrl = await uploadImage();
-        if (!imageUrl) {
+      let imageUrls: string[] = [];
+      if (selectedImages.length > 0) {
+        imageUrls = await uploadImages();
+        if (imageUrls.length === 0 && selectedImages.length > 0) {
           setSubmitting(false);
           return;
         }
@@ -198,7 +230,8 @@ export function SubmitRewardsPage() {
           nctr_value: calculatedNCTR,
           claim_passes_required: claimsRequired,
           stock_quantity: formData.stockQuantity ? parseInt(formData.stockQuantity) : null,
-          image_url: imageUrl,
+          image_url: imageUrls[0] || null,
+          image_urls: imageUrls,
           // New compensation fields
           floor_usd_amount: floorAmountNum,
           lock_option: selectedLockOption,
@@ -215,8 +248,8 @@ export function SubmitRewardsPage() {
       setSelectedType('');
       setSelectedLockOption('360');
       setFloorAmount('');
-      setSelectedImage(null);
-      setImagePreview('');
+      setSelectedImages([]);
+      setImagePreviews([]);
       setFormData({
         title: '',
         description: '',
@@ -516,31 +549,39 @@ export function SubmitRewardsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="imageUpload">Reward Image (Optional)</Label>
+                  <Label htmlFor="imageUpload">Reward Images (Optional - up to {MAX_IMAGES})</Label>
                   <div className="space-y-3">
-                    {imagePreview && (
+                    {imagePreviews.length > 0 && (
                       <div className="space-y-2">
-                        <p className="text-xs text-muted-foreground font-medium">Preview (as it will appear in marketplace):</p>
-                        <div className="relative w-full max-w-[240px] aspect-[4/5] rounded-lg overflow-hidden border border-border bg-muted/20">
-                          <img 
-                            src={imagePreview} 
-                            alt="Preview" 
-                            className="w-full h-full object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedImage(null);
-                              setImagePreview('');
-                            }}
-                            className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors"
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                            </svg>
-                          </button>
+                        <p className="text-xs text-muted-foreground font-medium">
+                          Preview ({imagePreviews.length}/{MAX_IMAGES} images):
+                        </p>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          {imagePreviews.map((preview, index) => (
+                            <div key={index} className="relative aspect-[4/5] rounded-lg overflow-hidden border border-border bg-muted/20">
+                              <img 
+                                src={preview} 
+                                alt={`Preview ${index + 1}`} 
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeImage(index)}
+                                className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                </svg>
+                              </button>
+                              {index === 0 && (
+                                <div className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-primary text-primary-foreground text-[10px] font-medium rounded">
+                                  Primary
+                                </div>
+                              )}
+                            </div>
+                          ))}
                         </div>
-                        <p className="text-xs text-muted-foreground/70">Your image will be cropped to fit the card. Center important content.</p>
+                        <p className="text-xs text-muted-foreground/70">First image will be the primary display image. Drag to reorder coming soon.</p>
                       </div>
                     )}
                     <div className="flex gap-2">
@@ -548,6 +589,7 @@ export function SubmitRewardsPage() {
                         id="imageUpload"
                         type="file"
                         accept="image/*"
+                        multiple
                         onChange={handleImageSelect}
                         className="hidden"
                       />
@@ -556,19 +598,20 @@ export function SubmitRewardsPage() {
                         variant="outline"
                         onClick={() => document.getElementById('imageUpload')?.click()}
                         className="flex-1 gap-2"
-                        disabled={uploading}
+                        disabled={uploading || selectedImages.length >= MAX_IMAGES}
                       >
                         <Upload className="w-4 h-4" />
-                        {selectedImage ? 'Change Image' : 'Upload Image'}
+                        {selectedImages.length === 0 ? 'Upload Images' : `Add More (${MAX_IMAGES - selectedImages.length} remaining)`}
                       </Button>
                     </div>
                     <div className="text-xs text-muted-foreground space-y-1">
                       <p className="font-medium">Image Guidelines:</p>
                       <ul className="list-disc list-inside space-y-0.5 text-muted-foreground/80">
+                        <li><span className="font-medium">Quantity:</span> Up to {MAX_IMAGES} images per submission</li>
                         <li><span className="font-medium">Size:</span> At least 600px on shortest side (800px+ recommended)</li>
                         <li><span className="font-medium">Aspect ratio:</span> Square, portrait, or landscape accepted</li>
                         <li><span className="font-medium">Format:</span> JPG, PNG, WebP, or GIF</li>
-                        <li><span className="font-medium">Max file size:</span> 5MB (under 1MB preferred)</li>
+                        <li><span className="font-medium">Max file size:</span> 5MB each (under 1MB preferred)</li>
                       </ul>
                     </div>
                   </div>
@@ -613,13 +656,13 @@ export function SubmitRewardsPage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  {imagePreview ? (
+                  {imagePreviews.length > 0 ? (
                     <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
                   ) : (
                     <div className="w-5 h-5 rounded-full border-2 border-muted-foreground flex-shrink-0" />
                   )}
-                  <span className={`text-sm ${imagePreview ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    Upload image (optional)
+                  <span className={`text-sm ${imagePreviews.length > 0 ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    Upload images (optional, up to {MAX_IMAGES})
                   </span>
                 </div>
               </CardContent>

@@ -274,7 +274,8 @@ CREATE TABLE reward_submissions (
   nctr_value            INTEGER NOT NULL,
   claim_passes_required INTEGER NOT NULL DEFAULT 1,
   stock_quantity        INTEGER,                 -- nullable = unlimited
-  image_url             TEXT,                    -- nullable
+  image_url             TEXT,                    -- nullable (primary image for backwards compat)
+  image_urls            TEXT[] DEFAULT '{}',     -- array of up to 4 image URLs
   status                TEXT NOT NULL DEFAULT 'pending',  -- pending, approved, rejected
   admin_notes           TEXT,                    -- nullable
   created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
