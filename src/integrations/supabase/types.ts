@@ -813,6 +813,7 @@ export type Database = {
           parent_submission_id: string | null
           reward_type: string
           status: string
+          status_tier_claims_cost: Json | null
           stock_quantity: number | null
           title: string
           updated_at: string
@@ -842,6 +843,7 @@ export type Database = {
           parent_submission_id?: string | null
           reward_type: string
           status?: string
+          status_tier_claims_cost?: Json | null
           stock_quantity?: number | null
           title: string
           updated_at?: string
@@ -871,6 +873,7 @@ export type Database = {
           parent_submission_id?: string | null
           reward_type?: string
           status?: string
+          status_tier_claims_cost?: Json | null
           stock_quantity?: number | null
           title?: string
           updated_at?: string
