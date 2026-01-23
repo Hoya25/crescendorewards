@@ -24,8 +24,9 @@ import {
   Plus, Pencil, Trash2, Upload, X, Image as ImageIcon, Lock, 
   MoreHorizontal, Copy, ExternalLink, Gift, ChevronUp, ChevronDown,
   Minus, Search, Star, AlertTriangle, Heart, ShoppingCart, Package, Megaphone, Truck,
-  Shield, GripVertical, Save, RotateCcw, Loader2, ArrowUp, ArrowDown, DollarSign
+  Shield, GripVertical, Save, RotateCcw, Loader2, ArrowUp, ArrowDown, Undo2
 } from 'lucide-react';
+import { EditableCell } from './EditableCell';
 import { validateImageFile } from '@/lib/image-validation';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 import { cn } from '@/lib/utils';
@@ -771,6 +772,76 @@ export function AdminRewards() {
     }
   };
 
+  // Inline field update with undo support
+  const [lastInlineEdit, setLastInlineEdit] = useState<{
+    rewardId: string;
+    field: string;
+    oldValue: any;
+    newValue: any;
+  } | null>(null);
+
+  const updateRewardField = async (rewardId: string, field: string, value: any) => {
+    const reward = rewards.find(r => r.id === rewardId);
+    if (!reward) throw new Error('Reward not found');
+
+    const oldValue = (reward as any)[field];
+    
+    const { error } = await supabase
+      .from('rewards')
+      .update({ [field]: value })
+      .eq('id', rewardId);
+
+    if (error) throw error;
+
+    setRewards(prev => prev.map(r => 
+      r.id === rewardId ? { ...r, [field]: value } : r
+    ));
+
+    // Store for undo
+    setLastInlineEdit({ rewardId, field, oldValue, newValue: value });
+
+    // Show toast with undo option
+    toast({
+      title: 'Reward updated',
+      description: `${field.replace(/_/g, ' ')} changed`,
+      action: (
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1"
+          onClick={() => undoInlineEdit(rewardId, field, oldValue)}
+        >
+          <Undo2 className="w-3 h-3" />
+          Undo
+        </Button>
+      ),
+    });
+  };
+
+  const undoInlineEdit = async (rewardId: string, field: string, oldValue: any) => {
+    try {
+      const { error } = await supabase
+        .from('rewards')
+        .update({ [field]: oldValue })
+        .eq('id', rewardId);
+
+      if (error) throw error;
+
+      setRewards(prev => prev.map(r => 
+        r.id === rewardId ? { ...r, [field]: oldValue } : r
+      ));
+
+      setLastInlineEdit(null);
+      toast({ title: 'Change undone' });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to undo',
+        variant: 'destructive',
+      });
+    }
+  };
+
   // Bulk actions
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -1382,11 +1453,30 @@ export function AdminRewards() {
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="font-medium max-w-[200px] truncate">{reward.title}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="capitalize">{reward.category.replace('_', ' ')}</Badge>
+                    <TableCell className="max-w-[200px]">
+                      <EditableCell
+                        type="text"
+                        value={reward.title}
+                        onSave={(val) => updateRewardField(reward.id, 'title', val)}
+                        className="font-medium truncate"
+                      />
                     </TableCell>
-                    <TableCell className="text-right">{reward.cost}</TableCell>
+                    <TableCell>
+                      <EditableCell
+                        type="dropdown"
+                        value={reward.category}
+                        onSave={(val) => updateRewardField(reward.id, 'category', val)}
+                        options={CATEGORIES.filter(c => c.value !== 'all').map(c => ({ value: c.value, label: c.label }))}
+                      />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <EditableCell
+                        type="number"
+                        value={reward.cost}
+                        onSave={(val) => updateRewardField(reward.id, 'cost', val)}
+                        min={0}
+                      />
+                    </TableCell>
                     <TableCell className="text-center">
                       {reward.stock_quantity === null ? (
                         <Badge variant="secondary">Unlimited</Badge>
@@ -1452,12 +1542,11 @@ export function AdminRewards() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center">
-                      <div className="flex justify-center">
-                        <Switch
-                          checked={reward.is_featured}
-                          onCheckedChange={() => toggleFeatured(reward.id, reward.is_featured)}
-                        />
-                      </div>
+                      <EditableCell
+                        type="toggle"
+                        value={reward.is_featured}
+                        onSave={(val) => updateRewardField(reward.id, 'is_featured', val)}
+                      />
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="flex items-center justify-center gap-2">
@@ -1522,61 +1611,68 @@ export function AdminRewards() {
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
-                      <div className="flex justify-center">
-                        <Switch
-                          checked={reward.is_active}
-                          onCheckedChange={() => toggleActive(reward.id, reward.is_active)}
-                        />
-                      </div>
+                      <EditableCell
+                        type="toggle"
+                        value={reward.is_active}
+                        onSave={(val) => updateRewardField(reward.id, 'is_active', val)}
+                      />
                     </TableCell>
                     <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="w-4 h-4" />
+                      <div className="flex items-center justify-end gap-1">
+                        <PermissionGate permission="rewards_edit">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => handleOpenModal(reward)}
+                            title="Edit all fields"
+                          >
+                            <Pencil className="w-4 h-4" />
                           </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <PermissionGate permission="rewards_edit">
-                            <DropdownMenuItem onClick={() => handleOpenModal(reward)}>
-                              <Pencil className="w-4 h-4 mr-2" />
-                              Edit
+                        </PermissionGate>
+                        <PermissionGate permission="rewards_create">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => handleDuplicate(reward)}
+                            title="Duplicate reward"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                        </PermissionGate>
+                        <PermissionGate permission="rewards_delete">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            onClick={() => confirmDelete(reward)}
+                            title="Delete reward"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </PermissionGate>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem onClick={() => window.open(`/rewards/${reward.id}`, '_blank')}>
+                              <ExternalLink className="w-4 h-4 mr-2" />
+                              View in Marketplace
                             </DropdownMenuItem>
-                          </PermissionGate>
-                          <PermissionGate permission="rewards_create">
-                            <DropdownMenuItem onClick={() => handleDuplicate(reward)}>
-                              <Copy className="w-4 h-4 mr-2" />
-                              Duplicate
+                            <DropdownMenuItem onClick={() => {
+                              setGiftReward(reward);
+                              setShowGiftModal(true);
+                            }}>
+                              <Gift className="w-4 h-4 mr-2" />
+                              Gift to User
                             </DropdownMenuItem>
-                          </PermissionGate>
-                          <DropdownMenuItem onClick={() => window.open(`/rewards/${reward.id}`, '_blank')}>
-                            <ExternalLink className="w-4 h-4 mr-2" />
-                            View in Marketplace
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => {
-                            setGiftReward(reward);
-                            setShowGiftModal(true);
-                          }}>
-                            <Gift className="w-4 h-4 mr-2" />
-                            Gift to User
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <PermissionGate permission="rewards_edit">
-                            <DropdownMenuItem onClick={() => toggleActive(reward.id, reward.is_active)}>
-                              {reward.is_active ? 'Deactivate' : 'Activate'}
-                            </DropdownMenuItem>
-                          </PermissionGate>
-                          <PermissionGate permission="rewards_delete">
-                            <DropdownMenuItem 
-                              onClick={() => confirmDelete(reward)}
-                              className="text-destructive focus:text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </PermissionGate>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
