@@ -430,14 +430,15 @@ export function SubmitRewardsPage() {
                   </Label>
                   <Textarea
                     id="description"
-                    placeholder="Describe the reward in detail..."
+                    placeholder={`Describe the reward in detail. Include:\n\n• What it is and what makes it unique\n• Who created it or where it comes from\n• Key features, specs, or details\n• Why someone would want this`}
                     value={formData.description}
                     onChange={(e) => handleInputChange('description', e.target.value)}
-                    rows={4}
-                    maxLength={500}
+                    rows={8}
+                    maxLength={2500}
+                    className="min-h-[200px]"
                   />
                   <div className="text-xs text-muted-foreground text-right">
-                    {formData.description.length}/500 characters
+                    {formData.description.length}/2,500 characters
                   </div>
                 </div>
 
