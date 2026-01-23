@@ -1,4 +1,4 @@
-import { Home, Gift, Plus, Clock, User } from "lucide-react";
+import { Home, Gift, Plus, UserPlus, User } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +13,7 @@ const navItems: NavItem[] = [
   { icon: Home, label: "Home", route: "/dashboard" },
   { icon: Gift, label: "Rewards", route: "/rewards" },
   { icon: Plus, label: "Get Claims", route: "/buy-claims", highlight: true },
-  { icon: Clock, label: "My Claims", route: "/claims" },
+  { icon: UserPlus, label: "Invite", route: "/invite" },
   { icon: User, label: "Profile", route: "/profile" },
 ];
 
@@ -24,6 +24,9 @@ export function MobileBottomNav() {
   const isActive = (route: string) => {
     if (route === "/dashboard") {
       return location.pathname === "/dashboard";
+    }
+    if (route === "/invite") {
+      return location.pathname === "/invite" || location.pathname === "/referrals";
     }
     return location.pathname.startsWith(route);
   };

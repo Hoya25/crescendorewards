@@ -26,7 +26,9 @@ export function ReferralCard({ stats, referralCode, isLoading }: ReferralCardPro
   const [copied, setCopied] = useState(false);
   const { data: referralSettings } = useReferralSettings();
 
-  const referralLink = `https://crescendo.app/signup?ref=${referralCode}`;
+  // Use window.location.origin for dynamic domain
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://crescendo-nctr-live.lovable.app';
+  const referralLink = `${baseUrl}/signup?ref=${referralCode}`;
   const allocation360Lock = referralSettings?.allocation360Lock ?? 500;
 
   const handleCopy = async (text: string) => {
