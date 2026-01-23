@@ -16,7 +16,8 @@ declare global {
   }
 }
 
-const USERBACK_TOKEN = import.meta.env.VITE_USERBACK_TOKEN;
+// Userback widget token (publishable, safe to embed in frontend code)
+const USERBACK_TOKEN = import.meta.env.VITE_USERBACK_TOKEN || 'A-CgAKnnPbKMeBZelCUa5I3ita5';
 
 /**
  * Initialize Userback with the access token
