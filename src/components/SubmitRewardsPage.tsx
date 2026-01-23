@@ -252,6 +252,8 @@ export function SubmitRewardsPage() {
           claim_value_at_submission: claimValue,
           // Status access requirement
           min_status_tier: formData.minStatusTier === 'all' ? null : formData.minStatusTier,
+          // Tier-based pricing (optional, contributor suggestion)
+          status_tier_claims_cost: tierPricingEnabled && tierPricing ? tierPricing : null,
         });
 
       if (error) throw error;
