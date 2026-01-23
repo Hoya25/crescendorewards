@@ -20,6 +20,7 @@ import { AppSidebar } from '@/components/AppSidebar';
 import { SocialShareButtons } from '@/components/referral/SocialShareButtons';
 import { MilestoneProgress } from '@/components/referral/MilestoneProgress';
 import { SlugSetupCard } from '@/components/referral/SlugSetupCard';
+import { ReferralQRCode } from '@/components/referral/ReferralQRCode';
 import { useReferralSlug } from '@/hooks/useReferralSlug';
 import { 
   generateReferralLink, 
@@ -254,6 +255,15 @@ export default function InvitePage() {
                 />
               </CardContent>
             </Card>
+
+            {/* QR Code Section */}
+            <div className="mb-6">
+              <ReferralQRCode
+                standardLink={standardLink}
+                personalizedLink={personalizedLink}
+                referralCode={referralCode}
+              />
+            </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
