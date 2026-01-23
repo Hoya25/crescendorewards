@@ -123,7 +123,7 @@ export default function InvitePage() {
                     </div>
                     <div className="text-4xl font-bold flex items-center gap-2">
                       {allocation360Lock.toLocaleString()}
-                      <NCTRLogo size="md" />
+                      <NCTRLogo size="md" variant="dark" />
                     </div>
                     <p className="text-sm text-white/70 mt-1">in 360LOCK per referral</p>
                   </div>
@@ -135,7 +135,7 @@ export default function InvitePage() {
                     </div>
                     <div className="text-4xl font-bold flex items-center gap-2">
                       {allocation360Lock.toLocaleString()}
-                      <NCTRLogo size="md" />
+                      <NCTRLogo size="md" variant="dark" />
                     </div>
                     <p className="text-sm text-white/70 mt-1">welcome bonus in 360LOCK</p>
                   </div>
