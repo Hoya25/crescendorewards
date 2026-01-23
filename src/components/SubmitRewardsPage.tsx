@@ -185,7 +185,7 @@ export function SubmitRewardsPage() {
       const { error } = await supabase
         .from('reward_submissions')
         .insert({
-          user_id: profile?.id,
+          user_id: profile?.auth_user_id,
           lock_rate: selectedLockOption,
           reward_type: selectedType,
           title: formData.title,
