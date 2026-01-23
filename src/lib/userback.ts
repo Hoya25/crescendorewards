@@ -20,6 +20,7 @@ const USERBACK_TOKEN = import.meta.env.VITE_USERBACK_TOKEN;
 
 /**
  * Initialize Userback with the access token
+ * This should be called after the widget script has loaded
  */
 export function initUserback() {
   if (!USERBACK_TOKEN) {
@@ -27,8 +28,15 @@ export function initUserback() {
     return;
   }
 
+  // Set the access token on the Userback object
+  // The widget script from index.html creates window.Userback
   if (window.Userback) {
     window.Userback.access_token = USERBACK_TOKEN;
+  } else {
+    // If Userback object doesn't exist yet, create it with the token
+    window.Userback = {
+      access_token: USERBACK_TOKEN,
+    };
   }
 }
 
@@ -36,23 +44,23 @@ export function initUserback() {
  * Identify logged-in user to Userback for better feedback tracking
  */
 export function identifyUserbackUser(userId: string, name?: string, email?: string) {
-  if (!window.Userback?.identify) {
-    // Retry after a short delay if widget hasn't loaded yet
-    setTimeout(() => {
-      if (window.Userback?.identify) {
-        window.Userback.identify(userId, {
-          name: name || undefined,
-          email: email || undefined,
-        });
-      }
-    }, 1000);
-    return;
-  }
+  if (!USERBACK_TOKEN) return;
+  
+  const doIdentify = () => {
+    if (window.Userback?.identify) {
+      window.Userback.identify(userId, {
+        name: name || undefined,
+        email: email || undefined,
+      });
+    }
+  };
 
-  window.Userback.identify(userId, {
-    name: name || undefined,
-    email: email || undefined,
-  });
+  if (window.Userback?.identify) {
+    doIdentify();
+  } else {
+    // Retry after a short delay if widget hasn't loaded yet
+    setTimeout(doIdentify, 1500);
+  }
 }
 
 /**
@@ -67,8 +75,15 @@ export function clearUserbackUser() {
  * Programmatically open the Userback feedback widget
  */
 export function openUserbackWidget() {
+  if (!USERBACK_TOKEN) {
+    console.warn('Cannot open Userback widget: token not configured');
+    return;
+  }
+  
   if (window.Userback?.open) {
     window.Userback.open();
+  } else {
+    console.warn('Userback widget not loaded yet');
   }
 }
 
