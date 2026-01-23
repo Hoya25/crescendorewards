@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Lock, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Lock, CheckCircle2 } from 'lucide-react';
 import { NCTRLogo } from '@/components/NCTRLogo';
 import { addDays, format } from 'date-fns';
 
-// NCTR rate: $0.05 per NCTR
-const NCTR_RATE = 0.05;
+// NCTR rate: $0.05 per NCTR (easy to update when live pricing available)
+export const NCTR_RATE = 0.05;
 
 interface LockOption {
   id: '30' | '90' | '360' | '720';
@@ -15,7 +15,7 @@ interface LockOption {
   isRecommended?: boolean;
 }
 
-const LOCK_OPTIONS: LockOption[] = [
+export const LOCK_OPTIONS: LockOption[] = [
   { id: '30', label: '30LOCK', days: 30, multiplier: 1.2 },
   { id: '90', label: '90LOCK', days: 90, multiplier: 1.4 },
   { id: '360', label: '360LOCK', days: 360, multiplier: 2.0, isRecommended: true },
@@ -34,11 +34,15 @@ export function LockOptionCards({
   onSelectLockOption,
 }: LockOptionCardsProps) {
   const calculations = useMemo(() => {
+    // Calculate base NCTR from floor amount
     const baseNCTR = floorAmount > 0 ? Math.round(floorAmount / NCTR_RATE) : 0;
     
     return LOCK_OPTIONS.map((option) => {
+      // Apply multiplier to get final NCTR amount
       const nctrAmount = Math.round(baseNCTR * option.multiplier);
+      // Calculate dollar value at current rate
       const dollarValue = nctrAmount * NCTR_RATE;
+      // Calculate unlock date
       const unlockDate = addDays(new Date(), option.days);
       
       return {
@@ -52,7 +56,16 @@ export function LockOptionCards({
   }, [floorAmount]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
+      {/* NCTR Rate Display */}
+      {floorAmount > 0 && (
+        <p className="text-sm text-muted-foreground">
+          Current NCTR Rate: <span className="font-medium text-foreground">${NCTR_RATE.toFixed(2)}</span>
+          {' | '}
+          Your ${floorAmount.toLocaleString()} = <span className="font-medium text-foreground">{calculations[0]?.baseNCTR.toLocaleString()}</span> base NCTR
+        </p>
+      )}
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {calculations.map((option) => {
           const isSelected = selectedLockOption === option.id;
@@ -77,35 +90,34 @@ export function LockOptionCards({
                 </Badge>
               )}
 
-              {/* Lock Duration */}
-              <div className="flex items-center gap-2 mb-3 mt-1">
-                <Lock className={`h-4 w-4 ${isSelected ? 'text-[#E85D04]' : 'text-muted-foreground'}`} />
-                <span className="font-bold text-lg">{option.label}</span>
+              {/* Lock Duration + Multiplier Row */}
+              <div className="flex items-center justify-between mb-2 mt-1">
+                <div className="flex items-center gap-1.5">
+                  <Lock className={`h-4 w-4 ${isSelected ? 'text-[#E85D04]' : 'text-muted-foreground'}`} />
+                  <span className="font-bold">{option.label}</span>
+                </div>
+                <Badge 
+                  variant="outline" 
+                  className={`text-xs ${isSelected ? 'border-[#E85D04] text-[#E85D04]' : ''}`}
+                >
+                  {option.multiplier}x
+                </Badge>
               </div>
 
-              {/* Multiplier Badge */}
-              <Badge 
-                variant="outline" 
-                className={`mb-3 ${isSelected ? 'border-[#E85D04] text-[#E85D04]' : ''}`}
-              >
-                {option.multiplier}x
-              </Badge>
-
-              {/* NCTR Amount */}
+              {/* NCTR Amount - Most Prominent */}
               <div className="flex items-center gap-1.5 mb-1">
-                <Sparkles className={`h-4 w-4 ${isSelected ? 'text-[#E85D04]' : 'text-primary'}`} />
-                <span className={`text-xl font-bold ${isSelected ? 'text-[#E85D04]' : 'text-foreground'}`}>
+                <span className={`text-2xl font-bold ${isSelected ? 'text-[#E85D04]' : 'text-foreground'}`}>
                   {option.nctrAmount.toLocaleString()}
                 </span>
-                <NCTRLogo size="xs" />
+                <NCTRLogo size="sm" />
               </div>
 
-              {/* Dollar Value */}
-              <p className="text-sm text-muted-foreground mb-2">
+              {/* Dollar Value - Medium */}
+              <p className={`text-base font-medium mb-2 ${isSelected ? 'text-[#E85D04]/80' : 'text-muted-foreground'}`}>
                 ${option.dollarValue.toFixed(2)} value
               </p>
 
-              {/* Unlock Date */}
+              {/* Unlock Date - Smallest */}
               <p className="text-xs text-muted-foreground">
                 Unlocks {format(option.unlockDate, 'MMM d, yyyy')}
               </p>
@@ -124,6 +136,4 @@ export function LockOptionCards({
   );
 }
 
-// Export constants for use in parent component
-export { NCTR_RATE, LOCK_OPTIONS };
 export type { LockOption };

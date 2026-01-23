@@ -9,18 +9,19 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { toast } from 'sonner';
 import { 
   ArrowLeft, Upload, Send, Sparkles, Gift, Shirt, CreditCard, 
   Ticket, Zap, Package, Star, CheckCircle2, Shield,
-  Info, TrendingUp, DollarSign
+  TrendingUp, DollarSign, Lightbulb
 } from 'lucide-react';
 import { ConfirmationDialog } from '@/components/ConfirmationDialog';
 import { validateImageFile } from '@/lib/image-validation';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 import { NCTRLogo } from './NCTRLogo';
 import { LockOptionCards, NCTR_RATE, LOCK_OPTIONS } from '@/components/rewards/LockOptionCards';
-import { CompensationSummary } from '@/components/rewards/CompensationSummary';
+import { SubmissionSummary } from '@/components/rewards/SubmissionSummary';
 
 const rewardTypes = [
   { id: 'physical', label: 'Physical Product', icon: Package },
@@ -316,24 +317,7 @@ export function SubmitRewardsPage() {
                   </div>
                 </div>
 
-                {/* Step 2: NCTR Rate Info Box */}
-                {floorAmountNum > 0 && (
-                  <div className="bg-muted/50 rounded-xl p-4 space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Info className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">Current NCTR Rate:</span>
-                      <span className="font-medium">${NCTR_RATE.toFixed(3)} per NCTR</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground text-sm">Your base amount converts to:</span>
-                      <span className="font-bold text-lg flex items-center gap-1">
-                        {baseNCTR.toLocaleString()} <NCTRLogo size="xs" />
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 3: Lock Option Cards */}
+                {/* Step 2: Lock Option Cards (includes NCTR rate display) */}
                 <div className="space-y-3">
                   <Label className="text-base font-semibold">
                     Choose Your LOCK Period <span className="text-destructive">*</span>
@@ -347,14 +331,6 @@ export function SubmitRewardsPage() {
                     onSelectLockOption={setSelectedLockOption}
                   />
                 </div>
-
-                {/* Summary Display */}
-                {floorAmountNum > 0 && (
-                  <CompensationSummary
-                    floorAmount={floorAmountNum}
-                    selectedLockOption={selectedLockOption}
-                  />
-                )}
               </CardContent>
             </Card>
 
@@ -539,7 +515,7 @@ export function SubmitRewardsPage() {
               </CardContent>
             </Card>
 
-            {/* Submission Progress */}
+            {/* Submission Progress - Simplified to 4 items */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Submission Progress</CardTitle>
@@ -552,7 +528,7 @@ export function SubmitRewardsPage() {
                     <div className="w-5 h-5 rounded-full border-2 border-muted-foreground flex-shrink-0" />
                   )}
                   <span className={`text-sm ${floorAmountNum > 0 ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    Set floor amount & lock period
+                    Set compensation (floor amount + lock period)
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -566,23 +542,13 @@ export function SubmitRewardsPage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
-                  {formData.title && formData.description ? (
+                  {formData.title && formData.description && formData.category ? (
                     <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
                   ) : (
                     <div className="w-5 h-5 rounded-full border-2 border-muted-foreground flex-shrink-0" />
                   )}
-                  <span className={`text-sm ${formData.title && formData.description ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    Add title & description
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  {formData.category ? (
-                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-                  ) : (
-                    <div className="w-5 h-5 rounded-full border-2 border-muted-foreground flex-shrink-0" />
-                  )}
-                  <span className={`text-sm ${formData.category ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    Set category
+                  <span className={`text-sm ${formData.title && formData.description && formData.category ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    Add details (title, description, category)
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -592,57 +558,68 @@ export function SubmitRewardsPage() {
                     <div className="w-5 h-5 rounded-full border-2 border-muted-foreground flex-shrink-0" />
                   )}
                   <span className={`text-sm ${imagePreview ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    Add reward image (optional)
+                    Upload image (optional)
                   </span>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Quality Tips & Protection */}
-            <div className="grid sm:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Star className="w-5 h-5 text-primary" />
-                    Quality Tips
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm">
-                  <div className="flex gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
-                    <p className="text-muted-foreground">
-                      Use clear, descriptive titles that highlight the reward's value
-                    </p>
+            {/* Tips & Contributor Info - Collapsible Accordion */}
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="tips-info" className="border rounded-lg px-4">
+                <AccordionTrigger className="hover:no-underline">
+                  <div className="flex items-center gap-2">
+                    <Lightbulb className="w-5 h-5 text-primary" />
+                    <span className="font-semibold">Tips & Contributor Info</span>
                   </div>
-                  <div className="flex gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
-                    <p className="text-muted-foreground">
-                      Include specific details about features, specs, or benefits
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
-                    <p className="text-muted-foreground">
-                      Add high-quality images (800×600px, under 1MB)
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+                </AccordionTrigger>
+                <AccordionContent className="pt-2 pb-4">
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    {/* Quality Tips */}
+                    <div className="space-y-3">
+                      <h4 className="font-medium flex items-center gap-2">
+                        <Star className="w-4 h-4 text-primary" />
+                        Quality Tips
+                      </h4>
+                      <div className="space-y-2 text-sm text-muted-foreground">
+                        <div className="flex gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                          <p>Use clear, descriptive titles that highlight the reward's value</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                          <p>Include specific details about features, specs, or benefits</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                          <p>Add high-quality images (800×600px, under 1MB)</p>
+                        </div>
+                      </div>
+                    </div>
 
-              <Card className="border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent">
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Shield className="w-5 h-5 text-green-500" />
-                    Contributor Protection
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm">
-                  <p className="text-muted-foreground">
-                    Your submissions are protected. You retain credit for approved ideas and earn rewards when your contributions are featured.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+                    {/* Contributor Protection */}
+                    <div className="space-y-3">
+                      <h4 className="font-medium flex items-center gap-2">
+                        <Shield className="w-4 h-4 text-green-500" />
+                        Contributor Protection
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        Your submissions are protected. You retain credit for approved ideas and earn rewards when your contributions are featured.
+                      </p>
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+            {/* Submission Summary - Before Submit Button */}
+            <SubmissionSummary
+              title={formData.title}
+              rewardType={selectedType}
+              category={formData.category}
+              floorAmount={floorAmountNum}
+              selectedLockOption={selectedLockOption}
+            />
 
             {/* Submit Button */}
             <div className="flex gap-3">
