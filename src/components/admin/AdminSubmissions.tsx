@@ -223,35 +223,7 @@ export function AdminSubmissions() {
     }
   };
 
-  const sendSubmissionNotificationEmail = async (
-    submission: RewardSubmission,
-    status: 'pending' | 'approved' | 'rejected' | 'needs_changes',
-    rejectionReason?: string,
-    adminNotes?: string,
-    rewardId?: string
-  ) => {
-    try {
-      const { error } = await supabase.functions.invoke('send-submission-notification', {
-        body: {
-          submissionId: submission.id,
-          userId: submission.user_id,
-          rewardTitle: submission.title,
-          status,
-          rejectionReason,
-          adminNotes,
-          rewardId
-        }
-      });
-      
-      if (error) {
-        console.error('Failed to send submission email notification:', error);
-      } else {
-        console.log('Submission email notification sent successfully');
-      }
-    } catch (error) {
-      console.error('Error sending submission email notification:', error);
-    }
-  };
+
 
   const handleApproveAndEdit = async () => {
     if (!selectedSubmission) return;
@@ -309,14 +281,6 @@ export function AdminSubmissions() {
         }
       }
 
-      // Send email notification for approval
-      await sendSubmissionNotificationEmail(
-        { ...selectedSubmission, title: editFormData.title },
-        'approved',
-        undefined,
-        undefined,
-        rewardId
-      );
 
       toast.success('Submission approved and edited successfully');
       setShowApproveEditModal(false);
@@ -380,13 +344,6 @@ export function AdminSubmissions() {
         console.error('Failed to create rejection notification:', notifError);
       }
       
-      // Send email notification for rejection
-      await sendSubmissionNotificationEmail(
-        selectedSubmission,
-        'rejected',
-        fullMessage,
-        customRejectionMessage || undefined
-      );
       
       setShowRejectModal(false);
       setRejectionReason('');
