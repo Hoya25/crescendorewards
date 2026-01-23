@@ -8,19 +8,22 @@ import { Download, QrCode, Share2, Link2, Wand2, Image as ImageIcon, Loader2 } f
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import crescendoLogoDark from '@/assets/crescendo-logo-dark.png';
+import { REFERRAL_REWARDS } from '@/constants/referral';
 
 interface ReferralQRCodeProps {
   standardLink: string;
   personalizedLink?: string | null;
   referralCode: string;
   inviterName?: string | null;
+  allocation?: number;
 }
 
 export function ReferralQRCode({ 
   standardLink, 
   personalizedLink,
   referralCode,
-  inviterName
+  inviterName,
+  allocation = REFERRAL_REWARDS.defaults.allocation360Lock
 }: ReferralQRCodeProps) {
   const [activeLink, setActiveLink] = useState<'personalized' | 'standard'>(
     personalizedLink ? 'personalized' : 'standard'
@@ -118,7 +121,7 @@ export function ReferralQRCode({
         await navigator.share({
           files: [file],
           title: 'Join me on Crescendo',
-          text: 'Scan the QR code or use my link to join and earn 500 NCTR!'
+          text: REFERRAL_REWARDS.shareText.qrCard(allocation)
         });
       } else {
         // Fallback: download the image
@@ -312,7 +315,7 @@ export function ReferralQRCode({
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full mb-3"
               style={{ backgroundColor: 'rgba(139, 92, 246, 0.2)' }}
             >
-              <span className="text-white font-semibold">🎁 Earn 500 NCTR 360LOCK</span>
+              <span className="text-white font-semibold">🎁 Earn {allocation.toLocaleString()} NCTR 360LOCK</span>
             </div>
             <p className="text-white/50 text-xs">
               Scan to join & start earning rewards

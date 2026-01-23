@@ -10,6 +10,7 @@ import { BetaBadge } from "./BetaBadge";
 import { ThemeToggle } from "./ThemeToggle";
 import { ReferralCard } from "./ReferralCard";
 import { useReferralStats } from "@/hooks/useReferralStats";
+import { useReferralSettings } from "@/hooks/useReferralSettings";
 import { WelcomeFlow, hasBeenOnboarded } from "./onboarding/WelcomeFlow";
 import { OnboardingProgress } from "./OnboardingProgress";
 import { NeedsAttention } from "./NeedsAttention";
@@ -27,6 +28,7 @@ import { SponsoredRewardsCarousel } from "./rewards/SponsoredRewardsCarousel";
 import { BetaTestingNotice } from "./BetaTestingNotice";
 import { InviteHeaderCTA } from "./navigation/InviteHeaderCTA";
 import { EarnNCTRQuickCard } from "./dashboard/EarnNCTRQuickCard";
+import { REFERRAL_REWARDS } from "@/constants/referral";
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress, getNCTRNeededForNextLevel } from '@/utils/membershipLevels';
 import { useTheme } from "./ThemeProvider";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
@@ -43,7 +45,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collap
 import { trackEvent } from "@/lib/analytics";
 
 // Simplified Quick Actions - 3 cards only
-function SimplifiedQuickActions({ navigate, claimBalance }: { navigate: (path: string) => void; claimBalance: number }) {
+function SimplifiedQuickActions({ navigate, claimBalance, allocation }: { navigate: (path: string) => void; claimBalance: number; allocation: number }) {
   const showGetClaimsHighlight = claimBalance < 20;
   
   return (
@@ -97,7 +99,7 @@ function SimplifiedQuickActions({ navigate, claimBalance }: { navigate: (path: s
           </div>
           <div>
             <h3 className="font-semibold text-lg">Invite Friends</h3>
-            <p className="text-sm text-muted-foreground">Earn 500 NCTR per referral</p>
+            <p className="text-sm text-muted-foreground">{REFERRAL_REWARDS.descriptions.inviter.short(allocation)}</p>
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground ml-auto" />
         </CardContent>
@@ -252,8 +254,11 @@ export function Dashboard() {
   const { isAdmin } = useAdminRole();
   const { theme } = useTheme();
   const { data: referralStats, isLoading: referralLoading } = useReferralStats();
+  const { data: referralSettings } = useReferralSettings();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
+  
+  const allocation = referralSettings?.allocation360Lock ?? REFERRAL_REWARDS.defaults.allocation360Lock;
 
   useEffect(() => {
     if (!hasBeenOnboarded()) {
@@ -474,7 +479,7 @@ export function Dashboard() {
               />
 
               {/* 3. Simplified Quick Actions (3 cards) */}
-              <SimplifiedQuickActions navigate={navigate} claimBalance={claimBalance} />
+              <SimplifiedQuickActions navigate={navigate} claimBalance={claimBalance} allocation={allocation} />
 
               {/* 4. Portfolio, Claims & Earn Section */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
