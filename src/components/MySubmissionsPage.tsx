@@ -13,7 +13,7 @@ import {
   FileText, Filter, AlertCircle, Share2, Twitter, 
   Facebook, Linkedin, Link2, Check, TrendingUp, 
   MousePointerClick, Users, Award, Edit, History, 
-  GitBranch
+  GitBranch, RefreshCcw, AlertTriangle
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -21,9 +21,11 @@ import { Input } from '@/components/ui/input';
 import { UpdateRewardModal } from '@/components/UpdateRewardModal';
 import { RewardVersionHistory } from '@/components/RewardVersionHistory';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
+import { ResubmitModal } from '@/components/ResubmitModal';
 
 interface RewardSubmission {
   id: string;
+  user_id: string;
   lock_rate: string;
   reward_type: string;
   title: string;
@@ -42,6 +44,8 @@ interface RewardSubmission {
   parent_submission_id: string | null;
   is_latest_version: boolean;
   version_notes: string | null;
+  floor_usd_amount?: number | null;
+  lock_option?: string | null;
 }
 
 export function MySubmissionsPage() {
@@ -60,6 +64,8 @@ export function MySubmissionsPage() {
   const [submissionToUpdate, setSubmissionToUpdate] = useState<RewardSubmission | null>(null);
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [versionHistoryId, setVersionHistoryId] = useState<string | null>(null);
+  const [showResubmitModal, setShowResubmitModal] = useState(false);
+  const [submissionToResubmit, setSubmissionToResubmit] = useState<RewardSubmission | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -260,6 +266,31 @@ export function MySubmissionsPage() {
   const handleUpdateSuccess = () => {
     fetchSubmissions();
     setShowUpdateModal(false);
+  };
+
+  const handleResubmitClick = (submission: RewardSubmission) => {
+    setSubmissionToResubmit(submission);
+    setShowResubmitModal(true);
+  };
+
+  const handleResubmitSuccess = () => {
+    fetchSubmissions();
+    setShowResubmitModal(false);
+  };
+
+  // Extract rejection reason from admin notes for display
+  const extractRejectionReason = (adminNotes: string | null): { reason: string; details: string | null } => {
+    if (!adminNotes) return { reason: 'No specific reason provided', details: null };
+    
+    // Try to split reason and details
+    const colonIndex = adminNotes.indexOf(':');
+    if (colonIndex > 0 && colonIndex < 50) {
+      return {
+        reason: adminNotes.substring(0, colonIndex).trim(),
+        details: adminNotes.substring(colonIndex + 1).trim() || null
+      };
+    }
+    return { reason: adminNotes, details: null };
   };
 
   if (loading) {
@@ -482,8 +513,33 @@ export function MySubmissionsPage() {
                       </div>
                     )}
 
-                    {/* Admin Notes */}
-                    {submission.admin_notes && (
+                    {/* Rejection Details - Enhanced for rejected submissions */}
+                    {submission.status === 'rejected' && submission.admin_notes && (
+                      <div className="border border-destructive/30 bg-destructive/5 rounded-lg p-4 mb-4">
+                        <div className="flex items-start gap-3">
+                          <AlertTriangle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />
+                          <div className="flex-1">
+                            <div className="text-sm font-semibold text-destructive mb-2">
+                              Rejection Reason
+                            </div>
+                            {(() => {
+                              const { reason, details } = extractRejectionReason(submission.admin_notes);
+                              return (
+                                <>
+                                  <p className="font-medium text-foreground mb-1">{reason}</p>
+                                  {details && (
+                                    <p className="text-sm text-muted-foreground">{details}</p>
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Admin Notes - for non-rejected submissions */}
+                    {submission.admin_notes && submission.status !== 'rejected' && (
                       <div className="bg-muted/50 rounded-lg p-4 mb-4">
                         <div className="flex items-start gap-2">
                           <FileText className="w-4 h-4 text-muted-foreground mt-0.5" />
@@ -507,6 +563,42 @@ export function MySubmissionsPage() {
                               Update Notes (v{submission.version})
                             </div>
                             <p className="text-sm">{submission.version_notes}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Resubmit Section for Rejected Submissions */}
+                    {submission.status === 'rejected' && submission.is_latest_version && (
+                      <div className="border-t pt-4 mt-4 mb-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <RefreshCcw className="w-5 h-5 text-primary" />
+                              <h4 className="font-semibold">Try Again</h4>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              Address the feedback above and resubmit for another review
+                            </p>
+                          </div>
+                          <div className="flex gap-2 w-full sm:w-auto">
+                            {(submission.version > 1 || submission.parent_submission_id) && (
+                              <Button
+                                variant="outline"
+                                onClick={() => handleViewHistory(submission.id)}
+                                className="gap-2 flex-1 sm:flex-initial"
+                              >
+                                <History className="w-4 h-4" />
+                                History
+                              </Button>
+                            )}
+                            <Button
+                              onClick={() => handleResubmitClick(submission)}
+                              className="gap-2 flex-1 sm:flex-initial"
+                            >
+                              <RefreshCcw className="w-4 h-4" />
+                              Resubmit with Changes
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -744,6 +836,16 @@ export function MySubmissionsPage() {
           open={showVersionHistory}
           onClose={() => setShowVersionHistory(false)}
           submissionId={versionHistoryId}
+        />
+      )}
+
+      {/* Resubmit Modal */}
+      {submissionToResubmit && (
+        <ResubmitModal
+          open={showResubmitModal}
+          onClose={() => setShowResubmitModal(false)}
+          submission={submissionToResubmit}
+          onSuccess={handleResubmitSuccess}
         />
       )}
     </div>

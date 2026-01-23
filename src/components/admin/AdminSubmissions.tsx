@@ -13,7 +13,7 @@ import {
   Package, User, Calendar, DollarSign, Lock,
   FileText, Image as ImageIcon, Star, GitBranch,
   History, Eye, Pencil, MessageSquare, ChevronRight,
-  AlertCircle, Inbox
+  AlertCircle, Inbox, RefreshCcw
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -310,10 +310,42 @@ export function AdminSubmissions() {
       ? `${reasonLabel}: ${customRejectionMessage}`
       : reasonLabel;
     
-    await updateSubmissionStatus(selectedSubmission.id, 'rejected', fullMessage);
-    setShowRejectModal(false);
-    setRejectionReason('');
-    setCustomRejectionMessage('');
+    try {
+      setUpdating(true);
+      
+      // Update submission status
+      await updateSubmissionStatus(selectedSubmission.id, 'rejected', fullMessage);
+      
+      // Create notification for the contributor
+      const { error: notifError } = await supabase
+        .from('notifications')
+        .insert({
+          user_id: selectedSubmission.user_id,
+          type: 'submission_rejected',
+          title: `Submission Rejected: ${selectedSubmission.title}`,
+          message: `Your reward submission was rejected. Reason: ${fullMessage}. You can resubmit with changes.`,
+          is_read: false,
+          metadata: {
+            submission_id: selectedSubmission.id,
+            rejection_reason: reasonLabel,
+            custom_message: customRejectionMessage || null,
+            link: '/my-submissions'
+          }
+        });
+      
+      if (notifError) {
+        console.error('Failed to create rejection notification:', notifError);
+      }
+      
+      setShowRejectModal(false);
+      setRejectionReason('');
+      setCustomRejectionMessage('');
+    } catch (error) {
+      console.error('Error rejecting submission:', error);
+      toast.error('Failed to reject submission');
+    } finally {
+      setUpdating(false);
+    }
   };
 
   const openApproveEditModal = () => {
@@ -504,6 +536,11 @@ export function AdminSubmissions() {
                             v{submission.version}
                           </Badge>
                         )}
+                        {submission.parent_submission_id && (
+                          <Badge variant="secondary" className="text-[10px] h-4 px-1 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                            Resubmission
+                          </Badge>
+                        )}
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span className="truncate">{submission.profiles?.full_name || submission.profiles?.email || 'Unknown'}</span>
@@ -600,7 +637,7 @@ export function AdminSubmissions() {
                       {/* Title and Status */}
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <div className="flex items-center gap-3 mb-2">
+                          <div className="flex items-center gap-3 mb-2 flex-wrap">
                             <h3 className="text-2xl font-bold">{selectedSubmission.title}</h3>
                             {selectedSubmission.version > 1 && (
                               <Badge variant="outline" className="gap-1">
@@ -608,24 +645,71 @@ export function AdminSubmissions() {
                                 v{selectedSubmission.version}
                               </Badge>
                             )}
+                            {selectedSubmission.parent_submission_id && (
+                              <Badge className="gap-1 bg-amber-100 text-amber-700 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-400">
+                                <RefreshCcw className="w-3 h-3" />
+                                Resubmission
+                              </Badge>
+                            )}
                           </div>
-                          {getStatusBadge(selectedSubmission.status)}
+                          <div className="flex items-center gap-2">
+                            {getStatusBadge(selectedSubmission.status)}
+                          </div>
                         </div>
-                        {selectedSubmission.version > 1 && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setVersionHistoryId(selectedSubmission.id);
-                              setShowVersionHistory(true);
-                            }}
-                            className="gap-2"
-                          >
-                            <History className="w-4 h-4" />
-                            History
-                          </Button>
-                        )}
+                        <div className="flex gap-2">
+                          {selectedSubmission.parent_submission_id && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={async () => {
+                                const { data } = await supabase
+                                  .from('reward_submissions')
+                                  .select('*')
+                                  .eq('id', selectedSubmission.parent_submission_id)
+                                  .single();
+                                if (data) {
+                                  toast.info(`Previous version: "${data.title}" - Status: ${data.status}`);
+                                }
+                              }}
+                              className="gap-1"
+                            >
+                              <History className="w-4 h-4" />
+                              View Previous
+                            </Button>
+                          )}
+                          {selectedSubmission.version > 1 && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setVersionHistoryId(selectedSubmission.id);
+                                setShowVersionHistory(true);
+                              }}
+                              className="gap-2"
+                            >
+                              <History className="w-4 h-4" />
+                              History
+                            </Button>
+                          )}
+                        </div>
                       </div>
+
+                      {/* Resubmission Info */}
+                      {selectedSubmission.parent_submission_id && selectedSubmission.version_notes && (
+                        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+                          <div className="flex items-start gap-2">
+                            <RefreshCcw className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                            <div>
+                              <div className="text-xs font-medium text-amber-700 dark:text-amber-400 mb-1">
+                                Resubmitted on {new Date(selectedSubmission.created_at).toLocaleDateString()}
+                              </div>
+                              <p className="text-sm text-amber-800 dark:text-amber-300">
+                                {selectedSubmission.version_notes}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       {/* Description */}
                       <div>
