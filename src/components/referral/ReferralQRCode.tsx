@@ -29,35 +29,33 @@ export function ReferralQRCode({
     const svg = document.getElementById('referral-qr-code');
     if (!svg) return;
     
-    // Create canvas from SVG
     const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
     const svgData = new XMLSerializer().serializeToString(svg);
     const img = new Image();
     
-    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(svgBlob);
-    
     img.onload = () => {
-      canvas.width = img.width * 2; // Higher resolution
+      canvas.width = img.width * 2;
       canvas.height = img.height * 2;
+      const ctx = canvas.getContext('2d');
       
       if (ctx) {
+        // White background
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw QR code scaled up
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       }
       
+      // Download
       const pngUrl = canvas.toDataURL('image/png');
       const downloadLink = document.createElement('a');
       downloadLink.href = pngUrl;
-      downloadLink.download = `crescendo-invite-${referralCode}.png`;
+      downloadLink.download = `crescendo-invite-${referralCode}-qr.png`;
       downloadLink.click();
-      
-      URL.revokeObjectURL(url);
     };
     
-    img.src = url;
+    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
   };
 
   return (
