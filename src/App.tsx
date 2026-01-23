@@ -38,6 +38,7 @@ const MembershipLevelPage = lazy(() => import('./components/MembershipLevelPage'
 const MembershipHistoryPage = lazy(() => import('./components/MembershipHistoryPage').then(m => ({ default: m.MembershipHistoryPage })));
 const MembershipStatisticsPage = lazy(() => import('./components/MembershipStatisticsPage').then(m => ({ default: m.MembershipStatisticsPage })));
 const ReferralAnalyticsDashboard = lazy(() => import('./components/ReferralAnalyticsDashboard').then(m => ({ default: m.ReferralAnalyticsDashboard })));
+const InvitePage = lazy(() => import('./pages/InvitePage'));
 const RewardDetailPage = lazy(() => import('./components/RewardDetailPage').then(m => ({ default: m.RewardDetailPage })));
 const SubmitRewardsPage = lazy(() => import('./components/SubmitRewardsPage').then(m => ({ default: m.SubmitRewardsPage })));
 const MySubmissionsPage = lazy(() => import('./components/MySubmissionsPage').then(m => ({ default: m.MySubmissionsPage })));
@@ -247,6 +248,14 @@ function AppRoutes() {
               element={
                 <ProtectedRoute>
                   <ClaimsPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/invite" 
+              element={
+                <ProtectedRoute>
+                  <InvitePage />
                 </ProtectedRoute>
               } 
             />

@@ -1,4 +1,4 @@
-import { Store, LayoutDashboard, Gift, Trophy, Crown, User, Heart, FileCheck, Receipt, BarChart3, Settings, UtensilsCrossed, Coins, Shield, ShoppingBag, ExternalLink, CheckCircle2, ChevronRight, TrendingUp, Ticket, Building2, Sparkles, PieChart, Send } from 'lucide-react';
+import { Store, LayoutDashboard, Gift, Trophy, Crown, User, Heart, FileCheck, Receipt, BarChart3, Settings, UtensilsCrossed, Coins, Shield, ShoppingBag, ExternalLink, CheckCircle2, ChevronRight, TrendingUp, Ticket, Building2, Sparkles, PieChart, Send, UserPlus } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
@@ -50,6 +50,7 @@ const browseItems = [
 const accountItems = [
   { title: 'Profile', url: '/profile', icon: User },
   { title: 'Your NCTR', url: '/profile#portfolio', icon: PieChart },
+  { title: 'Invite Friends', url: '/invite', icon: UserPlus, highlight: true },
   { title: 'Wishlist', url: '/wishlist', icon: Heart },
   { title: 'Submit Reward', url: '/submit-reward', icon: Send },
   { title: 'My Submissions', url: '/my-submissions', icon: FileCheck },
@@ -298,12 +299,19 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
                       "cursor-pointer",
                       isActive(item.url) 
                         ? "bg-accent text-accent-foreground" 
-                        : "hover:bg-accent hover:text-accent-foreground"
+                        : "hover:bg-accent hover:text-accent-foreground",
+                      (item as any).highlight && !isActive(item.url) && "bg-primary/5 hover:bg-primary/10 border border-primary/20"
                     )}
                   >
-                    <item.icon className="h-4 w-4" />
+                    <item.icon className={cn(
+                      "h-4 w-4",
+                      (item as any).highlight && "text-primary"
+                    )} />
                     {open && (
-                      <span className="flex items-center gap-2">
+                      <span className={cn(
+                        "flex items-center gap-2",
+                        (item as any).highlight && "text-primary font-medium"
+                      )}>
                         {item.title}
                         {/* Show completion indicator on Profile link */}
                         {item.url === '/profile' && !completionLoading && !isComplete && (

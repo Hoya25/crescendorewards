@@ -25,6 +25,7 @@ import { NotificationsDropdown } from "./NotificationsDropdown";
 import { Footer } from "./Footer";
 import { SponsoredRewardsCarousel } from "./rewards/SponsoredRewardsCarousel";
 import { BetaTestingNotice } from "./BetaTestingNotice";
+import { InviteHeaderCTA } from "./navigation/InviteHeaderCTA";
 import { EarnNCTRQuickCard } from "./dashboard/EarnNCTRQuickCard";
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress, getNCTRNeededForNextLevel } from '@/utils/membershipLevels';
 import { useTheme } from "./ThemeProvider";
@@ -85,18 +86,18 @@ function SimplifiedQuickActions({ navigate, claimBalance }: { navigate: (path: s
         </CardContent>
       </Card>
       
-      {/* Invite Friends */}
+      {/* Invite Friends - Made prominent */}
       <Card 
-        className="cursor-pointer hover:border-primary/30 transition-all hover:shadow-md"
-        onClick={() => navigate('/referrals')}
+        className="cursor-pointer border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10 hover:border-primary/50 transition-all hover:shadow-md"
+        onClick={() => navigate('/invite')}
       >
         <CardContent className="p-5 flex items-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center shadow-lg">
-            <UserPlus className="w-7 h-7 text-white" />
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg">
+            <UserPlus className="w-7 h-7 text-primary-foreground" />
           </div>
           <div>
             <h3 className="font-semibold text-lg">Invite Friends</h3>
-            <p className="text-sm text-muted-foreground">Earn bonus claims</p>
+            <p className="text-sm text-muted-foreground">Earn 500 NCTR per referral</p>
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground ml-auto" />
         </CardContent>
@@ -372,6 +373,7 @@ export function Dashboard() {
                       Admin Panel
                     </Button>
                   )}
+                  <InviteHeaderCTA />
                   <Button variant="outline" onClick={() => navigate('/rewards')} className="gap-2">
                     <Gift className="w-4 h-4" />
                     Rewards
@@ -464,17 +466,24 @@ export function Dashboard() {
                 navigate={navigate}
               />
 
-              {/* 2. Simplified Quick Actions (3 cards) */}
+              {/* 2. Referral Card - Moved up for prominence */}
+              <ReferralCard
+                referralCode={referralCode}
+                stats={referralStats || defaultReferralStats}
+                isLoading={referralLoading}
+              />
+
+              {/* 3. Simplified Quick Actions (3 cards) */}
               <SimplifiedQuickActions navigate={navigate} claimBalance={claimBalance} />
 
-              {/* 3. Portfolio, Claims & Earn Section */}
+              {/* 4. Portfolio, Claims & Earn Section */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <PortfolioSummaryCard />
                 <ClaimsAccountDashboard />
                 <EarnNCTRQuickCard />
               </div>
 
-              {/* 4. Featured Rewards Section */}
+              {/* 5. Featured Rewards Section */}
               <section>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-semibold flex items-center gap-2">
@@ -487,13 +496,6 @@ export function Dashboard() {
                 </div>
                 <SponsoredRewardsCarousel />
               </section>
-
-              {/* Referral Card */}
-              <ReferralCard
-                referralCode={referralCode}
-                stats={referralStats || defaultReferralStats}
-                isLoading={referralLoading}
-              />
 
               {/* Collapsible Activity Feed */}
               <Collapsible open={activityOpen} onOpenChange={setActivityOpen}>
