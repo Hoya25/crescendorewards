@@ -13,11 +13,12 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { 
   Gift, Sparkles, TrendingUp, Check, Mail, Wallet, Truck, 
-  Calendar, Code, ExternalLink, Copy, PartyPopper, CheckCircle2
+  Calendar, Code, ExternalLink, Copy, PartyPopper, CheckCircle2, UserPlus
 } from "lucide-react";
 import { useState } from "react";
 import type { DeliveryMethod } from "@/types/delivery";
 import { DELIVERY_METHOD_LABELS } from "@/types/delivery";
+import { InvitePromptCard } from "@/components/referral/InvitePromptCard";
 
 interface ClaimConfirmationDialogProps {
   isOpen: boolean;
@@ -207,6 +208,11 @@ export function ClaimConfirmationDialog({
                 <span className="font-bold">{newBalance} Claims</span>
               </div>
             )}
+
+            {/* Invite Friends CTA */}
+            <div className="w-full mt-2">
+              <InvitePromptCard variant="after-claim" />
+            </div>
           </div>
 
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">

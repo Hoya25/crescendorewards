@@ -577,6 +577,8 @@ export type Database = {
           level: number
           locked_nctr: number
           referral_code: string | null
+          referral_count: number | null
+          referral_milestones_claimed: Json | null
           referred_by: string | null
           updated_at: string
           wallet_address: string | null
@@ -595,6 +597,8 @@ export type Database = {
           level?: number
           locked_nctr?: number
           referral_code?: string | null
+          referral_count?: number | null
+          referral_milestones_claimed?: Json | null
           referred_by?: string | null
           updated_at?: string
           wallet_address?: string | null
@@ -613,6 +617,8 @@ export type Database = {
           level?: number
           locked_nctr?: number
           referral_code?: string | null
+          referral_count?: number | null
+          referral_milestones_claimed?: Json | null
           referred_by?: string | null
           updated_at?: string
           wallet_address?: string | null
@@ -663,6 +669,45 @@ export type Database = {
           status?: string
           stripe_session_id?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      referral_milestones: {
+        Row: {
+          badge_emoji: string | null
+          badge_name: string | null
+          claims_reward: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          nctr_reward: number | null
+          referral_count: number
+          title_unlock: string | null
+        }
+        Insert: {
+          badge_emoji?: string | null
+          badge_name?: string | null
+          claims_reward?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          nctr_reward?: number | null
+          referral_count: number
+          title_unlock?: string | null
+        }
+        Update: {
+          badge_emoji?: string | null
+          badge_name?: string | null
+          claims_reward?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          nctr_reward?: number | null
+          referral_count?: number
+          title_unlock?: string | null
         }
         Relationships: []
       }
@@ -1815,6 +1860,7 @@ export type Database = {
         Args: { p_gift_id: string; p_user_id: string }
         Returns: Json
       }
+      check_referral_milestones: { Args: { p_user_id: string }; Returns: Json }
       claim_gift: {
         Args: { p_gift_code: string; p_user_id: string }
         Returns: Json
@@ -1952,6 +1998,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      process_referral: {
+        Args: { p_referred_id: string; p_referrer_code: string }
+        Returns: Json
       }
       send_gift_from_balance: {
         Args: {

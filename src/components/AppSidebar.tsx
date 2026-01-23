@@ -33,7 +33,8 @@ interface AppSidebarProps {
 const mainNavItems = [
   { title: 'Rewards', url: '/rewards', icon: Gift },
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
-  { title: 'My Claims', url: '/claims', icon: Ticket, highlight: true },
+  { title: 'Invite Friends', url: '/invite', icon: UserPlus, highlight: true },
+  { title: 'My Claims', url: '/claims', icon: Ticket },
   { title: 'Get Free Claims', url: '/earn', icon: TrendingUp },
   { title: 'Membership', url: '/membership', icon: Trophy },
   { title: 'Sponsors', url: '/sponsors', icon: Building2 },
@@ -50,7 +51,6 @@ const browseItems = [
 const accountItems = [
   { title: 'Profile', url: '/profile', icon: User },
   { title: 'Your NCTR', url: '/profile#portfolio', icon: PieChart },
-  { title: 'Invite Friends', url: '/invite', icon: UserPlus, highlight: true },
   { title: 'Wishlist', url: '/wishlist', icon: Heart },
   { title: 'Submit Reward', url: '/submit-reward', icon: Send },
   { title: 'My Submissions', url: '/my-submissions', icon: FileCheck },
@@ -237,16 +237,16 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
                       isActive(item.url) 
                         ? "bg-accent text-accent-foreground" 
                         : "hover:bg-accent hover:text-accent-foreground",
-                      item.highlight && !isActive(item.url) && "hover:bg-violet-50 dark:hover:bg-violet-900/20"
+                      (item as any).highlight && !isActive(item.url) && "bg-primary/5 hover:bg-primary/10 border border-primary/20"
                     )}
                   >
                     <item.icon className={cn(
                       "h-4 w-4",
-                      item.highlight && "text-violet-600 dark:text-violet-400"
+                      (item as any).highlight && "text-primary"
                     )} />
                     {open && (
                       <span className={cn(
-                        item.highlight && "text-violet-700 dark:text-violet-400 font-medium"
+                        (item as any).highlight && "text-primary font-medium"
                       )}>
                         {item.title}
                       </span>
