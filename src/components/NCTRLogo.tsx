@@ -5,6 +5,13 @@ import nctrYellow from '@/assets/nctr-yellow.png';
 interface NCTRLogoProps {
   className?: string;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  /** 
+   * Force a specific variant regardless of theme
+   * - 'dark': Use yellow/green logo (for dark backgrounds)
+   * - 'light': Use grey logo (for light backgrounds)
+   * - 'auto': Switch based on current theme (default)
+   */
+  variant?: 'dark' | 'light' | 'auto';
 }
 
 const sizeClasses = {
@@ -15,13 +22,17 @@ const sizeClasses = {
   xl: "inline-block h-36 w-auto mx-2 align-middle"
 };
 
-export function NCTRLogo({ className, size = 'md' }: NCTRLogoProps) {
+export function NCTRLogo({ className, size = 'md', variant = 'auto' }: NCTRLogoProps) {
   const defaultClass = sizeClasses[size];
   const { theme } = useTheme();
 
+  // Determine which logo to use based on variant or theme
+  const useDarkVariant = variant === 'dark' || (variant === 'auto' && theme === 'dark');
+  const logoSrc = useDarkVariant ? nctrYellow : nctrGrey;
+
   return (
     <img 
-      src={theme === 'dark' ? nctrYellow : nctrGrey}
+      src={logoSrc}
       alt="NCTR"
       className={className || defaultClass}
     />
