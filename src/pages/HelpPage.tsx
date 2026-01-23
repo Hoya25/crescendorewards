@@ -47,7 +47,7 @@ const faqs = [
   },
   {
     question: "How do I contact support?",
-    answer: "Use the Feedback button in the bottom-right corner of any page, or email us at support@crescendo.nctr.live. We typically respond within 24-48 hours."
+    answer: "Click the feedback button in the corner of any page to submit feedback or report issues, or email us at support@crescendo.nctr.live. We typically respond within 24-48 hours."
   },
   {
     question: "Is Crescendo available on mobile?",
