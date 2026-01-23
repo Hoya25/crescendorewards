@@ -54,6 +54,10 @@ export function SubmitRewardsPage() {
   });
 
   const floorAmountNum = parseFloat(floorAmount) || 0;
+  const MIN_FLOOR_AMOUNT = 5;
+  const HIGH_FLOOR_THRESHOLD = 1000;
+  const isFloorTooLow = floorAmountNum > 0 && floorAmountNum < MIN_FLOOR_AMOUNT;
+  const isFloorHigh = floorAmountNum > HIGH_FLOOR_THRESHOLD;
   const baseNCTR = floorAmountNum > 0 ? Math.round(floorAmountNum / NCTR_RATE) : 0;
   const selectedOption = LOCK_OPTIONS.find(o => o.id === selectedLockOption);
   const calculatedNCTR = selectedOption ? Math.round(baseNCTR * selectedOption.multiplier) : 0;
@@ -144,6 +148,11 @@ export function SubmitRewardsPage() {
 
     if (!selectedType || !formData.title || !formData.description || !formData.category || !floorAmount || floorAmountNum <= 0) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (floorAmountNum < MIN_FLOOR_AMOUNT) {
+      toast.error(`Minimum floor amount is $${MIN_FLOOR_AMOUNT}`);
       return;
     }
 
@@ -304,7 +313,7 @@ export function SubmitRewardsPage() {
                     Your Floor Amount <span className="text-destructive">*</span>
                   </Label>
                   <p className="text-sm text-muted-foreground mb-2">
-                    What's the minimum dollar value you'll accept for this contribution?
+                    What's the minimum dollar value you'll accept for this contribution? (Minimum ${MIN_FLOOR_AMOUNT})
                   </p>
                   <div className="relative max-w-xs">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">$</span>
@@ -314,11 +323,29 @@ export function SubmitRewardsPage() {
                       placeholder="50"
                       value={floorAmount}
                       onChange={(e) => setFloorAmount(e.target.value)}
-                      min="1"
+                      min={MIN_FLOOR_AMOUNT}
                       step="1"
-                      className="pl-7 text-lg"
+                      className={`pl-7 text-lg ${isFloorTooLow ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                     />
                   </div>
+                  
+                  {/* Validation Messages */}
+                  {isFloorTooLow && (
+                    <p className="text-sm text-destructive flex items-center gap-1.5">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-destructive" />
+                      Minimum floor amount is ${MIN_FLOOR_AMOUNT}
+                    </p>
+                  )}
+                  
+                  {isFloorHigh && (
+                    <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                      <span className="text-amber-500 text-lg">⚠️</span>
+                      <p className="text-sm text-amber-700 dark:text-amber-400">
+                        High value submission! Amounts over ${HIGH_FLOOR_THRESHOLD.toLocaleString()} may require additional verification. 
+                        Our team will review your contribution carefully.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Step 2: Lock Option Cards (includes NCTR rate display) */}
