@@ -3,16 +3,18 @@
  */
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MIN_DIMENSION = 600; // Minimum 600px on shortest side
 const ALLOWED_FORMATS = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
 const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
 
 export interface ImageValidationResult {
   valid: boolean;
   error?: string;
+  dimensions?: { width: number; height: number };
 }
 
 /**
- * Validates an image file for format and size
+ * Validates an image file for format and size (synchronous checks only)
  */
 export function validateImageFile(file: File): ImageValidationResult {
   // Check file size
@@ -41,6 +43,47 @@ export function validateImageFile(file: File): ImageValidationResult {
   }
 
   return { valid: true };
+}
+
+/**
+ * Validates image dimensions asynchronously
+ * Returns a promise that resolves with validation result including dimensions
+ */
+export function validateImageDimensions(file: File): Promise<ImageValidationResult> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const width = img.width;
+      const height = img.height;
+      const shortestSide = Math.min(width, height);
+
+      if (shortestSide < MIN_DIMENSION) {
+        resolve({
+          valid: false,
+          error: `Image quality too low. Minimum ${MIN_DIMENSION}px on shortest side required. Your image is ${width}×${height}px.`,
+          dimensions: { width, height },
+        });
+      } else {
+        resolve({
+          valid: true,
+          dimensions: { width, height },
+        });
+      }
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve({
+        valid: false,
+        error: 'Failed to load image. Please try a different file.',
+      });
+    };
+
+    img.src = objectUrl;
+  });
 }
 
 /**
