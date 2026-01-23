@@ -73,7 +73,7 @@ interface Brand {
   name: string;
 }
 
-type SortField = 'title' | 'cost' | 'stock_quantity' | 'claim_count' | 'wishlist_count' | 'created_at';
+type SortField = 'display_order' | 'title' | 'cost' | 'stock_quantity' | 'claim_count' | 'wishlist_count' | 'created_at';
 type SortDirection = 'asc' | 'desc';
 
 // Status tier options for reward eligibility
@@ -150,8 +150,8 @@ export function AdminRewards() {
   const [statusAccessFilter, setStatusAccessFilter] = useState('all');
   
   // Sorting & Ordering
-  const [sortField, setSortField] = useState<SortField>('created_at');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [sortField, setSortField] = useState<SortField>('display_order');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [orderMode, setOrderMode] = useState(false);
   const [originalRewards, setOriginalRewards] = useState<Reward[]>([]);
   const [savingOrder, setSavingOrder] = useState(false);
@@ -346,12 +346,11 @@ export function AdminRewards() {
 
   // Check for unsaved order changes
   const hasOrderChanges = useMemo(() => {
-    if (!orderMode) return false;
     return rewards.some(reward => {
       const original = originalRewards.find(r => r.id === reward.id);
       return !original || reward.display_order !== original.display_order;
     });
-  }, [rewards, originalRewards, orderMode]);
+  }, [rewards, originalRewards]);
 
   // Drag handlers for row ordering
   const handleRowDragStart = (e: React.DragEvent, id: string) => {
@@ -394,6 +393,10 @@ export function AdminRewards() {
       return sorted.map((r, i) => ({ ...r, display_order: i + 1 }));
     });
 
+    // Ensure the table keeps showing the marketplace order when leaving Reorder Mode
+    setSortField('display_order');
+    setSortDirection('asc');
+
     setDraggedId(null);
   };
 
@@ -417,6 +420,10 @@ export function AdminRewards() {
 
       return reordered.map((r, i) => ({ ...r, display_order: i + 1 }));
     });
+
+    // Keep view aligned to marketplace order after reordering
+    setSortField('display_order');
+    setSortDirection('asc');
     setSelectedIds(new Set());
   };
 
