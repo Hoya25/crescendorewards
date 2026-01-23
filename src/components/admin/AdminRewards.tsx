@@ -23,7 +23,8 @@ import { useAdminRole } from '@/hooks/useAdminRole';
 import { 
   Plus, Pencil, Trash2, Upload, X, Image as ImageIcon, Lock, 
   MoreHorizontal, Copy, ExternalLink, Gift, ChevronUp, ChevronDown,
-  Minus, Search, Star, AlertTriangle, Heart, ShoppingCart, Package, Megaphone, Truck
+  Minus, Search, Star, AlertTriangle, Heart, ShoppingCart, Package, Megaphone, Truck,
+  Shield
 } from 'lucide-react';
 import { validateImageFile } from '@/lib/image-validation';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
@@ -61,6 +62,8 @@ interface Reward {
   delivery_method: DeliveryMethod | null;
   required_user_data: RequiredDataField[] | null;
   delivery_instructions: string | null;
+  // Status tier restriction
+  min_status_tier: string | null;
 }
 
 interface Brand {
@@ -70,6 +73,16 @@ interface Brand {
 
 type SortField = 'title' | 'cost' | 'stock_quantity' | 'claim_count' | 'wishlist_count' | 'created_at';
 type SortDirection = 'asc' | 'desc';
+
+// Status tier options for reward eligibility
+const STATUS_TIER_OPTIONS = [
+  { value: 'none', label: 'All Members', description: 'Anyone can claim' },
+  { value: 'bronze', label: 'Bronze & Above', description: 'Bronze, Silver, Gold, Platinum, Diamond' },
+  { value: 'silver', label: 'Silver & Above', description: 'Silver, Gold, Platinum, Diamond' },
+  { value: 'gold', label: 'Gold & Above', description: 'Gold, Platinum, Diamond' },
+  { value: 'platinum', label: 'Platinum & Above', description: 'Platinum, Diamond' },
+  { value: 'diamond', label: 'Diamond Only', description: 'Diamond tier exclusive' },
+];
 
 const CATEGORIES = [
   { value: 'all', label: 'All Categories' },
@@ -168,6 +181,8 @@ export function AdminRewards() {
     delivery_method: 'email' as DeliveryMethod,
     required_user_data: ['email'] as RequiredDataField[],
     delivery_instructions: null as string | null,
+    // Status tier restriction
+    min_status_tier: null as string | null,
   });
 
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -209,6 +224,7 @@ export function AdminRewards() {
           delivery_method: (rewardToEdit.delivery_method as DeliveryMethod) || 'email',
           required_user_data: rewardToEdit.required_user_data || ['email'],
           delivery_instructions: rewardToEdit.delivery_instructions,
+          min_status_tier: rewardToEdit.min_status_tier || null,
         });
         setImagePreview(rewardToEdit.image_url);
         setImageFile(null);
@@ -391,6 +407,7 @@ export function AdminRewards() {
         delivery_method: (reward.delivery_method as DeliveryMethod) || 'email',
         required_user_data: reward.required_user_data || ['email'],
         delivery_instructions: reward.delivery_instructions,
+        min_status_tier: reward.min_status_tier || null,
       });
       setImagePreview(reward.image_url);
     } else {
@@ -419,6 +436,7 @@ export function AdminRewards() {
         delivery_method: 'email',
         required_user_data: ['email'],
         delivery_instructions: null,
+        min_status_tier: null,
       });
       setImagePreview(null);
     }
@@ -452,6 +470,7 @@ export function AdminRewards() {
       delivery_method: (reward.delivery_method as DeliveryMethod) || 'email',
       required_user_data: reward.required_user_data || ['email'],
       delivery_instructions: reward.delivery_instructions,
+      min_status_tier: reward.min_status_tier || null, // Keep tier restriction on duplicate
     });
     setImagePreview(reward.image_url);
     setImageFile(null);
@@ -1352,6 +1371,31 @@ export function AdminRewards() {
                   <SelectItem value="none">No specific brand</SelectItem>
                   {brands.map(brand => (
                     <SelectItem key={brand.id} value={brand.id}>{brand.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Status Tier Eligibility */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                Minimum Status Level
+              </Label>
+              <p className="text-xs text-muted-foreground">Restrict who can claim based on Crescendo Status</p>
+              <Select 
+                value={formData.min_status_tier || 'none'} 
+                onValueChange={(v) => setFormData({ ...formData, min_status_tier: v === 'none' ? null : v })}
+              >
+                <SelectTrigger><SelectValue placeholder="All Members" /></SelectTrigger>
+                <SelectContent>
+                  {STATUS_TIER_OPTIONS.map(tier => (
+                    <SelectItem key={tier.value} value={tier.value}>
+                      <div className="flex flex-col">
+                        <span>{tier.label}</span>
+                        <span className="text-xs text-muted-foreground">{tier.description}</span>
+                      </div>
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
