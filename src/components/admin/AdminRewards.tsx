@@ -1203,35 +1203,36 @@ export function AdminRewards() {
           </div>
           
           {/* Order Mode Toggle */}
-          <div className="flex items-center gap-3 pt-4 border-t flex-wrap">
-            <Switch 
-              id="order-mode"
-              checked={orderMode}
-              onCheckedChange={setOrderMode}
-            />
-            <label htmlFor="order-mode" className="text-sm font-medium cursor-pointer flex items-center gap-2">
-              <GripVertical className="w-4 h-4" />
-              Reorder Mode
-            </label>
-            {orderMode && (
-              <Badge variant="outline" className="text-xs">Drag rows to reorder</Badge>
-            )}
+          <div className="pt-4 border-t space-y-3">
+            <div className="flex items-center gap-3">
+              <Switch 
+                id="order-mode"
+                checked={orderMode}
+                onCheckedChange={setOrderMode}
+              />
+              <label htmlFor="order-mode" className="text-sm font-medium cursor-pointer flex items-center gap-2">
+                <GripVertical className="w-4 h-4" />
+                Reorder Mode
+              </label>
+              {orderMode && (
+                <Badge variant="outline" className="text-xs">Drag rows to reorder</Badge>
+              )}
+            </div>
             {hasOrderChanges && (
-              <>
-                <div className="h-5 w-px bg-border mx-1" />
+              <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">
                   <AlertTriangle className="w-3 h-3 mr-1" />
                   Unsaved Changes
                 </Badge>
-                <Button variant="outline" size="sm" onClick={discardOrderChanges}>
-                  <RotateCcw className="w-4 h-4 mr-1" />
-                  Discard
-                </Button>
                 <Button size="sm" onClick={saveOrderChanges} disabled={savingOrder}>
                   {savingOrder ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Save className="w-4 h-4 mr-1" />}
                   Save Order
                 </Button>
-              </>
+                <Button variant="outline" size="sm" onClick={discardOrderChanges}>
+                  <RotateCcw className="w-4 h-4 mr-1" />
+                  Discard
+                </Button>
+              </div>
             )}
           </div>
         </CardContent>
