@@ -30,6 +30,8 @@ const SponsorsPage = lazy(() => import('./components/SponsorsPage').then(m => ({
 const BecomeASponsorPage = lazy(() => import('./components/BecomeASponsorPage').then(m => ({ default: m.BecomeASponsorPage })));
 const SponsorProfilePage = lazy(() => import('./components/SponsorProfilePage').then(m => ({ default: m.SponsorProfilePage })));
 const SponsorDashboard = lazy(() => import('./components/sponsor/SponsorDashboard').then(m => ({ default: m.SponsorDashboard })));
+const SponsorProfileEditor = lazy(() => import('./components/sponsor/SponsorProfileEditor'));
+const SponsorSubmitReward = lazy(() => import('./components/sponsor/SponsorSubmitReward'));
 const WishlistPage = lazy(() => import('./components/WishlistPage').then(m => ({ default: m.WishlistPage })));
 const FavoritesPage = lazy(() => import('./components/FavoritesPage').then(m => ({ default: m.FavoritesPage })));
 const ProfilePage = lazy(() => import('./components/ProfilePage').then(m => ({ default: m.ProfilePage })));
@@ -128,12 +130,28 @@ function AppRoutes() {
             {/* Personalized referral link redirect */}
             <Route path="/join/:slug" element={<JoinRedirectPage />} />
 
-            {/* Protected Routes */}
+            {/* Sponsor Portal Routes */}
             <Route 
               path="/sponsor/dashboard" 
               element={
                 <ProtectedRoute>
                   <SponsorDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/sponsor/profile" 
+              element={
+                <ProtectedRoute>
+                  <SponsorProfileEditor />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/sponsor/rewards/new" 
+              element={
+                <ProtectedRoute>
+                  <SponsorSubmitReward />
                 </ProtectedRoute>
               } 
             />
