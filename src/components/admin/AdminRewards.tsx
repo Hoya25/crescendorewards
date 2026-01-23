@@ -1280,6 +1280,7 @@ export function AdminRewards() {
           <Table>
             <TableHeader>
               <TableRow>
+                {orderMode && <TableHead className="w-10"></TableHead>}
                 <TableHead className="w-12">
                   <Checkbox 
                     checked={selectedIds.size === filteredRewards.length && filteredRewards.length > 0}
@@ -1338,7 +1339,24 @@ export function AdminRewards() {
                 </TableRow>
               ) : (
                 filteredRewards.map((reward) => (
-                  <TableRow key={reward.id} className={getStockRowClass(reward.stock_quantity)}>
+                  <TableRow 
+                    key={reward.id} 
+                    className={cn(
+                      getStockRowClass(reward.stock_quantity),
+                      orderMode && draggedId === reward.id && 'opacity-50',
+                      orderMode && dragOverId === reward.id && 'border-t-2 border-primary'
+                    )}
+                    draggable={orderMode}
+                    onDragStart={(e) => handleRowDragStart(e, reward.id)}
+                    onDragOver={(e) => handleRowDragOver(e, reward.id)}
+                    onDragLeave={handleRowDragLeave}
+                    onDrop={(e) => handleRowDrop(e, reward.id)}
+                  >
+                    {orderMode && (
+                      <TableCell className="cursor-grab active:cursor-grabbing">
+                        <GripVertical className="w-4 h-4 text-muted-foreground" />
+                      </TableCell>
+                    )}
                     <TableCell>
                       <Checkbox 
                         checked={selectedIds.has(reward.id)}
