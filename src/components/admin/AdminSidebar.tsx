@@ -1,4 +1,4 @@
-import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, Heart, TrendingUp, Building2, RefreshCw, Sparkles, Megaphone, Shield, Activity, Package, MessageSquare, Coins, Bell } from 'lucide-react';
+import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, Heart, TrendingUp, Building2, RefreshCw, Sparkles, Megaphone, Shield, Activity, Package, MessageSquare, Coins, Bell, ListOrdered } from 'lucide-react';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { cn } from '@/lib/utils';
@@ -57,6 +57,7 @@ const menuItems: MenuItem[] = [
   { title: 'User Notifications', view: 'user-notifications', icon: Bell, badgeKey: null, permission: 'users_view' },
   { title: 'Submissions', view: 'submissions', icon: FileCheck, badgeKey: 'submissions', permission: 'submissions_view' },
   { title: 'Rewards', view: 'rewards', icon: Gift, badgeKey: null, permission: 'rewards_view' },
+  { title: 'Reward Ordering', view: 'reward-ordering', icon: ListOrdered, badgeKey: null, permission: 'rewards_edit' },
   { title: 'Sponsored Rewards', view: 'sponsored-rewards', icon: Sparkles, badgeKey: null, permission: 'rewards_view' },
   { title: 'Campaigns', view: 'campaigns', icon: Megaphone, badgeKey: null, permission: 'sponsors_view' },
   { title: 'Claims', view: 'claims', icon: ShoppingBag, badgeKey: 'claims', permission: 'claims_view' },
