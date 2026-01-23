@@ -679,8 +679,9 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
               isLocked && "border-muted bg-muted/30"
             )}>
               <CardContent className="p-5 space-y-4">
-                {/* User Tier Badge */}
-                <div className="flex items-center justify-between">
+                {/* Status and Access Requirement */}
+                <div className="grid grid-cols-2 gap-4">
+                  {/* User Status */}
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">{userTierEmoji}</span>
                     <div>
@@ -688,8 +689,31 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                       <p className="font-bold">{userTierDisplay}</p>
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => navigate('/membership')} className="text-primary gap-1">
-                    View Benefits <ChevronRight className="w-4 h-4" />
+                  
+                  {/* Access Requirement */}
+                  <div className="flex items-center gap-2 justify-end">
+                    <div className="text-right">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Access Requirement</p>
+                      <p className="font-bold flex items-center justify-end gap-1.5">
+                        {!reward.min_status_tier || reward.min_status_tier === 'bronze' ? (
+                          <>
+                            <span className="text-emerald-500">🔓</span>
+                            <span className="text-emerald-600 dark:text-emerald-400">All Members</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>{tierEmojis[reward.min_status_tier.toLowerCase()] || '🎫'}</span>
+                            <span>{reward.min_status_tier.charAt(0).toUpperCase() + reward.min_status_tier.slice(1)}+</span>
+                          </>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex justify-center">
+                  <Button variant="ghost" size="sm" onClick={() => navigate('/membership')} className="text-primary gap-1 text-xs">
+                    View Status Benefits <ChevronRight className="w-3 h-3" />
                   </Button>
                 </div>
 

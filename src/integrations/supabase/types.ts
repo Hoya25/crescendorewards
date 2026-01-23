@@ -807,6 +807,7 @@ export type Database = {
           is_latest_version: boolean
           lock_option: string | null
           lock_rate: string
+          min_status_tier: string | null
           nctr_rate_at_submission: number | null
           nctr_value: number
           parent_submission_id: string | null
@@ -835,6 +836,7 @@ export type Database = {
           is_latest_version?: boolean
           lock_option?: string | null
           lock_rate: string
+          min_status_tier?: string | null
           nctr_rate_at_submission?: number | null
           nctr_value: number
           parent_submission_id?: string | null
@@ -863,6 +865,7 @@ export type Database = {
           is_latest_version?: boolean
           lock_option?: string | null
           lock_rate?: string
+          min_status_tier?: string | null
           nctr_rate_at_submission?: number | null
           nctr_value?: number
           parent_submission_id?: string | null
