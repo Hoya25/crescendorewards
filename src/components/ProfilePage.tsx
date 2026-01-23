@@ -12,7 +12,8 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { NCTRLogo } from './NCTRLogo';
 import { toast } from '@/hooks/use-toast';
-import { ArrowLeft, Upload, Save, User, Mail, Wallet, Code, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift, X, Crown, ChevronRight, FileText, Check, Lock, TrendingUp, Sparkles, Truck, Package } from 'lucide-react';
+import { ArrowLeft, Upload, Save, User, Mail, Wallet, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift, X, Crown, ChevronRight, FileText, Check, Lock, TrendingUp, Sparkles, Truck, Package } from 'lucide-react';
+import { CompactReferralCard } from '@/components/referral/CompactReferralCard';
 import { Progress } from '@/components/ui/progress';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
@@ -1017,49 +1018,8 @@ export function ProfilePage() {
               </CardContent>
             </Card>
 
-            {/* Referral Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Referral Program</CardTitle>
-                <CardDescription>Share your code and earn rewards</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="referralCode" className="flex items-center gap-2">
-                    <Code className="w-4 h-4" />
-                    Your Referral Code
-                  </Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="referralCode"
-                      value={crescendoData.referral_code || 'Loading...'}
-                      readOnly
-                      className="bg-muted font-mono"
-                    />
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        if (crescendoData.referral_code) {
-                          navigator.clipboard.writeText(crescendoData.referral_code);
-                          toast({
-                            title: 'Copied!',
-                            description: 'Referral code copied to clipboard',
-                          });
-                        }
-                      }}
-                    >
-                      Copy
-                    </Button>
-                  </div>
-                </div>
-                {crescendoData.has_claimed_signup_bonus && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Shield className="w-4 h-4 text-green-600" />
-                    Signup bonus claimed
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            {/* Referral Invite Card */}
+            <CompactReferralCard variant="featured" className="lg:col-span-1" />
 
             {/* Danger Zone */}
             <Card className="border-destructive/50">
