@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react';
+import { Suspense, lazy, useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,11 +12,11 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminRoute } from "./components/AdminRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { RouteLoading, PageLoading } from "./components/RouteLoading";
-import { FeedbackButton } from "./components/FeedbackButton";
 import { DevToolsPanel } from "./components/DevToolsPanel";
 import { MobileBottomNav } from "./components/navigation/MobileBottomNav";
 import { BetaBanner } from "./components/BetaBanner";
 import { useClaimDeliveryNotifications } from "./hooks/useClaimDeliveryNotifications";
+import { initUserback, identifyUserbackUser } from "./lib/userback";
 
 // Eagerly loaded components (critical path)
 import { LandingPage } from "./components/LandingPage";
@@ -73,6 +73,21 @@ function AppRoutes() {
 
   // Enable real-time toast notifications for claim delivery status updates
   useClaimDeliveryNotifications();
+
+  // Initialize Userback and identify user when authenticated
+  useEffect(() => {
+    initUserback();
+  }, []);
+
+  useEffect(() => {
+    if (user && isAuthenticated) {
+      identifyUserbackUser(
+        user.id,
+        user.user_metadata?.full_name || profile?.display_name,
+        user.email
+      );
+    }
+  }, [user, isAuthenticated, profile?.display_name]);
 
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
@@ -322,8 +337,7 @@ function AppRoutes() {
       {/* Mobile Bottom Navigation - only for authenticated users */}
       {isAuthenticated && <MobileBottomNav />}
 
-      {/* Global feedback button */}
-      <FeedbackButton />
+      {/* Userback feedback widget is loaded globally via index.html */}
       
       {/* Developer tools panel */}
       <DevToolsPanel />
