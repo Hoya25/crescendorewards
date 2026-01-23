@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { NCTRLogo } from './NCTRLogo';
 import { Skeleton } from './ui/skeleton';
 import { useReferralSettings } from '@/hooks/useReferralSettings';
+import { generateReferralLink } from '@/lib/referral-links';
 
 interface ReferralStats {
   totalReferrals: number;
@@ -26,9 +27,8 @@ export function ReferralCard({ stats, referralCode, isLoading }: ReferralCardPro
   const [copied, setCopied] = useState(false);
   const { data: referralSettings } = useReferralSettings();
 
-  // Use window.location.origin for dynamic domain
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://crescendo-nctr-live.lovable.app';
-  const referralLink = `${baseUrl}/signup?ref=${referralCode}`;
+  // Always use production domain for referral links
+  const referralLink = generateReferralLink(referralCode);
   const allocation360Lock = referralSettings?.allocation360Lock ?? 500;
 
   const handleCopy = async (text: string) => {
