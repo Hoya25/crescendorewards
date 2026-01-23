@@ -45,6 +45,10 @@ interface RewardSubmission {
   parent_submission_id: string | null;
   is_latest_version: boolean;
   version_notes: string | null;
+  // New compensation fields
+  floor_usd_amount: number | null;
+  lock_option: string | null;
+  nctr_rate_at_submission: number | null;
   profiles?: {
     full_name: string | null;
     email: string | null;
@@ -604,6 +608,56 @@ export function AdminSubmissions() {
                         <p className="mt-1">{selectedSubmission.description}</p>
                       </div>
 
+                      {/* Compensation Section - New Fields */}
+                      {(selectedSubmission.floor_usd_amount || selectedSubmission.nctr_value > 0) && (
+                        <div className="bg-gradient-to-r from-[#E85D04]/10 via-primary/5 to-[#E85D04]/10 border border-[#E85D04]/30 rounded-lg p-4">
+                          <Label className="text-[#E85D04] text-xs uppercase tracking-wide mb-3 block flex items-center gap-2">
+                            <DollarSign className="w-3.5 h-3.5" />
+                            Contributor Compensation Request
+                          </Label>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-1">Floor Amount</div>
+                              <div className="font-bold text-lg">
+                                {selectedSubmission.floor_usd_amount 
+                                  ? `$${selectedSubmission.floor_usd_amount.toLocaleString()}`
+                                  : 'N/A'}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-1">Lock Option</div>
+                              <div className="font-bold text-lg">
+                                {selectedSubmission.lock_option 
+                                  ? `${selectedSubmission.lock_option}LOCK`
+                                  : selectedSubmission.lock_rate 
+                                    ? `${selectedSubmission.lock_rate}LOCK`
+                                    : 'N/A'}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-1">NCTR Amount</div>
+                              <div className="font-bold text-lg text-[#E85D04]">
+                                {selectedSubmission.nctr_value?.toLocaleString() || 0} NCTR
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-muted-foreground mb-1">Rate at Submission</div>
+                              <div className="font-bold text-lg">
+                                {selectedSubmission.nctr_rate_at_submission 
+                                  ? `$${selectedSubmission.nctr_rate_at_submission}`
+                                  : '$0.05'}
+                              </div>
+                            </div>
+                          </div>
+                          {selectedSubmission.floor_usd_amount && selectedSubmission.nctr_value > 0 && (
+                            <div className="mt-3 pt-3 border-t border-[#E85D04]/20 text-sm text-muted-foreground">
+                              Contributor expects <span className="font-medium text-foreground">${selectedSubmission.floor_usd_amount}</span> minimum, 
+                              requesting <span className="font-medium text-[#E85D04]">{selectedSubmission.nctr_value.toLocaleString()} NCTR</span> with multiplier applied
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       {/* Details Grid */}
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="bg-muted/50 rounded-lg p-3">
@@ -616,9 +670,9 @@ export function AdminSubmissions() {
                         <div className="bg-muted/50 rounded-lg p-3">
                           <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                             <Lock className="w-3.5 h-3.5" />
-                            Lock Rate
+                            Reward Type
                           </div>
-                          <div className="font-bold">{selectedSubmission.lock_rate}LOCK</div>
+                          <div className="font-bold capitalize">{selectedSubmission.reward_type.replace('_', ' ')}</div>
                         </div>
                         <div className="bg-muted/50 rounded-lg p-3">
                           <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
