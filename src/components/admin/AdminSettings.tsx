@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Save, DollarSign, Settings, AlertCircle, Users, Lock } from 'lucide-react';
+import { Loader2, Save, DollarSign, Settings, AlertCircle, Users, Lock, Tag } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -23,8 +23,10 @@ export function AdminSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savingReferral, setSavingReferral] = useState(false);
+  const [savingClaimValue, setSavingClaimValue] = useState(false);
   const [priceFloor, setPriceFloor] = useState('4');
   const [referralAllocation, setReferralAllocation] = useState('500');
+  const [claimValueUsd, setClaimValueUsd] = useState('5');
 
   useEffect(() => {
     fetchSettings();
@@ -58,6 +60,15 @@ export function AdminSettings() {
           ? referralSetting.setting_value.replace(/"/g, '')
           : String(referralSetting.setting_value);
         setReferralAllocation(value);
+      }
+
+      // Extract claim value USD setting
+      const claimValueSetting = data?.find(s => s.setting_key === 'claim_value_usd');
+      if (claimValueSetting) {
+        const value = typeof claimValueSetting.setting_value === 'string' 
+          ? claimValueSetting.setting_value.replace(/"/g, '')
+          : String(claimValueSetting.setting_value);
+        setClaimValueUsd(value);
       }
     } catch (error) {
       console.error('Error fetching settings:', error);
@@ -155,6 +166,48 @@ export function AdminSettings() {
     }
   };
 
+  const handleSaveClaimValue = async () => {
+    const value = parseFloat(claimValueUsd);
+    if (isNaN(value) || value <= 0) {
+      toast({
+        title: 'Invalid Value',
+        description: 'Claim value must be a positive number',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setSavingClaimValue(true);
+      
+      const { error } = await supabase
+        .from('admin_settings')
+        .update({ 
+          setting_value: value,
+          updated_at: new Date().toISOString()
+        })
+        .eq('setting_key', 'claim_value_usd');
+
+      if (error) throw error;
+
+      toast({
+        title: 'Settings Saved',
+        description: `Claim value updated to $${value} per claim`,
+      });
+      
+      await fetchSettings();
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save settings',
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingClaimValue(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
@@ -217,6 +270,61 @@ export function AdminSettings() {
             <AlertDescription>
               Current rate: Custom purchases calculate at $4.55 per claim (0.22 claims/$). 
               The price floor ensures no purchase can get claims cheaper than ${priceFloor || '4'}/claim.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Tag className="w-5 h-5" />
+            Reward Submission Settings
+          </CardTitle>
+          <CardDescription>
+            Configure claim value for contributor reward submissions
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="claimValueUsd" className="flex items-center gap-2">
+              <DollarSign className="w-4 h-4" />
+              Claim Value (USD)
+            </Label>
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1 max-w-[200px]">
+                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="claimValueUsd"
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  value={claimValueUsd}
+                  onChange={(e) => setClaimValueUsd(e.target.value)}
+                  className="pl-8"
+                  placeholder="5.00"
+                />
+              </div>
+              <Button onClick={handleSaveClaimValue} disabled={savingClaimValue}>
+                {savingClaimValue ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4 mr-2" />
+                )}
+                Save
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              This sets the dollar value per claim when calculating "Claims Required" for reward submissions.
+              For example, a $65 floor amount ÷ $5 claim value = 13 Claims Required.
+            </p>
+          </div>
+
+          <Alert className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
+            <Tag className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-900 dark:text-blue-100">
+              Current claim value: <span className="font-bold">${claimValueUsd || '5'}</span> per claim.
+              A $100 floor = {Math.ceil(100 / (parseFloat(claimValueUsd) || 5))} claims required.
             </AlertDescription>
           </Alert>
         </CardContent>
