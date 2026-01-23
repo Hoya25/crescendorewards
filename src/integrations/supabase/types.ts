@@ -1688,6 +1688,65 @@ export type Database = {
           },
         ]
       }
+      user_activity: {
+        Row: {
+          browser: string | null
+          created_at: string | null
+          device_type: string | null
+          element_id: string | null
+          element_text: string | null
+          event_name: string | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          page_path: string | null
+          page_title: string | null
+          referrer: string | null
+          session_id: string
+          user_id: string | null
+        }
+        Insert: {
+          browser?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          element_id?: string | null
+          element_text?: string | null
+          event_name?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          page_path?: string | null
+          page_title?: string | null
+          referrer?: string | null
+          session_id: string
+          user_id?: string | null
+        }
+        Update: {
+          browser?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          element_id?: string | null
+          element_text?: string | null
+          event_name?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          page_path?: string | null
+          page_title?: string | null
+          referrer?: string | null
+          session_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_activity_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_delivery_profiles: {
         Row: {
           created_at: string | null
@@ -1788,6 +1847,65 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          actions: number | null
+          browser: string | null
+          clicks: number | null
+          created_at: string | null
+          device_type: string | null
+          duration_seconds: number | null
+          ended_at: string | null
+          entry_page: string | null
+          exit_page: string | null
+          id: string
+          page_views: number | null
+          session_id: string
+          started_at: string
+          user_id: string | null
+        }
+        Insert: {
+          actions?: number | null
+          browser?: string | null
+          clicks?: number | null
+          created_at?: string | null
+          device_type?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          entry_page?: string | null
+          exit_page?: string | null
+          id?: string
+          page_views?: number | null
+          session_id: string
+          started_at: string
+          user_id?: string | null
+        }
+        Update: {
+          actions?: number | null
+          browser?: string | null
+          clicks?: number | null
+          created_at?: string | null
+          device_type?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          entry_page?: string | null
+          exit_page?: string | null
+          id?: string
+          page_views?: number | null
+          session_id?: string
+          started_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       wallet_portfolio: {
         Row: {
@@ -1939,6 +2057,7 @@ export type Database = {
           title: string
         }[]
       }
+      get_user_journey_stats: { Args: { p_user_id: string }; Returns: Json }
       get_user_share_analytics: {
         Args: never
         Returns: {
