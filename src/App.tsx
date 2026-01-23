@@ -52,6 +52,7 @@ const HelpPage = lazy(() => import('./pages/HelpPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage').then(m => ({ default: m.TermsPage })));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const JoinRedirectPage = lazy(() => import('./pages/JoinRedirectPage'));
 
 // Admin panel - separate chunk for code splitting
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel').then(m => ({ default: m.AdminPanel })));
@@ -123,6 +124,9 @@ function AppRoutes() {
             <Route path="/sponsors" element={<SponsorsPage />} />
             <Route path="/become-sponsor" element={<BecomeASponsorPage />} />
             <Route path="/sponsors/:slug" element={<SponsorProfilePage />} />
+            
+            {/* Personalized referral link redirect */}
+            <Route path="/join/:slug" element={<JoinRedirectPage />} />
 
             {/* Protected Routes */}
             <Route 
