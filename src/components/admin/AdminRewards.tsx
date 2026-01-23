@@ -1203,24 +1203,22 @@ export function AdminRewards() {
           </div>
           
           {/* Order Mode Toggle */}
-          <div className="flex items-center justify-between pt-4 border-t">
-            <div className="flex items-center gap-3">
-              <Switch 
-                id="order-mode"
-                checked={orderMode}
-                onCheckedChange={setOrderMode}
-              />
-              <label htmlFor="order-mode" className="text-sm font-medium cursor-pointer flex items-center gap-2">
-                <GripVertical className="w-4 h-4" />
-                Reorder Mode
-              </label>
-              {orderMode && (
-                <Badge variant="outline" className="text-xs">Drag rows to reorder</Badge>
-              )}
-            </div>
-            
+          <div className="flex items-center gap-3 pt-4 border-t flex-wrap">
+            <Switch 
+              id="order-mode"
+              checked={orderMode}
+              onCheckedChange={setOrderMode}
+            />
+            <label htmlFor="order-mode" className="text-sm font-medium cursor-pointer flex items-center gap-2">
+              <GripVertical className="w-4 h-4" />
+              Reorder Mode
+            </label>
+            {orderMode && (
+              <Badge variant="outline" className="text-xs">Drag rows to reorder</Badge>
+            )}
             {hasOrderChanges && (
-              <div className="flex items-center gap-2">
+              <>
+                <div className="h-5 w-px bg-border mx-1" />
                 <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">
                   <AlertTriangle className="w-3 h-3 mr-1" />
                   Unsaved Changes
@@ -1233,7 +1231,7 @@ export function AdminRewards() {
                   {savingOrder ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Save className="w-4 h-4 mr-1" />}
                   Save Order
                 </Button>
-              </div>
+              </>
             )}
           </div>
         </CardContent>
