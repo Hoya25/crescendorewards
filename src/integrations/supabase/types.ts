@@ -798,10 +798,13 @@ export type Database = {
           claim_passes_required: number
           created_at: string
           description: string
+          floor_usd_amount: number | null
           id: string
           image_url: string | null
           is_latest_version: boolean
+          lock_option: string | null
           lock_rate: string
+          nctr_rate_at_submission: number | null
           nctr_value: number
           parent_submission_id: string | null
           reward_type: string
@@ -820,10 +823,13 @@ export type Database = {
           claim_passes_required?: number
           created_at?: string
           description: string
+          floor_usd_amount?: number | null
           id?: string
           image_url?: string | null
           is_latest_version?: boolean
+          lock_option?: string | null
           lock_rate: string
+          nctr_rate_at_submission?: number | null
           nctr_value: number
           parent_submission_id?: string | null
           reward_type: string
@@ -842,10 +848,13 @@ export type Database = {
           claim_passes_required?: number
           created_at?: string
           description?: string
+          floor_usd_amount?: number | null
           id?: string
           image_url?: string | null
           is_latest_version?: boolean
+          lock_option?: string | null
           lock_rate?: string
+          nctr_rate_at_submission?: number | null
           nctr_value?: number
           parent_submission_id?: string | null
           reward_type?: string

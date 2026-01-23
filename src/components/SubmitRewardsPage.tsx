@@ -178,6 +178,10 @@ export function SubmitRewardsPage() {
           claim_passes_required: 1,
           stock_quantity: formData.stockQuantity ? parseInt(formData.stockQuantity) : null,
           image_url: imageUrl,
+          // New compensation fields
+          floor_usd_amount: floorAmountNum,
+          lock_option: selectedLockOption,
+          nctr_rate_at_submission: NCTR_RATE,
         });
 
       if (error) throw error;
