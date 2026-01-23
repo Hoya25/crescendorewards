@@ -16,7 +16,6 @@ import { DevToolsPanel } from "./components/DevToolsPanel";
 import { MobileBottomNav } from "./components/navigation/MobileBottomNav";
 import { BetaBanner } from "./components/BetaBanner";
 import { useClaimDeliveryNotifications } from "./hooks/useClaimDeliveryNotifications";
-import { identifyUserbackUser } from "./lib/userback";
 
 // Eagerly loaded components (critical path)
 import { LandingPage } from "./components/LandingPage";
@@ -73,18 +72,6 @@ function AppRoutes() {
 
   // Enable real-time toast notifications for claim delivery status updates
   useClaimDeliveryNotifications();
-
-  // Identify user to Userback when authenticated
-
-  useEffect(() => {
-    if (user && isAuthenticated) {
-      identifyUserbackUser(
-        user.id,
-        user.user_metadata?.full_name || profile?.display_name,
-        user.email
-      );
-    }
-  }, [user, isAuthenticated, profile?.display_name]);
 
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
@@ -333,9 +320,6 @@ function AppRoutes() {
 
       {/* Mobile Bottom Navigation - only for authenticated users */}
       {isAuthenticated && <MobileBottomNav />}
-
-      {/* Userback feedback widget loads automatically via index.html script */}
-      
       {/* Developer tools panel - only in development */}
       {import.meta.env.DEV && <DevToolsPanel />}
     </div>
