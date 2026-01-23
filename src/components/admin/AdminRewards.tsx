@@ -137,9 +137,11 @@ export function AdminRewards() {
   const [showModal, setShowModal] = useState(false);
   const [editingReward, setEditingReward] = useState<Reward | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const MAX_IMAGES = 4;
   
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -228,7 +230,7 @@ export function AdminRewards() {
       if (rewardToEdit) {
         // Inline the edit logic to avoid calling handleOpenModal before it's defined
         setEditingReward(rewardToEdit);
-        setFormData({
+          setFormData({
           title: rewardToEdit.title,
           description: rewardToEdit.description,
           category: rewardToEdit.category,
@@ -254,8 +256,11 @@ export function AdminRewards() {
           delivery_instructions: rewardToEdit.delivery_instructions,
           min_status_tier: rewardToEdit.min_status_tier || null,
         });
-        setImagePreview(rewardToEdit.image_url);
-        setImageFile(null);
+        // Set existing images from image_url (primary image)
+        const existingImgUrls = rewardToEdit.image_url ? [rewardToEdit.image_url] : [];
+        setExistingImages(existingImgUrls);
+        setImagePreviews(existingImgUrls);
+        setSelectedImages([]);
         setShowModal(true);
         // Clear the edit param from URL
         searchParams.delete('edit');
@@ -570,7 +575,10 @@ export function AdminRewards() {
         delivery_instructions: reward.delivery_instructions,
         min_status_tier: reward.min_status_tier || null,
       });
-      setImagePreview(reward.image_url);
+      const existingImgUrls = reward.image_url ? [reward.image_url] : [];
+      setExistingImages(existingImgUrls);
+      setImagePreviews(existingImgUrls);
+      setSelectedImages([]);
     } else {
       setEditingReward(null);
       setFormData({
@@ -599,9 +607,10 @@ export function AdminRewards() {
         delivery_instructions: null,
         min_status_tier: null,
       });
-      setImagePreview(null);
+      setExistingImages([]);
+      setImagePreviews([]);
+      setSelectedImages([]);
     }
-    setImageFile(null);
     setShowModal(true);
   };
 
@@ -633,8 +642,10 @@ export function AdminRewards() {
       delivery_instructions: reward.delivery_instructions,
       min_status_tier: reward.min_status_tier || null, // Keep tier restriction on duplicate
     });
-    setImagePreview(reward.image_url);
-    setImageFile(null);
+    const existingImgUrls = reward.image_url ? [reward.image_url] : [];
+    setExistingImages(existingImgUrls);
+    setImagePreviews(existingImgUrls);
+    setSelectedImages([]);
     setShowModal(true);
   };
 
@@ -998,8 +1009,8 @@ export function AdminRewards() {
     }
   };
 
-  // Image handling
-  const validateAndSetImage = (file: File) => {
+  // Image handling - multiple images support
+  const validateAndAddImage = (file: File) => {
     const validation = validateImageFile(file);
     if (!validation.valid) {
       toast({
@@ -1009,15 +1020,32 @@ export function AdminRewards() {
       });
       return;
     }
-    setImageFile(file);
+    
+    const totalImages = existingImages.length + selectedImages.length;
+    if (totalImages >= MAX_IMAGES) {
+      toast({
+        title: 'Maximum images reached',
+        description: `You can only upload up to ${MAX_IMAGES} images`,
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    setSelectedImages(prev => [...prev, file]);
     const reader = new FileReader();
-    reader.onloadend = () => setImagePreview(reader.result as string);
+    reader.onloadend = () => {
+      setImagePreviews(prev => [...prev, reader.result as string]);
+    };
     reader.readAsDataURL(file);
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) validateAndSetImage(file);
+    const files = Array.from(e.target.files || []);
+    const remainingSlots = MAX_IMAGES - (existingImages.length + selectedImages.length);
+    const filesToAdd = files.slice(0, remainingSlots);
+    
+    filesToAdd.forEach(file => validateAndAddImage(file));
+    e.target.value = ''; // Reset input
   };
 
   const handleDragEnter = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true); };
@@ -1025,37 +1053,56 @@ export function AdminRewards() {
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); };
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault(); e.stopPropagation(); setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) validateAndSetImage(file);
+    const files = Array.from(e.dataTransfer.files || []);
+    const remainingSlots = MAX_IMAGES - (existingImages.length + selectedImages.length);
+    const filesToAdd = files.slice(0, remainingSlots);
+    
+    filesToAdd.forEach(file => validateAndAddImage(file));
   };
 
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
-    setFormData({ ...formData, image_url: null });
+  const handleRemoveImage = (index: number) => {
+    // Check if it's an existing image or a new one
+    if (index < existingImages.length) {
+      // Remove from existing images
+      setExistingImages(prev => prev.filter((_, i) => i !== index));
+      setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    } else {
+      // Remove from new selected images
+      const newImageIndex = index - existingImages.length;
+      setSelectedImages(prev => prev.filter((_, i) => i !== newImageIndex));
+      setImagePreviews(prev => prev.filter((_, i) => i !== index));
+    }
   };
 
-  const uploadImage = async (): Promise<string | null> => {
-    if (!imageFile) return formData.image_url;
+  const uploadImages = async (): Promise<string[]> => {
+    const uploadedUrls: string[] = [...existingImages];
+    
+    if (selectedImages.length === 0) return uploadedUrls;
+    
     try {
       setUploading(true);
-      const { file: compressedFile, originalSize, compressedSize, compressionRatio } = 
-        await compressImageWithStats(imageFile);
-      if (compressionRatio > 0.1) {
-        toast({ title: 'Image Compressed', description: `Reduced from ${formatBytes(originalSize)} to ${formatBytes(compressedSize)}` });
+      
+      for (const imageFile of selectedImages) {
+        const { file: compressedFile, originalSize, compressedSize, compressionRatio } = 
+          await compressImageWithStats(imageFile);
+        if (compressionRatio > 0.1) {
+          toast({ title: 'Image Compressed', description: `Reduced from ${formatBytes(originalSize)} to ${formatBytes(compressedSize)}` });
+        }
+        const fileExt = compressedFile.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+        const filePath = `rewards/${fileName}`;
+        const { error: uploadError } = await supabase.storage
+          .from('reward-images')
+          .upload(filePath, compressedFile, { cacheControl: '3600', upsert: false });
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from('reward-images').getPublicUrl(filePath);
+        uploadedUrls.push(publicUrl);
       }
-      const fileExt = compressedFile.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-      const filePath = `rewards/${fileName}`;
-      const { error: uploadError } = await supabase.storage
-        .from('reward-images')
-        .upload(filePath, compressedFile, { cacheControl: '3600', upsert: false });
-      if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = supabase.storage.from('reward-images').getPublicUrl(filePath);
-      return publicUrl;
+      
+      return uploadedUrls;
     } catch (error: any) {
       toast({ title: 'Upload failed', description: error.message || 'Failed to upload image', variant: 'destructive' });
-      return null;
+      return existingImages; // Return existing on failure
     } finally {
       setUploading(false);
     }
@@ -1063,9 +1110,11 @@ export function AdminRewards() {
 
   const handleSave = async () => {
     try {
-      const imageUrl = await uploadImage();
-      if (imageFile && !imageUrl) return;
-      const dataToSave = { ...formData, image_url: imageUrl };
+      const imageUrls = await uploadImages();
+      // Use first image as primary image_url for backwards compatibility
+      const primaryImageUrl = imageUrls.length > 0 ? imageUrls[0] : null;
+      const dataToSave = { ...formData, image_url: primaryImageUrl };
+      
       if (editingReward) {
         const { error } = await supabase.from('rewards').update(dataToSave).eq('id', editingReward.id);
         if (error) throw error;
@@ -1076,8 +1125,9 @@ export function AdminRewards() {
         toast({ title: 'Success', description: 'Reward created successfully' });
       }
       setShowModal(false);
-      setImageFile(null);
-      setImagePreview(null);
+      setSelectedImages([]);
+      setImagePreviews([]);
+      setExistingImages([]);
       loadRewards();
     } catch (error: any) {
       toast({ title: 'Error', description: error.message || 'Failed to save reward', variant: 'destructive' });
@@ -1519,32 +1569,64 @@ export function AdminRewards() {
             <DialogTitle>{editingReward ? 'Edit Reward' : 'Create Reward'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            {/* Image Upload */}
+            {/* Multi-Image Upload */}
             <div className="space-y-2">
-              <Label>Reward Image</Label>
-              {imagePreview ? (
-                <div className="relative w-full h-48 rounded-lg overflow-hidden border">
-                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                  <Button type="button" variant="destructive" size="sm" className="absolute top-2 right-2" onClick={handleRemoveImage}>
-                    <X className="w-4 h-4" />
-                  </Button>
+              <Label className="flex items-center justify-between">
+                <span>Reward Images</span>
+                <span className="text-xs text-muted-foreground">{imagePreviews.length}/{MAX_IMAGES} images</span>
+              </Label>
+              
+              {/* Image previews grid */}
+              {imagePreviews.length > 0 && (
+                <div className="grid grid-cols-2 gap-2">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative aspect-video rounded-lg overflow-hidden border">
+                      <img src={preview} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
+                      <div className="absolute top-1 left-1">
+                        <Badge variant="secondary" className="text-xs">
+                          {index === 0 ? 'Primary' : `#${index + 1}`}
+                        </Badge>
+                      </div>
+                      <Button 
+                        type="button" 
+                        variant="destructive" 
+                        size="icon" 
+                        className="absolute top-1 right-1 h-6 w-6"
+                        onClick={() => handleRemoveImage(index)}
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  ))}
                 </div>
-              ) : (
+              )}
+              
+              {/* Upload area - show only if we have room for more */}
+              {imagePreviews.length < MAX_IMAGES && (
                 <div
                   onDragEnter={handleDragEnter}
                   onDragOver={handleDragOver}
                   onDragLeave={handleDragLeave}
                   onDrop={handleDrop}
                   className={cn(
-                    "w-full h-48 border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-2 transition-colors cursor-pointer",
+                    "w-full h-32 border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-2 transition-colors cursor-pointer",
                     isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
                   )}
                   onClick={() => document.getElementById('image-upload')?.click()}
                 >
-                  <Upload className="w-8 h-8 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">Drag & drop or click to upload</p>
-                  <p className="text-xs text-muted-foreground/70">800×600px • PNG/JPG • Max 5MB</p>
-                  <Input id="image-upload" type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
+                  <Upload className="w-6 h-6 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">
+                    {imagePreviews.length === 0 ? 'Drag & drop or click to upload' : 'Add more images'}
+                  </p>
+                  <p className="text-xs text-muted-foreground/70">PNG/JPG • Max 5MB each • Up to {MAX_IMAGES} images</p>
+                  <Input 
+                    id="image-upload" 
+                    type="file" 
+                    accept="image/*" 
+                    multiple
+                    onChange={handleImageSelect} 
+                    className="hidden" 
+                  />
                 </div>
               )}
             </div>
