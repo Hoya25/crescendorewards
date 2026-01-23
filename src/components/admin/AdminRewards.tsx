@@ -24,7 +24,7 @@ import {
   Plus, Pencil, Trash2, Upload, X, Image as ImageIcon, Lock, 
   MoreHorizontal, Copy, ExternalLink, Gift, ChevronUp, ChevronDown,
   Minus, Search, Star, AlertTriangle, Heart, ShoppingCart, Package, Megaphone, Truck,
-  Shield
+  Shield, GripVertical, Save, RotateCcw, Loader2, ArrowUp, ArrowDown, DollarSign
 } from 'lucide-react';
 import { validateImageFile } from '@/lib/image-validation';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
@@ -51,6 +51,7 @@ interface Reward {
   claim_count?: number;
   wishlist_count?: number;
   brand_id?: string | null;
+  display_order: number;
   // Sponsorship fields
   sponsor_enabled: boolean;
   sponsor_name: string | null;
@@ -64,6 +65,7 @@ interface Reward {
   delivery_instructions: string | null;
   // Status tier restriction
   min_status_tier: string | null;
+  status_tier_claims_cost: Record<string, number> | null;
 }
 
 interface Brand {
@@ -107,6 +109,26 @@ const STATUS_FILTERS = [
   { value: 'out_of_stock', label: 'Out of Stock' },
 ];
 
+const STATUS_ACCESS_FILTERS = [
+  { value: 'all', label: 'All Access' },
+  { value: 'unrestricted', label: '🔓 Unrestricted' },
+  { value: 'bronze', label: '🥉 Bronze+' },
+  { value: 'silver', label: '🥈 Silver+' },
+  { value: 'gold', label: '🥇 Gold+' },
+  { value: 'platinum', label: '💎 Platinum+' },
+  { value: 'diamond', label: '👑 Diamond Only' },
+  { value: 'tiered-pricing', label: '💲 Has Tier Pricing' },
+];
+
+const TIER_BADGES: Record<string, { emoji: string; label: string; className: string }> = {
+  all: { emoji: '🔓', label: 'All', className: 'bg-green-500/10 text-green-600 border-green-200' },
+  bronze: { emoji: '🥉', label: 'Bronze+', className: 'bg-orange-500/10 text-orange-600 border-orange-200' },
+  silver: { emoji: '🥈', label: 'Silver+', className: 'bg-slate-400/10 text-slate-600 border-slate-300' },
+  gold: { emoji: '🥇', label: 'Gold+', className: 'bg-amber-500/10 text-amber-600 border-amber-200' },
+  platinum: { emoji: '💎', label: 'Platinum+', className: 'bg-slate-500/10 text-slate-700 border-slate-300' },
+  diamond: { emoji: '👑', label: 'Diamond', className: 'bg-cyan-500/10 text-cyan-600 border-cyan-200' },
+};
+
 export function AdminRewards() {
   const { hasPermission, logActivity } = useAdminRole();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -123,10 +145,16 @@ export function AdminRewards() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [statusAccessFilter, setStatusAccessFilter] = useState('all');
   
-  // Sorting
+  // Sorting & Ordering
   const [sortField, setSortField] = useState<SortField>('created_at');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [orderMode, setOrderMode] = useState(false);
+  const [originalRewards, setOriginalRewards] = useState<Reward[]>([]);
+  const [savingOrder, setSavingOrder] = useState(false);
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
   
   // Selection
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -249,11 +277,11 @@ export function AdminRewards() {
     try {
       setLoading(true);
       
-      // Fetch rewards
+      // Fetch rewards with display_order
       const { data: rewardsData, error: rewardsError } = await supabase
         .from('rewards')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('display_order', { ascending: true, nullsFirst: false });
 
       if (rewardsError) throw rewardsError;
 
@@ -278,9 +306,11 @@ export function AdminRewards() {
         return acc;
       }, {} as Record<string, number>);
 
-      // Merge data
-      const enrichedRewards = (rewardsData || []).map(reward => ({
+      // Merge data with display_order fallback
+      const enrichedRewards = (rewardsData || []).map((reward, idx) => ({
         ...reward,
+        display_order: reward.display_order ?? idx + 1,
+        status_tier_claims_cost: reward.status_tier_claims_cost as Record<string, number> | null,
         delivery_method: (reward.delivery_method || 'email') as DeliveryMethod,
         required_user_data: reward.required_user_data as RequiredDataField[] | null,
         claim_count: claimCounts[reward.id] || 0,
@@ -288,6 +318,7 @@ export function AdminRewards() {
       }));
 
       setRewards(enrichedRewards as Reward[]);
+      setOriginalRewards(JSON.parse(JSON.stringify(enrichedRewards)));
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -297,6 +328,128 @@ export function AdminRewards() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper to check if reward has tier pricing
+  const hasTierPricing = (reward: Reward): boolean => {
+    if (!reward.status_tier_claims_cost) return false;
+    const costs = reward.status_tier_claims_cost;
+    const values = Object.values(costs).filter(v => typeof v === 'number');
+    if (values.length === 0) return false;
+    return values.some(v => v !== reward.cost && v !== null);
+  };
+
+  // Check for unsaved order changes
+  const hasOrderChanges = useMemo(() => {
+    if (!orderMode) return false;
+    return rewards.some(reward => {
+      const original = originalRewards.find(r => r.id === reward.id);
+      return !original || reward.display_order !== original.display_order;
+    });
+  }, [rewards, originalRewards, orderMode]);
+
+  // Drag handlers for row ordering
+  const handleRowDragStart = (e: React.DragEvent, id: string) => {
+    if (!orderMode) return;
+    setDraggedId(id);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', id);
+  };
+
+  const handleRowDragOver = (e: React.DragEvent, id: string) => {
+    e.preventDefault();
+    if (orderMode && draggedId && draggedId !== id) {
+      setDragOverId(id);
+    }
+  };
+
+  const handleRowDragLeave = () => {
+    setDragOverId(null);
+  };
+
+  const handleRowDrop = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    setDragOverId(null);
+
+    if (!orderMode || !draggedId || draggedId === targetId) {
+      setDraggedId(null);
+      return;
+    }
+
+    setRewards(prev => {
+      const sorted = [...prev].sort((a, b) => a.display_order - b.display_order);
+      const draggedIdx = sorted.findIndex(r => r.id === draggedId);
+      const targetIdx = sorted.findIndex(r => r.id === targetId);
+
+      if (draggedIdx === -1 || targetIdx === -1) return prev;
+
+      const [dragged] = sorted.splice(draggedIdx, 1);
+      sorted.splice(targetIdx, 0, dragged);
+
+      return sorted.map((r, i) => ({ ...r, display_order: i + 1 }));
+    });
+
+    setDraggedId(null);
+  };
+
+  const handleRowDragEnd = () => {
+    setDraggedId(null);
+    setDragOverId(null);
+  };
+
+  // Move selected to top/bottom
+  const moveSelectedToPosition = (position: 'top' | 'bottom') => {
+    if (selectedIds.size === 0) return;
+
+    setRewards(prev => {
+      const sorted = [...prev].sort((a, b) => a.display_order - b.display_order);
+      const selected = sorted.filter(r => selectedIds.has(r.id));
+      const unselected = sorted.filter(r => !selectedIds.has(r.id));
+
+      const reordered = position === 'top' 
+        ? [...selected, ...unselected] 
+        : [...unselected, ...selected];
+
+      return reordered.map((r, i) => ({ ...r, display_order: i + 1 }));
+    });
+    setSelectedIds(new Set());
+  };
+
+  // Save order changes
+  const saveOrderChanges = async () => {
+    setSavingOrder(true);
+    try {
+      const updates = rewards.filter(r => {
+        const original = originalRewards.find(o => o.id === r.id);
+        return !original || r.display_order !== original.display_order;
+      });
+
+      for (const reward of updates) {
+        const { error } = await supabase
+          .from('rewards')
+          .update({ display_order: reward.display_order })
+          .eq('id', reward.id);
+
+        if (error) throw error;
+      }
+
+      setOriginalRewards(JSON.parse(JSON.stringify(rewards)));
+      toast({ title: 'Order Saved', description: `Updated ${updates.length} reward positions` });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to save order',
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingOrder(false);
+    }
+  };
+
+  // Discard order changes
+  const discardOrderChanges = () => {
+    setRewards(JSON.parse(JSON.stringify(originalRewards)));
+    setSelectedIds(new Set());
   };
 
   // Filtered and sorted rewards
@@ -310,6 +463,14 @@ export function AdminRewards() {
       // Category filter
       if (categoryFilter !== 'all' && reward.category !== categoryFilter) {
         return false;
+      }
+      
+      // Status access filter
+      if (statusAccessFilter !== 'all') {
+        if (statusAccessFilter === 'unrestricted' && reward.min_status_tier) return false;
+        if (statusAccessFilter === 'tiered-pricing' && !hasTierPricing(reward)) return false;
+        if (['bronze', 'silver', 'gold', 'platinum', 'diamond'].includes(statusAccessFilter) && 
+            reward.min_status_tier !== statusAccessFilter) return false;
       }
       
       // Status filter
@@ -345,24 +506,24 @@ export function AdminRewards() {
       return true;
     });
 
-    // Sort
-    filtered.sort((a, b) => {
-      let aVal: any = a[sortField];
-      let bVal: any = b[sortField];
-      
-      // Handle nulls
-      if (aVal === null) aVal = sortField === 'stock_quantity' ? Infinity : '';
-      if (bVal === null) bVal = sortField === 'stock_quantity' ? Infinity : '';
-      
-      if (typeof aVal === 'string') {
-        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-      }
-      
-      return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
-    });
+    // Sort by display_order when in order mode, otherwise by selected sort
+    if (orderMode) {
+      filtered.sort((a, b) => a.display_order - b.display_order);
+    } else {
+      filtered.sort((a, b) => {
+        let aVal: any = a[sortField];
+        let bVal: any = b[sortField];
+        if (aVal === null) aVal = sortField === 'stock_quantity' ? Infinity : '';
+        if (bVal === null) bVal = sortField === 'stock_quantity' ? Infinity : '';
+        if (typeof aVal === 'string') {
+          return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        }
+        return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+      });
+    }
 
     return filtered;
-  }, [rewards, searchTerm, categoryFilter, statusFilter, sortField, sortDirection]);
+  }, [rewards, searchTerm, categoryFilter, statusFilter, statusAccessFilter, sortField, sortDirection, orderMode]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -946,10 +1107,10 @@ export function AdminRewards() {
         </PermissionGate>
       </div>
 
-      {/* Filters */}
+      {/* Filters & Order Mode Toggle */}
       <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
+        <CardContent className="p-4 space-y-4">
+          <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
@@ -960,7 +1121,7 @@ export function AdminRewards() {
               />
             </div>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full md:w-48">
+              <SelectTrigger className="w-full lg:w-44">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
@@ -970,7 +1131,7 @@ export function AdminRewards() {
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48">
+              <SelectTrigger className="w-full lg:w-44">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -979,6 +1140,51 @@ export function AdminRewards() {
                 ))}
               </SelectContent>
             </Select>
+            <Select value={statusAccessFilter} onValueChange={setStatusAccessFilter}>
+              <SelectTrigger className="w-full lg:w-48">
+                <SelectValue placeholder="Status Access" />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_ACCESS_FILTERS.map(access => (
+                  <SelectItem key={access.value} value={access.value}>{access.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Order Mode Toggle */}
+          <div className="flex items-center justify-between pt-4 border-t">
+            <div className="flex items-center gap-3">
+              <Switch 
+                id="order-mode"
+                checked={orderMode}
+                onCheckedChange={setOrderMode}
+              />
+              <label htmlFor="order-mode" className="text-sm font-medium cursor-pointer flex items-center gap-2">
+                <GripVertical className="w-4 h-4" />
+                Reorder Mode
+              </label>
+              {orderMode && (
+                <Badge variant="outline" className="text-xs">Drag rows to reorder</Badge>
+              )}
+            </div>
+            
+            {hasOrderChanges && (
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="bg-warning/10 text-warning border-warning/20">
+                  <AlertTriangle className="w-3 h-3 mr-1" />
+                  Unsaved Changes
+                </Badge>
+                <Button variant="outline" size="sm" onClick={discardOrderChanges}>
+                  <RotateCcw className="w-4 h-4 mr-1" />
+                  Discard
+                </Button>
+                <Button size="sm" onClick={saveOrderChanges} disabled={savingOrder}>
+                  {savingOrder ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Save className="w-4 h-4 mr-1" />}
+                  Save Order
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -988,6 +1194,19 @@ export function AdminRewards() {
         <div className="flex flex-wrap items-center gap-4 p-4 bg-primary/5 border rounded-lg">
           <span className="font-medium">{selectedIds.size} selected</span>
           <div className="flex flex-wrap gap-2">
+            {orderMode && (
+              <>
+                <Button size="sm" variant="outline" onClick={() => moveSelectedToPosition('top')} className="gap-1">
+                  <ArrowUp className="w-3 h-3" />
+                  Move to Top
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => moveSelectedToPosition('bottom')} className="gap-1">
+                  <ArrowDown className="w-3 h-3" />
+                  Move to Bottom
+                </Button>
+                <div className="h-6 w-px bg-border mx-1" />
+              </>
+            )}
             <Button size="sm" variant="outline" onClick={() => bulkAction('activate')}>Activate</Button>
             <Button size="sm" variant="outline" onClick={() => bulkAction('deactivate')}>Deactivate</Button>
             <Button size="sm" variant="outline" onClick={() => bulkAction('feature')}>Feature</Button>

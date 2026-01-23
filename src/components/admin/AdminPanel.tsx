@@ -5,7 +5,6 @@ import { AdminSidebar } from './AdminSidebar';
 import { AdminDashboard } from './AdminDashboard';
 import { AdminSubmissions } from './AdminSubmissions';
 import { AdminRewards } from './AdminRewards';
-import { AdminRewardOrdering } from './AdminRewardOrdering';
 import { AdminClaims } from './AdminClaims';
 import { AdminBrands } from './AdminBrands';
 import { AdminPurchases } from './AdminPurchases';
@@ -40,8 +39,6 @@ export function AdminPanel() {
         return <AdminSubmissions />;
       case 'rewards':
         return <AdminRewards />;
-      case 'reward-ordering':
-        return <AdminRewardOrdering />;
       case 'sponsored-rewards':
         return <AdminSponsoredRewards />;
       case 'campaigns':
