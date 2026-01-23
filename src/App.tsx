@@ -336,8 +336,8 @@ function AppRoutes() {
 
       {/* Userback feedback widget loads automatically via index.html script */}
       
-      {/* Developer tools panel */}
-      <DevToolsPanel />
+      {/* Developer tools panel - only in development */}
+      {import.meta.env.DEV && <DevToolsPanel />}
     </div>
   );
 }
