@@ -1,14 +1,11 @@
 import { useState, useEffect } from "react";
 import { X, FlaskConical } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { openUserbackWidget } from "@/lib/userback";
 
 const BETA_BANNER_DISMISSED_KEY = "crescendo_beta_banner_dismissed";
 
-interface BetaBannerProps {
-  onFeedbackClick?: () => void;
-}
-
-export function BetaBanner({ onFeedbackClick }: BetaBannerProps) {
+export function BetaBanner() {
   const [isDismissed, setIsDismissed] = useState(true); // Start hidden to prevent flash
 
   useEffect(() => {
@@ -30,16 +27,12 @@ export function BetaBanner({ onFeedbackClick }: BetaBannerProps) {
         <span className="font-medium">Beta</span>
         <span className="hidden sm:inline">—</span>
         <span className="hidden sm:inline">Help us improve!</span>
-        {onFeedbackClick ? (
-          <button
-            onClick={onFeedbackClick}
-            className="underline underline-offset-2 hover:no-underline font-medium"
-          >
-            Give Feedback
-          </button>
-        ) : (
-          <span className="text-white/80">Your feedback shapes the future</span>
-        )}
+        <button
+          onClick={openUserbackWidget}
+          className="underline underline-offset-2 hover:no-underline font-medium"
+        >
+          Your feedback shapes the future
+        </button>
         <Button
           variant="ghost"
           size="icon"
