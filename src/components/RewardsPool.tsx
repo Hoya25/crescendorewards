@@ -724,7 +724,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
           {/* Category Tabs - main visible filters */}
           <div className="relative">
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide scroll-smooth">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide scroll-smooth snap-x snap-mandatory">
             {[
               { key: 'all', label: 'All', icon: Gift, filter: 'category' },
               { key: 'featured', label: 'Featured', icon: Star, filter: 'featured' },
@@ -744,7 +744,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                   variant={isActive ? 'default' : 'outline'}
                   size="sm"
                   className={cn(
-                    "flex-shrink-0 gap-2 rounded-full transition-all",
+                    "flex-shrink-0 gap-2 rounded-full transition-all min-h-[44px] snap-start",
                     isActive && "shadow-md",
                     key === 'featured' && "border-amber-400/50 hover:border-amber-500",
                     key === 'sponsored' && "border-primary/50 hover:border-primary"

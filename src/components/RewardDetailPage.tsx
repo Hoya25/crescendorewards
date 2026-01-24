@@ -523,7 +523,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
       </div>
 
       {/* Main Content - Two Columns */}
-      <div className="max-w-7xl mx-auto px-4 py-6 lg:py-10">
+      <div className="max-w-7xl mx-auto px-4 py-6 lg:py-10 pb-32 lg:pb-10">
         {/* Beta Testing Notice */}
         <BetaTestingNotice variant="rewards" className="mb-6" />
         
@@ -987,8 +987,8 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
       </div>
 
       {/* Mobile Sticky Bottom Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-4 z-40">
-        <div className="flex items-center gap-4">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-4 z-40 safe-area-inset-bottom">
+        <div className="flex items-center gap-4 max-w-7xl mx-auto">
           <div className="flex-1">
             {isLocked ? (
               <p className="text-muted-foreground flex items-center gap-1">

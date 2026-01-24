@@ -59,6 +59,7 @@ export function SponsoredRewardsCarousel() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const { tier } = useUnifiedUser();
   const { favorites, toggleFavorite, animatingIds } = useFavorites();
 
@@ -73,6 +74,11 @@ export function SponsoredRewardsCarousel() {
     const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
     setCanScrollLeft(scrollLeft > 0);
     setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    
+    // Calculate current visible card index
+    const cardWidth = 320;
+    const newIndex = Math.round(scrollLeft / cardWidth);
+    setCurrentIndex(Math.min(newIndex, rewards.length - 1));
   };
 
   useEffect(() => {
@@ -86,9 +92,15 @@ export function SponsoredRewardsCarousel() {
 
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollContainerRef.current) return;
-    const cardWidth = 340;
+    const cardWidth = 320;
     const scrollAmount = direction === 'left' ? -cardWidth : cardWidth;
     scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  };
+
+  const scrollToIndex = (index: number) => {
+    if (!scrollContainerRef.current) return;
+    const cardWidth = 320;
+    scrollContainerRef.current.scrollTo({ left: index * cardWidth, behavior: 'smooth' });
   };
 
   const handleToggleFavorite = (rewardId: string, e: React.MouseEvent) => {
@@ -171,13 +183,13 @@ export function SponsoredRewardsCarousel() {
         {/* Scroll Container */}
         <div
           ref={scrollContainerRef}
-          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-2 -mx-2 px-2"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-2 -mx-2 px-2 touch-pan-x"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
         >
           {rewards.map((reward) => (
             <div
               key={reward.id}
-              className="flex-shrink-0 w-[280px] md:w-[320px] snap-start"
+              className="flex-shrink-0 w-[280px] md:w-[320px] snap-start transition-transform duration-200 active:scale-[0.98]"
             >
               <VisualRewardCard
                 reward={reward}
@@ -207,15 +219,19 @@ export function SponsoredRewardsCarousel() {
         </Button>
       </div>
 
-      {/* Mobile scroll indicator */}
-      <div className="flex justify-center gap-1 md:hidden">
-        {rewards.slice(0, 5).map((_, i) => (
-          <div
+      {/* Mobile scroll indicator with active state */}
+      <div className="flex justify-center gap-1.5 md:hidden pt-2">
+        {rewards.slice(0, Math.min(5, rewards.length)).map((_, i) => (
+          <button
             key={i}
+            onClick={() => scrollToIndex(i)}
             className={cn(
-              "w-2 h-2 rounded-full transition-colors",
-              i === 0 ? "bg-primary" : "bg-muted"
+              "h-1.5 rounded-full transition-all duration-300",
+              currentIndex === i 
+                ? "w-6 bg-primary" 
+                : "w-1.5 bg-primary/30 hover:bg-primary/50"
             )}
+            aria-label={`Go to slide ${i + 1}`}
           />
         ))}
       </div>
