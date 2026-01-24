@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -33,9 +34,31 @@ import {
 import { toast } from 'sonner';
 import { 
   Plus, Users, DollarSign, Sparkles, Building2, 
-  Edit, Trash2, ExternalLink 
+  Edit, Trash2, ExternalLink, User 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+
+interface MemberActivation {
+  id: string;
+  user_id: string;
+  partner_id: string;
+  status: string;
+  activated_at: string | null;
+  selected_creator_name: string | null;
+  selected_creator_url: string | null;
+  selected_creator_platform: string | null;
+  partner?: {
+    name: string;
+    benefit_title: string;
+    is_creator_subscription: boolean;
+    creator_platform: string | null;
+  };
+  user?: {
+    display_name: string | null;
+    email: string | null;
+  };
+}
 
 interface AlliancePartner {
   id: string;
@@ -140,6 +163,39 @@ export function AdminAlliancePartners() {
       return data as AlliancePartner[];
     },
   });
+
+  // Fetch member activations (for creator subscriptions)
+  const { data: memberActivations = [] } = useQuery({
+    queryKey: ['admin-member-activations'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('member_active_benefits')
+        .select(`
+          id,
+          user_id,
+          partner_id,
+          status,
+          activated_at,
+          selected_creator_name,
+          selected_creator_url,
+          selected_creator_platform,
+          partner:alliance_partners(name, benefit_title, is_creator_subscription, creator_platform),
+          user:unified_profiles(display_name, email)
+        `)
+        .eq('status', 'active')
+        .order('activated_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as unknown as MemberActivation[];
+    },
+  });
+
+  // Filter to just creator subscriptions with selected creators
+  const creatorActivations = useMemo(() => {
+    return memberActivations.filter(
+      a => a.partner?.is_creator_subscription && a.selected_creator_name
+    );
+  }, [memberActivations]);
 
   // Create mutation
   const createMutation = useMutation({
@@ -375,111 +431,215 @@ export function AdminAlliancePartners() {
         </Card>
       </div>
 
-      {/* Partners Table by Category */}
-      {Object.entries(partnersByCategory).map(([category, categoryPartners]) => (
-        <Card key={category}>
-          <CardHeader>
-            <CardTitle className="capitalize">{category}</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Partner</TableHead>
-                  <TableHead>Benefit</TableHead>
-                  <TableHead>Value</TableHead>
-                  <TableHead>Min Tier</TableHead>
-                  <TableHead>Activations</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {categoryPartners.map(partner => (
-                  <TableRow key={partner.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        {partner.logo_url ? (
-                          <img 
-                            src={partner.logo_url} 
-                            alt={partner.name} 
-                            className="w-8 h-8 rounded object-cover"
-                          />
-                        ) : (
-                          <div className="w-8 h-8 rounded bg-muted flex items-center justify-center">
-                            <Building2 className="w-4 h-4 text-muted-foreground" />
-                          </div>
-                        )}
-                        <div>
-                          <div className="font-medium flex items-center gap-2">
-                            {partner.name}
-                            {partner.is_creator_subscription && getPlatformBadge(partner.creator_platform)}
-                          </div>
-                          {partner.short_description && (
-                            <div className="text-xs text-muted-foreground truncate max-w-[200px]">
-                              {partner.short_description}
+      {/* Tabs for Partners vs Member Activations */}
+      <Tabs defaultValue="partners" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="partners">Partner Catalog</TabsTrigger>
+          <TabsTrigger value="activations">
+            Member Activations
+            {creatorActivations.length > 0 && (
+              <Badge variant="secondary" className="ml-2 text-xs">
+                {creatorActivations.length}
+              </Badge>
+            )}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="partners" className="space-y-4">
+          {/* Partners Table by Category */}
+          {Object.entries(partnersByCategory).map(([category, categoryPartners]) => (
+            <Card key={category}>
+              <CardHeader>
+                <CardTitle className="capitalize">{category}</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Partner</TableHead>
+                      <TableHead>Benefit</TableHead>
+                      <TableHead>Value</TableHead>
+                      <TableHead>Min Tier</TableHead>
+                      <TableHead>Activations</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {categoryPartners.map(partner => (
+                      <TableRow key={partner.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            {partner.logo_url ? (
+                              <img 
+                                src={partner.logo_url} 
+                                alt={partner.name} 
+                                className="w-8 h-8 rounded object-cover"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 rounded bg-muted flex items-center justify-center">
+                                <Building2 className="w-4 h-4 text-muted-foreground" />
+                              </div>
+                            )}
+                            <div>
+                              <div className="font-medium flex items-center gap-2">
+                                {partner.name}
+                                {partner.is_creator_subscription && getPlatformBadge(partner.creator_platform)}
+                              </div>
+                              {partner.short_description && (
+                                <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+                                  {partner.short_description}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{partner.benefit_title}</TableCell>
-                    <TableCell>${partner.monthly_value}/mo</TableCell>
-                    <TableCell>
-                      <Badge className={cn('capitalize', TIER_COLORS[partner.min_tier])}>
-                        {partner.min_tier}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{partner.total_activations || 0}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        {partner.is_active ? (
-                          <Badge variant="default">Active</Badge>
-                        ) : (
-                          <Badge variant="secondary">Inactive</Badge>
-                        )}
-                        {partner.is_featured && (
-                          <Badge variant="outline" className="border-primary text-primary">
-                            Featured
+                          </div>
+                        </TableCell>
+                        <TableCell>{partner.benefit_title}</TableCell>
+                        <TableCell>${partner.monthly_value}/mo</TableCell>
+                        <TableCell>
+                          <Badge className={cn('capitalize', TIER_COLORS[partner.min_tier])}>
+                            {partner.min_tier}
                           </Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        {partner.website_url && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => window.open(partner.website_url!, '_blank')}
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                          </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openEditModal(partner)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(partner)}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      ))}
+                        </TableCell>
+                        <TableCell>{partner.total_activations || 0}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            {partner.is_active ? (
+                              <Badge variant="default">Active</Badge>
+                            ) : (
+                              <Badge variant="secondary">Inactive</Badge>
+                            )}
+                            {partner.is_featured && (
+                              <Badge variant="outline" className="border-primary text-primary">
+                                Featured
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {partner.website_url && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => window.open(partner.website_url!, '_blank')}
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </Button>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => openEditModal(partner)}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleDelete(partner)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          ))}
+        </TabsContent>
+
+        <TabsContent value="activations">
+          <Card>
+            <CardHeader>
+              <CardTitle>Member Creator Subscriptions</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                View which creators members have selected for their subscription benefits
+              </p>
+            </CardHeader>
+            <CardContent className="p-0">
+              {creatorActivations.length === 0 ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  No creator subscription activations yet
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Member</TableHead>
+                      <TableHead>Benefit Type</TableHead>
+                      <TableHead>Platform</TableHead>
+                      <TableHead>Selected Creator</TableHead>
+                      <TableHead>Activated</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {creatorActivations.map(activation => (
+                      <TableRow key={activation.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <User className="w-4 h-4 text-muted-foreground" />
+                            <div>
+                              <div className="font-medium">
+                                {activation.user?.display_name || 'Unknown User'}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {activation.user?.email}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {activation.partner?.benefit_title || 'Creator Subscription'}
+                        </TableCell>
+                        <TableCell>
+                          {getPlatformBadge(activation.selected_creator_platform || activation.partner?.creator_platform || null)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-medium">{activation.selected_creator_name}</div>
+                          {activation.selected_creator_url && (
+                            <a 
+                              href={activation.selected_creator_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-primary hover:underline flex items-center gap-1"
+                            >
+                              View Channel
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {activation.activated_at 
+                            ? format(new Date(activation.activated_at), 'MMM d, yyyy')
+                            : 'N/A'
+                          }
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {activation.selected_creator_url && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => window.open(activation.selected_creator_url!, '_blank')}
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Add/Edit Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
