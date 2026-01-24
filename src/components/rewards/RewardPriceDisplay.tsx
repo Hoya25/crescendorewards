@@ -88,8 +88,11 @@ export function RewardPriceDisplay({
     );
   }
 
-  // FREE for user's tier - show tier name+ only
+  // FREE for user's tier - show the LOWEST tier that gets free access
   if (pricing.isFree) {
+    const lowestFreeTier = getLowestFreeTier(reward.status_tier_claims_cost);
+    const displayTier = lowestFreeTier || 'Bronze';
+    
     return (
       <div className={cn('space-y-1', className)}>
         <Badge 
@@ -99,7 +102,7 @@ export function RewardPriceDisplay({
             'text-emerald-600 border-emerald-500/30 bg-emerald-500/10 px-2 py-1'
           )}
         >
-          {tierDisplayName}+
+          {displayTier}+
         </Badge>
         {pricing.originalPrice > 0 && showTierBenefit && (
           <p className={cn(styles.original, 'text-muted-foreground')}>
@@ -153,6 +156,28 @@ export function RewardPriceDisplay({
   );
 }
 
+// Helper to find the lowest tier with free (0 cost) access
+const TIER_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
+
+function getLowestFreeTier(tierCosts: unknown): string | null {
+  if (!tierCosts || typeof tierCosts !== 'object') return null;
+  
+  // Cast to Record<string, number> to handle TierPricing interface
+  const costs = tierCosts as Record<string, number>;
+  const freeTiers = Object.entries(costs)
+    .filter(([_, cost]) => cost === 0)
+    .map(([tier]) => tier.toLowerCase());
+  
+  if (freeTiers.length === 0) return null;
+  
+  for (const tier of TIER_ORDER) {
+    if (freeTiers.includes(tier)) {
+      return getTierDisplayName(tier);
+    }
+  }
+  return null;
+}
+
 // Compact version for card display
 export function RewardPriceCompact({
   reward,
@@ -164,10 +189,8 @@ export function RewardPriceCompact({
   className?: string;
 }) {
   const pricing = getRewardPriceForUser(reward, userTier);
-  const tierDisplayName = getTierDisplayName(userTier);
   
   // Check if locked - use metal tier order
-  const TIER_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
   const normalizedUserTier = userTier.toLowerCase();
   const normalizedMinTier = reward.min_status_tier?.toLowerCase() || '';
   const userTierIndex = TIER_ORDER.indexOf(normalizedUserTier);
@@ -185,18 +208,24 @@ export function RewardPriceCompact({
     );
   }
 
-  // FREE for user's tier - show tier name+ only
+  // FREE for user's tier - show the LOWEST tier that gets free access, not user's tier
   if (pricing.isFree) {
+    // Find the lowest tier with free access from tier pricing
+    const lowestFreeTier = getLowestFreeTier(reward.status_tier_claims_cost);
+    // If no tier pricing but cost is 0, it's free for all
+    const displayTier = lowestFreeTier || 'Bronze';
+    
     return (
       <div className={cn('flex items-center gap-2', className)}>
         <Badge variant="outline" className="text-emerald-600 border-emerald-500/30 bg-emerald-500/10 text-sm px-2 py-1">
-          {tierDisplayName}+
+          {displayTier}+
         </Badge>
       </div>
     );
   }
 
   if (pricing.discount > 0) {
+    const userTierDisplayName = getTierDisplayName(userTier);
     return (
       <div className={cn('flex items-center gap-2', className)}>
         <span className="text-xl font-bold text-primary flex items-center">
@@ -207,7 +236,7 @@ export function RewardPriceCompact({
           {pricing.originalPrice}
         </span>
         <Badge variant="secondary" className="text-xs bg-emerald-500/10 text-emerald-600">
-          {tierDisplayName} Price
+          {userTierDisplayName} Price
         </Badge>
       </div>
     );
