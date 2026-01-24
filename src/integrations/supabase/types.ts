@@ -1041,6 +1041,7 @@ export type Database = {
           linked_sponsor_id: string | null
           min_status_tier: string | null
           minimum_token_balance: number | null
+          publish_at: string | null
           required_user_data: Json | null
           revenue_share_percent: number | null
           sponsor_cta_text: string | null
@@ -1060,6 +1061,7 @@ export type Database = {
           token_gated: boolean | null
           token_name: string | null
           token_symbol: string | null
+          unpublish_at: string | null
           updated_at: string
         }
         Insert: {
@@ -1082,6 +1084,7 @@ export type Database = {
           linked_sponsor_id?: string | null
           min_status_tier?: string | null
           minimum_token_balance?: number | null
+          publish_at?: string | null
           required_user_data?: Json | null
           revenue_share_percent?: number | null
           sponsor_cta_text?: string | null
@@ -1101,6 +1104,7 @@ export type Database = {
           token_gated?: boolean | null
           token_name?: string | null
           token_symbol?: string | null
+          unpublish_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -1123,6 +1127,7 @@ export type Database = {
           linked_sponsor_id?: string | null
           min_status_tier?: string | null
           minimum_token_balance?: number | null
+          publish_at?: string | null
           required_user_data?: Json | null
           revenue_share_percent?: number | null
           sponsor_cta_text?: string | null
@@ -1142,6 +1147,7 @@ export type Database = {
           token_gated?: boolean | null
           token_name?: string | null
           token_symbol?: string | null
+          unpublish_at?: string | null
           updated_at?: string
         }
         Relationships: [

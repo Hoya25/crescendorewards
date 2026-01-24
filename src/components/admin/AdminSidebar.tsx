@@ -1,4 +1,9 @@
-import { LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, Heart, TrendingUp, Building2, RefreshCw, Megaphone, Shield, Activity, Package, MessageSquare, Coins, Bell } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { 
+  LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, 
+  Heart, TrendingUp, Building2, Megaphone, Shield, Activity, Package, MessageSquare, 
+  Coins, Bell, ChevronDown, ChevronRight
+} from 'lucide-react';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { cn } from '@/lib/utils';
@@ -13,6 +18,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { AdminPermission } from '@/types/admin';
 
 interface AdminSidebarProps {
@@ -47,44 +53,110 @@ interface MenuItem {
   title: string;
   view: string;
   icon: React.ComponentType<{ className?: string }>;
-  badgeKey: 'total' | 'claims' | 'submissions' | null;
+  badgeKey?: 'total' | 'claims' | 'submissions' | null;
   permission?: AdminPermission;
 }
 
-const menuItems: MenuItem[] = [
-  { title: 'Dashboard', view: 'dashboard', icon: LayoutDashboard, badgeKey: 'total' },
-  { title: 'Users', view: 'users', icon: Users, badgeKey: null, permission: 'users_view' },
-  { title: 'User Notifications', view: 'user-notifications', icon: Bell, badgeKey: null, permission: 'users_view' },
-  { title: 'Submissions', view: 'submissions', icon: FileCheck, badgeKey: 'submissions', permission: 'submissions_view' },
-  { title: 'Rewards', view: 'rewards', icon: Gift, badgeKey: null, permission: 'rewards_view' },
-  { title: 'Campaigns', view: 'campaigns', icon: Megaphone, badgeKey: null, permission: 'sponsors_view' },
-  { title: 'Claims', view: 'claims', icon: ShoppingBag, badgeKey: 'claims', permission: 'claims_view' },
-  { title: 'Gifts', view: 'gifts', icon: Gift, badgeKey: null, permission: 'claims_view' },
-  { title: 'Purchases', view: 'purchases', icon: Receipt, badgeKey: null, permission: 'claims_view' },
-  { title: 'Packages', view: 'packages', icon: Package, badgeKey: null, permission: 'rewards_edit' },
-  { title: 'Brands', view: 'brands', icon: Store, badgeKey: null, permission: 'brands_view' },
-  { title: 'Sponsors', view: 'sponsors', icon: Building2, badgeKey: null, permission: 'sponsors_view' },
-  { title: 'Sponsor Applications', view: 'sponsor-applications', icon: FileCheck, badgeKey: null, permission: 'sponsors_view' },
-  { title: 'Wishlists', view: 'wishlists', icon: Heart, badgeKey: null, permission: 'users_view' },
-  { title: 'Wishlist Analytics', view: 'wishlist-analytics', icon: TrendingUp, badgeKey: null, permission: 'users_view' },
-  { title: 'Sync Verification', view: 'sync-verification', icon: RefreshCw, badgeKey: null, permission: 'settings_view' },
-  { title: 'Earning Opps', view: 'earning', icon: Coins, badgeKey: null, permission: 'rewards_edit' },
-  { title: 'Shop Settings', view: 'shop-settings', icon: ShoppingBag, badgeKey: null, permission: 'settings_edit' },
+interface MenuGroup {
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  items: MenuItem[];
+  defaultOpen?: boolean;
+}
+
+// Organized menu groups
+const MENU_GROUPS: MenuGroup[] = [
+  {
+    title: 'Content',
+    icon: Gift,
+    defaultOpen: true,
+    items: [
+      { title: 'Rewards', view: 'rewards', icon: Gift, permission: 'rewards_view' },
+      { title: 'Sponsors', view: 'sponsors', icon: Building2, permission: 'sponsors_view' },
+      { title: 'Campaigns', view: 'campaigns', icon: Megaphone, permission: 'sponsors_view' },
+      { title: 'Brands', view: 'brands', icon: Store, permission: 'brands_view' },
+      { title: 'Earning Opps', view: 'earning', icon: Coins, permission: 'rewards_edit' },
+    ],
+  },
+  {
+    title: 'Orders & Claims',
+    icon: ShoppingBag,
+    defaultOpen: true,
+    items: [
+      { title: 'Claims', view: 'claims', icon: ShoppingBag, badgeKey: 'claims', permission: 'claims_view' },
+      { title: 'Purchases', view: 'purchases', icon: Receipt, permission: 'claims_view' },
+      { title: 'Gifts', view: 'gifts', icon: Gift, permission: 'claims_view' },
+    ],
+  },
+  {
+    title: 'Users',
+    icon: Users,
+    defaultOpen: false,
+    items: [
+      { title: 'Users', view: 'users', icon: Users, permission: 'users_view' },
+      { title: 'Notifications', view: 'user-notifications', icon: Bell, permission: 'users_view' },
+      { title: 'Submissions', view: 'submissions', icon: FileCheck, badgeKey: 'submissions', permission: 'submissions_view' },
+      { title: 'Sponsor Apps', view: 'sponsor-applications', icon: FileCheck, permission: 'sponsors_view' },
+      { title: 'Feedback', view: 'feedback', icon: MessageSquare, permission: 'admins_view' },
+    ],
+  },
+  {
+    title: 'Analytics',
+    icon: TrendingUp,
+    defaultOpen: false,
+    items: [
+      { title: 'Dashboard', view: 'dashboard', icon: LayoutDashboard, badgeKey: 'total' },
+      { title: 'Wishlists', view: 'wishlists', icon: Heart, permission: 'users_view' },
+      { title: 'Wishlist Analytics', view: 'wishlist-analytics', icon: TrendingUp, permission: 'users_view' },
+      { title: 'Activity Log', view: 'activity', icon: Activity, permission: 'admins_view' },
+    ],
+  },
+  {
+    title: 'Settings',
+    icon: Settings,
+    defaultOpen: false,
+    items: [
+      { title: 'Packages', view: 'packages', icon: Package, permission: 'rewards_edit' },
+      { title: 'Shop Settings', view: 'shop-settings', icon: ShoppingBag, permission: 'settings_edit' },
+      { title: 'Team', view: 'team', icon: Shield, permission: 'admins_view' },
+      { title: 'Settings', view: 'settings', icon: Settings, permission: 'settings_edit' },
+    ],
+  },
 ];
 
-const adminManagementItems: MenuItem[] = [
-  { title: 'Team', view: 'team', icon: Shield, badgeKey: null, permission: 'admins_view' },
-  { title: 'Activity Log', view: 'activity', icon: Activity, badgeKey: null, permission: 'admins_view' },
-  { title: 'Feedback', view: 'feedback', icon: MessageSquare, badgeKey: null, permission: 'admins_view' },
-  { title: 'Settings', view: 'settings', icon: Settings, badgeKey: null, permission: 'settings_edit' },
-];
+const STORAGE_KEY = 'admin-sidebar-expanded-groups';
 
 export function AdminSidebar({ onNavigate, currentView }: AdminSidebarProps) {
   const { open } = useSidebar();
   const { pendingClaims, pendingSubmissions, totalPending } = useAdminNotifications();
   const { hasPermission, isSuperAdmin } = useAdminRole();
 
-  const getBadgeCount = (badgeKey: 'total' | 'claims' | 'submissions' | null): number => {
+  // Load expanded state from localStorage
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    // Default expanded state
+    return MENU_GROUPS.reduce((acc, group) => {
+      acc[group.title] = group.defaultOpen ?? false;
+      return acc;
+    }, {} as Record<string, boolean>);
+  });
+
+  // Save expanded state to localStorage
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(expandedGroups));
+  }, [expandedGroups]);
+
+  const toggleGroup = (title: string) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [title]: !prev[title],
+    }));
+  };
+
+  const getBadgeCount = (badgeKey?: 'total' | 'claims' | 'submissions' | null): number => {
     switch (badgeKey) {
       case 'total':
         return totalPending;
@@ -103,8 +175,15 @@ export function AdminSidebar({ onNavigate, currentView }: AdminSidebarProps) {
     return hasPermission(item.permission);
   };
 
-  const visibleMenuItems = menuItems.filter(canViewItem);
-  const visibleAdminItems = adminManagementItems.filter(canViewItem);
+  // Check if a group contains the current view
+  const groupContainsCurrentView = (group: MenuGroup): boolean => {
+    return group.items.some(item => item.view === currentView);
+  };
+
+  // Get total badge count for a group
+  const getGroupBadgeCount = (group: MenuGroup): number => {
+    return group.items.reduce((total, item) => total + getBadgeCount(item.badgeKey), 0);
+  };
 
   return (
     <Sidebar className={open ? 'w-60' : 'w-14'} collapsible="icon">
@@ -116,63 +195,110 @@ export function AdminSidebar({ onNavigate, currentView }: AdminSidebarProps) {
           </div>
         </div>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Management</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {visibleMenuItems.map((item) => {
-                const badgeCount = getBadgeCount(item.badgeKey);
-                
-                return (
-                  <SidebarMenuItem key={item.view}>
-                    <SidebarMenuButton
-                      onClick={() => onNavigate(item.view)}
-                      className={`cursor-pointer ${
-                        currentView === item.view ? 'bg-accent text-accent-foreground' : ''
-                      }`}
-                    >
-                      <item.icon className="h-4 w-4 shrink-0" />
-                      {open && (
-                        <div className="flex items-center justify-between flex-1">
-                          <span>{item.title}</span>
-                          <NotificationBadge count={badgeCount} />
-                        </div>
-                      )}
-                      {!open && badgeCount > 0 && (
-                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-white">
-                          {badgeCount > 9 ? '!' : badgeCount}
-                        </span>
-                      )}
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <div className="py-2">
+          {MENU_GROUPS.map((group) => {
+            const visibleItems = group.items.filter(canViewItem);
+            if (visibleItems.length === 0) return null;
 
-        {visibleAdminItems.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Admin Team</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {visibleAdminItems.map((item) => (
-                  <SidebarMenuItem key={item.view}>
-                    <SidebarMenuButton
-                      onClick={() => onNavigate(item.view)}
-                      className={`cursor-pointer ${
-                        currentView === item.view ? 'bg-accent text-accent-foreground' : ''
-                      }`}
+            const isExpanded = expandedGroups[group.title] ?? group.defaultOpen;
+            const containsActive = groupContainsCurrentView(group);
+            const groupBadgeCount = getGroupBadgeCount(group);
+
+            // When sidebar is collapsed, show just icons
+            if (!open) {
+              return (
+                <SidebarGroup key={group.title} className="px-2">
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {visibleItems.slice(0, 2).map((item) => {
+                        const badgeCount = getBadgeCount(item.badgeKey);
+                        return (
+                          <SidebarMenuItem key={item.view}>
+                            <SidebarMenuButton
+                              onClick={() => onNavigate(item.view)}
+                              className={cn(
+                                "cursor-pointer relative",
+                                currentView === item.view && "bg-accent text-accent-foreground"
+                              )}
+                            >
+                              <item.icon className="h-4 w-4 shrink-0" />
+                              {badgeCount > 0 && (
+                                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-white">
+                                  {badgeCount > 9 ? '!' : badgeCount}
+                                </span>
+                              )}
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        );
+                      })}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+              );
+            }
+
+            return (
+              <Collapsible 
+                key={group.title} 
+                open={isExpanded} 
+                onOpenChange={() => toggleGroup(group.title)}
+              >
+                <SidebarGroup className="py-0">
+                  <CollapsibleTrigger asChild>
+                    <SidebarGroupLabel 
+                      className={cn(
+                        "cursor-pointer flex items-center justify-between px-4 py-2 text-xs font-semibold uppercase tracking-wider",
+                        "hover:bg-accent/50 transition-colors",
+                        containsActive && "text-primary"
+                      )}
                     >
-                      <item.icon className="h-4 w-4 shrink-0" />
-                      {open && <span>{item.title}</span>}
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+                      <div className="flex items-center gap-2">
+                        <group.icon className="h-3.5 w-3.5" />
+                        <span>{group.title}</span>
+                        {groupBadgeCount > 0 && (
+                          <NotificationBadge count={groupBadgeCount} />
+                        )}
+                      </div>
+                      {isExpanded ? (
+                        <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                      )}
+                    </SidebarGroupLabel>
+                  </CollapsibleTrigger>
+                  
+                  <CollapsibleContent>
+                    <SidebarGroupContent>
+                      <SidebarMenu>
+                        {visibleItems.map((item) => {
+                          const badgeCount = getBadgeCount(item.badgeKey);
+                          
+                          return (
+                            <SidebarMenuItem key={item.view}>
+                              <SidebarMenuButton
+                                onClick={() => onNavigate(item.view)}
+                                className={cn(
+                                  "cursor-pointer pl-8",
+                                  currentView === item.view && "bg-accent text-accent-foreground"
+                                )}
+                              >
+                                <item.icon className="h-4 w-4 shrink-0" />
+                                <div className="flex items-center justify-between flex-1">
+                                  <span>{item.title}</span>
+                                  <NotificationBadge count={badgeCount} />
+                                </div>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          );
+                        })}
+                      </SidebarMenu>
+                    </SidebarGroupContent>
+                  </CollapsibleContent>
+                </SidebarGroup>
+              </Collapsible>
+            );
+          })}
+        </div>
       </SidebarContent>
     </Sidebar>
   );
