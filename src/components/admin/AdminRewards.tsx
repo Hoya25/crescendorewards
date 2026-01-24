@@ -26,8 +26,10 @@ import {
   MoreHorizontal, Copy, ExternalLink, Gift, ChevronUp, ChevronDown,
   Minus, Search, Star, AlertTriangle, Heart, ShoppingCart, Package, Megaphone, Truck,
   Shield, GripVertical, Save, RotateCcw, Loader2, ArrowUp, ArrowDown, Undo2, Sparkles,
-  Filter
+  Filter, Clock, Eye, DollarSign, Calendar
 } from 'lucide-react';
+import { BulkTierPricingModal } from './BulkTierPricingModal';
+import { RewardPreviewDialog } from './RewardPreviewDialog';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { EditableCell } from './EditableCell';
@@ -72,6 +74,9 @@ interface Reward {
   // Status tier restriction
   min_status_tier: string | null;
   status_tier_claims_cost: Record<string, number> | null;
+  // Scheduling
+  publish_at: string | null;
+  unpublish_at: string | null;
 }
 
 interface Brand {
@@ -209,6 +214,12 @@ export function AdminRewards() {
     sponsor_end_date: '',
   });
   const [bulkSponsorSaving, setBulkSponsorSaving] = useState(false);
+  
+  // Bulk tier pricing modal
+  const [showBulkTierPricingModal, setShowBulkTierPricingModal] = useState(false);
+  
+  // Preview modal
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
   
   // Delete confirmation
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -1441,6 +1452,10 @@ export function AdminRewards() {
             <Button size="sm" variant="outline" onClick={() => bulkAction('feature')}>Feature</Button>
             <Button size="sm" variant="outline" onClick={() => bulkAction('unfeature')}>Unfeature</Button>
             <div className="h-6 w-px bg-border mx-1" />
+            <Button size="sm" variant="outline" onClick={() => setShowBulkTierPricingModal(true)} className="gap-1">
+              <DollarSign className="w-3 h-3" />
+              Set Tier Pricing
+            </Button>
             <Button size="sm" variant="outline" onClick={() => setShowBulkSponsorModal(true)} className="gap-1">
               <Megaphone className="w-3 h-3" />
               Add Sponsor
@@ -1556,12 +1571,32 @@ export function AdminRewards() {
                       )}
                     </TableCell>
                     <TableCell className="max-w-[200px]">
-                      <EditableCell
-                        type="text"
-                        value={reward.title}
-                        onSave={(val) => updateRewardField(reward.id, 'title', val)}
-                        className="font-medium truncate"
-                      />
+                      <div className="flex items-center gap-2">
+                        <EditableCell
+                          type="text"
+                          value={reward.title}
+                          onSave={(val) => updateRewardField(reward.id, 'title', val)}
+                          className="font-medium truncate"
+                        />
+                        {/* Scheduling indicator */}
+                        {(reward.publish_at || reward.unpublish_at) && (
+                          <span title={
+                            reward.publish_at && new Date(reward.publish_at) > new Date() 
+                              ? `Scheduled: ${new Date(reward.publish_at).toLocaleDateString()}`
+                              : reward.unpublish_at 
+                                ? `Expires: ${new Date(reward.unpublish_at).toLocaleDateString()}`
+                                : 'Scheduled'
+                          }>
+                            <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                          </span>
+                        )}
+                        {/* Tier pricing indicator */}
+                        {reward.status_tier_claims_cost && Object.keys(reward.status_tier_claims_cost).length > 0 && (
+                          <span title="Has tier pricing">
+                            <DollarSign className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                          </span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <EditableCell
@@ -2128,7 +2163,17 @@ export function AdminRewards() {
               </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => setShowPreviewModal(true)}
+              className="gap-2"
+            >
+              <Eye className="w-4 h-4" />
+              Preview
+            </Button>
+            <div className="flex-1" />
             <Button variant="outline" onClick={() => setShowModal(false)}>Cancel</Button>
             <Button onClick={handleSave} disabled={uploading}>{uploading ? 'Uploading...' : editingReward ? 'Update' : 'Create'}</Button>
           </DialogFooter>
@@ -2317,6 +2362,40 @@ export function AdminRewards() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Bulk Tier Pricing Modal */}
+      <BulkTierPricingModal
+        open={showBulkTierPricingModal}
+        onClose={() => setShowBulkTierPricingModal(false)}
+        selectedRewardIds={Array.from(selectedIds)}
+        onSuccess={() => {
+          loadRewards();
+          setSelectedIds(new Set());
+        }}
+      />
+
+      {/* Preview Modal */}
+      <RewardPreviewDialog
+        open={showPreviewModal}
+        onClose={() => setShowPreviewModal(false)}
+        reward={editingReward ? {
+          title: formData.title,
+          description: formData.description,
+          category: formData.category,
+          cost: formData.cost,
+          stock_quantity: formData.stock_quantity,
+          image_url: imagePreviews[0] || formData.image_url,
+          is_featured: formData.is_featured,
+          sponsor_enabled: formData.sponsor_enabled,
+          sponsor_name: formData.sponsor_name,
+          sponsor_logo: formData.sponsor_logo,
+          min_status_tier: formData.min_status_tier,
+          status_tier_claims_cost: tierPricingEnabled && tierPricing ? tierPricing as unknown as Record<string, number> : null,
+          delivery_method: formData.delivery_method,
+          delivery_instructions: formData.delivery_instructions,
+        } : null}
+        imagePreviews={imagePreviews}
+      />
     </div>
   );
 }
