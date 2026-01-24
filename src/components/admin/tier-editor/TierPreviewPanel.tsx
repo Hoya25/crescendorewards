@@ -31,13 +31,15 @@ interface TierPreviewPanelProps {
   selectedTierId: string;
   onSelectTier: (tierId: string) => void;
   editingTier?: StatusTier | null;
+  hideHeader?: boolean;
 }
 
 export function TierPreviewPanel({ 
   tiers, 
   selectedTierId, 
   onSelectTier,
-  editingTier 
+  editingTier,
+  hideHeader = false
 }: TierPreviewPanelProps) {
   // Use editing tier if it matches, otherwise find from list
   const displayTier = editingTier?.id === selectedTierId 
@@ -85,27 +87,29 @@ export function TierPreviewPanel({
   const prevTier = currentIndex > 0 ? sortedTiers[currentIndex - 1] : null;
 
   return (
-    <Card className="sticky top-4">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Preview as User</CardTitle>
-          <Select value={selectedTierId} onValueChange={onSelectTier}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {sortedTiers.map(tier => (
-                <SelectItem key={tier.id} value={tier.id}>
-                  <span className="flex items-center gap-2">
-                    <span>{tier.badge_emoji}</span>
-                    <span>{tier.display_name}</span>
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </CardHeader>
+    <Card className={hideHeader ? "border-0 shadow-none" : "sticky top-4"}>
+      {!hideHeader && (
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">Preview as User</CardTitle>
+            <Select value={selectedTierId} onValueChange={onSelectTier}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {sortedTiers.map(tier => (
+                  <SelectItem key={tier.id} value={tier.id}>
+                    <span className="flex items-center gap-2">
+                      <span>{tier.badge_emoji}</span>
+                      <span>{tier.display_name}</span>
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardHeader>
+      )}
       <CardContent className="space-y-4">
         {/* Tier Badge */}
         <div 
