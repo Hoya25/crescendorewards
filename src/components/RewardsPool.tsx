@@ -1097,7 +1097,6 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                         ...reward,
                         is_sponsored: reward.sponsor_enabled || false,
                         sponsor_logo_url: reward.sponsor_logo,
-                        status_tier_claims_cost: null,
                       }}
                       isInFavorites={favorites.has(reward.id)}
                       onToggleFavorites={(id, e) => {
