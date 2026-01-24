@@ -28,7 +28,7 @@ const CATEGORIES = [
   { value: 'gift_cards', label: 'Gift Cards' },
   { value: 'experiences', label: 'Experiences' },
   { value: 'merch', label: 'Merchandise' },
-  { value: 'wellness', label: 'Wellness & Health' },
+  { value: 'wellness', label: 'Health & Wellness' },
   { value: 'gaming', label: 'Gaming' },
   { value: 'music', label: 'Music & Entertainment' },
   { value: 'events', label: 'Events & Tickets' },

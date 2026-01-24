@@ -94,7 +94,7 @@ const categoryLabels: Record<string, string> = {
   experiences: 'Experiences',
   merch: 'Merch',
   gift_cards: 'Gift Cards',
-  wellness: 'Wellness',
+  wellness: 'Health & Wellness',
   subscriptions: 'Subscriptions',
 };
 
