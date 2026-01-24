@@ -37,6 +37,7 @@ const mainNavItems = [
   { title: 'My Claims', url: '/claims', icon: Ticket },
   { title: 'Get Free Claims', url: '/earn', icon: TrendingUp },
   { title: 'Membership', url: '/membership', icon: Trophy },
+  { title: 'Partner Benefits', url: '/benefits', icon: Gift },
   { title: 'Sponsors', url: '/sponsors', icon: Building2 },
   { title: 'Get Claims', url: '/buy-claims', icon: Coins },
   { title: 'Gift Claims', url: '/gift-claims', icon: Gift },
