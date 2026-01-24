@@ -49,7 +49,7 @@ export function getRewardPriceForUser(
   if (!reward.is_sponsored || !reward.status_tier_claims_cost) {
     return {
       price: reward.cost,
-      isFree: false,
+      isFree: reward.cost === 0,
       discount: 0,
       originalPrice: reward.cost
     };
@@ -125,15 +125,15 @@ export function canUserClaimReward(
 }
 
 /**
- * Get display-friendly tier name
+ * Get display-friendly tier name (without emoji for cleaner display)
  */
 export function getTierDisplayName(tier: string): string {
   const tierMap: Record<string, string> = {
-    bronze: 'Bronze 🥉',
-    silver: 'Silver 🥈',
-    gold: 'Gold 🥇',
-    platinum: 'Platinum 💎',
-    diamond: 'Diamond 👑'
+    bronze: 'Bronze',
+    silver: 'Silver',
+    gold: 'Gold',
+    platinum: 'Platinum',
+    diamond: 'Diamond'
   };
   return tierMap[tier.toLowerCase()] || tier;
 }
