@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, 
   Heart, TrendingUp, Building2, Megaphone, Shield, Activity, Package, MessageSquare, 
-  Coins, Bell, ChevronDown, ChevronRight, Trophy
+  Coins, Bell, ChevronDown, ChevronRight, Trophy, Handshake
 } from 'lucide-react';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { useAdminRole } from '@/hooks/useAdminRole';
@@ -117,6 +117,7 @@ const MENU_GROUPS: MenuGroup[] = [
     defaultOpen: false,
     items: [
       { title: 'Status Tiers', view: 'status-tiers', icon: Trophy, permission: 'settings_edit' },
+      { title: 'Alliance Partners', view: 'alliance-partners', icon: Handshake, permission: 'settings_edit' },
       { title: 'Packages', view: 'packages', icon: Package, permission: 'rewards_edit' },
       { title: 'Shop Settings', view: 'shop-settings', icon: ShoppingBag, permission: 'settings_edit' },
       { title: 'Team', view: 'team', icon: Shield, permission: 'admins_view' },
