@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Slider } from '@/components/ui/slider';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { 
   Dialog, 
   DialogContent, 
@@ -32,10 +34,20 @@ import {
   Star,
   Plus,
   X,
-  AlertCircle,
-  Check
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Eye
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  NumberInputWithButtons,
+  EmojiPicker,
+  TierValidationWarnings,
+  TierPreviewPanel,
+  TierProgressionBar
+} from './tier-editor';
 
 interface StatusTier {
   id: string;
@@ -70,10 +82,25 @@ export function AdminStatusTiers() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [newCustomBenefit, setNewCustomBenefit] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
+  const [previewTierId, setPreviewTierId] = useState<string>('');
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    display: true,
+    thresholds: true,
+    benefits: true,
+    perks: false,
+    custom: false
+  });
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     fetchTiers();
   }, []);
+
+  useEffect(() => {
+    if (tiers.length > 0 && !previewTierId) {
+      setPreviewTierId(tiers[0].id);
+    }
+  }, [tiers, previewTierId]);
 
   const fetchTiers = async () => {
     setLoading(true);
@@ -85,7 +112,6 @@ export function AdminStatusTiers() {
 
       if (error) throw error;
       
-      // Parse custom_benefits from JSONB
       const parsedTiers = (data || []).map(tier => ({
         ...tier,
         custom_benefits: Array.isArray(tier.custom_benefits) 
@@ -111,6 +137,7 @@ export function AdminStatusTiers() {
 
   const openEditDialog = (tier: StatusTier) => {
     setSelectedTier({ ...tier });
+    setPreviewTierId(tier.id);
     setHasChanges(false);
     setEditDialogOpen(true);
   };
@@ -137,10 +164,8 @@ export function AdminStatusTiers() {
   const generateBenefitsArray = (tier: StatusTier): string[] => {
     const benefits: string[] = [];
     
-    // Catalog access
     benefits.push(`Access to ${tier.display_name.toLowerCase()} reward catalog`);
     
-    // Claims
     if (tier.unlimited_claims) {
       benefits.push('Unlimited reward claims');
     } else if (tier.claims_per_month > 0) {
@@ -149,24 +174,20 @@ export function AdminStatusTiers() {
       benefits.push(`${tier.claims_per_year} reward claim${tier.claims_per_year > 1 ? 's' : ''} per year`);
     }
     
-    // Multiplier
     if (tier.earning_multiplier > 1) {
       benefits.push(`Earn ${tier.earning_multiplier}x NCTR on all activities`);
     }
     
-    // Discount
     if (tier.discount_percent > 0) {
       benefits.push(`${tier.discount_percent}% discount on partner brands`);
     }
     
-    // Boolean perks
     if (tier.priority_support) benefits.push('Priority customer support');
     if (tier.early_access) benefits.push('Early access to new rewards');
     if (tier.vip_events) benefits.push('VIP event invitations');
     if (tier.concierge_service) benefits.push('Personal concierge service');
     if (tier.free_shipping) benefits.push('Free expedited shipping');
     
-    // Custom benefits
     if (tier.custom_benefits && tier.custom_benefits.length > 0) {
       benefits.push(...tier.custom_benefits);
     }
@@ -179,7 +200,6 @@ export function AdminStatusTiers() {
     
     setSaving(true);
     try {
-      // Generate the benefits array from structured data
       const generatedBenefits = generateBenefitsArray(selectedTier);
       
       const { error } = await supabase
@@ -221,10 +241,14 @@ export function AdminStatusTiers() {
     }
   };
 
-  const getTierColor = (color: string) => {
-    // Return the color as-is for inline styles
-    return color;
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
+
+  const sortedTiers = useMemo(() => 
+    [...tiers].sort((a, b) => a.sort_order - b.sort_order), 
+    [tiers]
+  );
 
   if (loading) {
     return (
@@ -237,7 +261,7 @@ export function AdminStatusTiers() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <Trophy className="w-6 h-6 text-primary" />
@@ -253,92 +277,139 @@ export function AdminStatusTiers() {
         </Button>
       </div>
 
-      {/* Tier Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-        {tiers.map((tier) => (
-          <Card 
-            key={tier.id} 
-            className="cursor-pointer hover:shadow-lg transition-shadow border-2"
-            style={{ borderColor: tier.badge_color }}
-            onClick={() => openEditDialog(tier)}
-          >
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">{tier.badge_emoji}</span>
-                  <CardTitle className="text-lg">{tier.display_name}</CardTitle>
-                </div>
-                {!tier.is_active && (
-                  <Badge variant="secondary">Inactive</Badge>
-                )}
-              </div>
-              <CardDescription className="text-xs">
-                {tier.min_nctr_360_locked.toLocaleString()} - {tier.max_nctr_360_locked?.toLocaleString() || '∞'} NCTR
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {/* Key Stats */}
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="flex items-center gap-1">
-                  <Zap className="w-3 h-3 text-warning" />
-                  <span className="font-medium">{tier.earning_multiplier}x</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Tag className="w-3 h-3 text-success" />
-                  <span className="font-medium">{tier.discount_percent}%</span>
-                </div>
-                <div className="flex items-center gap-1 col-span-2">
-                  <Gift className="w-3 h-3 text-primary" />
-                  <span className="text-xs">
-                    {tier.unlimited_claims 
-                      ? 'Unlimited claims' 
-                      : tier.claims_per_month > 0 
-                        ? `${tier.claims_per_month}/mo` 
-                        : `${tier.claims_per_year}/yr`
-                    }
-                  </span>
-                </div>
-              </div>
+      {/* Tier Progression Visualization */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg">Tier Progression</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TierProgressionBar 
+            tiers={sortedTiers}
+            selectedTierId={previewTierId}
+            onSelectTier={(tier) => {
+              setPreviewTierId(tier.id);
+              openEditDialog(tier);
+            }}
+          />
+        </CardContent>
+      </Card>
 
-              {/* Quick Perk Badges */}
-              <div className="flex flex-wrap gap-1">
-                {tier.priority_support && (
-                  <Badge variant="outline" className="text-xs py-0">
-                    <Headphones className="w-3 h-3 mr-1" />
-                    Support
-                  </Badge>
-                )}
-                {tier.early_access && (
-                  <Badge variant="outline" className="text-xs py-0">
-                    <Clock className="w-3 h-3 mr-1" />
-                    Early
-                  </Badge>
-                )}
-                {tier.vip_events && (
-                  <Badge variant="outline" className="text-xs py-0">
-                    <Star className="w-3 h-3 mr-1" />
-                    VIP
-                  </Badge>
-                )}
-                {tier.free_shipping && (
-                  <Badge variant="outline" className="text-xs py-0">
-                    <Truck className="w-3 h-3 mr-1" />
-                    Ship
-                  </Badge>
-                )}
-              </div>
+      {/* Validation Warnings */}
+      <TierValidationWarnings tiers={sortedTiers} />
 
-              <Button variant="ghost" size="sm" className="w-full mt-2">
-                Edit Tier
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Tier Cards */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {sortedTiers.map((tier, index) => {
+              const prevTier = index > 0 ? sortedTiers[index - 1] : null;
+              
+              return (
+                <Card 
+                  key={tier.id} 
+                  className="cursor-pointer hover:shadow-lg transition-shadow border-2"
+                  style={{ borderColor: tier.badge_color }}
+                  onClick={() => openEditDialog(tier)}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span 
+                          className="text-2xl w-10 h-10 flex items-center justify-center rounded-full"
+                          style={{ backgroundColor: `${tier.badge_color}20` }}
+                        >
+                          {tier.badge_emoji}
+                        </span>
+                        <CardTitle className="text-lg">{tier.display_name}</CardTitle>
+                      </div>
+                      {!tier.is_active && (
+                        <Badge variant="secondary">Inactive</Badge>
+                      )}
+                    </div>
+                    <CardDescription className="text-xs">
+                      {tier.min_nctr_360_locked.toLocaleString()} - {tier.max_nctr_360_locked?.toLocaleString() || '∞'} NCTR
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {/* Key Stats */}
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div className="p-2 bg-muted/50 rounded">
+                        <Zap className="w-3 h-3 mx-auto text-warning" />
+                        <span className="text-sm font-bold block">{tier.earning_multiplier}x</span>
+                      </div>
+                      <div className="p-2 bg-muted/50 rounded">
+                        <Gift className="w-3 h-3 mx-auto text-primary" />
+                        <span className="text-sm font-bold block">
+                          {tier.unlimited_claims ? '∞' : tier.claims_per_month > 0 ? `${tier.claims_per_month}/mo` : `${tier.claims_per_year}/yr`}
+                        </span>
+                      </div>
+                      <div className="p-2 bg-muted/50 rounded">
+                        <Tag className="w-3 h-3 mx-auto text-success" />
+                        <span className="text-sm font-bold block">{tier.discount_percent}%</span>
+                      </div>
+                    </div>
+
+                    {/* Upgrade Highlight */}
+                    {prevTier && (
+                      <div className="text-xs text-muted-foreground bg-muted/30 rounded p-2">
+                        <span className="text-success">↑</span> +{(tier.earning_multiplier - prevTier.earning_multiplier).toFixed(2)}x multiplier from {prevTier.display_name}
+                      </div>
+                    )}
+
+                    {/* Quick Perk Badges */}
+                    <div className="flex flex-wrap gap-1">
+                      {tier.priority_support && (
+                        <Badge variant="outline" className="text-xs py-0">
+                          <Headphones className="w-3 h-3 mr-1" />
+                          Support
+                        </Badge>
+                      )}
+                      {tier.early_access && (
+                        <Badge variant="outline" className="text-xs py-0">
+                          <Clock className="w-3 h-3 mr-1" />
+                          Early
+                        </Badge>
+                      )}
+                      {tier.vip_events && (
+                        <Badge variant="outline" className="text-xs py-0">
+                          <Star className="w-3 h-3 mr-1" />
+                          VIP
+                        </Badge>
+                      )}
+                      {tier.free_shipping && (
+                        <Badge variant="outline" className="text-xs py-0">
+                          <Truck className="w-3 h-3 mr-1" />
+                          Ship
+                        </Badge>
+                      )}
+                    </div>
+
+                    <Button variant="ghost" size="sm" className="w-full mt-2">
+                      <Eye className="w-4 h-4 mr-2" />
+                      Edit Tier
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Preview Panel */}
+        <div className="hidden lg:block">
+          <TierPreviewPanel
+            tiers={sortedTiers}
+            selectedTierId={previewTierId}
+            onSelectTier={setPreviewTierId}
+            editingTier={selectedTier}
+          />
+        </div>
       </div>
 
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <span className="text-2xl">{selectedTier?.badge_emoji}</span>
@@ -349,270 +420,345 @@ export function AdminStatusTiers() {
             </DialogDescription>
           </DialogHeader>
 
-          <ScrollArea className="flex-1 pr-4">
-            {selectedTier && (
-              <div className="space-y-6 py-4">
-                {/* Display Settings */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <Sparkles className="w-4 h-4" />
-                    Display Settings
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Display Name</Label>
-                      <Input
-                        value={selectedTier.display_name}
-                        onChange={(e) => handleTierChange('display_name', e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Badge Emoji</Label>
-                      <Input
-                        value={selectedTier.badge_emoji}
-                        onChange={(e) => handleTierChange('badge_emoji', e.target.value)}
-                        className="text-center text-xl"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Badge Color</Label>
+          <div className="flex-1 overflow-hidden flex flex-col lg:flex-row gap-4">
+            {/* Edit Form */}
+            <ScrollArea className="flex-1 pr-4">
+              {selectedTier && (
+                <div className="space-y-4 py-4">
+                  {/* Display Settings - Collapsible */}
+                  <Collapsible 
+                    open={expandedSections.display} 
+                    onOpenChange={() => toggleSection('display')}
+                  >
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" className="w-full justify-between p-0 h-auto">
+                        <h3 className="font-semibold flex items-center gap-2">
+                          <Sparkles className="w-4 h-4" />
+                          Display Settings
+                        </h3>
+                        {expandedSections.display ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pt-4 space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Display Name</Label>
+                          <Input
+                            value={selectedTier.display_name}
+                            onChange={(e) => handleTierChange('display_name', e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Badge Emoji</Label>
+                          <div className="flex items-center gap-2">
+                            <EmojiPicker
+                              value={selectedTier.badge_emoji}
+                              onChange={(emoji) => handleTierChange('badge_emoji', emoji)}
+                            />
+                            <span className="text-sm text-muted-foreground">Select or type custom</span>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Badge Color</Label>
+                          <div className="flex gap-2">
+                            <Input
+                              type="color"
+                              value={selectedTier.badge_color}
+                              onChange={(e) => handleTierChange('badge_color', e.target.value)}
+                              className="w-14 h-10 p-1 cursor-pointer"
+                            />
+                            <Input
+                              value={selectedTier.badge_color}
+                              onChange={(e) => handleTierChange('badge_color', e.target.value)}
+                              className="flex-1 font-mono text-sm"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Active Status</Label>
+                          <div className="flex items-center gap-2 pt-2">
+                            <Switch
+                              checked={selectedTier.is_active}
+                              onCheckedChange={(checked) => handleTierChange('is_active', checked)}
+                            />
+                            <span className="text-sm text-muted-foreground">
+                              {selectedTier.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Description</Label>
+                        <Textarea
+                          value={selectedTier.description || ''}
+                          onChange={(e) => handleTierChange('description', e.target.value)}
+                          placeholder="Short description of this tier..."
+                          rows={2}
+                        />
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  <Separator />
+
+                  {/* Thresholds - Collapsible */}
+                  <Collapsible 
+                    open={expandedSections.thresholds} 
+                    onOpenChange={() => toggleSection('thresholds')}
+                  >
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" className="w-full justify-between p-0 h-auto">
+                        <h3 className="font-semibold flex items-center gap-2">
+                          <Shield className="w-4 h-4" />
+                          NCTR Requirements
+                        </h3>
+                        {expandedSections.thresholds ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pt-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Minimum 360LOCK NCTR</Label>
+                          <Input
+                            type="number"
+                            value={selectedTier.min_nctr_360_locked}
+                            onChange={(e) => handleTierChange('min_nctr_360_locked', parseInt(e.target.value) || 0)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Maximum 360LOCK NCTR</Label>
+                          <Input
+                            type="number"
+                            value={selectedTier.max_nctr_360_locked ?? ''}
+                            onChange={(e) => handleTierChange('max_nctr_360_locked', e.target.value ? parseInt(e.target.value) : null)}
+                            placeholder="Leave empty for unlimited"
+                          />
+                        </div>
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  <Separator />
+
+                  {/* Core Benefits - Collapsible */}
+                  <Collapsible 
+                    open={expandedSections.benefits} 
+                    onOpenChange={() => toggleSection('benefits')}
+                  >
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" className="w-full justify-between p-0 h-auto">
+                        <h3 className="font-semibold flex items-center gap-2">
+                          <Zap className="w-4 h-4" />
+                          Core Benefits
+                        </h3>
+                        {expandedSections.benefits ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pt-4 space-y-6">
+                      {/* Earning Multiplier */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <Label>Earning Multiplier</Label>
+                          <span className="text-lg font-bold text-warning">{selectedTier.earning_multiplier}x</span>
+                        </div>
+                        <NumberInputWithButtons
+                          value={selectedTier.earning_multiplier}
+                          onChange={(val) => handleTierChange('earning_multiplier', val)}
+                          min={1.0}
+                          max={3.0}
+                          step={0.05}
+                          suffix="x"
+                        />
+                        <Slider
+                          value={[selectedTier.earning_multiplier]}
+                          onValueChange={([val]) => handleTierChange('earning_multiplier', val)}
+                          min={1.0}
+                          max={3.0}
+                          step={0.05}
+                          className="mt-2"
+                        />
+                      </div>
+
+                      {/* Discount Percent */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <Label>Discount Percent</Label>
+                          <span className="text-lg font-bold text-success">{selectedTier.discount_percent}%</span>
+                        </div>
+                        <NumberInputWithButtons
+                          value={selectedTier.discount_percent}
+                          onChange={(val) => handleTierChange('discount_percent', val)}
+                          min={0}
+                          max={50}
+                          step={5}
+                          suffix="%"
+                        />
+                        <Slider
+                          value={[selectedTier.discount_percent]}
+                          onValueChange={([val]) => handleTierChange('discount_percent', val)}
+                          min={0}
+                          max={50}
+                          step={5}
+                          className="mt-2"
+                        />
+                      </div>
+
+                      {/* Claims */}
+                      <div className="space-y-3">
+                        <Label>Claims Allowance</Label>
+                        <div className="flex items-center gap-4 p-3 rounded-lg border">
+                          <Switch
+                            checked={selectedTier.unlimited_claims}
+                            onCheckedChange={(checked) => {
+                              handleTierChange('unlimited_claims', checked);
+                              if (checked) {
+                                handleTierChange('claims_per_month', 0);
+                                handleTierChange('claims_per_year', 0);
+                              }
+                            }}
+                          />
+                          <span className="text-sm font-medium">Unlimited Claims</span>
+                        </div>
+                        {!selectedTier.unlimited_claims && (
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label className="text-xs text-muted-foreground">Per Month</Label>
+                              <NumberInputWithButtons
+                                value={selectedTier.claims_per_month}
+                                onChange={(val) => handleTierChange('claims_per_month', Math.round(val))}
+                                min={0}
+                                max={10}
+                                step={1}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-xs text-muted-foreground">Per Year</Label>
+                              <NumberInputWithButtons
+                                value={selectedTier.claims_per_year}
+                                onChange={(val) => handleTierChange('claims_per_year', Math.round(val))}
+                                min={0}
+                                max={100}
+                                step={1}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  <Separator />
+
+                  {/* Perks Toggles - Collapsible */}
+                  <Collapsible 
+                    open={expandedSections.perks} 
+                    onOpenChange={() => toggleSection('perks')}
+                  >
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" className="w-full justify-between p-0 h-auto">
+                        <h3 className="font-semibold flex items-center gap-2">
+                          <Star className="w-4 h-4" />
+                          Additional Perks
+                        </h3>
+                        {expandedSections.perks ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pt-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {[
+                          { key: 'priority_support', label: 'Priority Support', icon: Headphones },
+                          { key: 'early_access', label: 'Early Access', icon: Clock },
+                          { key: 'vip_events', label: 'VIP Events', icon: Star },
+                          { key: 'concierge_service', label: 'Concierge Service', icon: Shield },
+                          { key: 'free_shipping', label: 'Free Shipping', icon: Truck },
+                        ].map(({ key, label, icon: Icon }) => (
+                          <div 
+                            key={key} 
+                            className="flex items-center justify-between p-3 rounded-lg border"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Icon className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-sm">{label}</span>
+                            </div>
+                            <Switch
+                              checked={selectedTier[key as keyof StatusTier] as boolean}
+                              onCheckedChange={(checked) => handleTierChange(key as keyof StatusTier, checked)}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+
+                  <Separator />
+
+                  {/* Custom Benefits - Collapsible */}
+                  <Collapsible 
+                    open={expandedSections.custom} 
+                    onOpenChange={() => toggleSection('custom')}
+                  >
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" className="w-full justify-between p-0 h-auto">
+                        <h3 className="font-semibold flex items-center gap-2">
+                          <Gift className="w-4 h-4" />
+                          Custom Benefits
+                          {selectedTier.custom_benefits?.length > 0 && (
+                            <Badge variant="secondary" className="ml-2">
+                              {selectedTier.custom_benefits.length}
+                            </Badge>
+                          )}
+                        </h3>
+                        {expandedSections.custom ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="pt-4 space-y-4">
                       <div className="flex gap-2">
                         <Input
-                          type="color"
-                          value={selectedTier.badge_color}
-                          onChange={(e) => handleTierChange('badge_color', e.target.value)}
-                          className="w-12 h-10 p-1 cursor-pointer"
+                          value={newCustomBenefit}
+                          onChange={(e) => setNewCustomBenefit(e.target.value)}
+                          placeholder="Add a custom benefit..."
+                          onKeyDown={(e) => e.key === 'Enter' && addCustomBenefit()}
                         />
-                        <Input
-                          value={selectedTier.badge_color}
-                          onChange={(e) => handleTierChange('badge_color', e.target.value)}
-                          className="flex-1"
-                        />
+                        <Button onClick={addCustomBenefit} size="icon" variant="outline">
+                          <Plus className="w-4 h-4" />
+                        </Button>
                       </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Active Status</Label>
-                      <div className="flex items-center gap-2 pt-2">
-                        <Switch
-                          checked={selectedTier.is_active}
-                          onCheckedChange={(checked) => handleTierChange('is_active', checked)}
-                        />
-                        <span className="text-sm text-muted-foreground">
-                          {selectedTier.is_active ? 'Active' : 'Inactive'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Description</Label>
-                    <Textarea
-                      value={selectedTier.description || ''}
-                      onChange={(e) => handleTierChange('description', e.target.value)}
-                      placeholder="Short description of this tier..."
-                      rows={2}
-                    />
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Thresholds */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <Shield className="w-4 h-4" />
-                    NCTR Requirements
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Minimum 360LOCK NCTR</Label>
-                      <Input
-                        type="number"
-                        value={selectedTier.min_nctr_360_locked}
-                        onChange={(e) => handleTierChange('min_nctr_360_locked', parseInt(e.target.value) || 0)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Maximum 360LOCK NCTR</Label>
-                      <Input
-                        type="number"
-                        value={selectedTier.max_nctr_360_locked ?? ''}
-                        onChange={(e) => handleTierChange('max_nctr_360_locked', e.target.value ? parseInt(e.target.value) : null)}
-                        placeholder="Leave empty for unlimited"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Core Benefits */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <Zap className="w-4 h-4" />
-                    Core Benefits
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Earning Multiplier</Label>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="number"
-                          step="0.05"
-                          min="1"
-                          max="5"
-                          value={selectedTier.earning_multiplier}
-                          onChange={(e) => handleTierChange('earning_multiplier', parseFloat(e.target.value) || 1)}
-                        />
-                        <span className="text-muted-foreground">x</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Discount Percent</Label>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          type="number"
-                          min="0"
-                          max="100"
-                          value={selectedTier.discount_percent}
-                          onChange={(e) => handleTierChange('discount_percent', parseInt(e.target.value) || 0)}
-                        />
-                        <span className="text-muted-foreground">%</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Claims */}
-                  <div className="space-y-2">
-                    <Label>Claims Allowance</Label>
-                    <div className="flex items-center gap-4 mb-2">
-                      <Switch
-                        checked={selectedTier.unlimited_claims}
-                        onCheckedChange={(checked) => {
-                          handleTierChange('unlimited_claims', checked);
-                          if (checked) {
-                            handleTierChange('claims_per_month', 0);
-                            handleTierChange('claims_per_year', 0);
-                          }
-                        }}
-                      />
-                      <span className="text-sm">Unlimited Claims</span>
-                    </div>
-                    {!selectedTier.unlimited_claims && (
-                      <div className="grid grid-cols-2 gap-4">
+                      {selectedTier.custom_benefits?.length > 0 && (
                         <div className="space-y-2">
-                          <Label className="text-xs text-muted-foreground">Per Month</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={selectedTier.claims_per_month}
-                            onChange={(e) => handleTierChange('claims_per_month', parseInt(e.target.value) || 0)}
-                          />
+                          {selectedTier.custom_benefits.map((benefit, index) => (
+                            <div key={index} className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
+                              <Check className="w-4 h-4 text-success flex-shrink-0" />
+                              <span className="text-sm flex-1">{benefit}</span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => removeCustomBenefit(index)}
+                              >
+                                <X className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          ))}
                         </div>
-                        <div className="space-y-2">
-                          <Label className="text-xs text-muted-foreground">Per Year</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={selectedTier.claims_per_year}
-                            onChange={(e) => handleTierChange('claims_per_year', parseInt(e.target.value) || 0)}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </CollapsibleContent>
+                  </Collapsible>
                 </div>
+              )}
+            </ScrollArea>
 
-                <Separator />
-
-                {/* Perks Toggles */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <Star className="w-4 h-4" />
-                    Additional Perks
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { key: 'priority_support', label: 'Priority Support', icon: Headphones },
-                      { key: 'early_access', label: 'Early Access', icon: Clock },
-                      { key: 'vip_events', label: 'VIP Events', icon: Star },
-                      { key: 'concierge_service', label: 'Concierge Service', icon: Shield },
-                      { key: 'free_shipping', label: 'Free Shipping', icon: Truck },
-                    ].map(({ key, label, icon: Icon }) => (
-                      <div key={key} className="flex items-center justify-between p-3 rounded-lg border">
-                        <div className="flex items-center gap-2">
-                          <Icon className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">{label}</span>
-                        </div>
-                        <Switch
-                          checked={selectedTier[key as keyof StatusTier] as boolean}
-                          onCheckedChange={(checked) => handleTierChange(key as keyof StatusTier, checked)}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Custom Benefits */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <Gift className="w-4 h-4" />
-                    Custom Benefits
-                  </h3>
-                  <div className="flex gap-2">
-                    <Input
-                      value={newCustomBenefit}
-                      onChange={(e) => setNewCustomBenefit(e.target.value)}
-                      placeholder="Add a custom benefit..."
-                      onKeyDown={(e) => e.key === 'Enter' && addCustomBenefit()}
-                    />
-                    <Button onClick={addCustomBenefit} size="icon" variant="outline">
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  {selectedTier.custom_benefits?.length > 0 && (
-                    <div className="space-y-2">
-                      {selectedTier.custom_benefits.map((benefit, index) => (
-                        <div key={index} className="flex items-center gap-2 p-2 rounded-lg bg-muted/50">
-                          <Check className="w-4 h-4 text-success flex-shrink-0" />
-                          <span className="text-sm flex-1">{benefit}</span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6"
-                            onClick={() => removeCustomBenefit(index)}
-                          >
-                            <X className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Preview */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4" />
-                    Generated Benefits Preview
-                  </h3>
-                  <Card className="bg-muted/30">
-                    <CardContent className="pt-4">
-                      <ul className="space-y-1">
-                        {generateBenefitsArray(selectedTier).map((benefit, index) => (
-                          <li key={index} className="text-sm flex items-start gap-2">
-                            <Check className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
-                            {benefit}
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                </div>
+            {/* Preview Panel (inside dialog) */}
+            {!isMobile && selectedTier && (
+              <div className="w-80 border-l pl-4 hidden lg:block">
+                <TierPreviewPanel
+                  tiers={sortedTiers}
+                  selectedTierId={selectedTier.id}
+                  onSelectTier={() => {}}
+                  editingTier={selectedTier}
+                />
               </div>
             )}
-          </ScrollArea>
+          </div>
 
           <DialogFooter className="pt-4 border-t">
             <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
