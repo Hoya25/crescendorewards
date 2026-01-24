@@ -139,6 +139,93 @@ export type Database = {
           },
         ]
       }
+      alliance_partners: {
+        Row: {
+          activation_instructions: string | null
+          activation_type: string
+          activation_url: string | null
+          benefit_description: string
+          benefit_title: string
+          category: string
+          created_at: string | null
+          creator_channel_url: string | null
+          creator_platform: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          is_creator_subscription: boolean | null
+          is_diamond_exclusive: boolean | null
+          is_featured: boolean | null
+          logo_url: string | null
+          min_tier: string
+          monthly_value: number
+          name: string
+          short_description: string | null
+          slot_cost: number | null
+          slug: string
+          total_activations: number | null
+          updated_at: string | null
+          website_url: string | null
+        }
+        Insert: {
+          activation_instructions?: string | null
+          activation_type?: string
+          activation_url?: string | null
+          benefit_description: string
+          benefit_title: string
+          category: string
+          created_at?: string | null
+          creator_channel_url?: string | null
+          creator_platform?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_creator_subscription?: boolean | null
+          is_diamond_exclusive?: boolean | null
+          is_featured?: boolean | null
+          logo_url?: string | null
+          min_tier?: string
+          monthly_value: number
+          name: string
+          short_description?: string | null
+          slot_cost?: number | null
+          slug: string
+          total_activations?: number | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          activation_instructions?: string | null
+          activation_type?: string
+          activation_url?: string | null
+          benefit_description?: string
+          benefit_title?: string
+          category?: string
+          created_at?: string | null
+          creator_channel_url?: string | null
+          creator_platform?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_creator_subscription?: boolean | null
+          is_diamond_exclusive?: boolean | null
+          is_featured?: boolean | null
+          logo_url?: string | null
+          min_tier?: string
+          monthly_value?: number
+          name?: string
+          short_description?: string | null
+          slot_cost?: number | null
+          slug?: string
+          total_activations?: number | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       auth_nonces: {
         Row: {
           created_at: string
@@ -165,6 +252,45 @@ export type Database = {
           wallet_address?: string
         }
         Relationships: []
+      }
+      benefit_activation_history: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          partner_id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          partner_id: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          partner_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benefit_activation_history_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "alliance_partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_activation_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       brands: {
         Row: {
@@ -495,6 +621,60 @@ export type Database = {
           whats_working?: string | null
         }
         Relationships: []
+      }
+      member_active_benefits: {
+        Row: {
+          activated_at: string | null
+          can_swap_after: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          partner_id: string
+          redemption_code: string | null
+          slots_used: number | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string | null
+          can_swap_after?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          partner_id: string
+          redemption_code?: string | null
+          slots_used?: number | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          activated_at?: string | null
+          can_swap_after?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          partner_id?: string
+          redemption_code?: string | null
+          slots_used?: number | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_active_benefits_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "alliance_partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_active_benefits_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       membership_history: {
         Row: {
@@ -1594,6 +1774,7 @@ export type Database = {
         Row: {
           badge_color: string | null
           badge_emoji: string | null
+          benefit_slots: number | null
           benefits: Json | null
           claims_per_month: number | null
           claims_per_year: number | null
@@ -1620,6 +1801,7 @@ export type Database = {
         Insert: {
           badge_color?: string | null
           badge_emoji?: string | null
+          benefit_slots?: number | null
           benefits?: Json | null
           claims_per_month?: number | null
           claims_per_year?: number | null
@@ -1646,6 +1828,7 @@ export type Database = {
         Update: {
           badge_color?: string | null
           badge_emoji?: string | null
+          benefit_slots?: number | null
           benefits?: Json | null
           claims_per_month?: number | null
           claims_per_year?: number | null
