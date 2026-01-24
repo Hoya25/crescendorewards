@@ -88,11 +88,20 @@ function getTierDisplayName(tier: string): string {
   return names[tier.toLowerCase()] || tier;
 }
 
-function getFreeTierName(tierCosts: Record<string, number> | null | undefined): string | null {
+// Returns the lowest tier that gets free (0 cost) access
+function getFreeTierAccess(tierCosts: Record<string, number> | null | undefined): string | null {
   if (!tierCosts) return null;
   
-  for (const [tier, cost] of Object.entries(tierCosts)) {
-    if (cost === 0) {
+  // Find all tiers with 0 cost
+  const freeTiers = Object.entries(tierCosts)
+    .filter(([_, cost]) => cost === 0)
+    .map(([tier]) => tier.toLowerCase());
+  
+  if (freeTiers.length === 0) return null;
+  
+  // Return the lowest tier in the hierarchy that has free access
+  for (const tier of tierOrder) {
+    if (freeTiers.includes(tier)) {
       return getTierDisplayName(tier);
     }
   }
@@ -132,7 +141,7 @@ export function VisualRewardCard({
   const sponsorName = reward.sponsor_name;
   const sponsorLogo = reward.sponsor_logo_url || reward.sponsor_logo;
   
-  const freeTierName = getFreeTierName(reward.status_tier_claims_cost);
+  const freeTierName = getFreeTierAccess(reward.status_tier_claims_cost);
   const isEligible = isUserTierEligible(reward.min_status_tier, userTier.tierName);
   const remainingStock = reward.stock_quantity;
   
@@ -220,13 +229,13 @@ export function VisualRewardCard({
 
         {/* BOTTOM: Title overlay on image */}
         <div className="absolute left-0 right-0 bottom-0 p-3">
-          {/* Free for Tier Badge */}
+          {/* Tier Access Badge - shows minimum tier that gets free access */}
           {freeTierName && (
             <Badge 
               className="mb-2 bg-gradient-to-r from-emerald-500 to-green-500 text-white border-0 text-[10px] font-bold shadow-lg px-2 py-0.5"
             >
               <Gift className="w-2.5 h-2.5 mr-1" />
-              FREE for {freeTierName}
+              {freeTierName}+
             </Badge>
           )}
           
