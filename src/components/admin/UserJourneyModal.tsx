@@ -58,23 +58,33 @@ export function UserJourneyModal({ userId, displayName, email, onClose }: UserJo
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['user-journey-profile', userId],
     queryFn: async () => {
-      const { data } = await supabase
+      // NOTE: In some admin surfaces we only have the auth user id (e.g. from `profiles.id`).
+      // Tracking tables use unified_profiles.id, so resolve either id -> unified profile row.
+      const { data, error } = await supabase
         .from('unified_profiles')
         .select(`
           *,
           status_tier:status_tiers(tier_name, badge_emoji, badge_color)
         `)
-        .eq('id', userId)
-        .single();
+        .or(`id.eq.${userId},auth_user_id.eq.${userId}`)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Failed to load unified profile for journey modal:', error);
+        return null;
+      }
       return data;
     }
   });
 
+  const effectiveUserId = profile?.id ?? userId;
+  const trackingEnabled = !profileLoading;
+
   // Fetch journey stats using RPC
   const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['user-journey-stats', userId],
+    queryKey: ['user-journey-stats', effectiveUserId],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_user_journey_stats', { p_user_id: userId });
+      const { data, error } = await supabase.rpc('get_user_journey_stats', { p_user_id: effectiveUserId });
       if (error) throw error;
       return data as {
         total_sessions: number;
@@ -88,32 +98,34 @@ export function UserJourneyModal({ userId, displayName, email, onClose }: UserJo
         rewards_claimed: number;
         referrals_made: number;
       };
-    }
+    },
+    enabled: trackingEnabled,
   });
 
   // Fetch recent sessions
   const { data: sessions } = useQuery({
-    queryKey: ['user-journey-sessions', userId],
+    queryKey: ['user-journey-sessions', effectiveUserId],
     queryFn: async () => {
       const { data } = await supabase
         .from('user_sessions')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', effectiveUserId)
         .order('started_at', { ascending: false })
         .limit(10);
       return (data || []) as UserSession[];
-    }
+    },
+    enabled: trackingEnabled,
   });
 
   // Fetch latest session activity
   const { data: latestActivity } = useQuery({
-    queryKey: ['user-journey-latest', userId],
+    queryKey: ['user-journey-latest', effectiveUserId],
     queryFn: async () => {
       // Get latest session
       const { data: latestSession } = await supabase
         .from('user_sessions')
         .select('session_id')
-        .eq('user_id', userId)
+        .eq('user_id', effectiveUserId)
         .order('started_at', { ascending: false })
         .limit(1)
         .single();
@@ -128,21 +140,23 @@ export function UserJourneyModal({ userId, displayName, email, onClose }: UserJo
         .order('created_at', { ascending: true });
 
       return (data || []) as UserActivity[];
-    }
+    },
+    enabled: trackingEnabled,
   });
 
   // Fetch all activity for timeline
   const { data: allActivity } = useQuery({
-    queryKey: ['user-journey-all-activity', userId],
+    queryKey: ['user-journey-all-activity', effectiveUserId],
     queryFn: async () => {
       const { data } = await supabase
         .from('user_activity')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', effectiveUserId)
         .order('created_at', { ascending: false })
         .limit(100);
       return (data || []) as UserActivity[];
-    }
+    },
+    enabled: trackingEnabled,
   });
 
   const formatDuration = (seconds: number) => {
