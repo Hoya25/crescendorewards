@@ -1659,7 +1659,13 @@ export function AdminRewards() {
                               <MoreHorizontal className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuContent align="end" className="w-48 bg-popover border border-border shadow-lg z-50">
+                            <PermissionGate permission="rewards_edit">
+                              <DropdownMenuItem onClick={() => handleOpenModal(reward)}>
+                                <Pencil className="w-4 h-4 mr-2" />
+                                Edit Reward
+                              </DropdownMenuItem>
+                            </PermissionGate>
                             <DropdownMenuItem onClick={() => window.open(`/rewards/${reward.id}`, '_blank')}>
                               <ExternalLink className="w-4 h-4 mr-2" />
                               View in Marketplace
