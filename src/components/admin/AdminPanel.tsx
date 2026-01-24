@@ -22,6 +22,7 @@ import { AdminSettings } from './AdminSettings';
 import { AdminShopSettings } from './AdminShopSettings';
 import { AdminEarningOpportunities } from './AdminEarningOpportunities';
 import { AdminStatusTiers } from './AdminStatusTiers';
+import { AdminAlliancePartners } from './AdminAlliancePartners';
 import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import AdminGifts from './AdminGifts';
 import { AdminUserNotifications } from './AdminUserNotifications';
@@ -80,6 +81,8 @@ export function AdminPanel() {
         return <AdminEarningOpportunities />;
       case 'status-tiers':
         return <AdminStatusTiers />;
+      case 'alliance-partners':
+        return <AdminAlliancePartners />;
       default:
         return <AdminDashboard onNavigate={setCurrentView} />;
     }
