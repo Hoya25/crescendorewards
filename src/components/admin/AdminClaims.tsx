@@ -70,7 +70,7 @@ type StatusTab = typeof STATUS_TABS[number];
 const DELIVERY_STATUS_OPTIONS = ['pending', 'processing', 'shipped', 'delivered', 'failed'] as const;
 type DeliveryStatus = typeof DELIVERY_STATUS_OPTIONS[number];
 
-const CATEGORIES = ['All Categories', 'Merchandise', 'Gift Cards', 'Experiences', 'Digital', 'Partner Rewards', 'Luxury', 'Limited Edition'];
+const CATEGORIES = ['All Categories', 'Merchandise', 'Gift Cards', 'Experiences', 'Health & Wellness', 'Subscriptions', 'Alliance Tokens', 'Gaming', 'Digital', 'Partner Rewards'];
 
 export function AdminClaims() {
   const { hasPermission, logActivity } = useAdminRole();

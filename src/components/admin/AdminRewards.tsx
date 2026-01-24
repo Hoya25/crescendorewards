@@ -96,6 +96,7 @@ const CATEGORIES = [
   { value: 'gaming', label: 'Gaming' },
   { value: 'entertainment', label: 'Entertainment' },
   { value: 'subscriptions', label: 'Subscriptions' },
+  { value: 'wellness', label: 'Health & Wellness' },
   { value: 'crypto', label: 'Crypto' },
   { value: 'opportunity', label: 'Opportunity' },
 ];

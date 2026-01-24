@@ -57,6 +57,8 @@ const CATEGORIES = [
   { value: 'gift_cards', label: 'Gift Cards' },
   { value: 'gaming', label: 'Gaming' },
   { value: 'entertainment', label: 'Entertainment' },
+  { value: 'subscriptions', label: 'Subscriptions' },
+  { value: 'wellness', label: 'Health & Wellness' },
   { value: 'crypto', label: 'Crypto' },
   { value: 'opportunity', label: 'Opportunity' },
 ];
@@ -575,13 +577,13 @@ export function SponsoredRewardForm({ open, onClose, reward, onSave }: Sponsored
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                <SelectContent>
                     <SelectItem value="none">No Minimum (All Users)</SelectItem>
-                    <SelectItem value="droplet">💧 Droplet</SelectItem>
-                    <SelectItem value="eddy">🌀 Eddy</SelectItem>
-                    <SelectItem value="spiral">🌊 Spiral</SelectItem>
-                    <SelectItem value="surge">⚡ Surge</SelectItem>
-                    <SelectItem value="torus">🔮 Torus</SelectItem>
+                    <SelectItem value="bronze">🥉 Bronze+</SelectItem>
+                    <SelectItem value="silver">🥈 Silver+</SelectItem>
+                    <SelectItem value="gold">🥇 Gold+</SelectItem>
+                    <SelectItem value="platinum">💎 Platinum+</SelectItem>
+                    <SelectItem value="diamond">👑 Diamond Only</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-muted-foreground">
