@@ -57,6 +57,7 @@ const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then(m => ({ defaul
 const NotFound = lazy(() => import('./pages/NotFound'));
 const InviteLandingPage = lazy(() => import('./pages/InviteLandingPage'));
 const JoinRedirectPage = lazy(() => import('./pages/JoinRedirectPage'));
+const BenefitsPage = lazy(() => import('./components/benefits/BenefitsPage').then(m => ({ default: m.BenefitsPage })));
 
 // Admin panel - separate chunk for code splitting
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel').then(m => ({ default: m.AdminPanel })));
@@ -199,6 +200,14 @@ function AppRoutes() {
               element={
                 <ProtectedRoute>
                   <MembershipLevelPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/benefits" 
+              element={
+                <ProtectedRoute>
+                  <BenefitsPage />
                 </ProtectedRoute>
               } 
             />
