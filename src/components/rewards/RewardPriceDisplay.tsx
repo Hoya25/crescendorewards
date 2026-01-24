@@ -10,6 +10,7 @@ import {
   type ClaimEligibility
 } from '@/utils/getRewardPrice';
 import { Link } from 'react-router-dom';
+import { STATUS_TIERS, TIER_EMOJIS } from '@/constants/rewards';
 
 interface RewardPriceDisplayProps {
   reward: Reward;
@@ -87,28 +88,25 @@ export function RewardPriceDisplay({
     );
   }
 
-  // FREE for user's tier
+  // FREE for user's tier - show tier name + Benefit instead of FREE
   if (pricing.isFree) {
+    const tierEmoji = TIER_EMOJIS[userTier.toLowerCase()] || '✓';
+    
     return (
       <div className={cn('space-y-1', className)}>
-        <div className="flex items-center gap-2">
-          <span className={cn(styles.free, 'text-emerald-500')}>FREE</span>
-          {pricing.originalPrice > 0 && (
-            <span className={cn(styles.original, 'text-muted-foreground line-through')}>
-              {pricing.originalPrice} claims
-            </span>
+        <Badge 
+          variant="outline" 
+          className={cn(
+            styles.badge, 
+            'text-emerald-600 border-emerald-500/30 bg-emerald-500/10 px-2 py-1'
           )}
-        </div>
-        {showTierBenefit && (
-          <Badge 
-            variant="outline" 
-            className={cn(
-              styles.badge, 
-              'text-emerald-600 border-emerald-500/30 bg-emerald-500/10'
-            )}
-          >
-            ✓ {tierDisplayName} Benefit
-          </Badge>
+        >
+          {tierDisplayName} {tierEmoji} Benefit
+        </Badge>
+        {pricing.originalPrice > 0 && showTierBenefit && (
+          <p className={cn(styles.original, 'text-muted-foreground')}>
+            Normally {pricing.originalPrice} claims
+          </p>
         )}
       </div>
     );
@@ -169,9 +167,10 @@ export function RewardPriceCompact({
 }) {
   const pricing = getRewardPriceForUser(reward, userTier);
   const tierDisplayName = getTierDisplayName(userTier);
+  const tierEmoji = TIER_EMOJIS[userTier.toLowerCase()] || '✓';
   
-  // Check if locked
-  const TIER_ORDER = ['droplet', 'eddy', 'spiral', 'surge', 'torus'];
+  // Check if locked - use metal tier order
+  const TIER_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
   const normalizedUserTier = userTier.toLowerCase();
   const normalizedMinTier = reward.min_status_tier?.toLowerCase() || '';
   const userTierIndex = TIER_ORDER.indexOf(normalizedUserTier);
@@ -189,12 +188,12 @@ export function RewardPriceCompact({
     );
   }
 
+  // FREE for user's tier - show tier name + emoji + Benefit
   if (pricing.isFree) {
     return (
       <div className={cn('flex items-center gap-2', className)}>
-        <span className="text-2xl font-black text-emerald-500">FREE</span>
-        <Badge variant="outline" className="text-emerald-600 border-emerald-500/30 text-xs">
-          {tierDisplayName} Perk
+        <Badge variant="outline" className="text-emerald-600 border-emerald-500/30 bg-emerald-500/10 text-sm px-2 py-1">
+          {tierDisplayName} {tierEmoji} Benefit
         </Badge>
       </div>
     );
