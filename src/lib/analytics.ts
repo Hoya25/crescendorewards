@@ -20,6 +20,7 @@ type EventName =
   | 'referral_copied'
   | 'onboarding_completed'
   | 'onboarding_skipped'
+  | 'referred_welcome_completed'
   | 'tier_upgraded';
 
 interface EventData {

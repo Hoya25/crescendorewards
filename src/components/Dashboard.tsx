@@ -29,6 +29,7 @@ import { FeaturedRewardsCarousel } from "./rewards/FeaturedRewardsCarousel";
 import { BetaTestingNotice } from "./BetaTestingNotice";
 import { InviteHeaderCTA } from "./navigation/InviteHeaderCTA";
 import { EarnNCTRQuickCard } from "./dashboard/EarnNCTRQuickCard";
+import { ReferredWelcomeModal } from "./referral/ReferredWelcomeModal";
 import { REFERRAL_REWARDS } from "@/constants/referral";
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress, getNCTRNeededForNextLevel } from '@/utils/membershipLevels';
 import { useTheme } from "./ThemeProvider";
@@ -40,6 +41,7 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { useAdminNotifications } from "@/hooks/useAdminNotifications";
+import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { DashboardSkeleton } from "./skeletons/DashboardSkeleton";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
@@ -257,19 +259,66 @@ export function Dashboard() {
   const { data: referralStats, isLoading: referralLoading } = useReferralStats();
   const { data: referralSettings } = useReferralSettings();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [showReferredModal, setShowReferredModal] = useState(false);
+  const [referrerName, setReferrerName] = useState<string | undefined>();
   const [activityOpen, setActivityOpen] = useState(false);
   
   const allocation = referralSettings?.allocation360Lock ?? REFERRAL_REWARDS.defaults.allocation360Lock;
 
+  // Check if user was referred and show welcome modal
   useEffect(() => {
-    if (!hasBeenOnboarded()) {
+    const checkReferralStatus = async () => {
+      // Check for stored referral info that hasn't been shown yet
+      const referralCode = sessionStorage.getItem('referral_code');
+      const shownReferredModal = sessionStorage.getItem('shown_referred_modal');
+      
+      if (referralCode && !shownReferredModal && profile) {
+        // Fetch referrer name
+        try {
+          const { data } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('referral_code', referralCode)
+            .maybeSingle();
+          
+          if (data?.full_name) {
+            setReferrerName(data.full_name.split(' ')[0]);
+          }
+          
+          setShowReferredModal(true);
+          sessionStorage.setItem('shown_referred_modal', 'true');
+          
+          // Clear referral data from storage after crediting
+          localStorage.removeItem('referral_code');
+          localStorage.removeItem('referral_link_type');
+          localStorage.removeItem('referral_expiry');
+          sessionStorage.removeItem('referral_code');
+          sessionStorage.removeItem('referral_link_type');
+        } catch (error) {
+          console.error('Error fetching referrer info:', error);
+        }
+      }
+    };
+    
+    if (profile) {
+      checkReferralStatus();
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    if (!hasBeenOnboarded() && !showReferredModal) {
       setShowWelcomeModal(true);
     }
-  }, []);
+  }, [showReferredModal]);
 
   const handleWelcomeClose = () => {
     setShowWelcomeModal(false);
     trackEvent('onboarding_completed');
+  };
+
+  const handleReferredModalClose = () => {
+    setShowReferredModal(false);
+    trackEvent('referred_welcome_completed');
   };
 
   if (!profile) {
@@ -533,6 +582,12 @@ export function Dashboard() {
         isOpen={showWelcomeModal} 
         onClose={handleWelcomeClose} 
         claimsBalance={claimBalance}
+      />
+      <ReferredWelcomeModal
+        isOpen={showReferredModal}
+        onClose={handleReferredModalClose}
+        userName={userName}
+        referrerName={referrerName}
       />
       <OnboardingProgress />
     </SidebarProvider>
