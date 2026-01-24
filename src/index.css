@@ -130,11 +130,16 @@ All colors MUST be HSL.
 }
 
 /* Minimum touch target sizing for mobile */
-@media (hover: none) and (pointer: coarse) {
-  button:not(.no-min-size), 
-  a:not(.no-min-size), 
-  [role="button"]:not(.no-min-size) {
+@media (pointer: coarse) {
+  button:not(.no-min-touch), 
+  a:not(.no-min-touch), 
+  [role="button"]:not(.no-min-touch) {
     min-height: 44px;
+  }
+  
+  /* Icon-only buttons need both dimensions */
+  button[aria-label]:not(.no-min-touch),
+  [role="button"][aria-label]:not(.no-min-touch) {
     min-width: 44px;
   }
 }
