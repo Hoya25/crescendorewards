@@ -597,7 +597,7 @@ export function AdminStatusTiers() {
 
       {/* Edit Dialog - Fixed Layout with Proper Scrolling */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="max-w-5xl w-[95vw] max-h-[90vh] flex flex-col p-0 gap-0">
+        <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] flex flex-col p-0 gap-0">
           {/* Fixed Header */}
           <DialogHeader className="px-6 pt-6 pb-4 border-b flex-shrink-0">
             <DialogTitle className="flex items-center gap-3">
@@ -616,139 +616,139 @@ export function AdminStatusTiers() {
 
           {/* Scrollable Content Area */}
           <div className="flex-1 overflow-y-auto min-h-0">
-            <div className="grid grid-cols-1 xl:grid-cols-[1fr,380px] min-h-full">
-              {/* Edit Form Section */}
-              <div className="p-6 min-w-0">
+            <div className="flex flex-col lg:flex-row">
+              {/* Edit Form Section - Takes remaining space */}
+              <div className="flex-1 min-w-0 p-6">
                 {selectedTier && (
                   <Tabs defaultValue="display" className="w-full">
-                    {/* Tabs with icons-only on mobile, icons+text on larger screens */}
+                    {/* Tabs with proper width distribution */}
                     <TabsList className="w-full grid grid-cols-3 mb-6">
-                      <TabsTrigger value="display" className="gap-1.5 px-2 sm:px-4">
+                      <TabsTrigger value="display" className="gap-1.5">
                         <Sparkles className="w-4 h-4 flex-shrink-0" />
-                        <span className="hidden sm:inline text-sm">Display</span>
+                        <span className="hidden sm:inline">Display</span>
                       </TabsTrigger>
-                      <TabsTrigger value="thresholds" className="gap-1.5 px-2 sm:px-4">
+                      <TabsTrigger value="thresholds" className="gap-1.5">
                         <Shield className="w-4 h-4 flex-shrink-0" />
-                        <span className="hidden sm:inline text-sm">Thresholds</span>
+                        <span className="hidden sm:inline">Thresholds</span>
                       </TabsTrigger>
-                      <TabsTrigger value="benefits" className="gap-1.5 px-2 sm:px-4">
+                      <TabsTrigger value="benefits" className="gap-1.5">
                         <Zap className="w-4 h-4 flex-shrink-0" />
-                        <span className="hidden sm:inline text-sm">Benefits</span>
+                        <span className="hidden sm:inline">Benefits</span>
                       </TabsTrigger>
                     </TabsList>
 
                     {/* Tab 1: Display Settings */}
-                    <TabsContent value="display" className="space-y-6 mt-0">
-                      <div className="space-y-4">
+                    <TabsContent value="display" className="mt-0 space-y-4">
+                      {/* Display Name - FULL WIDTH */}
+                      <div className="space-y-2">
+                        <Label htmlFor="display_name">Display Name</Label>
+                        <Input
+                          id="display_name"
+                          value={selectedTier.display_name}
+                          onChange={(e) => handleTierChange('display_name', e.target.value)}
+                          className="w-full"
+                          placeholder="e.g., Gold Member"
+                        />
+                      </div>
+                      
+                      {/* Badge Emoji and Color - SIDE BY SIDE */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="display_name">Display Name</Label>
-                          <Input
-                            id="display_name"
-                            value={selectedTier.display_name}
-                            onChange={(e) => handleTierChange('display_name', e.target.value)}
-                            className="w-full"
-                            placeholder="e.g., Gold Member"
+                          <Label>Badge Emoji</Label>
+                          <EmojiPicker
+                            value={selectedTier.badge_emoji}
+                            onChange={(emoji) => handleTierChange('badge_emoji', emoji)}
                           />
                         </div>
                         
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label>Badge Emoji</Label>
-                            <EmojiPicker
-                              value={selectedTier.badge_emoji}
-                              onChange={(emoji) => handleTierChange('badge_emoji', emoji)}
+                        <div className="space-y-2">
+                          <Label>Badge Color</Label>
+                          <div className="flex gap-2">
+                            <Input
+                              type="color"
+                              value={selectedTier.badge_color}
+                              onChange={(e) => handleTierChange('badge_color', e.target.value)}
+                              className="w-14 h-10 p-1 cursor-pointer flex-shrink-0"
+                            />
+                            <Input
+                              value={selectedTier.badge_color}
+                              onChange={(e) => handleTierChange('badge_color', e.target.value)}
+                              className="flex-1 font-mono text-sm min-w-0"
+                              placeholder="#FFD700"
                             />
                           </div>
-                          
-                          <div className="space-y-2">
-                            <Label>Badge Color</Label>
-                            <div className="flex gap-2">
-                              <Input
-                                type="color"
-                                value={selectedTier.badge_color}
-                                onChange={(e) => handleTierChange('badge_color', e.target.value)}
-                                className="w-14 h-10 p-1 cursor-pointer flex-shrink-0"
-                              />
-                              <Input
-                                value={selectedTier.badge_color}
-                                onChange={(e) => handleTierChange('badge_color', e.target.value)}
-                                className="flex-1 font-mono text-sm min-w-0"
-                                placeholder="#FFD700"
-                              />
-                            </div>
-                          </div>
                         </div>
+                      </div>
 
-                        <div className="space-y-2">
-                          <Label htmlFor="description">Description</Label>
-                          <Textarea
-                            id="description"
-                            value={selectedTier.description || ''}
-                            onChange={(e) => handleTierChange('description', e.target.value)}
-                            placeholder="Describe what makes this tier special..."
-                            rows={3}
-                            className="w-full resize-none"
-                          />
-                        </div>
+                      {/* Description - FULL WIDTH */}
+                      <div className="space-y-2">
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
+                          id="description"
+                          value={selectedTier.description || ''}
+                          onChange={(e) => handleTierChange('description', e.target.value)}
+                          placeholder="Describe what makes this tier special..."
+                          rows={3}
+                          className="w-full resize-none"
+                        />
+                      </div>
 
-                        <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
-                          <div className="space-y-0.5">
-                            <Label>Active Status</Label>
-                            <p className="text-xs text-muted-foreground">
-                              Inactive tiers are hidden from users
-                            </p>
-                          </div>
-                          <Switch
-                            checked={selectedTier.is_active}
-                            onCheckedChange={(checked) => handleTierChange('is_active', checked)}
-                          />
+                      {/* Active Status Toggle */}
+                      <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
+                        <div className="space-y-0.5">
+                          <Label>Active Status</Label>
+                          <p className="text-xs text-muted-foreground">
+                            Inactive tiers are hidden from users
+                          </p>
                         </div>
+                        <Switch
+                          checked={selectedTier.is_active}
+                          onCheckedChange={(checked) => handleTierChange('is_active', checked)}
+                        />
                       </div>
                     </TabsContent>
 
                     {/* Tab 2: Thresholds */}
-                    <TabsContent value="thresholds" className="space-y-6 mt-0">
+                    <TabsContent value="thresholds" className="mt-0 space-y-4">
                       <div className="p-4 rounded-lg border bg-muted/30">
                         <p className="text-sm text-muted-foreground">
                           Set the NCTR locking requirements for users to qualify for this tier.
                         </p>
                       </div>
                       
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="min_nctr">Minimum 360LOCK NCTR</Label>
-                          <Input
-                            id="min_nctr"
-                            type="number"
-                            value={selectedTier.min_nctr_360_locked}
-                            onChange={(e) => handleTierChange('min_nctr_360_locked', parseInt(e.target.value) || 0)}
-                            className="w-full"
-                            min={0}
-                          />
-                          <p className="text-xs text-muted-foreground">
-                            Users need at least this much NCTR locked to qualify
-                          </p>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="max_nctr">Maximum 360LOCK NCTR</Label>
-                          <Input
-                            id="max_nctr"
-                            type="number"
-                            value={selectedTier.max_nctr_360_locked ?? ''}
-                            onChange={(e) => handleTierChange('max_nctr_360_locked', e.target.value ? parseInt(e.target.value) : null)}
-                            placeholder="Leave empty for no maximum (top tier)"
-                            className="w-full"
-                          />
-                          <p className="text-xs text-muted-foreground">
-                            Users with more than this amount advance to the next tier
-                          </p>
-                        </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="min_nctr">Minimum 360LOCK NCTR</Label>
+                        <Input
+                          id="min_nctr"
+                          type="number"
+                          value={selectedTier.min_nctr_360_locked}
+                          onChange={(e) => handleTierChange('min_nctr_360_locked', parseInt(e.target.value) || 0)}
+                          className="w-full"
+                          min={0}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Users need at least this much NCTR locked to qualify
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="max_nctr">Maximum 360LOCK NCTR</Label>
+                        <Input
+                          id="max_nctr"
+                          type="number"
+                          value={selectedTier.max_nctr_360_locked ?? ''}
+                          onChange={(e) => handleTierChange('max_nctr_360_locked', e.target.value ? parseInt(e.target.value) : null)}
+                          placeholder="Leave empty for no maximum (top tier)"
+                          className="w-full"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Users with more than this amount advance to the next tier
+                        </p>
                       </div>
                     </TabsContent>
 
                     {/* Tab 3: Benefits */}
-                    <TabsContent value="benefits" className="space-y-6 mt-0">
+                    <TabsContent value="benefits" className="mt-0 space-y-4">
                       {/* Earning Multiplier */}
                       <div className="space-y-3 p-4 rounded-lg border">
                         <div className="flex items-center justify-between">
@@ -930,8 +930,8 @@ export function AdminStatusTiers() {
                 )}
               </div>
 
-              {/* Preview Panel - Hidden on smaller screens, visible on xl+ */}
-              <div className="hidden xl:block border-l bg-muted/10">
+              {/* Preview Panel - Fixed width on lg+, hidden on smaller */}
+              <div className="hidden lg:block w-[320px] flex-shrink-0 border-l bg-muted/10">
                 <div className="sticky top-0 p-6 space-y-4">
                   <div className="flex items-center gap-2">
                     <Eye className="w-4 h-4" />
