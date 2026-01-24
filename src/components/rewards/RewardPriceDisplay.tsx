@@ -10,7 +10,7 @@ import {
   type ClaimEligibility
 } from '@/utils/getRewardPrice';
 import { Link } from 'react-router-dom';
-import { STATUS_TIERS } from '@/constants/rewards';
+
 
 interface RewardPriceDisplayProps {
   reward: Reward;
