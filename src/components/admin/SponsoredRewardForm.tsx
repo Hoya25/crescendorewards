@@ -50,20 +50,9 @@ interface SponsoredRewardFormProps {
   onSave: () => void;
 }
 
-const CATEGORIES = [
-  { value: 'alliance_tokens', label: 'Alliance Tokens' },
-  { value: 'experiences', label: 'Experiences' },
-  { value: 'merch', label: 'Merchandise' },
-  { value: 'gift_cards', label: 'Gift Cards' },
-  { value: 'gaming', label: 'Gaming' },
-  { value: 'entertainment', label: 'Entertainment' },
-  { value: 'subscriptions', label: 'Subscriptions' },
-  { value: 'wellness', label: 'Health & Wellness' },
-  { value: 'crypto', label: 'Crypto' },
-  { value: 'opportunity', label: 'Opportunity' },
-];
+import { REWARD_CATEGORIES, STATUS_TIERS } from '@/constants/rewards';
 
-const TIERS = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
+const TIERS = STATUS_TIERS.map(t => t.value);
 
 export function SponsoredRewardForm({ open, onClose, reward, onSave }: SponsoredRewardFormProps) {
   const [activeTab, setActiveTab] = useState('basic');
@@ -370,7 +359,7 @@ export function SponsoredRewardForm({ open, onClose, reward, onSave }: Sponsored
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {CATEGORIES.map((cat) => (
+                      {REWARD_CATEGORIES.map((cat) => (
                         <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
                       ))}
                     </SelectContent>
@@ -720,11 +709,11 @@ export function SponsoredRewardForm({ open, onClose, reward, onSave }: Sponsored
                           )}
                         >
                           <div className="text-lg mb-1">
-                            {tier === 'droplet' && '💧'}
-                            {tier === 'eddy' && '🌀'}
-                            {tier === 'spiral' && '🌊'}
-                            {tier === 'surge' && '⚡'}
-                            {tier === 'torus' && '🔮'}
+                            {tier === 'bronze' && '🥉'}
+                            {tier === 'silver' && '🥈'}
+                            {tier === 'gold' && '🥇'}
+                            {tier === 'platinum' && '💎'}
+                            {tier === 'diamond' && '👑'}
                           </div>
                           <div className="text-xs text-muted-foreground capitalize">{tier}</div>
                           <div className={cn(

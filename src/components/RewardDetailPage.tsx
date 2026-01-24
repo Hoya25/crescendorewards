@@ -82,23 +82,10 @@ interface RewardDetailPageProps {
   onClaimSuccess?: () => void;
 }
 
-const categoryIcons: Record<string, any> = {
-  alliance_tokens: Coins,
-  experiences: Sparkles,
-  merch: ShoppingBag,
-  gift_cards: CreditCard,
-  wellness: Heart,
-  subscriptions: Trophy,
-};
+import { CATEGORY_LABELS, CATEGORY_ICONS, TIER_EMOJIS, getCategoryIcon } from '@/constants/rewards';
 
-const categoryLabels: Record<string, string> = {
-  alliance_tokens: 'Alliance Tokens',
-  experiences: 'Experiences',
-  merch: 'Merch',
-  gift_cards: 'Gift Cards',
-  wellness: 'Health & Wellness',
-  subscriptions: 'Subscriptions',
-};
+const categoryIcons = CATEGORY_ICONS;
+const categoryLabels = CATEGORY_LABELS;
 
 const tierEmojis: Record<string, string> = {
   bronze: '🥉',
