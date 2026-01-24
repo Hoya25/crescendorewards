@@ -621,17 +621,26 @@ export function AdminStatusTiers() {
               <div className="flex-1 min-w-0 p-6">
                 {selectedTier && (
                   <Tabs defaultValue="display" className="w-full">
-                    {/* Tabs with proper width distribution */}
-                    <TabsList className="w-full grid grid-cols-3 mb-6">
-                      <TabsTrigger value="display" className="gap-1.5">
+                    {/* Tabs with proper width distribution and gap */}
+                    <TabsList className="w-full grid grid-cols-3 gap-1 p-1 mb-6">
+                      <TabsTrigger 
+                        value="display" 
+                        className="flex items-center justify-center gap-2 px-3 py-2"
+                      >
                         <Sparkles className="w-4 h-4 flex-shrink-0" />
                         <span className="hidden sm:inline">Display</span>
                       </TabsTrigger>
-                      <TabsTrigger value="thresholds" className="gap-1.5">
+                      <TabsTrigger 
+                        value="thresholds" 
+                        className="flex items-center justify-center gap-2 px-3 py-2"
+                      >
                         <Shield className="w-4 h-4 flex-shrink-0" />
                         <span className="hidden sm:inline">Thresholds</span>
                       </TabsTrigger>
-                      <TabsTrigger value="benefits" className="gap-1.5">
+                      <TabsTrigger 
+                        value="benefits" 
+                        className="flex items-center justify-center gap-2 px-3 py-2"
+                      >
                         <Zap className="w-4 h-4 flex-shrink-0" />
                         <span className="hidden sm:inline">Benefits</span>
                       </TabsTrigger>
