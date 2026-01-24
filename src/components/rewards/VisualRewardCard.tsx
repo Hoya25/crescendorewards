@@ -229,16 +229,6 @@ export function VisualRewardCard({
 
         {/* BOTTOM: Title overlay on image */}
         <div className="absolute left-0 right-0 bottom-0 p-3">
-          {/* Tier Access Badge - shows minimum tier that gets free access */}
-          {freeTierName && (
-            <Badge 
-              className="mb-2 bg-gradient-to-r from-emerald-500 to-green-500 text-white border-0 text-[10px] font-bold shadow-lg px-2 py-0.5"
-            >
-              <Gift className="w-2.5 h-2.5 mr-1" />
-              {freeTierName}+
-            </Badge>
-          )}
-          
           {/* Title - max 2 lines */}
           <h3 className="font-bold text-sm text-white leading-tight line-clamp-2 drop-shadow-md">
             {reward.title}
