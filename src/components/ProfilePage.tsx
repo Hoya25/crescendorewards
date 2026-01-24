@@ -1036,6 +1036,9 @@ export function ProfilePage() {
             </Card>
           </div>
         </div>
+        
+        {/* Bottom padding for mobile nav */}
+        <div className="h-20 md:hidden" />
       </div>
     </div>
   );

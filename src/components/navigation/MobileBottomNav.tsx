@@ -67,7 +67,7 @@ export function MobileBottomNav() {
                 )} />
               )}
               <span className={cn(
-                "text-[10px] font-medium transition-colors",
+                "text-xs font-medium transition-colors",
                 item.highlight && "-mt-1"
               )}>
                 {item.label}

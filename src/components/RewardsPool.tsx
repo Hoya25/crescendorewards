@@ -723,7 +723,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           </div>
 
           {/* Category Tabs - main visible filters */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+          <div className="relative">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide scroll-smooth">
             {[
               { key: 'all', label: 'All', icon: Gift, filter: 'category' },
               { key: 'featured', label: 'Featured', icon: Star, filter: 'featured' },
@@ -775,6 +776,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 </Button>
               );
             })}
+            </div>
+            {/* Right fade gradient indicator */}
+            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none md:hidden" />
           </div>
         </div>
       </div>
@@ -1361,6 +1365,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         </div>
       )}
 
+      {/* Bottom padding for mobile nav */}
+      <div className="h-20 md:hidden" />
+      
       <Footer />
     </div>
   );

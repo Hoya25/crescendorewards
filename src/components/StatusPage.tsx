@@ -247,50 +247,54 @@ export function StatusPage({ onBack }: StatusPageProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between gap-4 overflow-x-auto pb-4">
-              {statusTiers.map((tier, index) => {
-                const isCompleted = currentLevel > tier.level;
-                const isCurrent = currentLevel === tier.level;
-                const isLocked = currentLevel < tier.level;
-                
-                return (
-                  <div key={tier.level} className="flex items-center">
-                    <div className="flex flex-col items-center gap-2 min-w-[120px]">
-                      <div className="relative">
-                        <div 
-                          className={cn(
-                            "w-20 h-20 rounded-2xl flex items-center justify-center text-3xl font-bold transition-all",
-                            isCompleted && "opacity-100",
-                            isCurrent && "opacity-100 ring-2 ring-offset-2",
-                            isLocked && "opacity-40"
-                          )}
-                          style={{ 
-                            backgroundColor: isLocked ? 'hsl(var(--muted))' : tier.color,
-                            color: 'white'
-                          }}
-                        >
-                          {isCompleted ? <Check className="w-8 h-8" /> : tier.level}
-                        </div>
-                        {isCurrent && (
+            <div className="relative">
+              <div className="flex items-center justify-between gap-4 overflow-x-auto pb-4 scroll-smooth scrollbar-hide">
+                {statusTiers.map((tier, index) => {
+                  const isCompleted = currentLevel > tier.level;
+                  const isCurrent = currentLevel === tier.level;
+                  const isLocked = currentLevel < tier.level;
+                  
+                  return (
+                    <div key={tier.level} className="flex items-center">
+                      <div className="flex flex-col items-center gap-2 min-w-[100px] sm:min-w-[120px]">
+                        <div className="relative">
                           <div 
-                            className="absolute -top-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
-                            style={{ backgroundColor: tier.color, color: 'white' }}
+                            className={cn(
+                              "w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl font-bold transition-all",
+                              isCompleted && "opacity-100",
+                              isCurrent && "opacity-100 ring-2 ring-offset-2",
+                              isLocked && "opacity-40"
+                            )}
+                            style={{ 
+                              backgroundColor: isLocked ? 'hsl(var(--muted))' : tier.color,
+                              color: 'white'
+                            }}
                           >
-                            <Check className="w-4 h-4" />
+                            {isCompleted ? <Check className="w-6 h-6 sm:w-8 sm:h-8" /> : tier.level}
                           </div>
-                        )}
+                          {isCurrent && (
+                            <div 
+                              className="absolute -top-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                              style={{ backgroundColor: tier.color, color: 'white' }}
+                            >
+                              <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-center">
+                          <p className="font-semibold text-sm sm:text-base">{tier.name}</p>
+                          <p className="text-xs text-muted-foreground">{tier.requirement.toLocaleString()} NCTR</p>
+                        </div>
                       </div>
-                      <div className="text-center">
-                        <p className="font-semibold">{tier.name}</p>
-                        <p className="text-xs text-muted-foreground">{tier.requirement.toLocaleString()} NCTR</p>
-                      </div>
+                      {index < statusTiers.length - 1 && (
+                        <div className="w-8 sm:w-12 h-0.5 bg-border mx-1 sm:mx-2 flex-shrink-0" />
+                      )}
                     </div>
-                    {index < statusTiers.length - 1 && (
-                      <div className="w-12 h-0.5 bg-border mx-2 flex-shrink-0" />
-                    )}
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
+              {/* Right fade gradient indicator for scroll */}
+              <div className="absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-card to-transparent pointer-events-none md:hidden" />
             </div>
           </CardContent>
         </Card>

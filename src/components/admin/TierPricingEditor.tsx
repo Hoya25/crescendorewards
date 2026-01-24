@@ -207,7 +207,7 @@ export function TierPricingEditor({
                     : tier.color
                 )}
               >
-                <div className="flex items-center gap-2 min-w-[120px]">
+                <div className="flex items-center gap-2 min-w-[80px] sm:min-w-[120px]">
                   <span className="text-lg">{tier.icon}</span>
                   <span className="font-medium">{tier.name}</span>
                 </div>
@@ -236,7 +236,7 @@ export function TierPricingEditor({
                   />
                 </div>
                 
-                <div className="min-w-[80px] text-right">
+                <div className="min-w-[60px] sm:min-w-[80px] text-right">
                   {hasOrderError ? (
                     <Badge variant="destructive" className="text-xs">
                       Too high
