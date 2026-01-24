@@ -90,8 +90,9 @@ export function RewardPriceDisplay({
 
   // FREE for user's tier - show the LOWEST tier that gets free access
   if (pricing.isFree) {
-    const lowestFreeTier = getLowestFreeTier(reward.status_tier_claims_cost);
-    const displayTier = lowestFreeTier || 'Bronze';
+    const lowestFreeTier = getLowestFreeTier(reward);
+    const displayTier = lowestFreeTier || 'Everyone';
+    const showPlus = displayTier !== 'Everyone';
     
     return (
       <div className={cn('space-y-1', className)}>
@@ -102,7 +103,7 @@ export function RewardPriceDisplay({
             'text-emerald-600 border-emerald-500/30 bg-emerald-500/10 px-2 py-1'
           )}
         >
-          {displayTier}+
+          {displayTier}{showPlus ? '+' : ''}
         </Badge>
         {pricing.originalPrice > 0 && showTierBenefit && (
           <p className={cn(styles.original, 'text-muted-foreground')}>
@@ -159,22 +160,34 @@ export function RewardPriceDisplay({
 // Helper to find the lowest tier with free (0 cost) access
 const TIER_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
 
-function getLowestFreeTier(tierCosts: unknown): string | null {
-  if (!tierCosts || typeof tierCosts !== 'object') return null;
+function getLowestFreeTier(reward: Reward): string | null {
+  // Priority 1: Use min_status_tier if set - this is the admin's explicit access setting
+  if (reward.min_status_tier) {
+    return getTierDisplayName(reward.min_status_tier);
+  }
   
-  // Cast to Record<string, number> to handle TierPricing interface
-  const costs = tierCosts as Record<string, number>;
-  const freeTiers = Object.entries(costs)
-    .filter(([_, cost]) => cost === 0)
-    .map(([tier]) => tier.toLowerCase());
-  
-  if (freeTiers.length === 0) return null;
-  
-  for (const tier of TIER_ORDER) {
-    if (freeTiers.includes(tier)) {
-      return getTierDisplayName(tier);
+  // Priority 2: If no min_status_tier, check tier pricing for lowest free tier
+  const tierCosts = reward.status_tier_claims_cost;
+  if (tierCosts && typeof tierCosts === 'object') {
+    const costs = tierCosts as Record<string, number>;
+    const freeTiers = Object.entries(costs)
+      .filter(([_, cost]) => cost === 0)
+      .map(([tier]) => tier.toLowerCase());
+    
+    if (freeTiers.length > 0) {
+      for (const tier of TIER_ORDER) {
+        if (freeTiers.includes(tier)) {
+          return getTierDisplayName(tier);
+        }
+      }
     }
   }
+  
+  // Priority 3: If base cost is 0 with no restrictions, it's free for everyone
+  if (reward.cost === 0) {
+    return 'Everyone';
+  }
+  
   return null;
 }
 
@@ -210,15 +223,15 @@ export function RewardPriceCompact({
 
   // FREE for user's tier - show the LOWEST tier that gets free access, not user's tier
   if (pricing.isFree) {
-    // Find the lowest tier with free access from tier pricing
-    const lowestFreeTier = getLowestFreeTier(reward.status_tier_claims_cost);
-    // If no tier pricing but cost is 0, it's free for all
-    const displayTier = lowestFreeTier || 'Bronze';
+    // Use min_status_tier as primary source, then check tier pricing
+    const lowestFreeTier = getLowestFreeTier(reward);
+    const displayTier = lowestFreeTier || 'Everyone';
+    const showPlus = displayTier !== 'Everyone';
     
     return (
       <div className={cn('flex items-center gap-2', className)}>
         <Badge variant="outline" className="text-emerald-600 border-emerald-500/30 bg-emerald-500/10 text-sm px-2 py-1">
-          {displayTier}+
+          {displayTier}{showPlus ? '+' : ''}
         </Badge>
       </div>
     );
