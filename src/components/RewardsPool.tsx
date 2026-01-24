@@ -19,7 +19,7 @@ import { BuyClaims } from '@/components/BuyClaims';
 import { RewardCard } from '@/components/rewards/RewardCard';
 import { VisualRewardCard } from '@/components/rewards/VisualRewardCard';
 import { RewardFilters } from '@/components/rewards/RewardFilters';
-import { FeaturedCarousel } from '@/components/rewards/FeaturedCarousel';
+import { FeaturedRewardsCarousel } from '@/components/rewards/FeaturedRewardsCarousel';
 import { SponsoredRewardsCarousel } from '@/components/rewards/SponsoredRewardsCarousel';
 import { SponsoredBanner } from '@/components/rewards/SponsoredBanner';
 import { StatusBenefitsBanner } from '@/components/user/StatusBenefitsBanner';
@@ -80,27 +80,14 @@ interface RewardsPoolProps {
   carouselAutoplayDelay?: number;
 }
 
-const categoryIcons: Record<string, typeof Coins> = {
-  alliance_tokens: Coins,
-  experiences: Sparkles,
-  merch: ShoppingBag,
-  gift_cards: CreditCard,
-  wellness: Heart,
-  subscriptions: Trophy,
-};
+import { CATEGORY_LABELS, CATEGORY_ICONS, VALID_CATEGORY_VALUES } from '@/constants/rewards';
 
-const categoryLabels: Record<string, string> = {
-  alliance_tokens: 'Alliance Tokens',
-  experiences: 'Experiences',
-  merch: 'Merch',
-  gift_cards: 'Gift Cards',
-  wellness: 'Health & Wellness',
-  subscriptions: 'Subscriptions',
-};
+const categoryIcons = CATEGORY_ICONS;
+const categoryLabels = CATEGORY_LABELS;
 
 // Valid filter values for URL params
 const VALID_SORTS = ['newest', 'oldest', 'priceLowToHigh', 'priceHighToLow', 'popularity'];
-const VALID_CATEGORIES = ['all', 'alliance_tokens', 'experiences', 'merch', 'gift_cards', 'wellness', 'subscriptions'];
+const VALID_CATEGORIES = ['all', ...VALID_CATEGORY_VALUES];
 const VALID_PRICE_FILTERS = ['all', 'free', 'under100', 'under500', 'over500'];
 const VALID_AVAILABILITY_FILTERS = ['all', 'inStock', 'lowStock'];
 
@@ -1033,14 +1020,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       </div>
 
       {/* Featured Rewards Carousel */}
-      {!loading && featuredRewards.length > 0 && activeCategory === 'all' && (
-        <FeaturedCarousel
-          rewards={featuredRewards}
-          onRewardClick={handleRewardClick}
-          onImageZoom={handleImageZoom}
-          wishlistItems={wishlistItems}
-          onToggleWishlist={toggleWishlist}
-          animatingHearts={animatingHearts}
+      {!loading && activeCategory === 'all' && (
+        <FeaturedRewardsCarousel
+          type="featured"
           autoplayDelay={carouselAutoplayDelay}
           claimBalance={claimBalance}
         />

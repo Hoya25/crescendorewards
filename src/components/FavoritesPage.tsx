@@ -25,23 +25,16 @@ interface FavoriteItem {
   added_at: string;
 }
 
+import { CATEGORY_LABELS, CATEGORY_ICONS, getCategoryIcon } from '@/constants/rewards';
+
 const categoryLabels: Record<string, string> = {
   all: 'All',
-  alliance_tokens: 'Alliance Tokens',
-  experiences: 'Experiences',
-  merch: 'Merch',
-  gift_cards: 'Gift Cards',
-  wellness: 'Health & Wellness',
-  subscriptions: 'Subscriptions',
+  ...CATEGORY_LABELS,
 };
 
 const categoryIcons: Record<string, React.ElementType> = {
   all: Gift,
-  alliance_tokens: Coins,
-  experiences: Sparkles,
-  merch: ShoppingBag,
-  gift_cards: CreditCard,
-  wellness: Heart,
+  ...CATEGORY_ICONS,
 };
 
 function FavoriteCardSkeleton() {
