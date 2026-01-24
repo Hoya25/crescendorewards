@@ -182,34 +182,6 @@ export function VisualRewardCard({
         {/* Gradient Overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-        {/* BOTTOM SPONSOR BAR - Replaces generic SPONSORED badge */}
-        {isSponsored && (
-          <div 
-            className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#1a1d21]/95 via-[#2a2d32]/90 to-transparent backdrop-blur-[2px] px-3 py-2"
-          >
-            <div className="flex items-center gap-2">
-              {sponsorLogo && (
-                <img 
-                  src={sponsorLogo} 
-                  alt={sponsorName || 'Sponsor'} 
-                  className="h-4 w-auto max-w-[40px] object-contain drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
-                  onError={(e) => {
-                    // Hide broken images
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              )}
-              <span className="text-[10px] text-white/80 truncate">
-                <span className="font-light">Sponsored by</span>
-                {' '}
-                <span className="font-semibold text-amber-300/90">
-                  {sponsorName || 'Partner'}
-                </span>
-              </span>
-            </div>
-          </div>
-        )}
-
         {/* TOP-LEFT: Featured Badge */}
         {reward.is_featured && (
           <Badge 
@@ -256,11 +228,8 @@ export function VisualRewardCard({
           </button>
         )}
 
-        {/* BOTTOM: Title + Price overlay on image - positioned above sponsor bar if sponsored */}
-        <div className={cn(
-          "absolute left-0 right-0 p-3",
-          isSponsored ? "bottom-10" : "bottom-0"
-        )}>
+        {/* BOTTOM: Title overlay on image */}
+        <div className="absolute left-0 right-0 bottom-0 p-3">
           {/* Free for Tier Badge */}
           {freeTierName && (
             <Badge 
@@ -278,7 +247,7 @@ export function VisualRewardCard({
         </div>
       </div>
 
-      {/* CONTENT SECTION - 40% of card, simplified */}
+      {/* CONTENT SECTION - simplified */}
       <div className="p-3 space-y-2 bg-background">
         {/* Price Section - Prominent display */}
         <div className="flex items-center justify-between">
@@ -300,6 +269,31 @@ export function VisualRewardCard({
           </div>
         )}
       </div>
+
+      {/* BOTTOM SPONSOR BAR - Below content, not blocking image */}
+      {isSponsored && (
+        <div className="bg-gradient-to-r from-[#1a1d21] via-[#2a2d32] to-[#1a1d21] px-3 py-2 border-t border-amber-500/20">
+          <div className="flex items-center gap-2">
+            {sponsorLogo && (
+              <img 
+                src={sponsorLogo} 
+                alt={sponsorName || 'Sponsor'} 
+                className="h-4 w-auto max-w-[40px] object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            )}
+            <span className="text-[10px] text-white/80 truncate">
+              <span className="font-light">Sponsored by</span>
+              {' '}
+              <span className="font-semibold text-amber-300">
+                {sponsorName || 'Partner'}
+              </span>
+            </span>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }
