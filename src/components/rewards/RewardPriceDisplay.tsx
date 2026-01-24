@@ -10,7 +10,7 @@ import {
   type ClaimEligibility
 } from '@/utils/getRewardPrice';
 import { Link } from 'react-router-dom';
-import { STATUS_TIERS, TIER_EMOJIS } from '@/constants/rewards';
+import { STATUS_TIERS } from '@/constants/rewards';
 
 interface RewardPriceDisplayProps {
   reward: Reward;
@@ -88,10 +88,8 @@ export function RewardPriceDisplay({
     );
   }
 
-  // FREE for user's tier - show tier name + Benefit instead of FREE
+  // FREE for user's tier - show tier name+ only
   if (pricing.isFree) {
-    const tierEmoji = TIER_EMOJIS[userTier.toLowerCase()] || '✓';
-    
     return (
       <div className={cn('space-y-1', className)}>
         <Badge 
@@ -101,7 +99,7 @@ export function RewardPriceDisplay({
             'text-emerald-600 border-emerald-500/30 bg-emerald-500/10 px-2 py-1'
           )}
         >
-          {tierDisplayName} {tierEmoji} Benefit
+          {tierDisplayName}+
         </Badge>
         {pricing.originalPrice > 0 && showTierBenefit && (
           <p className={cn(styles.original, 'text-muted-foreground')}>
@@ -167,7 +165,6 @@ export function RewardPriceCompact({
 }) {
   const pricing = getRewardPriceForUser(reward, userTier);
   const tierDisplayName = getTierDisplayName(userTier);
-  const tierEmoji = TIER_EMOJIS[userTier.toLowerCase()] || '✓';
   
   // Check if locked - use metal tier order
   const TIER_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
@@ -188,12 +185,12 @@ export function RewardPriceCompact({
     );
   }
 
-  // FREE for user's tier - show tier name + emoji + Benefit
+  // FREE for user's tier - show tier name+ only
   if (pricing.isFree) {
     return (
       <div className={cn('flex items-center gap-2', className)}>
         <Badge variant="outline" className="text-emerald-600 border-emerald-500/30 bg-emerald-500/10 text-sm px-2 py-1">
-          {tierDisplayName} {tierEmoji} Benefit
+          {tierDisplayName}+
         </Badge>
       </div>
     );
