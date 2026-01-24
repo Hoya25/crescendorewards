@@ -13,7 +13,7 @@ import { AdminWishlists } from './AdminWishlists';
 import { AdminUsers } from './AdminUsers';
 import { AdminSponsors } from './AdminSponsors';
 import { AdminSyncVerification } from './AdminSyncVerification';
-import { AdminSponsoredRewards } from './AdminSponsoredRewards';
+import { AdminSponsorApplications } from './AdminSponsorApplications';
 import { AdminCampaigns } from './AdminCampaigns';
 import { AdminManagement } from './AdminManagement';
 import { AdminActivityLog } from './AdminActivityLog';
@@ -39,8 +39,6 @@ export function AdminPanel() {
         return <AdminSubmissions />;
       case 'rewards':
         return <AdminRewards />;
-      case 'sponsored-rewards':
-        return <AdminSponsoredRewards />;
       case 'campaigns':
         return <AdminCampaigns />;
       case 'claims':
@@ -55,6 +53,8 @@ export function AdminPanel() {
         return <AdminBrands />;
       case 'sponsors':
         return <AdminSponsors />;
+      case 'sponsor-applications':
+        return <AdminSponsorApplications />;
       case 'wishlists':
         return <AdminWishlists />;
       case 'wishlist-analytics':

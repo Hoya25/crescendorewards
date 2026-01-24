@@ -17,6 +17,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
 import { SponsorshipEditor } from '@/components/admin/SponsorshipEditor';
+import { TierPricingEditor } from '@/components/admin/TierPricingEditor';
 import { getSponsorshipStatus, formatSponsorshipStatus, type SponsorshipData } from '@/lib/sponsorship-utils';
 import { PermissionGate } from '@/components/admin/PermissionGate';
 import { useAdminRole } from '@/hooks/useAdminRole';
@@ -24,14 +25,18 @@ import {
   Plus, Pencil, Trash2, Upload, X, Image as ImageIcon, Lock, 
   MoreHorizontal, Copy, ExternalLink, Gift, ChevronUp, ChevronDown,
   Minus, Search, Star, AlertTriangle, Heart, ShoppingCart, Package, Megaphone, Truck,
-  Shield, GripVertical, Save, RotateCcw, Loader2, ArrowUp, ArrowDown, Undo2
+  Shield, GripVertical, Save, RotateCcw, Loader2, ArrowUp, ArrowDown, Undo2, Sparkles,
+  Filter
 } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { EditableCell } from './EditableCell';
 import { validateImageFile } from '@/lib/image-validation';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 import { cn } from '@/lib/utils';
 import type { DeliveryMethod, RequiredDataField } from '@/types/delivery';
 import { DELIVERY_METHOD_LABELS, DELIVERY_METHOD_REQUIRED_FIELDS } from '@/types/delivery';
+import { validateTierPricing, type ValidationResult } from '@/utils/tierPricingValidation';
 
 interface Reward {
   id: string;
@@ -101,6 +106,15 @@ const CATEGORIES = [
   { value: 'opportunity', label: 'Opportunity' },
 ];
 
+// Quick filter tabs
+const QUICK_FILTER_TABS = [
+  { value: 'all', label: 'All Rewards', icon: Package },
+  { value: 'active', label: 'Active', icon: null },
+  { value: 'sponsored', label: 'Sponsored', icon: Sparkles },
+  { value: 'featured', label: 'Featured', icon: Star },
+  { value: 'inactive', label: 'Inactive', icon: null },
+];
+
 const STATUS_FILTERS = [
   { value: 'all', label: 'All Status' },
   { value: 'active', label: 'Active' },
@@ -121,6 +135,14 @@ const STATUS_ACCESS_FILTERS = [
   { value: 'diamond', label: '👑 Diamond Only' },
   { value: 'tiered-pricing', label: '💲 Has Tier Pricing' },
 ];
+
+interface TierPricing {
+  bronze: number;
+  silver: number;
+  gold: number;
+  platinum: number;
+  diamond: number;
+}
 
 const TIER_BADGES: Record<string, { emoji: string; label: string; className: string }> = {
   all: { emoji: '🔓', label: 'All', className: 'bg-green-500/10 text-green-600 border-green-200' },
@@ -146,10 +168,16 @@ export function AdminRewards() {
   const MAX_IMAGES = 4;
   
   // Filters
+  const [quickFilterTab, setQuickFilterTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [statusAccessFilter, setStatusAccessFilter] = useState('all');
+  
+  // Tier pricing state
+  const [tierPricingEnabled, setTierPricingEnabled] = useState(false);
+  const [tierPricing, setTierPricing] = useState<TierPricing | null>(null);
+  const [tierPricingValidation, setTierPricingValidation] = useState<ValidationResult | null>(null);
   
   // Sorting & Ordering
   const [sortField, setSortField] = useState<SortField>('display_order');
@@ -479,6 +507,22 @@ export function AdminRewards() {
         return false;
       }
       
+      // Quick filter tab
+      switch (quickFilterTab) {
+        case 'active':
+          if (!reward.is_active) return false;
+          break;
+        case 'inactive':
+          if (reward.is_active) return false;
+          break;
+        case 'sponsored':
+          if (!reward.sponsor_enabled) return false;
+          break;
+        case 'featured':
+          if (!reward.is_featured) return false;
+          break;
+      }
+      
       // Status access filter
       if (statusAccessFilter !== 'all') {
         if (statusAccessFilter === 'unrestricted' && reward.min_status_tier) return false;
@@ -487,7 +531,7 @@ export function AdminRewards() {
             reward.min_status_tier !== statusAccessFilter) return false;
       }
       
-      // Status filter
+      // Status filter (additional fine-grained filter)
       switch (statusFilter) {
         case 'active':
           if (!reward.is_active) return false;
@@ -499,15 +543,7 @@ export function AdminRewards() {
           if (!reward.is_featured) return false;
           break;
         case 'sponsored':
-          const sponsorStatus = getSponsorshipStatus({
-            sponsor_enabled: reward.sponsor_enabled,
-            sponsor_name: reward.sponsor_name,
-            sponsor_logo: reward.sponsor_logo,
-            sponsor_link: reward.sponsor_link,
-            sponsor_start_date: reward.sponsor_start_date,
-            sponsor_end_date: reward.sponsor_end_date,
-          });
-          if (sponsorStatus === 'none') return false;
+          if (!reward.sponsor_enabled) return false;
           break;
         case 'low_stock':
           if (reward.stock_quantity === null || reward.stock_quantity >= 5) return false;
@@ -537,7 +573,7 @@ export function AdminRewards() {
     }
 
     return filtered;
-  }, [rewards, searchTerm, categoryFilter, statusFilter, statusAccessFilter, sortField, sortDirection, orderMode]);
+  }, [rewards, searchTerm, categoryFilter, statusFilter, statusAccessFilter, quickFilterTab, sortField, sortDirection, orderMode]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -584,6 +620,21 @@ export function AdminRewards() {
         delivery_instructions: reward.delivery_instructions,
         min_status_tier: reward.min_status_tier || null,
       });
+      // Set tier pricing state from existing reward
+      const hasPricing = reward.status_tier_claims_cost && 
+        Object.keys(reward.status_tier_claims_cost).length > 0;
+      setTierPricingEnabled(hasPricing);
+      if (hasPricing && reward.status_tier_claims_cost) {
+        setTierPricing({
+          bronze: reward.status_tier_claims_cost.bronze ?? reward.cost,
+          silver: reward.status_tier_claims_cost.silver ?? reward.cost,
+          gold: reward.status_tier_claims_cost.gold ?? reward.cost,
+          platinum: reward.status_tier_claims_cost.platinum ?? reward.cost,
+          diamond: reward.status_tier_claims_cost.diamond ?? reward.cost,
+        });
+      } else {
+        setTierPricing(null);
+      }
       const existingImgUrls = reward.image_url ? [reward.image_url] : [];
       setExistingImages(existingImgUrls);
       setImagePreviews(existingImgUrls);
@@ -616,6 +667,8 @@ export function AdminRewards() {
         delivery_instructions: null,
         min_status_tier: null,
       });
+      setTierPricingEnabled(false);
+      setTierPricing(null);
       setExistingImages([]);
       setImagePreviews([]);
       setSelectedImages([]);
@@ -1188,11 +1241,31 @@ export function AdminRewards() {
   };
 
   const handleSave = async () => {
+    // Validate tier pricing if enabled
+    if (tierPricingEnabled && tierPricing) {
+      const validation = validateTierPricing(tierPricing, formData.cost, true);
+      if (!validation.isValid) {
+        toast({
+          title: 'Tier Pricing Error',
+          description: validation.errors[0] || 'Invalid tier pricing configuration',
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+
     try {
       const imageUrls = await uploadImages();
       // Use first image as primary image_url for backwards compatibility
       const primaryImageUrl = imageUrls.length > 0 ? imageUrls[0] : null;
-      const dataToSave = { ...formData, image_url: primaryImageUrl };
+      
+      // Build the data to save, including tier pricing
+      const dataToSave: any = { 
+        ...formData, 
+        image_url: primaryImageUrl,
+        // Set status_tier_claims_cost based on tier pricing
+        status_tier_claims_cost: tierPricingEnabled && tierPricing ? tierPricing : null,
+      };
       
       if (editingReward) {
         const { error } = await supabase.from('rewards').update(dataToSave).eq('id', editingReward.id);
@@ -1207,6 +1280,8 @@ export function AdminRewards() {
       setSelectedImages([]);
       setImagePreviews([]);
       setExistingImages([]);
+      setTierPricingEnabled(false);
+      setTierPricing(null);
       loadRewards();
     } catch (error: any) {
       toast({ title: 'Error', description: error.message || 'Failed to save reward', variant: 'destructive' });
@@ -1226,7 +1301,7 @@ export function AdminRewards() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold">Rewards Management</h2>
-          <p className="text-muted-foreground mt-1">Create and manage rewards</p>
+          <p className="text-muted-foreground mt-1">Create and manage all rewards including sponsored</p>
         </div>
         <PermissionGate permission="rewards_create">
           <Button onClick={() => handleOpenModal()} size="lg" className="gap-2">
@@ -1235,6 +1310,32 @@ export function AdminRewards() {
           </Button>
         </PermissionGate>
       </div>
+
+      {/* Quick Filter Tabs */}
+      <Tabs value={quickFilterTab} onValueChange={setQuickFilterTab} className="w-full">
+        <TabsList className="w-full justify-start h-auto flex-wrap gap-1 bg-muted/50 p-1">
+          {QUICK_FILTER_TABS.map((tab) => (
+            <TabsTrigger 
+              key={tab.value} 
+              value={tab.value}
+              className="gap-2 data-[state=active]:bg-background"
+            >
+              {tab.icon && <tab.icon className="w-4 h-4" />}
+              {tab.label}
+              {tab.value === 'sponsored' && (
+                <Badge variant="secondary" className="ml-1 text-xs">
+                  {rewards.filter(r => r.sponsor_enabled).length}
+                </Badge>
+              )}
+              {tab.value === 'featured' && (
+                <Badge variant="secondary" className="ml-1 text-xs">
+                  {rewards.filter(r => r.is_featured).length}
+                </Badge>
+              )}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
 
       {/* Filters & Order Mode Toggle */}
       <Card>
@@ -1827,6 +1928,47 @@ export function AdminRewards() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Tier-Based Pricing */}
+            <div className="space-y-4 pt-4 border-t">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-base font-semibold flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" /> Tier-Based Pricing
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-1">Different prices for different membership tiers</p>
+                </div>
+                <Switch 
+                  checked={tierPricingEnabled} 
+                  onCheckedChange={(checked) => {
+                    setTierPricingEnabled(checked);
+                    if (checked && !tierPricing) {
+                      setTierPricing({
+                        bronze: formData.cost,
+                        silver: formData.cost,
+                        gold: formData.cost,
+                        platinum: formData.cost,
+                        diamond: formData.cost,
+                      });
+                    }
+                  }} 
+                />
+              </div>
+              {tierPricingEnabled && formData.cost > 0 && (
+                <TierPricingEditor
+                  baseCost={formData.cost}
+                  pricing={tierPricing}
+                  onChange={setTierPricing}
+                  onValidationChange={setTierPricingValidation}
+                  showValidation={true}
+                />
+              )}
+              {tierPricingEnabled && formData.cost === 0 && (
+                <p className="text-sm text-muted-foreground p-3 bg-muted rounded-lg">
+                  Set a base cost above to configure tier pricing.
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
