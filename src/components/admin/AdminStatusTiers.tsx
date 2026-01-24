@@ -595,13 +595,14 @@ export function AdminStatusTiers() {
         onConfirm={saveAllTiers}
       />
 
-      {/* Edit Dialog - Improved Layout */}
+      {/* Edit Dialog - Fixed Layout with Proper Scrolling */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogContent className="max-w-5xl w-[95vw] max-h-[90vh] overflow-hidden flex flex-col p-0">
+        <DialogContent className="max-w-5xl w-[95vw] max-h-[90vh] flex flex-col p-0 gap-0">
+          {/* Fixed Header */}
           <DialogHeader className="px-6 pt-6 pb-4 border-b flex-shrink-0">
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-3">
               <span 
-                className="text-2xl w-10 h-10 flex items-center justify-center rounded-full"
+                className="text-2xl w-10 h-10 flex items-center justify-center rounded-full flex-shrink-0"
                 style={{ backgroundColor: selectedTier?.badge_color ? `${selectedTier.badge_color}20` : undefined }}
               >
                 {selectedTier?.badge_emoji}
@@ -613,24 +614,26 @@ export function AdminStatusTiers() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-hidden">
-            <div className="h-full grid grid-cols-1 lg:grid-cols-5 gap-0">
-              {/* Edit Form - Takes 3/5 on desktop */}
-              <div className="lg:col-span-3 overflow-y-auto p-6 min-w-0">
+          {/* Scrollable Content Area */}
+          <div className="flex-1 overflow-y-auto min-h-0">
+            <div className="grid grid-cols-1 xl:grid-cols-[1fr,380px] min-h-full">
+              {/* Edit Form Section */}
+              <div className="p-6 min-w-0">
                 {selectedTier && (
                   <Tabs defaultValue="display" className="w-full">
+                    {/* Tabs with icons-only on mobile, icons+text on larger screens */}
                     <TabsList className="w-full grid grid-cols-3 mb-6">
-                      <TabsTrigger value="display" className="text-xs sm:text-sm">
-                        <Sparkles className="w-3 h-3 mr-1 sm:mr-2 flex-shrink-0" />
-                        <span className="truncate">Display</span>
+                      <TabsTrigger value="display" className="gap-1.5 px-2 sm:px-4">
+                        <Sparkles className="w-4 h-4 flex-shrink-0" />
+                        <span className="hidden sm:inline text-sm">Display</span>
                       </TabsTrigger>
-                      <TabsTrigger value="thresholds" className="text-xs sm:text-sm">
-                        <Shield className="w-3 h-3 mr-1 sm:mr-2 flex-shrink-0" />
-                        <span className="truncate">Thresholds</span>
+                      <TabsTrigger value="thresholds" className="gap-1.5 px-2 sm:px-4">
+                        <Shield className="w-4 h-4 flex-shrink-0" />
+                        <span className="hidden sm:inline text-sm">Thresholds</span>
                       </TabsTrigger>
-                      <TabsTrigger value="benefits" className="text-xs sm:text-sm">
-                        <Zap className="w-3 h-3 mr-1 sm:mr-2 flex-shrink-0" />
-                        <span className="truncate">Benefits</span>
+                      <TabsTrigger value="benefits" className="gap-1.5 px-2 sm:px-4">
+                        <Zap className="w-4 h-4 flex-shrink-0" />
+                        <span className="hidden sm:inline text-sm">Benefits</span>
                       </TabsTrigger>
                     </TabsList>
 
@@ -705,7 +708,7 @@ export function AdminStatusTiers() {
 
                     {/* Tab 2: Thresholds */}
                     <TabsContent value="thresholds" className="space-y-6 mt-0">
-                      <div className="p-4 rounded-lg border bg-muted/30 mb-4">
+                      <div className="p-4 rounded-lg border bg-muted/30">
                         <p className="text-sm text-muted-foreground">
                           Set the NCTR locking requirements for users to qualify for this tier.
                         </p>
@@ -927,24 +930,23 @@ export function AdminStatusTiers() {
                 )}
               </div>
 
-              {/* Preview Panel - Takes 2/5 on desktop, hidden on mobile */}
-              <div className="hidden lg:flex lg:col-span-2 border-l bg-muted/20 flex-col overflow-hidden">
-                <div className="p-4 border-b bg-muted/30">
-                  <h3 className="text-sm font-medium flex items-center gap-2">
+              {/* Preview Panel - Hidden on smaller screens, visible on xl+ */}
+              <div className="hidden xl:block border-l bg-muted/10">
+                <div className="sticky top-0 p-6 space-y-4">
+                  <div className="flex items-center gap-2">
                     <Eye className="w-4 h-4" />
-                    Live Preview
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-1">
+                    <h3 className="font-medium text-sm">Live Preview</h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
                     This is how users will see this tier
                   </p>
-                </div>
-                <div className="flex-1 overflow-y-auto p-4">
                   {selectedTier && (
                     <TierPreviewPanel
                       tiers={sortedTiers}
                       selectedTierId={selectedTier.id}
                       onSelectTier={() => {}}
                       editingTier={selectedTier}
+                      hideHeader
                     />
                   )}
                 </div>
@@ -952,7 +954,7 @@ export function AdminStatusTiers() {
             </div>
           </div>
 
-          {/* Sticky Footer */}
+          {/* Fixed Footer */}
           <DialogFooter className="px-6 py-4 border-t bg-background flex-shrink-0">
             <div className="flex items-center justify-between w-full gap-4">
               <div className="text-xs text-muted-foreground hidden sm:block">
