@@ -143,7 +143,7 @@ function HeroCard({
               <Trophy className="w-8 h-8 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Welcome back, {userName}!</h1>
+              <h1 className="text-xl sm:text-2xl font-bold">Welcome back, {userName}!</h1>
               <div className="flex items-center gap-2 mt-1">
                 <StatusBadge tier={tier} size="md" showTooltip={false} />
                 {nextTier && (
@@ -160,7 +160,7 @@ function HeroCard({
             <div className="text-right">
               <p className="text-sm text-muted-foreground mb-1">Claims Balance</p>
               <div className="flex items-center gap-2 justify-end">
-                <span className="text-4xl font-bold">{claimBalance}</span>
+                <span className="text-3xl sm:text-4xl font-bold">{claimBalance}</span>
                 <Zap className="w-6 h-6 text-amber-500" />
               </div>
             </div>

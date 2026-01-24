@@ -216,13 +216,14 @@ export function FeaturedRewardsCarousel({
             align: 'start',
             loop: rewards.length > 3,
             skipSnaps: false,
-            dragFree: true,
+            dragFree: false,
             duration: 25,
+            containScroll: 'trimSnaps',
           }}
           plugins={[autoplayPlugin.current]}
           className="w-full touch-pan-x cursor-grab active:cursor-grabbing"
         >
-          <CarouselContent className="-ml-3">
+          <CarouselContent className="-ml-3 md:-ml-4">
             {rewards.map((reward) => {
               const Icon = getCategoryIcon(reward.category);
               const isInFavorites = favorites.has(reward.id);
@@ -234,12 +235,13 @@ export function FeaturedRewardsCarousel({
               return (
                 <CarouselItem 
                   key={reward.id} 
-                  className="pl-3 basis-full sm:basis-1/2 lg:basis-1/3"
+                  className="pl-3 md:pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/3"
                 >
                   <Card 
                     className={cn(
                       "group cursor-pointer overflow-hidden transition-all duration-200",
                       "hover:scale-[1.02] hover:shadow-xl rounded-xl border select-none",
+                      "active:scale-[0.98]",
                       isSponsored 
                         ? "border-amber-400/50 dark:border-amber-500/30" 
                         : "border-border"
@@ -316,7 +318,7 @@ export function FeaturedRewardsCarousel({
                                 className="h-4 w-auto object-contain"
                               />
                             )}
-                            <span className="text-[10px] text-white/80">
+                            <span className="text-xs text-white/80">
                               Sponsored by <span className="font-semibold text-amber-300">{reward.sponsor_name}</span>
                             </span>
                           </div>
