@@ -182,16 +182,6 @@ export function VisualRewardCard({
         {/* Gradient Overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-        {/* TOP-LEFT: Featured Badge */}
-        {reward.is_featured && (
-          <Badge 
-            className="absolute top-2.5 left-2.5 z-10 bg-gradient-to-r from-amber-500 to-yellow-500 text-white border-0 text-[10px] font-bold shadow-lg px-2 py-0.5"
-          >
-            <Sparkles className="w-2.5 h-2.5 mr-1" />
-            Featured
-          </Badge>
-        )}
-
         {/* TOP-RIGHT: Favorites Heart */}
         <button
           className={cn(
