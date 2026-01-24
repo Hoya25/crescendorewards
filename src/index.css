@@ -167,6 +167,11 @@ All colors MUST be HSL.
   padding-top: env(safe-area-inset-top, 0px);
 }
 
+/* Shorthand utility for safe area bottom padding */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 @layer base {
   * {
     @apply border-border;
