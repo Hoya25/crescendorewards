@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Slider } from '@/components/ui/slider';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { 
   Dialog, 
@@ -37,16 +38,26 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
-  Eye
+  Eye,
+  Table as TableIcon,
+  LayoutGrid,
+  History
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import {
   NumberInputWithButtons,
   EmojiPicker,
   TierValidationWarnings,
   TierPreviewPanel,
-  TierProgressionBar
+  TierProgressionBar,
+  TierComparisonTable,
+  BenefitTemplates,
+  TierChangeHistory,
+  UserImpactPreview,
+  TierPromotions,
+  BenefitTemplate
 } from './tier-editor';
 
 interface StatusTier {
@@ -75,7 +86,9 @@ interface StatusTier {
 }
 
 export function AdminStatusTiers() {
+  const { profile } = useUnifiedUser();
   const [tiers, setTiers] = useState<StatusTier[]>([]);
+  const [originalTiers, setOriginalTiers] = useState<StatusTier[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [selectedTier, setSelectedTier] = useState<StatusTier | null>(null);
@@ -83,6 +96,8 @@ export function AdminStatusTiers() {
   const [newCustomBenefit, setNewCustomBenefit] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
   const [previewTierId, setPreviewTierId] = useState<string>('');
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [showImpactPreview, setShowImpactPreview] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     display: true,
     thresholds: true,
@@ -127,6 +142,7 @@ export function AdminStatusTiers() {
       }));
       
       setTiers(parsedTiers);
+      setOriginalTiers(JSON.parse(JSON.stringify(parsedTiers)));
     } catch (error) {
       console.error('Error fetching tiers:', error);
       toast.error('Failed to load status tiers');
@@ -145,6 +161,13 @@ export function AdminStatusTiers() {
   const handleTierChange = (field: keyof StatusTier, value: any) => {
     if (!selectedTier) return;
     setSelectedTier({ ...selectedTier, [field]: value });
+    setHasChanges(true);
+  };
+
+  const handleBulkTierUpdate = (tierId: string, field: keyof StatusTier, value: any) => {
+    setTiers(prev => prev.map(t => 
+      t.id === tierId ? { ...t, [field]: value } : t
+    ));
     setHasChanges(true);
   };
 
@@ -195,12 +218,27 @@ export function AdminStatusTiers() {
     return benefits;
   };
 
+  const logTierChange = async (tierId: string, oldValues: Partial<StatusTier>, newValues: Partial<StatusTier>) => {
+    try {
+      await supabase.from('tier_changes_log').insert({
+        tier_id: tierId,
+        changed_by: profile?.id,
+        old_values: oldValues,
+        new_values: newValues,
+        change_summary: `Updated tier settings`
+      });
+    } catch (error) {
+      console.error('Failed to log tier change:', error);
+    }
+  };
+
   const saveTier = async () => {
     if (!selectedTier) return;
     
     setSaving(true);
     try {
       const generatedBenefits = generateBenefitsArray(selectedTier);
+      const original = originalTiers.find(t => t.id === selectedTier.id);
       
       const { error } = await supabase
         .from('status_tiers')
@@ -230,6 +268,11 @@ export function AdminStatusTiers() {
 
       if (error) throw error;
       
+      // Log the change
+      if (original) {
+        await logTierChange(selectedTier.id, original, selectedTier);
+      }
+      
       toast.success(`${selectedTier.display_name} tier updated successfully`);
       setEditDialogOpen(false);
       fetchTiers();
@@ -239,6 +282,78 @@ export function AdminStatusTiers() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const saveAllTiers = async () => {
+    setSaving(true);
+    try {
+      for (const tier of tiers) {
+        const generatedBenefits = generateBenefitsArray(tier);
+        const original = originalTiers.find(t => t.id === tier.id);
+        
+        const { error } = await supabase
+          .from('status_tiers')
+          .update({
+            earning_multiplier: tier.earning_multiplier,
+            claims_per_month: tier.claims_per_month,
+            claims_per_year: tier.claims_per_year,
+            unlimited_claims: tier.unlimited_claims,
+            discount_percent: tier.discount_percent,
+            priority_support: tier.priority_support,
+            early_access: tier.early_access,
+            vip_events: tier.vip_events,
+            concierge_service: tier.concierge_service,
+            free_shipping: tier.free_shipping,
+            min_nctr_360_locked: tier.min_nctr_360_locked,
+            benefits: generatedBenefits,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', tier.id);
+
+        if (error) throw error;
+        
+        if (original) {
+          await logTierChange(tier.id, original, tier);
+        }
+      }
+      
+      toast.success('All tiers updated successfully');
+      setShowImpactPreview(false);
+      fetchTiers();
+    } catch (error) {
+      console.error('Error saving tiers:', error);
+      toast.error('Failed to save tiers');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const applyTemplate = (template: BenefitTemplate) => {
+    const tierNameMap: Record<string, keyof typeof template.tiers> = {
+      'bronze': 'bronze',
+      'silver': 'silver',
+      'gold': 'gold',
+      'platinum': 'platinum',
+      'diamond': 'diamond'
+    };
+
+    setTiers(prev => prev.map(tier => {
+      const templateKey = tierNameMap[tier.tier_name.toLowerCase()];
+      if (!templateKey) return tier;
+      
+      const templateValues = template.tiers[templateKey];
+      return {
+        ...tier,
+        ...templateValues
+      };
+    }));
+    
+    setHasChanges(true);
+    toast.success(`Applied "${template.name}" template`);
+  };
+
+  const handleSaveWithPreview = () => {
+    setShowImpactPreview(true);
   };
 
   const toggleSection = (section: string) => {
@@ -271,141 +386,214 @@ export function AdminStatusTiers() {
             Configure tier thresholds, benefits, and display settings
           </p>
         </div>
-        <Button variant="outline" onClick={fetchTiers} disabled={loading}>
-          <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
-      </div>
-
-      {/* Tier Progression Visualization */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg">Tier Progression</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TierProgressionBar 
-            tiers={sortedTiers}
-            selectedTierId={previewTierId}
-            onSelectTier={(tier) => {
-              setPreviewTierId(tier.id);
-              openEditDialog(tier);
-            }}
-          />
-        </CardContent>
-      </Card>
-
-      {/* Validation Warnings */}
-      <TierValidationWarnings tiers={sortedTiers} />
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Tier Cards */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {sortedTiers.map((tier, index) => {
-              const prevTier = index > 0 ? sortedTiers[index - 1] : null;
-              
-              return (
-                <Card 
-                  key={tier.id} 
-                  className="cursor-pointer hover:shadow-lg transition-shadow border-2"
-                  style={{ borderColor: tier.badge_color }}
-                  onClick={() => openEditDialog(tier)}
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span 
-                          className="text-2xl w-10 h-10 flex items-center justify-center rounded-full"
-                          style={{ backgroundColor: `${tier.badge_color}20` }}
-                        >
-                          {tier.badge_emoji}
-                        </span>
-                        <CardTitle className="text-lg">{tier.display_name}</CardTitle>
-                      </div>
-                      {!tier.is_active && (
-                        <Badge variant="secondary">Inactive</Badge>
-                      )}
-                    </div>
-                    <CardDescription className="text-xs">
-                      {tier.min_nctr_360_locked.toLocaleString()} - {tier.max_nctr_360_locked?.toLocaleString() || '∞'} NCTR
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {/* Key Stats */}
-                    <div className="grid grid-cols-3 gap-2 text-center">
-                      <div className="p-2 bg-muted/50 rounded">
-                        <Zap className="w-3 h-3 mx-auto text-warning" />
-                        <span className="text-sm font-bold block">{tier.earning_multiplier}x</span>
-                      </div>
-                      <div className="p-2 bg-muted/50 rounded">
-                        <Gift className="w-3 h-3 mx-auto text-primary" />
-                        <span className="text-sm font-bold block">
-                          {tier.unlimited_claims ? '∞' : tier.claims_per_month > 0 ? `${tier.claims_per_month}/mo` : `${tier.claims_per_year}/yr`}
-                        </span>
-                      </div>
-                      <div className="p-2 bg-muted/50 rounded">
-                        <Tag className="w-3 h-3 mx-auto text-success" />
-                        <span className="text-sm font-bold block">{tier.discount_percent}%</span>
-                      </div>
-                    </div>
-
-                    {/* Upgrade Highlight */}
-                    {prevTier && (
-                      <div className="text-xs text-muted-foreground bg-muted/30 rounded p-2">
-                        <span className="text-success">↑</span> +{(tier.earning_multiplier - prevTier.earning_multiplier).toFixed(2)}x multiplier from {prevTier.display_name}
-                      </div>
-                    )}
-
-                    {/* Quick Perk Badges */}
-                    <div className="flex flex-wrap gap-1">
-                      {tier.priority_support && (
-                        <Badge variant="outline" className="text-xs py-0">
-                          <Headphones className="w-3 h-3 mr-1" />
-                          Support
-                        </Badge>
-                      )}
-                      {tier.early_access && (
-                        <Badge variant="outline" className="text-xs py-0">
-                          <Clock className="w-3 h-3 mr-1" />
-                          Early
-                        </Badge>
-                      )}
-                      {tier.vip_events && (
-                        <Badge variant="outline" className="text-xs py-0">
-                          <Star className="w-3 h-3 mr-1" />
-                          VIP
-                        </Badge>
-                      )}
-                      {tier.free_shipping && (
-                        <Badge variant="outline" className="text-xs py-0">
-                          <Truck className="w-3 h-3 mr-1" />
-                          Ship
-                        </Badge>
-                      )}
-                    </div>
-
-                    <Button variant="ghost" size="sm" className="w-full mt-2">
-                      <Eye className="w-4 h-4 mr-2" />
-                      Edit Tier
-                    </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Preview Panel */}
-        <div className="hidden lg:block">
-          <TierPreviewPanel
-            tiers={sortedTiers}
-            selectedTierId={previewTierId}
-            onSelectTier={setPreviewTierId}
-            editingTier={selectedTier}
-          />
+        <div className="flex items-center gap-2">
+          <Button 
+            variant={viewMode === 'cards' ? 'default' : 'outline'} 
+            size="sm"
+            onClick={() => setViewMode('cards')}
+          >
+            <LayoutGrid className="w-4 h-4" />
+          </Button>
+          <Button 
+            variant={viewMode === 'table' ? 'default' : 'outline'} 
+            size="sm"
+            onClick={() => setViewMode('table')}
+          >
+            <TableIcon className="w-4 h-4" />
+          </Button>
+          <Button variant="outline" onClick={fetchTiers} disabled={loading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
         </div>
       </div>
+
+      <Tabs defaultValue="tiers" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="tiers">Tier Configuration</TabsTrigger>
+          <TabsTrigger value="templates">Templates</TabsTrigger>
+          <TabsTrigger value="promotions">Promotions</TabsTrigger>
+          <TabsTrigger value="history">Change History</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="tiers" className="space-y-6">
+          {/* Tier Progression Visualization */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Tier Progression</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TierProgressionBar 
+                tiers={sortedTiers}
+                selectedTierId={previewTierId}
+                onSelectTier={(tier) => {
+                  setPreviewTierId(tier.id);
+                  openEditDialog(tier);
+                }}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Validation Warnings */}
+          <TierValidationWarnings tiers={sortedTiers} />
+
+          {/* Main Content */}
+          {viewMode === 'table' ? (
+            <TierComparisonTable 
+              tiers={sortedTiers}
+              onUpdate={handleBulkTierUpdate}
+              onSave={handleSaveWithPreview}
+              hasChanges={hasChanges}
+            />
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Tier Cards */}
+              <div className="lg:col-span-2 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {sortedTiers.map((tier, index) => {
+                    const prevTier = index > 0 ? sortedTiers[index - 1] : null;
+                    
+                    return (
+                      <Card 
+                        key={tier.id} 
+                        className="cursor-pointer hover:shadow-lg transition-shadow border-2"
+                        style={{ borderColor: tier.badge_color }}
+                        onClick={() => openEditDialog(tier)}
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span 
+                                className="text-2xl w-10 h-10 flex items-center justify-center rounded-full"
+                                style={{ backgroundColor: `${tier.badge_color}20` }}
+                              >
+                                {tier.badge_emoji}
+                              </span>
+                              <CardTitle className="text-lg">{tier.display_name}</CardTitle>
+                            </div>
+                            {!tier.is_active && (
+                              <Badge variant="secondary">Inactive</Badge>
+                            )}
+                          </div>
+                          <CardDescription className="text-xs">
+                            {tier.min_nctr_360_locked.toLocaleString()} - {tier.max_nctr_360_locked?.toLocaleString() || '∞'} NCTR
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          {/* Key Stats */}
+                          <div className="grid grid-cols-3 gap-2 text-center">
+                            <div className="p-2 bg-muted/50 rounded">
+                              <Zap className="w-3 h-3 mx-auto text-warning" />
+                              <span className="text-sm font-bold block">{tier.earning_multiplier}x</span>
+                            </div>
+                            <div className="p-2 bg-muted/50 rounded">
+                              <Gift className="w-3 h-3 mx-auto text-primary" />
+                              <span className="text-sm font-bold block">
+                                {tier.unlimited_claims ? '∞' : tier.claims_per_month > 0 ? `${tier.claims_per_month}/mo` : `${tier.claims_per_year}/yr`}
+                              </span>
+                            </div>
+                            <div className="p-2 bg-muted/50 rounded">
+                              <Tag className="w-3 h-3 mx-auto text-success" />
+                              <span className="text-sm font-bold block">{tier.discount_percent}%</span>
+                            </div>
+                          </div>
+
+                          {/* Upgrade Highlight */}
+                          {prevTier && (
+                            <div className="text-xs text-muted-foreground bg-muted/30 rounded p-2">
+                              <span className="text-success">↑</span> +{(tier.earning_multiplier - prevTier.earning_multiplier).toFixed(2)}x from {prevTier.display_name}
+                            </div>
+                          )}
+
+                          {/* Quick Perk Badges */}
+                          <div className="flex flex-wrap gap-1">
+                            {tier.priority_support && (
+                              <Badge variant="outline" className="text-xs py-0">
+                                <Headphones className="w-3 h-3 mr-1" />
+                                Support
+                              </Badge>
+                            )}
+                            {tier.early_access && (
+                              <Badge variant="outline" className="text-xs py-0">
+                                <Clock className="w-3 h-3 mr-1" />
+                                Early
+                              </Badge>
+                            )}
+                            {tier.vip_events && (
+                              <Badge variant="outline" className="text-xs py-0">
+                                <Star className="w-3 h-3 mr-1" />
+                                VIP
+                              </Badge>
+                            )}
+                            {tier.free_shipping && (
+                              <Badge variant="outline" className="text-xs py-0">
+                                <Truck className="w-3 h-3 mr-1" />
+                                Ship
+                              </Badge>
+                            )}
+                          </div>
+
+                          <Button variant="ghost" size="sm" className="w-full mt-2">
+                            <Eye className="w-4 h-4 mr-2" />
+                            Edit Tier
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Preview Panel */}
+              <div className="hidden lg:block">
+                <TierPreviewPanel
+                  tiers={sortedTiers}
+                  selectedTierId={previewTierId}
+                  onSelectTier={setPreviewTierId}
+                  editingTier={selectedTier}
+                />
+              </div>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="templates">
+          <BenefitTemplates onApplyTemplate={applyTemplate} />
+          
+          {hasChanges && (
+            <Card className="mt-6 border-primary">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    Template applied. Review changes in the tier configuration tab, then save.
+                  </p>
+                  <Button onClick={handleSaveWithPreview}>
+                    <Save className="w-4 h-4 mr-2" />
+                    Review & Save All
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="promotions">
+          <TierPromotions />
+        </TabsContent>
+
+        <TabsContent value="history">
+          <TierChangeHistory />
+        </TabsContent>
+      </Tabs>
+
+      {/* User Impact Preview Dialog */}
+      <UserImpactPreview
+        open={showImpactPreview}
+        onOpenChange={setShowImpactPreview}
+        originalTiers={originalTiers}
+        modifiedTiers={tiers}
+        onConfirm={saveAllTiers}
+      />
 
       {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
@@ -425,7 +613,7 @@ export function AdminStatusTiers() {
             <ScrollArea className="flex-1 pr-4">
               {selectedTier && (
                 <div className="space-y-4 py-4">
-                  {/* Display Settings - Collapsible */}
+                  {/* Display Settings */}
                   <Collapsible 
                     open={expandedSections.display} 
                     onOpenChange={() => toggleSection('display')}
@@ -501,7 +689,7 @@ export function AdminStatusTiers() {
 
                   <Separator />
 
-                  {/* Thresholds - Collapsible */}
+                  {/* Thresholds */}
                   <Collapsible 
                     open={expandedSections.thresholds} 
                     onOpenChange={() => toggleSection('thresholds')}
@@ -540,7 +728,7 @@ export function AdminStatusTiers() {
 
                   <Separator />
 
-                  {/* Core Benefits - Collapsible */}
+                  {/* Core Benefits */}
                   <Collapsible 
                     open={expandedSections.benefits} 
                     onOpenChange={() => toggleSection('benefits')}
@@ -649,7 +837,7 @@ export function AdminStatusTiers() {
 
                   <Separator />
 
-                  {/* Perks Toggles - Collapsible */}
+                  {/* Perks Toggles */}
                   <Collapsible 
                     open={expandedSections.perks} 
                     onOpenChange={() => toggleSection('perks')}
@@ -692,7 +880,7 @@ export function AdminStatusTiers() {
 
                   <Separator />
 
-                  {/* Custom Benefits - Collapsible */}
+                  {/* Custom Benefits */}
                   <Collapsible 
                     open={expandedSections.custom} 
                     onOpenChange={() => toggleSection('custom')}
