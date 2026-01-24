@@ -631,6 +631,9 @@ export type Database = {
           id: string
           partner_id: string
           redemption_code: string | null
+          selected_creator_name: string | null
+          selected_creator_platform: string | null
+          selected_creator_url: string | null
           slots_used: number | null
           status: string
           user_id: string
@@ -643,6 +646,9 @@ export type Database = {
           id?: string
           partner_id: string
           redemption_code?: string | null
+          selected_creator_name?: string | null
+          selected_creator_platform?: string | null
+          selected_creator_url?: string | null
           slots_used?: number | null
           status?: string
           user_id: string
@@ -655,6 +661,9 @@ export type Database = {
           id?: string
           partner_id?: string
           redemption_code?: string | null
+          selected_creator_name?: string | null
+          selected_creator_platform?: string | null
+          selected_creator_url?: string | null
           slots_used?: number | null
           status?: string
           user_id?: string

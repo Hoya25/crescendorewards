@@ -41,6 +41,9 @@ export interface MemberActiveBenefit {
   redemption_code: string | null;
   slots_used: number | null;
   created_at: string | null;
+  selected_creator_name?: string | null;
+  selected_creator_url?: string | null;
+  selected_creator_platform?: string | null;
   partner?: AlliancePartner;
 }
 

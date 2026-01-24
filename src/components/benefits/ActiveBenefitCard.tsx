@@ -1,10 +1,10 @@
-import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Check, Clock, Settings } from 'lucide-react';
+import { Check, Clock, Settings, ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
 import { AlliancePartner } from './PartnerBenefitCard';
+import { PLATFORM_COLORS, PLATFORM_NAMES } from '@/utils/creatorPlatforms';
 
 export interface MemberActiveBenefit {
   id: string;
@@ -17,6 +17,9 @@ export interface MemberActiveBenefit {
   can_swap_after: string | null;
   slots_used: number;
   created_at: string;
+  selected_creator_name?: string | null;
+  selected_creator_url?: string | null;
+  selected_creator_platform?: string | null;
   partner?: AlliancePartner;
 }
 
@@ -34,6 +37,10 @@ export function ActiveBenefitCard({ benefit, onManage }: ActiveBenefitCardProps)
 
   const canSwapDate = benefit.can_swap_after ? new Date(benefit.can_swap_after) : null;
   const canSwapNow = canSwapDate ? canSwapDate <= new Date() : true;
+  const isCreatorSub = partner.is_creator_subscription;
+  const platform = benefit.selected_creator_platform || partner.creator_platform;
+  const platformColor = platform ? PLATFORM_COLORS[platform as keyof typeof PLATFORM_COLORS] : undefined;
+  const platformName = platform ? PLATFORM_NAMES[platform as keyof typeof PLATFORM_NAMES] : undefined;
 
   return (
     <Card className="border-green-500/30 bg-green-50/30 dark:bg-green-900/10">
@@ -56,8 +63,16 @@ export function ActiveBenefitCard({ benefit, onManage }: ActiveBenefitCardProps)
 
           {/* Info */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <h3 className="font-semibold text-sm">{partner.name}</h3>
+              {isCreatorSub && platformName && (
+                <Badge 
+                  className="text-white text-[10px]"
+                  style={{ backgroundColor: platformColor }}
+                >
+                  {platformName}
+                </Badge>
+              )}
               <Badge className="bg-green-600 hover:bg-green-600 text-white text-[10px]">
                 <Check className="w-3 h-3 mr-1" />
                 Active
@@ -65,11 +80,43 @@ export function ActiveBenefitCard({ benefit, onManage }: ActiveBenefitCardProps)
             </div>
             <p className="text-sm text-muted-foreground">{partner.benefit_title}</p>
             
+            {/* Selected creator info for creator subscriptions */}
+            {isCreatorSub && benefit.selected_creator_name && (
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">Supporting:</span>
+                <span className="text-sm font-medium">{benefit.selected_creator_name}</span>
+                {benefit.selected_creator_url && (
+                  <a 
+                    href={benefit.selected_creator_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline inline-flex items-center gap-1"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
+            )}
+            
             {/* Swap availability */}
             {!canSwapNow && canSwapDate && (
               <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
                 <Clock className="w-3 h-3" />
                 Can swap after {format(canSwapDate, 'MMM d, yyyy')}
+              </div>
+            )}
+
+            {/* Change creator option when swap is available */}
+            {isCreatorSub && canSwapNow && benefit.selected_creator_name && (
+              <div className="mt-2">
+                <Button 
+                  variant="link" 
+                  size="sm" 
+                  className="h-auto p-0 text-xs"
+                  onClick={() => onManage(benefit)}
+                >
+                  Change creator
+                </Button>
               </div>
             )}
           </div>
