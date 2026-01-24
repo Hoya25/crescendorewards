@@ -1595,43 +1595,79 @@ export type Database = {
           badge_color: string | null
           badge_emoji: string | null
           benefits: Json | null
+          claims_per_month: number | null
+          claims_per_year: number | null
+          concierge_service: boolean | null
           created_at: string | null
+          custom_benefits: Json | null
+          description: string | null
+          discount_percent: number | null
           display_name: string
+          early_access: boolean | null
+          earning_multiplier: number | null
+          free_shipping: boolean | null
           id: string
           is_active: boolean | null
           max_nctr_360_locked: number | null
           min_nctr_360_locked: number
+          priority_support: boolean | null
           sort_order: number
           tier_name: string
+          unlimited_claims: boolean | null
           updated_at: string | null
+          vip_events: boolean | null
         }
         Insert: {
           badge_color?: string | null
           badge_emoji?: string | null
           benefits?: Json | null
+          claims_per_month?: number | null
+          claims_per_year?: number | null
+          concierge_service?: boolean | null
           created_at?: string | null
+          custom_benefits?: Json | null
+          description?: string | null
+          discount_percent?: number | null
           display_name: string
+          early_access?: boolean | null
+          earning_multiplier?: number | null
+          free_shipping?: boolean | null
           id?: string
           is_active?: boolean | null
           max_nctr_360_locked?: number | null
           min_nctr_360_locked?: number
+          priority_support?: boolean | null
           sort_order?: number
           tier_name: string
+          unlimited_claims?: boolean | null
           updated_at?: string | null
+          vip_events?: boolean | null
         }
         Update: {
           badge_color?: string | null
           badge_emoji?: string | null
           benefits?: Json | null
+          claims_per_month?: number | null
+          claims_per_year?: number | null
+          concierge_service?: boolean | null
           created_at?: string | null
+          custom_benefits?: Json | null
+          description?: string | null
+          discount_percent?: number | null
           display_name?: string
+          early_access?: boolean | null
+          earning_multiplier?: number | null
+          free_shipping?: boolean | null
           id?: string
           is_active?: boolean | null
           max_nctr_360_locked?: number | null
           min_nctr_360_locked?: number
+          priority_support?: boolean | null
           sort_order?: number
           tier_name?: string
+          unlimited_claims?: boolean | null
           updated_at?: string | null
+          vip_events?: boolean | null
         }
         Relationships: []
       }
