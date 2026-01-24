@@ -1671,6 +1671,107 @@ export type Database = {
         }
         Relationships: []
       }
+      tier_changes_log: {
+        Row: {
+          change_summary: string | null
+          changed_at: string
+          changed_by: string | null
+          id: string
+          new_values: Json
+          old_values: Json
+          tier_id: string
+        }
+        Insert: {
+          change_summary?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          new_values: Json
+          old_values: Json
+          tier_id: string
+        }
+        Update: {
+          change_summary?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          new_values?: Json
+          old_values?: Json
+          tier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tier_changes_log_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tier_changes_log_tier_id_fkey"
+            columns: ["tier_id"]
+            isOneToOne: false
+            referencedRelation: "status_tiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tier_promotions: {
+        Row: {
+          applies_to_tiers: string[] | null
+          claims_bonus: number | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          discount_bonus: number | null
+          end_date: string
+          id: string
+          is_active: boolean | null
+          multiplier_bonus: number | null
+          promo_name: string
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          applies_to_tiers?: string[] | null
+          claims_bonus?: number | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_bonus?: number | null
+          end_date: string
+          id?: string
+          is_active?: boolean | null
+          multiplier_bonus?: number | null
+          promo_name: string
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          applies_to_tiers?: string[] | null
+          claims_bonus?: number | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_bonus?: number | null
+          end_date?: string
+          id?: string
+          is_active?: boolean | null
+          multiplier_bonus?: number | null
+          promo_name?: string
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tier_promotions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       unified_profiles: {
         Row: {
           auth_user_id: string | null
@@ -2083,6 +2184,14 @@ export type Database = {
       get_referral_code_by_slug: { Args: { p_slug: string }; Returns: Json }
       get_reward_watch_count: { Args: { p_reward_id: string }; Returns: number }
       get_sponsor_stats: { Args: { p_sponsor_id: string }; Returns: Json }
+      get_tier_user_counts: {
+        Args: never
+        Returns: {
+          tier_id: string
+          tier_name: string
+          user_count: number
+        }[]
+      }
       get_unified_user_profile: {
         Args: { p_auth_user_id: string }
         Returns: Json
