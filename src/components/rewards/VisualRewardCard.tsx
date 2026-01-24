@@ -248,7 +248,7 @@ export function VisualRewardCard({
 
         {/* Footer: Stock info only */}
         {remainingStock !== null && remainingStock <= 20 && (
-          <div className="flex items-center text-[11px] text-muted-foreground">
+          <div className="flex items-center text-xs text-muted-foreground">
             <Package className="w-3 h-3 mr-1" />
             <span className={cn(
               remainingStock <= 5 && "text-orange-500 font-medium"
@@ -273,7 +273,7 @@ export function VisualRewardCard({
                 }}
               />
             )}
-            <span className="text-[10px] text-white/80 truncate">
+            <span className="text-xs text-white/80 truncate">
               <span className="font-light">Sponsored by</span>
               {' '}
               <span className="font-semibold text-amber-300">
