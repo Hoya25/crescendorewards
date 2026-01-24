@@ -72,6 +72,14 @@ export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalP
     try {
       if (mode === 'signup') {
         const fullName = `${firstName.trim()} ${lastName.trim()}`;
+        
+        // Get referral code from sessionStorage (set by InviteLandingPage) or URL params
+        const storedReferralCode = sessionStorage.getItem('referral_code');
+        const storedLinkType = sessionStorage.getItem('referral_link_type') || 'standard';
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlReferralCode = urlParams.get('ref');
+        const referralCode = storedReferralCode || urlReferralCode;
+        
         const { data, error: signUpError } = await supabase.auth.signUp({
           email: email.trim(),
           password,
@@ -80,6 +88,8 @@ export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalP
               full_name: fullName,
               first_name: firstName.trim(),
               last_name: lastName.trim(),
+              referred_by_code: referralCode || undefined,
+              referral_link_type: referralCode ? storedLinkType : undefined,
             },
             emailRedirectTo: `${window.location.origin}/`,
           },
@@ -95,6 +105,10 @@ export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalP
         }
 
         if (data.user) {
+          // Clear referral data from session storage after successful signup
+          sessionStorage.removeItem('referral_code');
+          sessionStorage.removeItem('referral_link_type');
+          
           toast.success('Account created successfully! Welcome to Crescendo! 🎉');
           onSuccess();
         }
