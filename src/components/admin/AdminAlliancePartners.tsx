@@ -35,7 +35,7 @@ import {
 import { toast } from 'sonner';
 import { 
   Plus, Users, DollarSign, Sparkles, Building2, 
-  Edit, Trash2, ExternalLink, User, EyeOff 
+  Edit, Trash2, ExternalLink, User, EyeOff, Eye, Check, X, Pencil 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -154,6 +154,8 @@ export function AdminAlliancePartners() {
   const [selectedPartners, setSelectedPartners] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [editingValueId, setEditingValueId] = useState<string | null>(null);
+  const [editingValue, setEditingValue] = useState<number>(0);
 
   // Fetch partners
   const { data: partners = [], isLoading, refetch } = useQuery({
@@ -306,6 +308,39 @@ export function AdminAlliancePartners() {
     
     toast.success(`${selectedPartners.length} partners ${isActive ? 'activated' : 'deactivated'}`);
     setSelectedPartners([]);
+    refetch();
+  };
+
+  // Toggle hide value handler
+  const toggleHideValue = async (partnerId: string, hideValue: boolean) => {
+    const { error } = await supabase
+      .from('alliance_partners')
+      .update({ hide_value: hideValue })
+      .eq('id', partnerId);
+    
+    if (error) {
+      toast.error('Failed to update');
+      return;
+    }
+    
+    toast.success(hideValue ? 'Value hidden from members' : 'Value now visible to members');
+    refetch();
+  };
+
+  // Save inline value edit
+  const saveValueEdit = async (partnerId: string) => {
+    const { error } = await supabase
+      .from('alliance_partners')
+      .update({ monthly_value: editingValue })
+      .eq('id', partnerId);
+    
+    if (error) {
+      toast.error('Failed to update value');
+      return;
+    }
+    
+    toast.success('Value updated successfully');
+    setEditingValueId(null);
     refetch();
   };
 
@@ -608,7 +643,7 @@ export function AdminAlliancePartners() {
                     {categoryPartners.map(partner => (
                       <TableRow 
                         key={partner.id}
-                        className={cn(!partner.is_active && 'opacity-60')}
+                        className={cn('group', !partner.is_active && 'opacity-60')}
                       >
                         <TableCell>
                           <Checkbox
@@ -644,13 +679,54 @@ export function AdminAlliancePartners() {
                         </TableCell>
                         <TableCell>{partner.benefit_title}</TableCell>
                         <TableCell>
-                          {partner.hide_value ? (
-                            <span className="text-muted-foreground flex items-center gap-1">
-                              <EyeOff className="w-3 h-3" />
-                              Hidden
-                            </span>
+                          {editingValueId === partner.id ? (
+                            <div className="flex items-center gap-1">
+                              <Input
+                                type="number"
+                                className="w-20 h-8"
+                                value={editingValue}
+                                onChange={(e) => setEditingValue(Number(e.target.value))}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') saveValueEdit(partner.id);
+                                  if (e.key === 'Escape') setEditingValueId(null);
+                                }}
+                                autoFocus
+                              />
+                              <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => saveValueEdit(partner.id)}>
+                                <Check className="w-4 h-4 text-green-600" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => setEditingValueId(null)}>
+                                <X className="w-4 h-4 text-muted-foreground" />
+                              </Button>
+                            </div>
                           ) : (
-                            `$${partner.monthly_value}/mo`
+                            <div className="flex items-center gap-2">
+                              <div 
+                                className="flex items-center gap-1 cursor-pointer hover:bg-muted/50 rounded px-2 py-1 -mx-2"
+                                onClick={() => {
+                                  setEditingValueId(partner.id);
+                                  setEditingValue(partner.monthly_value);
+                                }}
+                              >
+                                <span className={cn(partner.hide_value && 'text-muted-foreground line-through')}>
+                                  ${partner.monthly_value}/mo
+                                </span>
+                                <Pencil className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0"
+                                onClick={() => toggleHideValue(partner.id, !partner.hide_value)}
+                                title={partner.hide_value ? 'Show value to members' : 'Hide value from members'}
+                              >
+                                {partner.hide_value ? (
+                                  <EyeOff className="w-3 h-3 text-muted-foreground" />
+                                ) : (
+                                  <Eye className="w-3 h-3 text-muted-foreground" />
+                                )}
+                              </Button>
+                            </div>
                           )}
                         </TableCell>
                         <TableCell>
