@@ -9,3 +9,4 @@ export type { BenefitTemplate, TierValues } from './BenefitTemplates';
 export { TierChangeHistory } from './TierChangeHistory';
 export { UserImpactPreview } from './UserImpactPreview';
 export { TierPromotions } from './TierPromotions';
+export { BenefitTypeManager } from './BenefitTypeManager';
