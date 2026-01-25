@@ -12,8 +12,9 @@ import {
   DialogDescription,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Save, RefreshCw, Plus, X, Check } from 'lucide-react';
+import { Save, RefreshCw, Plus, X, Check, EyeOff } from 'lucide-react';
 import { EmojiPicker } from './tier-editor';
+import { useBenefitTypeSettings } from '@/hooks/useBenefitTypeSettings';
 
 interface StatusTier {
   id: string;
@@ -49,6 +50,8 @@ interface EditTierModalProps {
 }
 
 export function EditTierModal({ open, onOpenChange, tier, onSave, saving }: EditTierModalProps) {
+  const { isActive: isBenefitActive, loading: benefitSettingsLoading } = useBenefitTypeSettings();
+  
   // Display fields
   const [displayName, setDisplayName] = useState('');
   const [badgeEmoji, setBadgeEmoji] = useState('');
@@ -318,8 +321,15 @@ export function EditTierModal({ open, onOpenChange, tier, onSave, saving }: Edit
             <h3 className="font-semibold text-lg border-b pb-2">Tier Benefits</h3>
 
             {/* Earning Multiplier */}
-            <div className="space-y-2">
-              <Label>Earning Multiplier</Label>
+            <div className={`space-y-2 ${!isBenefitActive('earning_multiplier') ? 'opacity-50' : ''}`}>
+              <div className="flex items-center gap-2">
+                <Label>Earning Multiplier</Label>
+                {!isBenefitActive('earning_multiplier') && (
+                  <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                    <EyeOff className="w-3 h-3" /> Disabled
+                  </Badge>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground">
                 Members earn this multiple of NCTR on activities
               </p>
@@ -332,14 +342,22 @@ export function EditTierModal({ open, onOpenChange, tier, onSave, saving }: Edit
                   value={multiplier}
                   onChange={(e) => setMultiplier(Number(e.target.value))}
                   className="w-24"
+                  disabled={!isBenefitActive('earning_multiplier')}
                 />
                 <span className="text-xl font-bold">×</span>
               </div>
             </div>
 
             {/* Discount */}
-            <div className="space-y-2">
-              <Label>Partner Discount</Label>
+            <div className={`space-y-2 ${!isBenefitActive('discount_percent') ? 'opacity-50' : ''}`}>
+              <div className="flex items-center gap-2">
+                <Label>Partner Discount</Label>
+                {!isBenefitActive('discount_percent') && (
+                  <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                    <EyeOff className="w-3 h-3" /> Disabled
+                  </Badge>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground">
                 Discount on partner brand purchases
               </p>
@@ -351,14 +369,22 @@ export function EditTierModal({ open, onOpenChange, tier, onSave, saving }: Edit
                   value={discountPercent}
                   onChange={(e) => setDiscountPercent(Number(e.target.value))}
                   className="w-24"
+                  disabled={!isBenefitActive('discount_percent')}
                 />
                 <span className="text-xl font-bold">%</span>
               </div>
             </div>
 
             {/* Claims */}
-            <div className="space-y-3">
-              <Label>Claims Allowance</Label>
+            <div className={`space-y-3 ${!isBenefitActive('claims_allowance') ? 'opacity-50' : ''}`}>
+              <div className="flex items-center gap-2">
+                <Label>Claims Allowance</Label>
+                {!isBenefitActive('claims_allowance') && (
+                  <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                    <EyeOff className="w-3 h-3" /> Disabled
+                  </Badge>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground">
                 How many rewards can members claim?
               </p>
@@ -368,6 +394,7 @@ export function EditTierModal({ open, onOpenChange, tier, onSave, saving }: Edit
                   id="unlimited"
                   checked={unlimitedClaims}
                   onCheckedChange={(checked) => setUnlimitedClaims(!!checked)}
+                  disabled={!isBenefitActive('claims_allowance')}
                 />
                 <Label htmlFor="unlimited" className="font-normal">
                   Unlimited claims
@@ -383,6 +410,7 @@ export function EditTierModal({ open, onOpenChange, tier, onSave, saving }: Edit
                       min={0}
                       value={claimsPerMonth}
                       onChange={(e) => setClaimsPerMonth(Number(e.target.value))}
+                      disabled={!isBenefitActive('claims_allowance')}
                     />
                   </div>
                   <div className="space-y-1">
@@ -392,6 +420,7 @@ export function EditTierModal({ open, onOpenChange, tier, onSave, saving }: Edit
                       min={0}
                       value={claimsPerYear}
                       onChange={(e) => setClaimsPerYear(Number(e.target.value))}
+                      disabled={!isBenefitActive('claims_allowance')}
                     />
                   </div>
                 </div>
@@ -400,56 +429,71 @@ export function EditTierModal({ open, onOpenChange, tier, onSave, saving }: Edit
 
             {/* Perks */}
             <div className="space-y-3">
-              <Label>Additional Perks</Label>
+              <div className="flex items-center justify-between">
+                <Label>Additional Perks</Label>
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <EyeOff className="w-3 h-3" /> = Globally disabled
+                </span>
+              </div>
               <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-                <div className="flex items-center gap-2">
+                <div className={`flex items-center gap-2 ${!isBenefitActive('priority_support') ? 'opacity-50' : ''}`}>
                   <Checkbox
                     id="support"
                     checked={prioritySupport}
                     onCheckedChange={(checked) => setPrioritySupport(!!checked)}
+                    disabled={!isBenefitActive('priority_support')}
                   />
-                  <Label htmlFor="support" className="font-normal">
+                  <Label htmlFor="support" className="font-normal flex items-center gap-1">
                     Priority Support
+                    {!isBenefitActive('priority_support') && <EyeOff className="w-3 h-3 text-muted-foreground" />}
                   </Label>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className={`flex items-center gap-2 ${!isBenefitActive('early_access') ? 'opacity-50' : ''}`}>
                   <Checkbox
                     id="early"
                     checked={earlyAccess}
                     onCheckedChange={(checked) => setEarlyAccess(!!checked)}
+                    disabled={!isBenefitActive('early_access')}
                   />
-                  <Label htmlFor="early" className="font-normal">
+                  <Label htmlFor="early" className="font-normal flex items-center gap-1">
                     Early Access
+                    {!isBenefitActive('early_access') && <EyeOff className="w-3 h-3 text-muted-foreground" />}
                   </Label>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className={`flex items-center gap-2 ${!isBenefitActive('vip_events') ? 'opacity-50' : ''}`}>
                   <Checkbox
                     id="vip"
                     checked={vipEvents}
                     onCheckedChange={(checked) => setVipEvents(!!checked)}
+                    disabled={!isBenefitActive('vip_events')}
                   />
-                  <Label htmlFor="vip" className="font-normal">
+                  <Label htmlFor="vip" className="font-normal flex items-center gap-1">
                     VIP Events
+                    {!isBenefitActive('vip_events') && <EyeOff className="w-3 h-3 text-muted-foreground" />}
                   </Label>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className={`flex items-center gap-2 ${!isBenefitActive('concierge_service') ? 'opacity-50' : ''}`}>
                   <Checkbox
                     id="concierge"
                     checked={conciergeService}
                     onCheckedChange={(checked) => setConciergeService(!!checked)}
+                    disabled={!isBenefitActive('concierge_service')}
                   />
-                  <Label htmlFor="concierge" className="font-normal">
+                  <Label htmlFor="concierge" className="font-normal flex items-center gap-1">
                     Concierge Service
+                    {!isBenefitActive('concierge_service') && <EyeOff className="w-3 h-3 text-muted-foreground" />}
                   </Label>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className={`flex items-center gap-2 ${!isBenefitActive('free_shipping') ? 'opacity-50' : ''}`}>
                   <Checkbox
                     id="shipping"
                     checked={freeShipping}
                     onCheckedChange={(checked) => setFreeShipping(!!checked)}
+                    disabled={!isBenefitActive('free_shipping')}
                   />
-                  <Label htmlFor="shipping" className="font-normal">
+                  <Label htmlFor="shipping" className="font-normal flex items-center gap-1">
                     Free Shipping
+                    {!isBenefitActive('free_shipping') && <EyeOff className="w-3 h-3 text-muted-foreground" />}
                   </Label>
                 </div>
               </div>

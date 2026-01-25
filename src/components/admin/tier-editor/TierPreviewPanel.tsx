@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Check, Zap, Gift, Tag, ChevronRight } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useBenefitTypeSettings } from '@/hooks/useBenefitTypeSettings';
 
 interface StatusTier {
   id: string;
@@ -41,6 +42,8 @@ export function TierPreviewPanel({
   editingTier,
   hideHeader = false
 }: TierPreviewPanelProps) {
+  const { isActive } = useBenefitTypeSettings();
+  
   // Use editing tier if it matches, otherwise find from list
   const displayTier = editingTier?.id === selectedTierId 
     ? editingTier 
@@ -53,27 +56,29 @@ export function TierPreviewPanel({
     
     benefits.push(`Access to ${tier.display_name.toLowerCase()} reward catalog`);
     
-    if (tier.unlimited_claims) {
-      benefits.push('Unlimited reward claims');
-    } else if (tier.claims_per_month > 0) {
-      benefits.push(`${tier.claims_per_month} reward claim${tier.claims_per_month > 1 ? 's' : ''} per month`);
-    } else if (tier.claims_per_year > 0) {
-      benefits.push(`${tier.claims_per_year} reward claim${tier.claims_per_year > 1 ? 's' : ''} per year`);
+    if (isActive('claims_allowance')) {
+      if (tier.unlimited_claims) {
+        benefits.push('Unlimited reward claims');
+      } else if (tier.claims_per_month > 0) {
+        benefits.push(`${tier.claims_per_month} reward claim${tier.claims_per_month > 1 ? 's' : ''} per month`);
+      } else if (tier.claims_per_year > 0) {
+        benefits.push(`${tier.claims_per_year} reward claim${tier.claims_per_year > 1 ? 's' : ''} per year`);
+      }
     }
     
-    if (tier.earning_multiplier > 1) {
+    if (isActive('earning_multiplier') && tier.earning_multiplier > 1) {
       benefits.push(`Earn ${tier.earning_multiplier}x NCTR on all activities`);
     }
     
-    if (tier.discount_percent > 0) {
+    if (isActive('discount_percent') && tier.discount_percent > 0) {
       benefits.push(`${tier.discount_percent}% discount on partner brands`);
     }
     
-    if (tier.priority_support) benefits.push('Priority customer support');
-    if (tier.early_access) benefits.push('Early access to new rewards');
-    if (tier.vip_events) benefits.push('VIP event invitations');
-    if (tier.concierge_service) benefits.push('Personal concierge service');
-    if (tier.free_shipping) benefits.push('Free expedited shipping');
+    if (isActive('priority_support') && tier.priority_support) benefits.push('Priority customer support');
+    if (isActive('early_access') && tier.early_access) benefits.push('Early access to new rewards');
+    if (isActive('vip_events') && tier.vip_events) benefits.push('VIP event invitations');
+    if (isActive('concierge_service') && tier.concierge_service) benefits.push('Personal concierge service');
+    if (isActive('free_shipping') && tier.free_shipping) benefits.push('Free expedited shipping');
     
     if (tier.custom_benefits?.length > 0) {
       benefits.push(...tier.custom_benefits);

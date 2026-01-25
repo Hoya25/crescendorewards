@@ -295,6 +295,42 @@ export type Database = {
           },
         ]
       }
+      benefit_type_settings: {
+        Row: {
+          benefit_key: string
+          category: string | null
+          created_at: string | null
+          description: string | null
+          display_name: string
+          id: string
+          is_active: boolean | null
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          benefit_key: string
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_name: string
+          id?: string
+          is_active?: boolean | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          benefit_key?: string
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_name?: string
+          id?: string
+          is_active?: boolean | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       brands: {
         Row: {
           base_earning_rate: number

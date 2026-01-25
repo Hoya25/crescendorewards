@@ -29,6 +29,7 @@ import {
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
+import { useBenefitTypeSettings } from '@/hooks/useBenefitTypeSettings';
 import {
   NumberInputWithButtons,
   EmojiPicker,
@@ -40,7 +41,8 @@ import {
   TierChangeHistory,
   UserImpactPreview,
   TierPromotions,
-  BenefitTemplate
+  BenefitTemplate,
+  BenefitTypeManager
 } from './tier-editor';
 import { EditTierModal } from './EditTierModal';
 
@@ -71,6 +73,7 @@ interface StatusTier {
 
 export function AdminStatusTiers() {
   const { profile } = useUnifiedUser();
+  const { isActive: isBenefitActive } = useBenefitTypeSettings();
   const [tiers, setTiers] = useState<StatusTier[]>([]);
   const [originalTiers, setOriginalTiers] = useState<StatusTier[]>([]);
   const [loading, setLoading] = useState(true);
@@ -173,27 +176,29 @@ export function AdminStatusTiers() {
     
     benefits.push(`Access to ${tier.display_name.toLowerCase()} reward catalog`);
     
-    if (tier.unlimited_claims) {
-      benefits.push('Unlimited reward claims');
-    } else if (tier.claims_per_month > 0) {
-      benefits.push(`${tier.claims_per_month} reward claim${tier.claims_per_month > 1 ? 's' : ''} per month`);
-    } else if (tier.claims_per_year > 0) {
-      benefits.push(`${tier.claims_per_year} reward claim${tier.claims_per_year > 1 ? 's' : ''} per year`);
+    if (isBenefitActive('claims_allowance')) {
+      if (tier.unlimited_claims) {
+        benefits.push('Unlimited reward claims');
+      } else if (tier.claims_per_month > 0) {
+        benefits.push(`${tier.claims_per_month} reward claim${tier.claims_per_month > 1 ? 's' : ''} per month`);
+      } else if (tier.claims_per_year > 0) {
+        benefits.push(`${tier.claims_per_year} reward claim${tier.claims_per_year > 1 ? 's' : ''} per year`);
+      }
     }
     
-    if (tier.earning_multiplier > 1) {
+    if (isBenefitActive('earning_multiplier') && tier.earning_multiplier > 1) {
       benefits.push(`Earn ${tier.earning_multiplier}x NCTR on all activities`);
     }
     
-    if (tier.discount_percent > 0) {
+    if (isBenefitActive('discount_percent') && tier.discount_percent > 0) {
       benefits.push(`${tier.discount_percent}% discount on partner brands`);
     }
     
-    if (tier.priority_support) benefits.push('Priority customer support');
-    if (tier.early_access) benefits.push('Early access to new rewards');
-    if (tier.vip_events) benefits.push('VIP event invitations');
-    if (tier.concierge_service) benefits.push('Personal concierge service');
-    if (tier.free_shipping) benefits.push('Free expedited shipping');
+    if (isBenefitActive('priority_support') && tier.priority_support) benefits.push('Priority customer support');
+    if (isBenefitActive('early_access') && tier.early_access) benefits.push('Early access to new rewards');
+    if (isBenefitActive('vip_events') && tier.vip_events) benefits.push('VIP event invitations');
+    if (isBenefitActive('concierge_service') && tier.concierge_service) benefits.push('Personal concierge service');
+    if (isBenefitActive('free_shipping') && tier.free_shipping) benefits.push('Free expedited shipping');
     
     if (tier.custom_benefits && tier.custom_benefits.length > 0) {
       benefits.push(...tier.custom_benefits);
@@ -391,8 +396,9 @@ export function AdminStatusTiers() {
       </div>
 
       <Tabs defaultValue="tiers" className="space-y-6">
-        <TabsList>
+        <TabsList className="flex-wrap h-auto gap-1">
           <TabsTrigger value="tiers">Tier Configuration</TabsTrigger>
+          <TabsTrigger value="benefits">Benefit Controls</TabsTrigger>
           <TabsTrigger value="templates">Templates</TabsTrigger>
           <TabsTrigger value="promotions">Promotions</TabsTrigger>
           <TabsTrigger value="history">Change History</TabsTrigger>
@@ -537,6 +543,10 @@ export function AdminStatusTiers() {
               </div>
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="benefits">
+          <BenefitTypeManager />
         </TabsContent>
 
         <TabsContent value="templates">
