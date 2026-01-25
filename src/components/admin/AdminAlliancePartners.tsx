@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
@@ -34,7 +35,7 @@ import {
 import { toast } from 'sonner';
 import { 
   Plus, Users, DollarSign, Sparkles, Building2, 
-  Edit, Trash2, ExternalLink, User 
+  Edit, Trash2, ExternalLink, User, EyeOff 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -85,6 +86,7 @@ interface AlliancePartner {
   is_featured: boolean | null;
   total_activations: number | null;
   display_order: number | null;
+  hide_value: boolean | null;
 }
 
 type PartnerFormData = Omit<AlliancePartner, 'id' | 'total_activations' | 'display_order'>;
@@ -141,6 +143,7 @@ const emptyFormData: PartnerFormData = {
   creator_channel_url: null,
   is_active: true,
   is_featured: false,
+  hide_value: false,
 };
 
 export function AdminAlliancePartners() {
@@ -148,9 +151,12 @@ export function AdminAlliancePartners() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPartner, setEditingPartner] = useState<AlliancePartner | null>(null);
   const [formData, setFormData] = useState<PartnerFormData>(emptyFormData);
+  const [selectedPartners, setSelectedPartners] = useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
   // Fetch partners
-  const { data: partners = [], isLoading } = useQuery({
+  const { data: partners = [], isLoading, refetch } = useQuery({
     queryKey: ['admin-alliance-partners'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -163,6 +169,22 @@ export function AdminAlliancePartners() {
       return data as AlliancePartner[];
     },
   });
+
+  // Filter partners based on status and category
+  const filteredPartners = useMemo(() => {
+    return partners.filter(partner => {
+      const matchesStatus = 
+        statusFilter === 'all' ||
+        (statusFilter === 'active' && partner.is_active) ||
+        (statusFilter === 'inactive' && !partner.is_active);
+      
+      const matchesCategory = 
+        categoryFilter === 'all' || 
+        partner.category === categoryFilter;
+      
+      return matchesStatus && matchesCategory;
+    });
+  }, [partners, statusFilter, categoryFilter]);
 
   // Fetch member activations (for creator subscriptions)
   const { data: memberActivations = [] } = useQuery({
@@ -252,6 +274,59 @@ export function AdminAlliancePartners() {
     },
   });
 
+  // Toggle active status handler
+  const handleToggleActive = async (partnerId: string, partnerName: string, isActive: boolean) => {
+    const { error } = await supabase
+      .from('alliance_partners')
+      .update({ is_active: isActive })
+      .eq('id', partnerId);
+    
+    if (error) {
+      toast.error('Failed to update status');
+      return;
+    }
+    
+    toast.success(`${partnerName} is now ${isActive ? 'active' : 'inactive'}`);
+    refetch();
+  };
+
+  // Bulk update status handler
+  const bulkUpdateStatus = async (isActive: boolean) => {
+    if (selectedPartners.length === 0) return;
+
+    const { error } = await supabase
+      .from('alliance_partners')
+      .update({ is_active: isActive })
+      .in('id', selectedPartners);
+    
+    if (error) {
+      toast.error('Failed to update partners');
+      return;
+    }
+    
+    toast.success(`${selectedPartners.length} partners ${isActive ? 'activated' : 'deactivated'}`);
+    setSelectedPartners([]);
+    refetch();
+  };
+
+  // Handle select all for current filtered view
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedPartners(filteredPartners.map(p => p.id));
+    } else {
+      setSelectedPartners([]);
+    }
+  };
+
+  // Handle individual selection
+  const handleSelectPartner = (partnerId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedPartners(prev => [...prev, partnerId]);
+    } else {
+      setSelectedPartners(prev => prev.filter(id => id !== partnerId));
+    }
+  };
+
   // Stats calculations
   const stats = useMemo(() => {
     const totalPartners = partners.length;
@@ -261,16 +336,16 @@ export function AdminAlliancePartners() {
     return { totalPartners, activePartners, creatorSubs, totalValue };
   }, [partners]);
 
-  // Group partners by category
+  // Group filtered partners by category
   const partnersByCategory = useMemo(() => {
     const grouped: Record<string, AlliancePartner[]> = {};
-    partners.forEach(partner => {
+    filteredPartners.forEach(partner => {
       const cat = partner.category || 'other';
       if (!grouped[cat]) grouped[cat] = [];
       grouped[cat].push(partner);
     });
     return grouped;
-  }, [partners]);
+  }, [filteredPartners]);
 
   const generateSlug = (name: string) => {
     return name
@@ -309,6 +384,7 @@ export function AdminAlliancePartners() {
       creator_channel_url: partner.creator_channel_url,
       is_active: partner.is_active ?? true,
       is_featured: partner.is_featured ?? false,
+      hide_value: partner.hide_value ?? false,
     });
     setIsModalOpen(true);
   };
@@ -446,6 +522,52 @@ export function AdminAlliancePartners() {
         </TabsList>
 
         <TabsContent value="partners" className="space-y-4">
+          {/* Filters */}
+          <div className="flex items-center gap-4">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="All Partners" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Partners</SelectItem>
+                <SelectItem value="active">Active Only</SelectItem>
+                <SelectItem value="inactive">Inactive Only</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {CATEGORIES.map(cat => (
+                  <SelectItem key={cat} value={cat} className="capitalize">
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Bulk Actions Bar */}
+          {selectedPartners.length > 0 && (
+            <div className="flex items-center gap-4 p-3 bg-muted rounded-lg">
+              <span className="text-sm font-medium">
+                {selectedPartners.length} selected
+              </span>
+              <Button size="sm" variant="outline" onClick={() => bulkUpdateStatus(true)}>
+                Activate All
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => bulkUpdateStatus(false)}>
+                Deactivate All
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setSelectedPartners([])}>
+                Clear Selection
+              </Button>
+            </div>
+          )}
+
           {/* Partners Table by Category */}
           {Object.entries(partnersByCategory).map(([category, categoryPartners]) => (
             <Card key={category}>
@@ -456,6 +578,23 @@ export function AdminAlliancePartners() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-10">
+                        <Checkbox
+                          checked={categoryPartners.every(p => selectedPartners.includes(p.id))}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedPartners(prev => [
+                                ...prev,
+                                ...categoryPartners.filter(p => !prev.includes(p.id)).map(p => p.id)
+                              ]);
+                            } else {
+                              setSelectedPartners(prev => 
+                                prev.filter(id => !categoryPartners.find(p => p.id === id))
+                              );
+                            }
+                          }}
+                        />
+                      </TableHead>
                       <TableHead>Partner</TableHead>
                       <TableHead>Benefit</TableHead>
                       <TableHead>Value</TableHead>
@@ -467,7 +606,16 @@ export function AdminAlliancePartners() {
                   </TableHeader>
                   <TableBody>
                     {categoryPartners.map(partner => (
-                      <TableRow key={partner.id}>
+                      <TableRow 
+                        key={partner.id}
+                        className={cn(!partner.is_active && 'opacity-60')}
+                      >
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedPartners.includes(partner.id)}
+                            onCheckedChange={(checked) => handleSelectPartner(partner.id, !!checked)}
+                          />
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-3">
                             {partner.logo_url ? (
@@ -495,7 +643,16 @@ export function AdminAlliancePartners() {
                           </div>
                         </TableCell>
                         <TableCell>{partner.benefit_title}</TableCell>
-                        <TableCell>${partner.monthly_value}/mo</TableCell>
+                        <TableCell>
+                          {partner.hide_value ? (
+                            <span className="text-muted-foreground flex items-center gap-1">
+                              <EyeOff className="w-3 h-3" />
+                              Hidden
+                            </span>
+                          ) : (
+                            `$${partner.monthly_value}/mo`
+                          )}
+                        </TableCell>
                         <TableCell>
                           <Badge className={cn('capitalize', TIER_COLORS[partner.min_tier])}>
                             {partner.min_tier}
@@ -503,14 +660,16 @@ export function AdminAlliancePartners() {
                         </TableCell>
                         <TableCell>{partner.total_activations || 0}</TableCell>
                         <TableCell>
-                          <div className="flex gap-1">
-                            {partner.is_active ? (
-                              <Badge variant="default">Active</Badge>
-                            ) : (
-                              <Badge variant="secondary">Inactive</Badge>
-                            )}
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={partner.is_active ?? false}
+                              onCheckedChange={(checked) => handleToggleActive(partner.id, partner.name, checked)}
+                            />
+                            <span className={partner.is_active ? 'text-green-600' : 'text-muted-foreground'}>
+                              {partner.is_active ? 'Active' : 'Inactive'}
+                            </span>
                             {partner.is_featured && (
-                              <Badge variant="outline" className="border-primary text-primary">
+                              <Badge variant="outline" className="border-primary text-primary ml-1">
                                 Featured
                               </Badge>
                             )}
@@ -814,17 +973,31 @@ export function AdminAlliancePartners() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="is_diamond_exclusive"
-                  checked={formData.is_diamond_exclusive || false}
-                  onCheckedChange={(checked) => 
-                    setFormData(prev => ({ ...prev, is_diamond_exclusive: checked === true }))
-                  }
-                />
-                <Label htmlFor="is_diamond_exclusive" className="text-sm">
-                  Diamond Exclusive
-                </Label>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="is_diamond_exclusive"
+                    checked={formData.is_diamond_exclusive || false}
+                    onCheckedChange={(checked) => 
+                      setFormData(prev => ({ ...prev, is_diamond_exclusive: checked === true }))
+                    }
+                  />
+                  <Label htmlFor="is_diamond_exclusive" className="text-sm">
+                    Diamond Exclusive
+                  </Label>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="hideValue"
+                    checked={formData.hide_value || false}
+                    onCheckedChange={(checked) => setFormData({ ...formData, hide_value: !!checked })}
+                  />
+                  <Label htmlFor="hideValue">Hide dollar value from members</Label>
+                </div>
+                <p className="text-sm text-muted-foreground pl-6">
+                  When checked, the "$X/mo value" badge won't appear on the member benefits page
+                </p>
               </div>
             </div>
 

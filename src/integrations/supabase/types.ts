@@ -152,6 +152,7 @@ export type Database = {
           creator_platform: string | null
           description: string | null
           display_order: number | null
+          hide_value: boolean | null
           id: string
           is_active: boolean | null
           is_creator_subscription: boolean | null
@@ -180,6 +181,7 @@ export type Database = {
           creator_platform?: string | null
           description?: string | null
           display_order?: number | null
+          hide_value?: boolean | null
           id?: string
           is_active?: boolean | null
           is_creator_subscription?: boolean | null
@@ -208,6 +210,7 @@ export type Database = {
           creator_platform?: string | null
           description?: string | null
           display_order?: number | null
+          hide_value?: boolean | null
           id?: string
           is_active?: boolean | null
           is_creator_subscription?: boolean | null
