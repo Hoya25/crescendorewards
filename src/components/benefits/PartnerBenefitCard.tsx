@@ -48,6 +48,7 @@ export interface AlliancePartner {
   is_featured: boolean;
   display_order: number;
   total_activations: number;
+  hide_value?: boolean;
 }
 
 interface PartnerBenefitCardProps {
@@ -133,10 +134,12 @@ export function PartnerBenefitCard({
         {/* Footer: Value + Tier + Action */}
         <div className="flex items-center justify-between gap-2 pt-1">
           <div className="flex items-center gap-2">
-            {/* Monthly value */}
-            <Badge variant="secondary" className="text-xs">
-              ${partner.monthly_value}/mo value
-            </Badge>
+            {/* Monthly value - only show if not hidden */}
+            {!partner.hide_value && partner.monthly_value > 0 && (
+              <Badge variant="secondary" className="text-xs">
+                ${partner.monthly_value}/mo value
+              </Badge>
+            )}
 
             {/* Required tier */}
             <Badge 

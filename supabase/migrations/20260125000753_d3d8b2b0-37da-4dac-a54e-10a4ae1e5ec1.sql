@@ -1,0 +1,1 @@
+ALTER TABLE alliance_partners ADD COLUMN IF NOT EXISTS hide_value BOOLEAN DEFAULT false;
