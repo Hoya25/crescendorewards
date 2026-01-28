@@ -55,53 +55,137 @@ export type Database = {
           },
         ]
       }
+      admin_adjustment_templates: {
+        Row: {
+          adjustment_type: string
+          amount: number
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          lock_duration_days: number | null
+          name: string
+          notification_enabled: boolean | null
+          notification_message: string | null
+          notification_title: string | null
+        }
+        Insert: {
+          adjustment_type: string
+          amount: number
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          lock_duration_days?: number | null
+          name: string
+          notification_enabled?: boolean | null
+          notification_message?: string | null
+          notification_title?: string | null
+        }
+        Update: {
+          adjustment_type?: string
+          amount?: number
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          lock_duration_days?: number | null
+          name?: string
+          notification_enabled?: boolean | null
+          notification_message?: string | null
+          notification_title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_adjustment_templates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_nctr_adjustments: {
         Row: {
           adjustment_type: string
           admin_id: string
+          admin_note: string | null
           amount: number
+          approved_at: string | null
+          approved_by: string | null
           created_at: string | null
           id: string
           lock_duration: number | null
+          lock_expires_at: string | null
           new_balance: number
           new_tier: string | null
+          notification_sent: boolean | null
           previous_balance: number
           previous_tier: string | null
           reason: string
+          requires_approval: boolean | null
+          scheduled_for: string | null
+          status: string | null
           user_id: string
         }
         Insert: {
           adjustment_type: string
           admin_id: string
+          admin_note?: string | null
           amount: number
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string | null
           id?: string
           lock_duration?: number | null
+          lock_expires_at?: string | null
           new_balance: number
           new_tier?: string | null
+          notification_sent?: boolean | null
           previous_balance: number
           previous_tier?: string | null
           reason: string
+          requires_approval?: boolean | null
+          scheduled_for?: string | null
+          status?: string | null
           user_id: string
         }
         Update: {
           adjustment_type?: string
           admin_id?: string
+          admin_note?: string | null
           amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string | null
           id?: string
           lock_duration?: number | null
+          lock_expires_at?: string | null
           new_balance?: number
           new_tier?: string | null
+          notification_sent?: boolean | null
           previous_balance?: number
           previous_tier?: string | null
           reason?: string
+          requires_approval?: boolean | null
+          scheduled_for?: string | null
+          status?: string | null
           user_id?: string
         }
         Relationships: [
           {
             foreignKeyName: "admin_nctr_adjustments_admin_id_fkey"
             columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_nctr_adjustments_approved_by_fkey"
+            columns: ["approved_by"]
             isOneToOne: false
             referencedRelation: "unified_profiles"
             referencedColumns: ["id"]
@@ -141,6 +225,67 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      admin_user_notifications: {
+        Row: {
+          admin_id: string
+          created_at: string | null
+          id: string
+          message: string
+          notification_type: string
+          read_at: string | null
+          related_adjustment_id: string | null
+          sent_via: string[] | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          admin_id: string
+          created_at?: string | null
+          id?: string
+          message: string
+          notification_type: string
+          read_at?: string | null
+          related_adjustment_id?: string | null
+          sent_via?: string[] | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          admin_id?: string
+          created_at?: string | null
+          id?: string
+          message?: string
+          notification_type?: string
+          read_at?: string | null
+          related_adjustment_id?: string | null
+          sent_via?: string[] | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_user_notifications_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_user_notifications_related_adjustment_id_fkey"
+            columns: ["related_adjustment_id"]
+            isOneToOne: false
+            referencedRelation: "admin_nctr_adjustments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_user_notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       admin_users: {
         Row: {
@@ -2076,6 +2221,11 @@ export type Database = {
           id: string
           last_active_crescendo: string | null
           last_active_garden: string | null
+          nctr_lock_duration_days: number | null
+          nctr_lock_expires_at: string | null
+          onchain_vesting_contract: string | null
+          onchain_vesting_synced: boolean | null
+          primary_wallet_address: string | null
           tier_calculated_at: string | null
           tier_override: string | null
           tier_override_at: string | null
@@ -2083,6 +2233,9 @@ export type Database = {
           tier_override_reason: string | null
           updated_at: string | null
           wallet_address: string | null
+          wallet_addresses: Json | null
+          wallet_verified: boolean | null
+          wallet_verified_at: string | null
         }
         Insert: {
           auth_user_id?: string | null
@@ -2096,6 +2249,11 @@ export type Database = {
           id?: string
           last_active_crescendo?: string | null
           last_active_garden?: string | null
+          nctr_lock_duration_days?: number | null
+          nctr_lock_expires_at?: string | null
+          onchain_vesting_contract?: string | null
+          onchain_vesting_synced?: boolean | null
+          primary_wallet_address?: string | null
           tier_calculated_at?: string | null
           tier_override?: string | null
           tier_override_at?: string | null
@@ -2103,6 +2261,9 @@ export type Database = {
           tier_override_reason?: string | null
           updated_at?: string | null
           wallet_address?: string | null
+          wallet_addresses?: Json | null
+          wallet_verified?: boolean | null
+          wallet_verified_at?: string | null
         }
         Update: {
           auth_user_id?: string | null
@@ -2116,6 +2277,11 @@ export type Database = {
           id?: string
           last_active_crescendo?: string | null
           last_active_garden?: string | null
+          nctr_lock_duration_days?: number | null
+          nctr_lock_expires_at?: string | null
+          onchain_vesting_contract?: string | null
+          onchain_vesting_synced?: boolean | null
+          primary_wallet_address?: string | null
           tier_calculated_at?: string | null
           tier_override?: string | null
           tier_override_at?: string | null
@@ -2123,6 +2289,9 @@ export type Database = {
           tier_override_reason?: string | null
           updated_at?: string | null
           wallet_address?: string | null
+          wallet_addresses?: Json | null
+          wallet_verified?: boolean | null
+          wallet_verified_at?: string | null
         }
         Relationships: [
           {
