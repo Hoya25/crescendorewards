@@ -28,6 +28,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/supabase';
+import { LockExpiryWidget } from './LockExpiryWidget';
 import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow, subDays, format, startOfDay } from 'date-fns';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';

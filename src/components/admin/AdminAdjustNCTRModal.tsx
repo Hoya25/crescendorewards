@@ -1,21 +1,23 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow, addDays } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminRole } from '@/hooks/useAdminRole';
-import { Coins, History, AlertTriangle } from 'lucide-react';
+import { Coins, History, AlertTriangle, ChevronDown, ChevronUp, ExternalLink, Plus, Trash2, Check, Sparkles, Users, Bug, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   Dialog,
   DialogContent,
@@ -36,7 +38,7 @@ interface AdjustNCTRModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   user: {
-    id: string; // This is the profiles.id / auth user id
+    id: string;
     display_name: string | null;
     email: string | null;
     current_nctr_locked: number;
@@ -62,6 +64,15 @@ const TIER_EMOJIS: Record<string, string> = {
   diamond: '👑',
 };
 
+const QUICK_TEMPLATES = [
+  { name: '🎁 Beta Reward', amount: 500, type: 'add' as const, reason: 'Beta tester reward' },
+  { name: '👥 Referral Bonus', amount: 100, type: 'add' as const, reason: 'Referral program bonus' },
+  { name: '🐛 Bug Bounty', amount: 250, type: 'add' as const, reason: 'Bug bounty reward' },
+  { name: '⚡ Quick +100', amount: 100, type: 'add' as const, reason: 'Manual adjustment' },
+];
+
+const CHAINS = ['Ethereum', 'Base', 'Polygon', 'Arbitrum', 'Solana'];
+
 export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: AdjustNCTRModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -70,11 +81,29 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
   // Form state
   const [adjustmentType, setAdjustmentType] = useState<'add' | 'subtract' | 'set'>('add');
   const [amount, setAmount] = useState<number>(0);
-  const [lockDuration, setLockDuration] = useState<'360' | '180' | '90' | '30'>('360');
+  const [lockDuration, setLockDuration] = useState<number>(360);
+  const [customDuration, setCustomDuration] = useState<string>('');
   const [reason, setReason] = useState<string>('');
+  const [adminNote, setAdminNote] = useState<string>('');
   const [useManualOverride, setUseManualOverride] = useState(false);
   const [overrideTier, setOverrideTier] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Notification settings
+  const [notifyUser, setNotifyUser] = useState(true);
+  const [notifyChannels, setNotifyChannels] = useState<string[]>(['in_app']);
+  const [notifyTitle, setNotifyTitle] = useState('NCTR Balance Updated');
+  const [notifyMessage, setNotifyMessage] = useState('Your NCTR balance has been adjusted by {amount} NCTR. New balance: {new_balance} NCTR');
+
+  // Wallet management
+  const [walletsOpen, setWalletsOpen] = useState(false);
+  const [primaryWallet, setPrimaryWallet] = useState<string>('');
+  const [walletVerified, setWalletVerified] = useState(false);
+  const [additionalWallets, setAdditionalWallets] = useState<Array<{ address: string; chain: string }>>([]);
+
+  // Vesting sync
+  const [syncWithVesting, setSyncWithVesting] = useState(false);
+  const [vestingContract, setVestingContract] = useState<string>('');
 
   // Fetch unified profile ID for the user
   const { data: unifiedProfile } = useQuery({
@@ -83,7 +112,7 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from('unified_profiles')
-        .select('id, tier_override, tier_override_reason')
+        .select('id, tier_override, tier_override_reason, primary_wallet_address, wallet_addresses, wallet_verified, onchain_vesting_synced, onchain_vesting_contract')
         .eq('auth_user_id', user.id)
         .maybeSingle();
       if (error) throw error;
@@ -131,23 +160,62 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
     enabled: !!unifiedProfile?.id && open,
   });
 
+  // Fetch templates
+  const { data: templates } = useQuery({
+    queryKey: ['adjustment-templates'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('admin_adjustment_templates')
+        .select('*')
+        .eq('is_active', true)
+        .order('name');
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: open,
+  });
+
   // Reset form when modal opens
   useEffect(() => {
     if (open) {
       setAdjustmentType('add');
       setAmount(0);
-      setLockDuration('360');
+      setLockDuration(360);
+      setCustomDuration('');
       setReason('');
+      setAdminNote('');
       setUseManualOverride(false);
       setOverrideTier('');
+      setNotifyUser(true);
+      setNotifyChannels(['in_app']);
+      setNotifyTitle('NCTR Balance Updated');
+      setNotifyMessage('Your NCTR balance has been adjusted by {amount} NCTR. New balance: {new_balance} NCTR');
+      setWalletsOpen(false);
+      setSyncWithVesting(false);
+      setVestingContract('');
     }
   }, [open]);
 
-  // Pre-populate override tier if one exists
+  // Pre-populate from unified profile
   useEffect(() => {
-    if (unifiedProfile?.tier_override) {
-      setUseManualOverride(true);
-      setOverrideTier(unifiedProfile.tier_override);
+    if (unifiedProfile) {
+      if (unifiedProfile.tier_override) {
+        setUseManualOverride(true);
+        setOverrideTier(unifiedProfile.tier_override);
+      }
+      if (unifiedProfile.primary_wallet_address) {
+        setPrimaryWallet(unifiedProfile.primary_wallet_address);
+      }
+      if (unifiedProfile.wallet_verified) {
+        setWalletVerified(true);
+      }
+      if (unifiedProfile.wallet_addresses) {
+        setAdditionalWallets(unifiedProfile.wallet_addresses as Array<{ address: string; chain: string }>);
+      }
+      if (unifiedProfile.onchain_vesting_synced) {
+        setSyncWithVesting(true);
+        setVestingContract(unifiedProfile.onchain_vesting_contract || '');
+      }
     }
   }, [unifiedProfile]);
 
@@ -168,6 +236,47 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
     return 'bronze';
   };
 
+  const getEffectiveLockDuration = (): number => {
+    if (customDuration && parseInt(customDuration) > 0) {
+      return Math.min(1825, parseInt(customDuration));
+    }
+    return lockDuration;
+  };
+
+  const getLockExpiryDate = (): Date => {
+    return addDays(new Date(), getEffectiveLockDuration());
+  };
+
+  const formatNotificationMessage = (template: string): string => {
+    const newBalance = calculateNewBalance();
+    const projectedTier = getProjectedTier(newBalance);
+    return template
+      .replace('{amount}', amount.toLocaleString())
+      .replace('{new_balance}', newBalance.toLocaleString())
+      .replace('{new_tier}', projectedTier)
+      .replace('{lock_days}', getEffectiveLockDuration().toString());
+  };
+
+  const applyTemplate = (template: typeof QUICK_TEMPLATES[0]) => {
+    setAdjustmentType(template.type);
+    setAmount(template.amount);
+    setReason(template.reason);
+  };
+
+  const addWallet = () => {
+    setAdditionalWallets([...additionalWallets, { address: '', chain: 'Ethereum' }]);
+  };
+
+  const removeWallet = (index: number) => {
+    setAdditionalWallets(additionalWallets.filter((_, i) => i !== index));
+  };
+
+  const updateWallet = (index: number, field: 'address' | 'chain', value: string) => {
+    const updated = [...additionalWallets];
+    updated[index][field] = value;
+    setAdditionalWallets(updated);
+  };
+
   const handleSubmit = async () => {
     if (!user || !reason.trim() || !unifiedProfile?.id || !adminUnifiedProfile?.id) return;
     
@@ -176,6 +285,8 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
       const newBalance = calculateNewBalance();
       const calculatedTier = getProjectedTier(newBalance);
       const finalTier = useManualOverride && overrideTier ? overrideTier : calculatedTier;
+      const effectiveLockDuration = getEffectiveLockDuration();
+      const lockExpiresAt = getLockExpiryDate();
 
       // 1. Update wallet_portfolio for NCTR balance
       const { data: existingPortfolio } = await supabase
@@ -197,38 +308,40 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
         if (portfolioError) throw portfolioError;
       }
 
-      // 2. Update tier override if using manual override
+      // 2. Update unified_profiles with tier override and wallet info
+      const profileUpdate: Record<string, any> = {
+        updated_at: new Date().toISOString(),
+        nctr_lock_expires_at: adjustmentType === 'add' ? lockExpiresAt.toISOString() : null,
+        nctr_lock_duration_days: adjustmentType === 'add' ? effectiveLockDuration : null,
+        primary_wallet_address: primaryWallet || null,
+        wallet_addresses: additionalWallets.length > 0 ? additionalWallets : null,
+        wallet_verified: walletVerified,
+        wallet_verified_at: walletVerified ? new Date().toISOString() : null,
+        onchain_vesting_synced: syncWithVesting,
+        onchain_vesting_contract: syncWithVesting ? vestingContract : null,
+      };
+
       if (useManualOverride && overrideTier) {
-        const { error: overrideError } = await supabase
-          .from('unified_profiles')
-          .update({
-            tier_override: overrideTier,
-            tier_override_reason: reason,
-            tier_override_by: adminUnifiedProfile.id,
-            tier_override_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', unifiedProfile.id);
-        
-        if (overrideError) throw overrideError;
+        profileUpdate.tier_override = overrideTier;
+        profileUpdate.tier_override_reason = reason;
+        profileUpdate.tier_override_by = adminUnifiedProfile.id;
+        profileUpdate.tier_override_at = new Date().toISOString();
       } else if (!useManualOverride && unifiedProfile.tier_override) {
-        // Clear existing override
-        const { error: clearError } = await supabase
-          .from('unified_profiles')
-          .update({
-            tier_override: null,
-            tier_override_reason: null,
-            tier_override_by: null,
-            tier_override_at: null,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', unifiedProfile.id);
-        
-        if (clearError) throw clearError;
+        profileUpdate.tier_override = null;
+        profileUpdate.tier_override_reason = null;
+        profileUpdate.tier_override_by = null;
+        profileUpdate.tier_override_at = null;
       }
 
+      const { error: profileError } = await supabase
+        .from('unified_profiles')
+        .update(profileUpdate)
+        .eq('id', unifiedProfile.id);
+      
+      if (profileError) throw profileError;
+
       // 3. Log the adjustment
-      const { error: logError } = await supabase
+      const { data: adjustmentData, error: logError } = await supabase
         .from('admin_nctr_adjustments')
         .insert({
           user_id: unifiedProfile.id,
@@ -239,13 +352,49 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
           new_balance: newBalance,
           previous_tier: user.current_tier,
           new_tier: finalTier,
-          lock_duration: adjustmentType === 'add' ? parseInt(lockDuration) : null,
+          lock_duration: adjustmentType === 'add' ? effectiveLockDuration : null,
+          lock_expires_at: adjustmentType === 'add' ? lockExpiresAt.toISOString() : null,
           reason: reason,
-        });
+          admin_note: adminNote || null,
+          notification_sent: notifyUser,
+          status: 'completed',
+        })
+        .select()
+        .single();
       
       if (logError) throw logError;
 
-      // 4. Log admin activity
+      // 4. Send notification if enabled
+      if (notifyUser && adjustmentData) {
+        const { error: notifError } = await supabase
+          .from('admin_user_notifications')
+          .insert({
+            user_id: unifiedProfile.id,
+            admin_id: adminUnifiedProfile.id,
+            notification_type: 'nctr_adjustment',
+            title: notifyTitle,
+            message: formatNotificationMessage(notifyMessage),
+            related_adjustment_id: adjustmentData.id,
+            sent_via: notifyChannels,
+          });
+        
+        if (notifError) console.error('Failed to send notification:', notifError);
+
+        // Also insert into regular notifications table
+        const { error: notifError2 } = await supabase
+          .from('notifications')
+          .insert({
+            user_id: user.id, // auth user id
+            type: 'nctr_adjustment',
+            title: notifyTitle,
+            message: formatNotificationMessage(notifyMessage),
+            metadata: { adjustment_id: adjustmentData.id }
+          });
+        
+        if (notifError2) console.error('Failed to send notification to notifications table:', notifError2);
+      }
+
+      // 5. Log admin activity
       await logActivity(
         'adjust_nctr',
         'user',
@@ -258,7 +407,9 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
           new_balance: newBalance,
           previous_tier: user.current_tier,
           new_tier: finalTier,
+          lock_duration: effectiveLockDuration,
           manual_override: useManualOverride,
+          notification_sent: notifyUser,
           reason,
         }
       );
@@ -268,6 +419,8 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
         description: `${user.display_name || user.email}'s balance updated to ${newBalance.toLocaleString()} NCTR (${TIER_EMOJIS[finalTier]} ${finalTier})`,
       });
       
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['nctr-adjustments'] });
       onSuccess();
       onOpenChange(false);
     } catch (error: any) {
@@ -285,10 +438,11 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
   const newBalance = calculateNewBalance();
   const projectedTier = useManualOverride && overrideTier ? overrideTier : getProjectedTier(newBalance);
   const tierChanged = projectedTier !== user?.current_tier;
+  const isLargeAdjustment = amount >= 1000;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Coins className="h-5 w-5" />
@@ -312,168 +466,431 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
           </TabsList>
 
           <TabsContent value="adjust" className="flex-1 overflow-auto mt-4">
-            <div className="space-y-6">
-              {/* Current Status Display */}
-              <div className="bg-muted rounded-lg p-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Current Balance</p>
-                    <p className="text-2xl font-bold font-mono">{user?.current_nctr_locked?.toLocaleString() || 0} NCTR</p>
+            <ScrollArea className="h-[calc(70vh-200px)] pr-4">
+              <div className="space-y-6">
+                {/* Quick Templates */}
+                <div>
+                  <Label className="text-sm font-medium mb-2 block">Quick Templates</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {QUICK_TEMPLATES.map((template, index) => (
+                      <Button
+                        key={index}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => applyTemplate(template)}
+                        className="text-xs"
+                      >
+                        {template.name} (+{template.amount})
+                      </Button>
+                    ))}
+                    {templates && templates.length > 0 && templates.map((t: any) => (
+                      <Button
+                        key={t.id}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setAdjustmentType(t.adjustment_type);
+                          setAmount(t.amount);
+                          setReason(t.name);
+                          if (t.lock_duration_days) setLockDuration(t.lock_duration_days);
+                          if (t.notification_enabled) {
+                            setNotifyUser(true);
+                            if (t.notification_title) setNotifyTitle(t.notification_title);
+                            if (t.notification_message) setNotifyMessage(t.notification_message);
+                          }
+                        }}
+                        className="text-xs"
+                      >
+                        {t.name}
+                      </Button>
+                    ))}
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Current Tier</p>
-                    <Badge className="text-lg capitalize mt-1">
-                      {TIER_EMOJIS[user?.current_tier || 'bronze']} {user?.current_tier || 'bronze'}
-                    </Badge>
-                    {unifiedProfile?.tier_override && (
-                      <p className="text-xs text-amber-600 mt-1">⚠️ Has manual override</p>
+                </div>
+
+                {/* Current Status Display */}
+                <div className="bg-muted rounded-lg p-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Current Balance</p>
+                      <p className="text-2xl font-bold font-mono">{user?.current_nctr_locked?.toLocaleString() || 0} NCTR</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Current Tier</p>
+                      <Badge className="text-lg capitalize mt-1">
+                        {TIER_EMOJIS[user?.current_tier || 'bronze']} {user?.current_tier || 'bronze'}
+                      </Badge>
+                      {unifiedProfile?.tier_override && (
+                        <p className="text-xs text-amber-600 mt-1">⚠️ Has manual override</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Adjustment Type */}
+                <div className="space-y-2">
+                  <Label>Adjustment Type</Label>
+                  <RadioGroup 
+                    value={adjustmentType} 
+                    onValueChange={(v) => setAdjustmentType(v as 'add' | 'subtract' | 'set')}
+                    className="flex flex-wrap gap-4"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="add" id="add" />
+                      <Label htmlFor="add" className="font-normal cursor-pointer">Add NCTR</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="subtract" id="subtract" />
+                      <Label htmlFor="subtract" className="font-normal cursor-pointer">Subtract NCTR</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="set" id="set" />
+                      <Label htmlFor="set" className="font-normal cursor-pointer">Set to specific amount</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                {/* Amount Input */}
+                <div className="space-y-2">
+                  <Label htmlFor="amount">Amount (NCTR)</Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    min="0"
+                    value={amount || ''}
+                    onChange={(e) => setAmount(Number(e.target.value))}
+                    placeholder="Enter amount"
+                  />
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {[100, 500, 1000, 2500, 5000, 10000].map((preset) => (
+                      <Button
+                        key={preset}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setAmount(preset)}
+                        className="text-xs"
+                      >
+                        {preset.toLocaleString()}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Lock Duration (for adding) */}
+                {adjustmentType === 'add' && (
+                  <div className="space-y-3">
+                    <Label>Lock Duration</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {[30, 90, 180, 360].map((days) => (
+                        <Button
+                          key={days}
+                          type="button"
+                          variant={lockDuration === days && !customDuration ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => { setLockDuration(days); setCustomDuration(''); }}
+                        >
+                          {days} Days
+                        </Button>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min="1"
+                        max="1825"
+                        placeholder="Custom days (1-1825)"
+                        value={customDuration}
+                        onChange={(e) => setCustomDuration(e.target.value)}
+                        className="w-48"
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        Expires: {format(getLockExpiryDate(), 'MMM d, yyyy')}
+                      </span>
+                    </div>
+
+                    {/* Vesting sync */}
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="vestingSync"
+                        checked={syncWithVesting}
+                        onCheckedChange={(checked) => setSyncWithVesting(!!checked)}
+                      />
+                      <Label htmlFor="vestingSync" className="font-normal cursor-pointer text-sm">
+                        Syncing with on-chain vesting contract
+                      </Label>
+                    </div>
+                    {syncWithVesting && (
+                      <Input
+                        placeholder="Vesting contract address (0x...)"
+                        value={vestingContract}
+                        onChange={(e) => setVestingContract(e.target.value)}
+                      />
                     )}
                   </div>
-                </div>
-              </div>
+                )}
 
-              {/* Adjustment Type */}
-              <div className="space-y-2">
-                <Label>Adjustment Type</Label>
-                <RadioGroup 
-                  value={adjustmentType} 
-                  onValueChange={(v) => setAdjustmentType(v as 'add' | 'subtract' | 'set')}
-                  className="flex flex-wrap gap-4"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="add" id="add" />
-                    <Label htmlFor="add" className="font-normal cursor-pointer">Add NCTR</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="subtract" id="subtract" />
-                    <Label htmlFor="subtract" className="font-normal cursor-pointer">Subtract NCTR</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="set" id="set" />
-                    <Label htmlFor="set" className="font-normal cursor-pointer">Set to specific amount</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              {/* Amount Input */}
-              <div className="space-y-2">
-                <Label htmlFor="amount">Amount (NCTR)</Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  min="0"
-                  value={amount || ''}
-                  onChange={(e) => setAmount(Number(e.target.value))}
-                  placeholder="Enter amount"
-                />
-                {/* Quick presets */}
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {[100, 500, 1000, 2500, 5000, 10000].map((preset) => (
-                    <Button
-                      key={preset}
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setAmount(preset)}
-                      className="text-xs"
-                    >
-                      {preset.toLocaleString()}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Lock Duration (for adding) */}
-              {adjustmentType === 'add' && (
+                {/* Reason */}
                 <div className="space-y-2">
-                  <Label>Lock Duration</Label>
-                  <Select value={lockDuration} onValueChange={(v) => setLockDuration(v as any)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="360">360 Days (360LOCK - Full Benefits)</SelectItem>
-                      <SelectItem value="180">180 Days</SelectItem>
-                      <SelectItem value="90">90 Days</SelectItem>
-                      <SelectItem value="30">30 Days</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {/* Reason */}
-              <div className="space-y-2">
-                <Label htmlFor="reason">Reason for Adjustment *</Label>
-                <Textarea
-                  id="reason"
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  placeholder="e.g., Beta tester reward, Customer service adjustment, Contest winner..."
-                  rows={2}
-                />
-              </div>
-
-              {/* Manual Tier Override */}
-              <div className="border-t pt-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Checkbox
-                    id="manualOverride"
-                    checked={useManualOverride}
-                    onCheckedChange={(checked) => setUseManualOverride(!!checked)}
+                  <Label htmlFor="reason">Reason for Adjustment *</Label>
+                  <Textarea
+                    id="reason"
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    placeholder="e.g., Beta tester reward, Customer service adjustment, Contest winner..."
+                    rows={2}
                   />
-                  <Label htmlFor="manualOverride" className="font-normal cursor-pointer">
-                    Manual tier override (ignore NCTR thresholds)
-                  </Label>
                 </div>
-                
-                {useManualOverride && (
-                  <div className="space-y-2 pl-6">
-                    <Label>Set Tier Directly</Label>
-                    <Select value={overrideTier} onValueChange={setOverrideTier}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select tier" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="bronze">🥉 Bronze</SelectItem>
-                        <SelectItem value="silver">🥈 Silver</SelectItem>
-                        <SelectItem value="gold">🥇 Gold</SelectItem>
-                        <SelectItem value="platinum">💎 Platinum</SelectItem>
-                        <SelectItem value="diamond">👑 Diamond</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs text-amber-600 flex items-center gap-1">
-                      <AlertTriangle className="h-3 w-3" />
-                      This overrides the normal tier calculation. Use sparingly.
-                    </p>
+
+                {/* Wallet Management */}
+                <Collapsible open={walletsOpen} onOpenChange={setWalletsOpen}>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="outline" className="w-full justify-between">
+                      Manage Wallets
+                      {walletsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-4 space-y-4">
+                    <div className="space-y-2">
+                      <Label>Primary Wallet Address</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="0x..."
+                          value={primaryWallet}
+                          onChange={(e) => setPrimaryWallet(e.target.value)}
+                        />
+                        {primaryWallet && (
+                          <Button variant="outline" size="icon" asChild>
+                            <a
+                              href={`https://etherscan.io/address/${primaryWallet}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          </Button>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="walletVerified"
+                          checked={walletVerified}
+                          onCheckedChange={(checked) => setWalletVerified(!!checked)}
+                        />
+                        <Label htmlFor="walletVerified" className="font-normal cursor-pointer text-sm">
+                          Mark wallet as verified
+                        </Label>
+                        {walletVerified && <Badge variant="secondary" className="text-xs">✓ Verified</Badge>}
+                      </div>
+                    </div>
+
+                    {additionalWallets.length > 0 && (
+                      <div className="space-y-2">
+                        <Label>Additional Wallets</Label>
+                        {additionalWallets.map((wallet, index) => (
+                          <div key={index} className="flex gap-2">
+                            <Input
+                              placeholder="Wallet address"
+                              value={wallet.address}
+                              onChange={(e) => updateWallet(index, 'address', e.target.value)}
+                              className="flex-1"
+                            />
+                            <Select
+                              value={wallet.chain}
+                              onValueChange={(v) => updateWallet(index, 'chain', v)}
+                            >
+                              <SelectTrigger className="w-32">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {CHAINS.map((chain) => (
+                                  <SelectItem key={chain} value={chain}>{chain}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={() => removeWallet(index)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <Button type="button" variant="outline" size="sm" onClick={addWallet}>
+                      <Plus className="h-4 w-4 mr-1" /> Add Wallet
+                    </Button>
+                  </CollapsibleContent>
+                </Collapsible>
+
+                {/* Manual Tier Override */}
+                <div className="border-t pt-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Checkbox
+                      id="manualOverride"
+                      checked={useManualOverride}
+                      onCheckedChange={(checked) => setUseManualOverride(!!checked)}
+                    />
+                    <Label htmlFor="manualOverride" className="font-normal cursor-pointer">
+                      Manual tier override (ignore NCTR thresholds)
+                    </Label>
+                  </div>
+                  
+                  {useManualOverride && (
+                    <div className="space-y-2 pl-6">
+                      <Label>Set Tier Directly</Label>
+                      <Select value={overrideTier} onValueChange={setOverrideTier}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select tier" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="bronze">🥉 Bronze</SelectItem>
+                          <SelectItem value="silver">🥈 Silver</SelectItem>
+                          <SelectItem value="gold">🥇 Gold</SelectItem>
+                          <SelectItem value="platinum">💎 Platinum</SelectItem>
+                          <SelectItem value="diamond">👑 Diamond</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-amber-600 flex items-center gap-1">
+                        <AlertTriangle className="h-3 w-3" />
+                        This overrides the normal tier calculation. Use sparingly.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Notification Section */}
+                <div className="border-t pt-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label className="font-medium">Notify Member</Label>
+                    <Switch checked={notifyUser} onCheckedChange={setNotifyUser} />
+                  </div>
+                  
+                  {notifyUser && (
+                    <div className="space-y-4 pl-4 border-l-2 border-primary/20">
+                      <div className="flex flex-wrap gap-4">
+                        <label className="flex items-center gap-2">
+                          <Checkbox
+                            checked={notifyChannels.includes('in_app')}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setNotifyChannels([...notifyChannels, 'in_app']);
+                              } else {
+                                setNotifyChannels(notifyChannels.filter(c => c !== 'in_app'));
+                              }
+                            }}
+                          />
+                          <span className="text-sm">In-App</span>
+                        </label>
+                        <label className="flex items-center gap-2">
+                          <Checkbox
+                            checked={notifyChannels.includes('email')}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setNotifyChannels([...notifyChannels, 'email']);
+                              } else {
+                                setNotifyChannels(notifyChannels.filter(c => c !== 'email'));
+                              }
+                            }}
+                          />
+                          <span className="text-sm">Email</span>
+                        </label>
+                        <label className="flex items-center gap-2 opacity-50">
+                          <Checkbox disabled />
+                          <span className="text-sm">Push (Coming Soon)</span>
+                        </label>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Notification Title</Label>
+                        <Input
+                          value={notifyTitle}
+                          onChange={(e) => setNotifyTitle(e.target.value)}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Message</Label>
+                        <Textarea
+                          value={notifyMessage}
+                          onChange={(e) => setNotifyMessage(e.target.value)}
+                          rows={2}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Variables: {'{amount}'}, {'{new_balance}'}, {'{new_tier}'}, {'{lock_days}'}
+                        </p>
+                      </div>
+
+                      <div className="bg-muted rounded-lg p-3">
+                        <p className="text-xs font-medium mb-1">Preview:</p>
+                        <p className="text-sm font-medium">{notifyTitle}</p>
+                        <p className="text-sm text-muted-foreground">{formatNotificationMessage(notifyMessage)}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Admin Note */}
+                <div className="space-y-2">
+                  <Label htmlFor="adminNote">Internal Admin Note</Label>
+                  <Textarea
+                    id="adminNote"
+                    value={adminNote}
+                    onChange={(e) => setAdminNote(e.target.value)}
+                    placeholder="Ticket #, approval reference, etc. (not sent to member)"
+                    rows={2}
+                  />
+                  <p className="text-xs text-muted-foreground">For admin reference only - not sent to member</p>
+                </div>
+
+                {/* Preview of Changes */}
+                <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+                  <p className="text-sm font-medium mb-2">Preview After Adjustment:</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">New Balance</p>
+                      <p className="text-xl font-bold font-mono">{newBalance.toLocaleString()} NCTR</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">New Tier</p>
+                      <Badge className="capitalize" variant={tierChanged ? 'default' : 'secondary'}>
+                        {TIER_EMOJIS[projectedTier]} {projectedTier}
+                        {tierChanged && ' ↑'}
+                      </Badge>
+                      {useManualOverride && (
+                        <p className="text-xs text-amber-600 mt-1">Manual override</p>
+                      )}
+                    </div>
+                  </div>
+                  {adjustmentType === 'add' && (
+                    <div className="mt-3 pt-3 border-t border-primary/20">
+                      <p className="text-sm text-muted-foreground">Lock Expiry</p>
+                      <p className="text-sm font-medium">{format(getLockExpiryDate(), 'MMMM d, yyyy')} ({getEffectiveLockDuration()} days)</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Large adjustment warning */}
+                {isLargeAdjustment && (
+                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 flex items-start gap-2">
+                    <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
+                    <div>
+                      <p className="text-sm font-medium text-amber-700 dark:text-amber-400">Large Adjustment</p>
+                      <p className="text-xs text-amber-600">Adjustments of 1,000+ NCTR may require additional approval.</p>
+                    </div>
                   </div>
                 )}
               </div>
-
-              {/* Preview of Changes */}
-              <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
-                <p className="text-sm font-medium mb-2">Preview After Adjustment:</p>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">New Balance</p>
-                    <p className="text-xl font-bold font-mono">{newBalance.toLocaleString()} NCTR</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">New Tier</p>
-                    <Badge className="capitalize" variant={tierChanged ? 'default' : 'secondary'}>
-                      {TIER_EMOJIS[projectedTier]} {projectedTier}
-                      {tierChanged && ' ↑'}
-                    </Badge>
-                    {useManualOverride && (
-                      <p className="text-xs text-amber-600 mt-1">Manual override</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
+            </ScrollArea>
           </TabsContent>
 
           <TabsContent value="history" className="flex-1 overflow-hidden mt-4">
-            <ScrollArea className="h-[400px]">
+            <ScrollArea className="h-[calc(70vh-200px)]">
               {historyLoading ? (
                 <div className="space-y-3">
                   {[1, 2, 3].map((i) => (
@@ -506,6 +923,9 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
                           <Badge variant={adj.adjustment_type === 'add' ? 'default' : adj.adjustment_type === 'subtract' ? 'destructive' : 'secondary'}>
                             {adj.adjustment_type}
                           </Badge>
+                          {adj.notification_sent && (
+                            <Badge variant="outline" className="ml-1 text-xs">📧</Badge>
+                          )}
                         </TableCell>
                         <TableCell className="font-mono">
                           {adj.adjustment_type === 'add' ? '+' : adj.adjustment_type === 'subtract' ? '-' : '='}
