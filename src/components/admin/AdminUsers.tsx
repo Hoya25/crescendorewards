@@ -66,10 +66,12 @@ interface UserProfile {
   has_status_access_pass: boolean;
   // From unified_profiles join
   last_active?: string | null;
-  // Real NCTR data from wallet_portfolio
-  real_nctr_360_locked?: number | null;
   unified_profile_id?: string | null;
   current_tier?: string | null;
+  // Real NCTR data from wallet_portfolio
+  real_nctr_360_locked?: number | null;
+  // NCTR data from crescendo_data JSONB
+  crescendo_locked_nctr?: number | null;
 }
 
 interface Reward {
@@ -211,14 +213,18 @@ export function AdminUsers() {
         last_active: string | null; 
         unified_id: string;
         current_tier: string | null;
+        crescendo_locked_nctr: number | null;
+        crescendo_available_nctr: number | null;
+        crescendo_level: number | null;
+        crescendo_claim_balance: number | null;
       }> = {};
       let walletPortfolioMap: Record<string, number> = {};
       
       if (userIds.length > 0) {
-        // Fetch unified_profiles with current tier
+        // Fetch unified_profiles with crescendo_data and current tier
         const { data: unifiedData } = await supabase
           .from('unified_profiles')
-          .select('id, auth_user_id, last_active_crescendo, current_tier_id')
+          .select('id, auth_user_id, last_active_crescendo, current_tier_id, crescendo_data')
           .in('auth_user_id', userIds);
         
         if (unifiedData) {
@@ -242,14 +248,28 @@ export function AdminUsers() {
           
           unifiedDataMap = unifiedData.reduce((acc, up) => {
             if (up.auth_user_id) {
+              const crescendoData = up.crescendo_data as Record<string, any> | null;
               acc[up.auth_user_id] = {
                 last_active: up.last_active_crescendo,
                 unified_id: up.id,
-                current_tier: up.current_tier_id ? tierMap[up.current_tier_id] || null : null
+                current_tier: up.current_tier_id ? tierMap[up.current_tier_id] || null : null,
+                crescendo_locked_nctr: crescendoData?.locked_nctr != null ? Number(crescendoData.locked_nctr) : null,
+                crescendo_available_nctr: crescendoData?.available_nctr != null ? Number(crescendoData.available_nctr) : null,
+                crescendo_level: crescendoData?.level != null ? Number(crescendoData.level) : null,
+                crescendo_claim_balance: crescendoData?.claim_balance ?? crescendoData?.claims_balance != null 
+                  ? Number(crescendoData?.claim_balance ?? crescendoData?.claims_balance) : null,
               };
             }
             return acc;
-          }, {} as Record<string, { last_active: string | null; unified_id: string; current_tier: string | null }>);
+          }, {} as Record<string, { 
+            last_active: string | null; 
+            unified_id: string; 
+            current_tier: string | null;
+            crescendo_locked_nctr: number | null;
+            crescendo_available_nctr: number | null;
+            crescendo_level: number | null;
+            crescendo_claim_balance: number | null;
+          }>);
           
           // Fetch wallet_portfolio for unified profile IDs
           const unifiedIds = unifiedData.map(u => u.id);
@@ -279,20 +299,30 @@ export function AdminUsers() {
         }
       }
       
-      // Merge data into users
+      // Merge data into users - priority: wallet_portfolio > crescendo_data > profiles
       let usersWithActivity = (profilesData || []).map(user => {
         const unifiedInfo = unifiedDataMap[user.id];
-        const realNctr = walletPortfolioMap[user.id];
+        const walletNctr = walletPortfolioMap[user.id];
+        
+        // Determine best NCTR value: wallet_portfolio > crescendo_data > profiles
+        const bestLockedNctr = walletNctr ?? unifiedInfo?.crescendo_locked_nctr ?? user.locked_nctr ?? 0;
+        const bestAvailableNctr = unifiedInfo?.crescendo_available_nctr ?? user.available_nctr ?? 0;
+        const bestLevel = unifiedInfo?.crescendo_level ?? user.level ?? 1;
+        const bestClaimBalance = unifiedInfo?.crescendo_claim_balance ?? user.claim_balance ?? 0;
         
         return {
           ...user,
           last_active: unifiedInfo?.last_active || null,
           unified_profile_id: unifiedInfo?.unified_id || null,
           current_tier: unifiedInfo?.current_tier || null,
-          // Use wallet_portfolio.nctr_360_locked as the real NCTR value
-          real_nctr_360_locked: realNctr ?? null,
-          // Override locked_nctr with real data if available
-          locked_nctr: realNctr ?? user.locked_nctr ?? 0
+          // Store all sources for debugging
+          real_nctr_360_locked: walletNctr ?? null,
+          crescendo_locked_nctr: unifiedInfo?.crescendo_locked_nctr ?? null,
+          // Use the best available values
+          locked_nctr: bestLockedNctr,
+          available_nctr: bestAvailableNctr,
+          level: bestLevel,
+          claim_balance: bestClaimBalance,
         };
       });
       
@@ -586,7 +616,7 @@ export function AdminUsers() {
                       )}
                     </TableCell>
                     <TableCell className="text-right font-mono">
-                      {(user.real_nctr_360_locked ?? user.locked_nctr ?? 0).toLocaleString()}
+                      {(user.locked_nctr ?? 0).toLocaleString()}
                     </TableCell>
                     <TableCell className="text-right font-mono">
                       {user.claim_balance.toLocaleString()}
@@ -718,13 +748,17 @@ export function AdminUsers() {
                   
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-muted-foreground">360LOCK NCTR</p>
+                      <p className="text-muted-foreground">Locked NCTR</p>
                       <p className="font-mono font-medium text-lg">
-                        {(selectedUser.real_nctr_360_locked ?? selectedUser.locked_nctr ?? 0).toLocaleString()}
+                        {(selectedUser.locked_nctr ?? 0).toLocaleString()}
                       </p>
-                      {selectedUser.real_nctr_360_locked !== null && selectedUser.real_nctr_360_locked !== undefined && (
-                        <p className="text-xs text-muted-foreground">From wallet portfolio</p>
-                      )}
+                      <p className="text-xs text-muted-foreground">
+                        {selectedUser.real_nctr_360_locked != null 
+                          ? 'From wallet portfolio'
+                          : selectedUser.crescendo_locked_nctr != null
+                            ? 'From crescendo data'
+                            : 'From profiles table'}
+                      </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Available NCTR</p>
@@ -1031,7 +1065,7 @@ export function AdminUsers() {
           id: selectedUser.id,
           display_name: selectedUser.full_name,
           email: selectedUser.email,
-          current_nctr_locked: selectedUser.real_nctr_360_locked ?? selectedUser.locked_nctr ?? 0,
+          current_nctr_locked: selectedUser.locked_nctr ?? 0,
           current_tier: selectedUser.current_tier || tierConfig[selectedUser.level]?.name.toLowerCase() || 'bronze',
           unified_profile_id: selectedUser.unified_profile_id || undefined,
         } : null}
