@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format, formatDistanceToNow, addDays } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminRole } from '@/hooks/useAdminRole';
-import { Coins, History, AlertTriangle, ChevronDown, ChevronUp, ExternalLink, Plus, Trash2, Check, Sparkles, Users, Bug, Zap, RefreshCw } from 'lucide-react';
+import { 
+  Coins, History, AlertTriangle, ChevronDown, ChevronUp, ExternalLink, Plus, Trash2, 
+  RefreshCw, Mail, CheckCheck, Clock, Eye, Gift, FileText 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -33,6 +36,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface AdjustNCTRModalProps {
   open: boolean;
@@ -93,6 +102,8 @@ const TIER_BENEFITS: Record<string, string> = {
   diamond: 'Maximum benefits unlocked: 6 slots, exclusive founder calls, governance voting, and concierge service. Welcome to the top!',
 };
 
+const LARGE_ADJUSTMENT_THRESHOLD = 5000;
+
 const generateNotificationContent = (tier: string, amount: number, newBalance: number) => {
   const title = `${TIER_EMOJIS[tier] || '🎉'} You've Reached ${tier.charAt(0).toUpperCase() + tier.slice(1)} Status!`;
   
@@ -106,6 +117,40 @@ Thank you for your commitment to the NCTR Alliance.`;
 
   return { title, message };
 };
+
+// Component to check notification read status
+function NotificationReadStatus({ adjustmentId }: { adjustmentId: string }) {
+  const { data: notification } = useQuery({
+    queryKey: ['notification-status', adjustmentId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('admin_user_notifications')
+        .select('read_at, sent_via')
+        .eq('related_adjustment_id', adjustmentId)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!adjustmentId,
+  });
+
+  if (!notification) return null;
+
+  return (
+    <div className="flex items-center gap-1">
+      {notification.read_at ? (
+        <Badge variant="secondary" className="text-xs">
+          <CheckCheck className="w-3 h-3 mr-1 text-green-600" />
+          Read
+        </Badge>
+      ) : (
+        <Badge variant="outline" className="text-xs text-amber-600">
+          <Clock className="w-3 h-3 mr-1" />
+          Unread
+        </Badge>
+      )}
+    </div>
+  );
+}
 
 export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: AdjustNCTRModalProps) {
   const { toast } = useToast();
@@ -138,6 +183,10 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
   // Vesting sync
   const [syncWithVesting, setSyncWithVesting] = useState(false);
   const [vestingContract, setVestingContract] = useState<string>('');
+
+  // Duplicate detection & large adjustment confirmation
+  const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
+  const [confirmLargeAdjustment, setConfirmLargeAdjustment] = useState(false);
 
   // Fetch unified profile ID for the user
   const { data: unifiedProfile } = useQuery({
@@ -172,7 +221,7 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
   });
 
   // Fetch adjustment history
-  const { data: adjustmentHistory, isLoading: historyLoading } = useQuery({
+  const { data: adjustmentHistory, isLoading: historyLoading, refetch: refetchHistory } = useQuery({
     queryKey: ['nctr-adjustments', unifiedProfile?.id],
     queryFn: async () => {
       if (!unifiedProfile?.id) return [];
@@ -227,6 +276,8 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
       setWalletsOpen(false);
       setSyncWithVesting(false);
       setVestingContract('');
+      setDuplicateWarning(null);
+      setConfirmLargeAdjustment(false);
     }
   }, [open]);
 
@@ -273,6 +324,39 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
       }
     }
   }, [unifiedProfile]);
+
+  // Duplicate detection
+  useEffect(() => {
+    if (amount > 0 && adjustmentHistory && adjustmentHistory.length > 0) {
+      const recentAdjustment = adjustmentHistory[0];
+      const timeSinceLast = Date.now() - new Date(recentAdjustment.created_at).getTime();
+      const hoursSinceLast = timeSinceLast / (1000 * 60 * 60);
+      
+      // Check if same amount was added in last 24 hours
+      if (
+        hoursSinceLast < 24 &&
+        recentAdjustment.adjustment_type === adjustmentType &&
+        Number(recentAdjustment.amount) === amount
+      ) {
+        setDuplicateWarning(
+          `Warning: You made an identical adjustment (${adjustmentType} ${amount.toLocaleString()} NCTR) ${formatDistanceToNow(new Date(recentAdjustment.created_at), { addSuffix: true })}. Are you sure you want to do this again?`
+        );
+      } else if (hoursSinceLast < 1) {
+        setDuplicateWarning(
+          `Note: An adjustment was made ${formatDistanceToNow(new Date(recentAdjustment.created_at), { addSuffix: true })}. Please verify you're not duplicating.`
+        );
+      } else {
+        setDuplicateWarning(null);
+      }
+    } else {
+      setDuplicateWarning(null);
+    }
+  }, [amount, adjustmentType, adjustmentHistory]);
+
+  // Reset large adjustment confirmation when amount changes
+  useEffect(() => {
+    setConfirmLargeAdjustment(false);
+  }, [amount]);
 
   const calculateNewBalance = () => {
     if (!user) return 0;
@@ -332,8 +416,23 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
     setAdditionalWallets(updated);
   };
 
+  const refreshData = () => {
+    queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+    queryClient.invalidateQueries({ queryKey: ['nctr-adjustments', unifiedProfile?.id] });
+    queryClient.invalidateQueries({ queryKey: ['unified-profile-for-adjustment', user?.id] });
+    refetchHistory();
+    toast({ title: 'Data refreshed' });
+  };
+
   const handleSubmit = async () => {
     if (!user || !reason.trim() || !unifiedProfile?.id || !adminUnifiedProfile?.id) return;
+    
+    // Check for large adjustment confirmation
+    const isLarge = amount >= LARGE_ADJUSTMENT_THRESHOLD;
+    if (isLarge && !confirmLargeAdjustment) {
+      setConfirmLargeAdjustment(true);
+      return;
+    }
     
     setIsSubmitting(true);
     try {
@@ -534,20 +633,83 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
   const newBalance = calculateNewBalance();
   const projectedTier = useManualOverride && overrideTier ? overrideTier : getProjectedTier(newBalance);
   const tierChanged = projectedTier !== user?.current_tier;
-  const isLargeAdjustment = amount >= 1000;
+  const isLargeAdjustment = amount >= LARGE_ADJUSTMENT_THRESHOLD;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Coins className="h-5 w-5" />
-            Adjust NCTR Balance
-          </DialogTitle>
-          <DialogDescription>
-            Modify locked NCTR for {user?.display_name || user?.email}
-          </DialogDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle className="flex items-center gap-2">
+                <Coins className="h-5 w-5" />
+                Adjust NCTR Balance
+              </DialogTitle>
+              <DialogDescription>
+                Modify locked NCTR for {user?.display_name || user?.email}
+              </DialogDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={refreshData}
+                title="Refresh data"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  window.open(`/profile?user=${user?.id}`, '_blank');
+                }}
+              >
+                <Eye className="w-4 h-4 mr-1" />
+                View Profile
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  window.open(`/benefits`, '_blank');
+                }}
+              >
+                <Gift className="w-4 h-4 mr-1" />
+                Benefits
+              </Button>
+            </div>
+          </div>
         </DialogHeader>
+
+        {/* Current Status Banner - Always visible */}
+        <div className="bg-muted rounded-lg p-4 mb-2">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Current Balance</p>
+              <p className="text-3xl font-bold font-mono">{user?.current_nctr_locked?.toLocaleString() || 0} NCTR</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-muted-foreground">Current Tier</p>
+              <Badge className="text-lg capitalize">
+                {TIER_EMOJIS[user?.current_tier || 'bronze']} {user?.current_tier || 'Bronze'}
+              </Badge>
+              {unifiedProfile?.tier_override && (
+                <p className="text-xs text-amber-600 mt-1">⚠️ Has manual override</p>
+              )}
+            </div>
+          </div>
+          
+          {/* Last adjustment info */}
+          {adjustmentHistory && adjustmentHistory.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-border">
+              <p className="text-xs text-muted-foreground">
+                Last adjustment: {formatDistanceToNow(new Date(adjustmentHistory[0].created_at), { addSuffix: true })} 
+                ({adjustmentHistory[0].adjustment_type} {Number(adjustmentHistory[0].amount)?.toLocaleString()} NCTR)
+              </p>
+            </div>
+          )}
+        </div>
 
         <Tabs defaultValue="adjust" className="flex-1 overflow-hidden flex flex-col">
           <TabsList className="grid w-full grid-cols-2">
@@ -562,7 +724,7 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
           </TabsList>
 
           <TabsContent value="adjust" className="flex-1 overflow-auto mt-4">
-            <ScrollArea className="h-[calc(70vh-200px)] pr-4">
+            <ScrollArea className="h-[calc(60vh-200px)] pr-4">
               <div className="space-y-6">
                 {/* Quick Templates */}
                 <div>
@@ -602,25 +764,6 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
                         {t.name}
                       </Button>
                     ))}
-                  </div>
-                </div>
-
-                {/* Current Status Display */}
-                <div className="bg-muted rounded-lg p-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Current Balance</p>
-                      <p className="text-2xl font-bold font-mono">{user?.current_nctr_locked?.toLocaleString() || 0} NCTR</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Current Tier</p>
-                      <Badge className="text-lg capitalize mt-1">
-                        {TIER_EMOJIS[user?.current_tier || 'bronze']} {user?.current_tier || 'bronze'}
-                      </Badge>
-                      {unifiedProfile?.tier_override && (
-                        <p className="text-xs text-amber-600 mt-1">⚠️ Has manual override</p>
-                      )}
-                    </div>
                   </div>
                 </div>
 
@@ -1011,6 +1154,23 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
                   <p className="text-xs text-muted-foreground">For admin reference only - not sent to member</p>
                 </div>
 
+                {/* Duplicate Warning */}
+                {duplicateWarning && (
+                  <div className="bg-amber-50 dark:bg-amber-950 border border-amber-300 dark:border-amber-700 rounded-lg p-3">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                          Possible Duplicate
+                        </p>
+                        <p className="text-sm text-amber-700 dark:text-amber-300">
+                          {duplicateWarning}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Preview of Changes */}
                 <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
                   <p className="text-sm font-medium mb-2">Preview After Adjustment:</p>
@@ -1038,13 +1198,23 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
                   )}
                 </div>
 
-                {/* Large adjustment warning */}
-                {isLargeAdjustment && (
+                {/* Large adjustment confirmation */}
+                {isLargeAdjustment && confirmLargeAdjustment && (
+                  <div className="bg-red-50 dark:bg-red-950 border border-red-300 dark:border-red-700 rounded-lg p-3">
+                    <p className="text-sm text-red-800 dark:text-red-200">
+                      ⚠️ You are about to {adjustmentType} <strong>{amount.toLocaleString()} NCTR</strong>. 
+                      This is a large adjustment. Click the button again to confirm.
+                    </p>
+                  </div>
+                )}
+
+                {/* Large adjustment warning (before confirmation) */}
+                {isLargeAdjustment && !confirmLargeAdjustment && (
                   <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 flex items-start gap-2">
                     <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
                     <div>
                       <p className="text-sm font-medium text-amber-700 dark:text-amber-400">Large Adjustment</p>
-                      <p className="text-xs text-amber-600">Adjustments of 1,000+ NCTR may require additional approval.</p>
+                      <p className="text-xs text-amber-600">Adjustments of {LARGE_ADJUSTMENT_THRESHOLD.toLocaleString()}+ NCTR require confirmation.</p>
                     </div>
                   </div>
                 )}
@@ -1053,7 +1223,7 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
           </TabsContent>
 
           <TabsContent value="history" className="flex-1 overflow-hidden mt-4">
-            <ScrollArea className="h-[calc(70vh-200px)]">
+            <ScrollArea className="h-[calc(60vh-200px)]">
               {historyLoading ? (
                 <div className="space-y-3">
                   {[1, 2, 3].map((i) => (
@@ -1070,6 +1240,7 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
                       <TableHead>Balance</TableHead>
                       <TableHead>Tier</TableHead>
                       <TableHead>Reason</TableHead>
+                      <TableHead>Notification</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1086,16 +1257,13 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
                           <Badge variant={adj.adjustment_type === 'add' ? 'default' : adj.adjustment_type === 'subtract' ? 'destructive' : 'secondary'}>
                             {adj.adjustment_type}
                           </Badge>
-                          {adj.notification_sent && (
-                            <Badge variant="outline" className="ml-1 text-xs">📧</Badge>
-                          )}
                         </TableCell>
                         <TableCell className="font-mono">
                           {adj.adjustment_type === 'add' ? '+' : adj.adjustment_type === 'subtract' ? '-' : '='}
-                          {adj.amount?.toLocaleString()}
+                          {Number(adj.amount)?.toLocaleString()}
                         </TableCell>
                         <TableCell className="font-mono text-sm">
-                          {adj.previous_balance?.toLocaleString()} → {adj.new_balance?.toLocaleString()}
+                          {Number(adj.previous_balance)?.toLocaleString()} → {Number(adj.new_balance)?.toLocaleString()}
                         </TableCell>
                         <TableCell>
                           {adj.previous_tier !== adj.new_tier ? (
@@ -1106,8 +1274,38 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
                             <span className="text-muted-foreground text-sm">—</span>
                           )}
                         </TableCell>
-                        <TableCell className="max-w-[150px] truncate text-sm" title={adj.reason}>
-                          {adj.reason}
+                        <TableCell className="max-w-[150px]">
+                          <div>
+                            <p className="truncate text-sm" title={adj.reason}>{adj.reason}</p>
+                            {adj.admin_note && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Badge variant="outline" className="text-xs mt-1 cursor-help">
+                                      <FileText className="w-3 h-3 mr-1" />
+                                      Has note
+                                    </Badge>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="max-w-xs">{adj.admin_note}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {adj.notification_sent ? (
+                            <div className="flex flex-col gap-1">
+                              <Badge variant="outline" className="text-xs w-fit">
+                                <Mail className="w-3 h-3 mr-1" />
+                                Sent
+                              </Badge>
+                              <NotificationReadStatus adjustmentId={adj.id} />
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground text-xs">Not sent</span>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -1129,7 +1327,14 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
             onClick={handleSubmit} 
             disabled={isSubmitting || !reason.trim() || amount <= 0 || (useManualOverride && !overrideTier)}
           >
-            {isSubmitting ? 'Processing...' : 'Apply Adjustment'}
+            {confirmLargeAdjustment ? (
+              <>
+                <AlertTriangle className="w-4 h-4 mr-1" />
+                Confirm {amount.toLocaleString()} NCTR Adjustment
+              </>
+            ) : (
+              isSubmitting ? 'Processing...' : 'Apply Adjustment'
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
