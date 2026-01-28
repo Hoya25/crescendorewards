@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format, formatDistanceToNow, addDays } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { useAdminRole } from '@/hooks/useAdminRole';
-import { Coins, History, AlertTriangle, ChevronDown, ChevronUp, ExternalLink, Plus, Trash2, Check, Sparkles, Users, Bug, Zap } from 'lucide-react';
+import { Coins, History, AlertTriangle, ChevronDown, ChevronUp, ExternalLink, Plus, Trash2, Check, Sparkles, Users, Bug, Zap, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -85,6 +85,28 @@ const QUICK_TEMPLATES = [
 
 const CHAINS = ['Ethereum', 'Base', 'Polygon', 'Arbitrum', 'Solana'];
 
+const TIER_BENEFITS: Record<string, string> = {
+  bronze: 'You now have 1 Alliance Partner benefit slot. Start exploring rewards from our partner network!',
+  silver: "You've unlocked 2 benefit slots plus access to creator subscriptions — choose your favorite Twitch, YouTube, or Patreon creators!",
+  gold: '3 benefit slots unlocked! You now have access to premium partners like Whoop, Audible, and MasterClass.',
+  platinum: "4 benefit slots plus premium travel perks like Priority Pass and CLEAR. You're in elite company!",
+  diamond: 'Maximum benefits unlocked: 6 slots, exclusive founder calls, governance voting, and concierge service. Welcome to the top!',
+};
+
+const generateNotificationContent = (tier: string, amount: number, newBalance: number) => {
+  const title = `${TIER_EMOJIS[tier] || '🎉'} You've Reached ${tier.charAt(0).toUpperCase() + tier.slice(1)} Status!`;
+  
+  const message = `Your 360LOCK balance: ${newBalance.toLocaleString()} NCTR (+${amount.toLocaleString()})
+
+${TIER_BENEFITS[tier] || 'Explore your new benefits!'}
+
+Visit your Benefits page to activate your rewards.
+
+Thank you for your commitment to the NCTR Alliance.`;
+
+  return { title, message };
+};
+
 export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: AdjustNCTRModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -104,8 +126,8 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
   // Notification settings
   const [notifyUser, setNotifyUser] = useState(true);
   const [notifyChannels, setNotifyChannels] = useState<string[]>(['in_app']);
-  const [notifyTitle, setNotifyTitle] = useState('NCTR Balance Updated');
-  const [notifyMessage, setNotifyMessage] = useState('Your NCTR balance has been adjusted by {amount} NCTR. New balance: {new_balance} NCTR');
+  const [notifyTitle, setNotifyTitle] = useState('');
+  const [notifyMessage, setNotifyMessage] = useState('');
 
   // Wallet management
   const [walletsOpen, setWalletsOpen] = useState(false);
@@ -200,13 +222,34 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
       setOverrideTier('');
       setNotifyUser(true);
       setNotifyChannels(['in_app']);
-      setNotifyTitle('NCTR Balance Updated');
-      setNotifyMessage('Your NCTR balance has been adjusted by {amount} NCTR. New balance: {new_balance} NCTR');
+      setNotifyTitle('');
+      setNotifyMessage('');
       setWalletsOpen(false);
       setSyncWithVesting(false);
       setVestingContract('');
     }
   }, [open]);
+
+  // Auto-populate notification when amount/tier changes
+  useEffect(() => {
+    if (amount > 0 && user) {
+      const newBalance = adjustmentType === 'add' 
+        ? user.current_nctr_locked + amount 
+        : adjustmentType === 'subtract' 
+          ? Math.max(0, user.current_nctr_locked - amount)
+          : amount;
+      const projectedTier = useManualOverride && overrideTier 
+        ? overrideTier 
+        : getProjectedTier(newBalance);
+      
+      // Only auto-update if user hasn't customized the message
+      if (notifyTitle === '' || notifyTitle.includes("You've Reached")) {
+        const { title, message } = generateNotificationContent(projectedTier, amount, newBalance);
+        setNotifyTitle(title);
+        setNotifyMessage(message);
+      }
+    }
+  }, [amount, adjustmentType, useManualOverride, overrideTier, user]);
 
   // Pre-populate from unified profile
   useEffect(() => {
@@ -859,6 +902,58 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
                         </label>
                       </div>
 
+                      {/* Quick Message Templates */}
+                      <div className="space-y-2">
+                        <Label className="text-sm">Quick Templates</Label>
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const { title, message } = generateNotificationContent(projectedTier, amount, newBalance);
+                              setNotifyTitle(title);
+                              setNotifyMessage(message);
+                            }}
+                          >
+                            🎉 Status Upgrade
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setNotifyTitle('🎁 NCTR Reward Added!');
+                              setNotifyMessage(`Great news! ${amount.toLocaleString()} NCTR has been added to your 360LOCK balance as a reward.\n\nNew balance: ${newBalance.toLocaleString()} NCTR\n\nThank you for being part of the NCTR Alliance!`);
+                            }}
+                          >
+                            🎁 Reward
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setNotifyTitle('📊 Balance Adjustment');
+                              setNotifyMessage(`Your NCTR balance has been adjusted.\n\nChange: ${adjustmentType === 'add' ? '+' : adjustmentType === 'subtract' ? '-' : ''}${amount.toLocaleString()} NCTR\nNew balance: ${newBalance.toLocaleString()} NCTR\n\nIf you have questions, please contact support.`);
+                            }}
+                          >
+                            📊 Adjustment
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setNotifyTitle('🏆 Contest Winner!');
+                              setNotifyMessage(`Congratulations! You've won ${amount.toLocaleString()} NCTR!\n\nThis reward has been added to your 360LOCK balance, bringing your total to ${newBalance.toLocaleString()} NCTR.\n\nThank you for participating!`);
+                            }}
+                          >
+                            🏆 Contest Winner
+                          </Button>
+                        </div>
+                      </div>
+
                       <div className="space-y-2">
                         <Label>Notification Title</Label>
                         <Input
@@ -868,21 +963,36 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Message</Label>
+                        <div className="flex items-center justify-between">
+                          <Label>Message</Label>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const { title, message } = generateNotificationContent(projectedTier, amount, newBalance);
+                              setNotifyTitle(title);
+                              setNotifyMessage(message);
+                            }}
+                          >
+                            <RefreshCw className="w-3 h-3 mr-1" />
+                            Reset to Default
+                          </Button>
+                        </div>
                         <Textarea
                           value={notifyMessage}
                           onChange={(e) => setNotifyMessage(e.target.value)}
-                          rows={2}
+                          rows={4}
                         />
                         <p className="text-xs text-muted-foreground">
-                          Variables: {'{amount}'}, {'{new_balance}'}, {'{new_tier}'}, {'{lock_days}'}
+                          Tip: Message auto-generates based on tier. Edit freely or click "Reset to Default" to regenerate.
                         </p>
                       </div>
 
                       <div className="bg-muted rounded-lg p-3">
                         <p className="text-xs font-medium mb-1">Preview:</p>
-                        <p className="text-sm font-medium">{notifyTitle}</p>
-                        <p className="text-sm text-muted-foreground">{formatNotificationMessage(notifyMessage)}</p>
+                        <p className="text-sm font-medium">{notifyTitle || 'No title set'}</p>
+                        <p className="text-sm text-muted-foreground whitespace-pre-line">{notifyMessage || 'No message set'}</p>
                       </div>
                     </div>
                   )}
