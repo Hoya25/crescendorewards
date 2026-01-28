@@ -277,6 +277,10 @@ export function AdminUsers() {
             }
           });
           
+          // DEBUG: Log unified data map
+          console.log('Unified Data Map:', unifiedDataMap);
+          console.log('User IDs being looked up:', userIds);
+          
           // 2. Fetch wallet_portfolio for unified profile IDs (NCTR from on-chain sync)
           const unifiedIds = unifiedData.map(u => u.id);
           if (unifiedIds.length > 0) {
@@ -284,6 +288,8 @@ export function AdminUsers() {
               .from('wallet_portfolio')
               .select('user_id, nctr_360_locked')
               .in('user_id', unifiedIds);
+            
+            console.log('Wallet Portfolio Data:', portfolioData);
             
             if (portfolioData) {
               // Map unified_id back to auth_user_id
@@ -302,6 +308,8 @@ export function AdminUsers() {
               });
             }
           }
+          
+          console.log('Wallet Portfolio Map:', walletPortfolioMap);
         }
       }
       
@@ -347,6 +355,22 @@ export function AdminUsers() {
           level: bestLevel,
           claim_balance: bestClaimBalance,
         };
+      });
+      
+      // DEBUG: Log specific user data (Jon Petrick)
+      usersWithActivity.forEach(u => {
+        if (u.email?.toLowerCase().includes('jon')) {
+          console.log('Jon Petrick data:', {
+            email: u.email,
+            profileId: u.id,
+            locked_nctr: u.locked_nctr,
+            real_nctr_360_locked: u.real_nctr_360_locked,
+            crescendo_locked_nctr: u.crescendo_locked_nctr,
+            profile_locked_nctr: u.locked_nctr,
+            level: u.level,
+            unified_profile_id: u.unified_profile_id,
+          });
+        }
       });
       
       // If sorting by NCTR, sort here and paginate
