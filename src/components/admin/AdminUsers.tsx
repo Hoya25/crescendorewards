@@ -66,6 +66,10 @@ interface UserProfile {
   has_status_access_pass: boolean;
   // From unified_profiles join
   last_active?: string | null;
+  // Real NCTR data from wallet_portfolio
+  real_nctr_360_locked?: number | null;
+  unified_profile_id?: string | null;
+  current_tier?: string | null;
 }
 
 interface Reward {
@@ -144,7 +148,7 @@ export function AdminUsers() {
     enabled: !!selectedUser && profileModalOpen,
   });
 
-  // Fetch users with last_active from unified_profiles
+  // Fetch users with last_active from unified_profiles and NCTR from wallet_portfolio
   const { data: usersData, isLoading } = useQuery({
     queryKey: ['admin-users', search, filter, sortBy, page],
     queryFn: async () => {
@@ -173,56 +177,130 @@ export function AdminUsers() {
           break;
       }
       
-      // Apply sorting
-      switch (sortBy) {
-        case 'created_at':
-          query = query.order('created_at', { ascending: false });
-          break;
-        case 'nctr':
-          query = query.order('locked_nctr', { ascending: false });
-          break;
-        case 'claims':
-          query = query.order('claim_balance', { ascending: false });
-          break;
-        case 'level':
-          query = query.order('level', { ascending: false });
-          break;
+      // Apply sorting - note: for nctr sorting, we'll sort after fetching real data
+      const sortByNctr = sortBy === 'nctr';
+      if (!sortByNctr) {
+        switch (sortBy) {
+          case 'created_at':
+            query = query.order('created_at', { ascending: false });
+            break;
+          case 'claims':
+            query = query.order('claim_balance', { ascending: false });
+            break;
+          case 'level':
+            query = query.order('level', { ascending: false });
+            break;
+        }
       }
       
-      // Pagination
+      // Pagination - if sorting by NCTR we need to fetch all and sort client-side
       const from = (page - 1) * USERS_PER_PAGE;
       const to = from + USERS_PER_PAGE - 1;
-      query = query.range(from, to);
+      
+      if (!sortByNctr) {
+        query = query.range(from, to);
+      }
       
       const { data: profilesData, error, count } = await query;
       
       if (error) throw error;
       
-      // Fetch last_active from unified_profiles for these users
+      // Fetch unified profiles and wallet portfolio data for these users
       const userIds = (profilesData || []).map(p => p.id);
-      let lastActiveMap: Record<string, string | null> = {};
+      let unifiedDataMap: Record<string, { 
+        last_active: string | null; 
+        unified_id: string;
+        current_tier: string | null;
+      }> = {};
+      let walletPortfolioMap: Record<string, number> = {};
       
       if (userIds.length > 0) {
+        // Fetch unified_profiles with current tier
         const { data: unifiedData } = await supabase
           .from('unified_profiles')
-          .select('auth_user_id, last_active_crescendo')
+          .select('id, auth_user_id, last_active_crescendo, current_tier_id')
           .in('auth_user_id', userIds);
         
         if (unifiedData) {
-          lastActiveMap = unifiedData.reduce((acc, up) => {
+          // Get tier info for current_tier_id
+          const tierIds = unifiedData.map(u => u.current_tier_id).filter(Boolean);
+          let tierMap: Record<string, string> = {};
+          
+          if (tierIds.length > 0) {
+            const { data: tiersData } = await supabase
+              .from('status_tiers')
+              .select('id, tier_name')
+              .in('id', tierIds);
+            
+            if (tiersData) {
+              tierMap = tiersData.reduce((acc, t) => {
+                acc[t.id] = t.tier_name;
+                return acc;
+              }, {} as Record<string, string>);
+            }
+          }
+          
+          unifiedDataMap = unifiedData.reduce((acc, up) => {
             if (up.auth_user_id) {
-              acc[up.auth_user_id] = up.last_active_crescendo;
+              acc[up.auth_user_id] = {
+                last_active: up.last_active_crescendo,
+                unified_id: up.id,
+                current_tier: up.current_tier_id ? tierMap[up.current_tier_id] || null : null
+              };
             }
             return acc;
-          }, {} as Record<string, string | null>);
+          }, {} as Record<string, { last_active: string | null; unified_id: string; current_tier: string | null }>);
+          
+          // Fetch wallet_portfolio for unified profile IDs
+          const unifiedIds = unifiedData.map(u => u.id);
+          if (unifiedIds.length > 0) {
+            const { data: portfolioData } = await supabase
+              .from('wallet_portfolio')
+              .select('user_id, nctr_360_locked')
+              .in('user_id', unifiedIds);
+            
+            if (portfolioData) {
+              // Map unified_id to nctr_360_locked
+              const unifiedToAuthMap = unifiedData.reduce((acc, u) => {
+                if (u.auth_user_id) {
+                  acc[u.id] = u.auth_user_id;
+                }
+                return acc;
+              }, {} as Record<string, string>);
+              
+              portfolioData.forEach(wp => {
+                const authUserId = unifiedToAuthMap[wp.user_id];
+                if (authUserId) {
+                  walletPortfolioMap[authUserId] = Number(wp.nctr_360_locked) || 0;
+                }
+              });
+            }
+          }
         }
       }
       
-      // Merge last_active into users
-      const usersWithActivity = (profilesData || []).map(user => ({
-        ...user,
-        last_active: lastActiveMap[user.id] || null
-      }));
+      // Merge data into users
+      let usersWithActivity = (profilesData || []).map(user => {
+        const unifiedInfo = unifiedDataMap[user.id];
+        const realNctr = walletPortfolioMap[user.id];
+        
+        return {
+          ...user,
+          last_active: unifiedInfo?.last_active || null,
+          unified_profile_id: unifiedInfo?.unified_id || null,
+          current_tier: unifiedInfo?.current_tier || null,
+          // Use wallet_portfolio.nctr_360_locked as the real NCTR value
+          real_nctr_360_locked: realNctr ?? null,
+          // Override locked_nctr with real data if available
+          locked_nctr: realNctr ?? user.locked_nctr ?? 0
+        };
+      });
+      
+      // If sorting by NCTR, sort here and paginate
+      if (sortByNctr) {
+        usersWithActivity.sort((a, b) => (b.locked_nctr || 0) - (a.locked_nctr || 0));
+        usersWithActivity = usersWithActivity.slice(from, to + 1);
+      }
       
       return { users: usersWithActivity as UserProfile[], totalCount: count || 0 };
     },
@@ -497,10 +575,18 @@ export function AdminUsers() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={tier.color}>{tier.name}</Badge>
+                      {user.current_tier ? (
+                        <Badge className={tierConfig[user.level]?.color || tierConfig[0].color}>
+                          {user.current_tier.charAt(0).toUpperCase() + user.current_tier.slice(1)}
+                        </Badge>
+                      ) : (
+                        <Badge className={tierConfig[user.level]?.color || tierConfig[0].color}>
+                          {tierConfig[user.level]?.name || 'Level 1'}
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell className="text-right font-mono">
-                      {user.locked_nctr.toLocaleString()}
+                      {(user.real_nctr_360_locked ?? user.locked_nctr ?? 0).toLocaleString()}
                     </TableCell>
                     <TableCell className="text-right font-mono">
                       {user.claim_balance.toLocaleString()}
@@ -618,16 +704,27 @@ export function AdminUsers() {
                     <div>
                       <h3 className="font-semibold text-lg">{selectedUser.full_name || 'Unnamed User'}</h3>
                       <p className="text-muted-foreground">{selectedUser.email}</p>
-                      <Badge className={tierConfig[selectedUser.level]?.color || tierConfig[0].color}>
-                        {tierConfig[selectedUser.level]?.name || 'Level 1'}
-                      </Badge>
+                      {selectedUser.current_tier ? (
+                        <Badge className={tierConfig[selectedUser.level]?.color || tierConfig[0].color}>
+                          {selectedUser.current_tier.charAt(0).toUpperCase() + selectedUser.current_tier.slice(1)}
+                        </Badge>
+                      ) : (
+                        <Badge className={tierConfig[selectedUser.level]?.color || tierConfig[0].color}>
+                          {tierConfig[selectedUser.level]?.name || 'Level 1'}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-muted-foreground">Locked NCTR</p>
-                      <p className="font-mono font-medium">{selectedUser.locked_nctr.toLocaleString()}</p>
+                      <p className="text-muted-foreground">360LOCK NCTR</p>
+                      <p className="font-mono font-medium text-lg">
+                        {(selectedUser.real_nctr_360_locked ?? selectedUser.locked_nctr ?? 0).toLocaleString()}
+                      </p>
+                      {selectedUser.real_nctr_360_locked !== null && selectedUser.real_nctr_360_locked !== undefined && (
+                        <p className="text-xs text-muted-foreground">From wallet portfolio</p>
+                      )}
                     </div>
                     <div>
                       <p className="text-muted-foreground">Available NCTR</p>
@@ -934,8 +1031,9 @@ export function AdminUsers() {
           id: selectedUser.id,
           display_name: selectedUser.full_name,
           email: selectedUser.email,
-          current_nctr_locked: selectedUser.locked_nctr,
-          current_tier: tierConfig[selectedUser.level]?.name.toLowerCase() || 'bronze',
+          current_nctr_locked: selectedUser.real_nctr_360_locked ?? selectedUser.locked_nctr ?? 0,
+          current_tier: selectedUser.current_tier || tierConfig[selectedUser.level]?.name.toLowerCase() || 'bronze',
+          unified_profile_id: selectedUser.unified_profile_id || undefined,
         } : null}
         onSuccess={() => {
           queryClient.invalidateQueries({ queryKey: ['admin-users'] });
