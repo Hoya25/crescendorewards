@@ -29,6 +29,7 @@ export function SlugSetupCard({ onSlugSaved }: SlugSetupCardProps) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [availability, setAvailability] = useState<{ available: boolean; error?: string } | null>(null);
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   // Generate suggestions on mount
   useEffect(() => {
@@ -91,6 +92,7 @@ export function SlugSetupCard({ onSlugSaved }: SlugSetupCardProps) {
     
     const result = await saveSlug(inputValue);
     if (result.success && result.slug) {
+      setIsEditing(false);
       onSlugSaved?.(result.slug);
     }
   };
@@ -115,8 +117,8 @@ export function SlugSetupCard({ onSlugSaved }: SlugSetupCardProps) {
     );
   }
 
-  // If user already has a slug, show it
-  if (currentSlug) {
+  // If user already has a slug and not editing, show it with edit option
+  if (currentSlug && !isEditing) {
     return (
       <Card className="border-primary/30 bg-primary/5">
         <CardHeader className="pb-2">
@@ -125,15 +127,28 @@ export function SlugSetupCard({ onSlugSaved }: SlugSetupCardProps) {
             Your Personalized Link
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
           <div className="flex items-center gap-2 p-3 rounded-lg bg-background/50 border">
             <span className="text-sm text-muted-foreground">{PRODUCTION_DOMAIN}/join/</span>
             <span className="font-medium text-primary">{currentSlug}</span>
-            <Badge variant="outline" className="ml-auto text-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
+            <Badge variant="outline" className="ml-auto text-xs border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               <Check className="h-3 w-3 mr-1" />
               Active
             </Badge>
           </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => {
+              setIsEditing(true);
+              setInputValue(currentSlug);
+              setAvailability({ available: true });
+            }}
+            className="w-full"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Change My Link
+          </Button>
         </CardContent>
       </Card>
     );
@@ -216,24 +231,39 @@ export function SlugSetupCard({ onSlugSaved }: SlugSetupCardProps) {
           </div>
         )}
 
-        {/* Save button */}
-        <Button
-          onClick={handleSave}
-          disabled={!inputValue || !availability?.available || isSaving}
-          className="w-full"
-        >
-          {isSaving ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Saving...
-            </>
-          ) : (
-            <>
-              <Link2 className="h-4 w-4 mr-2" />
-              Claim This Link
-            </>
+        {/* Save/Cancel buttons */}
+        <div className="flex gap-2">
+          {isEditing && currentSlug && (
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsEditing(false);
+                setInputValue('');
+                setAvailability(null);
+              }}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
           )}
-        </Button>
+          <Button
+            onClick={handleSave}
+            disabled={!inputValue || !availability?.available || isSaving}
+            className="flex-1"
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Link2 className="h-4 w-4 mr-2" />
+                {isEditing ? 'Update Link' : 'Claim This Link'}
+              </>
+            )}
+          </Button>
+        </div>
 
         <p className="text-xs text-center text-muted-foreground">
           3-30 characters • Letters, numbers, and hyphens only
