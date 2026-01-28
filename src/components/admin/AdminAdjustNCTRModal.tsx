@@ -64,6 +64,18 @@ const TIER_EMOJIS: Record<string, string> = {
   diamond: '👑',
 };
 
+const TIER_LEVELS: Record<string, number> = {
+  bronze: 1,
+  silver: 2,
+  gold: 3,
+  platinum: 4,
+  diamond: 5,
+};
+
+const getTierLevel = (tier: string): number => {
+  return TIER_LEVELS[tier.toLowerCase()] || 1;
+};
+
 const QUICK_TEMPLATES = [
   { name: '🎁 Beta Reward', amount: 500, type: 'add' as const, reason: 'Beta tester reward' },
   { name: '👥 Referral Bonus', amount: 100, type: 'add' as const, reason: 'Referral program bonus' },
@@ -287,6 +299,7 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
       const finalTier = useManualOverride && overrideTier ? overrideTier : calculatedTier;
       const effectiveLockDuration = getEffectiveLockDuration();
       const lockExpiresAt = getLockExpiryDate();
+      const newLevel = getTierLevel(finalTier);
 
       // 1. Update wallet_portfolio for NCTR balance
       const { data: existingPortfolio } = await supabase
@@ -308,8 +321,38 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
         if (portfolioError) throw portfolioError;
       }
 
-      // 2. Update unified_profiles with tier override and wallet info
-      const profileUpdate: Record<string, any> = {
+      // 2. CRITICAL: Also update profiles table (this is where the UI reads from)
+      const { error: profilesError } = await supabase
+        .from('profiles')
+        .update({ 
+          locked_nctr: newBalance,
+          level: newLevel,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id); // user.id is the auth user id
+
+      if (profilesError) {
+        console.error('Failed to update profiles:', profilesError);
+        // Don't throw - this is a sync issue, not a critical failure
+      }
+
+      // 3. Update unified_profiles crescendo_data for consistency
+      const { data: currentUnifiedProfile } = await supabase
+        .from('unified_profiles')
+        .select('crescendo_data')
+        .eq('id', unifiedProfile.id)
+        .maybeSingle();
+
+      const crescendoData = (currentUnifiedProfile?.crescendo_data as Record<string, unknown>) || {};
+      const updatedCrescendoData = {
+        ...crescendoData,
+        locked_nctr: newBalance,
+        level: newLevel,
+        tier: finalTier,
+      };
+
+      // 4. Update unified_profiles with tier override, wallet info, and crescendo_data
+      const profileUpdate: Record<string, unknown> = {
         updated_at: new Date().toISOString(),
         nctr_lock_expires_at: adjustmentType === 'add' ? lockExpiresAt.toISOString() : null,
         nctr_lock_duration_days: adjustmentType === 'add' ? effectiveLockDuration : null,
@@ -319,6 +362,7 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
         wallet_verified_at: walletVerified ? new Date().toISOString() : null,
         onchain_vesting_synced: syncWithVesting,
         onchain_vesting_contract: syncWithVesting ? vestingContract : null,
+        crescendo_data: updatedCrescendoData,
       };
 
       if (useManualOverride && overrideTier) {
@@ -333,14 +377,14 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
         profileUpdate.tier_override_at = null;
       }
 
-      const { error: profileError } = await supabase
+      const { error: unifiedProfileError } = await supabase
         .from('unified_profiles')
         .update(profileUpdate)
         .eq('id', unifiedProfile.id);
       
-      if (profileError) throw profileError;
+      if (unifiedProfileError) throw unifiedProfileError;
 
-      // 3. Log the adjustment
+      // 5. Log the adjustment
       const { data: adjustmentData, error: logError } = await supabase
         .from('admin_nctr_adjustments')
         .insert({
@@ -364,12 +408,13 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
       
       if (logError) throw logError;
 
-      // 4. Send notification if enabled
+      // 6. Send notification if enabled
       if (notifyUser && adjustmentData) {
+        // Insert into admin_user_notifications (uses unified_profile.id)
         const { error: notifError } = await supabase
           .from('admin_user_notifications')
           .insert({
-            user_id: unifiedProfile.id,
+            user_id: unifiedProfile.id, // unified_profiles.id
             admin_id: adminUnifiedProfile.id,
             notification_type: 'nctr_adjustment',
             title: notifyTitle,
@@ -378,23 +423,23 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
             sent_via: notifyChannels,
           });
         
-        if (notifError) console.error('Failed to send notification:', notifError);
+        if (notifError) console.error('Failed to send admin_user_notifications:', notifError);
 
-        // Also insert into regular notifications table
+        // Also insert into regular notifications table (uses auth user id)
         const { error: notifError2 } = await supabase
           .from('notifications')
           .insert({
-            user_id: user.id, // auth user id
+            user_id: user.id, // auth user id for this table
             type: 'nctr_adjustment',
             title: notifyTitle,
             message: formatNotificationMessage(notifyMessage),
             metadata: { adjustment_id: adjustmentData.id }
           });
         
-        if (notifError2) console.error('Failed to send notification to notifications table:', notifError2);
+        if (notifError2) console.error('Failed to send to notifications table:', notifError2);
       }
 
-      // 5. Log admin activity
+      // 7. Log admin activity
       await logActivity(
         'adjust_nctr',
         'user',
@@ -414,20 +459,28 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
         }
       );
 
+      // 8. Invalidate ALL related queries for immediate UI update
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['user-profile'] });
+      queryClient.invalidateQueries({ queryKey: ['unified-profile'] });
+      queryClient.invalidateQueries({ queryKey: ['nctr-adjustments'] });
+      queryClient.invalidateQueries({ queryKey: ['unified-profile-for-adjustment'] });
+      
+      // Force immediate refetch
+      queryClient.refetchQueries({ queryKey: ['admin-users'] });
+
       toast({
         title: 'NCTR Adjusted',
         description: `${user.display_name || user.email}'s balance updated to ${newBalance.toLocaleString()} NCTR (${TIER_EMOJIS[finalTier]} ${finalTier})`,
       });
       
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-      queryClient.invalidateQueries({ queryKey: ['nctr-adjustments'] });
       onSuccess();
       onOpenChange(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Adjustment error:', error);
       toast({
         title: 'Error',
-        description: error.message || 'Failed to adjust NCTR. Please try again.',
+        description: error instanceof Error ? error.message : 'Failed to adjust NCTR. Please try again.',
         variant: 'destructive',
       });
     } finally {
