@@ -150,7 +150,21 @@ export function AdminUsers() {
     enabled: !!selectedUser && profileModalOpen,
   });
 
-  // Fetch users with last_active from unified_profiles and NCTR from wallet_portfolio
+  // Helper functions for tier calculation
+  const calculateLevelFromNCTR = (nctr: number): number => {
+    if (nctr >= 10000) return 5; // Diamond
+    if (nctr >= 2000) return 4;  // Platinum
+    if (nctr >= 500) return 3;   // Gold
+    if (nctr >= 100) return 2;   // Silver
+    return 1; // Bronze
+  };
+
+  const getTierNameFromLevel = (level: number): string => {
+    const tiers = ['Bronze', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
+    return tiers[level] || 'Bronze';
+  };
+
+  // Fetch users with last_active from unified_profiles and NCTR from multiple sources
   const { data: usersData, isLoading } = useQuery({
     queryKey: ['admin-users', search, filter, sortBy, page],
     queryFn: async () => {
@@ -207,7 +221,7 @@ export function AdminUsers() {
       
       if (error) throw error;
       
-      // Fetch unified profiles and wallet portfolio data for these users
+      // Initialize lookup maps
       const userIds = (profilesData || []).map(p => p.id);
       let unifiedDataMap: Record<string, { 
         last_active: string | null; 
@@ -221,7 +235,7 @@ export function AdminUsers() {
       let walletPortfolioMap: Record<string, number> = {};
       
       if (userIds.length > 0) {
-        // Fetch unified_profiles with crescendo_data and current tier
+        // 1. Fetch unified_profiles with crescendo_data and current tier
         const { data: unifiedData } = await supabase
           .from('unified_profiles')
           .select('id, auth_user_id, last_active_crescendo, current_tier_id, crescendo_data')
@@ -246,10 +260,11 @@ export function AdminUsers() {
             }
           }
           
-          unifiedDataMap = unifiedData.reduce((acc, up) => {
+          // Build unified data map
+          unifiedData.forEach(up => {
             if (up.auth_user_id) {
               const crescendoData = up.crescendo_data as Record<string, any> | null;
-              acc[up.auth_user_id] = {
+              unifiedDataMap[up.auth_user_id] = {
                 last_active: up.last_active_crescendo,
                 unified_id: up.id,
                 current_tier: up.current_tier_id ? tierMap[up.current_tier_id] || null : null,
@@ -260,18 +275,9 @@ export function AdminUsers() {
                   ? Number(crescendoData?.claim_balance ?? crescendoData?.claims_balance) : null,
               };
             }
-            return acc;
-          }, {} as Record<string, { 
-            last_active: string | null; 
-            unified_id: string; 
-            current_tier: string | null;
-            crescendo_locked_nctr: number | null;
-            crescendo_available_nctr: number | null;
-            crescendo_level: number | null;
-            crescendo_claim_balance: number | null;
-          }>);
+          });
           
-          // Fetch wallet_portfolio for unified profile IDs
+          // 2. Fetch wallet_portfolio for unified profile IDs (NCTR from on-chain sync)
           const unifiedIds = unifiedData.map(u => u.id);
           if (unifiedIds.length > 0) {
             const { data: portfolioData } = await supabase
@@ -280,7 +286,7 @@ export function AdminUsers() {
               .in('user_id', unifiedIds);
             
             if (portfolioData) {
-              // Map unified_id to nctr_360_locked
+              // Map unified_id back to auth_user_id
               const unifiedToAuthMap = unifiedData.reduce((acc, u) => {
                 if (u.auth_user_id) {
                   acc[u.id] = u.auth_user_id;
@@ -304,17 +310,34 @@ export function AdminUsers() {
         const unifiedInfo = unifiedDataMap[user.id];
         const walletNctr = walletPortfolioMap[user.id];
         
-        // Determine best NCTR value: wallet_portfolio > crescendo_data > profiles
-        const bestLockedNctr = walletNctr ?? unifiedInfo?.crescendo_locked_nctr ?? user.locked_nctr ?? 0;
+        // Determine best NCTR value with clear priority:
+        // 1. wallet_portfolio.nctr_360_locked (on-chain synced data)
+        // 2. unified_profiles.crescendo_data.locked_nctr (app data)
+        // 3. profiles.locked_nctr (legacy data)
+        let bestLockedNctr = user.locked_nctr ?? 0;
+        
+        if (unifiedInfo?.crescendo_locked_nctr != null && unifiedInfo.crescendo_locked_nctr > 0) {
+          bestLockedNctr = unifiedInfo.crescendo_locked_nctr;
+        }
+        
+        if (walletNctr != null && walletNctr > 0) {
+          bestLockedNctr = walletNctr;
+        }
+        
         const bestAvailableNctr = unifiedInfo?.crescendo_available_nctr ?? user.available_nctr ?? 0;
-        const bestLevel = unifiedInfo?.crescendo_level ?? user.level ?? 1;
+        
+        // Calculate level from NCTR if not available from sources
+        const bestLevel = unifiedInfo?.crescendo_level ?? calculateLevelFromNCTR(bestLockedNctr);
         const bestClaimBalance = unifiedInfo?.crescendo_claim_balance ?? user.claim_balance ?? 0;
+        
+        // Get tier name
+        const tierName = unifiedInfo?.current_tier || getTierNameFromLevel(bestLevel);
         
         return {
           ...user,
           last_active: unifiedInfo?.last_active || null,
           unified_profile_id: unifiedInfo?.unified_id || null,
-          current_tier: unifiedInfo?.current_tier || null,
+          current_tier: tierName,
           // Store all sources for debugging
           real_nctr_360_locked: walletNctr ?? null,
           crescendo_locked_nctr: unifiedInfo?.crescendo_locked_nctr ?? null,

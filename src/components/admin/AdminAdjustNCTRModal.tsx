@@ -220,18 +220,70 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
     enabled: !!adminUser?.user_id && open,
   });
 
-  // Fetch fresh profile data (BUG 3 FIX: always get latest balance)
+  // Fetch fresh profile data from ALL sources (BUG 3 FIX: always get latest balance)
   const { data: freshProfileData, refetch: refetchProfile } = useQuery({
     queryKey: ['fresh-profile-data', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
-      const { data, error } = await supabase
+      
+      // 1. Fetch from profiles table
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
-      if (error) throw error;
-      return data;
+      
+      if (profileError) console.error('Profile fetch error:', profileError);
+      
+      // 2. Fetch from unified_profiles (crescendo_data)
+      const { data: unifiedData } = await supabase
+        .from('unified_profiles')
+        .select('id, crescendo_data')
+        .eq('auth_user_id', user.id)
+        .maybeSingle();
+      
+      const crescendoData = unifiedData?.crescendo_data as Record<string, any> | null;
+      
+      // 3. Fetch from wallet_portfolio if unified exists
+      let walletNctr: number | null = null;
+      if (unifiedData?.id) {
+        const { data: walletData } = await supabase
+          .from('wallet_portfolio')
+          .select('nctr_360_locked')
+          .eq('user_id', unifiedData.id)
+          .maybeSingle();
+        
+        walletNctr = walletData?.nctr_360_locked != null ? Number(walletData.nctr_360_locked) : null;
+      }
+      
+      // Determine best NCTR value with priority:
+      // 1. wallet_portfolio.nctr_360_locked (on-chain data)
+      // 2. unified_profiles.crescendo_data.locked_nctr (app data)
+      // 3. profiles.locked_nctr (legacy data)
+      const profileRecord = profileData as Record<string, any> | null;
+      const profileNctr = profileRecord?.locked_nctr ?? profileRecord?.nctr_locked ?? profileRecord?.nctr_balance ?? 0;
+      const crescendoNctr = crescendoData?.locked_nctr != null ? Number(crescendoData.locked_nctr) : null;
+      
+      let bestLockedNctr = profileNctr;
+      if (crescendoNctr != null && crescendoNctr > 0) {
+        bestLockedNctr = crescendoNctr;
+      }
+      if (walletNctr != null && walletNctr > 0) {
+        bestLockedNctr = walletNctr;
+      }
+      
+      const crescendoLevel = crescendoData?.level != null ? Number(crescendoData.level) : null;
+      const bestLevel = crescendoLevel ?? profileData?.level ?? 1;
+      
+      return {
+        ...profileData,
+        locked_nctr: bestLockedNctr,
+        level: bestLevel,
+        // Keep raw sources for debugging
+        _source_profile: profileNctr,
+        _source_crescendo: crescendoNctr,
+        _source_wallet: walletNctr,
+      };
     },
     enabled: !!user?.id && open,
     staleTime: 0, // Always fetch fresh
@@ -1314,86 +1366,88 @@ Tier: ${user?.current_tier}
                   ))}
                 </div>
               ) : adjustmentHistory && adjustmentHistory.length > 0 ? (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Balance</TableHead>
-                      <TableHead>Tier</TableHead>
-                      <TableHead>Reason</TableHead>
-                      <TableHead>Notification</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {adjustmentHistory.map((adj: any) => (
-                      <TableRow key={adj.id}>
-                        <TableCell className="text-sm">
-                          {format(new Date(adj.created_at), 'MMM d, yyyy')}
-                          <br />
-                          <span className="text-xs text-muted-foreground">
-                            {formatDistanceToNow(new Date(adj.created_at), { addSuffix: true })}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={adj.adjustment_type === 'add' ? 'default' : adj.adjustment_type === 'subtract' ? 'destructive' : 'secondary'}>
-                            {adj.adjustment_type}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-mono">
-                          {adj.adjustment_type === 'add' ? '+' : adj.adjustment_type === 'subtract' ? '-' : '='}
-                          {Number(adj.amount)?.toLocaleString()}
-                        </TableCell>
-                        <TableCell className="font-mono text-sm">
-                          {Number(adj.previous_balance)?.toLocaleString()} → {Number(adj.new_balance)?.toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          {adj.previous_tier !== adj.new_tier ? (
-                            <span className="text-sm">
-                              {TIER_EMOJIS[adj.previous_tier]} → {TIER_EMOJIS[adj.new_tier]}
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground text-sm">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="max-w-[150px]">
-                          <div>
-                            <p className="truncate text-sm" title={adj.reason}>{adj.reason}</p>
-                            {adj.admin_note && (
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Badge variant="outline" className="text-xs mt-1 cursor-help">
-                                      <FileText className="w-3 h-3 mr-1" />
-                                      Has note
-                                    </Badge>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p className="max-w-xs">{adj.admin_note}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {adj.notification_sent ? (
-                            <div className="flex flex-col gap-1">
-                              <Badge variant="outline" className="text-xs w-fit">
-                                <Mail className="w-3 h-3 mr-1" />
-                                Sent
-                              </Badge>
-                              <NotificationReadStatus adjustmentId={adj.id} />
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground text-xs">Not sent</span>
-                          )}
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table className="min-w-[800px]">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="min-w-[100px]">Date</TableHead>
+                        <TableHead className="min-w-[80px]">Type</TableHead>
+                        <TableHead className="min-w-[100px]">Amount</TableHead>
+                        <TableHead className="min-w-[140px]">Balance</TableHead>
+                        <TableHead className="min-w-[80px]">Tier</TableHead>
+                        <TableHead className="min-w-[150px]">Reason</TableHead>
+                        <TableHead className="min-w-[100px]">Notification</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {adjustmentHistory.map((adj: any) => (
+                        <TableRow key={adj.id}>
+                          <TableCell className="text-sm whitespace-nowrap">
+                            {format(new Date(adj.created_at), 'MMM d, yyyy')}
+                            <br />
+                            <span className="text-xs text-muted-foreground">
+                              {formatDistanceToNow(new Date(adj.created_at), { addSuffix: true })}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={adj.adjustment_type === 'add' ? 'default' : adj.adjustment_type === 'subtract' ? 'destructive' : 'secondary'}>
+                              {adj.adjustment_type}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-mono whitespace-nowrap">
+                            {adj.adjustment_type === 'add' ? '+' : adj.adjustment_type === 'subtract' ? '-' : '='}
+                            {Number(adj.amount)?.toLocaleString()}
+                          </TableCell>
+                          <TableCell className="font-mono text-sm whitespace-nowrap">
+                            {Number(adj.previous_balance)?.toLocaleString()} → {Number(adj.new_balance)?.toLocaleString()}
+                          </TableCell>
+                          <TableCell>
+                            {adj.previous_tier !== adj.new_tier ? (
+                              <span className="text-sm whitespace-nowrap">
+                                {TIER_EMOJIS[adj.previous_tier]} → {TIER_EMOJIS[adj.new_tier]}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground text-sm">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="max-w-[200px]">
+                            <div>
+                              <p className="truncate text-sm" title={adj.reason}>{adj.reason}</p>
+                              {adj.admin_note && (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Badge variant="outline" className="text-xs mt-1 cursor-help">
+                                        <FileText className="w-3 h-3 mr-1" />
+                                        Has note
+                                      </Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="max-w-xs">{adj.admin_note}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {adj.notification_sent ? (
+                              <div className="flex flex-col gap-1">
+                                <Badge variant="outline" className="text-xs w-fit whitespace-nowrap">
+                                  <Mail className="w-3 h-3 mr-1" />
+                                  Sent
+                                </Badge>
+                                <NotificationReadStatus adjustmentId={adj.id} />
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground text-xs whitespace-nowrap">Not sent</span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
                   <History className="h-8 w-8 mb-2 opacity-50" />
