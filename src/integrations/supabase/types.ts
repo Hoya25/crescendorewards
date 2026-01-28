@@ -55,6 +55,66 @@ export type Database = {
           },
         ]
       }
+      admin_nctr_adjustments: {
+        Row: {
+          adjustment_type: string
+          admin_id: string
+          amount: number
+          created_at: string | null
+          id: string
+          lock_duration: number | null
+          new_balance: number
+          new_tier: string | null
+          previous_balance: number
+          previous_tier: string | null
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          adjustment_type: string
+          admin_id: string
+          amount: number
+          created_at?: string | null
+          id?: string
+          lock_duration?: number | null
+          new_balance: number
+          new_tier?: string | null
+          previous_balance: number
+          previous_tier?: string | null
+          reason: string
+          user_id: string
+        }
+        Update: {
+          adjustment_type?: string
+          admin_id?: string
+          amount?: number
+          created_at?: string | null
+          id?: string
+          lock_duration?: number | null
+          new_balance?: number
+          new_tier?: string | null
+          previous_balance?: number
+          previous_tier?: string | null
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_nctr_adjustments_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_nctr_adjustments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_settings: {
         Row: {
           description: string | null
@@ -2017,6 +2077,10 @@ export type Database = {
           last_active_crescendo: string | null
           last_active_garden: string | null
           tier_calculated_at: string | null
+          tier_override: string | null
+          tier_override_at: string | null
+          tier_override_by: string | null
+          tier_override_reason: string | null
           updated_at: string | null
           wallet_address: string | null
         }
@@ -2033,6 +2097,10 @@ export type Database = {
           last_active_crescendo?: string | null
           last_active_garden?: string | null
           tier_calculated_at?: string | null
+          tier_override?: string | null
+          tier_override_at?: string | null
+          tier_override_by?: string | null
+          tier_override_reason?: string | null
           updated_at?: string | null
           wallet_address?: string | null
         }
@@ -2049,6 +2117,10 @@ export type Database = {
           last_active_crescendo?: string | null
           last_active_garden?: string | null
           tier_calculated_at?: string | null
+          tier_override?: string | null
+          tier_override_at?: string | null
+          tier_override_by?: string | null
+          tier_override_reason?: string | null
           updated_at?: string | null
           wallet_address?: string | null
         }
@@ -2058,6 +2130,13 @@ export type Database = {
             columns: ["current_tier_id"]
             isOneToOne: false
             referencedRelation: "status_tiers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unified_profiles_tier_override_by_fkey"
+            columns: ["tier_override_by"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
             referencedColumns: ["id"]
           },
         ]
