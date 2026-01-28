@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { Search, Filter, MoreHorizontal, Eye, Coins, Gift, Copy, Check, ChevronLeft, ChevronRight, Bell, AlertCircle, CheckCircle, Info, Send, Activity } from 'lucide-react';
+import { Search, Filter, MoreHorizontal, Eye, Coins, Gift, Copy, Check, ChevronLeft, ChevronRight, Bell, AlertCircle, CheckCircle, Info, Send, Activity, TrendingUp } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { AdminAdjustNCTRModal } from './AdminAdjustNCTRModal';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -111,6 +112,7 @@ export function AdminUsers() {
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [adjustModalOpen, setAdjustModalOpen] = useState(false);
+  const [adjustNCTRModalOpen, setAdjustNCTRModalOpen] = useState(false);
   const [giftModalOpen, setGiftModalOpen] = useState(false);
   const [notifyModalOpen, setNotifyModalOpen] = useState(false);
   
@@ -528,9 +530,13 @@ export function AdminUsers() {
                             View Profile
                           </DropdownMenuItem>
                           <PermissionGate permission="users_edit">
-                            <DropdownMenuItem onClick={() => { setSelectedUser(user); setAdjustModalOpen(true); }}>
+                          <DropdownMenuItem onClick={() => { setSelectedUser(user); setAdjustModalOpen(true); }}>
                               <Coins className="h-4 w-4 mr-2" />
                               Adjust Claims
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => { setSelectedUser(user); setAdjustNCTRModalOpen(true); }}>
+                              <TrendingUp className="h-4 w-4 mr-2" />
+                              Adjust NCTR & Tier
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => { setSelectedUser(user); setGiftModalOpen(true); }}>
                               <Gift className="h-4 w-4 mr-2" />
@@ -918,6 +924,22 @@ export function AdminUsers() {
         onOpenChange={setNotifyModalOpen}
         preselectedUserId={selectedUser?.id}
         preselectedUserName={selectedUser?.full_name || selectedUser?.email || undefined}
+      />
+
+      {/* Adjust NCTR Modal */}
+      <AdminAdjustNCTRModal
+        open={adjustNCTRModalOpen}
+        onOpenChange={setAdjustNCTRModalOpen}
+        user={selectedUser ? {
+          id: selectedUser.id,
+          display_name: selectedUser.full_name,
+          email: selectedUser.email,
+          current_nctr_locked: selectedUser.locked_nctr,
+          current_tier: tierConfig[selectedUser.level]?.name.toLowerCase() || 'bronze',
+        } : null}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+        }}
       />
     </div>
   );
