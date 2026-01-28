@@ -6,7 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { 
   Coins, History, AlertTriangle, ChevronDown, ChevronUp, ExternalLink, Plus, Trash2, 
-  RefreshCw, Mail, CheckCheck, Clock, Eye, Gift, FileText 
+  RefreshCw, Mail, CheckCheck, Clock, Eye, Gift, FileText, Copy 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -220,6 +220,23 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
     enabled: !!adminUser?.user_id && open,
   });
 
+  // Fetch fresh profile data (BUG 3 FIX: always get latest balance)
+  const { data: freshProfileData, refetch: refetchProfile } = useQuery({
+    queryKey: ['fresh-profile-data', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id && open,
+    staleTime: 0, // Always fetch fresh
+  });
+
   // Fetch adjustment history
   const { data: adjustmentHistory, isLoading: historyLoading, refetch: refetchHistory } = useQuery({
     queryKey: ['nctr-adjustments', unifiedProfile?.id],
@@ -242,6 +259,14 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
     },
     enabled: !!unifiedProfile?.id && open,
   });
+
+  // BUG 3 FIX: Use fresh data for display and calculations
+  const currentBalance = (freshProfileData as any)?.locked_nctr ?? 
+                         (freshProfileData as any)?.nctr_locked ?? 
+                         (freshProfileData as any)?.nctr_balance ??
+                         user?.current_nctr_locked ?? 
+                         0;
+  const currentLevel = freshProfileData?.level ?? 1;
 
   // Fetch templates
   const { data: templates } = useQuery({
@@ -358,12 +383,14 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
     setConfirmLargeAdjustment(false);
   }, [amount]);
 
+  // BUG 3 FIX: Use fresh data for calculations
   const calculateNewBalance = () => {
-    if (!user) return 0;
+    const baseBalance = currentBalance;
     switch (adjustmentType) {
-      case 'add': return user.current_nctr_locked + amount;
-      case 'subtract': return Math.max(0, user.current_nctr_locked - amount);
+      case 'add': return baseBalance + amount;
+      case 'subtract': return Math.max(0, baseBalance - amount);
       case 'set': return amount;
+      default: return baseBalance;
     }
   };
 
@@ -416,11 +443,14 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
     setAdditionalWallets(updated);
   };
 
+  // BUG 4 FIX: Refresh button should also refetch profile
   const refreshData = () => {
     queryClient.invalidateQueries({ queryKey: ['admin-users'] });
     queryClient.invalidateQueries({ queryKey: ['nctr-adjustments', unifiedProfile?.id] });
     queryClient.invalidateQueries({ queryKey: ['unified-profile-for-adjustment', user?.id] });
+    queryClient.invalidateQueries({ queryKey: ['fresh-profile-data', user?.id] });
     refetchHistory();
+    refetchProfile();
     toast({ title: 'Data refreshed' });
   };
 
@@ -463,19 +493,64 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
         if (portfolioError) throw portfolioError;
       }
 
-      // 2. CRITICAL: Also update profiles table (this is where the UI reads from)
-      const { error: profilesError } = await supabase
+      // 2. CRITICAL: Update profiles table (this is where the UI reads from)
+      // BUG 1 FIX: First fetch profile to check which columns exist
+      const { data: profileData, error: profileFetchError } = await supabase
         .from('profiles')
-        .update({ 
-          locked_nctr: newBalance,
-          level: newLevel,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id); // user.id is the auth user id
+        .select('*')
+        .eq('id', user.id)
+        .single();
 
-      if (profilesError) {
-        console.error('Failed to update profiles:', profilesError);
-        // Don't throw - this is a sync issue, not a critical failure
+      if (profileFetchError) {
+        console.error('Failed to fetch profile:', profileFetchError);
+        toast({
+          title: 'Warning',
+          description: 'Failed to fetch user profile for update. Please verify.',
+          variant: 'destructive',
+        });
+      } else {
+        // Build update object based on what columns exist
+        const profileUpdate: Record<string, any> = {
+          updated_at: new Date().toISOString(),
+        };
+
+        // Check which NCTR column exists and update it
+        if ('locked_nctr' in profileData) {
+          profileUpdate.locked_nctr = newBalance;
+        }
+        if ('nctr_locked' in profileData) {
+          profileUpdate.nctr_locked = newBalance;
+        }
+        if ('nctr_balance' in profileData) {
+          profileUpdate.nctr_balance = newBalance;
+        }
+        if ('nctr_360_locked' in profileData) {
+          profileUpdate.nctr_360_locked = newBalance;
+        }
+        
+        // Update level/tier if they exist
+        if ('level' in profileData) {
+          profileUpdate.level = newLevel;
+        }
+        if ('tier' in profileData) {
+          profileUpdate.tier = finalTier;
+        }
+
+        const { error: profilesError } = await supabase
+          .from('profiles')
+          .update(profileUpdate)
+          .eq('id', user.id);
+
+        if (profilesError) {
+          console.error('Failed to update profiles:', profilesError);
+          toast({
+            title: 'Warning',
+            description: 'Adjustment logged but profile may not have updated. Please verify.',
+            variant: 'destructive',
+          });
+        } else {
+          console.log('Profile updated successfully:', profileUpdate);
+        }
       }
 
       // 3. Update unified_profiles crescendo_data for consistency
@@ -658,15 +733,23 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
               >
                 <RefreshCw className="w-4 h-4" />
               </Button>
+              {/* BUG 2 FIX: Copy user info instead of opening wrong profile */}
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  window.open(`/profile?user=${user?.id}`, '_blank');
+                  const userInfo = `
+User: ${user?.display_name || user?.email}
+ID: ${user?.id}
+Current NCTR: ${currentBalance.toLocaleString()}
+Tier: ${user?.current_tier}
+                  `.trim();
+                  navigator.clipboard.writeText(userInfo);
+                  toast({ title: 'User info copied to clipboard' });
                 }}
               >
-                <Eye className="w-4 h-4 mr-1" />
-                View Profile
+                <Copy className="w-4 h-4 mr-1" />
+                Copy Info
               </Button>
               <Button
                 variant="outline"
@@ -682,17 +765,17 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
           </div>
         </DialogHeader>
 
-        {/* Current Status Banner - Always visible */}
+        {/* Current Status Banner - Always visible (BUG 3 FIX: uses fresh data) */}
         <div className="bg-muted rounded-lg p-4 mb-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Current Balance</p>
-              <p className="text-3xl font-bold font-mono">{user?.current_nctr_locked?.toLocaleString() || 0} NCTR</p>
+              <p className="text-3xl font-bold font-mono">{currentBalance.toLocaleString()} NCTR</p>
             </div>
             <div className="text-right">
               <p className="text-sm text-muted-foreground">Current Tier</p>
               <Badge className="text-lg capitalize">
-                {TIER_EMOJIS[user?.current_tier || 'bronze']} {user?.current_tier || 'Bronze'}
+                {TIER_EMOJIS[getProjectedTier(currentBalance)] || '🥉'} Level {currentLevel}
               </Badge>
               {unifiedProfile?.tier_override && (
                 <p className="text-xs text-amber-600 mt-1">⚠️ Has manual override</p>
