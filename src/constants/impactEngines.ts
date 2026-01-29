@@ -1,5 +1,4 @@
 // Impact Engine Configuration - Scalable for future tokens
-import { Hexagon, Zap, Sparkles, Flame, Mountain } from 'lucide-react';
 
 export type ImpactEngineSlug = 'groundball' | 'throttle' | 'stardust' | 'sweat' | 'sisu';
 
