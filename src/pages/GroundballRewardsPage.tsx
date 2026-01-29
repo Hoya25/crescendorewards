@@ -295,11 +295,11 @@ export default function GroundballRewardsPage() {
             Contribute to the lacrosse community and earn tokens for rewards.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700">
+            <Link to="/groundball/gear-vault" className="p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-emerald-500/50 transition-all hover:bg-slate-800">
               <div className="text-3xl mb-2">🥍</div>
               <div className="font-semibold text-white">Donate Gear</div>
               <div className="text-sm text-slate-400">Contribute to Gear Vault</div>
-            </div>
+            </Link>
             <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700">
               <div className="text-3xl mb-2">📣</div>
               <div className="font-semibold text-white">Share & Engage</div>

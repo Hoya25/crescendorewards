@@ -868,7 +868,6 @@ export type Database = {
       }
       gear_vault_config: {
         Row: {
-          claim_cost: number | null
           contributor_groundball: number | null
           contributor_nctr: number | null
           created_at: string | null
@@ -878,7 +877,6 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          claim_cost?: number | null
           contributor_groundball?: number | null
           contributor_nctr?: number | null
           created_at?: string | null
@@ -888,7 +886,6 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          claim_cost?: number | null
           contributor_groundball?: number | null
           contributor_nctr?: number | null
           created_at?: string | null
@@ -902,7 +899,6 @@ export type Database = {
       gear_vault_items: {
         Row: {
           brand: string
-          claim_cost_groundball: number | null
           claimed_at: string | null
           claimer_id: string | null
           completed_at: string | null
@@ -924,7 +920,6 @@ export type Database = {
         }
         Insert: {
           brand: string
-          claim_cost_groundball?: number | null
           claimed_at?: string | null
           claimer_id?: string | null
           completed_at?: string | null
@@ -946,7 +941,6 @@ export type Database = {
         }
         Update: {
           brand?: string
-          claim_cost_groundball?: number | null
           claimed_at?: string | null
           claimer_id?: string | null
           completed_at?: string | null
