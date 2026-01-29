@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Trophy, Star, Sparkles, Shirt, Video, Heart, ArrowLeft, Lock } from 'lucide-react';
+import { Trophy, Star, Sparkles, Shirt, Video, Heart, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -41,7 +41,28 @@ const tierConfig: Record<string, { emoji: string; label: string; gradient: strin
   gold: { emoji: '🥇', label: 'Gold', gradient: 'from-amber-500/20 to-amber-600/10', border: 'border-amber-500/30' },
   silver: { emoji: '🥈', label: 'Silver', gradient: 'from-slate-400/20 to-slate-500/10', border: 'border-slate-400/30' },
   bronze: { emoji: '🥉', label: 'Bronze', gradient: 'from-orange-500/20 to-orange-600/10', border: 'border-orange-500/30' },
-  any: { emoji: '💚', label: 'Any Tier', gradient: 'from-emerald-500/20 to-emerald-600/10', border: 'border-emerald-500/30' },
+  any: { emoji: '💚', label: 'All Members', gradient: 'from-emerald-500/20 to-emerald-600/10', border: 'border-emerald-500/30' },
+};
+
+const getStatusEmoji = (status: string) => {
+  const emojis: Record<string, string> = { gold: '🥇', silver: '🥈', bronze: '🥉', any: '💚' };
+  return emojis[status] || '💚';
+};
+
+const getStatusLabel = (status: string) => {
+  const labels: Record<string, string> = { 
+    gold: 'Gold Status', 
+    silver: 'Silver Status', 
+    bronze: 'Bronze Status', 
+    any: 'All Members' 
+  };
+  return labels[status] || 'All Members';
+};
+
+const statusHierarchy = ['any', 'bronze', 'silver', 'gold'];
+
+const meetsRequirement = (userStatus: string, required: string) => {
+  return statusHierarchy.indexOf(userStatus) >= statusHierarchy.indexOf(required);
 };
 
 export default function GroundballRewardsPage() {
@@ -69,8 +90,9 @@ export default function GroundballRewardsPage() {
     selectedCategory === 'all' || reward.category === selectedCategory
   ) || [];
 
-  const crescendoData = profile?.crescendo_data as { locked_nctr?: number } | null;
+  const crescendoData = profile?.crescendo_data as { locked_nctr?: number; status_tier?: string } | null;
   const nctrLocked = crescendoData?.locked_nctr || 0;
+  const userStatus = crescendoData?.status_tier?.toLowerCase() || 'bronze';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950">
@@ -93,7 +115,7 @@ export default function GroundballRewardsPage() {
             </div>
             
             <div className="flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/30 px-4 py-2">
-              <Lock className="h-4 w-4 text-amber-400" />
+              <span className="text-amber-400">🔒</span>
               <span className="font-semibold text-amber-400">{nctrLocked.toLocaleString()}</span>
               <span className="text-xs text-slate-400">NCTR Locked</span>
             </div>
@@ -184,8 +206,9 @@ export default function GroundballRewardsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredRewards.map((reward) => {
-              const status = reward.required_status || 'any';
-              const tier = tierConfig[status] || tierConfig.any;
+              const requiredStatus = reward.required_status || 'any';
+              const tier = tierConfig[requiredStatus] || tierConfig.any;
+              const canUnlock = meetsRequirement(userStatus, requiredStatus);
               
               return (
                 <Card
@@ -201,13 +224,7 @@ export default function GroundballRewardsPage() {
                       <span className="text-5xl">{reward.image_emoji || '🎁'}</span>
                     </div>
                     
-                    {/* Badges */}
-                    <div className="absolute top-3 left-3 flex gap-2">
-                      <Badge variant="secondary" className="bg-slate-900/80 text-white text-xs">
-                        {tier.emoji} {tier.label} Status
-                      </Badge>
-                    </div>
-                    
+                    {/* Featured badge */}
                     {reward.is_featured && (
                       <div className="absolute top-3 right-3">
                         <Badge className="bg-amber-500 text-white text-xs">
@@ -242,18 +259,24 @@ export default function GroundballRewardsPage() {
                       </Badge>
                     )}
                     
-                    {/* Footer */}
+                    {/* Footer with status requirement */}
                     <div className="flex items-center justify-between pt-2 border-t border-slate-700">
-                      <div className="flex items-center gap-1.5">
-                        <Lock className="h-4 w-4 text-emerald-400" />
-                        <span className="font-medium text-emerald-400">{tier.label} Status Required</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{getStatusEmoji(requiredStatus)}</span>
+                        <span className="text-sm text-slate-400">{getStatusLabel(requiredStatus)}</span>
                       </div>
                       
                       <Button
                         size="sm"
-                        className="rounded-full bg-emerald-500 hover:bg-emerald-600 text-white"
+                        disabled={!canUnlock}
+                        className={cn(
+                          'rounded-full transition-all text-xs',
+                          canUnlock
+                            ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                            : 'bg-slate-600 text-slate-300 cursor-not-allowed'
+                        )}
                       >
-                        Claim
+                        {canUnlock ? 'Unlock' : `Reach ${tier.label}`}
                       </Button>
                     </div>
                   </CardContent>
