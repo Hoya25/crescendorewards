@@ -58,6 +58,7 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 const InviteLandingPage = lazy(() => import('./pages/InviteLandingPage'));
 const JoinRedirectPage = lazy(() => import('./pages/JoinRedirectPage'));
 const BenefitsPage = lazy(() => import('./components/benefits/BenefitsPage').then(m => ({ default: m.BenefitsPage })));
+const GroundballOverviewPage = lazy(() => import('./pages/GroundballOverviewPage'));
 const GroundballRewardsPage = lazy(() => import('./pages/GroundballRewardsPage'));
 const MyGroundballRewardsPage = lazy(() => import('./pages/MyGroundballRewardsPage'));
 const GearVaultPage = lazy(() => import('./pages/GearVaultPage'));
@@ -134,6 +135,7 @@ function AppRoutes() {
             <Route path="/sponsors/:slug" element={<SponsorProfilePage />} />
             
             {/* GROUNDBALL Impact Engine */}
+            <Route path="/groundball" element={<GroundballOverviewPage />} />
             <Route path="/groundball/rewards" element={<GroundballRewardsPage />} />
             <Route 
               path="/groundball/my-rewards" 

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Filter, Sparkles, Plus, Coins } from 'lucide-react';
+import { Filter, Sparkles, Plus, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGroundballStatus, type GroundballReward, BONUS_SLOT_COST, SWAP_COST } from '@/hooks/useGroundballStatus';
 import { GroundballStatusBadge } from '@/components/groundball/GroundballStatusBadge';
@@ -11,28 +11,14 @@ import { GroundballRewardCard } from '@/components/groundball/GroundballRewardCa
 import { SelectRewardModal } from '@/components/groundball/SelectRewardModal';
 import { SwapRewardModal } from '@/components/groundball/SwapRewardModal';
 import { BonusSlotModal } from '@/components/groundball/BonusSlotModal';
+import { GroundballSecondaryNav } from '@/components/groundball/GroundballSecondaryNav';
+import { 
+  RewardsCatalogFilters, 
+  useRewardFilters, 
+  filterRewards 
+} from '@/components/groundball/RewardsCatalog';
 
 type StatusFilter = 'available' | 'all' | 'my-selections';
-type CategoryFilter = 'all' | 'experiences' | 'gear' | 'apparel' | 'services' | 'giveback';
-type CadenceFilter = 'all' | 'daily' | 'monthly' | 'quarterly' | 'annual' | 'one_time';
-
-const CATEGORY_OPTIONS: { key: CategoryFilter; label: string; emoji: string }[] = [
-  { key: 'all', label: 'All', emoji: '🎯' },
-  { key: 'experiences', label: 'Experiences', emoji: '⭐' },
-  { key: 'gear', label: 'Gear', emoji: '🥍' },
-  { key: 'apparel', label: 'Apparel', emoji: '👕' },
-  { key: 'services', label: 'Services', emoji: '📹' },
-  { key: 'giveback', label: 'Give Back', emoji: '💚' },
-];
-
-const CADENCE_OPTIONS: { key: CadenceFilter; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'daily', label: 'Daily' },
-  { key: 'monthly', label: 'Monthly' },
-  { key: 'quarterly', label: 'Quarterly' },
-  { key: 'annual', label: 'Annual' },
-  { key: 'one_time', label: 'One-Time' },
-];
 
 const STATUS_HIERARCHY = ['any', 'none', 'bronze', 'silver', 'gold'];
 
@@ -51,12 +37,12 @@ export default function GroundballRewardsPage() {
     freeSwaps,
     bonusSlots,
     claimsBalance,
-    canAffordBonusSlot,
   } = useGroundballStatus();
 
+  // URL-synced filters from RewardsCatalog
+  const { filters, setFilters, activeFilterCount, clearFilters } = useRewardFilters();
+  
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('available');
-  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
-  const [cadenceFilter, setCadenceFilter] = useState<CadenceFilter>('all');
   const [sponsorFilter, setSponsorFilter] = useState<string>('all');
   
   const [selectModalOpen, setSelectModalOpen] = useState(false);
@@ -71,8 +57,11 @@ export default function GroundballRewardsPage() {
   // Get unique sponsors for filter
   const sponsors = [...new Set(rewards.filter(r => r.sponsor).map(r => r.sponsor!))];
 
-  // Filter rewards
-  const filteredRewards = rewards.filter(reward => {
+  // Filter rewards using the reusable filter function
+  const baseFilteredRewards = filterRewards(rewards, filters);
+  
+  // Apply additional status filter (available to me, all, my-selections)
+  const filteredRewards = baseFilteredRewards.filter(reward => {
     // Status filter
     if (statusFilter === 'available') {
       const requiredTier = reward.required_status || 'any';
@@ -83,12 +72,6 @@ export default function GroundballRewardsPage() {
       const isSelected = selections.some(s => s.reward_id === reward.id);
       if (!isSelected) return false;
     }
-    
-    // Category filter
-    if (categoryFilter !== 'all' && reward.category !== categoryFilter) return false;
-    
-    // Cadence filter
-    if (cadenceFilter !== 'all' && reward.cadence !== cadenceFilter) return false;
     
     // Sponsor filter
     if (sponsorFilter !== 'all' && reward.sponsor !== sponsorFilter) return false;
@@ -130,22 +113,15 @@ export default function GroundballRewardsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950">
-      {/* Header */}
+      {/* Header with Secondary Nav */}
       <header className="sticky top-0 z-50 border-b border-emerald-500/20 bg-slate-950/80 backdrop-blur-xl">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link to="/dashboard">
-                <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                  <span className="text-2xl">🥍</span> GROUNDBALL Rewards
-                </h1>
-                <p className="text-sm text-slate-400">Select your rewards</p>
-              </div>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-xl font-bold text-white flex items-center gap-2">
+                <span className="text-2xl">🥍</span> GROUNDBALL Rewards
+              </h1>
+              <p className="text-sm text-slate-400">Select your rewards</p>
             </div>
             
             {/* Claims Balance & Selections Counter */}
@@ -157,7 +133,7 @@ export default function GroundballRewardsPage() {
               </div>
 
               {/* Selections */}
-              <div className="text-right">
+              <div className="text-right hidden sm:block">
                 <div className="text-sm text-slate-400">Selections</div>
                 <div className="font-semibold text-white">
                   {usedSlots} of {totalSlots}
@@ -166,7 +142,7 @@ export default function GroundballRewardsPage() {
                   )}
                 </div>
               </div>
-              <div className="flex gap-1">
+              <div className="hidden sm:flex gap-1">
                 {Array.from({ length: totalSlots }).map((_, i) => (
                   <div
                     key={i}
@@ -180,12 +156,13 @@ export default function GroundballRewardsPage() {
             </div>
           </div>
 
+          {/* Secondary Navigation */}
+          <GroundballSecondaryNav className="mb-4" />
+
           {/* No Slots Remaining Banner */}
           {hasNoSlotsRemaining && (
-            <div className="mt-3 flex items-center justify-between p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
-              <div className="flex items-center gap-2">
-                <span className="text-amber-400 text-sm">No slots remaining</span>
-              </div>
+            <div className="flex items-center justify-between p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
+              <span className="text-amber-400 text-sm">No slots remaining</span>
               <Button
                 size="sm"
                 onClick={() => setBonusSlotModalOpen(true)}
@@ -207,12 +184,12 @@ export default function GroundballRewardsPage() {
       </section>
 
       {/* Filter Bar */}
-      <section className="sticky top-[73px] z-40 border-b border-emerald-500/20 bg-slate-950/80 backdrop-blur-xl">
-        <div className="container mx-auto px-4 py-3 space-y-3">
-          {/* Status Filter */}
-          <div className="flex items-center gap-2">
+      <section className="sticky top-[180px] z-40 border-b border-emerald-500/20 bg-slate-950/80 backdrop-blur-xl">
+        <div className="container mx-auto px-4 py-3 space-y-4">
+          {/* Status Filter Tabs */}
+          <div className="flex items-center gap-2 flex-wrap">
             <Filter className="w-4 h-4 text-slate-400" />
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               {[
                 { key: 'available' as StatusFilter, label: 'Available to Me' },
                 { key: 'all' as StatusFilter, label: 'All Rewards' },
@@ -241,58 +218,30 @@ export default function GroundballRewardsPage() {
             </div>
           </div>
 
-          {/* Category Filter */}
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {CATEGORY_OPTIONS.map(cat => (
-              <Button
-                key={cat.key}
-                variant={categoryFilter === cat.key ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setCategoryFilter(cat.key)}
-                className={cn(
-                  'whitespace-nowrap rounded-full text-xs',
-                  categoryFilter === cat.key
-                    ? 'bg-emerald-600 text-white'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
-                )}
-              >
-                <span className="mr-1">{cat.emoji}</span>
-                {cat.label}
-              </Button>
-            ))}
-          </div>
+          {/* URL-synced Filters */}
+          <RewardsCatalogFilters
+            filters={filters}
+            onFiltersChange={setFilters}
+            activeFilterCount={activeFilterCount}
+            onClearFilters={clearFilters}
+          />
 
-          {/* Cadence & Sponsor Filters */}
-          <div className="flex gap-4 flex-wrap">
+          {/* Sponsor Filter */}
+          {sponsors.length > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500">Cadence:</span>
+              <span className="text-xs text-slate-500">Sponsor:</span>
               <select
-                value={cadenceFilter}
-                onChange={e => setCadenceFilter(e.target.value as CadenceFilter)}
+                value={sponsorFilter}
+                onChange={e => setSponsorFilter(e.target.value)}
                 className="text-xs bg-slate-800 border border-slate-700 rounded-md px-2 py-1 text-slate-300"
               >
-                {CADENCE_OPTIONS.map(opt => (
-                  <option key={opt.key} value={opt.key}>{opt.label}</option>
+                <option value="all">All</option>
+                {sponsors.map(s => (
+                  <option key={s} value={s}>{s}</option>
                 ))}
               </select>
             </div>
-            
-            {sponsors.length > 0 && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500">Sponsor:</span>
-                <select
-                  value={sponsorFilter}
-                  onChange={e => setSponsorFilter(e.target.value)}
-                  className="text-xs bg-slate-800 border border-slate-700 rounded-md px-2 py-1 text-slate-300"
-                >
-                  <option value="all">All</option>
-                  {sponsors.map(s => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </section>
 

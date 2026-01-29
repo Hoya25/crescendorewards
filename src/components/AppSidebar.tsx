@@ -1,7 +1,8 @@
-import { Store, LayoutDashboard, Gift, Trophy, Crown, User, Heart, FileCheck, Receipt, BarChart3, Settings, UtensilsCrossed, Coins, Shield, ShoppingBag, ExternalLink, CheckCircle2, ChevronRight, TrendingUp, Ticket, Building2, Sparkles, PieChart, Send, UserPlus } from 'lucide-react';
+import { Store, LayoutDashboard, Gift, Trophy, Crown, User, Heart, FileCheck, Receipt, BarChart3, Settings, UtensilsCrossed, Coins, Shield, ShoppingBag, ExternalLink, CheckCircle2, ChevronRight, TrendingUp, Ticket, Building2, Sparkles, PieChart, Send, UserPlus, Wallet, Leaf } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
+import { ImpactEnginesNav } from '@/components/navigation/ImpactEnginesNav';
 import { useProfileCompletion } from '@/hooks/useProfileCompletion';
 import { StatusBadge, TierProgress } from '@/components/StatusBadge';
 
@@ -258,6 +259,9 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Impact Engines Section */}
+        <ImpactEnginesNav onNavigate={onNavigate} />
 
         {/* Browse - HIDDEN FOR REWARDS-FOCUSED PHASE */}
         {/* TODO: Restore when re-enabling brand partnerships */}
