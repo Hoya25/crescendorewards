@@ -982,6 +982,7 @@ export type Database = {
           cadence: string | null
           cadence_description: string | null
           category: string | null
+          claims_cost: number | null
           created_at: string | null
           description: string | null
           id: string
@@ -990,10 +991,14 @@ export type Database = {
           is_active: boolean | null
           is_featured: boolean | null
           is_giveback: boolean | null
+          is_limited: boolean | null
           multiplier_text: string | null
           quantity_available: number | null
+          quantity_claimed: number | null
           required_status: string | null
           sponsor: string | null
+          sponsor_logo_url: string | null
+          sponsor_name: string | null
           tier: string | null
           title: string
           updated_at: string | null
@@ -1002,6 +1007,7 @@ export type Database = {
           cadence?: string | null
           cadence_description?: string | null
           category?: string | null
+          claims_cost?: number | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -1010,10 +1016,14 @@ export type Database = {
           is_active?: boolean | null
           is_featured?: boolean | null
           is_giveback?: boolean | null
+          is_limited?: boolean | null
           multiplier_text?: string | null
           quantity_available?: number | null
+          quantity_claimed?: number | null
           required_status?: string | null
           sponsor?: string | null
+          sponsor_logo_url?: string | null
+          sponsor_name?: string | null
           tier?: string | null
           title: string
           updated_at?: string | null
@@ -1022,6 +1032,7 @@ export type Database = {
           cadence?: string | null
           cadence_description?: string | null
           category?: string | null
+          claims_cost?: number | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -1030,10 +1041,14 @@ export type Database = {
           is_active?: boolean | null
           is_featured?: boolean | null
           is_giveback?: boolean | null
+          is_limited?: boolean | null
           multiplier_text?: string | null
           quantity_available?: number | null
+          quantity_claimed?: number | null
           required_status?: string | null
           sponsor?: string | null
+          sponsor_logo_url?: string | null
+          sponsor_name?: string | null
           tier?: string | null
           title?: string
           updated_at?: string | null
