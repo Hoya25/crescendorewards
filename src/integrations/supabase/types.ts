@@ -1103,6 +1103,51 @@ export type Database = {
           },
         ]
       }
+      member_reward_selections: {
+        Row: {
+          id: string
+          is_active: boolean | null
+          last_redeemed_at: string | null
+          member_id: string | null
+          redemption_count: number | null
+          reward_id: string | null
+          selected_at: string | null
+        }
+        Insert: {
+          id?: string
+          is_active?: boolean | null
+          last_redeemed_at?: string | null
+          member_id?: string | null
+          redemption_count?: number | null
+          reward_id?: string | null
+          selected_at?: string | null
+        }
+        Update: {
+          id?: string
+          is_active?: boolean | null
+          last_redeemed_at?: string | null
+          member_id?: string | null
+          redemption_count?: number | null
+          reward_id?: string | null
+          selected_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_reward_selections_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_reward_selections_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "groundball_rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       membership_history: {
         Row: {
           created_at: string
