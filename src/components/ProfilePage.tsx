@@ -33,8 +33,7 @@ import type { Profile } from '@/types';
 import { useDeliveryProfile } from '@/hooks/useDeliveryProfile';
 import { PortfolioSummaryCard } from '@/components/PortfolioSummaryCard';
 import { ProfileActivityStats } from '@/components/profile/ProfileActivityStats';
-
-// Helper to extract Crescendo data from unified profile
+import { GroundballStatusBadge } from '@/components/groundball/GroundballStatusBadge';
 const getCrescendoData = (profile: any) => {
   const crescendoData = profile?.crescendo_data || {};
   return {
@@ -414,6 +413,9 @@ export function ProfilePage() {
                 </p>
               </CardContent>
             </Card>
+
+            {/* GROUNDBALL Status Badge */}
+            <GroundballStatusBadge size="lg" showProgress showSelections />
 
             {/* Your Status Benefits Card */}
             <Card 

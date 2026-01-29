@@ -29,6 +29,7 @@ import { FeaturedRewardsCarousel } from "./rewards/FeaturedRewardsCarousel";
 import { BetaTestingNotice } from "./BetaTestingNotice";
 import { InviteHeaderCTA } from "./navigation/InviteHeaderCTA";
 import { EarnNCTRQuickCard } from "./dashboard/EarnNCTRQuickCard";
+import { GroundballDashboardWidget } from "./dashboard/GroundballDashboardWidget";
 import { ReferredWelcomeModal } from "./referral/ReferredWelcomeModal";
 import { REFERRAL_REWARDS } from "@/constants/referral";
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress, getNCTRNeededForNextLevel } from '@/utils/membershipLevels';
@@ -531,11 +532,16 @@ export function Dashboard() {
               {/* 3. Simplified Quick Actions (3 cards) */}
               <SimplifiedQuickActions navigate={navigate} claimBalance={claimBalance} allocation={allocation} />
 
-              {/* 4. Portfolio, Claims & Earn Section */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <PortfolioSummaryCard />
-                <ClaimsAccountDashboard />
-                <EarnNCTRQuickCard />
+              {/* 4. Portfolio, Claims, Earn & GROUNDBALL Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-6">
+                  <PortfolioSummaryCard />
+                  <ClaimsAccountDashboard />
+                </div>
+                <div className="space-y-6">
+                  <GroundballDashboardWidget />
+                  <EarnNCTRQuickCard />
+                </div>
               </div>
 
               {/* 5. Featured Rewards Carousel */}
