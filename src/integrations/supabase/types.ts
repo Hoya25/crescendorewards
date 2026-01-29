@@ -1103,6 +1103,59 @@ export type Database = {
           },
         ]
       }
+      member_groundball_status: {
+        Row: {
+          bonus_selections: number | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          free_swaps_remaining: number | null
+          groundball_locked: number | null
+          id: string
+          member_id: string
+          selections_max: number | null
+          selections_used: number | null
+          status_tier: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          bonus_selections?: number | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          free_swaps_remaining?: number | null
+          groundball_locked?: number | null
+          id?: string
+          member_id: string
+          selections_max?: number | null
+          selections_used?: number | null
+          status_tier?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          bonus_selections?: number | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          free_swaps_remaining?: number | null
+          groundball_locked?: number | null
+          id?: string
+          member_id?: string
+          selections_max?: number | null
+          selections_used?: number | null
+          status_tier?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_groundball_status_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       member_reward_selections: {
         Row: {
           id: string
