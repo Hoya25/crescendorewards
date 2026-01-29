@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
+import { useDemoMode } from '@/contexts/DemoModeContext';
 import { toast } from 'sonner';
 
 // Costs in Claims
@@ -56,7 +57,20 @@ export function useGroundballStatus() {
   const { profile, refreshUnifiedProfile } = useUnifiedUser();
   const queryClient = useQueryClient();
   const memberId = profile?.auth_user_id;
-  const claimsBalance = profile?.crescendo_data?.claims_balance || 0;
+  const realClaimsBalance = profile?.crescendo_data?.claims_balance || 0;
+  
+  // Demo mode integration
+  let demoContext: ReturnType<typeof useDemoMode> | null = null;
+  try {
+    demoContext = useDemoMode();
+  } catch {
+    // Not in a DemoModeProvider - ignore
+  }
+  const isDemoMode = demoContext?.isDemoMode || false;
+  const demoMode = demoContext?.demoMode;
+  
+  // Use demo values when demo mode is enabled
+  const claimsBalance = isDemoMode ? (demoMode?.claimsBalance || 100) : realClaimsBalance;
 
   // Fetch member status
   const { data: status, isLoading: statusLoading } = useQuery({
@@ -322,6 +336,20 @@ export function useGroundballStatus() {
     },
   });
 
+  // Demo mode overrides
+  const effectiveStatus = isDemoMode && demoMode ? {
+    id: 'demo',
+    member_id: 'demo',
+    groundball_locked: demoMode.groundballLocked,
+    status_tier: demoMode.statusTier as 'none' | 'bronze' | 'silver' | 'gold',
+    selections_used: demoMode.selectionsUsed,
+    selections_max: demoMode.selectionsMax,
+    bonus_selections: demoMode.bonusSelections,
+    free_swaps_remaining: demoMode.freeSwapsRemaining,
+    current_period_start: null,
+    current_period_end: null,
+  } : status;
+
   // Helper functions
   const meetsStatusRequirement = (userTier: string, requiredTier: string): boolean => {
     if (requiredTier === 'any') return true;
@@ -331,11 +359,11 @@ export function useGroundballStatus() {
   const getSelectionState = (rewardId: string) => {
     const reward = rewards?.find(r => r.id === rewardId);
     const isSelected = selections?.some(s => s.reward_id === rewardId);
-    const userTier = status?.status_tier || 'none';
+    const userTier = effectiveStatus?.status_tier || 'none';
     const requiredTier = reward?.required_status || 'any';
     const meetsStatus = meetsStatusRequirement(userTier, requiredTier);
-    const totalSlots = (status?.selections_max || 0) + (status?.bonus_selections || 0);
-    const usedSlots = status?.selections_used || 0;
+    const totalSlots = (effectiveStatus?.selections_max || 0) + (effectiveStatus?.bonus_selections || 0);
+    const usedSlots = effectiveStatus?.selections_used || 0;
     const hasSlots = usedSlots < totalSlots;
     const isGiveback = reward?.is_giveback || false;
     
@@ -347,7 +375,7 @@ export function useGroundballStatus() {
   };
 
   return {
-    status,
+    status: effectiveStatus,
     rewards: rewards || [],
     selections: selections || [],
     isLoading: statusLoading || rewardsLoading || selectionsLoading,
@@ -356,12 +384,13 @@ export function useGroundballStatus() {
     purchaseBonusSlot,
     meetsStatusRequirement,
     getSelectionState,
-    totalSlots: (status?.selections_max || 0) + (status?.bonus_selections || 0),
-    usedSlots: status?.selections_used || 0,
-    freeSwaps: status?.free_swaps_remaining || 0,
-    bonusSlots: status?.bonus_selections || 0,
+    totalSlots: (effectiveStatus?.selections_max || 0) + (effectiveStatus?.bonus_selections || 0),
+    usedSlots: effectiveStatus?.selections_used || 0,
+    freeSwaps: effectiveStatus?.free_swaps_remaining || 0,
+    bonusSlots: effectiveStatus?.bonus_selections || 0,
     claimsBalance,
     canAffordBonusSlot: claimsBalance >= BONUS_SLOT_COST,
     canAffordSwap: claimsBalance >= SWAP_COST,
+    isDemoMode,
   };
 }

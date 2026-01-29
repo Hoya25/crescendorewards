@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +9,7 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import { AuthProvider, useAuthContext } from "./contexts/AuthContext";
 import { UnifiedUserProvider, useUnifiedUser } from "./contexts/UnifiedUserContext";
 import { ActivityTrackerProvider } from "./contexts/ActivityTrackerContext";
+import { DemoModeProvider } from "./contexts/DemoModeContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminRoute } from "./components/AdminRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -16,6 +17,7 @@ import { RouteLoading, PageLoading } from "./components/RouteLoading";
 import { DevToolsPanel } from "./components/DevToolsPanel";
 import { MobileBottomNav } from "./components/navigation/MobileBottomNav";
 import { BetaBanner } from "./components/BetaBanner";
+import { DemoModeToggle } from "./components/groundball/DemoModeToggle";
 import { useClaimDeliveryNotifications } from "./hooks/useClaimDeliveryNotifications";
 
 // Eagerly loaded components (critical path)
@@ -384,6 +386,8 @@ function AppRoutes() {
       {isAuthenticated && <MobileBottomNav />}
       {/* Developer tools panel - only in development */}
       {import.meta.env.DEV && <DevToolsPanel />}
+      {/* Demo mode toggle - visible in dev/preview */}
+      <DemoModeToggle />
     </div>
   );
 }
@@ -398,7 +402,9 @@ const App = () => (
           <AuthProvider>
             <UnifiedUserProvider>
               <ActivityTrackerProvider>
-                <AppRoutes />
+                <DemoModeProvider>
+                  <AppRoutes />
+                </DemoModeProvider>
               </ActivityTrackerProvider>
             </UnifiedUserProvider>
           </AuthProvider>
