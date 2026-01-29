@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Package, MapPin, AlertCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Package, MapPin, AlertCircle, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { GroundballPageLayout } from '@/components/groundball/GroundballPageLayout';
 
 interface GearVaultItem {
   id: string;
@@ -103,27 +103,10 @@ export default function GearVaultPage() {
   const isLoading = itemsLoading || configLoading;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-emerald-500/20 bg-slate-950/80 backdrop-blur-xl">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link to="/groundball/rewards">
-              <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-xl font-bold text-white flex items-center gap-2">
-                <Package className="h-5 w-5 text-emerald-400" />
-                Gear Vault
-              </h1>
-              <p className="text-sm text-slate-400">Community equipment sharing</p>
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <GroundballPageLayout 
+      title="Gear Vault" 
+      subtitle="Community equipment sharing"
+    >
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-emerald-500/20">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent" />
@@ -135,6 +118,18 @@ export default function GearVaultPage() {
             <p className="text-slate-400">
               Contribute your old equipment to help others, or claim gear you need.
             </p>
+            
+            {/* Quick Stats */}
+            <div className="flex justify-center gap-6 mt-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-emerald-400">{gearItems?.length || 0}</div>
+                <div className="text-xs text-slate-400">Items Available</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-amber-400">{gearConfig?.length || 0}</div>
+                <div className="text-xs text-slate-400">Item Types</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -316,6 +311,6 @@ export default function GearVaultPage() {
           </TabsContent>
         </Tabs>
       </section>
-    </div>
+    </GroundballPageLayout>
   );
 }

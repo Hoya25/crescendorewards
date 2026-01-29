@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PageContainer } from '@/components/layout/PageContainer';
+import { GroundballPageLayout } from '@/components/groundball/GroundballPageLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -67,34 +67,28 @@ export default function MyGroundballRewardsPage() {
 
   if (isLoading) {
     return (
-      <PageContainer>
-        <div className="space-y-6">
-          <Skeleton className="h-40 w-full" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Skeleton className="h-64 w-full" />
-            <Skeleton className="h-64 w-full" />
-            <Skeleton className="h-64 w-full" />
+      <GroundballPageLayout title="My Rewards" subtitle="Manage your active selections">
+        <div className="container mx-auto px-4 py-8">
+          <div className="space-y-6">
+            <Skeleton className="h-40 w-full" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Skeleton className="h-64 w-full" />
+              <Skeleton className="h-64 w-full" />
+              <Skeleton className="h-64 w-full" />
+            </div>
           </div>
         </div>
-      </PageContainer>
+      </GroundballPageLayout>
     );
   }
 
   return (
-    <PageContainer>
-      <div className="space-y-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-              🥍 My GROUNDBALL Rewards
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Manage your active reward selections
-            </p>
-          </div>
-        </div>
-
+    <GroundballPageLayout 
+      title="My Rewards" 
+      subtitle="Manage your active selections"
+      showStatusBadge
+    >
+      <div className="container mx-auto px-4 py-8 space-y-8 pb-24">
         {/* Status Summary Card */}
         <Card className={cn('border-2', statusConfig.borderColor, statusConfig.bgColor)}>
           <CardContent className="p-6">
@@ -297,7 +291,7 @@ export default function MyGroundballRewardsPage() {
         }}
         isLoading={purchaseBonusSlot.isPending}
       />
-    </PageContainer>
+    </GroundballPageLayout>
   );
 }
 
