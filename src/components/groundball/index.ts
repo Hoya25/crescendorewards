@@ -5,6 +5,7 @@ export { SwapRewardModal } from './SwapRewardModal';
 export { RedemptionModal } from './RedemptionModal';
 export { BonusSlotModal } from './BonusSlotModal';
 export { GroundballSecondaryNav, GroundballSecondaryNavWrapper } from './GroundballSecondaryNav';
+export { GroundballPageLayout } from './GroundballPageLayout';
 export { RewardsCatalog, RewardsCatalogFilters, useRewardFilters, filterRewards } from './RewardsCatalog';
 export { DemoModeToggle } from './DemoModeToggle';
 export { default as GroundballDashboardWidget } from '../dashboard/GroundballDashboardWidget';
