@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Trophy, Star, Sparkles, Shirt, Video, Heart, ArrowLeft, Coins, Lock } from 'lucide-react';
+import { Trophy, Star, Sparkles, Shirt, Video, Heart, ArrowLeft, Lock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -19,7 +19,7 @@ interface GroundballReward {
   sponsor: string | null;
   category: string | null;
   tier: string | null;
-  cost_groundball: number;
+  required_status: string | null;
   image_url: string | null;
   image_emoji: string | null;
   multiplier_text: string | null;
@@ -57,7 +57,7 @@ export default function GroundballRewardsPage() {
         .select('*')
         .eq('is_active', true)
         .order('is_featured', { ascending: false })
-        .order('cost_groundball', { ascending: true });
+        .order('title', { ascending: true });
       
       if (error) throw error;
       return data as GroundballReward[];
@@ -69,8 +69,6 @@ export default function GroundballRewardsPage() {
     selectedCategory === 'all' || reward.category === selectedCategory
   ) || [];
 
-  // Mock GROUNDBALL balance (would come from user profile in production)
-  const groundballBalance = 0;
   const crescendoData = profile?.crescendo_data as { locked_nctr?: number } | null;
   const nctrLocked = crescendoData?.locked_nctr || 0;
 
@@ -94,17 +92,10 @@ export default function GroundballRewardsPage() {
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-4 py-2">
-                <Coins className="h-4 w-4 text-emerald-400" />
-                <span className="font-semibold text-emerald-400">{groundballBalance.toLocaleString()}</span>
-                <span className="text-xs text-slate-400">GROUNDBALL</span>
-              </div>
-              <div className="hidden sm:flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/30 px-4 py-2">
-                <Lock className="h-4 w-4 text-amber-400" />
-                <span className="font-semibold text-amber-400">{nctrLocked.toLocaleString()}</span>
-                <span className="text-xs text-slate-400">NCTR</span>
-              </div>
+            <div className="flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/30 px-4 py-2">
+              <Lock className="h-4 w-4 text-amber-400" />
+              <span className="font-semibold text-amber-400">{nctrLocked.toLocaleString()}</span>
+              <span className="text-xs text-slate-400">NCTR Locked</span>
             </div>
           </div>
         </div>
@@ -193,8 +184,8 @@ export default function GroundballRewardsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredRewards.map((reward) => {
-              const tier = tierConfig[reward.tier || 'any'] || tierConfig.any;
-              const canAfford = groundballBalance >= reward.cost_groundball;
+              const status = reward.required_status || 'any';
+              const tier = tierConfig[status] || tierConfig.any;
               
               return (
                 <Card
@@ -213,7 +204,7 @@ export default function GroundballRewardsPage() {
                     {/* Badges */}
                     <div className="absolute top-3 left-3 flex gap-2">
                       <Badge variant="secondary" className="bg-slate-900/80 text-white text-xs">
-                        {tier.emoji} {tier.label}
+                        {tier.emoji} {tier.label} Status
                       </Badge>
                     </div>
                     
@@ -254,22 +245,15 @@ export default function GroundballRewardsPage() {
                     {/* Footer */}
                     <div className="flex items-center justify-between pt-2 border-t border-slate-700">
                       <div className="flex items-center gap-1.5">
-                        <Coins className="h-4 w-4 text-emerald-400" />
-                        <span className="font-bold text-emerald-400">{reward.cost_groundball}</span>
-                        <span className="text-xs text-slate-500">GROUNDBALL</span>
+                        <Lock className="h-4 w-4 text-emerald-400" />
+                        <span className="font-medium text-emerald-400">{tier.label} Status Required</span>
                       </div>
                       
                       <Button
                         size="sm"
-                        disabled={!canAfford}
-                        className={cn(
-                          'rounded-full transition-all',
-                          canAfford
-                            ? 'bg-emerald-500 hover:bg-emerald-600 text-white'
-                            : 'bg-slate-700 text-slate-400 cursor-not-allowed'
-                        )}
+                        className="rounded-full bg-emerald-500 hover:bg-emerald-600 text-white"
                       >
-                        {canAfford ? 'Claim' : 'Earn More'}
+                        Claim
                       </Button>
                     </div>
                   </CardContent>

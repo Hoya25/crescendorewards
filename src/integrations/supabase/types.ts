@@ -986,7 +986,6 @@ export type Database = {
       groundball_rewards: {
         Row: {
           category: string | null
-          cost_groundball: number
           created_at: string | null
           description: string | null
           id: string
@@ -996,6 +995,7 @@ export type Database = {
           is_featured: boolean | null
           multiplier_text: string | null
           quantity_available: number | null
+          required_status: string | null
           sponsor: string | null
           tier: string | null
           title: string
@@ -1003,7 +1003,6 @@ export type Database = {
         }
         Insert: {
           category?: string | null
-          cost_groundball?: number
           created_at?: string | null
           description?: string | null
           id?: string
@@ -1013,6 +1012,7 @@ export type Database = {
           is_featured?: boolean | null
           multiplier_text?: string | null
           quantity_available?: number | null
+          required_status?: string | null
           sponsor?: string | null
           tier?: string | null
           title: string
@@ -1020,7 +1020,6 @@ export type Database = {
         }
         Update: {
           category?: string | null
-          cost_groundball?: number
           created_at?: string | null
           description?: string | null
           id?: string
@@ -1030,6 +1029,7 @@ export type Database = {
           is_featured?: boolean | null
           multiplier_text?: string | null
           quantity_available?: number | null
+          required_status?: string | null
           sponsor?: string | null
           tier?: string | null
           title?: string
