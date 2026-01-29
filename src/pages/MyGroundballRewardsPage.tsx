@@ -14,12 +14,13 @@ import {
   Plus,
   ExternalLink,
   Gift,
-  Sparkles
+  Coins
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useGroundballStatus, type RewardSelection, type GroundballReward } from '@/hooks/useGroundballStatus';
+import { useGroundballStatus, type RewardSelection, type GroundballReward, SWAP_COST, BONUS_SLOT_COST } from '@/hooks/useGroundballStatus';
 import { SwapRewardModal } from '@/components/groundball/SwapRewardModal';
 import { RedemptionModal } from '@/components/groundball/RedemptionModal';
+import { BonusSlotModal } from '@/components/groundball/BonusSlotModal';
 
 const STATUS_CONFIG = {
   none: { emoji: '○', label: 'No Status', color: 'text-muted-foreground', bgColor: 'bg-muted/50', borderColor: 'border-muted' },
@@ -36,8 +37,6 @@ const CADENCE_LABELS: Record<string, string> = {
   one_time: 'One-Time',
 };
 
-const SWAP_COST = 15; // Claims cost for paid swaps
-
 export default function MyGroundballRewardsPage() {
   const { 
     status, 
@@ -46,11 +45,15 @@ export default function MyGroundballRewardsPage() {
     totalSlots, 
     usedSlots, 
     freeSwaps,
+    bonusSlots,
+    claimsBalance,
     swapReward,
+    purchaseBonusSlot,
   } = useGroundballStatus();
   
   const [swapModalSelection, setSwapModalSelection] = useState<RewardSelection | null>(null);
   const [redeemModalSelection, setRedeemModalSelection] = useState<RewardSelection | null>(null);
+  const [bonusSlotModalOpen, setBonusSlotModalOpen] = useState(false);
 
   const statusTier = status?.status_tier || 'none';
   const statusConfig = STATUS_CONFIG[statusTier as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.none;
@@ -111,6 +114,12 @@ export default function MyGroundballRewardsPage() {
 
               {/* Stats */}
               <div className="flex flex-wrap gap-6">
+                {/* Claims Balance */}
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30">
+                  <Coins className="w-4 h-4 text-amber-400" />
+                  <span className="text-sm font-medium text-amber-400">{claimsBalance} Claims</span>
+                </div>
+
                 {/* Selections */}
                 <div className="text-center">
                   <div className="flex items-center gap-1 justify-center mb-1">
@@ -138,9 +147,9 @@ export default function MyGroundballRewardsPage() {
                 </div>
 
                 {/* Bonus Slots */}
-                {(status?.bonus_selections || 0) > 0 && (
+                {bonusSlots > 0 && (
                   <div className="text-center">
-                    <p className="text-2xl font-bold text-amber-400">+{status?.bonus_selections}</p>
+                    <p className="text-2xl font-bold text-amber-400">+{bonusSlots}</p>
                     <p className="text-sm text-muted-foreground">
                       Bonus slots
                     </p>
@@ -156,9 +165,13 @@ export default function MyGroundballRewardsPage() {
                     Browse Rewards
                   </Link>
                 </Button>
-                <Button variant="secondary">
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Get Bonus Slot
+                <Button 
+                  variant="secondary" 
+                  onClick={() => setBonusSlotModalOpen(true)}
+                  className="bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Get Bonus Slot • {BONUS_SLOT_COST} Claims
                 </Button>
               </div>
             </div>
@@ -269,6 +282,21 @@ export default function MyGroundballRewardsPage() {
           onClose={() => setRedeemModalSelection(null)}
         />
       )}
+
+      {/* Bonus Slot Modal */}
+      <BonusSlotModal
+        open={bonusSlotModalOpen}
+        onOpenChange={setBonusSlotModalOpen}
+        currentSlots={totalSlots}
+        bonusSlots={bonusSlots}
+        claimsBalance={claimsBalance}
+        onConfirm={() => {
+          purchaseBonusSlot.mutate(undefined, {
+            onSuccess: () => setBonusSlotModalOpen(false),
+          });
+        }}
+        isLoading={purchaseBonusSlot.isPending}
+      />
     </PageContainer>
   );
 }

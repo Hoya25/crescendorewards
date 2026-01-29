@@ -3,13 +3,14 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Filter, Sparkles } from 'lucide-react';
+import { ArrowLeft, Filter, Sparkles, Plus, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useGroundballStatus, type GroundballReward } from '@/hooks/useGroundballStatus';
+import { useGroundballStatus, type GroundballReward, BONUS_SLOT_COST, SWAP_COST } from '@/hooks/useGroundballStatus';
 import { GroundballStatusBadge } from '@/components/groundball/GroundballStatusBadge';
 import { GroundballRewardCard } from '@/components/groundball/GroundballRewardCard';
 import { SelectRewardModal } from '@/components/groundball/SelectRewardModal';
 import { SwapRewardModal } from '@/components/groundball/SwapRewardModal';
+import { BonusSlotModal } from '@/components/groundball/BonusSlotModal';
 
 type StatusFilter = 'available' | 'all' | 'my-selections';
 type CategoryFilter = 'all' | 'experiences' | 'gear' | 'apparel' | 'services' | 'giveback';
@@ -34,7 +35,6 @@ const CADENCE_OPTIONS: { key: CadenceFilter; label: string }[] = [
 ];
 
 const STATUS_HIERARCHY = ['any', 'none', 'bronze', 'silver', 'gold'];
-const SWAP_COST = 15;
 
 export default function GroundballRewardsPage() {
   const {
@@ -44,10 +44,14 @@ export default function GroundballRewardsPage() {
     isLoading,
     selectReward,
     swapReward,
+    purchaseBonusSlot,
     getSelectionState,
     totalSlots,
     usedSlots,
     freeSwaps,
+    bonusSlots,
+    claimsBalance,
+    canAffordBonusSlot,
   } = useGroundballStatus();
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('available');
@@ -57,11 +61,12 @@ export default function GroundballRewardsPage() {
   
   const [selectModalOpen, setSelectModalOpen] = useState(false);
   const [swapModalOpen, setSwapModalOpen] = useState(false);
+  const [bonusSlotModalOpen, setBonusSlotModalOpen] = useState(false);
   const [selectedReward, setSelectedReward] = useState<GroundballReward | null>(null);
   const [selectedSelectionId, setSelectedSelectionId] = useState<string | null>(null);
 
   const userTier = status?.status_tier || 'none';
-  const bonusSlots = status?.bonus_selections || 0;
+  const hasNoSlotsRemaining = usedSlots >= totalSlots;
 
   // Get unique sponsors for filter
   const sponsors = [...new Set(rewards.filter(r => r.sponsor).map(r => r.sponsor!))];
@@ -143,8 +148,15 @@ export default function GroundballRewardsPage() {
               </div>
             </div>
             
-            {/* Selections Counter */}
-            <div className="flex items-center gap-3">
+            {/* Claims Balance & Selections Counter */}
+            <div className="flex items-center gap-4">
+              {/* Claims Balance */}
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30">
+                <Coins className="w-4 h-4 text-amber-400" />
+                <span className="text-sm font-medium text-amber-400">{claimsBalance} Claims</span>
+              </div>
+
+              {/* Selections */}
               <div className="text-right">
                 <div className="text-sm text-slate-400">Selections</div>
                 <div className="font-semibold text-white">
@@ -167,6 +179,23 @@ export default function GroundballRewardsPage() {
               </div>
             </div>
           </div>
+
+          {/* No Slots Remaining Banner */}
+          {hasNoSlotsRemaining && (
+            <div className="mt-3 flex items-center justify-between p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
+              <div className="flex items-center gap-2">
+                <span className="text-amber-400 text-sm">No slots remaining</span>
+              </div>
+              <Button
+                size="sm"
+                onClick={() => setBonusSlotModalOpen(true)}
+                className="bg-amber-600 hover:bg-amber-700"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Add Bonus Slot • {BONUS_SLOT_COST} Claims
+              </Button>
+            </div>
+          )}
         </div>
       </header>
 
@@ -310,7 +339,7 @@ export default function GroundballRewardsPage() {
                 onSwap={() => handleSwapClick(reward)}
                 onViewDetails={() => {/* TODO: Open details modal */}}
                 onHowToLevelUp={() => {/* TODO: Navigate to level up guide */}}
-                onGetBonusSlot={() => {/* TODO: Open bonus slot purchase */}}
+                onGetBonusSlot={() => setBonusSlotModalOpen(true)}
               />
             ))}
           </div>
@@ -368,6 +397,21 @@ export default function GroundballRewardsPage() {
         swapCost={SWAP_COST}
         onConfirm={handleConfirmSwap}
         isLoading={swapReward.isPending}
+      />
+
+      {/* Bonus Slot Modal */}
+      <BonusSlotModal
+        open={bonusSlotModalOpen}
+        onOpenChange={setBonusSlotModalOpen}
+        currentSlots={totalSlots}
+        bonusSlots={bonusSlots}
+        claimsBalance={claimsBalance}
+        onConfirm={() => {
+          purchaseBonusSlot.mutate(undefined, {
+            onSuccess: () => setBonusSlotModalOpen(false),
+          });
+        }}
+        isLoading={purchaseBonusSlot.isPending}
       />
     </div>
   );

@@ -3,6 +3,11 @@ import { supabase } from '@/lib/supabase';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { toast } from 'sonner';
 
+// Costs in Claims
+export const BONUS_SLOT_COST = 25;
+export const SWAP_COST = 15;
+export const GIFT_SELECTION_COST = 30;
+
 export interface GroundballStatus {
   id: string;
   member_id: string;
@@ -48,9 +53,10 @@ export interface RewardSelection {
 const STATUS_HIERARCHY = ['any', 'none', 'bronze', 'silver', 'gold'];
 
 export function useGroundballStatus() {
-  const { profile } = useUnifiedUser();
+  const { profile, refreshUnifiedProfile } = useUnifiedUser();
   const queryClient = useQueryClient();
   const memberId = profile?.auth_user_id;
+  const claimsBalance = profile?.crescendo_data?.claims_balance || 0;
 
   // Fetch member status
   const { data: status, isLoading: statusLoading } = useQuery({
@@ -185,9 +191,25 @@ export function useGroundballStatus() {
       const reward = rewards?.find(r => r.id === selection.reward_id);
       const isGiveback = reward?.is_giveback || false;
       
+      // Check if we need to deduct Claims for paid swap
       if (!useFreeSwap && !isGiveback) {
-        // Deduct claims for paid swap
-        // TODO: Implement claims deduction
+        // Check Claims balance
+        if (claimsBalance < SWAP_COST) {
+          throw new Error(`Insufficient Claims. You need ${SWAP_COST} Claims for this swap.`);
+        }
+        
+        // Deduct Claims
+        const { error: claimsError } = await supabase
+          .from('unified_profiles')
+          .update({ 
+            crescendo_data: {
+              ...profile?.crescendo_data,
+              claims_balance: claimsBalance - SWAP_COST
+            }
+          })
+          .eq('auth_user_id', memberId);
+        
+        if (claimsError) throw claimsError;
       }
       
       // Deactivate selection
@@ -217,16 +239,83 @@ export function useGroundballStatus() {
         if (statusError) throw statusError;
       }
       
-      return { reward, usedFreeSwap: useFreeSwap };
+      return { reward, usedFreeSwap: useFreeSwap, paidSwap: !useFreeSwap && !isGiveback };
     },
-    onSuccess: ({ reward, usedFreeSwap }) => {
+    onSuccess: ({ reward, usedFreeSwap, paidSwap }) => {
       queryClient.invalidateQueries({ queryKey: ['groundball-selections'] });
       queryClient.invalidateQueries({ queryKey: ['groundball-status'] });
-      toast.success(
-        usedFreeSwap
-          ? `${reward?.title} removed. Free swap used.`
-          : `${reward?.title} removed from your selections.`
-      );
+      refreshUnifiedProfile(); // Refresh Claims balance
+      
+      if (paidSwap) {
+        toast.success(`${reward?.title} removed. ${SWAP_COST} Claims used.`);
+      } else if (usedFreeSwap) {
+        toast.success(`${reward?.title} removed. Free swap used.`);
+      } else {
+        toast.success(`${reward?.title} removed from your selections.`);
+      }
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+
+  // Purchase a bonus selection slot
+  const purchaseBonusSlot = useMutation({
+    mutationFn: async () => {
+      if (!memberId) throw new Error('Not authenticated');
+      
+      // Check Claims balance
+      if (claimsBalance < BONUS_SLOT_COST) {
+        throw new Error(`Insufficient Claims. You need ${BONUS_SLOT_COST} Claims for a bonus slot.`);
+      }
+      
+      // Deduct Claims
+      const { error: claimsError } = await supabase
+        .from('unified_profiles')
+        .update({ 
+          crescendo_data: {
+            ...profile?.crescendo_data,
+            claims_balance: claimsBalance - BONUS_SLOT_COST
+          }
+        })
+        .eq('auth_user_id', memberId);
+      
+      if (claimsError) throw claimsError;
+      
+      // Check if member has a status record, if not create one
+      if (!status) {
+        const { error: insertError } = await supabase
+          .from('member_groundball_status')
+          .insert({
+            member_id: memberId,
+            bonus_selections: 1,
+            selections_max: 3, // Default slots
+            selections_used: 0,
+            free_swaps_remaining: 1,
+          });
+        
+        if (insertError) throw insertError;
+      } else {
+        // Increment bonus_selections
+        const { error: updateError } = await supabase
+          .from('member_groundball_status')
+          .update({ 
+            bonus_selections: (status.bonus_selections || 0) + 1,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('member_id', memberId);
+        
+        if (updateError) throw updateError;
+      }
+      
+      return { newBonusSlots: (status?.bonus_selections || 0) + 1 };
+    },
+    onSuccess: ({ newBonusSlots }) => {
+      queryClient.invalidateQueries({ queryKey: ['groundball-status'] });
+      refreshUnifiedProfile(); // Refresh Claims balance
+      
+      const totalSlots = (status?.selections_max || 3) + newBonusSlots;
+      toast.success(`Bonus slot added! You now have ${totalSlots} selections.`);
     },
     onError: (error: Error) => {
       toast.error(error.message);
@@ -264,10 +353,15 @@ export function useGroundballStatus() {
     isLoading: statusLoading || rewardsLoading || selectionsLoading,
     selectReward,
     swapReward,
+    purchaseBonusSlot,
     meetsStatusRequirement,
     getSelectionState,
     totalSlots: (status?.selections_max || 0) + (status?.bonus_selections || 0),
     usedSlots: status?.selections_used || 0,
     freeSwaps: status?.free_swaps_remaining || 0,
+    bonusSlots: status?.bonus_selections || 0,
+    claimsBalance,
+    canAffordBonusSlot: claimsBalance >= BONUS_SLOT_COST,
+    canAffordSwap: claimsBalance >= SWAP_COST,
   };
 }
