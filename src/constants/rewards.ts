@@ -1,3 +1,4 @@
+import type { ElementType } from 'react';
 import { 
   Coins, Sparkles, ShoppingBag, CreditCard, Heart, Trophy, 
   Gamepad2, Film, Rocket, Bitcoin, Package, Gift
@@ -33,7 +34,7 @@ export const CATEGORY_LABELS: Record<string, string> = Object.fromEntries(
 );
 
 // Icon map for category rendering
-export const CATEGORY_ICONS: Record<string, React.ElementType> = Object.fromEntries(
+export const CATEGORY_ICONS: Record<string, ElementType> = Object.fromEntries(
   REWARD_CATEGORIES.map(cat => [cat.value, cat.icon])
 );
 
@@ -189,7 +190,7 @@ export function getCategoryLabel(value: string): string {
 /**
  * Get icon component for a category
  */
-export function getCategoryIcon(value: string): React.ElementType {
+export function getCategoryIcon(value: string): ElementType {
   return CATEGORY_ICONS[value] || Gift;
 }
 
