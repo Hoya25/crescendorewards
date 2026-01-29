@@ -866,6 +866,177 @@ export type Database = {
         }
         Relationships: []
       }
+      gear_vault_config: {
+        Row: {
+          claim_cost: number | null
+          contributor_groundball: number | null
+          contributor_nctr: number | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          item_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          claim_cost?: number | null
+          contributor_groundball?: number | null
+          contributor_nctr?: number | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          item_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          claim_cost?: number | null
+          contributor_groundball?: number | null
+          contributor_nctr?: number | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          item_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      gear_vault_items: {
+        Row: {
+          brand: string
+          claim_cost_groundball: number | null
+          claimed_at: string | null
+          claimer_id: string | null
+          completed_at: string | null
+          condition: string | null
+          contributor_id: string | null
+          contributor_reward_groundball: number | null
+          contributor_reward_nctr: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          item_type: string
+          location_city: string | null
+          location_state: string | null
+          model: string | null
+          shipped_at: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          brand: string
+          claim_cost_groundball?: number | null
+          claimed_at?: string | null
+          claimer_id?: string | null
+          completed_at?: string | null
+          condition?: string | null
+          contributor_id?: string | null
+          contributor_reward_groundball?: number | null
+          contributor_reward_nctr?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          item_type: string
+          location_city?: string | null
+          location_state?: string | null
+          model?: string | null
+          shipped_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          brand?: string
+          claim_cost_groundball?: number | null
+          claimed_at?: string | null
+          claimer_id?: string | null
+          completed_at?: string | null
+          condition?: string | null
+          contributor_id?: string | null
+          contributor_reward_groundball?: number | null
+          contributor_reward_nctr?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          item_type?: string
+          location_city?: string | null
+          location_state?: string | null
+          model?: string | null
+          shipped_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gear_vault_items_claimer_id_fkey"
+            columns: ["claimer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gear_vault_items_contributor_id_fkey"
+            columns: ["contributor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groundball_rewards: {
+        Row: {
+          category: string | null
+          cost_groundball: number
+          created_at: string | null
+          description: string | null
+          id: string
+          image_emoji: string | null
+          image_url: string | null
+          is_active: boolean | null
+          is_featured: boolean | null
+          multiplier_text: string | null
+          quantity_available: number | null
+          sponsor: string | null
+          tier: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          cost_groundball?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_emoji?: string | null
+          image_url?: string | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          multiplier_text?: string | null
+          quantity_available?: number | null
+          sponsor?: string | null
+          tier?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          cost_groundball?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_emoji?: string | null
+          image_url?: string | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          multiplier_text?: string | null
+          quantity_available?: number | null
+          sponsor?: string | null
+          tier?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       member_active_benefits: {
         Row: {
           activated_at: string | null
