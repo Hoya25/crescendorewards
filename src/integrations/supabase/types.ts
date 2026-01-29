@@ -1411,6 +1411,58 @@ export type Database = {
           },
         ]
       }
+      reward_redemptions: {
+        Row: {
+          id: string
+          member_id: string | null
+          notes: string | null
+          period: string | null
+          redeemed_at: string | null
+          reward_id: string | null
+          selection_id: string | null
+        }
+        Insert: {
+          id?: string
+          member_id?: string | null
+          notes?: string | null
+          period?: string | null
+          redeemed_at?: string | null
+          reward_id?: string | null
+          selection_id?: string | null
+        }
+        Update: {
+          id?: string
+          member_id?: string | null
+          notes?: string | null
+          period?: string | null
+          redeemed_at?: string | null
+          reward_id?: string | null
+          selection_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_redemptions_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reward_redemptions_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "groundball_rewards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reward_redemptions_selection_id_fkey"
+            columns: ["selection_id"]
+            isOneToOne: false
+            referencedRelation: "member_reward_selections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reward_shares: {
         Row: {
           bonus_earned: number
