@@ -141,15 +141,15 @@ export default function GroundballRewardsPage() {
             <div className="flex flex-wrap justify-center gap-6 md:gap-12">
               <div className="text-center">
                 <div className="text-2xl md:text-3xl font-bold text-emerald-400">$0</div>
-                <div className="text-sm text-slate-400">Cost to Join</div>
+                <div className="text-sm text-slate-400">to Start</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl md:text-3xl font-bold text-emerald-400">{rewards?.length || 0}</div>
-                <div className="text-sm text-slate-400">Rewards Available</div>
+                <div className="text-sm text-slate-400">Rewards to Unlock</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-emerald-400">∞</div>
-                <div className="text-sm text-slate-400">Ways to Earn</div>
+                <div className="text-2xl md:text-3xl font-bold text-emerald-400">🔄</div>
+                <div className="text-sm text-slate-400">Earn. Lock. Unlock.</div>
               </div>
             </div>
           </div>
