@@ -979,6 +979,8 @@ export type Database = {
       }
       groundball_rewards: {
         Row: {
+          cadence: string | null
+          cadence_description: string | null
           category: string | null
           created_at: string | null
           description: string | null
@@ -987,6 +989,7 @@ export type Database = {
           image_url: string | null
           is_active: boolean | null
           is_featured: boolean | null
+          is_giveback: boolean | null
           multiplier_text: string | null
           quantity_available: number | null
           required_status: string | null
@@ -996,6 +999,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          cadence?: string | null
+          cadence_description?: string | null
           category?: string | null
           created_at?: string | null
           description?: string | null
@@ -1004,6 +1009,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean | null
           is_featured?: boolean | null
+          is_giveback?: boolean | null
           multiplier_text?: string | null
           quantity_available?: number | null
           required_status?: string | null
@@ -1013,6 +1019,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          cadence?: string | null
+          cadence_description?: string | null
           category?: string | null
           created_at?: string | null
           description?: string | null
@@ -1021,6 +1029,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean | null
           is_featured?: boolean | null
+          is_giveback?: boolean | null
           multiplier_text?: string | null
           quantity_available?: number | null
           required_status?: string | null
