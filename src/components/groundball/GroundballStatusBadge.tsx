@@ -33,7 +33,7 @@ const TIER_THRESHOLDS = {
 
 const TIER_CONFIG = {
   none: {
-    label: 'No Status',
+    label: 'Member',
     emoji: '⚪',
     icon: '○',
     gradient: 'from-slate-400/20 to-slate-500/10',
@@ -248,7 +248,7 @@ export function GroundballStatusBadge({
         <div className="text-center">
           <div className="text-4xl mb-2">{config.icon}</div>
           <div className={cn('text-xl font-bold uppercase tracking-wide', config.text)}>
-            {tier === 'none' ? 'No Status' : `${tier} Status`}
+            {tier === 'none' ? 'Member' : `${tier.charAt(0).toUpperCase() + tier.slice(1)} Status`}
           </div>
           <div className="text-slate-400 mt-1">
             {locked.toLocaleString()} GROUNDBALL Locked
