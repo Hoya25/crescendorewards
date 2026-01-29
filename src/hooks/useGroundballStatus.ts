@@ -27,6 +27,8 @@ export interface GroundballReward {
   title: string;
   description: string | null;
   sponsor: string | null;
+  sponsor_name: string | null;
+  sponsor_logo_url: string | null;
   category: string | null;
   required_status: string | null;
   cadence: string | null;
@@ -37,7 +39,10 @@ export interface GroundballReward {
   is_featured: boolean | null;
   is_active: boolean | null;
   is_giveback: boolean | null;
+  is_limited: boolean | null;
   quantity_available: number | null;
+  quantity_claimed: number | null;
+  claims_cost: number | null;
 }
 
 export interface RewardSelection {
@@ -98,7 +103,9 @@ export function useGroundballStatus() {
         .from('groundball_rewards')
         .select('*')
         .eq('is_active', true)
-        .order('is_featured', { ascending: false })
+        .order('is_giveback', { ascending: false, nullsFirst: false }) // Give-back first
+        .order('is_featured', { ascending: false }) // Featured next
+        .order('required_status', { ascending: false }) // Higher tiers visible (aspirational)
         .order('title', { ascending: true });
       
       if (error) throw error;
