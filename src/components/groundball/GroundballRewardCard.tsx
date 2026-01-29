@@ -49,19 +49,34 @@ export function GroundballRewardCard({
   return (
     <Card
       className={cn(
-        'group relative overflow-hidden bg-slate-900/50 transition-all duration-300 hover:scale-[1.02]',
+        'group relative overflow-hidden bg-slate-900/50 transition-all duration-300',
+        state !== 'locked' && 'hover:scale-[1.02]',
         state === 'selected' && 'ring-2 ring-emerald-500',
-        state === 'locked' && 'opacity-75',
+        state === 'locked' && 'opacity-60',
         statusConfig.border,
         'border'
       )}
     >
       {/* Image/Emoji Header */}
       <div className="h-24 relative bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
-        <span className="text-5xl">{reward.image_emoji || '🎁'}</span>
+        <span className={cn("text-5xl", state === 'locked' && "grayscale opacity-50")}>
+          {reward.image_emoji || '🎁'}
+        </span>
+        
+        {/* Lock Overlay for locked rewards */}
+        {state === 'locked' && (
+          <div className="absolute inset-0 bg-slate-900/60 flex flex-col items-center justify-center">
+            <Lock className="w-8 h-8 text-slate-400 mb-1" />
+            <span className="text-xs font-medium text-slate-300">
+              {requiredStatus === 'bronze' && 'Unlock at Bronze'}
+              {requiredStatus === 'silver' && 'Requires Silver'}
+              {requiredStatus === 'gold' && 'Requires Gold'}
+            </span>
+          </div>
+        )}
         
         {/* Featured Badge */}
-        {reward.is_featured && (
+        {reward.is_featured && state !== 'locked' && (
           <Badge className="absolute top-2 right-2 bg-amber-500 text-white text-xs">
             ⭐ Featured
           </Badge>
@@ -75,7 +90,7 @@ export function GroundballRewardCard({
         )}
         
         {/* Give-back Badge */}
-        {isGiveback && (
+        {isGiveback && state !== 'locked' && (
           <Badge className="absolute bottom-2 left-2 bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
             <Heart className="w-3 h-3 mr-1" /> Give-Back
           </Badge>
@@ -208,15 +223,22 @@ export function GroundballRewardCard({
           )}
           
           {state === 'locked' && (
-            <Button
-              onClick={onHowToLevelUp}
-              variant="outline"
-              className="w-full border-slate-600 text-slate-400"
-              size="sm"
-            >
-              <Lock className="w-3 h-3 mr-1" />
-              Requires {statusConfig.label}
-            </Button>
+            <div className="space-y-2">
+              <Button
+                onClick={onHowToLevelUp}
+                variant="outline"
+                className="w-full border-slate-600 text-slate-400 hover:text-white hover:border-emerald-500/50"
+                size="sm"
+              >
+                <Lock className="w-3 h-3 mr-1" />
+                {requiredStatus === 'bronze' && 'Lock 100 $GBS to Unlock'}
+                {requiredStatus === 'silver' && 'Lock 250 $GBS to Unlock'}
+                {requiredStatus === 'gold' && 'Lock 500 $GBS to Unlock'}
+              </Button>
+              <p className="text-xs text-center text-slate-500">
+                {statusConfig.emoji} Requires {statusConfig.label} Status
+              </p>
+            </div>
           )}
         </div>
       </CardContent>

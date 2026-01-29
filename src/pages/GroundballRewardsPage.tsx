@@ -42,7 +42,7 @@ export default function GroundballRewardsPage() {
   // URL-synced filters from RewardsCatalog
   const { filters, setFilters, activeFilterCount, clearFilters } = useRewardFilters();
   
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('available');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [sponsorFilter, setSponsorFilter] = useState<string>('all');
   
   const [selectModalOpen, setSelectModalOpen] = useState(false);
@@ -61,8 +61,10 @@ export default function GroundballRewardsPage() {
   const baseFilteredRewards = filterRewards(rewards, filters);
   
   // Apply additional status filter (available to me, all, my-selections)
+  // For "all" - show everything so users can see what they're working toward
+  // For "available" - only show rewards the user can claim
   const filteredRewards = baseFilteredRewards.filter(reward => {
-    // Status filter
+    // Status filter - "all" shows everything
     if (statusFilter === 'available') {
       const requiredTier = reward.required_status || 'any';
       const meetsStatus = STATUS_HIERARCHY.indexOf(userTier) >= STATUS_HIERARCHY.indexOf(requiredTier);
@@ -78,6 +80,12 @@ export default function GroundballRewardsPage() {
     
     return true;
   });
+
+  // Count available rewards for badge
+  const availableRewardsCount = baseFilteredRewards.filter(reward => {
+    const requiredTier = reward.required_status || 'any';
+    return STATUS_HIERARCHY.indexOf(userTier) >= STATUS_HIERARCHY.indexOf(requiredTier);
+  }).length;
 
   // Handlers
   const handleSelectClick = (reward: GroundballReward) => {
@@ -191,9 +199,9 @@ export default function GroundballRewardsPage() {
             <Filter className="w-4 h-4 text-slate-400" />
             <div className="flex gap-2 flex-wrap">
               {[
-                { key: 'available' as StatusFilter, label: 'Available to Me' },
-                { key: 'all' as StatusFilter, label: 'All Rewards' },
-                { key: 'my-selections' as StatusFilter, label: 'My Selections' },
+                { key: 'all' as StatusFilter, label: 'All Rewards', count: rewards.length },
+                { key: 'available' as StatusFilter, label: 'Available to Me', count: availableRewardsCount },
+                { key: 'my-selections' as StatusFilter, label: 'My Selections', count: selections.length },
               ].map(opt => (
                 <Button
                   key={opt.key}
@@ -208,9 +216,14 @@ export default function GroundballRewardsPage() {
                   )}
                 >
                   {opt.label}
-                  {opt.key === 'my-selections' && selections.length > 0 && (
-                    <Badge className="ml-1 bg-emerald-500 text-xs px-1.5 py-0">
-                      {selections.length}
+                  {opt.count > 0 && (
+                    <Badge className={cn(
+                      "ml-1 text-xs px-1.5 py-0",
+                      statusFilter === opt.key 
+                        ? "bg-white/20 text-white" 
+                        : "bg-slate-700 text-slate-300"
+                    )}>
+                      {opt.count}
                     </Badge>
                   )}
                 </Button>
@@ -254,27 +267,52 @@ export default function GroundballRewardsPage() {
             ))}
           </div>
         ) : filteredRewards.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-4">🥍</div>
+          <div className="text-center py-16 max-w-md mx-auto">
+            <div className="text-6xl mb-4">
+              {statusFilter === 'my-selections' ? '🥍' : statusFilter === 'available' ? '🔒' : '🔍'}
+            </div>
             <h3 className="text-xl font-semibold text-white mb-2">
               {statusFilter === 'my-selections' 
                 ? 'No selections yet'
+                : statusFilter === 'available'
+                ? 'No rewards unlocked yet'
                 : 'No rewards match your filters'
               }
             </h3>
-            <p className="text-slate-400">
+            <p className="text-slate-400 mb-6">
               {statusFilter === 'my-selections'
                 ? 'Browse rewards and start selecting!'
-                : 'Try adjusting your filters.'}
+                : statusFilter === 'available'
+                ? `Lock GROUNDBALL tokens to unlock rewards! You're currently at ${userTier === 'none' ? 'Member' : userTier.charAt(0).toUpperCase() + userTier.slice(1)} status. Lock 100+ $GBS to reach Bronze and unlock your first reward selections.`
+                : 'Try adjusting your filters to see more rewards.'}
             </p>
             {statusFilter === 'my-selections' && (
               <Button
-                className="mt-4 bg-emerald-600 hover:bg-emerald-700"
-                onClick={() => setStatusFilter('available')}
+                className="bg-emerald-600 hover:bg-emerald-700"
+                onClick={() => setStatusFilter('all')}
               >
                 <Sparkles className="w-4 h-4 mr-2" />
-                Browse Available Rewards
+                Browse All Rewards
               </Button>
+            )}
+            {statusFilter === 'available' && (
+              <div className="space-y-3">
+                <Button
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                  onClick={() => setStatusFilter('all')}
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  See What You Can Unlock
+                </Button>
+                <div>
+                  <Link 
+                    to="/groundball/gear-vault"
+                    className="text-sm text-emerald-400 hover:underline"
+                  >
+                    Learn How to Earn $GBS →
+                  </Link>
+                </div>
+              </div>
             )}
           </div>
         ) : (
