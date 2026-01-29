@@ -1,8 +1,10 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+
+export type DemoTier = 'none' | 'bronze' | 'silver' | 'gold';
 
 interface DemoModeState {
   isEnabled: boolean;
-  statusTier: 'bronze' | 'silver' | 'gold';
+  statusTier: DemoTier;
   groundballLocked: number;
   selectionsMax: number;
   selectionsUsed: number;
@@ -14,51 +16,84 @@ interface DemoModeState {
 interface DemoModeContextValue {
   demoMode: DemoModeState;
   isDemoMode: boolean;
-  enableDemoMode: (tier?: 'bronze' | 'silver' | 'gold') => void;
+  enableDemoMode: (tier?: DemoTier) => void;
   disableDemoMode: () => void;
   toggleDemoMode: () => void;
-  setDemoTier: (tier: 'bronze' | 'silver' | 'gold') => void;
+  setDemoTier: (tier: DemoTier) => void;
 }
 
-const DEMO_PRESETS: Record<'bronze' | 'silver' | 'gold', Omit<DemoModeState, 'isEnabled'>> = {
+// Realistic demo presets for investor demos
+const DEMO_PRESETS: Record<DemoTier, Omit<DemoModeState, 'isEnabled'>> = {
+  none: {
+    statusTier: 'none',
+    groundballLocked: 0,
+    selectionsMax: 0,
+    selectionsUsed: 0,
+    freeSwapsRemaining: 0,
+    claimsBalance: 10,
+    bonusSelections: 0,
+  },
   bronze: {
     statusTier: 'bronze',
-    groundballLocked: 100,
+    groundballLocked: 150,
     selectionsMax: 2,
-    selectionsUsed: 0,
+    selectionsUsed: 1,
     freeSwapsRemaining: 1,
-    claimsBalance: 25,
+    claimsBalance: 75,
     bonusSelections: 0,
   },
   silver: {
     statusTier: 'silver',
-    groundballLocked: 250,
+    groundballLocked: 300,
     selectionsMax: 4,
-    selectionsUsed: 0,
+    selectionsUsed: 2,
     freeSwapsRemaining: 1,
-    claimsBalance: 50,
-    bonusSelections: 0,
+    claimsBalance: 150,
+    bonusSelections: 1,
   },
   gold: {
     statusTier: 'gold',
-    groundballLocked: 500,
+    groundballLocked: 750,
     selectionsMax: 7,
-    selectionsUsed: 0,
-    freeSwapsRemaining: 2,
-    claimsBalance: 100,
-    bonusSelections: 0,
+    selectionsUsed: 4,
+    freeSwapsRemaining: 3,
+    claimsBalance: 500,
+    bonusSelections: 2,
   },
 };
+
+const STORAGE_KEY = 'groundball_demo_mode';
 
 const DemoModeContext = createContext<DemoModeContextValue | undefined>(undefined);
 
 export function DemoModeProvider({ children }: { children: React.ReactNode }) {
-  const [demoMode, setDemoMode] = useState<DemoModeState>({
-    isEnabled: false,
-    ...DEMO_PRESETS.gold,
+  const [demoMode, setDemoMode] = useState<DemoModeState>(() => {
+    // Load from localStorage on init
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          return { isEnabled: false, ...DEMO_PRESETS[parsed.tier as DemoTier || 'gold'] };
+        } catch {
+          // Ignore parsing errors
+        }
+      }
+    }
+    return {
+      isEnabled: false,
+      ...DEMO_PRESETS.gold,
+    };
   });
 
-  const enableDemoMode = useCallback((tier: 'bronze' | 'silver' | 'gold' = 'gold') => {
+  // Persist tier selection
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ tier: demoMode.statusTier }));
+    }
+  }, [demoMode.statusTier]);
+
+  const enableDemoMode = useCallback((tier: DemoTier = 'gold') => {
     setDemoMode({
       isEnabled: true,
       ...DEMO_PRESETS[tier],
@@ -76,7 +111,7 @@ export function DemoModeProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
-  const setDemoTier = useCallback((tier: 'bronze' | 'silver' | 'gold') => {
+  const setDemoTier = useCallback((tier: DemoTier) => {
     setDemoMode(prev => ({
       ...prev,
       ...DEMO_PRESETS[tier],
