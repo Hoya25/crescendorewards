@@ -58,6 +58,7 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 const InviteLandingPage = lazy(() => import('./pages/InviteLandingPage'));
 const JoinRedirectPage = lazy(() => import('./pages/JoinRedirectPage'));
 const BenefitsPage = lazy(() => import('./components/benefits/BenefitsPage').then(m => ({ default: m.BenefitsPage })));
+const GroundballRewardsPage = lazy(() => import('./pages/GroundballRewardsPage'));
 
 // Admin panel - separate chunk for code splitting
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel').then(m => ({ default: m.AdminPanel })));
@@ -129,6 +130,9 @@ function AppRoutes() {
             <Route path="/sponsors" element={<SponsorsPage />} />
             <Route path="/become-sponsor" element={<BecomeASponsorPage />} />
             <Route path="/sponsors/:slug" element={<SponsorProfilePage />} />
+            
+            {/* GROUNDBALL Impact Engine */}
+            <Route path="/groundball/rewards" element={<GroundballRewardsPage />} />
             
             {/* Personalized referral link - dedicated landing page */}
             <Route path="/join/:slug" element={<InviteLandingPage />} />
