@@ -1,4 +1,4 @@
-import { Bell, Check, CheckCheck, Gift, FileText, Sparkles } from 'lucide-react';
+import { Bell, Check, CheckCheck, Gift, FileText, Sparkles, Coins, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -22,6 +22,11 @@ const getNotificationIcon = (type: string) => {
       return <Sparkles className="h-4 w-4 text-primary" />;
     case 'submission_review':
       return <FileText className="h-4 w-4 text-amber-500" />;
+    case 'nctr_earned':
+      return <Coins className="h-4 w-4 text-primary" />;
+    case 'claim_shipped':
+    case 'claim_delivered':
+      return <Truck className="h-4 w-4 text-blue-500" />;
     default:
       return <Gift className="h-4 w-4 text-muted-foreground" />;
   }

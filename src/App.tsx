@@ -19,6 +19,9 @@ import { MobileBottomNav } from "./components/navigation/MobileBottomNav";
 import { BetaBanner } from "./components/BetaBanner";
 import { DemoModeToggle } from "./components/groundball/DemoModeToggle";
 import { useClaimDeliveryNotifications } from "./hooks/useClaimDeliveryNotifications";
+import { NCTREarnedCelebration } from "./components/NCTREarnedCelebration";
+import { useNCTREarningDetection } from "./hooks/useNCTREarningDetection";
+import { useStatusTiers, getTierByBalance, getNextTier, getProgressToNextTier } from "./hooks/useStatusTiers";
 
 // Eagerly loaded components (critical path)
 import { LandingPage } from "./components/LandingPage";
@@ -81,10 +84,22 @@ function AppRoutes() {
     walletAddress,
     user,
   } = useAuthContext();
-  const { profile, refreshUnifiedProfile } = useUnifiedUser();
+  const { profile, refreshUnifiedProfile, total360Locked } = useUnifiedUser();
 
   // Enable real-time toast notifications for claim delivery status updates
   useClaimDeliveryNotifications();
+
+  // NCTR earning detection and celebration
+  const { pendingEarning, clearEarning } = useNCTREarningDetection(user?.id);
+  const { data: statusTiers = [] } = useStatusTiers();
+
+  // Calculate tier info for celebration modal
+  const currentBalance = total360Locked || 0;
+  const updatedBalance = currentBalance + (pendingEarning?.nctrEarned || 0);
+  const currentTierData = statusTiers.length > 0 ? getTierByBalance(statusTiers, updatedBalance) : null;
+  const nextTierData = statusTiers.length > 0 ? getNextTier(statusTiers, updatedBalance) : null;
+  const progressToNext = statusTiers.length > 0 ? getProgressToNextTier(statusTiers, updatedBalance) : 0;
+  const nctrToNext = nextTierData ? nextTierData.min_nctr_360_locked - updatedBalance : null;
 
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
@@ -379,6 +394,29 @@ function AppRoutes() {
           }}
           userId={user.id}
           walletAddress={walletAddress}
+        />
+      )}
+
+      {/* NCTR Earned Celebration Modal */}
+      {pendingEarning && pendingEarning.nctrEarned > 0 && currentTierData && (
+        <NCTREarnedCelebration
+          isOpen={true}
+          onClose={clearEarning}
+          nctrEarned={pendingEarning.nctrEarned}
+          brandName={pendingEarning.brandName}
+          totalBalance={updatedBalance}
+          currentTier={{
+            name: currentTierData.display_name,
+            emoji: currentTierData.badge_emoji,
+            color: currentTierData.badge_color,
+          }}
+          nextTier={nextTierData ? {
+            name: nextTierData.display_name,
+            emoji: nextTierData.badge_emoji,
+            color: nextTierData.badge_color,
+          } : null}
+          nctrToNextTier={nctrToNext}
+          progressToNextTier={progressToNext}
         />
       )}
 
