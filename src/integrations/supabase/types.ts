@@ -2969,6 +2969,71 @@ export type Database = {
           },
         ]
       }
+      user_onboarding: {
+        Row: {
+          created_at: string | null
+          first_referral: boolean | null
+          first_referral_at: string | null
+          first_wishlist_item: boolean | null
+          first_wishlist_item_at: string | null
+          garden_visited: boolean | null
+          garden_visited_at: string | null
+          how_it_works_viewed: boolean | null
+          how_it_works_viewed_at: string | null
+          id: string
+          is_dismissed: boolean | null
+          onboarding_nctr_awarded: number | null
+          profile_completed: boolean | null
+          profile_completed_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          first_referral?: boolean | null
+          first_referral_at?: string | null
+          first_wishlist_item?: boolean | null
+          first_wishlist_item_at?: string | null
+          garden_visited?: boolean | null
+          garden_visited_at?: string | null
+          how_it_works_viewed?: boolean | null
+          how_it_works_viewed_at?: string | null
+          id?: string
+          is_dismissed?: boolean | null
+          onboarding_nctr_awarded?: number | null
+          profile_completed?: boolean | null
+          profile_completed_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          first_referral?: boolean | null
+          first_referral_at?: string | null
+          first_wishlist_item?: boolean | null
+          first_wishlist_item_at?: string | null
+          garden_visited?: boolean | null
+          garden_visited_at?: string | null
+          how_it_works_viewed?: boolean | null
+          how_it_works_viewed_at?: string | null
+          id?: string
+          is_dismissed?: boolean | null
+          onboarding_nctr_awarded?: number | null
+          profile_completed?: boolean | null
+          profile_completed_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_onboarding_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string

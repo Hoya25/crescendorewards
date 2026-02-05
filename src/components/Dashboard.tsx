@@ -31,6 +31,7 @@ import { InviteHeaderCTA } from "./navigation/InviteHeaderCTA";
 import { EarnNCTRQuickCard } from "./dashboard/EarnNCTRQuickCard";
 import { GroundballDashboardWidget } from "./dashboard/GroundballDashboardWidget";
 import { ReferredWelcomeModal } from "./referral/ReferredWelcomeModal";
+import { OnboardingChecklist } from "./onboarding/OnboardingChecklist";
 import { REFERRAL_REWARDS } from "@/constants/referral";
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress, getNCTRNeededForNextLevel } from '@/utils/membershipLevels';
 import { useTheme } from "./ThemeProvider";
@@ -509,6 +510,9 @@ export function Dashboard() {
 
               {/* Needs Your Attention (kept) */}
               <NeedsAttention />
+
+              {/* Onboarding Checklist for new users */}
+              <OnboardingChecklist />
 
               {/* 1. Consolidated Hero Card */}
               <HeroCard 

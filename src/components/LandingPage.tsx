@@ -10,6 +10,7 @@ import { ImageWithFallback } from "./ImageWithFallback";
 import { SEO } from "./SEO";
 import { MobileNav } from "./MobileNav";
 import { Footer } from "./Footer";
+import { HowItWorksSection } from "./landing/HowItWorksSection";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -82,6 +83,9 @@ export function LandingPage() {
           <Button variant="ghost" onClick={handleViewRewards}>
             Rewards
           </Button>
+          <Button variant="ghost" onClick={() => navigate('/how-it-works')}>
+            How It Works
+          </Button>
           <Button variant="ghost" onClick={handleSignIn}>
             Sign in
           </Button>
@@ -132,6 +136,9 @@ export function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* How It Works Section */}
+      <HowItWorksSection />
 
       {/* Status Levels Section */}
       <section className="py-12 md:py-20 px-4 md:px-6 bg-white">
