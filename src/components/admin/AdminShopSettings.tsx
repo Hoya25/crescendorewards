@@ -262,7 +262,7 @@ export function AdminShopSettings() {
     }
     switch (status) {
       case 'credited':
-        return <Badge className="bg-[#2C3539] text-white hover:bg-[#2C3539]/80">Credited</Badge>;
+        return <Badge className="bg-green-600 text-white hover:bg-green-600/80">Credited</Badge>;
       case 'pending':
         return <Badge variant="outline" className="border-yellow-500 text-yellow-500">Pending</Badge>;
       case 'failed':
