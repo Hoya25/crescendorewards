@@ -1998,27 +1998,36 @@ export type Database = {
           created_at: string | null
           id: string
           is_active: boolean | null
+          max_nctr_per_order: number | null
+          min_purchase_for_reward: number | null
           minimum_purchase: number | null
           nctr_per_dollar: number | null
           store_identifier: string
+          store_name: string | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           id?: string
           is_active?: boolean | null
+          max_nctr_per_order?: number | null
+          min_purchase_for_reward?: number | null
           minimum_purchase?: number | null
           nctr_per_dollar?: number | null
           store_identifier: string
+          store_name?: string | null
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
           is_active?: boolean | null
+          max_nctr_per_order?: number | null
+          min_purchase_for_reward?: number | null
           minimum_purchase?: number | null
           nctr_per_dollar?: number | null
           store_identifier?: string
+          store_name?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -2026,41 +2035,70 @@ export type Database = {
       shop_transactions: {
         Row: {
           created_at: string | null
+          credited_at: string | null
+          currency: string | null
           customer_email: string | null
           customer_name: string | null
           id: string
           metadata: Json | null
           nctr_earned: number
-          order_number: string
+          nctr_per_dollar_at_time: number
+          order_id: string | null
+          order_number: string | null
           order_total: number
+          shopify_data: Json | null
           status: string | null
           store_identifier: string
+          updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string | null
+          credited_at?: string | null
+          currency?: string | null
           customer_email?: string | null
           customer_name?: string | null
           id?: string
           metadata?: Json | null
           nctr_earned: number
-          order_number: string
+          nctr_per_dollar_at_time?: number
+          order_id?: string | null
+          order_number?: string | null
           order_total: number
+          shopify_data?: Json | null
           status?: string | null
           store_identifier: string
+          updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string | null
+          credited_at?: string | null
+          currency?: string | null
           customer_email?: string | null
           customer_name?: string | null
           id?: string
           metadata?: Json | null
           nctr_earned?: number
-          order_number?: string
+          nctr_per_dollar_at_time?: number
+          order_id?: string | null
+          order_number?: string | null
           order_total?: number
+          shopify_data?: Json | null
           status?: string | null
           store_identifier?: string
+          updated_at?: string | null
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "shop_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sponsor_applications: {
         Row: {
