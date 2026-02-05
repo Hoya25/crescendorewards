@@ -1616,6 +1616,68 @@ export type Database = {
           },
         ]
       }
+      reward_social_posts: {
+        Row: {
+          auto_post: boolean | null
+          created_at: string | null
+          error_message: string | null
+          hashtags: Json | null
+          id: string
+          mentions: Json | null
+          platform: string
+          post_content: string
+          post_url: string | null
+          posted_at: string | null
+          reach_metrics: Json | null
+          reward_id: string | null
+          scheduled_for: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          auto_post?: boolean | null
+          created_at?: string | null
+          error_message?: string | null
+          hashtags?: Json | null
+          id?: string
+          mentions?: Json | null
+          platform?: string
+          post_content: string
+          post_url?: string | null
+          posted_at?: string | null
+          reach_metrics?: Json | null
+          reward_id?: string | null
+          scheduled_for?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          auto_post?: boolean | null
+          created_at?: string | null
+          error_message?: string | null
+          hashtags?: Json | null
+          id?: string
+          mentions?: Json | null
+          platform?: string
+          post_content?: string
+          post_url?: string | null
+          posted_at?: string | null
+          reach_metrics?: Json | null
+          reward_id?: string | null
+          scheduled_for?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_social_posts_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reward_submission_changes: {
         Row: {
           change_summary: string | null
@@ -1835,6 +1897,7 @@ export type Database = {
       }
       rewards: {
         Row: {
+          auto_post_to_twitter: boolean | null
           brand_id: string | null
           campaign_id: string | null
           category: string
@@ -1874,10 +1937,12 @@ export type Database = {
           token_gated: boolean | null
           token_name: string | null
           token_symbol: string | null
+          twitter_post_id: string | null
           unpublish_at: string | null
           updated_at: string
         }
         Insert: {
+          auto_post_to_twitter?: boolean | null
           brand_id?: string | null
           campaign_id?: string | null
           category: string
@@ -1917,10 +1982,12 @@ export type Database = {
           token_gated?: boolean | null
           token_name?: string | null
           token_symbol?: string | null
+          twitter_post_id?: string | null
           unpublish_at?: string | null
           updated_at?: string
         }
         Update: {
+          auto_post_to_twitter?: boolean | null
           brand_id?: string | null
           campaign_id?: string | null
           category?: string
@@ -1960,6 +2027,7 @@ export type Database = {
           token_gated?: boolean | null
           token_name?: string | null
           token_symbol?: string | null
+          twitter_post_id?: string | null
           unpublish_at?: string | null
           updated_at?: string
         }
@@ -1983,6 +2051,13 @@ export type Database = {
             columns: ["linked_sponsor_id"]
             isOneToOne: false
             referencedRelation: "sponsors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rewards_twitter_post_id_fkey"
+            columns: ["twitter_post_id"]
+            isOneToOne: false
+            referencedRelation: "reward_social_posts"
             referencedColumns: ["id"]
           },
         ]
@@ -2140,6 +2215,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      social_mention_defaults: {
+        Row: {
+          category: string
+          created_at: string | null
+          default_hashtags: Json | null
+          default_mentions: Json | null
+          id: string
+          subcategory: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          default_hashtags?: Json | null
+          default_mentions?: Json | null
+          id?: string
+          subcategory?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          default_hashtags?: Json | null
+          default_mentions?: Json | null
+          id?: string
+          subcategory?: string | null
+        }
+        Relationships: []
       }
       sponsor_applications: {
         Row: {
