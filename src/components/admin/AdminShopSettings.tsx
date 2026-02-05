@@ -262,7 +262,7 @@ export function AdminShopSettings() {
     }
     switch (status) {
       case 'credited':
-        return <Badge className="bg-[#D4FF00] text-black hover:bg-[#D4FF00]/80">Credited</Badge>;
+        return <Badge className="bg-[#2C3539] text-white hover:bg-[#2C3539]/80">Credited</Badge>;
       case 'pending':
         return <Badge variant="outline" className="border-yellow-500 text-yellow-500">Pending</Badge>;
       case 'failed':
@@ -286,8 +286,8 @@ export function AdminShopSettings() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="p-3 rounded-lg bg-[#D4FF00]/10">
-          <ShoppingBag className="w-6 h-6 text-[#D4FF00]" />
+        <div className="p-3 rounded-lg bg-[#2C3539]/10">
+          <ShoppingBag className="w-6 h-6 text-[#2C3539]" />
         </div>
         <div>
           <h1 className="text-2xl font-bold">NCTR Shop Settings</h1>
@@ -357,7 +357,7 @@ export function AdminShopSettings() {
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="bg-[#D4FF00] text-black hover:bg-[#D4FF00]/80"
+            className="bg-[#2C3539] text-white hover:bg-[#2C3539]/80"
           >
             {saving ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -446,7 +446,7 @@ export function AdminShopSettings() {
                         ${Number(tx.order_total).toFixed(2)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <span className="text-[#D4FF00] font-medium">
+                        <span className="text-[#2C3539] dark:text-[#9CA3AF] font-medium">
                           +{Number(tx.nctr_earned).toLocaleString(undefined, { maximumFractionDigits: 2 })} NCTR
                         </span>
                       </TableCell>
