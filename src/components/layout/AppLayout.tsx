@@ -10,6 +10,7 @@ import { ClaimsBalanceIndicator } from '@/components/claims/ClaimsBalanceIndicat
 import { FavoritesIndicator } from '@/components/FavoritesIndicator';
 import { PortfolioIndicator } from '@/components/PortfolioIndicator';
 import { InviteHeaderCTA } from '@/components/navigation/InviteHeaderCTA';
+import { OnboardingTracker } from '@/components/onboarding/OnboardingTracker';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -151,6 +152,9 @@ export function AppLayout({ children }: AppLayoutProps) {
               </div>
             </div>
           </nav>
+
+          {/* Onboarding Tracker - tracks page visits for onboarding progress */}
+          <OnboardingTracker />
 
           {/* Main Content */}
           <main className="flex-1 overflow-auto">

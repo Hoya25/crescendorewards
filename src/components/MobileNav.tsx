@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Menu, X, Gift, LogIn, UserPlus } from 'lucide-react';
+import { Menu, X, Gift, LogIn, UserPlus, Sparkles } from 'lucide-react';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { CrescendoLogo } from './CrescendoLogo';
+import { useNavigate } from 'react-router-dom';
 
 interface MobileNavProps {
   onViewRewards: () => void;
@@ -12,10 +13,16 @@ interface MobileNavProps {
 
 export function MobileNav({ onViewRewards, onSignIn, onJoin }: MobileNavProps) {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleNavAction = (action: () => void) => {
     setOpen(false);
     action();
+  };
+
+  const handleNavigate = (path: string) => {
+    setOpen(false);
+    navigate(path);
   };
 
   return (
@@ -39,6 +46,14 @@ export function MobileNav({ onViewRewards, onSignIn, onJoin }: MobileNavProps) {
           >
             <Gift className="w-5 h-5" />
             Rewards
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-3 h-12 text-base"
+            onClick={() => handleNavigate('/how-it-works')}
+          >
+            <Sparkles className="w-5 h-5" />
+            How It Works
           </Button>
           <Button
             variant="ghost"

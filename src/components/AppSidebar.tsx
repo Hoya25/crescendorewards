@@ -33,6 +33,7 @@ interface AppSidebarProps {
 
 const mainNavItems = [
   { title: 'Rewards', url: '/rewards', icon: Gift },
+  { title: 'How It Works', url: '/how-it-works', icon: Sparkles },
   { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
   { title: 'Invite Friends', url: '/invite', icon: UserPlus, highlight: true },
   { title: 'My Claims', url: '/claims', icon: Ticket },

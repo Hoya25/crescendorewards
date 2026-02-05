@@ -10,6 +10,7 @@ import { supabase } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { usePortfolioSync } from "@/hooks/usePortfolioSync";
+import { NCTRHelp, LockHelp, TierHelp } from "@/components/ui/help-tooltip";
 
 interface PortfolioSummaryCardProps {
   compact?: boolean;
@@ -171,6 +172,7 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
           <CardTitle className="text-lg flex items-center gap-2">
             <Wallet className="w-5 h-5 text-primary" />
             Your NCTR
+            <NCTRHelp />
           </CardTitle>
           <div className="flex items-center gap-2">
             {tier && (
@@ -238,6 +240,7 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
                 <div className="flex items-center gap-1 text-primary mb-1">
                   <Lock className="w-3 h-3" />
                   <span className="text-xs font-medium">360LOCK</span>
+                  <LockHelp />
                 </div>
                 <p className="font-semibold">{total360Locked.toLocaleString()}</p>
               </div>
