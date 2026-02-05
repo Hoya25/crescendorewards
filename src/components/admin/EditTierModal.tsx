@@ -45,11 +45,12 @@ interface EditTierModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   tier: StatusTier | null;
+  allTiers: StatusTier[];
   onSave: (tier: StatusTier) => Promise<void>;
   saving: boolean;
 }
 
-export function EditTierModal({ open, onOpenChange, tier, onSave, saving }: EditTierModalProps) {
+export function EditTierModal({ open, onOpenChange, tier, allTiers, onSave, saving }: EditTierModalProps) {
   const { isActive: isBenefitActive, loading: benefitSettingsLoading } = useBenefitTypeSettings();
   
   // Display fields
@@ -142,8 +143,40 @@ export function EditTierModal({ open, onOpenChange, tier, onSave, saving }: Edit
     vipEvents, conciergeService, freeShipping, customBenefits
   ]);
 
+  // Validation: check if current tier config would create overlaps
+  const getValidationErrors = (): string[] => {
+    if (!tier) return [];
+    const errors: string[] = [];
+    
+    // Check min < max for this tier
+    if (!noMaximum && maxNctr !== null && minNctr >= maxNctr) {
+      errors.push('Minimum NCTR must be less than maximum NCTR');
+    }
+    
+    // Check for overlaps with other tiers
+    const otherTiers = allTiers.filter(t => t.id !== tier.id);
+    for (const other of otherTiers) {
+      // Check if this tier's range overlaps with another tier
+      const thisMax = noMaximum ? Infinity : (maxNctr ?? Infinity);
+      const otherMax = other.max_nctr_360_locked ?? Infinity;
+      
+      // Overlap exists if: thisMin <= otherMax AND thisMax >= otherMin
+      if (minNctr <= otherMax && thisMax >= other.min_nctr_360_locked) {
+        // Check if they actually overlap (not just adjacent)
+        if (minNctr < otherMax && thisMax > other.min_nctr_360_locked) {
+          errors.push(`Range overlaps with ${other.display_name} (${other.min_nctr_360_locked.toLocaleString()} - ${other.max_nctr_360_locked?.toLocaleString() ?? '∞'})`);
+        }
+      }
+    }
+    
+    return errors;
+  };
+
+  const validationErrors = getValidationErrors();
+  const canSave = hasChanges && validationErrors.length === 0;
+
   const handleSave = async () => {
-    if (!tier) return;
+    if (!tier || validationErrors.length > 0) return;
 
     const updatedTier: StatusTier = {
       ...tier,
@@ -590,27 +623,41 @@ export function EditTierModal({ open, onOpenChange, tier, onSave, saving }: Edit
         </div>
 
         {/* FOOTER - Fixed */}
-        <div className="px-6 py-4 border-t bg-background flex items-center justify-between">
-          <span className="text-sm text-orange-600">
-            {hasChanges ? '• Unsaved changes' : ''}
-          </span>
-          <div className="flex gap-3">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={!hasChanges || saving}>
-              {saving ? (
-                <>
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="w-4 h-4 mr-2" />
-                  Save Changes
-                </>
-              )}
-            </Button>
+        <div className="px-6 py-4 border-t bg-background space-y-3">
+          {/* Validation Errors */}
+          {validationErrors.length > 0 && (
+            <div className="p-3 bg-destructive/10 text-destructive rounded-lg text-sm">
+              <strong className="block mb-1">Cannot save:</strong>
+              <ul className="list-disc list-inside">
+                {validationErrors.map((err, i) => (
+                  <li key={i}>{err}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-warning">
+              {hasChanges && validationErrors.length === 0 ? '• Unsaved changes' : ''}
+            </span>
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSave} disabled={!canSave || saving}>
+                {saving ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Changes
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>

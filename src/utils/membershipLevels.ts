@@ -7,51 +7,32 @@ export type { MembershipTier } from '@/types';
 export const membershipTiers: MembershipTier[] = [
   {
     level: 0,
-    name: 'Level 1',
-    requirement: 100,
-    description: 'Start your journey with 100 NCTR locked in 360LOCK',
-    multiplier: 1.0,
-    claims: 'No claims',
-    discount: 0,
-    benefits: [
-      'Access to basic rewards',
-      'Earn 1x NCTR on all activities',
-      'Community access',
-      '100 NCTR in 360LOCK'
-    ],
-    nftBadges: [],
-    color: 'hsl(142 76% 36%)',
-    bgColor: 'hsl(142 76% 96%)'
-  },
-  {
-    level: 1,
     name: 'Bronze',
-    requirement: 1000,
-    description: 'Lock 1,000 NCTR for 360 days to unlock enhanced earning',
+    requirement: 100,
+    description: 'Entry tier with enhanced earning potential (100-999 NCTR)',
     multiplier: 1.1,
     claims: '1 annual claim',
-    discount: 5,
+    discount: 0,
     benefits: [
       'Access to bronze reward catalog',
       '1 reward claim per year',
       'Priority customer support',
-      'Earn 1.1x NCTR on all activities',
-      '5% discount on partner brands'
+      'Earn 1.1x NCTR on all activities'
     ],
-    nftBadges: ['Digital Rewards Access', 'Event Access'],
+    nftBadges: ['Digital Rewards Access'],
     color: 'hsl(14 100% 57%)',
     bgColor: 'hsl(14 100% 96%)'
   },
   {
-    level: 2,
+    level: 1,
     name: 'Silver',
-    requirement: 2500,
-    description: 'Lock 2,500 NCTR for 360 days for quarterly claim privileges',
+    requirement: 1000,
+    description: 'Enhanced benefits with quarterly claim privileges (1,000-4,999 NCTR)',
     multiplier: 1.25,
     claims: '4 annual claims',
     discount: 10,
     benefits: [
-      'Access to premium reward catalog',
+      'Access to silver reward catalog',
       '4 reward claims per year',
       'Early access to new rewards',
       'Earn 1.25x NCTR on all activities',
@@ -62,31 +43,30 @@ export const membershipTiers: MembershipTier[] = [
     bgColor: 'hsl(0 0% 96%)'
   },
   {
-    level: 3,
+    level: 2,
     name: 'Gold',
     requirement: 5000,
-    description: 'Lock 5,000 NCTR for 360 days for elite monthly claims',
+    description: 'Elite status with monthly claims and exclusive perks (5,000-14,999 NCTR)',
     multiplier: 1.4,
     claims: '1 monthly claim',
     discount: 15,
     benefits: [
-      'Access to exclusive reward catalog',
+      'Access to gold reward catalog',
       '1 reward claim per month',
       'VIP event invitations',
       'Earn 1.4x NCTR on all activities',
       '15% discount on partner brands',
-      'Dedicated account manager',
-      'Buy\'r Premium membership'
+      'Dedicated account manager'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access', 'VIP Experiences'],
     color: 'hsl(43 96% 56%)',
     bgColor: 'hsl(43 96% 96%)'
   },
   {
-    level: 4,
+    level: 3,
     name: 'Platinum',
-    requirement: 10000,
-    description: 'Lock 10,000 NCTR for 360 days for bi-monthly claims',
+    requirement: 15000,
+    description: 'Premium status with bi-monthly claims and concierge service (15,000-49,999 NCTR)',
     multiplier: 1.6,
     claims: '2 monthly claims',
     discount: 20,
@@ -97,18 +77,17 @@ export const membershipTiers: MembershipTier[] = [
       'Earn 1.6x NCTR on all activities',
       '20% discount on partner brands',
       'Personal concierge service',
-      'Priority shipping',
-      'Buy\'r Premium membership'
+      'Priority shipping'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access', 'VIP Experiences', 'Platinum Concierge'],
     color: 'hsl(0 0% 85%)',
     bgColor: 'hsl(0 0% 96%)'
   },
   {
-    level: 5,
+    level: 4,
     name: 'Diamond',
-    requirement: 25000,
-    description: 'Lock 25,000 NCTR for 360 days for ultimate benefits',
+    requirement: 50000,
+    description: 'Ultimate status with unlimited benefits and white-glove service (50,000+ NCTR)',
     multiplier: 2.0,
     claims: 'Unlimited',
     discount: 25,
@@ -120,8 +99,7 @@ export const membershipTiers: MembershipTier[] = [
       '25% discount on partner brands',
       'White-glove concierge service',
       'Free expedited shipping',
-      'Early access to all new features',
-      'Buy\'r Premium membership'
+      'Early access to all new features'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access', 'VIP Experiences', 'Diamond Elite'],
     color: 'hsl(180 100% 50%)',
