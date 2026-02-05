@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { queryClient } from './lib/queryClient';
 import { ThemeProvider } from "./components/ThemeProvider";
 import { AuthProvider, useAuthContext } from "./contexts/AuthContext";
@@ -22,6 +22,8 @@ import { useClaimDeliveryNotifications } from "./hooks/useClaimDeliveryNotificat
 import { NCTREarnedCelebration } from "./components/NCTREarnedCelebration";
 import { useNCTREarningDetection } from "./hooks/useNCTREarningDetection";
 import { useStatusTiers, getTierByBalance, getNextTier, getProgressToNextTier } from "./hooks/useStatusTiers";
+import { AppLayout } from "./components/layout/AppLayout";
+import { NavigationSafetyNet } from "./components/layout/NavigationSafetyNet";
 
 // Eagerly loaded components (critical path)
 import { LandingPage } from "./components/LandingPage";
@@ -71,6 +73,23 @@ const GearVaultPage = lazy(() => import('./pages/GearVaultPage'));
 // Admin panel - separate chunk for code splitting
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel').then(m => ({ default: m.AdminPanel })));
 
+/**
+ * Layout wrapper for authenticated routes with sidebar and header navigation.
+ * This ensures all authenticated pages have consistent navigation.
+ */
+function AuthenticatedLayout() {
+  const { profile, refreshUnifiedProfile } = useUnifiedUser();
+  const claimBalance = profile?.crescendo_data?.claims_balance || 0;
+
+  return (
+    <AppLayout>
+      <Suspense fallback={<RouteLoading />}>
+        <Outlet context={{ claimBalance, onClaimSuccess: refreshUnifiedProfile }} />
+      </Suspense>
+    </AppLayout>
+  );
+}
+
 function AppRoutes() {
   const { 
     isAuthenticated, 
@@ -113,15 +132,22 @@ function AppRoutes() {
     return <PageLoading />;
   }
 
+  const claimBalance = profile?.crescendo_data?.claims_balance || 0;
+
   return (
     <div className="w-full max-w-[100vw] overflow-x-hidden">
       {/* Beta Banner - Top of page */}
       <BetaBanner />
       
+      {/* Navigation Safety Net - Fallback if nav isn't visible */}
+      {isAuthenticated && <NavigationSafetyNet />}
+      
       <ErrorBoundary>
         <Suspense fallback={<RouteLoading />}>
           <Routes>
-            {/* Public Routes */}
+            {/* ========================================= */}
+            {/* PUBLIC ROUTES (no sidebar/header needed) */}
+            {/* ========================================= */}
             <Route 
               path="/" 
               element={
@@ -132,50 +158,140 @@ function AppRoutes() {
                 )
               } 
             />
-            <Route 
-              path="/rewards" 
-              element={
-                <ErrorBoundary>
-                  <RewardsPool claimBalance={profile?.crescendo_data?.claims_balance || 0} onClaimSuccess={refreshUnifiedProfile} />
-                </ErrorBoundary>
-              } 
-            />
-            <Route path="/rewards/:id" element={<RewardDetailPage onClaimSuccess={refreshUnifiedProfile} />} />
-            <Route path="/food-beverage" element={<FoodBeveragePage claimBalance={profile?.crescendo_data?.claims_balance || 0} />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/help" element={<HelpPage />} />
             <Route path="/faq" element={<HelpPage />} />
             <Route path="/claim" element={<ClaimGiftPage />} />
-            <Route path="/sponsors" element={<SponsorsPage />} />
-            <Route path="/become-sponsor" element={<BecomeASponsorPage />} />
-            <Route path="/sponsors/:slug" element={<SponsorProfilePage />} />
             
-            {/* GROUNDBALL Impact Engine */}
-            <Route path="/groundball" element={<GroundballOverviewPage />} />
-            <Route path="/groundball/rewards" element={<GroundballRewardsPage />} />
+            {/* Public referral landing pages */}
+            <Route path="/join/:slug" element={<InviteLandingPage />} />
+            <Route path="/join" element={<InviteLandingPage />} />
+
+            {/* ========================================= */}
+            {/* SEMI-PUBLIC ROUTES (viewable by anyone but with layout) */}
+            {/* ========================================= */}
+            <Route 
+              path="/rewards" 
+              element={
+                isAuthenticated ? (
+                  <AppLayout>
+                    <ErrorBoundary>
+                      <RewardsPool claimBalance={claimBalance} onClaimSuccess={refreshUnifiedProfile} />
+                    </ErrorBoundary>
+                  </AppLayout>
+                ) : (
+                  <ErrorBoundary>
+                    <RewardsPool claimBalance={0} onClaimSuccess={() => {}} />
+                  </ErrorBoundary>
+                )
+              } 
+            />
+            <Route 
+              path="/rewards/:id" 
+              element={
+                isAuthenticated ? (
+                  <AppLayout>
+                    <RewardDetailPage onClaimSuccess={refreshUnifiedProfile} />
+                  </AppLayout>
+                ) : (
+                  <RewardDetailPage onClaimSuccess={() => {}} />
+                )
+              } 
+            />
+            <Route 
+              path="/food-beverage" 
+              element={
+                isAuthenticated ? (
+                  <AppLayout>
+                    <FoodBeveragePage claimBalance={claimBalance} />
+                  </AppLayout>
+                ) : (
+                  <FoodBeveragePage claimBalance={0} />
+                )
+              } 
+            />
+            <Route 
+              path="/sponsors" 
+              element={
+                isAuthenticated ? (
+                  <AppLayout><SponsorsPage /></AppLayout>
+                ) : (
+                  <SponsorsPage />
+                )
+              } 
+            />
+            <Route 
+              path="/become-sponsor" 
+              element={
+                isAuthenticated ? (
+                  <AppLayout><BecomeASponsorPage /></AppLayout>
+                ) : (
+                  <BecomeASponsorPage />
+                )
+              } 
+            />
+            <Route 
+              path="/sponsors/:slug" 
+              element={
+                isAuthenticated ? (
+                  <AppLayout><SponsorProfilePage /></AppLayout>
+                ) : (
+                  <SponsorProfilePage />
+                )
+              } 
+            />
+            
+            {/* GROUNDBALL Impact Engine - semi-public */}
+            <Route 
+              path="/groundball" 
+              element={
+                isAuthenticated ? (
+                  <AppLayout><GroundballOverviewPage /></AppLayout>
+                ) : (
+                  <GroundballOverviewPage />
+                )
+              } 
+            />
+            <Route 
+              path="/groundball/rewards" 
+              element={
+                isAuthenticated ? (
+                  <AppLayout><GroundballRewardsPage /></AppLayout>
+                ) : (
+                  <GroundballRewardsPage />
+                )
+              } 
+            />
+            <Route 
+              path="/groundball/gear-vault" 
+              element={
+                isAuthenticated ? (
+                  <AppLayout><GearVaultPage /></AppLayout>
+                ) : (
+                  <GearVaultPage />
+                )
+              } 
+            />
+
+            {/* ========================================= */}
+            {/* AUTHENTICATED ROUTES (require login + have layout) */}
+            {/* ========================================= */}
             <Route 
               path="/groundball/my-rewards" 
               element={
                 <ProtectedRoute>
-                  <MyGroundballRewardsPage />
+                  <AppLayout><MyGroundballRewardsPage /></AppLayout>
                 </ProtectedRoute>
               } 
             />
-            <Route path="/groundball/gear-vault" element={<GearVaultPage />} />
-            
-            {/* Personalized referral link - dedicated landing page */}
-            <Route path="/join/:slug" element={<InviteLandingPage />} />
-            
-            {/* Fallback redirect for old /join route without slug */}
-            <Route path="/join" element={<InviteLandingPage />} />
 
             {/* Sponsor Portal Routes */}
             <Route 
               path="/sponsor/dashboard" 
               element={
                 <ProtectedRoute>
-                  <SponsorDashboard />
+                  <AppLayout><SponsorDashboard /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -183,7 +299,7 @@ function AppRoutes() {
               path="/sponsor/profile" 
               element={
                 <ProtectedRoute>
-                  <SponsorProfileEditor />
+                  <AppLayout><SponsorProfileEditor /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -191,10 +307,12 @@ function AppRoutes() {
               path="/sponsor/rewards/new" 
               element={
                 <ProtectedRoute>
-                  <SponsorSubmitReward />
+                  <AppLayout><SponsorSubmitReward /></AppLayout>
                 </ProtectedRoute>
               } 
             />
+
+            {/* Main authenticated routes */}
             <Route
               path="/dashboard" 
               element={
@@ -209,7 +327,7 @@ function AppRoutes() {
               path="/earn" 
               element={
                 <ProtectedRoute>
-                  <EarnNCTR />
+                  <AppLayout><EarnNCTR /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -217,7 +335,7 @@ function AppRoutes() {
               path="/profile" 
               element={
                 <ProtectedRoute>
-                  <ProfilePage />
+                  <AppLayout><ProfilePage /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -225,7 +343,7 @@ function AppRoutes() {
               path="/profile/delivery" 
               element={
                 <ProtectedRoute>
-                  <DeliveryProfilePage />
+                  <AppLayout><DeliveryProfilePage /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -233,7 +351,7 @@ function AppRoutes() {
               path="/membership" 
               element={
                 <ProtectedRoute>
-                  <MembershipLevelPage />
+                  <AppLayout><MembershipLevelPage /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -241,7 +359,7 @@ function AppRoutes() {
               path="/benefits" 
               element={
                 <ProtectedRoute>
-                  <BenefitsPage />
+                  <AppLayout><BenefitsPage /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -249,7 +367,7 @@ function AppRoutes() {
               path="/membership/history" 
               element={
                 <ProtectedRoute>
-                  <MembershipHistoryPage />
+                  <AppLayout><MembershipHistoryPage /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -257,7 +375,7 @@ function AppRoutes() {
               path="/membership/statistics" 
               element={
                 <ProtectedRoute>
-                  <MembershipStatisticsPage />
+                  <AppLayout><MembershipStatisticsPage /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -277,7 +395,7 @@ function AppRoutes() {
               path="/submit-reward" 
               element={
                 <ProtectedRoute>
-                  <SubmitRewardsPage />
+                  <AppLayout><SubmitRewardsPage /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -285,7 +403,7 @@ function AppRoutes() {
               path="/my-submissions" 
               element={
                 <ProtectedRoute>
-                  <MySubmissionsPage />
+                  <AppLayout><MySubmissionsPage /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -293,7 +411,7 @@ function AppRoutes() {
               path="/purchase-history" 
               element={
                 <ProtectedRoute>
-                  <PurchaseHistoryPage />
+                  <AppLayout><PurchaseHistoryPage /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -301,7 +419,7 @@ function AppRoutes() {
               path="/buy-claims" 
               element={
                 <ProtectedRoute>
-                  <BuyClaimsPage />
+                  <AppLayout><BuyClaimsPage /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -309,7 +427,7 @@ function AppRoutes() {
               path="/gift-claims" 
               element={
                 <ProtectedRoute>
-                  <GiftClaimsPage />
+                  <AppLayout><GiftClaimsPage /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -317,7 +435,7 @@ function AppRoutes() {
               path="/claims" 
               element={
                 <ProtectedRoute>
-                  <ClaimsPage />
+                  <AppLayout><ClaimsPage /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -325,7 +443,7 @@ function AppRoutes() {
               path="/invite" 
               element={
                 <ProtectedRoute>
-                  <InvitePage />
+                  <AppLayout><InvitePage /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -333,7 +451,7 @@ function AppRoutes() {
               path="/referrals" 
               element={
                 <ProtectedRoute>
-                  <ReferralAnalyticsDashboard />
+                  <AppLayout><ReferralAnalyticsDashboard /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -341,7 +459,7 @@ function AppRoutes() {
               path="/wishlist" 
               element={
                 <ProtectedRoute>
-                  <WishlistPage claimBalance={profile?.crescendo_data?.claims_balance || 0} />
+                  <AppLayout><WishlistPage claimBalance={claimBalance} /></AppLayout>
                 </ProtectedRoute>
               } 
             />
@@ -349,7 +467,7 @@ function AppRoutes() {
               path="/favorites" 
               element={
                 <ProtectedRoute>
-                  <FavoritesPage claimBalance={profile?.crescendo_data?.claims_balance || 0} />
+                  <AppLayout><FavoritesPage claimBalance={claimBalance} /></AppLayout>
                 </ProtectedRoute>
               } 
             />
