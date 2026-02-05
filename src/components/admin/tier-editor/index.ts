@@ -1,6 +1,7 @@
 export { NumberInputWithButtons } from './NumberInputWithButtons';
 export { EmojiPicker } from './EmojiPicker';
-export { TierValidationWarnings } from './TierValidationWarnings';
+export { TierValidationWarnings, validateTiers, hasValidationErrors } from './TierValidationWarnings';
+export type { ValidationWarning } from './TierValidationWarnings';
 export { TierPreviewPanel } from './TierPreviewPanel';
 export { TierProgressionBar } from './TierProgressionBar';
 export { TierComparisonTable } from './TierComparisonTable';

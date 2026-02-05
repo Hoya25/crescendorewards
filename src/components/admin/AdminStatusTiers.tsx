@@ -592,6 +592,7 @@ export function AdminStatusTiers() {
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
         tier={selectedTier}
+        allTiers={tiers}
         onSave={saveTier}
         saving={saving}
       />
