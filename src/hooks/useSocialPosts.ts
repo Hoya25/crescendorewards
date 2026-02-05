@@ -265,6 +265,44 @@ export function useSocialPosts() {
     }
   };
 
+  const createMentionDefault = async (data: {
+    category: string;
+    subcategory: string | null;
+    default_mentions: string[];
+    default_hashtags: string[];
+  }) => {
+    try {
+      const { error } = await supabase
+        .from('social_mention_defaults')
+        .insert(data);
+
+      if (error) throw error;
+      await loadMentionDefaults();
+      toast({ title: 'Success', description: 'Category defaults created' });
+      return true;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to create defaults';
+      toast({ title: 'Error', description: message, variant: 'destructive' });
+      return false;
+    }
+  };
+
+  const deleteMentionDefault = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('social_mention_defaults')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      await loadMentionDefaults();
+      toast({ title: 'Success', description: 'Category defaults deleted' });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to delete defaults';
+      toast({ title: 'Error', description: message, variant: 'destructive' });
+    }
+  };
+
   return {
     posts,
     mentionDefaults,
@@ -277,5 +315,8 @@ export function useSocialPosts() {
     postNow,
     generatePostContent,
     updateMentionDefault,
+    createMentionDefault,
+    deleteMentionDefault,
+    loadMentionDefaults,
   };
 }
