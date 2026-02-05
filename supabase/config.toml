@@ -11,3 +11,7 @@ verify_jwt = false
 # Session tracking via sendBeacon (no auth header)
 [functions.track-session-end]
 verify_jwt = false
+
+# Shopify webhook needs public access
+[functions.shopify-webhook]
+verify_jwt = false
