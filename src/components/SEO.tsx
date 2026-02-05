@@ -10,9 +10,9 @@ interface SEOProps {
 }
 
 const defaultMeta = {
-  title: "Crescendo | Opportunity & Rewards Marketplace",
-  description: "Member-built, member-owned opportunity and rewards marketplace. Lock NCTR to unlock subscriptions, rewards, and experiences.",
-  ogImage: "/og-image.png",
+  title: "Crescendo | The People's Rewards Marketplace",
+  description: "Member-built, member-owned rewards marketplace. Earn by shopping, inviting, and contributing. Build ownership in a community you help create.",
+  ogImage: "https://crescendo.nctr.live/og-image.png",
   siteUrl: "https://crescendo.nctr.live",
 };
 
