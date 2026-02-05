@@ -44,6 +44,8 @@ export function AdminSocialPosts() {
     postNow,
     generatePostContent,
     updateMentionDefault,
+    createMentionDefault,
+    deleteMentionDefault,
   } = useSocialPosts();
 
   const [activeTab, setActiveTab] = useState('posts');
@@ -72,6 +74,19 @@ export function AdminSocialPosts() {
   // Delete confirmation
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingPost, setDeletingPost] = useState<SocialPost | null>(null);
+
+  // Mention defaults editor
+  const [showDefaultsModal, setShowDefaultsModal] = useState(false);
+  const [editingDefault, setEditingDefault] = useState<{
+    id: string | null;
+    category: string;
+    subcategory: string;
+    mentions: string[];
+    hashtags: string[];
+  } | null>(null);
+  const [defaultNewMention, setDefaultNewMention] = useState('');
+  const [defaultNewHashtag, setDefaultNewHashtag] = useState('');
+  const [savingDefault, setSavingDefault] = useState(false);
 
   const filteredPosts = useMemo(() => {
     return posts.filter(post => {
@@ -418,12 +433,32 @@ export function AdminSocialPosts() {
         <TabsContent value="defaults" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="w-5 h-5" /> Category Mention Defaults
-              </CardTitle>
-              <CardDescription>
-                Configure default @mentions and #hashtags for each reward category
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="w-5 h-5" /> Category Mention Defaults
+                  </CardTitle>
+                  <CardDescription>
+                    Configure default @mentions and #hashtags for each reward category
+                  </CardDescription>
+                </div>
+                <Button
+                  onClick={() => {
+                    setEditingDefault({
+                      id: null,
+                      category: '',
+                      subcategory: '',
+                      mentions: [],
+                      hashtags: [],
+                    });
+                    setDefaultNewMention('');
+                    setDefaultNewHashtag('');
+                    setShowDefaultsModal(true);
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" /> Add Category
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
@@ -433,6 +468,7 @@ export function AdminSocialPosts() {
                     <TableHead>Subcategory</TableHead>
                     <TableHead>Default Mentions</TableHead>
                     <TableHead>Default Hashtags</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -452,6 +488,36 @@ export function AdminSocialPosts() {
                           {def.default_hashtags.map((h: string) => (
                             <Badge key={h} variant="outline">{h}</Badge>
                           ))}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex gap-1 justify-end">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setEditingDefault({
+                                id: def.id,
+                                category: def.category,
+                                subcategory: def.subcategory || '',
+                                mentions: [...def.default_mentions],
+                                hashtags: [...def.default_hashtags],
+                              });
+                              setDefaultNewMention('');
+                              setDefaultNewHashtag('');
+                              setShowDefaultsModal(true);
+                            }}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-destructive"
+                            onClick={() => deleteMentionDefault(def.id)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -698,6 +764,181 @@ export function AdminSocialPosts() {
               }}
             >
               Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Mention Defaults Editor Modal */}
+      <Dialog open={showDefaultsModal} onOpenChange={setShowDefaultsModal}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="w-5 h-5" /> {editingDefault?.id ? 'Edit' : 'Add'} Category Defaults
+            </DialogTitle>
+            <DialogDescription>
+              {editingDefault?.id
+                ? 'Update the default mentions and hashtags for this category'
+                : 'Create a new category with default mentions and hashtags'
+              }
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Category</Label>
+                <Input
+                  value={editingDefault?.category || ''}
+                  onChange={(e) => setEditingDefault(prev => prev ? { ...prev, category: e.target.value } : null)}
+                  placeholder="e.g., gaming"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Subcategory (optional)</Label>
+                <Input
+                  value={editingDefault?.subcategory || ''}
+                  onChange={(e) => setEditingDefault(prev => prev ? { ...prev, subcategory: e.target.value } : null)}
+                  placeholder="e.g., general"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1">
+                <AtSign className="w-4 h-4" /> Default Mentions
+              </Label>
+              <div className="flex gap-1">
+                <Input
+                  value={defaultNewMention}
+                  onChange={(e) => setDefaultNewMention(e.target.value)}
+                  placeholder="@username"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (!defaultNewMention.trim()) return;
+                      const mention = defaultNewMention.startsWith('@') ? defaultNewMention : `@${defaultNewMention}`;
+                      if (editingDefault && !editingDefault.mentions.includes(mention)) {
+                        setEditingDefault({ ...editingDefault, mentions: [...editingDefault.mentions, mention] });
+                      }
+                      setDefaultNewMention('');
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="outline"
+                  onClick={() => {
+                    if (!defaultNewMention.trim()) return;
+                    const mention = defaultNewMention.startsWith('@') ? defaultNewMention : `@${defaultNewMention}`;
+                    if (editingDefault && !editingDefault.mentions.includes(mention)) {
+                      setEditingDefault({ ...editingDefault, mentions: [...editingDefault.mentions, mention] });
+                    }
+                    setDefaultNewMention('');
+                  }}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {editingDefault?.mentions.map((m) => (
+                  <Badge
+                    key={m}
+                    variant="secondary"
+                    className="cursor-pointer"
+                    onClick={() => setEditingDefault(prev => prev ? { ...prev, mentions: prev.mentions.filter(x => x !== m) } : null)}
+                  >
+                    {m} ×
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-1">
+                <Hash className="w-4 h-4" /> Default Hashtags
+              </Label>
+              <div className="flex gap-1">
+                <Input
+                  value={defaultNewHashtag}
+                  onChange={(e) => setDefaultNewHashtag(e.target.value)}
+                  placeholder="#hashtag"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (!defaultNewHashtag.trim()) return;
+                      const hashtag = defaultNewHashtag.startsWith('#') ? defaultNewHashtag : `#${defaultNewHashtag}`;
+                      if (editingDefault && !editingDefault.hashtags.includes(hashtag)) {
+                        setEditingDefault({ ...editingDefault, hashtags: [...editingDefault.hashtags, hashtag] });
+                      }
+                      setDefaultNewHashtag('');
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="outline"
+                  onClick={() => {
+                    if (!defaultNewHashtag.trim()) return;
+                    const hashtag = defaultNewHashtag.startsWith('#') ? defaultNewHashtag : `#${defaultNewHashtag}`;
+                    if (editingDefault && !editingDefault.hashtags.includes(hashtag)) {
+                      setEditingDefault({ ...editingDefault, hashtags: [...editingDefault.hashtags, hashtag] });
+                    }
+                    setDefaultNewHashtag('');
+                  }}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {editingDefault?.hashtags.map((h) => (
+                  <Badge
+                    key={h}
+                    variant="secondary"
+                    className="cursor-pointer"
+                    onClick={() => setEditingDefault(prev => prev ? { ...prev, hashtags: prev.hashtags.filter(x => x !== h) } : null)}
+                  >
+                    {h} ×
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDefaultsModal(false)}>Cancel</Button>
+            <Button
+              disabled={!editingDefault?.category.trim() || savingDefault}
+              onClick={async () => {
+                if (!editingDefault) return;
+                setSavingDefault(true);
+                try {
+                  if (editingDefault.id) {
+                    await updateMentionDefault(editingDefault.id, {
+                      category: editingDefault.category,
+                      subcategory: editingDefault.subcategory || null,
+                      default_mentions: editingDefault.mentions,
+                      default_hashtags: editingDefault.hashtags,
+                    });
+                  } else {
+                    await createMentionDefault({
+                      category: editingDefault.category,
+                      subcategory: editingDefault.subcategory || null,
+                      default_mentions: editingDefault.mentions,
+                      default_hashtags: editingDefault.hashtags,
+                    });
+                  }
+                  setShowDefaultsModal(false);
+                  setEditingDefault(null);
+                } finally {
+                  setSavingDefault(false);
+                }
+              }}
+            >
+              {savingDefault ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+              {editingDefault?.id ? 'Save Changes' : 'Create Category'}
             </Button>
           </DialogFooter>
         </DialogContent>
