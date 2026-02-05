@@ -13,6 +13,7 @@ import { Switch } from '@/components/ui/switch';
 import { NCTRLogo } from './NCTRLogo';
 import { toast } from '@/hooks/use-toast';
 import { ArrowLeft, Upload, Save, User, Mail, Wallet, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift, X, Crown, ChevronRight, FileText, Check, Lock, TrendingUp, Sparkles, Truck, Package } from 'lucide-react';
+import { NotificationPreferences } from '@/components/profile/NotificationPreferences';
 import { CompactReferralCard } from '@/components/referral/CompactReferralCard';
 import { Progress } from '@/components/ui/progress';
 import { useAdminRole } from '@/hooks/useAdminRole';
@@ -834,7 +835,9 @@ export function ProfilePage() {
               </CardContent>
             </Card>
 
-            {/* Admin Access Card - Only visible to admins */}
+            {/* Notification Preferences */}
+            <NotificationPreferences />
+
             {isAdmin && (
               <Card className="border-2 border-amber-200 dark:border-amber-800 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30">
                 <CardHeader className="pb-3">

@@ -1249,6 +1249,47 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_settings: {
+        Row: {
+          created_at: string
+          email_nctr_credited: boolean
+          email_rewards_claimed: boolean
+          email_shop_purchases: boolean
+          email_tier_changes: boolean
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_nctr_credited?: boolean
+          email_rewards_claimed?: boolean
+          email_shop_purchases?: boolean
+          email_tier_changes?: boolean
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_nctr_credited?: boolean
+          email_rewards_claimed?: boolean
+          email_shop_purchases?: boolean
+          email_tier_changes?: boolean
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string

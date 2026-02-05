@@ -6,6 +6,35 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
+// Helper to send notification email
+async function sendNotification(supabaseUrl: string, type: string, userId: string | null, email: string | null, data: Record<string, unknown>) {
+  try {
+    const notificationUrl = `${supabaseUrl}/functions/v1/send-account-notification`;
+    
+    const response = await fetch(notificationUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+      },
+      body: JSON.stringify({
+        type,
+        user_id: userId,
+        email,
+        data,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('Notification send failed:', await response.text());
+    } else {
+      console.log(`${type} notification sent successfully`);
+    }
+  } catch (error) {
+    console.error('Error sending notification:', error);
+  }
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -119,16 +148,18 @@ Deno.serve(async (req) => {
     let userId: string | null = null;
     let status = 'pending';
     let creditedAt: string | null = null;
+    let userDisplayName: string | null = null;
 
     if (customerEmail) {
       const { data: user } = await supabase
         .from('unified_profiles')
-        .select('id')
+        .select('id, display_name')
         .ilike('email', customerEmail)
         .single();
 
       if (user) {
         userId = user.id;
+        userDisplayName = user.display_name;
         status = 'credited';
         creditedAt = new Date().toISOString();
         console.log('Found matching user:', userId);
@@ -193,6 +224,25 @@ Deno.serve(async (req) => {
     }
 
     console.log('Order stored:', transaction?.id, 'Status:', status);
+
+    // Send email notification
+    if (status === 'credited' && userId) {
+      // User exists and was credited - send shop_purchase notification
+      await sendNotification(supabaseUrl, 'shop_purchase', userId, null, {
+        name: userDisplayName || customerName,
+        amount: totalPrice,
+        nctr_earned: nctrEarned,
+        store: 'NCTR Merch',
+        order_number: orderNumber,
+      });
+    } else if (status === 'pending' && customerEmail) {
+      // No matching user - send pending_purchase notification to customer email
+      await sendNotification(supabaseUrl, 'pending_purchase', null, customerEmail, {
+        customer_name: customerName,
+        amount: totalPrice,
+        nctr_earned: nctrEarned,
+      });
+    }
 
     return new Response(JSON.stringify({ 
       success: true, 
