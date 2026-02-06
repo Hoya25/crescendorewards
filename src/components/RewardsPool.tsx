@@ -592,7 +592,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       {/* Simple nav bar for unauthenticated users (authenticated get AppLayout header) */}
       {!isAuthenticated && (
         <nav className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
-          <div className="container mx-auto px-4 py-2 flex items-center justify-between max-w-full">
+          <div className="container mx-auto px-4 py-1 flex items-center justify-between max-w-full">
             <button onClick={() => navigate('/')} className="hover:opacity-80 transition-opacity">
               <CrescendoLogo />
             </button>
@@ -608,12 +608,12 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       {/* Combined sticky bar: tier + categories + filters */}
       <div className={cn(
         "sticky z-30 bg-background/95 backdrop-blur border-b",
-        isAuthenticated ? "top-[57px] md:top-[65px]" : "top-[49px] md:top-[57px]"
+        isAuthenticated ? "top-[42px] md:top-[46px]" : "top-[42px] md:top-[46px]"
       )}>
         {/* Tier info row (auth only) */}
         {isAuthenticated && (
           <div className="container mx-auto px-4 max-w-full border-b">
-            <div className="flex items-center justify-between h-9">
+            <div className="flex items-center justify-between h-8">
               <div className="flex items-center gap-2 text-sm">
                 <span>{tier?.badge_emoji || '💧'}</span>
                 <span className="font-semibold" style={{ color: tier?.badge_color }}>{tier?.display_name || 'Member'}</span>
@@ -631,7 +631,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         {/* Category pills row */}
         <div className="container mx-auto px-4 max-w-full">
           <div className="relative">
-            <div className="flex items-center gap-1.5 overflow-x-auto py-1.5 -mx-4 px-4 scrollbar-hide">
+            <div className="flex items-center gap-1.5 overflow-x-auto py-1 -mx-4 px-4 scrollbar-hide">
             {[
               { key: 'all', label: 'All', icon: Gift, filter: 'category' },
               { key: 'featured', label: 'Featured', icon: Star, filter: 'featured' },

@@ -17,7 +17,7 @@ export function CrescendoLogo({ className = "", showSubtitle = true }: Crescendo
     <img 
       src={logoSrc}
       alt="Crescendo Opportunity & Rewards Marketplace"
-      className={`h-auto w-28 sm:w-32 md:w-36 object-contain ${className}`}
+      className={`h-auto w-24 sm:w-28 md:w-30 object-contain ${className}`}
     />
   );
 }
