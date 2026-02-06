@@ -605,11 +605,15 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         </nav>
       )}
 
-      {/* Compact tier bar — single line: emoji + tier | claims | level up */}
-      {isAuthenticated && (
-        <div className="sticky top-[57px] md:top-[65px] z-20 bg-background/95 backdrop-blur border-b">
-          <div className="container mx-auto px-4 max-w-full">
-            <div className="flex items-center justify-between h-10">
+      {/* Combined sticky bar: tier + categories + filters */}
+      <div className={cn(
+        "sticky z-30 bg-background/95 backdrop-blur border-b",
+        isAuthenticated ? "top-[57px] md:top-[65px]" : "top-[49px] md:top-[57px]"
+      )}>
+        {/* Tier info row (auth only) */}
+        {isAuthenticated && (
+          <div className="container mx-auto px-4 max-w-full border-b">
+            <div className="flex items-center justify-between h-9">
               <div className="flex items-center gap-2 text-sm">
                 <span>{tier?.badge_emoji || '💧'}</span>
                 <span className="font-semibold" style={{ color: tier?.badge_color }}>{tier?.display_name || 'Member'}</span>
@@ -622,14 +626,12 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               </Button>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Category pills — compact single row */}
-      <div className="border-b bg-background">
+        {/* Category pills row */}
         <div className="container mx-auto px-4 max-w-full">
           <div className="relative">
-            <div className="flex items-center gap-1.5 overflow-x-auto py-2 -mx-4 px-4 scrollbar-hide">
+            <div className="flex items-center gap-1.5 overflow-x-auto py-1.5 -mx-4 px-4 scrollbar-hide">
             {[
               { key: 'all', label: 'All', icon: Gift, filter: 'category' },
               { key: 'featured', label: 'Featured', icon: Star, filter: 'featured' },
@@ -649,7 +651,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                   variant={isActive ? 'default' : 'ghost'}
                   size="sm"
                   className={cn(
-                    "flex-shrink-0 gap-1.5 rounded-full h-8 text-xs px-3",
+                    "flex-shrink-0 gap-1.5 rounded-full h-7 text-xs px-3",
                     isActive && "shadow-sm"
                   )}
                   onClick={() => {
@@ -674,7 +676,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                     }
                   }}
                 >
-                  <Icon className="w-3.5 h-3.5" />
+                  <Icon className="w-3 h-3" />
                   {label}
                 </Button>
               );
@@ -683,12 +685,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none md:hidden" />
           </div>
         </div>
-      </div>
 
-
-      {/* Simplified Filter Bar - Search + Sort + View */}
-      <div className="sticky top-[97px] md:top-[105px] z-15 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b">
-        <div className="container mx-auto px-4 py-2 max-w-full">
+        {/* Search + Sort + View row */}
+        <div className="container mx-auto px-4 py-1.5 max-w-full border-t">
           <div className="flex flex-wrap items-center gap-3">
             {/* Search Input */}
             <div className="relative flex-1 min-w-[180px] max-w-sm">
