@@ -37,6 +37,8 @@ import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import type { DeliveryMethod, RequiredDataField } from '@/types/delivery';
 import { DELIVERY_METHOD_REQUIRED_FIELDS } from '@/types/delivery';
+import { useRewardCreators } from '@/hooks/useFeaturedCreators';
+import { CreatorMiniCard } from '@/components/creators/CreatorMiniCard';
 
 interface Reward {
   id: string;
@@ -119,6 +121,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const { isWatching, toggleWatch, isAnimating: isWatchAnimating, getWatchCount, fetchWatchCounts } = useWatchlist();
   const { checkRequiredFields, profile: deliveryProfile } = useDeliveryProfile();
   const { theme, resolvedTheme } = useTheme();
+  const { creators: featuredCreators } = useRewardCreators(rewardId);
   const currentTheme = resolvedTheme || theme;
   const [reward, setReward] = useState<Reward | null>(null);
   const [brand, setBrand] = useState<Brand | null>(null);
@@ -605,6 +608,21 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                       Learn more <ExternalLink className="w-3 h-3" />
                     </a>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* Featured Creators Section */}
+            {featuredCreators.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-lg font-bold flex items-center gap-2">
+                  <Users className="w-5 h-5 text-primary" />
+                  Featured Creators
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {featuredCreators.map(creator => (
+                    <CreatorMiniCard key={creator.id} creator={creator} />
+                  ))}
                 </div>
               </div>
             )}

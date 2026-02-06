@@ -827,6 +827,65 @@ export type Database = {
         }
         Relationships: []
       }
+      featured_creators: {
+        Row: {
+          bio: string | null
+          category: string | null
+          created_at: string
+          display_priority: number
+          follower_count: number | null
+          handle: string | null
+          id: string
+          image_url: string
+          is_active: boolean
+          is_verified: boolean
+          name: string
+          platform: string
+          profile_url: string | null
+          user_id: string | null
+        }
+        Insert: {
+          bio?: string | null
+          category?: string | null
+          created_at?: string
+          display_priority?: number
+          follower_count?: number | null
+          handle?: string | null
+          id?: string
+          image_url: string
+          is_active?: boolean
+          is_verified?: boolean
+          name: string
+          platform: string
+          profile_url?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          bio?: string | null
+          category?: string | null
+          created_at?: string
+          display_priority?: number
+          follower_count?: number | null
+          handle?: string | null
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          is_verified?: boolean
+          name?: string
+          platform?: string
+          profile_url?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "featured_creators_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       feedback: {
         Row: {
           created_at: string
@@ -1520,6 +1579,45 @@ export type Database = {
           },
         ]
       }
+      reward_featured_creators: {
+        Row: {
+          created_at: string
+          creator_id: string
+          display_order: number
+          id: string
+          reward_id: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          display_order?: number
+          id?: string
+          reward_id: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          display_order?: number
+          id?: string
+          reward_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_featured_creators_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "featured_creators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reward_featured_creators_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reward_redemptions: {
         Row: {
           id: string
@@ -1910,6 +2008,8 @@ export type Database = {
           description: string
           display_order: number | null
           id: string
+          image_quality_approved: boolean | null
+          image_source_url: string | null
           image_url: string | null
           is_active: boolean
           is_featured: boolean
@@ -1920,6 +2020,7 @@ export type Database = {
           publish_at: string | null
           required_user_data: Json | null
           revenue_share_percent: number | null
+          showcase_mode: string | null
           sponsor_cta_text: string | null
           sponsor_cta_url: string | null
           sponsor_enabled: boolean
@@ -1955,6 +2056,8 @@ export type Database = {
           description: string
           display_order?: number | null
           id?: string
+          image_quality_approved?: boolean | null
+          image_source_url?: string | null
           image_url?: string | null
           is_active?: boolean
           is_featured?: boolean
@@ -1965,6 +2068,7 @@ export type Database = {
           publish_at?: string | null
           required_user_data?: Json | null
           revenue_share_percent?: number | null
+          showcase_mode?: string | null
           sponsor_cta_text?: string | null
           sponsor_cta_url?: string | null
           sponsor_enabled?: boolean
@@ -2000,6 +2104,8 @@ export type Database = {
           description?: string
           display_order?: number | null
           id?: string
+          image_quality_approved?: boolean | null
+          image_source_url?: string | null
           image_url?: string | null
           is_active?: boolean
           is_featured?: boolean
@@ -2010,6 +2116,7 @@ export type Database = {
           publish_at?: string | null
           required_user_data?: Json | null
           revenue_share_percent?: number | null
+          showcase_mode?: string | null
           sponsor_cta_text?: string | null
           sponsor_cta_url?: string | null
           sponsor_enabled?: boolean

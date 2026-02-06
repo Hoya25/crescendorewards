@@ -24,6 +24,7 @@ import { AdminEarningOpportunities } from './AdminEarningOpportunities';
 import { AdminStatusTiers } from './AdminStatusTiers';
 import { AdminAlliancePartners } from './AdminAlliancePartners';
 import { AdminSocialPosts } from './AdminSocialPosts';
+import { AdminFeaturedCreators } from './AdminFeaturedCreators';
 import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import AdminGifts from './AdminGifts';
 import { AdminUserNotifications } from './AdminUserNotifications';
@@ -86,6 +87,8 @@ export function AdminPanel() {
         return <AdminAlliancePartners />;
       case 'social-posts':
         return <AdminSocialPosts />;
+      case 'featured-creators':
+        return <AdminFeaturedCreators />;
       default:
         return <AdminDashboard onNavigate={setCurrentView} />;
     }

@@ -14,6 +14,8 @@ import {
   type Reward 
 } from '@/utils/getRewardPrice';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { CreatorShowcase, CreatorHandles } from '@/components/creators/CreatorShowcase';
+import { useRewardCreators } from '@/hooks/useFeaturedCreators';
 
 export interface VisualRewardCardData {
   id: string;
@@ -34,6 +36,7 @@ export interface VisualRewardCardData {
   campaign_id?: string | null;
   sponsor_enabled?: boolean;
   sponsor_link?: string | null;
+  showcase_mode?: string | null;
 }
 
 interface UserTierInfo {
@@ -102,6 +105,13 @@ export function VisualRewardCard({
   const { isAuthenticated, setShowAuthModal, setAuthMode } = useAuthContext();
   const Icon = categoryIcons[reward.category] || Gift;
   
+  // Load featured creators for this reward
+  const showcaseMode = reward.showcase_mode || 'default';
+  const { creators: rewardCreators } = useRewardCreators(
+    showcaseMode !== 'default' ? reward.id : undefined
+  );
+  const hasCreatorShowcase = showcaseMode !== 'default' && rewardCreators.length > 0;
+  
   const isSponsored = reward.is_sponsored || reward.sponsor_enabled;
   const sponsorName = reward.sponsor_name;
   const sponsorLogo = reward.sponsor_logo_url || reward.sponsor_logo;
@@ -150,7 +160,13 @@ export function VisualRewardCard({
     >
       {/* HERO IMAGE — large, prominent */}
       <div className="relative aspect-[4/3] sm:aspect-[4/3] w-full overflow-hidden">
-        {reward.image_url ? (
+        {hasCreatorShowcase && (showcaseMode === 'single' || showcaseMode === 'carousel') ? (
+          <CreatorShowcase
+            creators={rewardCreators}
+            mode={showcaseMode as 'single' | 'carousel'}
+            className="w-full h-full"
+          />
+        ) : reward.image_url ? (
           <ImageWithFallback
             src={reward.image_url}
             alt={reward.title}
@@ -241,8 +257,17 @@ export function VisualRewardCard({
         </div>
       </div>
 
-      {/* CONTENT — Price + CTA */}
-      <div className="p-3.5 space-y-3 bg-card">
+      {/* CONTENT — Creators + Price + CTA */}
+      <div className="p-3.5 space-y-2.5 bg-card">
+        {/* Creator collage (when mode is collage) */}
+        {hasCreatorShowcase && showcaseMode === 'collage' && (
+          <CreatorShowcase creators={rewardCreators} mode="collage" size="sm" />
+        )}
+        
+        {/* Creator handles */}
+        {rewardCreators.length > 0 && showcaseMode !== 'default' && (
+          <CreatorHandles creators={rewardCreators} max={2} />
+        )}
         {/* Price row */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
