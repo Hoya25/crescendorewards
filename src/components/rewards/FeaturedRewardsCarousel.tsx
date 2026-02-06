@@ -235,7 +235,7 @@ export function FeaturedRewardsCarousel({
               return (
                 <CarouselItem 
                   key={reward.id} 
-                  className="pl-3 md:pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/3"
+                  className="pl-3 md:pl-4 basis-[90%] sm:basis-1/2 lg:basis-1/3"
                 >
                   <Card 
                     className={cn(

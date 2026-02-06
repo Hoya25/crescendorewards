@@ -993,7 +993,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           </div>
         ) : (
           <div className={cn(
-            "gap-6",
+            "gap-4 md:gap-6",
             viewMode === 'grid' 
               ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" 
               : "flex flex-col"
