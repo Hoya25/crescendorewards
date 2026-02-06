@@ -132,8 +132,8 @@ export function ProfilePage() {
                 Back
               </Button>
               <div>
-                <h1 className="text-2xl font-bold">Profile Settings</h1>
-                <p className="text-sm text-muted-foreground">Manage your account and preferences</p>
+              <h1 className="text-2xl font-bold">My Account</h1>
+              <p className="text-sm text-muted-foreground">Manage your profile, level, and preferences</p>
               </div>
             </div>
           </div>
@@ -344,8 +344,8 @@ export function ProfilePage() {
               Back
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">Profile Settings</h1>
-              <p className="text-sm text-muted-foreground">Manage your account and preferences</p>
+              <h1 className="text-2xl font-bold">My Account</h1>
+              <p className="text-sm text-muted-foreground">Manage your profile, level, and preferences</p>
             </div>
           </div>
         </div>

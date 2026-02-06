@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Gift, ShoppingCart, Sparkles, ArrowRight, X, Check } from "lucide-react";
+import { Gift, ShoppingBag, UserPlus, Sparkles, ArrowRight, X, Check, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Dialog,
@@ -8,7 +8,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { CrescendoLogo } from "../CrescendoLogo";
 import { useNavigate } from "react-router-dom";
-import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
 interface WelcomeFlowProps {
@@ -19,62 +18,46 @@ interface WelcomeFlowProps {
 
 const ONBOARDED_KEY = "crescendo_onboarded";
 
-const steps = [
+const rewardImages = [
+  { src: "/rewards/spotify-premium.jpg", alt: "Spotify Premium" },
+  { src: "/rewards/netflix-premium.jpg", alt: "Netflix Premium" },
+  { src: "/rewards/amazon-gift-card.jpg", alt: "Amazon Gift Card" },
+  { src: "/rewards/discord-nitro.jpg", alt: "Discord Nitro" },
+];
+
+const earningSteps = [
   {
-    id: 1,
-    title: "Welcome to Crescendo! 🎉",
-    subtitle: "The rewards marketplace where you earn, not spend",
-    icon: null,
-    content: null,
+    icon: ShoppingBag,
+    title: "Shop",
+    description: "Earn from 6,000+ brands",
+    color: "from-emerald-500 to-green-500",
   },
   {
-    id: 2,
-    title: "Here's how it works:",
-    subtitle: null,
-    icon: null,
-    content: [
-      {
-        icon: ShoppingCart,
-        title: "1. Get Claims",
-        description: "Purchase or earn free claim passes",
-        color: "from-emerald-500 to-green-500",
-      },
-      {
-        icon: Gift,
-        title: "2. Browse Rewards",
-        description: "Find subscriptions, experiences & more",
-        color: "from-violet-500 to-purple-500",
-      },
-      {
-        icon: Sparkles,
-        title: "3. Claim It",
-        description: "Unlock your reward instantly",
-        color: "from-amber-500 to-orange-500",
-      },
-    ],
+    icon: UserPlus,
+    title: "Invite",
+    description: "Bring friends, earn together",
+    color: "from-primary to-primary/80",
   },
   {
-    id: 3,
-    title: "You're ready!",
-    subtitle: null,
-    icon: Check,
-    content: null,
+    icon: Sparkles,
+    title: "Earn",
+    description: "Every action builds your level",
+    color: "from-amber-500 to-orange-500",
   },
 ];
 
 export function WelcomeFlow({ isOpen, onClose, claimsBalance = 0 }: WelcomeFlowProps) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [dontShowAgain, setDontShowAgain] = useState(false);
   const navigate = useNavigate();
+  const totalSteps = 3;
 
   const handleNext = () => {
-    if (currentStep < steps.length - 1) {
+    if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
     }
   };
 
-  const handleComplete = (destination: string) => {
-    // Always mark as onboarded when completing the flow
+  const handleComplete = (destination?: string) => {
     localStorage.setItem(ONBOARDED_KEY, "true");
     onClose();
     if (destination) {
@@ -87,16 +70,12 @@ export function WelcomeFlow({ isOpen, onClose, claimsBalance = 0 }: WelcomeFlowP
     onClose();
   };
 
-  // Handle dialog close from any source (overlay click, escape key, etc.)
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      // Always persist onboarded state when closing
       localStorage.setItem(ONBOARDED_KEY, "true");
       onClose();
     }
   };
-
-  const step = steps[currentStep];
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
@@ -118,32 +97,51 @@ export function WelcomeFlow({ isOpen, onClose, claimsBalance = 0 }: WelcomeFlowP
             transition={{ duration: 0.2 }}
             className="p-8 flex flex-col items-center text-center"
           >
-            {/* Step 1: Welcome */}
+            {/* Screen 1: Welcome */}
             {currentStep === 0 && (
               <>
                 <CrescendoLogo className="mb-6" />
-                <h2 className="text-2xl font-bold mb-2">{step.title}</h2>
-                <p className="text-muted-foreground mb-8">{step.subtitle}</p>
+                <h2 className="text-2xl font-bold mb-2">Welcome to Crescendo! 🎉</h2>
+                <p className="text-muted-foreground mb-6">
+                  You're about to unlock rewards from brands you love.
+                </p>
                 
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-8">
-                  <Gift className="w-12 h-12 text-primary" />
+                <div className="grid grid-cols-2 gap-3 w-full mb-8">
+                  {rewardImages.map((img, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: i * 0.1 }}
+                      className="aspect-[4/3] rounded-xl overflow-hidden border shadow-sm"
+                    >
+                      <img
+                        src={img.src}
+                        alt={img.alt}
+                        className="w-full h-full object-cover"
+                      />
+                    </motion.div>
+                  ))}
                 </div>
 
                 <Button onClick={handleNext} className="w-full" size="lg">
-                  Continue
+                  Let's Go
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </>
             )}
 
-            {/* Step 2: How It Works */}
+            {/* Screen 2: How You'll Earn */}
             {currentStep === 1 && (
               <>
-                <h2 className="text-2xl font-bold mb-6">{step.title}</h2>
+                <h2 className="text-2xl font-bold mb-2">How You'll Earn</h2>
+                <p className="text-muted-foreground mb-6">
+                  Every action builds your membership and unlocks better rewards.
+                </p>
                 
                 <div className="w-full space-y-4 mb-8">
-                  {step.content?.map((item, index) => {
-                    const IconComponent = item.icon;
+                  {earningSteps.map((step, index) => {
+                    const IconComponent = step.icon;
                     return (
                       <motion.div
                         key={index}
@@ -154,13 +152,13 @@ export function WelcomeFlow({ isOpen, onClose, claimsBalance = 0 }: WelcomeFlowP
                       >
                         <div className={cn(
                           "w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br shadow-lg",
-                          item.color
+                          step.color
                         )}>
                           <IconComponent className="w-6 h-6 text-white" />
                         </div>
                         <div className="text-left">
-                          <h3 className="font-semibold text-foreground">{item.title}</h3>
-                          <p className="text-sm text-muted-foreground">{item.description}</p>
+                          <h3 className="font-semibold text-foreground">{step.title}</h3>
+                          <p className="text-sm text-muted-foreground">{step.description}</p>
                         </div>
                       </motion.div>
                     );
@@ -174,52 +172,54 @@ export function WelcomeFlow({ isOpen, onClose, claimsBalance = 0 }: WelcomeFlowP
               </>
             )}
 
-            {/* Step 3: Get Started */}
+            {/* Screen 3: Claim Your First Points */}
             {currentStep === 2 && (
               <>
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center mb-6">
-                  <Check className="w-10 h-10 text-white" />
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-6">
+                  <Gift className="w-10 h-10 text-primary" />
                 </div>
                 
-                <h2 className="text-2xl font-bold mb-2">{step.title}</h2>
-                
-                <div className="p-4 rounded-xl bg-muted/50 border border-border/50 mb-6 w-full">
-                  <p className="text-sm text-muted-foreground mb-1">Your current balance</p>
-                  <p className="text-3xl font-bold">{claimsBalance} <span className="text-lg font-normal text-muted-foreground">Claims</span></p>
+                <h2 className="text-2xl font-bold mb-2">Claim Your First Points</h2>
+                <p className="text-muted-foreground mb-6">
+                  Complete your profile to earn 25 points instantly.
+                </p>
+
+                <div className="w-full space-y-3 mb-6">
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
+                    <User className="w-5 h-5 text-muted-foreground" />
+                    <span className="text-sm">Add your name & avatar</span>
+                    <span className="ml-auto text-xs font-semibold text-primary">+10 pts</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
+                    <Gift className="w-5 h-5 text-muted-foreground" />
+                    <span className="text-sm">Add items to your wishlist</span>
+                    <span className="ml-auto text-xs font-semibold text-primary">+10 pts</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
+                    <Sparkles className="w-5 h-5 text-muted-foreground" />
+                    <span className="text-sm">Explore the marketplace</span>
+                    <span className="ml-auto text-xs font-semibold text-primary">+5 pts</span>
+                  </div>
                 </div>
 
-                <div className="flex flex-col gap-3 w-full mb-6">
+                <div className="flex flex-col gap-3 w-full">
                   <Button 
-                    onClick={() => handleComplete('/rewards')} 
-                    className="w-full bg-gradient-to-r from-primary to-primary/80" 
+                    onClick={() => handleComplete('/profile')} 
+                    className="w-full" 
                     size="lg"
                   >
-                    <Gift className="w-4 h-4 mr-2" />
-                    Browse Rewards
+                    <User className="w-4 h-4 mr-2" />
+                    Complete Profile
                   </Button>
                   <Button 
-                    onClick={() => handleComplete('/earn')} 
+                    onClick={() => handleComplete('/rewards')} 
                     variant="outline"
                     className="w-full" 
                     size="lg"
                   >
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Get Free Claims
+                    <Gift className="w-4 h-4 mr-2" />
+                    Browse Rewards First
                   </Button>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="dont-show" 
-                    checked={dontShowAgain}
-                    onCheckedChange={(checked) => setDontShowAgain(checked === true)}
-                  />
-                  <label
-                    htmlFor="dont-show"
-                    className="text-sm text-muted-foreground cursor-pointer"
-                  >
-                    Don't show this again
-                  </label>
                 </div>
               </>
             )}
@@ -228,7 +228,7 @@ export function WelcomeFlow({ isOpen, onClose, claimsBalance = 0 }: WelcomeFlowP
 
         {/* Progress Dots */}
         <div className="flex justify-center gap-2 pb-6">
-          {steps.map((_, index) => (
+          {Array.from({ length: totalSteps }).map((_, index) => (
             <div
               key={index}
               className={cn(
