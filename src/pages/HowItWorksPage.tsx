@@ -49,20 +49,20 @@ const exampleRewards = [
 
 const faqItems = [
   {
-    question: "What is NCTR?",
-    answer: "NCTR is your digital ownership stake in the NCTR Alliance ecosystem. It's not a cryptocurrency you buy — it's earned through participation and contribution. The more you contribute to the community, the more ownership you accumulate.",
+    question: "What are Points (NCTR)?",
+    answer: "Points (also called NCTR) represent your ownership stake in the Crescendo community. You earn them through participation — shopping, inviting friends, contributing. The more you participate, the more you accumulate. They never expire.",
   },
   {
-    question: "What is 360LOCK?",
-    answer: "360LOCK is a 360-day commitment of your NCTR. By locking your NCTR, you unlock higher status tiers with better rewards and multipliers. Your NCTR isn't spent — it stays yours and continues growing. Think of it as staking your position in the community.",
+    question: "What does 'Level Up' mean?",
+    answer: "Leveling up means locking in your points for 360 days to unlock a higher membership tier. Your points aren't spent — they stay yours and continue growing. Higher tiers unlock better rewards and multipliers.",
   },
   {
     question: "How is this different from other rewards programs?",
-    answer: "Traditional programs give you points to spend. Crescendo gives you ownership to keep. Your NCTR represents your stake in a community you help build. The more you contribute, the more you own. Unlike airline miles or credit card points, your NCTR never expires and grows with your participation.",
+    answer: "Traditional programs give you points to spend. Crescendo gives you ownership to keep. Your points represent your stake in a community you help build. Unlike airline miles or credit card points, your points never expire and grow with your participation.",
   },
   {
     question: "Do I have to buy anything?",
-    answer: "No. You can earn NCTR through shopping (if you choose), but also through inviting friends, contributing to the marketplace, and completing actions. Many rewards require zero purchase. We believe in earning through participation, not just spending.",
+    answer: "No. You can earn points through shopping (if you choose), but also through inviting friends, contributing to the marketplace, and completing actions. Many rewards require zero purchase.",
   },
 ];
 
@@ -122,10 +122,10 @@ export default function HowItWorksPage() {
               The Crescendo Way
             </Badge>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-              Earn Rewards by Being You
+              Three Steps to Free Rewards
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              Crescendo turns your everyday actions into ownership and rewards. Here's how it works.
+              Earn points, level up your membership, and unlock rewards you actually want.
             </p>
           </motion.div>
         </div>
@@ -147,12 +147,11 @@ export default function HowItWorksPage() {
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-6 shadow-lg">
                     <Coins className="w-8 h-8 text-white" />
                   </div>
-                  <Badge variant="outline" className="mb-3">Step 1</Badge>
                   <h2 className="text-2xl font-bold mb-3 flex items-center gap-2">
-                    Earn NCTR <NCTRLogo />
+                    Earn Points
                   </h2>
                   <p className="text-muted-foreground mb-6">
-                    Your everyday actions build your stake in the community.
+                    Your everyday actions build your points and unlock better rewards.
                   </p>
                   
                   <div className="space-y-3">
@@ -188,9 +187,9 @@ export default function HowItWorksPage() {
                     <Lock className="w-8 h-8 text-white" />
                   </div>
                   <Badge variant="outline" className="mb-3">Step 2</Badge>
-                  <h2 className="text-2xl font-bold mb-3">Commit & Grow</h2>
+                  <h2 className="text-2xl font-bold mb-3">Level Up</h2>
                   <p className="text-muted-foreground mb-6">
-                    Lock your NCTR for 360 days (360LOCK) to unlock your status tier.
+                    Lock in your points to unlock higher membership tiers with better rewards.
                   </p>
                   
                   <div className="space-y-2">
@@ -204,7 +203,7 @@ export default function HowItWorksPage() {
                           <span className="font-medium text-sm">{tier.name}</span>
                         </div>
                         <div className="flex items-center gap-3 text-xs">
-                          <span className="text-muted-foreground">{tier.nctr} NCTR</span>
+                          <span className="text-muted-foreground">{tier.nctr} pts</span>
                           <Badge variant="secondary" className="text-[10px]">{tier.multiplier}</Badge>
                         </div>
                       </div>

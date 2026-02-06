@@ -20,6 +20,7 @@ import { RewardCard } from '@/components/rewards/RewardCard';
 import { VisualRewardCard } from '@/components/rewards/VisualRewardCard';
 import { RewardFilters } from '@/components/rewards/RewardFilters';
 import { FeaturedRewardsCarousel } from '@/components/rewards/FeaturedRewardsCarousel';
+import { StickyStatusBar } from '@/components/rewards/StickyStatusBar';
 import { SponsoredRewardsCarousel } from '@/components/rewards/SponsoredRewardsCarousel';
 import { SponsoredBanner } from '@/components/rewards/SponsoredBanner';
 import { StatusBenefitsBanner } from '@/components/user/StatusBenefitsBanner';
@@ -584,118 +585,14 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80 pb-20 w-full max-w-[100vw] overflow-x-hidden">
       <SEO 
-        title="Opportunity & Rewards Marketplace"
-        description="Browse and claim exclusive rewards including experiences, merchandise, subscriptions, and more. Member-built, member-owned."
+        title="Rewards Marketplace"
+        description="Browse and claim exclusive rewards including experiences, merchandise, subscriptions, and more."
       />
-      {/* Top Navigation Bar */}
-      <nav className="sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b w-full">
-        <div className="container mx-auto px-4 py-3 max-w-full">
-          <div className="flex items-center justify-between gap-4">
-            {/* Left: Logo & Navigation */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate('/')}
-                className="hover:opacity-80 transition-opacity cursor-pointer flex items-center"
-              >
-                <CrescendoLogo />
-                <BetaBadge />
-              </button>
-              <div className="hidden md:flex items-center gap-2">
-                {isAuthenticated && (
-                  <Button
-                    variant="ghost"
-                    onClick={() => navigate('/dashboard')}
-                    className="gap-2"
-                    size="sm"
-                  >
-                    <LayoutDashboard className="w-4 h-4" />
-                    Dashboard
-                  </Button>
-                )}
-                {isAuthenticated && (
-                  <Button
-                    variant="ghost"
-                    onClick={() => navigate('/membership')}
-                    className="gap-2"
-                    size="sm"
-                  >
-                    <Trophy className="w-4 h-4" />
-                    Membership
-                  </Button>
-                )}
-              </div>
-            </div>
 
-            {/* Right: Balance, Theme & Profile */}
-            <div className="flex items-center gap-3">
-              {/* Claims Balance Indicator */}
-              {isAuthenticated && <ClaimsBalanceIndicator />}
-              
-              <FavoritesIndicator />
-              <NotificationsDropdown />
-              <ThemeToggle />
+      {/* Sticky Status Bar — always visible tier progress */}
+      {isAuthenticated && <StickyStatusBar />}
 
-              {isAuthenticated ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="gap-2">
-                      <User className="w-4 h-4" />
-                      <span className="hidden md:inline">{profile?.display_name || profile?.email?.split('@')[0] || 'Account'}</span>
-                      <ChevronDown className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={() => navigate('/dashboard')}>
-                      <LayoutDashboard className="w-4 h-4 mr-2" />
-                      Dashboard
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/profile')}>
-                      <User className="w-4 h-4 mr-2" />
-                      Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/membership')}>
-                      <Trophy className="w-4 h-4 mr-2" />
-                      Membership
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/wishlist')}>
-                      <Heart className="w-4 h-4 mr-2" />
-                      Wishlist
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/my-submissions')}>
-                      <FileCheck className="w-4 h-4 mr-2" />
-                      My Submissions
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/purchase-history')}>
-                      <Receipt className="w-4 h-4 mr-2" />
-                      Purchase History
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/referrals')}>
-                      <BarChart3 className="w-4 h-4 mr-2" />
-                      Referrals
-                    </DropdownMenuItem>
-                    {isAdmin && (
-                      <DropdownMenuItem onClick={() => navigate('/admin')}>
-                        <Crown className="w-4 h-4 mr-2" />
-                        Admin Panel
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem onClick={handleSignOut}>
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button onClick={handleSignIn} size="sm">
-                  Sign In
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Page Header with Hero */}
+      {/* Page Header */}
       <div className="bg-gradient-to-b from-background via-background to-muted/30 border-b w-full">
         <div className="container mx-auto px-4 py-6 md:py-8 max-w-full space-y-6">
           {/* Title Row */}
@@ -707,10 +604,10 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 </Button>
               )}
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                  Opportunity & Rewards Marketplace
+                <h1 className="text-2xl md:text-3xl font-bold">
+                  Rewards Marketplace
                 </h1>
-                <p className="text-muted-foreground text-sm md:text-base">Discover opportunities and redeem rewards</p>
+                <p className="text-muted-foreground text-sm md:text-base">Browse and claim rewards</p>
               </div>
             </div>
             
