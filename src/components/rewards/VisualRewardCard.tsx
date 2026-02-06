@@ -168,8 +168,8 @@ export function VisualRewardCard({
       )}
       onClick={onClick}
     >
-      {/* IMAGE SECTION - 60% of card height with gradient overlay */}
-      <div className="relative aspect-[3/2] w-full overflow-hidden">
+      {/* IMAGE SECTION - Large, prominent images */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden">
         {/* Background - Image or Gradient */}
         {reward.image_url ? (
           <ImageWithFallback
@@ -230,7 +230,7 @@ export function VisualRewardCard({
         {/* BOTTOM: Title overlay on image */}
         <div className="absolute left-0 right-0 bottom-0 p-3">
           {/* Title - max 2 lines */}
-          <h3 className="font-bold text-sm text-white leading-tight line-clamp-2 drop-shadow-md">
+          <h3 className="font-bold text-base text-white leading-tight line-clamp-2 drop-shadow-md">
             {reward.title}
           </h3>
         </div>
