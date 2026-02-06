@@ -124,33 +124,33 @@ export function Dashboard() {
         description="Your Crescendo dashboard — track your progress and claim rewards."
       />
 
-      <main className="flex-1 p-4 md:p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
+      <main className="flex-1 px-4 md:px-6 pt-2 pb-4">
+        <div className="max-w-7xl mx-auto space-y-3">
           
           {/* Onboarding Checklist for new users */}
           <OnboardingChecklist />
 
           {/* ROW 1: Compact Welcome Bar */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-xl bg-card border">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-3 py-2 rounded-lg bg-card border">
+            <div className="flex items-center gap-2">
               <StatusBadge tier={tier} size="md" showTooltip={false} />
               <div>
-                <h1 className="text-lg font-bold">Welcome back, {firstName}!</h1>
-                <p className="text-sm text-muted-foreground">
+                <h1 className="text-base font-bold leading-tight">Welcome back, {firstName}!</h1>
+                <p className="text-xs text-muted-foreground">
                   {claimBalance} claims available
                 </p>
               </div>
             </div>
             {nextTierData && (
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                <div className="flex-1 sm:w-48">
-                  <div className="flex justify-between text-xs text-muted-foreground mb-1">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="flex-1 sm:w-40">
+                  <div className="flex justify-between text-[11px] text-muted-foreground mb-0.5">
                     <span>{nctrNeeded.toLocaleString()} pts to {nextTierData.name}</span>
                     <span>{Math.round(progressPercent)}%</span>
                   </div>
-                  <Progress value={progressPercent} className="h-1.5" />
+                  <Progress value={progressPercent} className="h-1" />
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => navigate('/membership')} className="text-xs gap-1 shrink-0">
+                <Button variant="ghost" size="sm" onClick={() => navigate('/membership')} className="text-xs gap-1 shrink-0 h-6 px-2">
                   Level Up <ChevronRight className="w-3 h-3" />
                 </Button>
               </div>
@@ -159,13 +159,13 @@ export function Dashboard() {
 
           {/* ROW 2: Featured Rewards Carousel — HERO of dashboard */}
           <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
-                <Gift className="w-5 h-5 text-primary" />
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                <Gift className="w-4 h-4 text-primary" />
                 Rewards For You
               </h2>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/rewards')} className="gap-1">
-                View All <ChevronRight className="w-4 h-4" />
+              <Button variant="ghost" size="sm" onClick={() => navigate('/rewards')} className="gap-1 h-7 text-xs">
+                View All <ChevronRight className="w-3 h-3" />
               </Button>
             </div>
             <FeaturedRewardsCarousel type="all" maxItems={8} showHeader={false} claimBalance={claimBalance} />
