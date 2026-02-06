@@ -589,6 +589,22 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         description="Browse and claim exclusive rewards including experiences, merchandise, subscriptions, and more."
       />
 
+      {/* Simple nav bar for unauthenticated users (authenticated get AppLayout header) */}
+      {!isAuthenticated && (
+        <nav className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
+          <div className="container mx-auto px-4 py-3 flex items-center justify-between max-w-full">
+            <button onClick={() => navigate('/')} className="hover:opacity-80 transition-opacity">
+              <CrescendoLogo />
+            </button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => navigate('/how-it-works')}>How It Works</Button>
+              <Button variant="outline" size="sm" onClick={handleSignIn}>Sign In</Button>
+              <Button size="sm" onClick={() => { setAuthMode('signup'); setShowAuthModal(true); }}>Join Free</Button>
+            </div>
+          </div>
+        </nav>
+      )}
+
       {/* Sticky Status Bar — always visible tier progress */}
       {isAuthenticated && <StickyStatusBar />}
 
@@ -979,7 +995,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           <div className={cn(
             "gap-6",
             viewMode === 'grid' 
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" 
               : "flex flex-col"
           )}>
             {filteredRewards.map((reward, index) => {
