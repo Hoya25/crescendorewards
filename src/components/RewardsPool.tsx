@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
-import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Clock, Package, Heart, Store, Trophy, User, ChevronDown, LogOut, LayoutDashboard, FileCheck, Receipt, BarChart3, Crown, ArrowLeft, Shield, Settings, Plus, Pencil, Search, ArrowUpDown, LayoutGrid, List, SlidersHorizontal, Star, Megaphone } from 'lucide-react';
+import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Clock, Package, Heart, Store, Trophy, User, ChevronDown, ChevronRight, LogOut, LayoutDashboard, FileCheck, Receipt, BarChart3, Crown, ArrowLeft, Shield, Settings, Plus, Pencil, Search, ArrowUpDown, LayoutGrid, List, SlidersHorizontal, Star, Megaphone } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -583,7 +583,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const needsShipping = selectedReward?.category === 'merch' || selectedReward?.category === 'experiences';
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/80 pb-20 w-full max-w-[100vw] overflow-x-hidden">
+    <div className="min-h-screen bg-background pb-20 w-full max-w-[100vw] overflow-x-hidden">
       <SEO 
         title="Rewards Marketplace"
         description="Browse and claim exclusive rewards including experiences, merchandise, subscriptions, and more."
@@ -592,7 +592,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       {/* Simple nav bar for unauthenticated users (authenticated get AppLayout header) */}
       {!isAuthenticated && (
         <nav className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
-          <div className="container mx-auto px-4 py-3 flex items-center justify-between max-w-full">
+          <div className="container mx-auto px-4 py-2 flex items-center justify-between max-w-full">
             <button onClick={() => navigate('/')} className="hover:opacity-80 transition-opacity">
               <CrescendoLogo />
             </button>
@@ -605,39 +605,31 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         </nav>
       )}
 
-      {/* Sticky Status Bar — always visible tier progress */}
-      {isAuthenticated && <StickyStatusBar />}
-
-      {/* Page Header */}
-      <div className="bg-gradient-to-b from-background via-background to-muted/30 border-b w-full">
-        <div className="container mx-auto px-4 py-6 md:py-8 max-w-full space-y-6">
-          {/* Title Row */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              {onBack && (
-                <Button variant="ghost" size="icon" onClick={onBack} className="flex-shrink-0">
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-              )}
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold">
-                  Rewards Marketplace
-                </h1>
-                <p className="text-muted-foreground text-sm md:text-base">Browse and claim rewards</p>
+      {/* Compact tier bar — single line: emoji + tier | claims | level up */}
+      {isAuthenticated && (
+        <div className="sticky top-[57px] md:top-[65px] z-20 bg-background/95 backdrop-blur border-b">
+          <div className="container mx-auto px-4 max-w-full">
+            <div className="flex items-center justify-between h-10">
+              <div className="flex items-center gap-2 text-sm">
+                <span>{tier?.badge_emoji || '💧'}</span>
+                <span className="font-semibold" style={{ color: tier?.badge_color }}>{tier?.display_name || 'Member'}</span>
+                <span className="text-muted-foreground">|</span>
+                <span className="font-medium">{claimBalance}</span>
+                <span className="text-muted-foreground text-xs">claims</span>
               </div>
-            </div>
-            
-            {/* Mobile Balance Display */}
-            <div className="flex sm:hidden items-center gap-2 px-3 py-1.5 bg-primary/10 rounded-full">
-              <Coins className="w-4 h-4 text-primary" />
-              <span className="font-bold text-primary">{claimBalance}</span>
-              <span className="text-xs text-muted-foreground">Claims</span>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/membership')} className="text-xs gap-1 h-7">
+                Level Up <ChevronRight className="w-3 h-3" />
+              </Button>
             </div>
           </div>
+        </div>
+      )}
 
-          {/* Category Tabs - main visible filters */}
+      {/* Category pills — compact single row */}
+      <div className="border-b bg-background">
+        <div className="container mx-auto px-4 max-w-full">
           <div className="relative">
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide scroll-smooth snap-x snap-mandatory">
+            <div className="flex items-center gap-1.5 overflow-x-auto py-2 -mx-4 px-4 scrollbar-hide">
             {[
               { key: 'all', label: 'All', icon: Gift, filter: 'category' },
               { key: 'featured', label: 'Featured', icon: Star, filter: 'featured' },
@@ -654,13 +646,11 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               return (
                 <Button
                   key={key}
-                  variant={isActive ? 'default' : 'outline'}
+                  variant={isActive ? 'default' : 'ghost'}
                   size="sm"
                   className={cn(
-                    "flex-shrink-0 gap-2 rounded-full transition-all min-h-[44px] snap-start",
-                    isActive && "shadow-md",
-                    key === 'featured' && "border-amber-400/50 hover:border-amber-500",
-                    key === 'sponsored' && "border-primary/50 hover:border-primary"
+                    "flex-shrink-0 gap-1.5 rounded-full h-8 text-xs px-3",
+                    isActive && "shadow-sm"
                   )}
                   onClick={() => {
                     if (key === 'featured') {
@@ -684,55 +674,21 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                     }
                   }}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-3.5 h-3.5" />
                   {label}
                 </Button>
               );
             })}
             </div>
-            {/* Right fade gradient indicator */}
             <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none md:hidden" />
           </div>
         </div>
       </div>
 
-      {/* Sponsored Banner (if featured campaign) */}
-      {!loading && sponsoredRewards.length > 0 && activeCategory === 'all' && (
-        <div className="container mx-auto px-4 pt-6 max-w-full">
-          <SponsoredBanner 
-            rewardId={sponsoredRewards[0]?.id}
-            rewardTitle={sponsoredRewards[0]?.title}
-            sponsorName={sponsoredRewards[0]?.sponsor_name || undefined}
-            sponsorLogo={sponsoredRewards[0]?.sponsor_logo || undefined}
-            minTier={sponsoredRewards[0]?.min_status_tier || 'Gold'}
-          />
-        </div>
-      )}
 
-      {/* Sponsored Rewards Carousel */}
-      {!loading && activeCategory === 'all' && (
-        <div className="container mx-auto px-4 py-6 md:py-8 max-w-full">
-          <SponsoredRewardsCarousel />
-        </div>
-      )}
-
-      {/* Beta Testing Notice */}
-      {!loading && (
-        <div className="container mx-auto px-4 pb-4 max-w-full">
-          <BetaTestingNotice variant="compact" />
-        </div>
-      )}
-
-      {/* Status Benefits Banner - Show user their tier benefits */}
-      {isAuthenticated && !loading && (
-        <div className="container mx-auto px-4 pb-4 max-w-full">
-          <StatusBenefitsBanner />
-        </div>
-      )}
-
-      {/* Simplified Filter Bar - Search + Sort + View + More Filters */}
-      <div className="sticky top-[64px] z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b">
-        <div className="container mx-auto px-4 py-3 max-w-full">
+      {/* Simplified Filter Bar - Search + Sort + View */}
+      <div className="sticky top-[97px] md:top-[105px] z-15 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b">
+        <div className="container mx-auto px-4 py-2 max-w-full">
           <div className="flex flex-wrap items-center gap-3">
             {/* Search Input */}
             <div className="relative flex-1 min-w-[180px] max-w-sm">
@@ -936,26 +892,16 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         </div>
       </div>
 
-      {/* Featured Rewards Carousel */}
-      {!loading && activeCategory === 'all' && (
-        <FeaturedRewardsCarousel
-          type="featured"
-          autoplayDelay={carouselAutoplayDelay}
-          claimBalance={claimBalance}
-        />
-      )}
-
-      {/* Main Rewards Grid */}
-      <div className="container mx-auto px-4 py-8 md:py-12 max-w-full">
-        {/* Section Header */}
+      {/* Main Rewards Grid — starts immediately */}
+      <div className="container mx-auto px-4 pt-4 pb-8 max-w-full">
+        {/* Section Header — compact */}
         {!loading && (
-          <div className="flex items-center gap-2 mb-6">
-            <Gift className="w-5 h-5 text-primary" />
-            <h2 className="text-xl md:text-2xl font-bold">
+          <div className="flex items-center gap-2 mb-3">
+            <h2 className="text-lg font-semibold">
               {activeCategory === 'all' ? 'All Rewards' : categoryLabels[activeCategory] || 'Rewards'}
             </h2>
-            <Badge variant="secondary" className="gap-1">
-              {filteredRewards.length} Available
+            <Badge variant="secondary" className="text-xs">
+              {filteredRewards.length}
             </Badge>
           </div>
         )}
