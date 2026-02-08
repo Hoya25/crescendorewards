@@ -39,6 +39,8 @@ import type { DeliveryMethod, RequiredDataField } from '@/types/delivery';
 import { DELIVERY_METHOD_REQUIRED_FIELDS } from '@/types/delivery';
 import { useRewardCreators } from '@/hooks/useFeaturedCreators';
 import { CreatorMiniCard } from '@/components/creators/CreatorMiniCard';
+import { CommunityReviews } from '@/components/rewards/CommunityReviews';
+import { PostClaimReviewPrompt } from '@/components/rewards/PostClaimReviewPrompt';
 
 interface Reward {
   id: string;
@@ -153,6 +155,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const [copied, setCopied] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [showConfirmClaim, setShowConfirmClaim] = useState(false);
+  const [showReviewPrompt, setShowReviewPrompt] = useState(false);
   
   // Extract crescendo data
   const crescendoData = getCrescendoData(profile);
@@ -349,6 +352,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
       // Show success state instead of just toast
       setShowConfirmClaim(false);
       setShowClaimSuccess(true);
+      setShowReviewPrompt(true);
       
       setShowClaimModal(false);
       setDeliveryData({});
@@ -1003,6 +1007,28 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
           </div>
         </div>
       </div>
+
+      {/* Post-Claim Review Prompt */}
+      {showReviewPrompt && reward && rewardId && (
+        <div className="max-w-7xl mx-auto px-4 lg:px-8 mt-6">
+          <PostClaimReviewPrompt
+            rewardId={rewardId}
+            rewardTitle={reward.title}
+            onDismiss={() => setShowReviewPrompt(false)}
+          />
+        </div>
+      )}
+
+      {/* Community Reviews Section */}
+      {reward && rewardId && (
+        <div className="max-w-7xl mx-auto px-4 lg:px-8 mt-8 mb-24 lg:mb-8">
+          <CommunityReviews
+            rewardId={rewardId}
+            rewardTitle={reward.title}
+            isAuthenticated={!!profile}
+          />
+        </div>
+      )}
 
       {/* Mobile Sticky Bottom Bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur border-t p-4 z-40 safe-area-inset-bottom">
