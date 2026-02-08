@@ -719,9 +719,11 @@ export type Database = {
           content_type: string
           created_at: string
           description: string | null
+          helpful_count: number
           id: string
           is_featured: boolean
           media_url: string | null
+          rating: number | null
           reviewed_at: string | null
           reviewed_by: string | null
           reward_id: string | null
@@ -739,9 +741,11 @@ export type Database = {
           content_type?: string
           created_at?: string
           description?: string | null
+          helpful_count?: number
           id?: string
           is_featured?: boolean
           media_url?: string | null
+          rating?: number | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           reward_id?: string | null
@@ -759,9 +763,11 @@ export type Database = {
           content_type?: string
           created_at?: string
           description?: string | null
+          helpful_count?: number
           id?: string
           is_featured?: boolean
           media_url?: string | null
+          rating?: number | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           reward_id?: string | null
