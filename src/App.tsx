@@ -334,9 +334,11 @@ function AppRoutes() {
               path="/dashboard" 
               element={
                 <ProtectedRoute>
-                  <ErrorBoundary>
-                    <Dashboard />
-                  </ErrorBoundary>
+                  <AppLayout>
+                    <ErrorBoundary>
+                      <Dashboard />
+                    </ErrorBoundary>
+                  </AppLayout>
                 </ProtectedRoute>
               } 
             />
