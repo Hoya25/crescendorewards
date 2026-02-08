@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Bell, Check, CheckCheck, Gift, FileText, Sparkles, Coins, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -76,6 +77,7 @@ function NotificationItem({ notification, onMarkAsRead }: NotificationItemProps)
 }
 
 export function NotificationsDropdown() {
+  const navigate = useNavigate();
   const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications();
 
   return (
@@ -131,6 +133,17 @@ export function NotificationsDropdown() {
             ))
           )}
         </ScrollArea>
+        {notifications.length > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="text-center justify-center text-sm text-primary cursor-pointer"
+              onClick={() => navigate('/notifications')}
+            >
+              View All Notifications
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

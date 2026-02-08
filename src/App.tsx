@@ -72,6 +72,7 @@ const GearVaultPage = lazy(() => import('./pages/GearVaultPage'));
 const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage'));
 const SubmitContentPage = lazy(() => import('./pages/SubmitContentPage'));
 const MyContentPage = lazy(() => import('./pages/MyContentPage'));
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
 
 // Admin panel - separate chunk for code splitting
@@ -504,6 +505,14 @@ function AppRoutes() {
               element={
                 <ProtectedRoute>
                   <AppLayout><MyContentPage /></AppLayout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/notifications" 
+              element={
+                <ProtectedRoute>
+                  <AppLayout><NotificationsPage /></AppLayout>
                 </ProtectedRoute>
               } 
             />
