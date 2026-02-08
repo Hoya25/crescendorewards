@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   ContentTypeStep, ContentDetailsStep, LinkRewardStep,
@@ -35,23 +36,50 @@ const TOTAL_STEPS = 5;
 
 export default function SubmitContentPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { profile } = useUnifiedUser();
   const userId = profile?.id;
 
+  const prefilledRewardId = searchParams.get('reward_id');
+  const prefilledType = searchParams.get('type');
+
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
-  const [format, setFormat] = useState<ContentFormat | null>(null);
+  const [format, setFormat] = useState<ContentFormat | null>(
+    prefilledType === 'review' ? 'written' : prefilledType === 'video' ? 'video' : null
+  );
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
-  const [contentType, setContentType] = useState('');
-  const [rewardId, setRewardId] = useState<string | null>(null);
+  const [contentType, setContentType] = useState(prefilledType === 'review' ? 'Review' : '');
+  const [rewardId, setRewardId] = useState<string | null>(prefilledRewardId);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name || '');
   const [isSponsor, setIsSponsor] = useState(false);
   const [brandName, setBrandName] = useState('');
   const [brandRole, setBrandRole] = useState('');
+
+  // Fetch linked reward info for prefill banner
+  const { data: linkedReward } = useQuery({
+    queryKey: ['prefill-reward', prefilledRewardId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('rewards')
+        .select('id, title, image_url')
+        .eq('id', prefilledRewardId!)
+        .single();
+      return data;
+    },
+    enabled: !!prefilledRewardId,
+  });
+
+  // Auto-advance to step 2 if format is prefilled
+  useEffect(() => {
+    if (format && prefilledType && step === 1) {
+      setStep(2);
+    }
+  }, []);
 
   const submitMutation = useMutation({
     mutationFn: async () => {
@@ -118,6 +146,17 @@ export default function SubmitContentPage() {
             <p className="text-muted-foreground text-sm">Help the community discover great rewards by sharing videos, tutorials, and tips</p>
           </div>
         </div>
+
+        {/* Prefill banner */}
+        {prefilledRewardId && linkedReward && (
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
+            <FileText className="w-5 h-5 text-primary flex-shrink-0" />
+            <p className="text-sm">
+              <span className="text-muted-foreground">Sharing about:</span>{' '}
+              <span className="font-semibold">{linkedReward.title}</span>
+            </p>
+          </div>
+        )}
 
         {/* Step indicator */}
         <div className="flex items-center gap-2">

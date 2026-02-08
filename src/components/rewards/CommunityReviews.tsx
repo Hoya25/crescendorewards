@@ -26,9 +26,11 @@ export function CommunityReviews({ rewardId, rewardTitle, isAuthenticated }: Com
         .from('content_submissions')
         .select('*')
         .eq('reward_id', rewardId)
-        .eq('source_type', 'member')
         .in('status', ['published', 'featured'])
-        .order('submitted_at', { ascending: false });
+        .in('content_type', ['review', 'testimonial', 'tip'])
+        .order('is_featured', { ascending: false })
+        .order('submitted_at', { ascending: false })
+        .limit(10);
       if (error) throw error;
       return data || [];
     },
@@ -120,7 +122,10 @@ export function CommunityReviews({ rewardId, rewardTitle, isAuthenticated }: Com
                   </div>
                   <p className="text-sm text-muted-foreground">{review.description}</p>
                   <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
-                    <span>— {review.source_name} · {new Date(review.submitted_at).toLocaleDateString()}</span>
+                    <span>
+                      {review.source_type === 'sponsor' ? '🏢' : review.source_type === 'member' ? '👥' : '👤'}{' '}
+                      {review.source_name} · {new Date(review.submitted_at).toLocaleDateString()}
+                    </span>
                     <div className="flex items-center gap-3">
                       <span className="flex items-center gap-1">
                         <ThumbsUp className="h-3 w-3" /> Helpful ({review.helpful_count || 0})
