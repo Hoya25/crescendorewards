@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, ExternalLink, Loader2, RefreshCw,
@@ -395,6 +395,7 @@ export function AdminEarningOpportunities() {
             <DialogTitle>
               {editingId ? 'Edit Earning Opportunity' : 'Add Earning Opportunity'}
             </DialogTitle>
+            <DialogDescription className="sr-only">Configure earning opportunity details</DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
