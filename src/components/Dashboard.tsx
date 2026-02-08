@@ -9,7 +9,6 @@ import { OnboardingProgress } from "./OnboardingProgress";
 import { ReferredWelcomeModal } from "./referral/ReferredWelcomeModal";
 import { AppLayout } from "./layout/AppLayout";
 import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "@/contexts/AuthContext";
 import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 import { supabase } from "@/lib/supabase";
 import { DashboardSkeleton } from "./skeletons/DashboardSkeleton";
@@ -19,6 +18,7 @@ import { trackEvent } from "@/lib/analytics";
 import { HeroVideoSection } from "./dashboard/HeroVideoSection";
 import { QuickStatsBar } from "./dashboard/QuickStatsBar";
 import { BrandSpotlight } from "./dashboard/BrandSpotlight";
+import { useQuery } from "@tanstack/react-query";
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -27,28 +27,37 @@ export function Dashboard() {
   const [showReferredModal, setShowReferredModal] = useState(false);
   const [referrerName, setReferrerName] = useState<string | undefined>();
   const [activityOpen, setActivityOpen] = useState(false);
-  const [featuredBrands, setFeaturedBrands] = useState<any[]>([]);
   const [spotlightBrand, setSpotlightBrand] = useState<any | null>(null);
 
-  // Load featured brands for hero + spotlight
+  // Load featured content from content_submissions
+  const { data: featuredContent = [] } = useQuery({
+    queryKey: ['featured-content'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('content_submissions')
+        .select('*')
+        .eq('status', 'featured')
+        .order('submitted_at', { ascending: false })
+        .limit(5);
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // Load a spotlight brand (kept for BrandSpotlight section)
   useEffect(() => {
-    const loadBrands = async () => {
+    const loadSpotlight = async () => {
       const { data } = await supabase
         .from('brands')
         .select('id, name, description, hero_video_url, image_url, logo_emoji, logo_color, shop_url, category, base_earning_rate, is_featured')
         .eq('is_active', true)
         .eq('is_featured', true)
-        .order('created_at', { ascending: false })
-        .limit(6);
-
+        .limit(2);
       if (data && data.length > 0) {
-        setFeaturedBrands(data);
-        // Pick a random brand for spotlight that's different from hero
-        const spotlightIdx = data.length > 1 ? 1 : 0;
-        setSpotlightBrand(data[spotlightIdx]);
+        setSpotlightBrand(data[0]);
       }
     };
-    loadBrands();
+    loadSpotlight();
   }, []);
 
   // Check if user was referred and show welcome modal
@@ -132,8 +141,19 @@ export function Dashboard() {
           <OnboardingChecklist />
 
           {/* 1. HERO VIDEO SECTION */}
-          {featuredBrands.length > 0 && (
-            <HeroVideoSection brands={featuredBrands} />
+          {featuredContent.length > 0 ? (
+            <HeroVideoSection content={featuredContent} />
+          ) : (
+            <section
+              className="relative w-full rounded-xl overflow-hidden flex flex-col items-center justify-center text-center p-10"
+              style={{ minHeight: '30vh', background: 'linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--muted)))' }}
+            >
+              <h2 className="text-xl font-bold text-foreground">Community Content Coming Soon</h2>
+              <p className="text-muted-foreground mt-1 text-sm">Sponsors and contributors are sharing their stories</p>
+              <Button size="sm" className="mt-4 gap-1" onClick={() => navigate('/rewards')}>
+                Browse Rewards <ChevronRight className="w-3 h-3" />
+              </Button>
+            </section>
           )}
 
           {/* 2. QUICK STATS BAR */}
