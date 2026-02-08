@@ -1,4 +1,4 @@
-import { Home, Gift, ShoppingBag, UserPlus, User, ChevronRight, HelpCircle, Crown, Shield } from 'lucide-react';
+import { Home, Compass, Gift, ShoppingBag, UserPlus, User, ChevronRight, HelpCircle, Crown, Shield } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
@@ -31,6 +31,7 @@ interface AppSidebarProps {
 
 const mainNavItems = [
   { title: 'Home', url: '/dashboard', icon: Home },
+  { title: 'Discover', url: '/discover', icon: Compass },
   { title: 'Rewards', url: '/rewards', icon: Gift },
   { title: 'The Garden', url: '#', icon: ShoppingBag, external: 'https://thegarden.nctr.live/' },
   { title: 'Invite Friends', url: '/invite', icon: UserPlus },

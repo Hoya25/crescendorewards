@@ -1,11 +1,11 @@
-import { Home, Gift, ShoppingBag, UserPlus, User } from "lucide-react";
+import { Home, Compass, Gift, UserPlus, User } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { icon: Home, label: "Home", route: "/dashboard" },
+  { icon: Compass, label: "Discover", route: "/discover" },
   { icon: Gift, label: "Rewards", route: "/rewards" },
-  { icon: ShoppingBag, label: "Shop", external: "https://thegarden.nctr.live/" },
   { icon: UserPlus, label: "Invite", route: "/invite" },
   { icon: User, label: "Account", route: "/profile" },
 ];

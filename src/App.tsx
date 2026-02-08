@@ -72,6 +72,7 @@ const GearVaultPage = lazy(() => import('./pages/GearVaultPage'));
 const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage'));
 const SubmitContentPage = lazy(() => import('./pages/SubmitContentPage'));
 const MyContentPage = lazy(() => import('./pages/MyContentPage'));
+const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
 
 // Admin panel - separate chunk for code splitting
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel').then(m => ({ default: m.AdminPanel })));
@@ -246,6 +247,18 @@ function AppRoutes() {
               } 
             />
             
+            {/* DISCOVER - community content feed */}
+            <Route 
+              path="/discover" 
+              element={
+                isAuthenticated ? (
+                  <AppLayout><DiscoverPage /></AppLayout>
+                ) : (
+                  <DiscoverPage />
+                )
+              } 
+            />
+
             {/* GROUNDBALL Impact Engine - semi-public */}
             <Route 
               path="/groundball" 
