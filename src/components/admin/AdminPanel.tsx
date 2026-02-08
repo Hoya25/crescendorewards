@@ -25,6 +25,8 @@ import { AdminStatusTiers } from './AdminStatusTiers';
 import { AdminAlliancePartners } from './AdminAlliancePartners';
 import { AdminSocialPosts } from './AdminSocialPosts';
 import { AdminFeaturedCreators } from './AdminFeaturedCreators';
+import { AdminContentLibrary } from './AdminContentLibrary';
+import { AdminContributors } from './AdminContributors';
 import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import AdminGifts from './AdminGifts';
 import { AdminUserNotifications } from './AdminUserNotifications';
@@ -53,6 +55,10 @@ export function AdminPanel() {
         return <AdminPurchases />;
       case 'packages':
         return <AdminPackages />;
+      case 'content-library':
+        return <AdminContentLibrary />;
+      case 'contributors':
+        return <AdminContributors />;
       case 'brands':
         return <AdminBrands />;
       case 'sponsors':
