@@ -70,6 +70,8 @@ const GroundballRewardsPage = lazy(() => import('./pages/GroundballRewardsPage')
 const MyGroundballRewardsPage = lazy(() => import('./pages/MyGroundballRewardsPage'));
 const GearVaultPage = lazy(() => import('./pages/GearVaultPage'));
 const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage'));
+const SubmitContentPage = lazy(() => import('./pages/SubmitContentPage'));
+const MyContentPage = lazy(() => import('./pages/MyContentPage'));
 
 // Admin panel - separate chunk for code splitting
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel').then(m => ({ default: m.AdminPanel })));
@@ -470,6 +472,23 @@ function AppRoutes() {
               element={
                 <ProtectedRoute>
                   <AppLayout><FavoritesPage claimBalance={claimBalance} /></AppLayout>
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
+              path="/submit-content" 
+              element={
+                <ProtectedRoute>
+                  <AppLayout><SubmitContentPage /></AppLayout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/my-content" 
+              element={
+                <ProtectedRoute>
+                  <AppLayout><MyContentPage /></AppLayout>
                 </ProtectedRoute>
               } 
             />
