@@ -724,9 +724,11 @@ export type Database = {
           is_featured: boolean
           media_url: string | null
           rating: number | null
+          rejection_reason: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           reward_id: string | null
+          source_avatar_url: string | null
           source_id: string | null
           source_name: string | null
           source_type: string
@@ -746,9 +748,11 @@ export type Database = {
           is_featured?: boolean
           media_url?: string | null
           rating?: number | null
+          rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           reward_id?: string | null
+          source_avatar_url?: string | null
           source_id?: string | null
           source_name?: string | null
           source_type?: string
@@ -768,9 +772,11 @@ export type Database = {
           is_featured?: boolean
           media_url?: string | null
           rating?: number | null
+          rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           reward_id?: string | null
+          source_avatar_url?: string | null
           source_id?: string | null
           source_name?: string | null
           source_type?: string
