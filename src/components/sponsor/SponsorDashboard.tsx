@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SponsorContentTab } from './SponsorContentTab';
 import { 
   Gift, 
   TrendingUp, 
@@ -352,6 +353,7 @@ export function SponsorDashboard() {
         <Tabs defaultValue="rewards" className="space-y-4">
           <TabsList>
             <TabsTrigger value="rewards">My Rewards</TabsTrigger>
+            <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
             <TabsTrigger value="activity">Recent Activity</TabsTrigger>
           </TabsList>
@@ -467,6 +469,14 @@ export function SponsorDashboard() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="content" className="space-y-4">
+            <SponsorContentTab
+              sponsorName={sponsor?.name || ''}
+              sponsorId={sponsor?.id || ''}
+              sponsoredRewards={rewards.map(r => ({ id: r.id, title: r.title }))}
+            />
           </TabsContent>
 
           <TabsContent value="campaigns" className="space-y-4">
