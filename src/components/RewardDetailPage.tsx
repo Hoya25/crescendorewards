@@ -41,6 +41,8 @@ import { useRewardCreators } from '@/hooks/useFeaturedCreators';
 import { CreatorMiniCard } from '@/components/creators/CreatorMiniCard';
 import { CommunityReviews } from '@/components/rewards/CommunityReviews';
 import { PostClaimReviewPrompt } from '@/components/rewards/PostClaimReviewPrompt';
+import { SeeItInAction } from '@/components/rewards/SeeItInAction';
+import { ShareExperienceCTA } from '@/components/rewards/ShareExperienceCTA';
 
 interface Reward {
   id: string;
@@ -1019,10 +1021,28 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
         </div>
       )}
 
+      {/* See It in Action — Video Content */}
+      {rewardId && (
+        <div className="max-w-7xl mx-auto px-4 lg:px-8 mt-8">
+          <SeeItInAction rewardId={rewardId} />
+        </div>
+      )}
+
       {/* Community Reviews Section */}
       {reward && rewardId && (
-        <div className="max-w-7xl mx-auto px-4 lg:px-8 mt-8 mb-24 lg:mb-8">
+        <div className="max-w-7xl mx-auto px-4 lg:px-8 mt-8">
           <CommunityReviews
+            rewardId={rewardId}
+            rewardTitle={reward.title}
+            isAuthenticated={!!profile}
+          />
+        </div>
+      )}
+
+      {/* Share Your Experience CTA */}
+      {reward && rewardId && (
+        <div className="max-w-7xl mx-auto px-4 lg:px-8 mt-8 mb-24 lg:mb-8">
+          <ShareExperienceCTA
             rewardId={rewardId}
             rewardTitle={reward.title}
             isAuthenticated={!!profile}
