@@ -1,27 +1,31 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Play, Volume2, VolumeX, ChevronRight, ExternalLink } from 'lucide-react';
-import { ImageWithFallback } from '@/components/ImageWithFallback';
+import { Volume2, VolumeX, ChevronRight, Building2, UserCircle, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-interface FeaturedBrand {
+interface FeaturedContent {
   id: string;
-  name: string;
-  description: string;
-  hero_video_url: string | null;
-  image_url: string | null;
-  logo_emoji: string;
-  logo_color: string;
-  shop_url: string;
-  category: string;
+  title: string;
+  description: string | null;
+  media_url: string | null;
+  thumbnail_url: string | null;
+  source_type: string;
+  source_name: string | null;
+  reward_id: string | null;
 }
 
 interface HeroVideoSectionProps {
-  brands: FeaturedBrand[];
+  content: FeaturedContent[];
 }
 
-function getYouTubeEmbedUrl(url: string): string | null {
+const SOURCE_DISPLAY: Record<string, { icon: typeof Building2; prefix: string; emoji: string }> = {
+  sponsor: { icon: Building2, prefix: 'From', emoji: '🏢' },
+  contributor: { icon: UserCircle, prefix: 'Shared by', emoji: '👤' },
+  member: { icon: Users, prefix: 'Review by', emoji: '👥' },
+};
+
+function getEmbedUrl(url: string, muted: boolean): string | null {
   try {
     const parsed = new URL(url);
     let videoId: string | null = null;
@@ -31,44 +35,37 @@ function getYouTubeEmbedUrl(url: string): string | null {
       videoId = parsed.pathname.slice(1);
     }
     if (videoId) {
-      return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1`;
+      return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1`;
     }
-  } catch {}
-
-  // Vimeo
-  try {
-    const parsed = new URL(url);
     if (parsed.hostname.includes('vimeo.com')) {
       const vimeoId = parsed.pathname.split('/').filter(Boolean).pop();
       if (vimeoId) {
-        return `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=1&loop=1&background=1`;
+        return `https://player.vimeo.com/video/${vimeoId}?autoplay=1&muted=${muted ? 1 : 0}&loop=1&background=1`;
       }
     }
   } catch {}
-
   return null;
 }
 
-export function HeroVideoSection({ brands }: HeroVideoSectionProps) {
+export function HeroVideoSection({ content }: HeroVideoSectionProps) {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
 
-  const activeBrand = brands[activeIndex];
+  const active = content[activeIndex];
 
-  // Auto-advance every 15 seconds
   useEffect(() => {
-    if (brands.length <= 1) return;
+    if (content.length <= 1) return;
     const timer = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % brands.length);
+      setActiveIndex(prev => (prev + 1) % content.length);
     }, 15000);
     return () => clearInterval(timer);
-  }, [brands.length]);
+  }, [content.length]);
 
-  const hasVideo = activeBrand?.hero_video_url;
-  const embedUrl = hasVideo ? getYouTubeEmbedUrl(activeBrand.hero_video_url!) : null;
+  if (!active) return null;
 
-  if (!activeBrand) return null;
+  const embedUrl = active.media_url ? getEmbedUrl(active.media_url, isMuted) : null;
+  const source = SOURCE_DISPLAY[active.source_type] || SOURCE_DISPLAY.member;
 
   return (
     <section className="relative w-full rounded-xl overflow-hidden" style={{ minHeight: '50vh' }}>
@@ -76,31 +73,23 @@ export function HeroVideoSection({ brands }: HeroVideoSectionProps) {
       {embedUrl ? (
         <div className="absolute inset-0">
           <iframe
-            src={embedUrl.replace('mute=1', isMuted ? 'mute=1' : 'mute=0')}
+            src={embedUrl}
             className="w-full h-full border-0"
             style={{ objectFit: 'cover' }}
             allow="autoplay; encrypted-media"
             allowFullScreen
-            title={`${activeBrand.name} video`}
+            title={active.title}
           />
+        </div>
+      ) : active.thumbnail_url ? (
+        <div className="absolute inset-0">
+          <img src={active.thumbnail_url} alt={active.title} className="w-full h-full object-cover" />
         </div>
       ) : (
         <div
-          className="absolute inset-0 flex items-center justify-center"
-          style={{
-            background: `linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--muted)))`,
-          }}
-        >
-          {activeBrand.image_url ? (
-            <ImageWithFallback
-              src={activeBrand.image_url}
-              alt={activeBrand.name}
-              className="w-32 h-32 object-contain opacity-30"
-            />
-          ) : (
-            <span className="text-[120px] opacity-20">{activeBrand.logo_emoji}</span>
-          )}
-        </div>
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--muted)))' }}
+        />
       )}
 
       {/* Gradient overlay */}
@@ -109,32 +98,21 @@ export function HeroVideoSection({ brands }: HeroVideoSectionProps) {
       {/* Content overlay */}
       <div className="relative z-10 flex flex-col justify-end h-full p-6 md:p-10" style={{ minHeight: '50vh' }}>
         <div className="max-w-2xl space-y-3">
-          {/* Brand logo + badge */}
-          <div className="flex items-center gap-3">
-            {activeBrand.image_url ? (
-              <ImageWithFallback
-                src={activeBrand.image_url}
-                alt={activeBrand.name}
-                className="w-10 h-10 object-contain rounded-lg bg-white/10 p-1"
-              />
-            ) : (
-              <span className="text-2xl">{activeBrand.logo_emoji}</span>
-            )}
-            <Badge variant="secondary" className="bg-white/20 text-white border-0 backdrop-blur-sm">
-              {activeBrand.category}
-            </Badge>
-          </div>
-
-          {!embedUrl && (
-            <p className="text-white/60 text-sm">Featured Brand Content Coming Soon</p>
-          )}
+          {/* Source badge */}
+          <Badge variant="secondary" className="bg-white/20 text-white border-0 backdrop-blur-sm gap-1.5">
+            <span>{source.emoji}</span>
+            {source.prefix} {active.source_name || 'Community'}
+            {active.source_type === 'sponsor' && <span className="opacity-70">· Sponsor</span>}
+          </Badge>
 
           <h2 className="text-2xl md:text-4xl font-bold text-white drop-shadow-lg">
-            {activeBrand.name}
+            {active.title}
           </h2>
-          <p className="text-white/80 text-sm md:text-base max-w-lg">
-            {activeBrand.description}
-          </p>
+          {active.description && (
+            <p className="text-white/80 text-sm md:text-base max-w-lg">
+              {active.description}
+            </p>
+          )}
 
           <div className="flex items-center gap-3 pt-2">
             {embedUrl && (
@@ -151,26 +129,18 @@ export function HeroVideoSection({ brands }: HeroVideoSectionProps) {
             <Button
               size="sm"
               className="gap-2"
-              onClick={() => window.open(activeBrand.shop_url, '_blank')}
+              onClick={() => navigate(active.reward_id ? `/rewards/${active.reward_id}` : '/rewards')}
             >
-              Shop {activeBrand.name}
-              <ExternalLink className="w-3 h-3" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-white hover:bg-white/10 gap-1"
-              onClick={() => navigate(`/brands/${activeBrand.id}`)}
-            >
-              Learn More <ChevronRight className="w-3 h-3" />
+              {active.reward_id ? 'View Reward' : 'Explore Rewards'}
+              <ChevronRight className="w-3 h-3" />
             </Button>
           </div>
         </div>
 
         {/* Dots indicator */}
-        {brands.length > 1 && (
+        {content.length > 1 && (
           <div className="flex items-center gap-2 mt-6">
-            {brands.map((_, i) => (
+            {content.map((_, i) => (
               <button
                 key={i}
                 onClick={() => setActiveIndex(i)}
