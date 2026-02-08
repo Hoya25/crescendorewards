@@ -5,28 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Play, Film } from 'lucide-react';
 import { VideoPlayerModal } from './VideoPlayerModal';
-import { formatDistanceToNow } from 'date-fns';
+import { getThumbnailFromUrl } from '@/lib/video-thumbnails';
 
 interface SeeItInActionProps {
   rewardId: string;
-}
-
-function getThumbnailFromUrl(url: string | null): string | null {
-  if (!url) return null;
-  try {
-    const u = new URL(url);
-    // YouTube thumbnail
-    const ytId = u.hostname.includes('youtube.com')
-      ? u.searchParams.get('v')
-      : u.hostname === 'youtu.be'
-        ? u.pathname.slice(1)
-        : null;
-    if (ytId) return `https://img.youtube.com/vi/${ytId}/mqdefault.jpg`;
-    // Vimeo — no easy thumbnail without API
-  } catch {
-    // ignore
-  }
-  return null;
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -84,10 +66,23 @@ export function SeeItInAction({ rewardId }: SeeItInActionProps) {
                 {/* Thumbnail */}
                 <div className="relative aspect-video bg-muted">
                   {thumbnail ? (
-                    <img src={thumbnail} alt={content.title} className="w-full h-full object-cover" />
+                    <>
+                      <img
+                        src={thumbnail}
+                        alt={content.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          (e.currentTarget.nextElementSibling as HTMLElement)?.classList.remove('hidden');
+                        }}
+                      />
+                      <div className="hidden w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        <Play className="h-8 w-8 text-primary/50" />
+                      </div>
+                    </>
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Film className="w-8 h-8 text-muted-foreground" />
+                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                      <Play className="h-8 w-8 text-primary/50" />
                     </div>
                   )}
                   {/* Play overlay */}
