@@ -107,7 +107,7 @@ const ACTIVATION_TYPES = [
 ];
 
 const PLATFORMS = [
-  { value: 'twitch', label: 'Twitch', color: 'bg-purple-500' },
+  { value: 'kick', label: 'Kick', color: 'bg-green-500' },
   { value: 'patreon', label: 'Patreon', color: 'bg-orange-500' },
   { value: 'youtube', label: 'YouTube', color: 'bg-red-500' },
   { value: 'substack', label: 'Substack', color: 'bg-orange-400' },

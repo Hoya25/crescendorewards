@@ -17,7 +17,7 @@ interface ImageSourcingHelperProps {
 }
 
 const SOURCING_TIPS: Record<string, string> = {
-  subscriptions: "💡 For creators: Use their Twitch/YouTube profile photo or banner. Check their channel's About page.",
+  subscriptions: "💡 For creators: Use their Kick/YouTube profile photo or banner. Check their channel's About page.",
   gaming: "💡 For games: Check the official website press kit or Steam page for approved artwork.",
   gift_cards: "💡 For brands: Use their Instagram lifestyle content or website hero images.",
   wellness: "💡 For wellness brands: Look for homepage hero images or member success photos.",

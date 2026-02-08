@@ -2,7 +2,7 @@ import { Link2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const PLATFORM_COLORS: Record<string, string> = {
-  twitch: '#9146FF',
+  kick: '#53FC18',
   youtube: '#FF0000',
   spotify: '#1DB954',
   patreon: '#FF424D',
@@ -13,7 +13,7 @@ const PLATFORM_COLORS: Record<string, string> = {
 };
 
 const PLATFORM_LABELS: Record<string, string> = {
-  twitch: 'Twitch',
+  kick: 'Kick',
   youtube: 'YouTube',
   spotify: 'Spotify',
   patreon: 'Patreon',
@@ -24,10 +24,10 @@ const PLATFORM_LABELS: Record<string, string> = {
 };
 
 // Simple SVG icons for platforms (small, inline)
-function TwitchIcon({ className }: { className?: string }) {
+function KickIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="currentColor">
-      <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z" />
+      <path d="M2 2h4.5v7.2L11 4.5h5.3L11 11.7 16.5 20H11l-4.5-6.5V20H2V2z" />
     </svg>
   );
 }
@@ -61,8 +61,8 @@ export function PlatformIcon({ platform, size = 16, className }: PlatformIconPro
   const style = { width: size, height: size, color };
 
   switch (platform) {
-    case 'twitch':
-      return <TwitchIcon className={iconClass} />;
+    case 'kick':
+      return <KickIcon className={iconClass} />;
     case 'youtube':
       return <YouTubeIcon className={iconClass} />;
     case 'spotify':

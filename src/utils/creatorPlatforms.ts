@@ -1,6 +1,6 @@
 // Platform brand colors
 export const PLATFORM_COLORS: Record<string, string> = {
-  twitch: '#9146FF',
+  kick: '#53FC18',
   youtube: '#FF0000',
   patreon: '#FF424D',
   substack: '#FF6719',
@@ -8,7 +8,7 @@ export const PLATFORM_COLORS: Record<string, string> = {
 
 // Platform display names
 export const PLATFORM_NAMES: Record<string, string> = {
-  twitch: 'Twitch',
+  kick: 'Kick',
   youtube: 'YouTube',
   patreon: 'Patreon',
   substack: 'Substack',
@@ -16,7 +16,7 @@ export const PLATFORM_NAMES: Record<string, string> = {
 
 // Platform icons (Lucide icon names)
 export const PLATFORM_ICONS: Record<string, string> = {
-  twitch: 'Twitch',
+  kick: 'Zap',
   youtube: 'Youtube',
   patreon: 'Heart',
   substack: 'Mail',
@@ -45,7 +45,7 @@ export function getPlatformColor(platform: string | null): string {
  */
 export function getPlatformBgClass(platform: string | null): string {
   const classes: Record<string, string> = {
-    twitch: 'bg-purple-600',
+    kick: 'bg-green-500',
     youtube: 'bg-red-600',
     patreon: 'bg-orange-500',
     substack: 'bg-orange-600',
@@ -59,7 +59,7 @@ export function getPlatformBgClass(platform: string | null): string {
  */
 export function getCreatorChannelUrl(platform: string, channelId: string): string {
   const baseUrls: Record<string, string> = {
-    twitch: 'https://twitch.tv/',
+    kick: 'https://kick.com/',
     youtube: 'https://youtube.com/',
     patreon: 'https://patreon.com/',
     substack: 'https://',

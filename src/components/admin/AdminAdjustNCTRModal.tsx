@@ -96,7 +96,7 @@ const CHAINS = ['Ethereum', 'Base', 'Polygon', 'Arbitrum', 'Solana'];
 
 const TIER_BENEFITS: Record<string, string> = {
   bronze: 'You now have 1 Alliance Partner benefit slot. Start exploring rewards from our partner network!',
-  silver: "You've unlocked 2 benefit slots plus access to creator subscriptions — choose your favorite Twitch, YouTube, or Patreon creators!",
+  silver: "You've unlocked 2 benefit slots plus access to creator subscriptions — choose your favorite Kick, YouTube, or Patreon creators!",
   gold: '3 benefit slots unlocked! You now have access to premium partners like Whoop, Audible, and MasterClass.',
   platinum: "4 benefit slots plus premium travel perks like Priority Pass and CLEAR. You're in elite company!",
   diamond: 'Maximum benefits unlocked: 6 slots, exclusive founder calls, governance voting, and concierge service. Welcome to the top!',
