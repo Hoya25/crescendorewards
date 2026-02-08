@@ -171,7 +171,14 @@ export function SponsorSubmitReward() {
           title: 'Reward submitted!',
           description: 'Your reward is pending review and will be live soon.',
         });
-        navigate('/sponsor/dashboard');
+        // Show prompt to add content
+        const addContent = window.confirm('Want to add a video or images for this reward?\n\nClick OK to add content now, or Cancel for later.');
+        if (addContent) {
+          navigate('/sponsor/dashboard');
+          // After navigation the sponsor can use the Content tab
+        } else {
+          navigate('/sponsor/dashboard');
+        }
       }
     } finally {
       setSubmitting(false);
