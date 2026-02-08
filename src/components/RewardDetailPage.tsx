@@ -14,7 +14,7 @@ import {
   CreditCard, Sparkles, Gift, Lock, Share2, Twitter, Facebook, Linkedin, 
   Link2, Check, Heart, Trophy, ExternalLink, AlertCircle, Pencil, Bell, 
   Eye, PartyPopper, Clock, Users, ChevronRight, ArrowUpCircle, Mail, Wallet, 
-  User, MapPin
+  User, MapPin, Loader2
 } from 'lucide-react';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { ConfirmationDialog } from '@/components/ConfirmationDialog';
@@ -872,9 +872,13 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                   size="lg"
                   className="w-full h-14 text-lg gap-2 bg-gradient-to-r from-primary to-primary/80"
                   onClick={initiateClaimFlow}
+                  disabled={claiming}
                 >
-                  <CheckCircle2 className="w-5 h-5" />
-                  {pricing.isFree ? 'Claim Now — FREE' : `Claim for ${pricing.price} Claims`}
+                  {claiming ? (
+                    <><Loader2 className="w-5 h-5 animate-spin" /> Processing...</>
+                  ) : (
+                    <><CheckCircle2 className="w-5 h-5" /> {pricing.isFree ? 'Claim Now — FREE' : `Claim for ${pricing.price} Claims`}</>
+                  )}
                 </Button>
               ) : (
                 <div className="space-y-3">

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +25,8 @@ import {
   CheckCircle, XCircle, Plus, Search, Play, Image as ImageIcon,
 } from 'lucide-react';
 import { getThumbnailFromUrl } from '@/lib/video-thumbnails';
+import { ContentStatsRowSkeleton, ContentTableSkeleton } from '@/components/skeletons/ContentSkeletons';
+import { EmptyState } from '@/components/EmptyState';
 
 type ContentType = 'video' | 'image' | 'review' | 'tutorial' | 'testimonial' | 'unboxing' | 'tip';
 type SourceType = 'sponsor' | 'contributor' | 'member';
@@ -188,25 +191,29 @@ export function AdminContentLibrary() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        {[
-          { label: 'Total Content', value: stats.total, icon: Library },
-          { label: 'From Sponsors', value: stats.sponsors, icon: Building2 },
-          { label: 'From Contributors', value: stats.contributors, icon: UserCircle },
-          { label: 'From Members', value: stats.members, icon: Users },
-          { label: 'Pending Review', value: stats.pending, icon: Clock },
-        ].map(s => (
-          <Card key={s.label}>
-            <CardContent className="p-4 flex items-center gap-3">
-              <s.icon className="h-5 w-5 text-muted-foreground shrink-0" />
-              <div>
-                <p className="text-2xl font-bold">{s.value}</p>
-                <p className="text-xs text-muted-foreground">{s.label}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {isLoading ? (
+        <ContentStatsRowSkeleton />
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          {[
+            { label: 'Total Content', value: stats.total, icon: Library },
+            { label: 'From Sponsors', value: stats.sponsors, icon: Building2 },
+            { label: 'From Contributors', value: stats.contributors, icon: UserCircle },
+            { label: 'From Members', value: stats.members, icon: Users },
+            { label: 'Pending Review', value: stats.pending, icon: Clock },
+          ].map(s => (
+            <Card key={s.label}>
+              <CardContent className="p-4 flex items-center gap-3">
+                <s.icon className="h-5 w-5 text-muted-foreground shrink-0" />
+                <div>
+                  <p className="text-2xl font-bold">{s.value}</p>
+                  <p className="text-xs text-muted-foreground">{s.label}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
@@ -282,9 +289,38 @@ export function AdminContentLibrary() {
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell><Skeleton className="h-4 w-4" /></TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="w-12 h-12 rounded-lg shrink-0" />
+                        <div className="space-y-1.5">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-3 w-20" />
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell><Skeleton className="h-5 w-20 rounded-full" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-14" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-8" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                    <TableCell><div className="flex gap-1"><Skeleton className="h-8 w-8 rounded" /><Skeleton className="h-8 w-8 rounded" /></div></TableCell>
+                  </TableRow>
+                ))
               ) : content.length === 0 ? (
-                <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">No content found. Add your first piece of community content.</TableCell></TableRow>
+                <TableRow>
+                  <TableCell colSpan={8}>
+                    <EmptyState
+                      icon={Library}
+                      title="No community content yet"
+                      description="Add content or wait for submissions from sponsors and contributors."
+                      actionLabel="+ Add Content"
+                      onAction={() => setAddDialogOpen(true)}
+                    />
+                  </TableCell>
+                </TableRow>
               ) : (
                 content.map(item => {
                   const src = SOURCE_CONFIG[item.source_type];

@@ -7,7 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Video, Image, FileText, Eye, AlertCircle } from 'lucide-react';
+import { Plus, Video, Image, FileText, Eye, AlertCircle, Upload } from 'lucide-react';
+import { EmptyState } from '@/components/EmptyState';
+import { MyContentStatsSkeleton, MyContentCardsSkeleton } from '@/components/skeletons/ContentSkeletons';
 import { cn } from '@/lib/utils';
 
 const STATUS_STYLES: Record<string, { label: string; className: string }> = {
@@ -60,100 +62,100 @@ export default function MyContentPage() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
-          {[
-            { label: 'Published', value: publishedCount },
-            { label: 'Pending', value: pendingCount },
-            { label: 'Total Views', value: totalViews },
-          ].map(stat => (
-            <Card key={stat.label}>
-              <CardContent className="p-4 text-center">
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <p className="text-xs text-muted-foreground">{stat.label}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
         {isLoading ? (
-          <div className="grid gap-4 sm:grid-cols-2">
-            {[1, 2, 3, 4].map(i => (
-              <Skeleton key={i} className="h-48 rounded-lg" />
-            ))}
-          </div>
-        ) : submissions.length === 0 ? (
-          <Card>
-            <CardContent className="p-12 text-center space-y-4">
-              <Video className="h-12 w-12 mx-auto text-muted-foreground" />
-              <h3 className="font-semibold text-lg">No content yet</h3>
-              <p className="text-muted-foreground text-sm">Share videos, tutorials, and reviews about the rewards you love.</p>
-              <Button onClick={() => navigate('/submit-content')}>
-                <Plus className="h-4 w-4 mr-2" /> Submit Your First Content
-              </Button>
-            </CardContent>
-          </Card>
+          <>
+            <MyContentStatsSkeleton />
+            <MyContentCardsSkeleton count={4} />
+          </>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
-            {submissions.map(item => {
-              const Icon = TYPE_ICON[item.content_type] || FileText;
-              const statusStyle = STATUS_STYLES[item.status] || STATUS_STYLES.pending;
-              const isRejected = item.status === 'rejected';
-
-              return (
-                <Card key={item.id} className="overflow-hidden">
-                  <CardContent className="p-0">
-                    <div className="h-32 bg-muted flex items-center justify-center relative">
-                      {item.thumbnail_url ? (
-                        <img src={item.thumbnail_url} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <Icon className="h-10 w-10 text-muted-foreground" />
-                      )}
-                      <Badge className={cn("absolute top-2 right-2 text-xs", statusStyle.className)}>
-                        {statusStyle.label}
-                      </Badge>
-                    </div>
-
-                    <div className="p-4 space-y-2">
-                      <h3 className="font-semibold line-clamp-1">{item.title}</h3>
-                      <p className="text-xs text-muted-foreground line-clamp-2">{item.description}</p>
-
-                      {isRejected && item.rejection_reason && (
-                        <div className="flex items-start gap-2 text-xs text-destructive bg-destructive/5 rounded-md p-2">
-                          <AlertCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-                          <span>{item.rejection_reason}</span>
-                        </div>
-                      )}
-
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span className="capitalize">{item.content_type}</span>
-                        {(item.status === 'published' || item.status === 'featured') && (
-                          <span className="flex items-center gap-1">
-                            <Eye className="h-3 w-3" /> {item.view_count}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(item.submitted_at).toLocaleDateString()}
-                        </p>
-                        {isRejected && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-xs h-7"
-                            onClick={() => navigate('/submit-content')}
-                          >
-                            Edit & Resubmit
-                          </Button>
-                        )}
-                      </div>
-                    </div>
+          <>
+            <div className="grid grid-cols-3 gap-4">
+              {[
+                { label: 'Published', value: publishedCount },
+                { label: 'Pending', value: pendingCount },
+                { label: 'Total Views', value: totalViews },
+              ].map(stat => (
+                <Card key={stat.label}>
+                  <CardContent className="p-4 text-center">
+                    <p className="text-2xl font-bold">{stat.value}</p>
+                    <p className="text-xs text-muted-foreground">{stat.label}</p>
                   </CardContent>
                 </Card>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+
+            {submissions.length === 0 ? (
+              <EmptyState
+                icon={Upload}
+                title="No content yet"
+                description="Share videos, tutorials, and reviews about rewards you love."
+                actionLabel="Submit Your First Content"
+                actionHref="/submit-content"
+              />
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {submissions.map(item => {
+                  const Icon = TYPE_ICON[item.content_type] || FileText;
+                  const statusStyle = STATUS_STYLES[item.status] || STATUS_STYLES.pending;
+                  const isRejected = item.status === 'rejected';
+
+                  return (
+                    <Card key={item.id} className="overflow-hidden">
+                      <CardContent className="p-0">
+                        <div className="h-32 bg-muted flex items-center justify-center relative">
+                          {item.thumbnail_url ? (
+                            <img src={item.thumbnail_url} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <Icon className="h-10 w-10 text-muted-foreground" />
+                          )}
+                          <Badge className={cn("absolute top-2 right-2 text-xs", statusStyle.className)}>
+                            {statusStyle.label}
+                          </Badge>
+                        </div>
+
+                        <div className="p-4 space-y-2">
+                          <h3 className="font-semibold line-clamp-1">{item.title}</h3>
+                          <p className="text-xs text-muted-foreground line-clamp-2">{item.description}</p>
+
+                          {isRejected && item.rejection_reason && (
+                            <div className="flex items-start gap-2 text-xs text-destructive bg-destructive/5 rounded-md p-2">
+                              <AlertCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                              <span>{item.rejection_reason}</span>
+                            </div>
+                          )}
+
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span className="capitalize">{item.content_type}</span>
+                            {(item.status === 'published' || item.status === 'featured') && (
+                              <span className="flex items-center gap-1">
+                                <Eye className="h-3 w-3" /> {item.view_count}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(item.submitted_at).toLocaleDateString()}
+                            </p>
+                            {isRejected && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-xs h-7"
+                                onClick={() => navigate('/submit-content')}
+                              >
+                                Edit & Resubmit
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </>
         )}
       </div>
     </PageContainer>

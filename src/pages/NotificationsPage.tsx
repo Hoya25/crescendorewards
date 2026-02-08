@@ -1,4 +1,5 @@
-import { Bell, Check, CheckCheck, Gift, FileText, Sparkles, Coins, Truck, Inbox } from 'lucide-react';
+import { useState } from 'react';
+import { Bell, Check, CheckCheck, Gift, FileText, Sparkles, Coins, Truck, Inbox, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -6,6 +7,7 @@ import { SEO } from '@/components/SEO';
 import { useNotifications, type Notification } from '@/hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { NotificationListSkeleton } from '@/components/skeletons/ContentSkeletons';
 
 const getNotificationIcon = (type: string) => {
   switch (type) {
@@ -65,6 +67,13 @@ function NotificationCard({ notification, onMarkAsRead }: { notification: Notifi
 
 export default function NotificationsPage() {
   const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications();
+  const [markingAll, setMarkingAll] = useState(false);
+
+  const handleMarkAllRead = async () => {
+    setMarkingAll(true);
+    await markAllAsRead();
+    setMarkingAll(false);
+  };
 
   return (
     <>
@@ -82,20 +91,16 @@ export default function NotificationsPage() {
               )}
             </div>
             {unreadCount > 0 && (
-              <Button variant="outline" size="sm" onClick={markAllAsRead} className="gap-1.5">
-                <CheckCheck className="h-4 w-4" />
-                Mark all read
+              <Button variant="outline" size="sm" onClick={handleMarkAllRead} disabled={markingAll} className="gap-1.5">
+                {markingAll ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCheck className="h-4 w-4" />}
+                {markingAll ? 'Marking...' : 'Mark all read'}
               </Button>
             )}
           </div>
 
           {/* Notification list */}
           {loading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map(i => (
-                <Card key={i} className="p-4 h-20 animate-pulse bg-muted/50" />
-              ))}
-            </div>
+            <NotificationListSkeleton count={4} />
           ) : notifications.length === 0 ? (
             <Card className="p-12 flex flex-col items-center text-center">
               <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-4">
