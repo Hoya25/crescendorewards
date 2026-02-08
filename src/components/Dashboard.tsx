@@ -17,6 +17,7 @@ import { ActivityFeed } from "./ActivityFeed";
 import { trackEvent } from "@/lib/analytics";
 import { HeroVideoSection } from "./dashboard/HeroVideoSection";
 import { QuickStatsBar } from "./dashboard/QuickStatsBar";
+import { CommunityFeedSection } from "./dashboard/CommunityFeedSection";
 import { BrandSpotlight } from "./dashboard/BrandSpotlight";
 import { useQuery } from "@tanstack/react-query";
 
@@ -176,6 +177,9 @@ export function Dashboard() {
             </div>
             <FeaturedRewardsCarousel type="all" maxItems={6} showHeader={false} claimBalance={claimBalance} />
           </section>
+
+          {/* 3.5 COMMUNITY FEED */}
+          <CommunityFeedSection />
 
           {/* 4. BRAND SPOTLIGHT */}
           {spotlightBrand && (
