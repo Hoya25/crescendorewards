@@ -7,7 +7,6 @@ import { WelcomeFlow, hasBeenOnboarded } from "./onboarding/WelcomeFlow";
 import { OnboardingChecklist } from "./onboarding/OnboardingChecklist";
 import { OnboardingProgress } from "./OnboardingProgress";
 import { ReferredWelcomeModal } from "./referral/ReferredWelcomeModal";
-import { AppLayout } from "./layout/AppLayout";
 import { useNavigate } from "react-router-dom";
 import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 import { supabase } from "@/lib/supabase";
@@ -113,13 +112,11 @@ export function Dashboard() {
 
   if (!profile) {
     return (
-      <AppLayout>
-        <div className="p-4 md:p-6">
-          <div className="max-w-7xl mx-auto">
-            <DashboardSkeleton />
-          </div>
+      <div className="p-4 md:p-6">
+        <div className="max-w-7xl mx-auto">
+          <DashboardSkeleton />
         </div>
-      </AppLayout>
+      </div>
     );
   }
 
@@ -130,7 +127,7 @@ export function Dashboard() {
   const userName = profile?.display_name || profile?.email?.split('@')[0] || 'User';
 
   return (
-    <AppLayout>
+    <>
       <SEO
         title="Dashboard"
         description="Your Crescendo dashboard — discover brands and claim rewards."
@@ -219,6 +216,6 @@ export function Dashboard() {
         referrerName={referrerName}
       />
       <OnboardingProgress />
-    </AppLayout>
+    </>
   );
 }
