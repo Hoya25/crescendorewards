@@ -23,6 +23,7 @@ import {
   Library, Building2, UserCircle, Users, Clock, Eye, Star, Trash2,
   CheckCircle, XCircle, Plus, Search, Play, Image as ImageIcon,
 } from 'lucide-react';
+import { getThumbnailFromUrl } from '@/lib/video-thumbnails';
 
 type ContentType = 'video' | 'image' | 'review' | 'tutorial' | 'testimonial' | 'unboxing' | 'tip';
 type SourceType = 'sponsor' | 'contributor' | 'member';
@@ -296,13 +297,24 @@ export function AdminContentLibrary() {
                       <TableCell>
                         <div className="flex items-center gap-3">
                           <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                            {item.thumbnail_url ? (
-                              <img src={item.thumbnail_url} alt="" className="w-full h-full object-cover" />
-                            ) : item.content_type === 'video' ? (
-                              <Play className="h-5 w-5 text-muted-foreground" />
-                            ) : (
-                              <ImageIcon className="h-5 w-5 text-muted-foreground" />
-                            )}
+                            {(() => {
+                              const thumb = item.thumbnail_url || getThumbnailFromUrl(item.media_url);
+                              if (thumb) {
+                                return (
+                                  <img
+                                    src={thumb}
+                                    alt=""
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                  />
+                                );
+                              }
+                              return item.content_type === 'video' ? (
+                                <Play className="h-5 w-5 text-muted-foreground" />
+                              ) : (
+                                <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                              );
+                            })()}
                           </div>
                           <div>
                             <p className="font-medium text-sm line-clamp-1">{item.title}</p>
