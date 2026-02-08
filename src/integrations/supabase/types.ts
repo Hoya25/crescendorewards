@@ -714,6 +714,77 @@ export type Database = {
         }
         Relationships: []
       }
+      content_submissions: {
+        Row: {
+          content_type: string
+          created_at: string
+          description: string | null
+          id: string
+          is_featured: boolean
+          media_url: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reward_id: string | null
+          source_id: string | null
+          source_name: string | null
+          source_type: string
+          status: string
+          submitted_at: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          content_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_featured?: boolean
+          media_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reward_id?: string | null
+          source_id?: string | null
+          source_name?: string | null
+          source_type?: string
+          status?: string
+          submitted_at?: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_featured?: boolean
+          media_url?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reward_id?: string | null
+          source_id?: string | null
+          source_name?: string | null
+          source_type?: string
+          status?: string
+          submitted_at?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_submissions_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cross_platform_activity_log: {
         Row: {
           action_data: Json | null

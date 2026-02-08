@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, 
   Heart, TrendingUp, Building2, Megaphone, Shield, Activity, Package, MessageSquare, 
-  Coins, Bell, ChevronDown, ChevronRight, Trophy, Handshake, Twitter, UserCircle
+  Coins, Bell, ChevronDown, ChevronRight, Trophy, Handshake, Twitter, UserCircle, Library
 } from 'lucide-react';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { useAdminRole } from '@/hooks/useAdminRole';
@@ -68,13 +68,14 @@ interface MenuGroup {
 const MENU_GROUPS: MenuGroup[] = [
   {
     title: 'Content',
-    icon: Gift,
+    icon: Library,
     defaultOpen: true,
     items: [
+      { title: 'Content Library', view: 'content-library', icon: Library, permission: 'rewards_view' },
       { title: 'Rewards', view: 'rewards', icon: Gift, permission: 'rewards_view' },
-      { title: 'Sponsors', view: 'sponsors', icon: Building2, permission: 'sponsors_view' },
+      { title: 'Reward Sponsors', view: 'sponsors', icon: Building2, permission: 'sponsors_view' },
+      { title: 'Contributors', view: 'contributors', icon: UserCircle, permission: 'submissions_view' },
       { title: 'Campaigns', view: 'campaigns', icon: Megaphone, permission: 'sponsors_view' },
-      { title: 'Brands', view: 'brands', icon: Store, permission: 'brands_view' },
       { title: 'Earning Opps', view: 'earning', icon: Coins, permission: 'rewards_edit' },
     ],
   },
