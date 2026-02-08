@@ -7,7 +7,7 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
-import { ArrowLeft, ArrowRight, Check, FileText } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, FileText, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   ContentTypeStep, ContentDetailsStep, LinkRewardStep,
@@ -220,7 +220,9 @@ export default function SubmitContentPage() {
             disabled={!canProceed() || submitMutation.isPending}
           >
             {step === TOTAL_STEPS ? (
-              submitMutation.isPending ? 'Submitting...' : 'Submit for Review'
+              submitMutation.isPending ? (
+                <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Submitting...</>
+              ) : 'Submit for Review'
             ) : (
               <>Next <ArrowRight className="h-4 w-4 ml-2" /></>
             )}
