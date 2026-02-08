@@ -1,4 +1,4 @@
-import { Home, Compass, Gift, ShoppingBag, UserPlus, User, ChevronRight, HelpCircle, Crown, Shield } from 'lucide-react';
+import { Home, Compass, Gift, ShoppingBag, UserPlus, User, ChevronRight, HelpCircle, Crown, Shield, Upload } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
@@ -34,6 +34,7 @@ const mainNavItems = [
   { title: 'Discover', url: '/discover', icon: Compass },
   { title: 'Rewards', url: '/rewards', icon: Gift },
   { title: 'The Garden', url: '#', icon: ShoppingBag, external: 'https://thegarden.nctr.live/' },
+  { title: 'Share Content', url: '/submit-content', icon: Upload },
   { title: 'Invite Friends', url: '/invite', icon: UserPlus },
   { title: 'My Account', url: '/profile', icon: User },
   { title: 'Help', url: '/help', icon: HelpCircle },

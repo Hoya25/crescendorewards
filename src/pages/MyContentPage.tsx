@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Video, Image, FileText, Eye } from 'lucide-react';
+import { Plus, Video, Image, FileText, Eye, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const STATUS_STYLES: Record<string, { label: string; className: string }> = {
@@ -18,13 +18,9 @@ const STATUS_STYLES: Record<string, { label: string; className: string }> = {
 };
 
 const TYPE_ICON: Record<string, typeof Video> = {
-  video: Video,
-  tutorial: Video,
-  unboxing: Video,
+  video: Video, tutorial: Video, unboxing: Video,
   image: Image,
-  review: FileText,
-  tip: FileText,
-  testimonial: FileText,
+  review: FileText, tip: FileText, testimonial: FileText,
 };
 
 export default function MyContentPage() {
@@ -54,7 +50,6 @@ export default function MyContentPage() {
   return (
     <PageContainer>
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">My Content</h1>
@@ -65,7 +60,6 @@ export default function MyContentPage() {
           </Button>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
           {[
             { label: 'Published', value: publishedCount },
@@ -81,7 +75,6 @@ export default function MyContentPage() {
           ))}
         </div>
 
-        {/* Content grid */}
         {isLoading ? (
           <div className="grid gap-4 sm:grid-cols-2">
             {[1, 2, 3, 4].map(i => (
@@ -104,11 +97,11 @@ export default function MyContentPage() {
             {submissions.map(item => {
               const Icon = TYPE_ICON[item.content_type] || FileText;
               const statusStyle = STATUS_STYLES[item.status] || STATUS_STYLES.pending;
+              const isRejected = item.status === 'rejected';
 
               return (
                 <Card key={item.id} className="overflow-hidden">
                   <CardContent className="p-0">
-                    {/* Thumbnail area */}
                     <div className="h-32 bg-muted flex items-center justify-center relative">
                       {item.thumbnail_url ? (
                         <img src={item.thumbnail_url} alt="" className="w-full h-full object-cover" />
@@ -123,6 +116,14 @@ export default function MyContentPage() {
                     <div className="p-4 space-y-2">
                       <h3 className="font-semibold line-clamp-1">{item.title}</h3>
                       <p className="text-xs text-muted-foreground line-clamp-2">{item.description}</p>
+
+                      {isRejected && item.rejection_reason && (
+                        <div className="flex items-start gap-2 text-xs text-destructive bg-destructive/5 rounded-md p-2">
+                          <AlertCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                          <span>{item.rejection_reason}</span>
+                        </div>
+                      )}
+
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span className="capitalize">{item.content_type}</span>
                         {(item.status === 'published' || item.status === 'featured') && (
@@ -131,9 +132,22 @@ export default function MyContentPage() {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(item.submitted_at).toLocaleDateString()}
-                      </p>
+
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(item.submitted_at).toLocaleDateString()}
+                        </p>
+                        {isRejected && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-xs h-7"
+                            onClick={() => navigate('/submit-content')}
+                          >
+                            Edit & Resubmit
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
