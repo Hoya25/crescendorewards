@@ -69,10 +69,14 @@ export function FeaturedRewardsCarousel({
     })
   );
 
-  // Haptic feedback
+  // Haptic feedback - only after user interaction
   const triggerHaptic = () => {
-    if ('vibrate' in navigator) {
-      navigator.vibrate(20);
+    try {
+      if (document.hasFocus() && 'vibrate' in navigator) {
+        navigator.vibrate(20);
+      }
+    } catch {
+      // Silently fail - vibration is not critical
     }
   };
 

@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Video, Image, FileText, Eye, Link as LinkIcon, Film } from 'lucide-react';
@@ -224,6 +224,7 @@ export function SponsorContentTab({ sponsorName, sponsorId, sponsoredRewards }: 
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>What would you like to share?</DialogTitle>
+            <DialogDescription className="sr-only">Choose a content format and submit for review</DialogDescription>
           </DialogHeader>
 
           {!format ? (

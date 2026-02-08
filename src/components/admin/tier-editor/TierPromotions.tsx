@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -294,6 +295,7 @@ export function TierPromotions() {
             <DialogTitle>
               {editingPromo ? 'Edit Promotion' : 'Create Promotion'}
             </DialogTitle>
+            <DialogDescription className="sr-only">Configure tier promotion details</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
