@@ -19,7 +19,7 @@ interface UseDeliveryProfileReturn {
 const ALL_PROFILE_FIELDS: RequiredDataField[] = [
   'email', 'phone', 'shipping_address', 'wallet_address',
   'twitter_handle', 'instagram_handle', 'tiktok_handle',
-  'twitch_username', 'discord_username', 'telegram_handle', 'youtube_channel'
+  'kick_username', 'discord_username', 'telegram_handle', 'youtube_channel'
 ];
 
 export function useDeliveryProfile(): UseDeliveryProfileReturn {
@@ -133,8 +133,8 @@ export function useDeliveryProfile(): UseDeliveryProfileReturn {
         return profile.instagram_handle;
       case 'tiktok_handle':
         return profile.tiktok_handle;
-      case 'twitch_username':
-        return profile.twitch_username;
+      case 'kick_username':
+        return profile.kick_username;
       case 'discord_username':
         return profile.discord_username;
       case 'telegram_handle':

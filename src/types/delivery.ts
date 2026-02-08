@@ -15,7 +15,7 @@ export type RequiredDataField =
   | 'twitter_handle'
   | 'instagram_handle'
   | 'tiktok_handle'
-  | 'twitch_username'
+  | 'kick_username'
   | 'discord_username'
   | 'telegram_handle'
   | 'youtube_channel';
@@ -36,7 +36,7 @@ export interface UserDeliveryProfile {
   twitter_handle?: string;
   instagram_handle?: string;
   tiktok_handle?: string;
-  twitch_username?: string;
+  kick_username?: string;
   discord_username?: string;
   telegram_handle?: string;
   youtube_channel?: string;
@@ -103,12 +103,12 @@ export const DELIVERY_FIELD_CONFIGS: Record<RequiredDataField, DeliveryFieldConf
     icon: 'Video',
     validation: /^@?[A-Za-z0-9_.]{1,24}$/
   },
-  twitch_username: { 
-    field: 'twitch_username', 
-    label: 'Twitch Username', 
+  kick_username: { 
+    field: 'kick_username', 
+    label: 'Kick Username', 
     placeholder: 'username', 
-    icon: 'Twitch',
-    validation: /^[A-Za-z0-9_]{4,25}$/
+    icon: 'Zap',
+    validation: /^[A-Za-z0-9_]{3,25}$/
   },
   discord_username: { 
     field: 'discord_username', 

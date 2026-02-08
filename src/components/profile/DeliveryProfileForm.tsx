@@ -39,7 +39,7 @@ interface FormData {
   twitter_handle: string;
   instagram_handle: string;
   tiktok_handle: string;
-  twitch_username: string;
+  kick_username: string;
   discord_username: string;
   telegram_handle: string;
   youtube_channel: string;
@@ -81,7 +81,7 @@ export function DeliveryProfileForm() {
     twitter_handle: '',
     instagram_handle: '',
     tiktok_handle: '',
-    twitch_username: '',
+    kick_username: '',
     discord_username: '',
     telegram_handle: '',
     youtube_channel: '',
@@ -103,7 +103,7 @@ export function DeliveryProfileForm() {
         twitter_handle: profile.twitter_handle || '',
         instagram_handle: profile.instagram_handle || '',
         tiktok_handle: profile.tiktok_handle || '',
-        twitch_username: profile.twitch_username || '',
+        kick_username: profile.kick_username || '',
         discord_username: profile.discord_username || '',
         telegram_handle: profile.telegram_handle || '',
         youtube_channel: profile.youtube_channel || '',
@@ -136,7 +136,7 @@ export function DeliveryProfileForm() {
     if (formData.twitter_handle) count++;
     if (formData.instagram_handle) count++;
     if (formData.tiktok_handle) count++;
-    if (formData.twitch_username) count++;
+    if (formData.kick_username) count++;
     if (formData.discord_username) count++;
     if (formData.telegram_handle) count++;
     if (formData.youtube_channel) count++;
@@ -365,7 +365,7 @@ export function DeliveryProfileForm() {
               </div>
               <span className="text-xs text-muted-foreground">
                 {[formData.twitter_handle, formData.instagram_handle, formData.discord_username, 
-                  formData.twitch_username, formData.tiktok_handle, formData.telegram_handle, 
+                  formData.kick_username, formData.tiktok_handle, formData.telegram_handle, 
                   formData.youtube_channel].filter(Boolean).length}/7
               </span>
             </div>
@@ -407,12 +407,12 @@ export function DeliveryProfileForm() {
               </div>
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
-                  <FieldIcon name="Twitch" filled={!!formData.twitch_username} />
-                  Twitch
+                  <FieldIcon name="Zap" filled={!!formData.kick_username} />
+                  Kick
                 </Label>
                 <Input
-                  value={formData.twitch_username}
-                  onChange={(e) => handleChange('twitch_username', e.target.value)}
+                  value={formData.kick_username}
+                  onChange={(e) => handleChange('kick_username', e.target.value)}
                   placeholder="username"
                 />
               </div>

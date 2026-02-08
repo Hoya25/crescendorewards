@@ -16,13 +16,13 @@ import { PlatformIcon, PLATFORM_LABELS } from '@/components/creators/PlatformIco
 import type { FeaturedCreator } from '@/types/creators';
 import { cn } from '@/lib/utils';
 
-const PLATFORMS = ['twitch', 'youtube', 'spotify', 'patreon', 'instagram', 'tiktok', 'twitter', 'other'];
+const PLATFORMS = ['kick', 'youtube', 'spotify', 'patreon', 'instagram', 'tiktok', 'twitter', 'other'];
 const CATEGORIES = ['gaming', 'music', 'fitness', 'recovery', 'education', 'entertainment', 'lifestyle', 'tech', 'other'];
 
 const emptyForm = {
   name: '',
   handle: '',
-  platform: 'twitch',
+  platform: 'kick',
   profile_url: '',
   image_url: '',
   category: 'entertainment',

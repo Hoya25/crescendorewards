@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Mail, Phone, MapPin, Wallet, Twitter, Instagram, 
-  MessageCircle, Send, Youtube, Video, Loader2, Package, AlertCircle
+  MessageCircle, Send, Youtube, Video, Loader2, Package, AlertCircle, Zap
 } from 'lucide-react';
 import { useDeliveryProfile } from '@/hooks/useDeliveryProfile';
 import { useAccount } from 'wagmi';
@@ -58,7 +58,7 @@ function FieldIcon({ field }: { field: string }) {
     case 'twitter_handle': return <Twitter className={iconClass} />;
     case 'instagram_handle': return <Instagram className={iconClass} />;
     case 'tiktok_handle': return <Video className={iconClass} />;
-    case 'twitch_username': return <Video className={iconClass} />;
+    case 'kick_username': return <Zap className={iconClass} />;
     case 'discord_username': return <MessageCircle className={iconClass} />;
     case 'telegram_handle': return <Send className={iconClass} />;
     case 'youtube_channel': return <Youtube className={iconClass} />;

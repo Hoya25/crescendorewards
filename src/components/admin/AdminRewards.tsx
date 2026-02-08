@@ -2120,7 +2120,7 @@ export function AdminRewards() {
                       { field: 'twitter_handle', label: 'X (Twitter)' },
                       { field: 'instagram_handle', label: 'Instagram' },
                       { field: 'discord_username', label: 'Discord' },
-                      { field: 'twitch_username', label: 'Twitch' },
+                      { field: 'kick_username', label: 'Kick' },
                       { field: 'telegram_handle', label: 'Telegram' },
                       { field: 'youtube_channel', label: 'YouTube' },
                     ] as { field: RequiredDataField; label: string }[]).map(({ field, label }) => (
