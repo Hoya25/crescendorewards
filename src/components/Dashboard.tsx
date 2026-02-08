@@ -1,50 +1,62 @@
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Progress } from "./ui/progress";
-import { Gift, ChevronRight, ChevronDown, ShoppingBag, UserPlus, TrendingUp, Sparkles } from "lucide-react";
-import { StatusBadge } from "./StatusBadge";
+import { ChevronRight, ChevronDown, Gift, TrendingUp } from "lucide-react";
 import { SEO } from "./SEO";
 import { FeaturedRewardsCarousel } from "./rewards/FeaturedRewardsCarousel";
 import { WelcomeFlow, hasBeenOnboarded } from "./onboarding/WelcomeFlow";
 import { OnboardingChecklist } from "./onboarding/OnboardingChecklist";
 import { OnboardingProgress } from "./OnboardingProgress";
 import { ReferredWelcomeModal } from "./referral/ReferredWelcomeModal";
-import { REFERRAL_REWARDS } from "@/constants/referral";
-import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress, getNCTRNeededForNextLevel } from '@/utils/membershipLevels';
 import { AppLayout } from "./layout/AppLayout";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
-import { useAdminRole } from "@/hooks/useAdminRole";
-import { useReferralSettings } from "@/hooks/useReferralSettings";
 import { supabase } from "@/lib/supabase";
-import { toast } from "sonner";
 import { DashboardSkeleton } from "./skeletons/DashboardSkeleton";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import { ActivityFeed } from "./ActivityFeed";
 import { trackEvent } from "@/lib/analytics";
+import { HeroVideoSection } from "./dashboard/HeroVideoSection";
+import { QuickStatsBar } from "./dashboard/QuickStatsBar";
+import { BrandSpotlight } from "./dashboard/BrandSpotlight";
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const { signOut } = useAuthContext();
-  const { profile, tier, refreshUnifiedProfile } = useUnifiedUser();
-  const { isAdmin } = useAdminRole();
-  const { data: referralSettings } = useReferralSettings();
+  const { profile, tier } = useUnifiedUser();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [showReferredModal, setShowReferredModal] = useState(false);
   const [referrerName, setReferrerName] = useState<string | undefined>();
   const [activityOpen, setActivityOpen] = useState(false);
-  
-  const allocation = referralSettings?.allocation360Lock ?? REFERRAL_REWARDS.defaults.allocation360Lock;
+  const [featuredBrands, setFeaturedBrands] = useState<any[]>([]);
+  const [spotlightBrand, setSpotlightBrand] = useState<any | null>(null);
+
+  // Load featured brands for hero + spotlight
+  useEffect(() => {
+    const loadBrands = async () => {
+      const { data } = await supabase
+        .from('brands')
+        .select('id, name, description, hero_video_url, image_url, logo_emoji, logo_color, shop_url, category, base_earning_rate, is_featured')
+        .eq('is_active', true)
+        .eq('is_featured', true)
+        .order('created_at', { ascending: false })
+        .limit(6);
+
+      if (data && data.length > 0) {
+        setFeaturedBrands(data);
+        // Pick a random brand for spotlight that's different from hero
+        const spotlightIdx = data.length > 1 ? 1 : 0;
+        setSpotlightBrand(data[spotlightIdx]);
+      }
+    };
+    loadBrands();
+  }, []);
 
   // Check if user was referred and show welcome modal
   useEffect(() => {
     const checkReferralStatus = async () => {
       const referralCode = sessionStorage.getItem('referral_code');
       const shownReferredModal = sessionStorage.getItem('shown_referred_modal');
-      
+
       if (referralCode && !shownReferredModal && profile) {
         try {
           const { data } = await supabase
@@ -52,14 +64,13 @@ export function Dashboard() {
             .select('full_name')
             .eq('referral_code', referralCode)
             .maybeSingle();
-          
+
           if (data?.full_name) {
             setReferrerName(data.full_name.split(' ')[0]);
           }
-          
+
           setShowReferredModal(true);
           sessionStorage.setItem('shown_referred_modal', 'true');
-          
           localStorage.removeItem('referral_code');
           localStorage.removeItem('referral_link_type');
           localStorage.removeItem('referral_expiry');
@@ -70,10 +81,8 @@ export function Dashboard() {
         }
       }
     };
-    
-    if (profile) {
-      checkReferralStatus();
-    }
+
+    if (profile) checkReferralStatus();
   }, [profile]);
 
   useEffect(() => {
@@ -107,113 +116,53 @@ export function Dashboard() {
   const crescendoData = profile?.crescendo_data || {};
   const lockedNCTR = crescendoData.locked_nctr || 0;
   const claimBalance = crescendoData.claims_balance || 0;
-  const hasClaimedSignupBonus = crescendoData.has_claimed_signup_bonus || false;
-  const referralCode = crescendoData.referral_code || 'CRES-LOADING';
-
-  const nextTierData = getNextMembershipTier(lockedNCTR);
-  const progressPercent = getMembershipProgress(lockedNCTR);
-  const nctrNeeded = getNCTRNeededForNextLevel(lockedNCTR);
-
+  const tierName = tier?.display_name || 'Member';
   const userName = profile?.display_name || profile?.email?.split('@')[0] || 'User';
-  const firstName = userName.split(' ')[0];
 
   return (
     <AppLayout>
-      <SEO 
+      <SEO
         title="Dashboard"
-        description="Your Crescendo dashboard — track your progress and claim rewards."
+        description="Your Crescendo dashboard — discover brands and claim rewards."
       />
 
       <main className="flex-1 px-4 md:px-6 pt-2 pb-4">
-        <div className="max-w-7xl mx-auto space-y-3">
-          
-          {/* Onboarding Checklist for new users */}
+        <div className="max-w-7xl mx-auto space-y-4">
+          {/* Onboarding */}
           <OnboardingChecklist />
 
-          {/* ROW 1: Compact Welcome Bar */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-3 py-2 rounded-lg bg-card border">
-            <div className="flex items-center gap-2">
-              <StatusBadge tier={tier} size="md" showTooltip={false} />
-              <div>
-                <h1 className="text-base font-bold leading-tight">Welcome back, {firstName}!</h1>
-                <p className="text-xs text-muted-foreground">
-                  {claimBalance} claims available
-                </p>
-              </div>
-            </div>
-            {nextTierData && (
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <div className="flex-1 sm:w-40">
-                  <div className="flex justify-between text-[11px] text-muted-foreground mb-0.5">
-                    <span>{nctrNeeded.toLocaleString()} pts to {nextTierData.name}</span>
-                    <span>{Math.round(progressPercent)}%</span>
-                  </div>
-                  <Progress value={progressPercent} className="h-1" />
-                </div>
-                <Button variant="ghost" size="sm" onClick={() => navigate('/membership')} className="text-xs gap-1 shrink-0 h-6 px-2">
-                  Level Up <ChevronRight className="w-3 h-3" />
-                </Button>
-              </div>
-            )}
-          </div>
+          {/* 1. HERO VIDEO SECTION */}
+          {featuredBrands.length > 0 && (
+            <HeroVideoSection brands={featuredBrands} />
+          )}
 
-          {/* ROW 2: Featured Rewards Carousel — HERO of dashboard */}
+          {/* 2. QUICK STATS BAR */}
+          <QuickStatsBar
+            lockedNCTR={lockedNCTR}
+            tierName={tierName}
+            claimBalance={claimBalance}
+          />
+
+          {/* 3. FEATURED REWARDS */}
           <section>
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-lg font-semibold flex items-center gap-2">
                 <Gift className="w-4 h-4 text-primary" />
-                Rewards For You
+                Featured Rewards
               </h2>
               <Button variant="ghost" size="sm" onClick={() => navigate('/rewards')} className="gap-1 h-7 text-xs">
-                View All <ChevronRight className="w-3 h-3" />
+                Browse All <ChevronRight className="w-3 h-3" />
               </Button>
             </div>
-            <FeaturedRewardsCarousel type="all" maxItems={8} showHeader={false} claimBalance={claimBalance} />
+            <FeaturedRewardsCarousel type="all" maxItems={6} showHeader={false} claimBalance={claimBalance} />
           </section>
 
-          {/* ROW 3: Quick Actions — 3 cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="cursor-pointer hover:shadow-md hover:border-primary/30 transition-all" onClick={() => window.open('https://thegarden.nctr.live/', '_blank')}>
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center shadow-lg shrink-0">
-                  <ShoppingBag className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold">Earn Points</h3>
-                  <p className="text-sm text-muted-foreground">Shop 6,000+ brands</p>
-                </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
-              </CardContent>
-            </Card>
+          {/* 4. BRAND SPOTLIGHT */}
+          {spotlightBrand && (
+            <BrandSpotlight brand={spotlightBrand} />
+          )}
 
-            <Card className="cursor-pointer hover:shadow-md hover:border-primary/30 transition-all" onClick={() => navigate('/invite')}>
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shrink-0">
-                  <UserPlus className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold">Invite Friends</h3>
-                  <p className="text-sm text-muted-foreground">Earn {allocation} pts per signup</p>
-                </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
-              </CardContent>
-            </Card>
-
-            <Card className="cursor-pointer hover:shadow-md hover:border-primary/30 transition-all" onClick={() => navigate('/membership')}>
-              <CardContent className="p-5 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shrink-0">
-                  <Sparkles className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold">Your Progress</h3>
-                  <p className="text-sm text-muted-foreground">{tier?.display_name || 'Member'} level</p>
-                </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* ROW 4: Collapsible Activity Feed */}
+          {/* 5. COMPACT ACTIVITY FEED */}
           <Collapsible open={activityOpen} onOpenChange={setActivityOpen}>
             <CollapsibleTrigger asChild>
               <Button variant="ghost" className="w-full justify-between py-3 text-muted-foreground hover:text-foreground">
@@ -228,15 +177,15 @@ export function Dashboard() {
               <ActivityFeed />
             </CollapsibleContent>
           </Collapsible>
-          
+
           {/* Bottom padding for mobile nav */}
           <div className="h-20 md:hidden" />
         </div>
       </main>
 
-      <WelcomeFlow 
-        isOpen={showWelcomeModal} 
-        onClose={handleWelcomeClose} 
+      <WelcomeFlow
+        isOpen={showWelcomeModal}
+        onClose={handleWelcomeClose}
         claimsBalance={claimBalance}
       />
       <ReferredWelcomeModal

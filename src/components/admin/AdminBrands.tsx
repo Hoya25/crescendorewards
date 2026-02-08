@@ -61,6 +61,7 @@ interface Brand {
   is_active: boolean;
   created_at: string;
   image_url: string | null;
+  hero_video_url: string | null;
   earn_opportunities: { title: string; description: string; link: string; }[];
 }
 
@@ -116,6 +117,7 @@ export function AdminBrands() {
     is_featured: false,
     is_active: true,
     image_url: null as string | null,
+    hero_video_url: '' as string,
     earn_opportunities: [] as { title: string; description: string; link: string; }[],
   });
 
@@ -296,9 +298,10 @@ export function AdminBrands() {
       // Upload image if selected
       const imageUrl = await uploadImage();
       
+      const brandData = { ...formData, image_url: imageUrl, hero_video_url: formData.hero_video_url?.trim() || null };
       const { error } = await supabase
         .from('brands')
-        .insert([{ ...formData, image_url: imageUrl }]);
+        .insert([brandData]);
 
       if (error) throw error;
 
@@ -323,9 +326,10 @@ export function AdminBrands() {
       // Upload image if new image selected
       const imageUrl = await uploadImage();
       
+      const brandData = { ...formData, image_url: imageUrl, hero_video_url: formData.hero_video_url?.trim() || null };
       const { error } = await supabase
         .from('brands')
-        .update({ ...formData, image_url: imageUrl })
+        .update(brandData)
         .eq('id', selectedBrand.id);
 
       if (error) throw error;
@@ -415,6 +419,7 @@ export function AdminBrands() {
       is_featured: brand.is_featured,
       is_active: brand.is_active,
       image_url: brand.image_url,
+      hero_video_url: brand.hero_video_url || '',
       earn_opportunities: brand.earn_opportunities || [],
     });
     setImagePreview(brand.image_url);
@@ -438,6 +443,7 @@ export function AdminBrands() {
       is_featured: false,
       is_active: true,
       image_url: null,
+      hero_video_url: '',
       earn_opportunities: [],
     });
     setSelectedImage(null);
@@ -618,6 +624,20 @@ export function AdminBrands() {
           onChange={(e) => setFormData({ ...formData, shop_url: e.target.value })}
           placeholder="https://example.com"
         />
+      </div>
+
+      <div>
+        <Label htmlFor="hero_video_url">Hero Video URL (YouTube or Vimeo)</Label>
+        <Input
+          id="hero_video_url"
+          type="url"
+          value={formData.hero_video_url}
+          onChange={(e) => setFormData({ ...formData, hero_video_url: e.target.value })}
+          placeholder="https://www.youtube.com/watch?v=... or https://vimeo.com/..."
+        />
+        <p className="text-xs text-muted-foreground mt-1">
+          Paste a YouTube or Vimeo URL. This video will appear in the dashboard hero section for featured brands.
+        </p>
       </div>
 
       <div className="flex items-center justify-between">

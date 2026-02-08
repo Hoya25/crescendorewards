@@ -543,6 +543,7 @@ export type Database = {
           created_at: string
           description: string
           earn_opportunities: Json | null
+          hero_video_url: string | null
           id: string
           image_url: string | null
           is_active: boolean
@@ -559,6 +560,7 @@ export type Database = {
           created_at?: string
           description: string
           earn_opportunities?: Json | null
+          hero_video_url?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -575,6 +577,7 @@ export type Database = {
           created_at?: string
           description?: string
           earn_opportunities?: Json | null
+          hero_video_url?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
