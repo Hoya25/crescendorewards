@@ -6,6 +6,8 @@ import { CrescendoLogo } from '@/components/CrescendoLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { NotificationsDropdown } from '@/components/NotificationsDropdown';
 import { OnboardingTracker } from '@/components/onboarding/OnboardingTracker';
+import { NCTREarnedCelebration } from '@/components/NCTREarnedCelebration';
+import { useNCTREarningDetection } from '@/hooks/useNCTREarningDetection';
 import { Button } from '@/components/ui/button';
 import { 
   DropdownMenu, 
@@ -29,11 +31,20 @@ interface AppLayoutProps {
  */
 export function AppLayout({ children }: AppLayoutProps) {
   const navigate = useNavigate();
-  const { signOut } = useAuthContext();
-  const { profile } = useUnifiedUser();
+  const { signOut, user } = useAuthContext();
+  const { profile, tier, nextTier, progressToNextTier, total360Locked } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
+  const { pendingEarning, clearEarning } = useNCTREarningDetection(user?.id);
 
   const userName = profile?.display_name || profile?.email?.split('@')[0] || 'User';
+
+  const currentTierInfo = tier
+    ? { name: tier.display_name, emoji: tier.badge_emoji, color: tier.badge_color }
+    : { name: 'Bronze', emoji: '🥉', color: '#CD7F32' };
+  const nextTierInfo = nextTier
+    ? { name: nextTier.display_name, emoji: nextTier.badge_emoji, color: nextTier.badge_color }
+    : null;
+  const nctrToNext = nextTier ? Math.max(0, nextTier.min_nctr_360_locked - total360Locked) : null;
 
   const handleSignOut = async () => {
     await signOut();
@@ -127,6 +138,21 @@ export function AppLayout({ children }: AppLayoutProps) {
             {children || <Outlet />}
           </main>
         </div>
+
+        {/* NCTR Earning Celebration Modal */}
+        {pendingEarning && (
+          <NCTREarnedCelebration
+            isOpen={true}
+            onClose={clearEarning}
+            nctrEarned={pendingEarning.nctrEarned}
+            brandName={pendingEarning.brandName}
+            totalBalance={total360Locked + pendingEarning.nctrEarned}
+            currentTier={currentTierInfo}
+            nextTier={nextTierInfo}
+            nctrToNextTier={nctrToNext}
+            progressToNextTier={progressToNextTier}
+          />
+        )}
       </div>
     </SidebarProvider>
   );
