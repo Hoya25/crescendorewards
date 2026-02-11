@@ -536,6 +536,140 @@ export type Database = {
         }
         Relationships: []
       }
+      bounties: {
+        Row: {
+          bounty_tier: string | null
+          category: string
+          completion_message: string | null
+          created_at: string | null
+          cta_text: string | null
+          description: string | null
+          display_order: number | null
+          expires_at: string | null
+          id: string
+          image_emoji: string | null
+          image_url: string | null
+          instructions: string | null
+          is_active: boolean | null
+          is_featured: boolean | null
+          is_recurring: boolean | null
+          lock_multiplier: number | null
+          max_completions: number | null
+          min_status_required: string | null
+          nctr_reward: number
+          purchase_product_type: string | null
+          recurrence_period: string | null
+          requires_360lock: boolean | null
+          requires_purchase: boolean | null
+          title: string
+          total_completions: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          bounty_tier?: string | null
+          category?: string
+          completion_message?: string | null
+          created_at?: string | null
+          cta_text?: string | null
+          description?: string | null
+          display_order?: number | null
+          expires_at?: string | null
+          id?: string
+          image_emoji?: string | null
+          image_url?: string | null
+          instructions?: string | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          is_recurring?: boolean | null
+          lock_multiplier?: number | null
+          max_completions?: number | null
+          min_status_required?: string | null
+          nctr_reward?: number
+          purchase_product_type?: string | null
+          recurrence_period?: string | null
+          requires_360lock?: boolean | null
+          requires_purchase?: boolean | null
+          title: string
+          total_completions?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          bounty_tier?: string | null
+          category?: string
+          completion_message?: string | null
+          created_at?: string | null
+          cta_text?: string | null
+          description?: string | null
+          display_order?: number | null
+          expires_at?: string | null
+          id?: string
+          image_emoji?: string | null
+          image_url?: string | null
+          instructions?: string | null
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          is_recurring?: boolean | null
+          lock_multiplier?: number | null
+          max_completions?: number | null
+          min_status_required?: string | null
+          nctr_reward?: number
+          purchase_product_type?: string | null
+          recurrence_period?: string | null
+          requires_360lock?: boolean | null
+          requires_purchase?: boolean | null
+          title?: string
+          total_completions?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      bounty_claims: {
+        Row: {
+          admin_notes: string | null
+          bounty_id: string
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          locked_to_360: boolean | null
+          multiplier_applied: number | null
+          nctr_earned: number
+          status: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          bounty_id: string
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          locked_to_360?: boolean | null
+          multiplier_applied?: number | null
+          nctr_earned?: number
+          status?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          bounty_id?: string
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          locked_to_360?: boolean | null
+          multiplier_applied?: number | null
+          nctr_earned?: number
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bounty_claims_bounty_id_fkey"
+            columns: ["bounty_id"]
+            isOneToOne: false
+            referencedRelation: "bounties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brands: {
         Row: {
           base_earning_rate: number
@@ -1393,6 +1527,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      merch_purchase_bounty_eligibility: {
+        Row: {
+          bounties_completed: number | null
+          bounties_unlocked: number | null
+          created_at: string | null
+          id: string
+          product_name: string | null
+          purchase_amount: number | null
+          shop_transaction_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          bounties_completed?: number | null
+          bounties_unlocked?: number | null
+          created_at?: string | null
+          id?: string
+          product_name?: string | null
+          purchase_amount?: number | null
+          shop_transaction_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          bounties_completed?: number | null
+          bounties_unlocked?: number | null
+          created_at?: string | null
+          id?: string
+          product_name?: string | null
+          purchase_amount?: number | null
+          shop_transaction_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merch_purchase_bounty_eligibility_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notification_settings: {
         Row: {

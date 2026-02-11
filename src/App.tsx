@@ -74,6 +74,7 @@ const SubmitContentPage = lazy(() => import('./pages/SubmitContentPage'));
 const MyContentPage = lazy(() => import('./pages/MyContentPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
+const BountyBoardPage = lazy(() => import('./pages/BountyBoardPage'));
 
 // Admin panel - separate chunk for code splitting
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel').then(m => ({ default: m.AdminPanel })));
@@ -292,11 +293,23 @@ function AppRoutes() {
               } 
             />
 
+            {/* BOUNTY BOARD - semi-public */}
+            <Route 
+              path="/bounties" 
+              element={
+                isAuthenticated ? (
+                  <AppLayout><BountyBoardPage /></AppLayout>
+                ) : (
+                  <BountyBoardPage />
+                )
+              } 
+            />
+
             {/* ========================================= */}
             {/* AUTHENTICATED ROUTES (require login + have layout) */}
             {/* ========================================= */}
             <Route 
-              path="/groundball/my-rewards" 
+              path="/groundball/my-rewards"
               element={
                 <ProtectedRoute>
                   <AppLayout><MyGroundballRewardsPage /></AppLayout>
