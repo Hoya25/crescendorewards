@@ -3106,6 +3106,7 @@ export type Database = {
           display_name: string | null
           email: string | null
           garden_data: Json | null
+          has_completed_onboarding: boolean | null
           id: string
           last_active_crescendo: string | null
           last_active_garden: string | null
@@ -3114,6 +3115,7 @@ export type Database = {
           onchain_vesting_contract: string | null
           onchain_vesting_synced: boolean | null
           primary_wallet_address: string | null
+          signup_bonus_awarded: boolean | null
           tier_calculated_at: string | null
           tier_override: string | null
           tier_override_at: string | null
@@ -3134,6 +3136,7 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           garden_data?: Json | null
+          has_completed_onboarding?: boolean | null
           id?: string
           last_active_crescendo?: string | null
           last_active_garden?: string | null
@@ -3142,6 +3145,7 @@ export type Database = {
           onchain_vesting_contract?: string | null
           onchain_vesting_synced?: boolean | null
           primary_wallet_address?: string | null
+          signup_bonus_awarded?: boolean | null
           tier_calculated_at?: string | null
           tier_override?: string | null
           tier_override_at?: string | null
@@ -3162,6 +3166,7 @@ export type Database = {
           display_name?: string | null
           email?: string | null
           garden_data?: Json | null
+          has_completed_onboarding?: boolean | null
           id?: string
           last_active_crescendo?: string | null
           last_active_garden?: string | null
@@ -3170,6 +3175,7 @@ export type Database = {
           onchain_vesting_contract?: string | null
           onchain_vesting_synced?: boolean | null
           primary_wallet_address?: string | null
+          signup_bonus_awarded?: boolean | null
           tier_calculated_at?: string | null
           tier_override?: string | null
           tier_override_at?: string | null

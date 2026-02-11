@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
@@ -6,6 +6,7 @@ import { CrescendoLogo } from '@/components/CrescendoLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { NotificationsDropdown } from '@/components/NotificationsDropdown';
 import { OnboardingTracker } from '@/components/onboarding/OnboardingTracker';
+import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 import { NCTREarnedCelebration } from '@/components/NCTREarnedCelebration';
 import { useNCTREarningDetection } from '@/hooks/useNCTREarningDetection';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,14 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { profile, tier, nextTier, progressToNextTier, total360Locked } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   const { pendingEarning, clearEarning } = useNCTREarningDetection(user?.id);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Check if onboarding should be shown
+  useEffect(() => {
+    if (profile && !(profile as any).has_completed_onboarding) {
+      setShowOnboarding(true);
+    }
+  }, [profile]);
 
   const userName = profile?.display_name || profile?.email?.split('@')[0] || 'User';
 
@@ -152,6 +161,11 @@ export function AppLayout({ children }: AppLayoutProps) {
             nctrToNextTier={nctrToNext}
             progressToNextTier={progressToNextTier}
           />
+        )}
+
+        {/* First-time Onboarding Flow */}
+        {showOnboarding && (
+          <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
         )}
       </div>
     </SidebarProvider>
