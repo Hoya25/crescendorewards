@@ -18,6 +18,8 @@ import { HeroVideoSection } from "./dashboard/HeroVideoSection";
 import { QuickStatsBar } from "./dashboard/QuickStatsBar";
 import { CommunityFeedSection } from "./dashboard/CommunityFeedSection";
 import { BrandSpotlight } from "./dashboard/BrandSpotlight";
+import { MerchBountiesWidget } from "./dashboard/MerchBountiesWidget";
+import { MerchStoreCTA } from "./dashboard/MerchStoreCTA";
 import { useQuery } from "@tanstack/react-query";
 
 export function Dashboard() {
@@ -175,7 +177,11 @@ export function Dashboard() {
             <FeaturedRewardsCarousel type="all" maxItems={6} showHeader={false} claimBalance={claimBalance} />
           </section>
 
-          {/* 3.5 COMMUNITY FEED */}
+          {/* 3.5 MERCH BOUNTIES + SHOP CTA */}
+          <MerchBountiesWidget />
+          <MerchStoreCTA />
+
+          {/* 3.6 COMMUNITY FEED */}
           <CommunityFeedSection />
 
           {/* 4. BRAND SPOTLIGHT */}
