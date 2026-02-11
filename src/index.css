@@ -42,6 +42,10 @@ All colors MUST be HSL.
     --bronze: 30 41% 45%;
     --gold: 45 93% 47%;
 
+    /* CTA accent — lime green */
+    --cta: 82 77% 47%;
+    --cta-foreground: 0 0% 0%;
+
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
@@ -99,6 +103,10 @@ All colors MUST be HSL.
     /* Tier colors for status badges - dark mode */
     --bronze: 30 41% 55%;
     --gold: 45 93% 55%;
+
+    /* CTA accent — lime green dark mode */
+    --cta: 82 77% 52%;
+    --cta-foreground: 0 0% 0%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;

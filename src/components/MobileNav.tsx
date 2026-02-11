@@ -65,7 +65,7 @@ export function MobileNav({ onViewRewards, onSignIn, onJoin }: MobileNavProps) {
           </Button>
           <div className="pt-4 border-t mt-2">
             <Button
-              className="w-full bg-violet-600 hover:bg-violet-700 text-white h-12 text-base gap-2"
+              className="w-full bg-cta hover:bg-cta/90 text-cta-foreground h-12 text-base gap-2 rounded-full font-semibold"
               onClick={() => handleNavAction(onJoin)}
             >
               <UserPlus className="w-5 h-5" />
