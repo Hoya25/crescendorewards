@@ -2663,6 +2663,7 @@ export type Database = {
       }
       shop_transactions: {
         Row: {
+          celebrated: boolean
           created_at: string | null
           credited_at: string | null
           currency: string | null
@@ -2682,6 +2683,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          celebrated?: boolean
           created_at?: string | null
           credited_at?: string | null
           currency?: string | null
@@ -2701,6 +2703,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          celebrated?: boolean
           created_at?: string | null
           credited_at?: string | null
           currency?: string | null
