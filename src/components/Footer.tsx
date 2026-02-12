@@ -67,11 +67,9 @@ export function Footer() {
           {/* Left: Logo and NCTR Alliance */}
           <div className="flex flex-col items-center md:items-start gap-3">
             <CrescendoLogo className="h-8 w-auto" />
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Part of</span>
-              <NCTRLogo size="sm" />
-              <span>Alliance</span>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              Part of <span className="font-bold">NCTR</span> Alliance
+            </p>
           </div>
 
           {/* Center: Navigation Links */}

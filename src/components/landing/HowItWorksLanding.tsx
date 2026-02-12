@@ -13,13 +13,13 @@ const steps = [
     emoji: '🔒',
     title: 'Commit with 360LOCK',
     description:
-      'Choose to lock your NCTR for 360 days and earn 3x rewards on merch. Your NCTR stays yours — locking is commitment, not spending. As you level up, your earning multiplier grows: 1.25x at Silver, 1.5x at Gold, up to 3x at Diamond — on everything.',
+      'Lock your earned NCTR to build your Crescendo status. Higher status = higher earning multiplier on everything you earn. Plus, NCTR merch purchases and bounties get an automatic 3x bonus with 360LOCK. Your NCTR stays yours — locking is commitment, not spending.',
   },
   {
     emoji: '🏆',
     title: 'Unlock Rewards & Status',
     description:
-      'Your locked NCTR determines your Crescendo status: Bronze → Silver → Gold → Platinum → Diamond. Higher status unlocks better rewards, exclusive bounties, premium experiences, AND a higher earning multiplier on all future NCTR.',
+      'Your locked NCTR determines your Crescendo status: Bronze → Silver → Gold → Platinum → Diamond. Higher status gives you a higher earning multiplier on everything — 1.25x at Silver up to 3x at Diamond. Plus exclusive bounties, better rewards, and premium experiences.',
   },
 ];
 
@@ -68,7 +68,7 @@ export function HowItWorksLanding() {
         >
           <p className="text-sm md:text-base" style={{ color: '#ccc' }}>
             This isn't a points program that expires. Your NCTR is a{' '}
-            <span className="font-semibold text-white">real digital asset</span>.
+            <span className="font-semibold text-white">real digital reward</span>.
             Your status is <span className="font-semibold text-white">earned, not bought</span>.
           </p>
         </div>
