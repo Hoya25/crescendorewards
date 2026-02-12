@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { Lock, Star, ChevronRight, Sparkles, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { TierUpgradeCelebration } from '@/components/TierUpgradeCelebration';
 import type { LockDecisionRequest } from '@/contexts/LockDecisionContext';
 
 const SOURCE_EMOJI: Record<string, string> = {
@@ -36,7 +37,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
   const is360Required = request.requires360Lock;
   
   const [selected, setSelected] = useState<'90lock' | '360lock'>('360lock');
-  const [phase, setPhase] = useState<'choose' | 'success'>('choose');
+  const [phase, setPhase] = useState<'choose' | 'success' | 'levelup'>('choose');
   const [animatedAmount, setAnimatedAmount] = useState(request.baseAmount);
   const [showFirstTimeHint, setShowFirstTimeHint] = useState(false);
   const animRef = useRef<number>();
@@ -122,6 +123,12 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
     // Dismiss first-time hint
     localStorage.setItem('crescendo_seen_lock_decision', 'true');
 
+    // Check for level-up → show full celebration
+    if (wouldLevelUp) {
+      setPhase('levelup');
+      return;
+    }
+
     setPhase('success');
 
     // Celebration for 360lock
@@ -147,6 +154,22 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
   };
 
   const emoji = SOURCE_EMOJI[request.sourceType] || '⭐';
+
+  // ─── LEVEL-UP CELEBRATION PHASE ───
+  if (phase === 'levelup' && tier && newTier) {
+    const celebrationNextTier = sortedTiers.find(t => t.min_nctr_360_locked > newLocked) || null;
+    return (
+      <TierUpgradeCelebration
+        isOpen={true}
+        onClose={handleDone}
+        previousTier={tier}
+        newTier={newTier}
+        totalLockedNctr={newLocked}
+        nextTierThreshold={celebrationNextTier?.min_nctr_360_locked || null}
+        nextTierName={celebrationNextTier?.display_name || null}
+      />
+    );
+  }
 
   // ─── SUCCESS PHASE ───
   if (phase === 'success') {
