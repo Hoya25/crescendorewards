@@ -32,7 +32,7 @@ export function MembershipLevelPage() {
   const [lockAmount, setLockAmount] = useState('');
   const [processing, setProcessing] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
-  const [upgradedTier, setUpgradedTier] = useState<{ old: MembershipTier; new: MembershipTier } | null>(null);
+  const [upgradedTier, setUpgradedTier] = useState<{ old: MembershipTier; new: MembershipTier; newLockedAmount: number } | null>(null);
 
   if (!profile) return null;
 
@@ -133,11 +133,8 @@ export function MembershipLevelPage() {
 
       // Check if tier upgraded
       if (newTier.level > oldTier.level) {
-        setUpgradedTier({ old: oldTier, new: newTier });
+        setUpgradedTier({ old: oldTier, new: newTier, newLockedAmount: newLockedAmount });
         setShowCelebration(true);
-        setTimeout(() => {
-          window.location.reload();
-        }, 4000); // Reload after celebration
       } else {
         window.location.reload(); // Refresh to show new progress
       }
@@ -438,9 +435,43 @@ export function MembershipLevelPage() {
       {upgradedTier && (
         <TierUpgradeCelebration
           isOpen={showCelebration}
-          onClose={() => setShowCelebration(false)}
-          newTier={upgradedTier.new}
-          oldTier={upgradedTier.old}
+          onClose={() => {
+            setShowCelebration(false);
+            window.location.reload();
+          }}
+          previousTier={{
+            id: String(upgradedTier.old.level),
+            tier_name: upgradedTier.old.name.toLowerCase(),
+            display_name: upgradedTier.old.name,
+            badge_emoji: ['🥉', '🥈', '🥇', '💎', '👑'][upgradedTier.old.level] || '🥉',
+            badge_color: upgradedTier.old.color,
+            min_nctr_360_locked: upgradedTier.old.requirement,
+            max_nctr_360_locked: null,
+            benefits: upgradedTier.old.benefits,
+            sort_order: upgradedTier.old.level,
+            is_active: true,
+          }}
+          newTier={{
+            id: String(upgradedTier.new.level),
+            tier_name: upgradedTier.new.name.toLowerCase(),
+            display_name: upgradedTier.new.name,
+            badge_emoji: ['🥉', '🥈', '🥇', '💎', '👑'][upgradedTier.new.level] || '🥉',
+            badge_color: upgradedTier.new.color,
+            min_nctr_360_locked: upgradedTier.new.requirement,
+            max_nctr_360_locked: null,
+            benefits: upgradedTier.new.benefits,
+            sort_order: upgradedTier.new.level,
+            is_active: true,
+          }}
+          totalLockedNctr={upgradedTier.newLockedAmount}
+          nextTierThreshold={(() => {
+            const nextT = membershipTiers.find(t => t.level === upgradedTier.new.level + 1);
+            return nextT ? nextT.requirement : null;
+          })()}
+          nextTierName={(() => {
+            const nextT = membershipTiers.find(t => t.level === upgradedTier.new.level + 1);
+            return nextT ? nextT.name : null;
+          })()}
         />
       )}
     </div>

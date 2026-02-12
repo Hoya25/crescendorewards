@@ -1,157 +1,328 @@
-import { useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import confetti from 'canvas-confetti';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Crown, Sparkles, TrendingUp } from 'lucide-react';
-import { MembershipTier } from '@/utils/membershipLevels';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Share2, Copy, ExternalLink } from 'lucide-react';
+import { toast } from 'sonner';
+import type { StatusTier } from '@/contexts/UnifiedUserContext';
 
 interface TierUpgradeCelebrationProps {
   isOpen: boolean;
   onClose: () => void;
-  newTier: MembershipTier;
-  oldTier: MembershipTier;
+  previousTier: StatusTier;
+  newTier: StatusTier;
+  totalLockedNctr: number;
+  nextTierThreshold: number | null;
+  nextTierName: string | null;
 }
 
-export function TierUpgradeCelebration({ 
-  isOpen, 
-  onClose, 
-  newTier, 
-  oldTier 
+// Tier-specific confetti color palettes
+const TIER_COLORS: Record<string, string[]> = {
+  bronze: ['#CD7F32', '#B87333', '#A0522D', '#D2691E'],
+  silver: ['#C0C0C0', '#E8E8E8', '#A9A9A9', '#DCDCDC'],
+  gold: ['#FFD700', '#FFA500', '#DAA520', '#F0E68C'],
+  platinum: ['#4169E1', '#00BFFF', '#E5E4E2', '#87CEEB'],
+  diamond: ['#FF69B4', '#00CED1', '#FFD700', '#AAFF00', '#9370DB'],
+};
+
+// Tier-specific unlock reveals
+function getUnlockCards(tierName: string, nctrToNext: number | null, nextName: string | null): { emoji: string; title: string; description: string }[] {
+  const lowerTier = tierName.toLowerCase();
+
+  const base: Record<string, { emoji: string; title: string; description: string }[]> = {
+    bronze: [
+      { emoji: '🥉', title: 'Bronze Status Achieved', description: 'All Tier 1 bounties + Merch Monday rewards unlocked' },
+      { emoji: '📸', title: 'Content Bounties', description: 'Creative content bounties now available to earn more NCTR' },
+      { emoji: '⭐', title: 'Bronze Rewards', description: 'Bronze-level rewards now available in the marketplace' },
+    ],
+    silver: [
+      { emoji: '📸', title: '4 New Bounties', description: 'Tier 2 creative content bounties worth up to 1,500 NCTR each with 360LOCK' },
+      { emoji: '👀', title: 'NCTR Sighting Bounty', description: 'Spot someone wearing NCTR merch, earn 1,500 NCTR' },
+      { emoji: '⭐', title: 'Better Crescendo Rewards', description: 'Silver-level rewards now available in the marketplace' },
+    ],
+    gold: [
+      { emoji: '🎬', title: 'Campaign Bounties Unlocked', description: 'Tier 3 bounties worth up to 3,000 NCTR each' },
+      { emoji: '🏆', title: 'Multi-Purchase Bonus', description: 'Complete 3 merch bounties in a month for 3,000 NCTR bonus' },
+      { emoji: '💎', title: 'Gold-Level Rewards', description: 'Premium experiences now available' },
+    ],
+    platinum: [
+      { emoji: '🌟', title: 'Premium Access', description: 'Exclusive experiences and opportunities unlocked' },
+      { emoji: '🎁', title: 'Platinum Rewards', description: 'The best Crescendo has to offer' },
+    ],
+    diamond: [
+      { emoji: '👑', title: 'Maximum Status Achieved', description: 'Every reward in Crescendo is available to you' },
+      { emoji: '🏛️', title: 'Community Leader', description: 'Your voice carries the most weight' },
+      { emoji: '🌟', title: 'You ARE the Movement', description: 'Maximum rewards. Maximum impact.' },
+    ],
+  };
+
+  const cards = base[lowerTier] || base.bronze;
+
+  if (nctrToNext && nextName && lowerTier !== 'diamond') {
+    cards.push({
+      emoji: '📈',
+      title: `${nctrToNext.toLocaleString()} NCTR to ${nextName}`,
+      description: 'Keep earning and locking to reach the next level',
+    });
+  }
+
+  return cards;
+}
+
+export function TierUpgradeCelebration({
+  isOpen,
+  onClose,
+  previousTier,
+  newTier,
+  totalLockedNctr,
+  nextTierThreshold,
+  nextTierName,
 }: TierUpgradeCelebrationProps) {
-  
+  const [phase, setPhase] = useState<'reveal' | 'unlocks' | 'ready'>('reveal');
+
+  const tierName = newTier.tier_name || newTier.display_name?.toLowerCase() || 'bronze';
+  const colors = TIER_COLORS[tierName] || TIER_COLORS.bronze;
+  const nctrToNext = nextTierThreshold ? Math.max(0, nextTierThreshold - totalLockedNctr) : null;
+  const unlockCards = getUnlockCards(tierName, nctrToNext, nextTierName);
+
+  const progressPercent = nextTierThreshold
+    ? Math.min(100, ((totalLockedNctr - newTier.min_nctr_360_locked) / (nextTierThreshold - newTier.min_nctr_360_locked)) * 100)
+    : 100;
+
+  // Fire confetti on reveal
+  const fireConfetti = useCallback(() => {
+    // Big center burst
+    confetti({ particleCount: 120, spread: 80, origin: { y: 0.5 }, colors });
+    // Side cannons
+    setTimeout(() => {
+      confetti({ particleCount: 60, angle: 60, spread: 55, origin: { x: 0, y: 0.6 }, colors });
+      confetti({ particleCount: 60, angle: 120, spread: 55, origin: { x: 1, y: 0.6 }, colors });
+    }, 300);
+    // Stars
+    setTimeout(() => {
+      confetti({ particleCount: 40, spread: 360, startVelocity: 30, origin: { y: 0.4, x: 0.5 }, shapes: ['star'], colors });
+    }, 600);
+  }, [colors]);
+
   useEffect(() => {
-    if (isOpen) {
-      // Initial burst
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: [newTier.color, '#FFD700', '#FFA500']
-      });
-
-      // Side cannons
-      setTimeout(() => {
-        confetti({
-          particleCount: 50,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0 },
-          colors: [newTier.color, '#FFD700']
-        });
-        confetti({
-          particleCount: 50,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1 },
-          colors: [newTier.color, '#FFD700']
-        });
-      }, 250);
-
-      // Stars from top
-      setTimeout(() => {
-        confetti({
-          particleCount: 30,
-          spread: 360,
-          startVelocity: 25,
-          origin: { y: 0.3, x: 0.5 },
-          shapes: ['star'],
-          colors: [newTier.color, '#FFD700', '#FFA500', '#FF69B4']
-        });
-      }, 500);
-
-      // Final cascade
-      setTimeout(() => {
-        confetti({
-          particleCount: 75,
-          spread: 100,
-          origin: { y: 0.4 },
-          colors: [newTier.color, '#FFD700']
-        });
-      }, 750);
-
-      // Auto close after celebration
-      const timer = setTimeout(() => {
-        onClose();
-      }, 4000);
-
-      return () => clearTimeout(timer);
+    if (!isOpen) {
+      setPhase('reveal');
+      return;
     }
-  }, [isOpen, newTier, onClose]);
+
+    // Phase 1: Reveal animation + confetti
+    const confettiTimer = setTimeout(fireConfetti, 600);
+    // Phase 2: Show unlocks after reveal
+    const unlockTimer = setTimeout(() => setPhase('unlocks'), 2500);
+    // Phase 3: Show CTAs
+    const readyTimer = setTimeout(() => setPhase('ready'), 3200);
+
+    return () => {
+      clearTimeout(confettiTimer);
+      clearTimeout(unlockTimer);
+      clearTimeout(readyTimer);
+    };
+  }, [isOpen, fireConfetti]);
+
+  const handleShare = () => {
+    const text = `Just reached ${newTier.display_name} status on Crescendo! Earning rewards through participation, not spending. #LiveAndEarn`;
+    navigator.clipboard.writeText(text);
+    toast.success('Copied to clipboard!');
+  };
+
+  const handleShareTwitter = () => {
+    const text = encodeURIComponent(`Just reached ${newTier.display_name} status on Crescendo! Earning rewards through participation, not spending. #LiveAndEarn`);
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+  };
+
+  if (!isOpen) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
-        <div className="text-center space-y-6 py-6">
-          {/* Animated crown */}
-          <div className="relative mx-auto w-24 h-24 animate-scale-in">
-            <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping" />
-            <div className="relative flex items-center justify-center w-full h-full bg-primary/10 rounded-full">
-              <Crown 
-                className="w-12 h-12 animate-bounce" 
-                style={{ color: newTier.color }}
-              />
-            </div>
-          </div>
+    <div className="fixed inset-0 z-[110] flex items-center justify-center overflow-y-auto">
+      {/* Dark overlay */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="absolute inset-0"
+        style={{ background: 'rgba(0,0,0,0.9)' }}
+      />
 
-          {/* Title */}
-          <div className="space-y-2 animate-fade-in">
-            <div className="flex items-center justify-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-              <h2 className="text-2xl font-bold">Congratulations!</h2>
-              <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-            </div>
-            <p className="text-muted-foreground">You've upgraded your membership!</p>
-          </div>
-
-          {/* Tier transition */}
-          <div className="flex items-center justify-center gap-4 animate-fade-in">
-            <Badge 
-              variant="outline" 
-              className="text-lg px-4 py-2"
-              style={{ 
-                borderColor: oldTier.color,
-                color: oldTier.color 
-              }}
+      {/* Content */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+        className="relative w-full max-w-md mx-4 my-8 rounded-2xl p-6 space-y-6 overflow-y-auto max-h-[90vh]"
+        style={{ background: '#1A1A1A' }}
+      >
+        {/* PHASE 1: THE REVEAL */}
+        <div className="text-center space-y-4">
+          {/* Badge morph animation */}
+          <div className="relative h-24 flex items-center justify-center">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key="old-badge"
+                initial={{ opacity: 1, scale: 1 }}
+                animate={{ opacity: 0, scale: 0.5, y: -20 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                className="absolute text-5xl"
+              >
+                {previousTier.badge_emoji}
+              </motion.div>
+            </AnimatePresence>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.3 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 1.0, type: 'spring', stiffness: 200 }}
+              className="absolute text-6xl"
             >
-              {oldTier.name}
-            </Badge>
-            <TrendingUp className="w-6 h-6 text-primary animate-pulse" />
-            <Badge 
-              className="text-lg px-4 py-2 animate-scale-in"
-              style={{ 
-                backgroundColor: newTier.color,
-                borderColor: newTier.color 
-              }}
-            >
-              {newTier.name}
-            </Badge>
+              {newTier.badge_emoji}
+            </motion.div>
           </div>
 
-          {/* New benefits preview */}
-          <div 
-            className="p-4 rounded-lg border-2 animate-fade-in"
-            style={{ 
-              borderColor: newTier.color,
-              backgroundColor: `${newTier.bgColor}20`
-            }}
+          {/* Tier name */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.4, duration: 0.5 }}
           >
-            <p className="font-semibold mb-2">New Benefits Unlocked:</p>
-            <ul className="text-sm space-y-1 text-left">
-              {newTier.benefits.slice(0, 3).map((benefit, idx) => (
-                <li key={idx} className="flex items-start gap-2">
-                  <Sparkles className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: newTier.color }} />
-                  <span>{benefit}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Multiplier highlight */}
-          <div className="text-sm text-muted-foreground animate-fade-in">
-            Now earning <span className="font-bold" style={{ color: newTier.color }}>{newTier.multiplier}x NCTR</span> on all activities!
-          </div>
+            <h1
+              className="text-4xl font-black tracking-tight"
+              style={{ color: newTier.badge_color || '#AAFF00' }}
+            >
+              {newTier.display_name?.toUpperCase()}
+            </h1>
+            <p className="text-white/60 text-sm mt-1">
+              You've reached {newTier.display_name} status
+            </p>
+          </motion.div>
         </div>
-      </DialogContent>
-    </Dialog>
+
+        {/* PHASE 2: UNLOCK REVEAL */}
+        <AnimatePresence>
+          {(phase === 'unlocks' || phase === 'ready') && (
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="space-y-3"
+            >
+              <p className="text-sm font-semibold text-white/80 text-center">
+                Here's what just unlocked:
+              </p>
+              {unlockCards.map((card, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.12, duration: 0.3 }}
+                  className="flex items-start gap-3 p-3 rounded-xl"
+                  style={{ background: '#222' }}
+                >
+                  <span className="text-xl shrink-0 mt-0.5">{card.emoji}</span>
+                  <div>
+                    <p className="text-sm font-semibold text-white">{card.title}</p>
+                    <p className="text-xs text-white/50">{card.description}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* PHASE 3: STATUS BAR + CTAs */}
+        <AnimatePresence>
+          {phase === 'ready' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="space-y-4"
+            >
+              {/* Progress bar */}
+              {nextTierName && (
+                <div className="space-y-2 p-4 rounded-xl" style={{ background: '#222' }}>
+                  <div className="flex justify-between text-xs text-white/60">
+                    <span>{newTier.badge_emoji} {newTier.display_name}</span>
+                    <span>{nextTierName}</span>
+                  </div>
+                  <div className="h-2.5 rounded-full overflow-hidden" style={{ background: '#333' }}>
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progressPercent}%` }}
+                      transition={{ duration: 0.8, delay: 0.2 }}
+                      className="h-full rounded-full"
+                      style={{ background: newTier.badge_color || '#AAFF00' }}
+                    />
+                  </div>
+                  {nctrToNext !== null && (
+                    <p className="text-xs text-white/50">
+                      {nctrToNext.toLocaleString()} NCTR to {nextTierName}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* No next tier — max */}
+              {!nextTierName && (
+                <div
+                  className="p-4 rounded-xl text-center border"
+                  style={{ borderColor: newTier.badge_color || '#AAFF00', background: 'rgba(170,255,0,0.05)' }}
+                >
+                  <p className="text-sm font-semibold" style={{ color: newTier.badge_color || '#AAFF00' }}>
+                    👑 Maximum tier achieved. You're at the top.
+                  </p>
+                </div>
+              )}
+
+              {/* Share */}
+              <div className="p-3 rounded-xl text-center space-y-2" style={{ background: '#222' }}>
+                <p className="text-xs text-white/50">🎉 Share your achievement</p>
+                <div className="flex items-center justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs border-white/20 text-white hover:bg-white/10"
+                    onClick={handleShare}
+                  >
+                    <Copy className="w-3 h-3 mr-1" /> Copy
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs border-white/20 text-white hover:bg-white/10"
+                    onClick={handleShareTwitter}
+                  >
+                    <ExternalLink className="w-3 h-3 mr-1" /> Post on X
+                  </Button>
+                </div>
+              </div>
+
+              {/* CTAs */}
+              <div className="flex flex-col gap-2">
+                <Button
+                  className="w-full h-12 font-semibold text-base"
+                  style={{ background: '#AAFF00', color: '#000' }}
+                  onClick={() => {
+                    onClose();
+                    // Navigate to rewards/bounties filtered by tier
+                    window.location.href = '/rewards';
+                  }}
+                >
+                  See What's New →
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full text-white border-white/20 hover:bg-white/10"
+                  onClick={onClose}
+                >
+                  Back to Dashboard
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </div>
   );
 }
