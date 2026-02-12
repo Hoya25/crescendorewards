@@ -32,12 +32,11 @@ interface Brand {
 }
 
 const statusMultipliers: Record<number, number> = {
-  0: 1.0,
-  1: 1.25,
-  2: 1.5,
-  3: 1.5,
-  4: 1.75,
-  5: 2.0,
+  0: 1.0,    // Bronze
+  1: 1.25,   // Silver
+  2: 1.5,    // Gold
+  3: 1.75,   // Platinum
+  4: 2.0,    // Diamond
 };
 
 export function BrandDetailPage() {
