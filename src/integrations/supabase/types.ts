@@ -544,6 +544,7 @@ export type Database = {
           created_at: string | null
           cta_text: string | null
           description: string | null
+          difficulty: string | null
           display_order: number | null
           expires_at: string | null
           id: string
@@ -564,6 +565,7 @@ export type Database = {
           title: string
           total_completions: number | null
           updated_at: string | null
+          xp_reward: number | null
         }
         Insert: {
           bounty_tier?: string | null
@@ -572,6 +574,7 @@ export type Database = {
           created_at?: string | null
           cta_text?: string | null
           description?: string | null
+          difficulty?: string | null
           display_order?: number | null
           expires_at?: string | null
           id?: string
@@ -592,6 +595,7 @@ export type Database = {
           title: string
           total_completions?: number | null
           updated_at?: string | null
+          xp_reward?: number | null
         }
         Update: {
           bounty_tier?: string | null
@@ -600,6 +604,7 @@ export type Database = {
           created_at?: string | null
           cta_text?: string | null
           description?: string | null
+          difficulty?: string | null
           display_order?: number | null
           expires_at?: string | null
           id?: string
@@ -620,6 +625,7 @@ export type Database = {
           title?: string
           total_completions?: number | null
           updated_at?: string | null
+          xp_reward?: number | null
         }
         Relationships: []
       }
@@ -634,6 +640,8 @@ export type Database = {
           multiplier_applied: number | null
           nctr_earned: number
           status: string
+          submission_notes: string | null
+          submission_url: string | null
           user_id: string
         }
         Insert: {
@@ -646,6 +654,8 @@ export type Database = {
           multiplier_applied?: number | null
           nctr_earned?: number
           status?: string
+          submission_notes?: string | null
+          submission_url?: string | null
           user_id: string
         }
         Update: {
@@ -658,6 +668,8 @@ export type Database = {
           multiplier_applied?: number | null
           nctr_earned?: number
           status?: string
+          submission_notes?: string | null
+          submission_url?: string | null
           user_id?: string
         }
         Relationships: [

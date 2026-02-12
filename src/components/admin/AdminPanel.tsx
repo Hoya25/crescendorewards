@@ -28,6 +28,7 @@ import { AdminFeaturedCreators } from './AdminFeaturedCreators';
 import { AdminContentLibrary } from './AdminContentLibrary';
 import { AdminContributors } from './AdminContributors';
 import { AdminContributedRewards } from './AdminContributedRewards';
+import { AdminBounties } from './AdminBounties';
 import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import AdminGifts from './AdminGifts';
 import { AdminUserNotifications } from './AdminUserNotifications';
@@ -98,6 +99,8 @@ export function AdminPanel() {
         return <AdminFeaturedCreators />;
       case 'contributed-rewards':
         return <AdminContributedRewards />;
+      case 'bounties':
+        return <AdminBounties />;
       default:
         return <AdminDashboard onNavigate={setCurrentView} />;
     }

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, 
   Heart, TrendingUp, Building2, Megaphone, Shield, Activity, Package, MessageSquare, 
-  Coins, Bell, ChevronDown, ChevronRight, Trophy, Handshake, Twitter, UserCircle, Library
+  Coins, Bell, ChevronDown, ChevronRight, Trophy, Handshake, Twitter, UserCircle, Library, Target
 } from 'lucide-react';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { useAdminRole } from '@/hooks/useAdminRole';
@@ -78,6 +78,7 @@ const MENU_GROUPS: MenuGroup[] = [
       { title: 'Contributed Rewards', view: 'contributed-rewards', icon: Gift, permission: 'submissions_view' },
       { title: 'Campaigns', view: 'campaigns', icon: Megaphone, permission: 'sponsors_view' },
       { title: 'Earning Opps', view: 'earning', icon: Coins, permission: 'rewards_edit' },
+      { title: 'Bounties', view: 'bounties', icon: Target, permission: 'rewards_edit' },
     ],
   },
   {
