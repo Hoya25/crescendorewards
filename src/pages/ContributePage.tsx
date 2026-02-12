@@ -280,16 +280,6 @@ export default function ContributePage() {
           <Input id="claimCost" type="number" value={claimCost} onChange={e => setClaimCost(Math.max(1, Number(e.target.value)))} min={1} />
         </div>
 
-        {/* Earnings Preview */}
-        <div className="bg-accent-lime/10 border border-accent-lime/30 rounded-lg p-4 mt-4">
-          <p className="text-text-secondary text-sm">Your earnings per claim:</p>
-          <p className="text-text-heading text-sm">
-            Base: <span className="font-semibold">{baseEarnings} NCTR</span>
-          </p>
-          <p className="text-accent-lime text-lg font-bold">
-            With {tierName} ({userMultiplier}x): {finalEarnings} NCTR per claim
-          </p>
-        </div>
 
         <Button type="submit" className="w-full bg-accent-lime text-black font-semibold hover:bg-accent-lime/90 mt-6" disabled={submitting}>
           {submitting ? 'Submitting...' : 'List My Reward'}
