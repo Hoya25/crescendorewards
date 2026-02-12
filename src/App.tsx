@@ -73,6 +73,7 @@ const MyContentPage = lazy(() => import('./pages/MyContentPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
 const BountyBoardPage = lazy(() => import('./pages/BountyBoardPage'));
+const ContributePage = lazy(() => import('./pages/ContributePage'));
 
 // Admin panel - separate chunk for code splitting
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel').then(m => ({ default: m.AdminPanel })));
@@ -514,6 +515,15 @@ function AppRoutes() {
               element={
                 <ProtectedRoute>
                   <AppLayout><NotificationsPage /></AppLayout>
+                </ProtectedRoute>
+              } 
+            />
+
+            <Route 
+              path="/contribute" 
+              element={
+                <ProtectedRoute>
+                  <AppLayout><ContributePage /></AppLayout>
                 </ProtectedRoute>
               } 
             />

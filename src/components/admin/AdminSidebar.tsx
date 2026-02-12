@@ -75,6 +75,7 @@ const MENU_GROUPS: MenuGroup[] = [
       { title: 'Rewards', view: 'rewards', icon: Gift, permission: 'rewards_view' },
       { title: 'Reward Sponsors', view: 'sponsors', icon: Building2, permission: 'sponsors_view' },
       { title: 'Contributors', view: 'contributors', icon: UserCircle, permission: 'submissions_view' },
+      { title: 'Contributed Rewards', view: 'contributed-rewards', icon: Gift, permission: 'submissions_view' },
       { title: 'Campaigns', view: 'campaigns', icon: Megaphone, permission: 'sponsors_view' },
       { title: 'Earning Opps', view: 'earning', icon: Coins, permission: 'rewards_edit' },
     ],

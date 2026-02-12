@@ -124,6 +124,13 @@ export function RewardCard({
 
         {/* Badge Stack - Top Left */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
+          {/* Community Contributed Badge */}
+          {(reward as any).is_contributed && (
+            <Badge className="bg-primary/20 text-primary backdrop-blur-sm border-0 shadow-lg text-xs flex items-center gap-1">
+              <Gift className="h-3 w-3" />
+              Community
+            </Badge>
+          )}
           {/* Status Access Badge */}
           {reward.min_status_tier && reward.min_status_tier !== 'bronze' && (
             <Badge className="bg-gradient-to-r from-amber-500/90 to-yellow-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">

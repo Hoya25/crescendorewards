@@ -27,6 +27,7 @@ import { AdminSocialPosts } from './AdminSocialPosts';
 import { AdminFeaturedCreators } from './AdminFeaturedCreators';
 import { AdminContentLibrary } from './AdminContentLibrary';
 import { AdminContributors } from './AdminContributors';
+import { AdminContributedRewards } from './AdminContributedRewards';
 import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import AdminGifts from './AdminGifts';
 import { AdminUserNotifications } from './AdminUserNotifications';
@@ -95,6 +96,8 @@ export function AdminPanel() {
         return <AdminSocialPosts />;
       case 'featured-creators':
         return <AdminFeaturedCreators />;
+      case 'contributed-rewards':
+        return <AdminContributedRewards />;
       default:
         return <AdminDashboard onNavigate={setCurrentView} />;
     }
