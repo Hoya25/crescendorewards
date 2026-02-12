@@ -14,20 +14,11 @@ interface PreviewReward {
 }
 
 const tierEmoji: Record<string, string> = {
-  bronze: '🥉',
-  silver: '🥈',
-  gold: '🥇',
-  platinum: '💎',
-  diamond: '👑',
+  bronze: '🥉', silver: '🥈', gold: '🥇', platinum: '💎', diamond: '👑',
 };
 
 const tierLabel: Record<string, string> = {
-  bronze: 'Bronze',
-  silver: 'Silver',
-  gold: 'Gold',
-  platinum: 'Platinum',
-  diamond: 'Diamond',
-  member: 'All Members',
+  bronze: 'Bronze', silver: 'Silver', gold: 'Gold', platinum: 'Platinum', diamond: 'Diamond', member: 'All Members',
 };
 
 interface RewardsPreviewProps {
@@ -49,23 +40,19 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
           .order('created_at', { ascending: false })
           .limit(6);
         setRewards(data || []);
-      } catch {
-        // silently fail
-      } finally {
-        setLoading(false);
-      }
+      } catch { /* silently fail */ } finally { setLoading(false); }
     };
     fetch();
   }, []);
 
   if (loading) {
     return (
-      <section className="py-20 md:py-28 px-4 md:px-6" style={{ background: '#1A1A1A' }}>
+      <section className="py-20 md:py-28 px-4 md:px-6 bg-page-bg">
         <div className="max-w-6xl mx-auto">
-          <Skeleton className="h-10 w-64 mx-auto mb-10 bg-white/5" />
+          <Skeleton className="h-10 w-64 mx-auto mb-10 bg-muted" />
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Skeleton key={i} className="h-64 rounded-xl bg-white/5" />
+              <Skeleton key={i} className="h-64 rounded-xl bg-muted" />
             ))}
           </div>
         </div>
@@ -76,12 +63,12 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
   if (rewards.length === 0) return null;
 
   return (
-    <section className="py-20 md:py-28 px-4 md:px-6" style={{ background: '#1A1A1A' }}>
+    <section className="py-20 md:py-28 px-4 md:px-6 bg-page-bg">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-2xl md:text-4xl font-bold text-center mb-3 text-white">
+        <h2 className="text-2xl md:text-4xl font-bold text-center mb-3 text-text-heading">
           A Taste of What's Waiting
         </h2>
-        <p className="text-center max-w-xl mx-auto mb-12 text-sm md:text-base" style={{ color: '#999' }}>
+        <p className="text-center max-w-xl mx-auto mb-12 text-sm md:text-base text-text-body">
           Real rewards from real partners. New ones added by the community every week.
         </p>
 
@@ -91,11 +78,9 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
             return (
               <div
                 key={reward.id}
-                className="group relative rounded-xl overflow-hidden border transition-all duration-300 hover:border-[rgba(170,255,0,0.3)]"
-                style={{ background: '#222', borderColor: '#333' }}
+                className="group relative rounded-xl overflow-hidden border border-border-card bg-card-bg transition-all duration-300 hover:border-accent-lime/30"
               >
-
-                <div className="aspect-[4/3] w-full overflow-hidden" style={{ background: '#2a2a2a' }}>
+                <div className="aspect-[4/3] w-full overflow-hidden bg-elevated-bg">
                   {reward.image_url ? (
                     <ImageWithFallback
                       src={reward.image_url}
@@ -105,28 +90,21 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Gift className="w-12 h-12" style={{ color: '#444' }} />
+                      <Gift className="w-12 h-12 text-text-body-muted" />
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-4 overflow-hidden">
-                  <Badge
-                    variant="outline"
-                    className="mb-1.5 text-[10px] border-white/20 text-white/80"
-                  >
+                  <Badge variant="outline" className="mb-1.5 text-[10px] border-white/20 text-white/80">
                     {tierEmoji[tier] || '⭐'} {tierLabel[tier] || 'All Members'}
                   </Badge>
                   <h3 className="font-bold text-sm text-white leading-tight line-clamp-2 drop-shadow-md">
                     {reward.title}
                   </h3>
                 </div>
-                {/* Join overlay on hover */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
-                  <span
-                    className="text-sm font-bold px-4 py-2 rounded-full"
-                    style={{ background: '#AAFF00', color: '#111' }}
-                  >
+                  <span className="text-sm font-bold px-4 py-2 rounded-full bg-cta text-cta-foreground">
                     Join to Unlock
                   </span>
                 </div>
@@ -139,8 +117,7 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
           <Button
             size="lg"
             onClick={onJoin}
-            className="font-semibold rounded-full px-8 gap-2"
-            style={{ background: '#AAFF00', color: '#111' }}
+            className="font-semibold rounded-full px-8 gap-2 bg-cta text-cta-foreground hover:bg-cta/90"
           >
             Join and Start Unlocking <ArrowRight className="w-4 h-4" />
           </Button>

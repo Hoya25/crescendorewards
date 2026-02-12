@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { SEO } from "./SEO";
 import { MobileNav } from "./MobileNav";
 import { Footer } from "./Footer";
+import { ThemeToggle } from "./ThemeToggle";
 import { HeroSection } from "./landing/HeroSection";
 import { HowItWorksLanding } from "./landing/HowItWorksLanding";
 import { RewardsPreview } from "./landing/RewardsPreview";
@@ -57,7 +58,7 @@ export function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden" style={{ background: '#1A1A1A' }}>
+    <div className="min-h-screen w-full overflow-x-hidden bg-page-bg">
       <SEO 
         title="Get Rewarded for the Things You Already Do"
         description="Shop at 6,000+ brands, create content, and earn real rewards that grow the more you commit. Join Crescendo — it's free."
@@ -66,7 +67,7 @@ export function LandingPage() {
       {/* Navigation */}
       <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 md:px-12 py-4 md:py-5 w-full max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
-          <span className="text-xl sm:text-2xl font-black tracking-tight text-white">
+          <span className="text-xl sm:text-2xl font-black tracking-tight text-text-heading">
             Crescendo
           </span>
           <span
@@ -79,29 +80,29 @@ export function LandingPage() {
         <div className="hidden md:flex items-center gap-1">
           <Button
             variant="ghost"
-            className="text-sm font-medium text-white/70 hover:text-[#AAFF00] hover:bg-transparent transition-colors"
+            className="text-sm font-medium text-text-body hover:text-text-accent hover:bg-transparent transition-colors"
             onClick={() => navigate('/rewards')}
           >
             Rewards
           </Button>
           <Button
             variant="ghost"
-            className="text-sm font-medium text-white/70 hover:text-[#AAFF00] hover:bg-transparent transition-colors"
+            className="text-sm font-medium text-text-body hover:text-text-accent hover:bg-transparent transition-colors"
             onClick={() => navigate('/how-it-works')}
           >
             How It Works
           </Button>
           <Button
             variant="ghost"
-            className="text-sm font-medium text-white/70 hover:text-[#AAFF00] hover:bg-transparent transition-colors"
+            className="text-sm font-medium text-text-body hover:text-text-accent hover:bg-transparent transition-colors"
             onClick={handleSignIn}
           >
             Sign in
           </Button>
+          <ThemeToggle />
           <Button
             onClick={handleJoin}
-            className="ml-3 font-semibold rounded-full px-5 text-sm"
-            style={{ background: '#AAFF00', color: '#111' }}
+            className="ml-3 font-semibold rounded-full px-5 text-sm bg-cta text-cta-foreground hover:bg-cta/90"
           >
             Join Free
           </Button>
