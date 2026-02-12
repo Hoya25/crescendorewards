@@ -15,6 +15,7 @@ import { QuickActions } from "./dashboard/QuickActions";
 import { NextUnlocks } from "./dashboard/NextUnlocks";
 import { StatusExplainer } from "./dashboard/StatusExplainer";
 import { MerchBountiesWidget } from "./dashboard/MerchBountiesWidget";
+import { YourNextStep } from "./dashboard/YourNextStep";
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -96,6 +97,9 @@ export function Dashboard() {
 
       <main className="flex-1 px-4 md:px-6 pt-3 pb-4">
         <div className="max-w-7xl mx-auto space-y-5">
+          {/* 0. YOUR NEXT STEP — dynamic contextual CTA */}
+          <YourNextStep />
+
           {/* Onboarding checklist (conditional) */}
           <OnboardingChecklist />
 
