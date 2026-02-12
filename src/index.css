@@ -278,4 +278,16 @@ All colors MUST be HSL.
   .benefit-item:hover {
     @apply translate-x-1;
   }
+
+  /* Scroll-reveal for landing page sections */
+  .landed-hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+  }
+
+  .landed-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
