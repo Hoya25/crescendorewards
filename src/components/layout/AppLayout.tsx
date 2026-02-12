@@ -7,8 +7,8 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { NotificationsDropdown } from '@/components/NotificationsDropdown';
 import { OnboardingTracker } from '@/components/onboarding/OnboardingTracker';
 import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
-import { NCTREarnedCelebration } from '@/components/NCTREarnedCelebration';
 import { useNCTREarningDetection } from '@/hooks/useNCTREarningDetection';
+import { useLockDecision } from '@/contexts/LockDecisionContext';
 import { Button } from '@/components/ui/button';
 import { 
   DropdownMenu, 
@@ -36,6 +36,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { profile, tier, nextTier, progressToNextTier, total360Locked } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   const { pendingEarning, clearEarning } = useNCTREarningDetection(user?.id);
+  const { showLockDecision, isOpen: isLockOpen } = useLockDecision();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Check if onboarding should be shown
@@ -45,15 +46,22 @@ export function AppLayout({ children }: AppLayoutProps) {
     }
   }, [profile]);
 
-  const userName = profile?.display_name || profile?.email?.split('@')[0] || 'User';
+  // When NCTR earning is detected, show the lock decision modal instead of the old celebration
+  useEffect(() => {
+    if (pendingEarning && pendingEarning.nctrEarned > 0 && !isLockOpen) {
+      const triggerLockDecision = async () => {
+        await showLockDecision({
+          baseAmount: pendingEarning.nctrEarned,
+          sourceType: 'shopping',
+          sourceName: pendingEarning.brandName || 'The Garden',
+        });
+        clearEarning();
+      };
+      triggerLockDecision();
+    }
+  }, [pendingEarning, isLockOpen]);
 
-  const currentTierInfo = tier
-    ? { name: tier.display_name, emoji: tier.badge_emoji, color: tier.badge_color }
-    : { name: 'Bronze', emoji: '🥉', color: '#CD7F32' };
-  const nextTierInfo = nextTier
-    ? { name: nextTier.display_name, emoji: nextTier.badge_emoji, color: nextTier.badge_color }
-    : null;
-  const nctrToNext = nextTier ? Math.max(0, nextTier.min_nctr_360_locked - total360Locked) : null;
+  const userName = profile?.display_name || profile?.email?.split('@')[0] || 'User';
 
   const handleSignOut = async () => {
     await signOut();
@@ -147,21 +155,6 @@ export function AppLayout({ children }: AppLayoutProps) {
             {children || <Outlet />}
           </main>
         </div>
-
-        {/* NCTR Earning Celebration Modal */}
-        {pendingEarning && (
-          <NCTREarnedCelebration
-            isOpen={true}
-            onClose={clearEarning}
-            nctrEarned={pendingEarning.nctrEarned}
-            brandName={pendingEarning.brandName}
-            totalBalance={total360Locked + pendingEarning.nctrEarned}
-            currentTier={currentTierInfo}
-            nextTier={nextTierInfo}
-            nctrToNextTier={nctrToNext}
-            progressToNextTier={progressToNextTier}
-          />
-        )}
 
         {/* First-time Onboarding Flow */}
         {showOnboarding && (
