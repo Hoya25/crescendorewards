@@ -85,8 +85,14 @@ export function TheMathSection() {
           </div>
         </div>
 
-        <p className="text-center text-sm md:text-base max-w-2xl mx-auto mb-4" style={{ color: '#999' }}>
+        <p className="text-center text-sm md:text-base max-w-2xl mx-auto mb-2" style={{ color: '#999' }}>
           Same hoodie. Different commitment.
+        </p>
+        <p className="text-center text-sm max-w-2xl mx-auto mb-4" style={{ color: '#999' }}>
+          And that's just at Bronze. Hit Gold (1.5x) and that same hoodie earns you{' '}
+          <span className="font-semibold text-white">495 NCTR</span> from the purchase +{' '}
+          <span className="font-semibold text-white">1,125</span> from the bounty.{' '}
+          <span className="font-bold" style={{ color: '#AAFF00' }}>Status multiplies everything.</span>
         </p>
 
         {/* Multiplier teaser */}

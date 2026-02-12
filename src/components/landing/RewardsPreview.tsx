@@ -94,6 +94,7 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
                 className="group relative rounded-xl overflow-hidden border transition-all duration-300 hover:border-[rgba(170,255,0,0.3)]"
                 style={{ background: '#222', borderColor: '#333' }}
               >
+
                 <div className="aspect-[4/3] w-full overflow-hidden" style={{ background: '#2a2a2a' }}>
                   {reward.image_url ? (
                     <ImageWithFallback
@@ -109,7 +110,7 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 p-3">
+                <div className="absolute bottom-0 left-0 right-0 p-4 overflow-hidden">
                   <Badge
                     variant="outline"
                     className="mb-1.5 text-[10px] border-white/20 text-white/80"
