@@ -13,21 +13,20 @@ interface PreviewReward {
   min_status_tier: string | null;
 }
 
-const tierStyle: Record<string, string> = {
-  bronze: 'bg-amber-700/10 text-amber-700 border-amber-700/20',
-  silver: 'bg-slate-400/10 text-slate-600 border-slate-400/20',
-  gold: 'bg-yellow-500/10 text-yellow-700 border-yellow-500/20',
-  platinum: 'bg-purple-500/10 text-purple-700 border-purple-500/20',
-  diamond: 'bg-sky-500/10 text-sky-700 border-sky-500/20',
-  member: 'bg-cta/10 text-foreground border-cta/20',
+const tierEmoji: Record<string, string> = {
+  bronze: '🥉',
+  silver: '🥈',
+  gold: '🥇',
+  platinum: '💎',
+  diamond: '👑',
 };
 
 const tierLabel: Record<string, string> = {
-  bronze: 'Bronze Status',
-  silver: 'Silver Status',
-  gold: 'Gold Status',
-  platinum: 'Platinum Status',
-  diamond: 'Diamond Status',
+  bronze: 'Bronze',
+  silver: 'Silver',
+  gold: 'Gold',
+  platinum: 'Platinum',
+  diamond: 'Diamond',
   member: 'All Members',
 };
 
@@ -61,12 +60,12 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
 
   if (loading) {
     return (
-      <section className="py-16 md:py-24 px-4 md:px-6">
+      <section className="py-20 md:py-28 px-4 md:px-6" style={{ background: '#1A1A1A' }}>
         <div className="max-w-6xl mx-auto">
-          <Skeleton className="h-10 w-64 mx-auto mb-10" />
+          <Skeleton className="h-10 w-64 mx-auto mb-10 bg-white/5" />
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Skeleton key={i} className="h-64 rounded-xl" />
+              <Skeleton key={i} className="h-64 rounded-xl bg-white/5" />
             ))}
           </div>
         </div>
@@ -77,13 +76,13 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
   if (rewards.length === 0) return null;
 
   return (
-    <section className="py-16 md:py-24 px-4 md:px-6">
+    <section className="py-20 md:py-28 px-4 md:px-6" style={{ background: '#1A1A1A' }}>
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-2xl md:text-4xl font-bold text-center mb-4 text-foreground">
-          Rewards Worth Earning
+        <h2 className="text-2xl md:text-4xl font-bold text-center mb-3 text-white">
+          A Taste of What's Waiting
         </h2>
-        <p className="text-center text-muted-foreground max-w-xl mx-auto mb-10">
-          These are real rewards from real partners. And new ones are added by the community every week.
+        <p className="text-center max-w-xl mx-auto mb-12 text-sm md:text-base" style={{ color: '#999' }}>
+          Real rewards from real partners. New ones added by the community every week.
         </p>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
@@ -92,9 +91,10 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
             return (
               <div
                 key={reward.id}
-                className="group relative rounded-xl overflow-hidden border bg-background hover:shadow-lg transition-all duration-300"
+                className="group relative rounded-xl overflow-hidden border transition-all duration-300 hover:border-[rgba(170,255,0,0.3)]"
+                style={{ background: '#222', borderColor: '#333' }}
               >
-                <div className="aspect-[4/3] w-full overflow-hidden bg-muted">
+                <div className="aspect-[4/3] w-full overflow-hidden" style={{ background: '#2a2a2a' }}>
                   {reward.image_url ? (
                     <ImageWithFallback
                       src={reward.image_url}
@@ -104,31 +104,44 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Gift className="w-12 h-12 text-muted-foreground/30" />
+                      <Gift className="w-12 h-12" style={{ color: '#444' }} />
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-3">
-                  <Badge variant="outline" className={`mb-1.5 text-[10px] ${tierStyle[tier] || tierStyle.member}`}>
-                    {tierLabel[tier] || 'All Members'}
+                  <Badge
+                    variant="outline"
+                    className="mb-1.5 text-[10px] border-white/20 text-white/80"
+                  >
+                    {tierEmoji[tier] || '⭐'} {tierLabel[tier] || 'All Members'}
                   </Badge>
                   <h3 className="font-bold text-sm text-white leading-tight line-clamp-2 drop-shadow-md">
                     {reward.title}
                   </h3>
+                </div>
+                {/* Join overlay on hover */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
+                  <span
+                    className="text-sm font-bold px-4 py-2 rounded-full"
+                    style={{ background: '#AAFF00', color: '#111' }}
+                  >
+                    Join to Unlock
+                  </span>
                 </div>
               </div>
             );
           })}
         </div>
 
-        <div className="text-center mt-10">
+        <div className="text-center mt-12">
           <Button
             size="lg"
             onClick={onJoin}
-            className="bg-cta hover:bg-cta/90 text-cta-foreground font-semibold rounded-full px-8 gap-2"
+            className="font-semibold rounded-full px-8 gap-2"
+            style={{ background: '#AAFF00', color: '#111' }}
           >
-            Start Earning <ArrowRight className="w-4 h-4" />
+            Join and Start Unlocking <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
       </div>

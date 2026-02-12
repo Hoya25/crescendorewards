@@ -1,4 +1,3 @@
-import { Button } from "./ui/button";
 import { CrescendoLogo } from "./CrescendoLogo";
 import { BetaBadge } from "./BetaBadge";
 import { SEO } from "./SEO";
@@ -7,9 +6,9 @@ import { Footer } from "./Footer";
 import { HeroSection } from "./landing/HeroSection";
 import { HowItWorksLanding } from "./landing/HowItWorksLanding";
 import { RewardsPreview } from "./landing/RewardsPreview";
-import { BrandLogosSection } from "./landing/BrandLogosSection";
-import { StatsSection } from "./landing/StatsSection";
+import { TheMathSection } from "./landing/TheMathSection";
 import { FinalCTA } from "./landing/FinalCTA";
+import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 
@@ -28,29 +27,47 @@ export function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-background">
+    <div className="min-h-screen w-full overflow-x-hidden" style={{ background: '#1A1A1A' }}>
       <SEO 
         title="Get Rewarded for the Things You Already Do"
         description="Shop at 6,000+ brands, create content, and earn real rewards that grow the more you commit. Join Crescendo — it's free."
       />
 
       {/* Navigation */}
-      <nav className="flex items-center justify-between p-4 md:p-6 w-full max-w-7xl mx-auto">
+      <nav
+        className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-4 md:p-6 w-full max-w-7xl mx-auto"
+      >
         <div className="flex items-center">
           <CrescendoLogo />
           <BetaBadge />
         </div>
         <div className="hidden md:flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate('/rewards')}>
+          <Button
+            variant="ghost"
+            className="text-white/70 hover:text-white hover:bg-white/5"
+            onClick={() => navigate('/rewards')}
+          >
             Rewards
           </Button>
-          <Button variant="ghost" onClick={() => navigate('/how-it-works')}>
+          <Button
+            variant="ghost"
+            className="text-white/70 hover:text-white hover:bg-white/5"
+            onClick={() => navigate('/how-it-works')}
+          >
             How It Works
           </Button>
-          <Button variant="ghost" onClick={handleSignIn}>
+          <Button
+            variant="ghost"
+            className="text-white/70 hover:text-white hover:bg-white/5"
+            onClick={handleSignIn}
+          >
             Sign in
           </Button>
-          <Button onClick={handleJoin} className="bg-cta hover:bg-cta/90 text-cta-foreground font-semibold rounded-full">
+          <Button
+            onClick={handleJoin}
+            className="font-semibold rounded-full"
+            style={{ background: '#AAFF00', color: '#111' }}
+          >
             Join Free
           </Button>
         </div>
@@ -70,13 +87,10 @@ export function LandingPage() {
       {/* Section 3: Rewards Preview */}
       <RewardsPreview onJoin={handleJoin} />
 
-      {/* Section 4: Brand Logos / The Garden */}
-      <BrandLogosSection />
+      {/* Section 4: The Math */}
+      <TheMathSection />
 
-      {/* Section 5: Social Proof Stats */}
-      <StatsSection />
-
-      {/* Section 6: Final CTA */}
+      {/* Section 5: Final CTA */}
       <FinalCTA />
 
       {/* Footer */}

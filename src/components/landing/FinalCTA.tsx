@@ -17,23 +17,34 @@ export function FinalCTA() {
   };
 
   return (
-    <section className="py-16 md:py-24 px-4 md:px-6 bg-foreground">
-      <div className="max-w-3xl mx-auto text-center">
-        <h2 className="text-2xl md:text-4xl font-bold text-background mb-4">
-          Ready to Start Earning?
+    <section
+      className="relative py-20 md:py-28 px-4 md:px-6 overflow-hidden"
+      style={{ background: '#1A1A1A' }}
+    >
+      {/* Subtle lime gradient */}
+      <div
+        className="absolute inset-0 opacity-[0.04] pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse at center, #AAFF00 0%, transparent 70%)' }}
+      />
+
+      <div className="relative z-10 max-w-3xl mx-auto text-center">
+        <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
+          The People's Rewards Program
         </h2>
-        <p className="text-base md:text-lg text-background/70 mb-8">
-          Join Crescendo. It's free. Your first NCTR is waiting.
+        <p className="text-base md:text-lg mb-10" style={{ color: '#999' }}>
+          Not corporate-owned. Not pay-to-play. Earned by you. Owned by you.
         </p>
         <Button
           size="lg"
           onClick={handleJoin}
-          className="bg-cta hover:bg-cta/90 text-cta-foreground font-bold text-lg px-10 py-6 rounded-full shadow-lg shadow-cta/25"
+          className="font-bold text-lg px-10 py-6 rounded-full shadow-lg transition-all hover:scale-[1.02]"
+          style={{ background: '#AAFF00', color: '#111', boxShadow: '0 0 40px rgba(170,255,0,0.15)' }}
         >
-          {isAuthenticated ? 'Go to Dashboard' : 'Join Crescendo'} <ArrowRight className="ml-2 w-5 h-5" />
+          {isAuthenticated ? 'Go to Dashboard' : 'Join Crescendo'}
+          <ArrowRight className="ml-2 w-5 h-5" />
         </Button>
-        <p className="mt-5 text-sm text-background/50">
-          No credit card required. Earn your first 25 NCTR just for signing up.
+        <p className="mt-5 text-sm" style={{ color: '#555' }}>
+          Free to join. Always.
         </p>
       </div>
     </section>
