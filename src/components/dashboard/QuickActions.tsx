@@ -1,15 +1,24 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, Camera, ShoppingCart, Users, ChevronRight, Sparkles } from "lucide-react";
+import { ShoppingBag, Camera, ShoppingCart, Users, ChevronRight, Flame } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 import { toast } from "sonner";
 
+interface ActionCard {
+  emoji: string;
+  title: string;
+  subtitle: string;
+  cta: string;
+  onClick: () => void;
+  highlight?: boolean;
+}
+
 export function QuickActions() {
   const navigate = useNavigate();
-  const { tier, profile } = useUnifiedUser();
+  const { tier, nextTier, total360Locked, profile } = useUnifiedUser();
   const tierName = (tier?.tier_name || "bronze").toLowerCase();
 
   // Count bounties available at user's tier
@@ -32,6 +41,15 @@ export function QuickActions() {
     },
   });
 
+  // Check if user is close to next tier (within 20%)
+  const isCloseToNextTier = nextTier && tier && (() => {
+    const range = nextTier.min_nctr_360_locked - tier.min_nctr_360_locked;
+    const progress = total360Locked - tier.min_nctr_360_locked;
+    return range > 0 && (progress / range) >= 0.8;
+  })();
+
+  const nctrToNext = nextTier ? Math.max(0, nextTier.min_nctr_360_locked - total360Locked) : 0;
+
   const handleCopyInvite = () => {
     const code = (profile?.crescendo_data as any)?.referral_code || profile?.id?.slice(0, 8);
     const link = `${window.location.origin}/join?ref=${code}`;
@@ -39,52 +57,70 @@ export function QuickActions() {
     toast.success("Invite link copied!");
   };
 
-  const actions = [
+  const actions: ActionCard[] = [];
+
+  // Conditional "Almost next tier" card
+  if (isCloseToNextTier && nextTier) {
+    actions.push({
+      emoji: "🔥",
+      title: `Almost ${nextTier.display_name}!`,
+      subtitle: `Lock ${nctrToNext.toLocaleString()} more NCTR to unlock new rewards`,
+      cta: "See What's Waiting",
+      onClick: () => {
+        const el = document.getElementById("next-unlocks");
+        el?.scrollIntoView({ behavior: "smooth" });
+      },
+      highlight: true,
+    });
+  }
+
+  // Default cards
+  actions.push(
     {
-      icon: ShoppingBag,
       emoji: "🛍️",
       title: "Shop The Garden",
       subtitle: "6,000+ brands. Earn NCTR on every purchase.",
-      cta: "Start Shopping →",
+      cta: "Start Shopping",
       onClick: () => navigate("/brands"),
     },
     {
-      icon: Camera,
       emoji: "📸",
-      title: "Complete a Bounty",
-      subtitle: `${bountyCount} bounties available at your status level`,
-      cta: "Browse Bounties →",
+      title: "Browse Bounties",
+      subtitle: `${bountyCount} content challenges that pay NCTR.`,
+      cta: "See Bounties",
       onClick: () => navigate("/bounties"),
     },
     {
-      icon: ShoppingCart,
       emoji: "👕",
-      title: "Shop NCTR Merch",
-      subtitle: "Buy gear. Unlock exclusive merch bounties.",
-      cta: "Shop Merch →",
+      title: "Get NCTR Merch",
+      subtitle: "Rep the brand. Unlock exclusive bounties.",
+      cta: "Shop Merch",
       onClick: () => window.open("https://nctr-merch.myshopify.com", "_blank"),
     },
     {
-      icon: Users,
       emoji: "🤝",
-      title: "Invite Friends",
-      subtitle: "You both earn 50 NCTR",
-      cta: "Share Invite →",
+      title: "Invite a Friend",
+      subtitle: "They join, you both earn 50 NCTR.",
+      cta: "Get Your Link",
       onClick: handleCopyInvite,
-    },
-  ];
+    }
+  );
+
+  // Limit to 4 cards
+  const displayActions = actions.slice(0, 4);
 
   return (
     <section className="space-y-3">
-      <h2 className="text-lg font-semibold flex items-center gap-2">
-        <Sparkles className="w-4 h-4 text-cta" />
-        Earn More NCTR
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {actions.map((action) => (
+      <h2 className="text-lg font-semibold">Your Next Move</h2>
+      <div className="flex gap-3 overflow-x-auto pb-1 md:grid md:grid-cols-4 md:overflow-visible scrollbar-hide">
+        {displayActions.map((action) => (
           <Card
             key={action.title}
-            className="group cursor-pointer hover:border-cta/40 hover:shadow-md transition-all duration-200"
+            className={`group cursor-pointer hover:shadow-md transition-all duration-200 shrink-0 w-[260px] md:w-auto ${
+              action.highlight
+                ? "border-cta/40 bg-cta/5 hover:border-cta/60"
+                : "hover:border-cta/30"
+            }`}
             onClick={action.onClick}
           >
             <CardContent className="p-4 flex flex-col h-full">
