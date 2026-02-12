@@ -931,6 +931,61 @@ export type Database = {
           },
         ]
       }
+      contributed_reward_earnings: {
+        Row: {
+          base_nctr_earned: number
+          claimer_id: string | null
+          contributor_id: string
+          created_at: string | null
+          final_nctr_earned: number
+          id: string
+          reward_id: string
+          status_multiplier_applied: number | null
+        }
+        Insert: {
+          base_nctr_earned: number
+          claimer_id?: string | null
+          contributor_id: string
+          created_at?: string | null
+          final_nctr_earned: number
+          id?: string
+          reward_id: string
+          status_multiplier_applied?: number | null
+        }
+        Update: {
+          base_nctr_earned?: number
+          claimer_id?: string | null
+          contributor_id?: string
+          created_at?: string | null
+          final_nctr_earned?: number
+          id?: string
+          reward_id?: string
+          status_multiplier_applied?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contributed_reward_earnings_claimer_id_fkey"
+            columns: ["claimer_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contributed_reward_earnings_contributor_id_fkey"
+            columns: ["contributor_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contributed_reward_earnings_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cross_platform_activity_log: {
         Row: {
           action_data: Json | null
@@ -1575,6 +1630,7 @@ export type Database = {
           created_at: string
           final_amount: number
           id: string
+          lock_multiplier_applied: number | null
           lock_type: string | null
           merch_lock_multiplier: number
           notes: string | null
@@ -1589,6 +1645,7 @@ export type Database = {
           created_at?: string
           final_amount: number
           id?: string
+          lock_multiplier_applied?: number | null
           lock_type?: string | null
           merch_lock_multiplier?: number
           notes?: string | null
@@ -1603,6 +1660,7 @@ export type Database = {
           created_at?: string
           final_amount?: number
           id?: string
+          lock_multiplier_applied?: number | null
           lock_type?: string | null
           merch_lock_multiplier?: number
           notes?: string | null
@@ -2313,11 +2371,17 @@ export type Database = {
           brand_id: string | null
           campaign_id: string | null
           category: string
+          claim_limit: number | null
+          contributed_by: string | null
+          contribution_category: string | null
           contribution_model: string | null
+          contribution_status: string | null
+          contributor_nctr_per_claim: number | null
           cost: number
           cost_per_claim: number | null
           created_at: string
           delivery_instructions: string | null
+          delivery_location: string | null
           delivery_method: string | null
           description: string
           display_order: number | null
@@ -2326,12 +2390,14 @@ export type Database = {
           image_source_url: string | null
           image_url: string | null
           is_active: boolean
+          is_contributed: boolean | null
           is_featured: boolean
           is_sponsored: boolean | null
           linked_sponsor_id: string | null
           min_status_tier: string | null
           minimum_token_balance: number | null
           publish_at: string | null
+          rejection_reason: string | null
           required_user_data: Json | null
           revenue_share_percent: number | null
           showcase_mode: string | null
@@ -2352,6 +2418,7 @@ export type Database = {
           token_gated: boolean | null
           token_name: string | null
           token_symbol: string | null
+          total_claims: number | null
           twitter_post_id: string | null
           unpublish_at: string | null
           updated_at: string
@@ -2361,11 +2428,17 @@ export type Database = {
           brand_id?: string | null
           campaign_id?: string | null
           category: string
+          claim_limit?: number | null
+          contributed_by?: string | null
+          contribution_category?: string | null
           contribution_model?: string | null
+          contribution_status?: string | null
+          contributor_nctr_per_claim?: number | null
           cost: number
           cost_per_claim?: number | null
           created_at?: string
           delivery_instructions?: string | null
+          delivery_location?: string | null
           delivery_method?: string | null
           description: string
           display_order?: number | null
@@ -2374,12 +2447,14 @@ export type Database = {
           image_source_url?: string | null
           image_url?: string | null
           is_active?: boolean
+          is_contributed?: boolean | null
           is_featured?: boolean
           is_sponsored?: boolean | null
           linked_sponsor_id?: string | null
           min_status_tier?: string | null
           minimum_token_balance?: number | null
           publish_at?: string | null
+          rejection_reason?: string | null
           required_user_data?: Json | null
           revenue_share_percent?: number | null
           showcase_mode?: string | null
@@ -2400,6 +2475,7 @@ export type Database = {
           token_gated?: boolean | null
           token_name?: string | null
           token_symbol?: string | null
+          total_claims?: number | null
           twitter_post_id?: string | null
           unpublish_at?: string | null
           updated_at?: string
@@ -2409,11 +2485,17 @@ export type Database = {
           brand_id?: string | null
           campaign_id?: string | null
           category?: string
+          claim_limit?: number | null
+          contributed_by?: string | null
+          contribution_category?: string | null
           contribution_model?: string | null
+          contribution_status?: string | null
+          contributor_nctr_per_claim?: number | null
           cost?: number
           cost_per_claim?: number | null
           created_at?: string
           delivery_instructions?: string | null
+          delivery_location?: string | null
           delivery_method?: string | null
           description?: string
           display_order?: number | null
@@ -2422,12 +2504,14 @@ export type Database = {
           image_source_url?: string | null
           image_url?: string | null
           is_active?: boolean
+          is_contributed?: boolean | null
           is_featured?: boolean
           is_sponsored?: boolean | null
           linked_sponsor_id?: string | null
           min_status_tier?: string | null
           minimum_token_balance?: number | null
           publish_at?: string | null
+          rejection_reason?: string | null
           required_user_data?: Json | null
           revenue_share_percent?: number | null
           showcase_mode?: string | null
@@ -2448,6 +2532,7 @@ export type Database = {
           token_gated?: boolean | null
           token_name?: string | null
           token_symbol?: string | null
+          total_claims?: number | null
           twitter_post_id?: string | null
           unpublish_at?: string | null
           updated_at?: string
@@ -2465,6 +2550,13 @@ export type Database = {
             columns: ["campaign_id"]
             isOneToOne: false
             referencedRelation: "sponsored_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rewards_contributed_by_fkey"
+            columns: ["contributed_by"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
             referencedColumns: ["id"]
           },
           {
