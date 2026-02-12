@@ -13,13 +13,13 @@ const steps = [
     emoji: '🔒',
     title: 'Commit with 360LOCK',
     description:
-      'Choose to lock your NCTR for 360 days and earn 3x rewards. Your NCTR stays yours — locking is commitment, not spending. The longer you commit, the more you earn.',
+      'Choose to lock your NCTR for 360 days and earn 3x rewards on merch. Your NCTR stays yours — locking is commitment, not spending. As you level up, your earning multiplier grows: 1.25x at Silver, 1.5x at Gold, up to 3x at Diamond — on everything.',
   },
   {
     emoji: '🏆',
     title: 'Unlock Rewards & Status',
     description:
-      'Your locked NCTR determines your Crescendo status: Bronze → Silver → Gold → Platinum → Diamond. Higher status unlocks better rewards, exclusive bounties, and premium experiences.',
+      'Your locked NCTR determines your Crescendo status: Bronze → Silver → Gold → Platinum → Diamond. Higher status unlocks better rewards, exclusive bounties, premium experiences, AND a higher earning multiplier on all future NCTR.',
   },
 ];
 

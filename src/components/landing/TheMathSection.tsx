@@ -63,7 +63,7 @@ export function TheMathSection() {
             </p>
             <div className="space-y-3">
               {[
-                { label: 'Purchase reward (3x)', amount: '330 NCTR' },
+                { label: 'Purchase reward (3x merch)', amount: '330 NCTR' },
                 { label: 'Rep the Brand bounty', amount: '750 NCTR' },
                 { label: 'Unboxing bounty', amount: '900 NCTR' },
                 { label: 'Merch Monday (monthly)', amount: '300 NCTR' },
@@ -89,14 +89,28 @@ export function TheMathSection() {
           Same hoodie. Different commitment.
         </p>
 
+        {/* Multiplier teaser */}
         <div
-          className="rounded-xl p-5 text-center mb-10 border"
+          className="rounded-xl p-5 text-center mb-4 border"
           style={{ background: 'rgba(170,255,0,0.04)', borderColor: 'rgba(170,255,0,0.15)' }}
         >
           <p className="text-sm" style={{ color: '#ccc' }}>
             And every NCTR you lock raises your Crescendo status. Which unlocks better bounties.
             Which earn more NCTR. Which raises your status more.{' '}
             <span className="font-bold text-white">The flywheel never stops.</span>
+          </p>
+        </div>
+
+        <div
+          className="rounded-xl p-4 text-center mb-10 border"
+          style={{ background: '#1A1A1A', borderColor: '#333' }}
+        >
+          <p className="text-sm" style={{ color: '#ccc' }}>
+            💡 <span className="font-semibold text-white">At Gold status</span>, your earning multiplier jumps to{' '}
+            <span className="font-bold" style={{ color: '#AAFF00' }}>1.5x on everything</span>.
+            That same 2,580 NCTR becomes{' '}
+            <span className="font-bold" style={{ color: '#AAFF00' }}>3,870 NCTR</span>.
+            At Diamond? <span className="font-bold" style={{ color: '#AAFF00' }}>3x</span>. The math keeps getting better.
           </p>
         </div>
 

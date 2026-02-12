@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Share2, Copy, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import type { StatusTier } from '@/contexts/UnifiedUserContext';
+import { DEFAULT_EARNING_MULTIPLIERS } from '@/utils/calculateReward';
 
 interface TierUpgradeCelebrationProps {
   isOpen: boolean;
@@ -26,7 +27,7 @@ const TIER_COLORS: Record<string, string[]> = {
 };
 
 // Tier-specific unlock reveals
-function getUnlockCards(tierName: string, nctrToNext: number | null, nextName: string | null): { emoji: string; title: string; description: string }[] {
+function getUnlockCards(tierName: string, nctrToNext: number | null, nextName: string | null, newMultiplier: number): { emoji: string; title: string; description: string }[] {
   const lowerTier = tierName.toLowerCase();
 
   const base: Record<string, { emoji: string; title: string; description: string }[]> = {
@@ -58,6 +59,15 @@ function getUnlockCards(tierName: string, nctrToNext: number | null, nextName: s
 
   const cards = base[lowerTier] || base.bronze;
 
+  // Add multiplier card
+  if (newMultiplier > 1) {
+    cards.unshift({
+      emoji: '⚡',
+      title: `${newMultiplier}x Earning Multiplier`,
+      description: `Your earning multiplier is now ${newMultiplier}x on everything!`,
+    });
+  }
+
   if (nctrToNext && nextName && lowerTier !== 'diamond') {
     cards.push({
       emoji: '📈',
@@ -82,8 +92,9 @@ export function TierUpgradeCelebration({
 
   const tierName = newTier.tier_name || newTier.display_name?.toLowerCase() || 'bronze';
   const colors = TIER_COLORS[tierName] || TIER_COLORS.bronze;
+  const newMultiplier = (newTier as any)?.earning_multiplier ?? DEFAULT_EARNING_MULTIPLIERS[tierName] ?? 1;
   const nctrToNext = nextTierThreshold ? Math.max(0, nextTierThreshold - totalLockedNctr) : null;
-  const unlockCards = getUnlockCards(tierName, nctrToNext, nextTierName);
+  const unlockCards = getUnlockCards(tierName, nctrToNext, nextTierName, newMultiplier);
 
   const progressPercent = nextTierThreshold
     ? Math.min(100, ((totalLockedNctr - newTier.min_nctr_360_locked) / (nextTierThreshold - newTier.min_nctr_360_locked)) * 100)

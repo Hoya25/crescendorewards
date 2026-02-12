@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 import { Crown } from "lucide-react";
+import { DEFAULT_EARNING_MULTIPLIERS } from "@/utils/calculateReward";
 
 export function StatusHero() {
   const { tier, nextTier, progressToNextTier, total360Locked, profile } = useUnifiedUser();
@@ -14,6 +15,10 @@ export function StatusHero() {
   const nctrRemaining = nextTier
     ? Math.max(0, nextTier.min_nctr_360_locked - total360Locked)
     : 0;
+
+  const currentMultiplier = (tier as any)?.earning_multiplier ?? DEFAULT_EARNING_MULTIPLIERS[tierName] ?? 1;
+  const nextTierName = nextTier?.tier_name?.toLowerCase() || "";
+  const nextMultiplier = (nextTier as any)?.earning_multiplier ?? DEFAULT_EARNING_MULTIPLIERS[nextTierName] ?? currentMultiplier;
 
   return (
     <Card className="border-0 bg-[hsl(0_0%_10%)] text-white overflow-hidden">
@@ -34,6 +39,11 @@ export function StatusHero() {
               </h2>
               <p className="text-sm text-white/60">
                 {total360Locked.toLocaleString()} NCTR locked
+                {currentMultiplier > 1 && (
+                  <span className="ml-2 font-semibold" style={{ color: '#AAFF00' }}>
+                    {currentMultiplier}x earning
+                  </span>
+                )}
               </p>
             </div>
           </div>
@@ -44,7 +54,7 @@ export function StatusHero() {
               <div className="flex items-center gap-2 p-3 rounded-lg bg-violet-500/15 border border-violet-500/25">
                 <Crown className="w-5 h-5 text-violet-400" />
                 <p className="text-sm font-semibold text-violet-300">
-                  You've reached the highest tier! 👑
+                  You've reached the highest tier! 👑 {currentMultiplier}x earning on everything.
                 </p>
               </div>
             ) : (
@@ -75,16 +85,24 @@ export function StatusHero() {
                   </div>
                 </div>
 
+                {/* Multiplier upgrade teaser */}
+                {nextMultiplier > currentMultiplier && (
+                  <p className="text-xs text-white/50">
+                    Reach <span className="font-semibold" style={{ color: nextTier?.badge_color }}>{nextTier?.display_name}</span> for{' '}
+                    <span className="font-semibold" style={{ color: '#AAFF00' }}>{nextMultiplier}x earnings</span> on everything.
+                  </p>
+                )}
+
                 {/* Contextual message */}
                 {hasNoLocked && availableNCTR > 0 ? (
                   <p className="text-xs text-white/50">
                     You have <span className="font-semibold text-cta">{availableNCTR} NCTR</span> ready to lock. Choose 360LOCK on your next earn to start climbing.
                   </p>
-                ) : (
+                ) : !nextMultiplier || nextMultiplier <= currentMultiplier ? (
                   <p className="text-xs text-white/50">
                     Every NCTR you 360LOCK counts toward your next tier. Higher tier = better rewards.
                   </p>
-                )}
+                ) : null}
               </div>
             )}
           </div>
