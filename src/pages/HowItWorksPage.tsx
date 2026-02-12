@@ -13,14 +13,15 @@ const earningSubItems = [
   { emoji: "📸", text: "Complete Bounties — Content challenges that pay NCTR" },
   { emoji: "👕", text: "Buy NCTR Merch — 3x earning bonus with 360LOCK" },
   { emoji: "🤝", text: "Invite Friends — You both earn when they join" },
+  { emoji: "🎁", text: "Contribute Rewards — List rewards in the marketplace. Earn when others claim." },
 ];
 
 const tierData = [
-  { emoji: "🥉", name: "Bronze", range: "0 – 99", multiplier: "1x", label: "base", unlocks: "Tier 1 merch bounties, Merch Monday, basic Crescendo rewards" },
-  { emoji: "🥈", name: "Silver", range: "100 – 499", multiplier: "1.25x", label: "on all earnings", unlocks: "+ Tier 2 creative bounties, NCTR Sighting bounty, better rewards" },
-  { emoji: "🥇", name: "Gold", range: "500 – 1,999", multiplier: "1.5x", label: "on all earnings", unlocks: "+ Tier 3 campaign bounties (up to 3,000+ NCTR each), Multi-Purchase Bonus" },
-  { emoji: "💎", name: "Platinum", range: "2,000 – 9,999", multiplier: "2x", label: "on all earnings", unlocks: "+ Premium rewards, exclusive experiences" },
-  { emoji: "👑", name: "Diamond", range: "10,000+", multiplier: "3x", label: "on all earnings", unlocks: "Maximum rewards. Community leader. Every opportunity unlocked." },
+  { emoji: "🥉", name: "Bronze", range: "0 – 99", multiplier: "1x", label: "Base rate", unlocks: "Tier 1 merch bounties, Merch Monday, basic Crescendo rewards" },
+  { emoji: "🥈", name: "Silver", range: "100 – 499", multiplier: "1.1x", label: "10% more on everything", unlocks: "Everything in Bronze + Tier 2 creative bounties (up to 1,200+ NCTR), NCTR Sighting bounty, Silver rewards" },
+  { emoji: "🥇", name: "Gold", range: "500 – 1,999", multiplier: "1.25x", label: "25% more on everything", unlocks: "Everything in Silver + Tier 3 campaign bounties (up to 3,000+ NCTR), Multi-Purchase Bonus, Gold rewards" },
+  { emoji: "💎", name: "Platinum", range: "2,000 – 9,999", multiplier: "1.5x", label: "50% more on everything", unlocks: "Everything in Gold + premium rewards, exclusive experiences, priority contributor listing" },
+  { emoji: "👑", name: "Diamond", range: "10,000+", multiplier: "2x", label: "Double earnings on everything", unlocks: "Maximum rewards. Community leader. Every opportunity unlocked. Featured contributor." },
 ];
 
 const rewardCategories = [
@@ -41,7 +42,7 @@ const faqItems = [
   },
   {
     question: "How do status multipliers work?",
-    answer: "Your Crescendo status gives you an earning multiplier on EVERYTHING — shopping, bounties, referrals, all of it. Silver earns 1.25x, Gold earns 1.5x, Platinum earns 2x, and Diamond earns 3x. For merch purchases and bounties, the 3x 360LOCK bonus stacks with your status multiplier. A Gold member earns 4.5x on merch (3x × 1.5x).",
+    answer: "Your Crescendo status gives you an earning multiplier on EVERYTHING — shopping, bounties, referrals, all of it. Silver earns 1.1x, Gold earns 1.25x, Platinum earns 1.5x, and Diamond earns 2x. For merch purchases and bounties, the 3x 360LOCK bonus stacks with your status multiplier. A Gold member earns 3.75x on merch (3x × 1.25x).",
   },
   {
     question: "How is Crescendo different from other rewards programs?",
@@ -241,8 +242,8 @@ export default function HowItWorksPage() {
           {/* Tier callout */}
           <div className="mt-8 rounded-xl p-5 border" style={{ background: 'rgba(170,255,0,0.03)', borderColor: 'rgba(170,255,0,0.15)' }}>
             <p className="text-sm text-center" style={{ color: '#ccc' }}>
-              <span className="font-bold text-white">EXAMPLE:</span> A Gold member (1.5x) who buys a $55 NCTR hoodie with 360LOCK earns{' '}
-              <span className="font-bold" style={{ color: '#AAFF00' }}>110 × 3 × 1.5 = 495 NCTR</span>{' '}
+              <span className="font-bold text-white">EXAMPLE:</span> A Gold member (1.25x) who buys a $55 NCTR hoodie with 360LOCK earns{' '}
+              <span className="font-bold" style={{ color: '#AAFF00' }}>110 × 1.25 × 3 = 413 NCTR</span>{' '}
               from the purchase alone. A Bronze member earns 330 NCTR for the same hoodie.{' '}
               <span className="font-semibold text-white">Status pays.</span>
             </p>
@@ -272,7 +273,7 @@ export default function HowItWorksPage() {
               <ul className="space-y-2.5 text-sm" style={{ color: '#9CA3AF' }}>
                 <li>• Applies to <span className="text-white font-medium">ALL</span> earning — shopping, bounties, referrals, everything</li>
                 <li>• Your Crescendo tier determines your multiplier</li>
-                <li>• Bronze 1x → Silver 1.25x → Gold 1.5x → Platinum 2x → Diamond 3x</li>
+                <li>• Bronze 1x → Silver 1.1x → Gold 1.25x → Platinum 1.5x → Diamond 2x</li>
                 <li className="font-medium text-white">• This is the #1 reason to level up</li>
               </ul>
             </div>
@@ -287,7 +288,7 @@ export default function HowItWorksPage() {
                 <li>• Applies to NCTR merch store purchases and merch bounties <span className="text-white font-medium">ONLY</span></li>
                 <li>• Automatic 3x when you commit to 360LOCK (360 days)</li>
                 <li>• Stacks on top of your status multiplier</li>
-                <li className="font-medium" style={{ color: '#AAFF00' }}>• Gold + merch 360LOCK = 1.5x × 3x = 4.5x</li>
+                <li className="font-medium" style={{ color: '#AAFF00' }}>• Gold + merch 360LOCK = 1.25x × 3x = 3.75x</li>
               </ul>
             </div>
           </div>
@@ -298,17 +299,17 @@ export default function HowItWorksPage() {
             <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 text-sm mb-4">
               <span className="font-bold text-white px-3 py-1.5 rounded-lg" style={{ background: '#333' }}>250 NCTR</span>
               <span style={{ color: '#666' }}>→</span>
+              <span className="px-3 py-1.5 rounded-lg text-xs font-medium" style={{ background: 'rgba(170,255,0,0.08)', color: '#AAFF00' }}>×1.25 Gold Status</span>
+              <span style={{ color: '#666' }}>→</span>
+              <span className="text-white font-medium">313</span>
+              <span style={{ color: '#666' }}>→</span>
               <span className="px-3 py-1.5 rounded-lg text-xs font-medium" style={{ background: 'rgba(170,255,0,0.08)', color: '#AAFF00' }}>×3 Merch 360LOCK</span>
               <span style={{ color: '#666' }}>→</span>
-              <span className="text-white font-medium">750</span>
-              <span style={{ color: '#666' }}>→</span>
-              <span className="px-3 py-1.5 rounded-lg text-xs font-medium" style={{ background: 'rgba(170,255,0,0.08)', color: '#AAFF00' }}>×1.5 Gold Status</span>
-              <span style={{ color: '#666' }}>→</span>
-              <span className="font-black text-lg" style={{ color: '#AAFF00' }}>1,125 NCTR</span>
+              <span className="font-black text-lg" style={{ color: '#AAFF00' }}>939 NCTR</span>
             </div>
             <div className="text-center space-y-1">
-              <p className="text-xs" style={{ color: '#999' }}>Same bounty as Bronze: 250 × 3 × 1 = 750 NCTR</p>
-              <p className="text-xs font-semibold text-white">The Gold advantage: +375 NCTR — same effort, higher status.</p>
+              <p className="text-xs" style={{ color: '#999' }}>Same bounty as Bronze: 250 × 1 × 3 = 750 NCTR</p>
+              <p className="text-xs font-semibold text-white">The Gold advantage: +189 NCTR — same effort, higher status.</p>
             </div>
           </div>
         </div>
