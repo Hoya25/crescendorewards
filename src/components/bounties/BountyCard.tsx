@@ -95,34 +95,30 @@ export function BountyCard({ bounty, userTier, total360Locked, nextTier, claims,
             <p className="text-xs text-muted-foreground line-clamp-2">{bounty.description}</p>
           )}
 
-          {/* Personalized reward display */}
+          {/* Personalized reward display — stacked multiplier lines */}
           <div className="space-y-1">
-            <div className="flex items-baseline gap-2">
-              {personalizedReward > baseReward ? (
-                <>
-                  <span className="text-xs text-muted-foreground line-through">Base: {baseReward} NCTR</span>
-                  <span className="text-lg font-bold text-lime-500">
-                    {personalizedReward.toLocaleString()} NCTR
-                  </span>
-                </>
-              ) : (
-                <span className="text-lg font-bold text-foreground">{personalizedReward.toLocaleString()} NCTR</span>
-              )}
-            </div>
-            {/* Multiplier breakdown */}
-            {(calc.merchBonus > 1 || statusMultiplier > 1) && (
-              <div className="flex flex-wrap gap-1">
-                {calc.merchBonus > 1 && (
-                  <Badge variant="outline" className="text-[10px] border-lime-500/30 text-lime-500">
-                    {calc.merchBonus}x merch
-                  </Badge>
-                )}
-                {statusMultiplier > 1 && (
-                  <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
-                    {statusMultiplier}x {tierName}
-                  </Badge>
-                )}
-              </div>
+            {isMerchBounty ? (
+              <>
+                <p className="text-xs text-text-body-muted">Base: {baseReward} NCTR</p>
+                <p className="text-sm text-text-body">
+                  {tierName.charAt(0).toUpperCase() + tierName.slice(1)} ({statusMultiplier}x): {Math.round(baseReward * statusMultiplier)} NCTR
+                </p>
+                <p className="text-lg font-bold text-accent-lime">
+                  With 360LOCK (3x): {personalizedReward.toLocaleString()} NCTR
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-xs text-text-body-muted">Base: {baseReward} NCTR</p>
+                <p className="text-lg font-bold text-text-heading">
+                  You earn: {personalizedReward.toLocaleString()} NCTR
+                </p>
+              </>
+            )}
+            {tierName === 'bronze' && (
+              <p className="text-xs text-accent-lime">
+                Reach Silver for 1.1x on this bounty → {Math.round(baseReward * 1.1 * (isMerchBounty ? 3 : 1))} NCTR
+              </p>
             )}
           </div>
 

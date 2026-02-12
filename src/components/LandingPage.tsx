@@ -6,6 +6,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { HeroSection } from "./landing/HeroSection";
 import { HowItWorksLanding } from "./landing/HowItWorksLanding";
 import { RewardsPreview } from "./landing/RewardsPreview";
+import { FiveWaysToEarn } from "./landing/FiveWaysToEarn";
 import { TheMathSection } from "./landing/TheMathSection";
 import { FinalCTA } from "./landing/FinalCTA";
 import { Button } from "./ui/button";
@@ -120,6 +121,11 @@ export function LandingPage() {
       {/* Section 2: How It Works */}
       <ScrollReveal>
         <HowItWorksLanding />
+      </ScrollReveal>
+
+      {/* Section 2.5: Five Ways to Earn */}
+      <ScrollReveal>
+        <FiveWaysToEarn />
       </ScrollReveal>
 
       {/* Section 3: Rewards Preview */}

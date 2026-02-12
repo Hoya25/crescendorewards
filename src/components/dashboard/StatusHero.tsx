@@ -21,14 +21,14 @@ export function StatusHero() {
   const nextMultiplier = (nextTier as any)?.earning_multiplier ?? DEFAULT_EARNING_MULTIPLIERS[nextTierName] ?? currentMultiplier;
 
   return (
-    <Card className="border-0 bg-[hsl(0_0%_10%)] text-white overflow-hidden">
+    <Card className="border border-border-card bg-card-bg overflow-hidden rounded-xl">
       <CardContent className="p-5 md:p-6">
         <div className="flex flex-col md:flex-row md:items-center gap-5">
           {/* Left: Current tier */}
           <div className="flex items-center gap-3 shrink-0">
             <span className="text-5xl">{tier?.badge_emoji || "🥉"}</span>
             <div>
-              <p className="text-xs text-white/50 font-medium uppercase tracking-wider">
+              <p className="text-xs text-text-body-muted font-medium uppercase tracking-wider">
                 Your Crescendo Status
               </p>
               <h2
@@ -37,11 +37,16 @@ export function StatusHero() {
               >
                 {tier?.display_name || "Bronze"}
               </h2>
-              <p className="text-sm text-white/60">
+              <p className="text-sm text-text-body">
                 {total360Locked.toLocaleString()} NCTR locked
                 {currentMultiplier > 1 && (
-                  <span className="ml-2 font-semibold" style={{ color: '#AAFF00' }}>
+                  <span className="ml-2 font-semibold text-accent-lime">
                     {currentMultiplier}x earning
+                  </span>
+                )}
+                {currentMultiplier === 1 && (
+                  <span className="ml-2 font-semibold text-accent-lime">
+                    1x earning
                   </span>
                 )}
               </p>
@@ -59,48 +64,44 @@ export function StatusHero() {
               </div>
             ) : (
               <div className="space-y-2">
-                {/* Labels above bar */}
                 <div className="flex items-center justify-between text-xs font-medium">
-                  <span className="text-white/60">
+                  <span className="text-text-body-muted">
                     {total360Locked.toLocaleString()} / {nextTier?.min_nctr_360_locked.toLocaleString()} NCTR locked toward {nextTier?.display_name}
                   </span>
-                  <span className="text-white/60">
+                  <span className="text-text-body-muted">
                     {Math.round(progressToNextTier)}%
                   </span>
                 </div>
 
-                {/* Progress bar with next tier badge */}
                 <div className="flex items-center gap-3">
-                  <div className="flex-1 relative h-3 overflow-hidden rounded-full bg-white/10">
+                  <div className="flex-1 relative h-3 overflow-hidden rounded-full bg-elevated-bg">
                     <div
-                      className="h-full rounded-full transition-all duration-700 bg-cta"
+                      className="h-full rounded-full transition-all duration-700 bg-accent-lime"
                       style={{ width: `${Math.max(2, progressToNextTier)}%` }}
                     />
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
                     <span className="text-lg">{nextTier?.badge_emoji}</span>
-                    <span className="text-xs text-white/50 font-medium">
+                    <span className="text-xs text-text-body-muted font-medium">
                       {nctrRemaining.toLocaleString()} to go
                     </span>
                   </div>
                 </div>
 
-                {/* Multiplier upgrade teaser */}
                 {nextMultiplier > currentMultiplier && (
-                  <p className="text-xs text-white/50">
+                  <p className="text-xs text-text-body-muted">
                     Reach <span className="font-semibold" style={{ color: nextTier?.badge_color }}>{nextTier?.display_name}</span> for{' '}
-                    <span className="font-semibold" style={{ color: '#AAFF00' }}>{nextMultiplier}x earnings</span> on everything.
+                    <span className="font-semibold text-accent-lime">{nextMultiplier}x earnings</span> on everything.
                   </p>
                 )}
 
-                {/* Contextual message */}
                 {hasNoLocked && availableNCTR > 0 ? (
-                  <p className="text-xs text-white/50">
-                    You have <span className="font-semibold text-cta">{availableNCTR} NCTR</span> ready to lock. Choose 360LOCK on your next earn to start climbing.
+                  <p className="text-xs text-text-body-muted">
+                    You have <span className="font-semibold text-accent-lime">{availableNCTR} NCTR</span> ready to lock. Choose 360LOCK on your next earn to start climbing.
                   </p>
-                ) : !nextMultiplier || nextMultiplier <= currentMultiplier ? (
-                  <p className="text-xs text-white/50">
-                    Every NCTR you 360LOCK counts toward your next tier. Higher tier = better rewards.
+                ) : hasNoLocked ? (
+                  <p className="text-xs text-text-body-muted">
+                    Every NCTR you lock counts toward your next tier. Higher tier = higher earning multiplier on everything.
                   </p>
                 ) : null}
               </div>
