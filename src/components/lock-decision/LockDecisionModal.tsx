@@ -3,11 +3,19 @@ import confetti from 'canvas-confetti';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
-import { Lock, Star, ChevronRight, Sparkles, Info } from 'lucide-react';
+import { Lock, ChevronRight, ChevronDown, Star, Info, Sparkles, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TierUpgradeCelebration } from '@/components/TierUpgradeCelebration';
 import { calculateReward, DEFAULT_EARNING_MULTIPLIERS } from '@/utils/calculateReward';
 import type { LockDecisionRequest } from '@/contexts/LockDecisionContext';
+
+const TIER_COLORS: Record<string, string> = {
+  bronze: '#CD7F32',
+  silver: '#C0C0C0',
+  gold: '#FFD700',
+  platinum: '#E5E4E2',
+  diamond: '#B9F2FF',
+};
 
 const SOURCE_EMOJI: Record<string, string> = {
   bounty: '📸',
@@ -35,9 +43,8 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
   const { tier, nextTier, total360Locked, allTiers, profile } = useUnifiedUser();
   const tierName = (tier?.tier_name || 'bronze').toLowerCase();
   const statusMultiplier = (tier as any)?.earning_multiplier ?? DEFAULT_EARNING_MULTIPLIERS[tierName] ?? 1;
-  const isMerch = request.sourceType === 'merch' || request.sourceType === 'bounty' && request.requires360Lock;
-  
-  // Calculate reward with stacking
+  const isMerch = request.sourceType === 'merch' || (request.sourceType === 'bounty' && request.requires360Lock);
+
   const calc360 = calculateReward(request.baseAmount, {
     statusMultiplier,
     tierName,
@@ -50,53 +57,23 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
     isMerch: false,
     is360Lock: false,
   });
-  
+
   const multiplier = request.lockMultiplier || 3;
   const amount360 = calc360.finalAmount;
+  const amount90 = calc90.finalAmount || request.baseAmount;
   const is360Required = request.requires360Lock;
-  
+
   const [selected, setSelected] = useState<'90lock' | '360lock'>('360lock');
   const [phase, setPhase] = useState<'choose' | 'success' | 'levelup'>('choose');
-  const [animatedAmount, setAnimatedAmount] = useState(request.baseAmount);
-  const [showFirstTimeHint, setShowFirstTimeHint] = useState(false);
-  const animRef = useRef<number>();
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  // Check if first time
-  useEffect(() => {
-    const hasSeenLock = localStorage.getItem('crescendo_seen_lock_decision');
-    if (!hasSeenLock) {
-      setShowFirstTimeHint(true);
-    }
-  }, []);
-
-  // Animate amount when switching to 360lock
-  useEffect(() => {
-    if (animRef.current) cancelAnimationFrame(animRef.current);
-    
-    const target = selected === '360lock' ? amount360 : request.baseAmount;
-    const start = animatedAmount;
-    const duration = 400;
-    const startTime = performance.now();
-
-    const animate = (now: number) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setAnimatedAmount(Math.round(start + (target - start) * eased));
-      if (progress < 1) {
-        animRef.current = requestAnimationFrame(animate);
-      }
-    };
-
-    animRef.current = requestAnimationFrame(animate);
-    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
-  }, [selected]);
-
-  const selectedAmount = selected === '360lock' ? amount360 : request.baseAmount;
+  const selectedAmount = selected === '360lock' ? amount360 : amount90;
   const lockDays = selected === '360lock' ? 360 : 90;
 
-  // Status impact calculation
-  const newLocked = total360Locked + selectedAmount;
+  // Status impact
+  const newLocked360 = total360Locked + amount360;
+  const newLocked90 = total360Locked + amount90;
+  const newLocked = selected === '360lock' ? newLocked360 : newLocked90;
   const sortedTiers = [...allTiers].sort((a, b) => a.min_nctr_360_locked - b.min_nctr_360_locked);
   const newTier = [...sortedTiers].reverse().find(t => newLocked >= t.min_nctr_360_locked) || sortedTiers[0];
   const newNextTier = sortedTiers.find(t => t.min_nctr_360_locked > newLocked) || null;
@@ -104,7 +81,6 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
   const nctrToNewNext = newNextTier ? Math.max(0, newNextTier.min_nctr_360_locked - newLocked) : 0;
 
   const handleConfirm = async () => {
-    // Record the lock
     if (profile?.id) {
       try {
         await supabase.from('cross_platform_activity_log').insert({
@@ -121,7 +97,6 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
           },
         });
 
-        // Update crescendo_data locked amounts
         const currentData = (profile.crescendo_data || {}) as Record<string, any>;
         const currentLocked = (currentData.locked_nctr as number) || 0;
         await supabase
@@ -139,10 +114,8 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
       }
     }
 
-    // Dismiss first-time hint
     localStorage.setItem('crescendo_seen_lock_decision', 'true');
 
-    // Check for level-up → show full celebration
     if (wouldLevelUp) {
       setPhase('levelup');
       return;
@@ -150,14 +123,13 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
 
     setPhase('success');
 
-    // Celebration for 360lock
     if (selected === '360lock') {
       setTimeout(() => {
         confetti({
           particleCount: 80,
           spread: 70,
           origin: { y: 0.6 },
-          colors: ['#AAFF00', '#FFD700', '#00CED1'],
+          colors: ['#C8FF00', '#FFD700', '#00CED1'],
         });
       }, 100);
     }
@@ -172,9 +144,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
     });
   };
 
-  const emoji = SOURCE_EMOJI[request.sourceType] || '⭐';
-
-  // ─── LEVEL-UP CELEBRATION PHASE ───
+  // ─── LEVEL-UP CELEBRATION ───
   if (phase === 'levelup' && tier && newTier) {
     const celebrationNextTier = sortedTiers.find(t => t.min_nctr_360_locked > newLocked) || null;
     return (
@@ -194,53 +164,26 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
   if (phase === 'success') {
     return (
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-        <div className="w-full max-w-md rounded-2xl p-6 text-center space-y-5"
-             style={{ background: '#1A1A1A' }}>
+        <div className="w-full max-w-md rounded-2xl p-6 text-center space-y-5" style={{ background: '#1A1A2E' }}>
           {selected === '360lock' ? (
             <>
               <div className="text-5xl">🎉</div>
               <h2 className="text-2xl font-bold text-white">
                 {selectedAmount.toLocaleString()} NCTR Locked!
               </h2>
-              <p className="text-sm" style={{ color: '#AAFF00' }}>
+              <p className="text-sm font-semibold" style={{ color: '#C8FF00' }}>
                 {multiplier}x multiplier applied
               </p>
-
-              {/* Status bar */}
-              <div className="space-y-2 p-4 rounded-xl" style={{ background: '#222' }}>
-                <div className="flex justify-between text-xs text-white/60">
-                  <span>{newTier?.badge_emoji} {newTier?.display_name}</span>
-                  {newNextTier && <span>{newNextTier.badge_emoji} {newNextTier.display_name}</span>}
-                </div>
-                <div className="h-2 rounded-full overflow-hidden" style={{ background: '#333' }}>
-                  <div
-                    className="h-full rounded-full transition-all duration-700"
-                    style={{
-                      background: '#AAFF00',
-                      width: newNextTier
-                        ? `${Math.min(100, ((newLocked - newTier!.min_nctr_360_locked) / (newNextTier.min_nctr_360_locked - newTier!.min_nctr_360_locked)) * 100)}%`
-                        : '100%',
-                    }}
-                  />
-                </div>
-                {newNextTier && (
-                  <p className="text-xs text-white/50">
-                    {nctrToNewNext.toLocaleString()} NCTR to {newNextTier.display_name}
-                  </p>
-                )}
-              </div>
-
-              {wouldLevelUp && (
-                <div className="p-3 rounded-lg border" style={{ borderColor: '#AAFF00', background: 'rgba(170,255,0,0.08)' }}>
-                  <p className="text-sm font-semibold" style={{ color: '#AAFF00' }}>
-                    🎉 You've reached {newTier?.display_name}!
-                  </p>
-                </div>
-              )}
-
+              <StatusBar
+                newTier={newTier}
+                newNextTier={newNextTier}
+                newLocked={newLocked}
+                nctrToNewNext={nctrToNewNext}
+                barColor="#C8FF00"
+              />
               <Button
                 className="w-full font-semibold"
-                style={{ background: '#AAFF00', color: '#000' }}
+                style={{ background: '#C8FF00', color: '#1A1A2E' }}
                 onClick={handleDone}
               >
                 Keep Earning →
@@ -248,36 +191,24 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
             </>
           ) : (
             <>
-              <div className="text-4xl">✓</div>
+              <div className="w-14 h-14 rounded-full mx-auto flex items-center justify-center" style={{ background: 'rgba(200,255,0,0.1)' }}>
+                <Check className="w-7 h-7" style={{ color: '#C8FF00' }} />
+              </div>
               <h2 className="text-xl font-bold text-white">
                 {selectedAmount.toLocaleString()} NCTR Locked
               </h2>
-
-              <div className="p-3 rounded-lg text-left" style={{ background: '#222' }}>
+              <div className="p-3 rounded-lg text-left" style={{ background: 'rgba(255,255,255,0.05)' }}>
                 <p className="text-xs text-white/60">
                   💡 <span className="font-semibold text-white/80">Tip:</span> Choose 360LOCK next time to earn {multiplier}x. It adds up fast.
                 </p>
               </div>
-
-              {/* Status bar */}
-              <div className="space-y-2 p-4 rounded-xl" style={{ background: '#222' }}>
-                <div className="flex justify-between text-xs text-white/60">
-                  <span>{newTier?.badge_emoji} {newTier?.display_name}</span>
-                  {newNextTier && <span>{newNextTier.badge_emoji} {newNextTier.display_name}</span>}
-                </div>
-                <div className="h-2 rounded-full overflow-hidden" style={{ background: '#333' }}>
-                  <div
-                    className="h-full rounded-full transition-all duration-700"
-                    style={{
-                      background: newTier?.badge_color || '#CD7F32',
-                      width: newNextTier
-                        ? `${Math.min(100, ((newLocked - newTier!.min_nctr_360_locked) / (newNextTier.min_nctr_360_locked - newTier!.min_nctr_360_locked)) * 100)}%`
-                        : '100%',
-                    }}
-                  />
-                </div>
-              </div>
-
+              <StatusBar
+                newTier={newTier}
+                newNextTier={newNextTier}
+                newLocked={newLocked}
+                nctrToNewNext={nctrToNewNext}
+                barColor={newTier?.badge_color || '#CD7F32'}
+              />
               <Button
                 variant="outline"
                 className="w-full text-white border-white/20 hover:bg-white/10"
@@ -293,212 +224,240 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
   }
 
   // ─── CHOOSE PHASE ───
+  const faqs = [
+    {
+      q: 'What happens to my NCTR when I lock it?',
+      a: 'Your NCTR stays in your wallet — it is not spent or consumed. It is simply committed for the lock period. After the period ends, it unlocks and you can use it freely or re-lock for continued status.',
+    },
+    {
+      q: 'Can I unlock early?',
+      a: 'No. Once committed, your NCTR is locked for the full period. This is what makes Crescendo status meaningful — it represents real commitment to the community.',
+    },
+    {
+      q: 'What is Crescendo status?',
+      a: 'Your status tier (Bronze through Diamond) determines what rewards and opportunities you can access. Higher status = better access. It is determined by your total locked NCTR amount.',
+    },
+  ];
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 overflow-y-auto">
-      <div
-        className="w-full max-w-lg rounded-2xl overflow-hidden my-4"
-        style={{ background: '#1A1A1A' }}
-      >
-        {/* TOP: What You Earned */}
-        <div className="p-6 text-center border-b border-white/10">
-          <span className="text-4xl block mb-2">{emoji}</span>
-          <h2 className="text-xl font-bold text-white">You earned NCTR!</h2>
-          <p className="text-sm text-white/50 mt-1">{request.sourceName}</p>
-          <p className="text-3xl font-bold text-white mt-3">
-            {request.baseAmount.toLocaleString()} NCTR
+      <div className="w-full max-w-[800px] rounded-2xl overflow-hidden my-4" style={{ background: '#1A1A2E' }}>
+
+        {/* SECTION 1 — Header */}
+        <div className="p-6 pb-4 text-center border-b border-white/10">
+          <h2 className="text-2xl font-bold text-white">Commit Your NCTR</h2>
+          <p className="text-sm text-white/60 mt-1.5 max-w-md mx-auto">
+            Choose how long to lock. Longer commitment = bigger rewards + higher Crescendo status.
           </p>
+          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full" style={{ background: 'rgba(200,255,0,0.08)', border: '1px solid rgba(200,255,0,0.2)' }}>
+            <span className="text-xs text-white/50">Available to commit:</span>
+            <span className="text-sm font-bold text-white">{request.baseAmount.toLocaleString()} NCTR</span>
+          </div>
+          {request.sourceName && (
+            <p className="text-xs text-white/40 mt-2">
+              {SOURCE_EMOJI[request.sourceType] || '⭐'} From: {request.sourceName}
+            </p>
+          )}
         </div>
 
-        <div className="p-6 space-y-5">
-          {/* First-time hint */}
-          {showFirstTimeHint && !is360Required && (
-            <div className="p-4 rounded-xl border border-amber-500/30" style={{ background: 'rgba(255,193,7,0.06)' }}>
-              <div className="flex items-start gap-3">
-                <Star className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm text-white/90 leading-relaxed">
-                    <span className="font-semibold">First time?</span> When you earn NCTR, you choose how long to lock it. Longer lock = bigger reward. Your NCTR is always yours — locking just means you're committing it for a set time. That commitment is what builds your Crescendo status.
-                  </p>
-                  <button
-                    onClick={() => {
-                      setShowFirstTimeHint(false);
-                      localStorage.setItem('crescendo_seen_lock_decision', 'true');
-                    }}
-                    className="text-xs font-medium mt-2 hover:underline"
-                    style={{ color: '#AAFF00' }}
-                  >
-                    Got it
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* MIDDLE: Choose commitment */}
+        <div className="p-6 space-y-6">
+          {/* SECTION 2 — Side-by-Side Comparison */}
           {is360Required ? (
-            // 360LOCK required
-            <div className="space-y-3">
-              <p className="text-sm text-white/60 text-center">
-                This bounty requires 360LOCK commitment.
-              </p>
-              <div
-                className="rounded-xl p-5 border-2 text-center space-y-2"
-                style={{ borderColor: '#AAFF00', background: 'rgba(170,255,0,0.04)' }}
-              >
-                <div className="flex items-center justify-center gap-2">
-                  <Lock className="w-4 h-4" style={{ color: '#AAFF00' }} />
-                  <span className="font-bold text-white">360LOCK</span>
-                </div>
-                <p className="text-sm text-white/60">Locked for 360 days</p>
-                <p className="text-3xl font-bold" style={{ color: '#AAFF00' }}>
-                  {amount360.toLocaleString()} NCTR
-                </p>
-                {/* Multiplier breakdown */}
-                <div className="space-y-1 text-xs text-white/50">
-                  <p>{request.baseAmount.toLocaleString()} base</p>
-                  {calc360.merchBonus > 1 && <p>× {calc360.merchBonus}x merch 360LOCK bonus</p>}
-                  {statusMultiplier > 1 && (
-                    <p>× {statusMultiplier}x <span className="capitalize">{tierName}</span> status multiplier</p>
-                  )}
-                </div>
-                <p className="text-xs text-white/40">
-                  +{amount360.toLocaleString()} toward your Crescendo status
-                </p>
-              </div>
-              <div className="flex items-start gap-2 p-3 rounded-lg" style={{ background: '#222' }}>
-                <Info className="w-4 h-4 text-white/40 shrink-0 mt-0.5" />
-                <p className="text-xs text-white/50">
-                  Why 360LOCK only? Merch bounties reward commitment. The {calc360.merchBonus > 1 ? `${calc360.merchBonus}x merch bonus` : `${multiplier}x multiplier`} is built in.
-                  {statusMultiplier > 1 && ` Your ${tierName} status adds ${statusMultiplier}x on top.`}
-                </p>
-              </div>
-            </div>
+            <Required360View amount360={amount360} multiplier={multiplier} calc360={calc360} statusMultiplier={statusMultiplier} tierName={tierName} baseAmount={request.baseAmount} />
           ) : (
-            // Choice between 90 and 360
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-white/80 text-center">Choose Your Commitment</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* 90LOCK */}
-                <button
-                  onClick={() => setSelected('90lock')}
-                  className={cn(
-                    'rounded-xl p-4 text-left border-2 transition-all',
-                    selected === '90lock'
-                      ? 'border-white/50'
-                      : 'border-white/10 hover:border-white/25'
-                  )}
-                  style={{ background: '#222' }}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <Lock className="w-4 h-4 text-white/60" />
-                    <span className="font-bold text-white text-sm">90LOCK</span>
-                  </div>
-                  <p className="text-xs text-white/40 mb-3">Locked for 90 days</p>
-                  <p className="text-2xl font-bold text-white">
-                    {request.baseAmount.toLocaleString()} NCTR
-                  </p>
-                  <p className="text-xs text-white/40 mt-1">1x (base)</p>
-                  <p className="text-xs text-white/40 mt-2">
-                    +{request.baseAmount.toLocaleString()} toward status
-                  </p>
-                  <p className="text-[11px] text-white/30 mt-2">Unlocks sooner. Base rewards.</p>
-                </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* 90-Day Card */}
+              <button
+                onClick={() => setSelected('90lock')}
+                className={cn(
+                  'rounded-xl p-5 text-left border-2 transition-all flex flex-col order-2 sm:order-1',
+                  selected === '90lock'
+                    ? 'border-white/40 bg-white/5'
+                    : 'border-white/10 hover:border-white/25 bg-white/[0.02]'
+                )}
+              >
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 mb-3">Standard</span>
+                <div className="flex items-center gap-2 mb-1">
+                  <Lock className="w-4 h-4 text-white/50" />
+                  <span className="font-bold text-white">90-Day Lock</span>
+                </div>
+                <p className="text-xs text-white/40 mb-4">Lock {request.baseAmount.toLocaleString()} NCTR for 90 days</p>
 
-                {/* 360LOCK */}
-                <button
-                  onClick={() => setSelected('360lock')}
+                <div className="text-2xl font-bold text-white mb-1">1x <span className="text-base font-normal text-white/50">rewards</span></div>
+
+                <div className="flex items-center gap-1.5 text-xs text-white/50 mb-3">
+                  <Check className="w-3 h-3" />
+                  <span>Counts toward your Crescendo status</span>
+                </div>
+
+                <div className="rounded-lg p-3 mb-4 flex-1" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                  <p className="text-xs text-white/50">
+                    <span className="text-white/70 font-medium">Example:</span> Earn a 250 NCTR bounty → receive <span className="text-white font-semibold">250 NCTR</span>
+                  </p>
+                </div>
+
+                <p className="text-[11px] text-white/30 mt-auto">
+                  Your NCTR remains yours — it unlocks after 90 days
+                </p>
+
+                <div className={cn(
+                  'mt-4 w-full py-2.5 rounded-lg text-center text-sm font-semibold transition-all',
+                  selected === '90lock'
+                    ? 'bg-white text-[#1A1A2E]'
+                    : 'bg-white/10 text-white/60'
+                )}>
+                  Lock for 90 Days
+                </div>
+              </button>
+
+              {/* 360-Day Card (HIGHLIGHTED) */}
+              <button
+                onClick={() => setSelected('360lock')}
+                className={cn(
+                  'rounded-xl p-5 text-left border-2 transition-all flex flex-col relative order-1 sm:order-2',
+                  selected === '360lock'
+                    ? 'shadow-xl'
+                    : 'hover:shadow-lg'
+                )}
+                style={{
+                  borderColor: selected === '360lock' ? '#C8FF00' : 'rgba(200,255,0,0.3)',
+                  background: selected === '360lock' ? 'rgba(200,255,0,0.06)' : 'rgba(200,255,0,0.02)',
+                  boxShadow: selected === '360lock' ? '0 0 30px rgba(200,255,0,0.1)' : undefined,
+                }}
+              >
+                <span
+                  className="absolute -top-3 right-4 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                  style={{ background: '#C8FF00', color: '#1A1A2E' }}
+                >
+                  ★ Recommended
+                </span>
+
+                <span className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: '#C8FF00' }}>Best Value</span>
+                <div className="flex items-center gap-2 mb-1">
+                  <Lock className="w-4 h-4" style={{ color: '#C8FF00' }} />
+                  <span className="font-bold text-white">360-Day Lock</span>
+                </div>
+                <p className="text-xs text-white/40 mb-4">Lock {request.baseAmount.toLocaleString()} NCTR for 360 days</p>
+
+                <div className="mb-1">
+                  <span className="text-3xl font-bold" style={{ color: '#C8FF00' }}>3x</span>
+                  <span className="text-base font-normal text-white/50 ml-1">rewards</span>
+                </div>
+
+                <div className="flex items-center gap-1.5 text-xs text-white/50 mb-1">
+                  <Check className="w-3 h-3" style={{ color: '#C8FF00' }} />
+                  <span>Counts toward your Crescendo status</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs mb-3" style={{ color: '#C8FF00' }}>
+                  <Sparkles className="w-3 h-3" />
+                  <span className="font-medium">Unlocks exclusive merch bounties</span>
+                </div>
+
+                <div className="rounded-lg p-3 mb-3" style={{ background: 'rgba(200,255,0,0.06)', border: '1px solid rgba(200,255,0,0.1)' }}>
+                  <p className="text-xs text-white/50">
+                    <span className="font-medium" style={{ color: '#C8FF00' }}>Example:</span> Earn a 250 NCTR bounty → receive <span className="font-bold" style={{ color: '#C8FF00' }}>750 NCTR</span>
+                  </p>
+                </div>
+
+                <div className="rounded-lg p-2.5 mb-3 text-center" style={{ background: 'rgba(200,255,0,0.08)' }}>
+                  <p className="text-xs font-semibold" style={{ color: '#C8FF00' }}>
+                    3x more NCTR for the same effort
+                  </p>
+                </div>
+
+                <p className="text-[11px] text-white/30 mt-auto">
+                  Your NCTR remains yours — it unlocks after 360 days
+                </p>
+
+                <div
                   className={cn(
-                    'rounded-xl p-4 text-left border-2 transition-all relative',
-                    selected === '360lock'
-                      ? 'shadow-lg shadow-[#AAFF00]/10'
-                      : 'hover:border-[#AAFF00]/50'
+                    'mt-4 w-full py-3 rounded-lg text-center font-semibold transition-all',
+                    selected === '360lock' ? 'text-base' : 'text-sm'
                   )}
                   style={{
-                    borderColor: selected === '360lock' ? '#AAFF00' : 'rgba(170,255,0,0.3)',
-                    background: selected === '360lock' ? 'rgba(170,255,0,0.04)' : '#222',
+                    background: selected === '360lock' ? '#C8FF00' : 'rgba(200,255,0,0.15)',
+                    color: selected === '360lock' ? '#1A1A2E' : '#C8FF00',
                   }}
                 >
-                  <div className="absolute -top-2.5 right-3 px-2 py-0.5 rounded-full text-[10px] font-bold"
-                       style={{ background: '#AAFF00', color: '#000' }}>
-                    ★ RECOMMENDED
+                  Lock for 360 Days
+                </div>
+              </button>
+            </div>
+          )}
+
+          {/* SECTION 3 — Status Impact Preview */}
+          <div className="rounded-xl p-5 space-y-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-white/40">
+              Status Impact Preview
+            </h4>
+            <p className="text-sm text-white/60">
+              If you lock {request.baseAmount.toLocaleString()} NCTR for {lockDays} days:
+            </p>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                <p className="text-[10px] uppercase tracking-wider text-white/30 mb-1">Current Status</p>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-xs"
+                    style={{ background: TIER_COLORS[tierName] || '#CD7F32' }}
+                  >
+                    {tier?.badge_emoji || '🥉'}
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-white">{tier?.display_name || 'Bronze'}</p>
+                    <p className="text-[11px] text-white/40">{total360Locked.toLocaleString()} NCTR locked</p>
                   </div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Lock className="w-4 h-4" style={{ color: '#AAFF00' }} />
-                    <span className="font-bold text-white text-sm">360LOCK</span>
-                  </div>
-                  <p className="text-xs text-white/40 mb-3">Locked for 360 days</p>
-                  <p className="text-2xl font-bold" style={{ color: '#AAFF00' }}>
-                    {animatedAmount.toLocaleString()} NCTR
-                  </p>
-                  <p className="text-xs mt-1" style={{ color: '#AAFF00' }}>
-                    {multiplier}x multiplier!
-                  </p>
-                  <p className="text-xs text-white/40 mt-2">
-                    +{amount360.toLocaleString()} toward status
-                  </p>
-                  <p className="text-[11px] text-white/30 mt-2">
-                    Commit longer. Earn {multiplier}x. Level up faster.
-                  </p>
-                </button>
+                </div>
               </div>
 
-              {/* Comparison line */}
-              <div className="text-center p-3 rounded-lg" style={{ background: '#222' }}>
-                <p className="text-xs text-white/60">
-                  90LOCK: <span className="text-white font-medium">{request.baseAmount.toLocaleString()}</span> →
-                  360LOCK: <span className="font-medium" style={{ color: '#AAFF00' }}>{amount360.toLocaleString()}</span>
-                  {' — '}that's <span className="font-semibold text-white">{(amount360 - request.baseAmount).toLocaleString()} more NCTR</span> for the same effort.
+              <div
+                className="rounded-lg p-3"
+                style={{
+                  background: wouldLevelUp ? 'rgba(200,255,0,0.06)' : 'rgba(255,255,255,0.04)',
+                  border: wouldLevelUp ? '1px solid rgba(200,255,0,0.2)' : '1px solid transparent',
+                }}
+              >
+                <p className="text-[10px] uppercase tracking-wider text-white/30 mb-1">New Status</p>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-xs"
+                    style={{ background: TIER_COLORS[(newTier?.tier_name || newTier?.display_name || '').toLowerCase()] || TIER_COLORS[tierName] }}
+                  >
+                    {newTier?.badge_emoji || tier?.badge_emoji}
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-white">{newTier?.display_name || tier?.display_name}</p>
+                    <p className="text-[11px] text-white/40">{newLocked.toLocaleString()} NCTR locked</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {wouldLevelUp ? (
+              <div className="rounded-lg p-3 text-center" style={{ background: 'rgba(200,255,0,0.08)', border: '1px solid rgba(200,255,0,0.2)' }}>
+                <p className="text-sm font-bold" style={{ color: '#C8FF00' }}>
+                  🎉 You will reach {newTier?.display_name}!
                 </p>
               </div>
-            </div>
-          )}
-
-          {/* BOTTOM: Status impact */}
-          <div className="p-4 rounded-xl space-y-2" style={{ background: '#222' }}>
-            <p className="text-xs text-white/40 font-medium uppercase tracking-wider">
-              What This Means For Your Status
-            </p>
-            <p className="text-sm text-white/70">
-              Your locked NCTR:{' '}
-              <span className="text-white font-medium">{total360Locked.toLocaleString()}</span>
-              {' → '}
-              <span className="font-semibold" style={{ color: wouldLevelUp ? '#AAFF00' : 'white' }}>
-                {newLocked.toLocaleString()}
-              </span>
-            </p>
-            {wouldLevelUp ? (
-              <p className="text-sm font-semibold" style={{ color: '#AAFF00' }}>
-                🎉 This puts you at {newTier?.display_name}!
+            ) : newNextTier ? (
+              <p className="text-xs text-white/50 text-center">
+                {nctrToNewNext.toLocaleString()} more NCTR to reach{' '}
+                <span className="font-semibold text-white/70">{newNextTier.display_name}</span>
               </p>
             ) : (
-              <p className="text-xs text-white/50">
-                Status: {newTier?.badge_emoji} {newTier?.display_name} — {nctrToNewNext.toLocaleString()} NCTR away from {newNextTier?.display_name || 'max tier'}
-              </p>
+              <p className="text-xs text-white/50 text-center">You've reached the highest Crescendo status!</p>
             )}
-            <p className="text-[11px] text-white/30 mt-1">
-              Your NCTR stays yours. Locking = commitment, not spending. After the lock period, your NCTR unlocks fully.
-            </p>
           </div>
-
-          {/* Bronze tip: nudge toward Silver */}
-          {statusMultiplier <= 1 && tierName === 'bronze' && (
-            <div className="p-3 rounded-lg text-center" style={{ background: '#222' }}>
-              <p className="text-xs text-white/50">
-                💡 <span className="font-medium text-white/70">Tip:</span> Reach{' '}
-                <span className="font-semibold" style={{ color: '#C0C0C0' }}>Silver</span> for a{' '}
-                <span className="font-semibold" style={{ color: '#AAFF00' }}>1.25x earning bonus</span> on everything you earn.
-              </p>
-            </div>
-          )}
 
           {/* Confirm button */}
           {is360Required ? (
             <Button
               className="w-full h-12 font-semibold text-base"
-              style={{ background: '#AAFF00', color: '#000' }}
+              style={{ background: '#C8FF00', color: '#1A1A2E' }}
               onClick={handleConfirm}
             >
-              Lock {amount360.toLocaleString()} NCTR →
+              Lock {amount360.toLocaleString()} NCTR for 360 Days
             </Button>
           ) : (
             <Button
@@ -508,15 +467,138 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
               )}
               style={
                 selected === '360lock'
-                  ? { background: '#AAFF00', color: '#000' }
-                  : { background: '#444', color: '#fff' }
+                  ? { background: '#C8FF00', color: '#1A1A2E' }
+                  : { background: 'rgba(255,255,255,0.15)', color: '#fff' }
               }
               onClick={handleConfirm}
             >
-              Lock {selectedAmount.toLocaleString()} NCTR for {lockDays} Days
+              {selected === '360lock'
+                ? `Lock ${amount360.toLocaleString()} NCTR for 360 Days`
+                : `Lock ${amount90.toLocaleString()} NCTR for 90 Days`
+              }
             </Button>
           )}
+
+          {/* SECTION 4 — FAQ Accordion */}
+          <div className="space-y-0 rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+            {faqs.map((faq, i) => (
+              <div key={i} className={cn(i > 0 && 'border-t border-white/5')}>
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between p-4 text-left hover:bg-white/[0.02] transition-colors"
+                >
+                  <span className="text-sm text-white/70 font-medium pr-4">{faq.q}</span>
+                  <ChevronDown
+                    className={cn(
+                      'w-4 h-4 text-white/30 shrink-0 transition-transform',
+                      openFaq === i && 'rotate-180'
+                    )}
+                  />
+                </button>
+                {openFaq === i && (
+                  <div className="px-4 pb-4">
+                    <p className="text-xs text-white/50 leading-relaxed">{faq.a}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* Shared status bar for success phase */
+function StatusBar({
+  newTier,
+  newNextTier,
+  newLocked,
+  nctrToNewNext,
+  barColor,
+}: {
+  newTier: any;
+  newNextTier: any;
+  newLocked: number;
+  nctrToNewNext: number;
+  barColor: string;
+}) {
+  return (
+    <div className="space-y-2 p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.05)' }}>
+      <div className="flex justify-between text-xs text-white/60">
+        <span>{newTier?.badge_emoji} {newTier?.display_name}</span>
+        {newNextTier && <span>{newNextTier.badge_emoji} {newNextTier.display_name}</span>}
+      </div>
+      <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
+        <div
+          className="h-full rounded-full transition-all duration-700"
+          style={{
+            background: barColor,
+            width: newNextTier
+              ? `${Math.min(100, ((newLocked - newTier!.min_nctr_360_locked) / (newNextTier.min_nctr_360_locked - newTier!.min_nctr_360_locked)) * 100)}%`
+              : '100%',
+          }}
+        />
+      </div>
+      {newNextTier && (
+        <p className="text-xs text-white/50">
+          {nctrToNewNext.toLocaleString()} NCTR to {newNextTier.display_name}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* Required 360LOCK view (merch bounties) */
+function Required360View({
+  amount360,
+  multiplier,
+  calc360,
+  statusMultiplier,
+  tierName,
+  baseAmount,
+}: {
+  amount360: number;
+  multiplier: number;
+  calc360: any;
+  statusMultiplier: number;
+  tierName: string;
+  baseAmount: number;
+}) {
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-white/60 text-center">
+        This bounty requires 360LOCK commitment.
+      </p>
+      <div
+        className="rounded-xl p-5 border-2 text-center space-y-2"
+        style={{ borderColor: '#C8FF00', background: 'rgba(200,255,0,0.04)' }}
+      >
+        <div className="flex items-center justify-center gap-2">
+          <Lock className="w-4 h-4" style={{ color: '#C8FF00' }} />
+          <span className="font-bold text-white">360LOCK</span>
+        </div>
+        <p className="text-xs text-white/40">Locked for 360 days</p>
+        <p className="text-3xl font-bold" style={{ color: '#C8FF00' }}>
+          {amount360.toLocaleString()} NCTR
+        </p>
+        <div className="space-y-1 text-xs text-white/50">
+          <p>{baseAmount.toLocaleString()} base</p>
+          {calc360.merchBonus > 1 && <p>× {calc360.merchBonus}x merch 360LOCK bonus</p>}
+          {statusMultiplier > 1 && (
+            <p>× {statusMultiplier}x <span className="capitalize">{tierName}</span> status multiplier</p>
+          )}
+        </div>
+        <p className="text-xs text-white/40">
+          +{amount360.toLocaleString()} toward your Crescendo status
+        </p>
+      </div>
+      <div className="flex items-start gap-2 p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)' }}>
+        <Info className="w-4 h-4 text-white/40 shrink-0 mt-0.5" />
+        <p className="text-xs text-white/50">
+          Why 360LOCK only? Merch bounties reward commitment. The {calc360.merchBonus > 1 ? `${calc360.merchBonus}x merch bonus` : `${multiplier}x multiplier`} is built in.
+          {statusMultiplier > 1 && ` Your ${tierName} status adds ${statusMultiplier}x on top.`}
+        </p>
       </div>
     </div>
   );
