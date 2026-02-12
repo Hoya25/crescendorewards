@@ -480,6 +480,17 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
             </p>
           </div>
 
+          {/* Bronze tip: nudge toward Silver */}
+          {statusMultiplier <= 1 && tierName === 'bronze' && (
+            <div className="p-3 rounded-lg text-center" style={{ background: '#222' }}>
+              <p className="text-xs text-white/50">
+                💡 <span className="font-medium text-white/70">Tip:</span> Reach{' '}
+                <span className="font-semibold" style={{ color: '#C0C0C0' }}>Silver</span> for a{' '}
+                <span className="font-semibold" style={{ color: '#AAFF00' }}>1.25x earning bonus</span> on everything you earn.
+              </p>
+            </div>
+          )}
+
           {/* Confirm button */}
           {is360Required ? (
             <Button
