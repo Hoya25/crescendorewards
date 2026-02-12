@@ -94,11 +94,11 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
 
         {/* Right: Flywheel */}
         <div className="flex items-center justify-center md:justify-end">
-          <div className="relative w-64 h-64 md:w-80 md:h-80">
+          <div className="relative w-72 h-72 md:w-[22rem] md:h-[22rem]">
             <svg viewBox="0 0 300 300" fill="none" className="absolute inset-0 w-full h-full">
-              <circle cx="150" cy="150" r="130" stroke="hsl(var(--accent-lime) / 0.15)" strokeWidth="1" strokeDasharray="8 6"
+              <circle cx="150" cy="150" r="130" stroke="hsl(var(--flywheel-orbit))" strokeWidth="1.5" strokeDasharray="8 6"
                 className="animate-[spin_25s_linear_infinite]" style={{ transformOrigin: '150px 150px' }} />
-              <circle cx="150" cy="150" r="95" stroke="hsl(var(--accent-lime) / 0.06)" strokeWidth="1" />
+              <circle cx="150" cy="150" r="95" stroke="hsl(var(--flywheel-orbit, 0 0% 50% / 0.15))" strokeWidth="1" />
               {[0, 120, 240].map((deg) => {
                 const midAngle = deg + 60;
                 const rad = (midAngle * Math.PI) / 180;
@@ -106,7 +106,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
                 const cy = 150 + 130 * Math.sin(rad);
                 const rot = midAngle + 90;
                 return (
-                  <polygon key={deg} points="-3,-4 3,-4 0,4" fill="hsl(var(--accent-lime) / 0.25)"
+                  <polygon key={deg} points="-4,-5 4,-5 0,5" fill="hsl(var(--flywheel-arrow))"
                     transform={`translate(${cx},${cy}) rotate(${rot})`} />
                 );
               })}
@@ -121,13 +121,16 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
               return (
                 <div key={node.label} className="absolute flex flex-col items-center gap-1.5"
                   style={{ left: `${x}%`, top: `${y}%`, transform: 'translate(-50%, -50%)' }}>
-                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center border bg-card-bg border-accent-lime/25">
-                    <NodeIcon className="w-5 h-5 md:w-6 md:h-6 text-accent-lime" />
+                  <div
+                    className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center bg-card-bg border-2 border-flywheel-node-border"
+                    style={{ boxShadow: '0 2px 12px hsl(var(--flywheel-node-shadow))' }}
+                  >
+                    <NodeIcon className="w-6 h-6 md:w-7 md:h-7 text-accent-lime" />
                   </div>
-                  <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-accent-lime">
+                  <span className="text-[11px] md:text-xs font-bold uppercase tracking-wider text-flywheel-label">
                     {node.label}
                   </span>
-                  <span className="text-[9px] md:text-[10px] whitespace-nowrap text-text-body-muted">
+                  <span className="text-[10px] md:text-[11px] whitespace-nowrap text-flywheel-sublabel">
                     {node.sub}
                   </span>
                 </div>
@@ -135,7 +138,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
             })}
 
             <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-[10px] md:text-xs uppercase tracking-[0.15em] font-bold text-accent-lime/50">
+              <p className="text-xs md:text-sm uppercase tracking-[0.15em] font-extrabold text-flywheel-center">
                 Live &amp; Earn
               </p>
             </div>

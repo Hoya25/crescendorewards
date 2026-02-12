@@ -75,6 +75,14 @@ All colors MUST be HSL.
     --text-accent: 90 60% 30%;
     --border-card: 0 0% 88%;
     --border-subtle: 0 0% 93%;
+    /* Flywheel diagram tokens */
+    --flywheel-orbit: 0 0% 0% / 0.4;
+    --flywheel-arrow: 0 0% 0% / 0.35;
+    --flywheel-node-border: 0 0% 88%;
+    --flywheel-node-shadow: 0 0% 0% / 0.08;
+    --flywheel-label: 0 0% 20%;
+    --flywheel-sublabel: 0 0% 40%;
+    --flywheel-center: 0 0% 20%;
   }
 
   .dark {
@@ -142,6 +150,14 @@ All colors MUST be HSL.
     --text-accent: 82 100% 50%;
     --border-card: 0 0% 100% / 0.1;
     --border-subtle: 0 0% 100% / 0.05;
+    /* Flywheel diagram tokens — dark */
+    --flywheel-orbit: 0 0% 100% / 0.3;
+    --flywheel-arrow: 82 100% 50% / 0.35;
+    --flywheel-node-border: 82 100% 50% / 0.5;
+    --flywheel-node-shadow: 82 100% 50% / 0.12;
+    --flywheel-label: 0 0% 100%;
+    --flywheel-sublabel: 0 0% 75%;
+    --flywheel-center: 0 0% 100%;
   }
 }
 
