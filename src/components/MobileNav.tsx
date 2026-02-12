@@ -3,6 +3,7 @@ import { Menu, X, Gift, LogIn, UserPlus, Sparkles } from 'lucide-react';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { CrescendoLogo } from './CrescendoLogo';
+import { ThemeToggle } from './ThemeToggle';
 import { useNavigate } from 'react-router-dom';
 
 interface MobileNavProps {
@@ -34,8 +35,9 @@ export function MobileNav({ onViewRewards, onSignIn, onJoin }: MobileNavProps) {
       </SheetTrigger>
       <SheetContent side="right" className="w-full sm:w-80 p-0">
         <SheetHeader className="p-4 border-b">
-          <SheetTitle className="text-left">
+          <SheetTitle className="text-left flex items-center justify-between">
             <CrescendoLogo />
+            <ThemeToggle />
           </SheetTitle>
         </SheetHeader>
         <nav className="flex flex-col p-4 gap-2">
