@@ -89,6 +89,12 @@ export default {
         'text-accent': "hsl(var(--text-accent))",
         'border-card': "hsl(var(--border-card))",
         'border-subtle': "hsl(var(--border-subtle))",
+        'flywheel-orbit': "hsl(var(--flywheel-orbit))",
+        'flywheel-arrow': "hsl(var(--flywheel-arrow))",
+        'flywheel-node-border': "hsl(var(--flywheel-node-border))",
+        'flywheel-label': "hsl(var(--flywheel-label))",
+        'flywheel-sublabel': "hsl(var(--flywheel-sublabel))",
+        'flywheel-center': "hsl(var(--flywheel-center))",
       },
       borderRadius: {
         lg: "var(--radius)",
