@@ -14,6 +14,7 @@ export interface StatusTier {
   benefits: string[];
   sort_order: number;
   is_active: boolean;
+  earning_multiplier?: number;
 }
 
 export interface WalletPortfolio {

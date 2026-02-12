@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Bounty, BountyClaim, hasCompletedInPeriod, getPeriodResetLabel } from '@/hooks/useBounties';
 import { StatusTier } from '@/contexts/UnifiedUserContext';
 import { useNavigate } from 'react-router-dom';
+import { calculateReward, DEFAULT_EARNING_MULTIPLIERS } from '@/utils/calculateReward';
 
 interface BountyCardProps {
   bounty: Bounty;
@@ -40,17 +41,27 @@ export function BountyCard({ bounty, userTier, total360Locked, nextTier, claims,
 
   const isRecurringCompleted = bounty.is_recurring && hasCompletedInPeriod(claims, bounty.id, bounty.recurrence_period);
   const isLocked = !meetsStatus || needsPurchase;
-  const baseReward = bounty.nctr_reward;
-  const multipliedReward = bounty.requires_360lock ? baseReward * bounty.lock_multiplier : baseReward;
 
+  // Personalized reward using status multiplier
+  const tierName = (userTierName || 'bronze').toLowerCase();
+  const statusMultiplier = (userTier as any)?.earning_multiplier ?? DEFAULT_EARNING_MULTIPLIERS[tierName] ?? 1;
+  const isMerchBounty = bounty.bounty_tier?.startsWith('merch_') || bounty.requires_360lock;
+
+  const calc = calculateReward(bounty.nctr_reward, {
+    statusMultiplier,
+    tierName,
+    isMerch: isMerchBounty,
+    is360Lock: bounty.requires_360lock,
+  });
+
+  const baseReward = bounty.nctr_reward;
+  const personalizedReward = calc.finalAmount;
   const tierTag = TIER_TAG_CONFIG[bounty.bounty_tier] || TIER_TAG_CONFIG.general;
 
   // Calculate NCTR needed for required tier
-  const requiredTierObj = bounty.min_status_required;
   const nctrAwayFromRequired = (() => {
-    if (!requiredTierObj || meetsStatus) return null;
-    // We don't have exact tier thresholds here, use nextTier as approximation
-    if (nextTier && nextTier.tier_name?.toLowerCase() === requiredTierObj.toLowerCase()) {
+    if (!bounty.min_status_required || meetsStatus) return null;
+    if (nextTier && nextTier.tier_name?.toLowerCase() === bounty.min_status_required.toLowerCase()) {
       return Math.max(0, nextTier.min_nctr_360_locked - total360Locked);
     }
     return null;
@@ -68,41 +79,50 @@ export function BountyCard({ bounty, userTier, total360Locked, nextTier, claims,
           ) : (
             <span className="text-5xl">{bounty.image_emoji || '🎯'}</span>
           )}
-
-          {/* Tier tag */}
           <Badge variant="outline" className={`absolute top-2 left-2 text-[10px] font-bold uppercase tracking-wider ${tierTag.className}`}>
             {tierTag.label}
           </Badge>
-
-          {/* 360LOCK badge */}
           {bounty.requires_360lock && (
             <Badge className="absolute top-2 right-2 bg-lime-500/90 text-lime-950 text-[10px] font-bold border-0 gap-1">
-              <Lock className="h-3 w-3" /> 360LOCK REQUIRED
+              <Lock className="h-3 w-3" /> 360LOCK
             </Badge>
           )}
         </div>
 
         <div className="p-4 space-y-3">
-          {/* Title */}
           <h3 className="font-semibold text-foreground leading-tight">{bounty.title}</h3>
           {bounty.description && (
             <p className="text-xs text-muted-foreground line-clamp-2">{bounty.description}</p>
           )}
 
-          {/* Reward display */}
-          <div className="flex items-baseline gap-2">
-            {bounty.requires_360lock ? (
-              <>
-                <span className="text-xs text-muted-foreground line-through">Base: {baseReward} NCTR</span>
-                <span className="text-lg font-bold text-lime-500">
-                  {multipliedReward.toLocaleString()} NCTR
-                </span>
-                <Badge variant="outline" className="text-[10px] border-lime-500/30 text-lime-500">
-                  {bounty.lock_multiplier}x
-                </Badge>
-              </>
-            ) : (
-              <span className="text-lg font-bold text-foreground">{baseReward.toLocaleString()} NCTR</span>
+          {/* Personalized reward display */}
+          <div className="space-y-1">
+            <div className="flex items-baseline gap-2">
+              {personalizedReward > baseReward ? (
+                <>
+                  <span className="text-xs text-muted-foreground line-through">Base: {baseReward} NCTR</span>
+                  <span className="text-lg font-bold text-lime-500">
+                    {personalizedReward.toLocaleString()} NCTR
+                  </span>
+                </>
+              ) : (
+                <span className="text-lg font-bold text-foreground">{personalizedReward.toLocaleString()} NCTR</span>
+              )}
+            </div>
+            {/* Multiplier breakdown */}
+            {(calc.merchBonus > 1 || statusMultiplier > 1) && (
+              <div className="flex flex-wrap gap-1">
+                {calc.merchBonus > 1 && (
+                  <Badge variant="outline" className="text-[10px] border-lime-500/30 text-lime-500">
+                    {calc.merchBonus}x merch
+                  </Badge>
+                )}
+                {statusMultiplier > 1 && (
+                  <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
+                    {statusMultiplier}x {tierName}
+                  </Badge>
+                )}
+              </div>
             )}
           </div>
 
@@ -137,15 +157,9 @@ export function BountyCard({ bounty, userTier, total360Locked, nextTier, claims,
           {/* Purchase required message */}
           {needsPurchase && meetsStatus && (
             <div className="rounded-lg bg-orange-500/5 p-2.5">
-              <p className="text-xs text-orange-400">
-                Buy NCTR merch to unlock this bounty
-              </p>
-              <a
-                href="https://nctr-merch.myshopify.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[10px] text-orange-400 underline flex items-center gap-1 mt-1"
-              >
+              <p className="text-xs text-orange-400">Buy NCTR merch to unlock this bounty</p>
+              <a href="https://nctr-merch.myshopify.com" target="_blank" rel="noopener noreferrer"
+                 className="text-[10px] text-orange-400 underline flex items-center gap-1 mt-1">
                 Shop NCTR Merch <ExternalLink className="h-3 w-3" />
               </a>
             </div>
@@ -163,21 +177,12 @@ export function BountyCard({ bounty, userTier, total360Locked, nextTier, claims,
 
           {/* CTA */}
           {!meetsStatus ? (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full text-muted-foreground"
-              onClick={() => navigate('/membership')}
-            >
+            <Button variant="outline" size="sm" className="w-full text-muted-foreground"
+                    onClick={() => navigate('/membership')}>
               🔒 Reach {bounty.min_status_required?.charAt(0).toUpperCase()}{bounty.min_status_required?.slice(1)} to Unlock
             </Button>
           ) : needsPurchase ? (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full text-orange-400 border-orange-500/30"
-              asChild
-            >
+            <Button variant="outline" size="sm" className="w-full text-orange-400 border-orange-500/30" asChild>
               <a href="https://nctr-merch.myshopify.com" target="_blank" rel="noopener noreferrer">
                 Buy NCTR Merch to Unlock
               </a>
@@ -187,11 +192,8 @@ export function BountyCard({ bounty, userTier, total360Locked, nextTier, claims,
               Completed — {getPeriodResetLabel(bounty.recurrence_period)}
             </Button>
           ) : (
-            <Button
-              size="sm"
-              className="w-full bg-lime-500 hover:bg-lime-600 text-lime-950 font-semibold"
-              onClick={() => onClaim(bounty)}
-            >
+            <Button size="sm" className="w-full bg-lime-500 hover:bg-lime-600 text-lime-950 font-semibold"
+                    onClick={() => onClaim(bounty)}>
               {bounty.cta_text || 'Claim This Bounty'}
             </Button>
           )}

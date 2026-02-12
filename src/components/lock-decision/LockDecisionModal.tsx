@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { Lock, Star, ChevronRight, Sparkles, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TierUpgradeCelebration } from '@/components/TierUpgradeCelebration';
+import { calculateReward, DEFAULT_EARNING_MULTIPLIERS } from '@/utils/calculateReward';
 import type { LockDecisionRequest } from '@/contexts/LockDecisionContext';
 
 const SOURCE_EMOJI: Record<string, string> = {
@@ -32,8 +33,26 @@ interface Props {
 
 export function LockDecisionModalInner({ request, onComplete }: Props) {
   const { tier, nextTier, total360Locked, allTiers, profile } = useUnifiedUser();
+  const tierName = (tier?.tier_name || 'bronze').toLowerCase();
+  const statusMultiplier = (tier as any)?.earning_multiplier ?? DEFAULT_EARNING_MULTIPLIERS[tierName] ?? 1;
+  const isMerch = request.sourceType === 'merch' || request.sourceType === 'bounty' && request.requires360Lock;
+  
+  // Calculate reward with stacking
+  const calc360 = calculateReward(request.baseAmount, {
+    statusMultiplier,
+    tierName,
+    isMerch,
+    is360Lock: true,
+  });
+  const calc90 = calculateReward(request.baseAmount, {
+    statusMultiplier,
+    tierName,
+    isMerch: false,
+    is360Lock: false,
+  });
+  
   const multiplier = request.lockMultiplier || 3;
-  const amount360 = request.baseAmount * multiplier;
+  const amount360 = calc360.finalAmount;
   const is360Required = request.requires360Lock;
   
   const [selected, setSelected] = useState<'90lock' | '360lock'>('360lock');
@@ -334,9 +353,14 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
                 <p className="text-3xl font-bold" style={{ color: '#AAFF00' }}>
                   {amount360.toLocaleString()} NCTR
                 </p>
-                <p className="text-sm" style={{ color: '#AAFF00' }}>
-                  {multiplier}x multiplier!
-                </p>
+                {/* Multiplier breakdown */}
+                <div className="space-y-1 text-xs text-white/50">
+                  <p>{request.baseAmount.toLocaleString()} base</p>
+                  {calc360.merchBonus > 1 && <p>× {calc360.merchBonus}x merch 360LOCK bonus</p>}
+                  {statusMultiplier > 1 && (
+                    <p>× {statusMultiplier}x <span className="capitalize">{tierName}</span> status multiplier</p>
+                  )}
+                </div>
                 <p className="text-xs text-white/40">
                   +{amount360.toLocaleString()} toward your Crescendo status
                 </p>
@@ -344,7 +368,8 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
               <div className="flex items-start gap-2 p-3 rounded-lg" style={{ background: '#222' }}>
                 <Info className="w-4 h-4 text-white/40 shrink-0 mt-0.5" />
                 <p className="text-xs text-white/50">
-                  Why 360LOCK only? Merch bounties reward commitment. The {multiplier}x multiplier is built in.
+                  Why 360LOCK only? Merch bounties reward commitment. The {calc360.merchBonus > 1 ? `${calc360.merchBonus}x merch bonus` : `${multiplier}x multiplier`} is built in.
+                  {statusMultiplier > 1 && ` Your ${tierName} status adds ${statusMultiplier}x on top.`}
                 </p>
               </div>
             </div>
