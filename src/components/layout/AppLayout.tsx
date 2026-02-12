@@ -17,6 +17,12 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { LogOut, User, Crown, ChevronDown } from 'lucide-react';
+import { MobileStatusBadge, MobileStatusContent } from '@/components/status/StatusBadgeWidget';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { useAdminRole } from '@/hooks/useAdminRole';
@@ -90,6 +96,16 @@ export function AppLayout({ children }: AppLayoutProps) {
                   </button>
                 </div>
                 <div className="flex items-center gap-2">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="focus:outline-none">
+                        <MobileStatusBadge />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent align="end" className="w-auto p-0">
+                      <MobileStatusContent />
+                    </PopoverContent>
+                  </Popover>
                   <NotificationsDropdown />
                   <ThemeToggle />
                 </div>

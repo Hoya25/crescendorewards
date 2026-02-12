@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { useProfileCompletion } from '@/hooks/useProfileCompletion';
+import { StatusBadgeSidebar, StatusBadgeCollapsed } from '@/components/status/StatusBadgeWidget';
 
 import {
   Sidebar,
@@ -122,6 +123,13 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
             </SidebarGroup>
           </>
         )}
+
+        {/* Crescendo Status Indicator */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            {open ? <StatusBadgeSidebar /> : <StatusBadgeCollapsed />}
+          </SidebarGroupContent>
+        </SidebarGroup>
 
         {/* Profile completion — only if not complete */}
         {profile && !isComplete && !completionLoading && (
