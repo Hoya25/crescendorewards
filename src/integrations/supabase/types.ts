@@ -1569,6 +1569,59 @@ export type Database = {
           },
         ]
       }
+      nctr_transactions: {
+        Row: {
+          base_amount: number
+          created_at: string
+          final_amount: number
+          id: string
+          lock_type: string | null
+          merch_lock_multiplier: number
+          notes: string | null
+          source: string
+          source_id: string | null
+          status_multiplier: number
+          tier_at_time: string | null
+          user_id: string
+        }
+        Insert: {
+          base_amount: number
+          created_at?: string
+          final_amount: number
+          id?: string
+          lock_type?: string | null
+          merch_lock_multiplier?: number
+          notes?: string | null
+          source: string
+          source_id?: string | null
+          status_multiplier?: number
+          tier_at_time?: string | null
+          user_id: string
+        }
+        Update: {
+          base_amount?: number
+          created_at?: string
+          final_amount?: number
+          id?: string
+          lock_type?: string | null
+          merch_lock_multiplier?: number
+          notes?: string | null
+          source?: string
+          source_id?: string | null
+          status_multiplier?: number
+          tier_at_time?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nctr_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_settings: {
         Row: {
           created_at: string
@@ -3559,6 +3612,20 @@ export type Database = {
       admin_gift_reward: {
         Args: { p_admin_notes?: string; p_reward_id: string; p_user_id: string }
         Returns: Json
+      }
+      calculate_nctr_reward: {
+        Args: {
+          p_base_amount: number
+          p_is_merch_360lock?: boolean
+          p_user_id: string
+        }
+        Returns: {
+          base_amount: number
+          final_amount: number
+          merch_lock_multiplier: number
+          status_multiplier: number
+          user_tier: string
+        }[]
       }
       calculate_user_tier: { Args: { p_user_id: string }; Returns: string }
       cancel_gift: {
