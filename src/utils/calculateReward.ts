@@ -69,6 +69,6 @@ export const DEFAULT_EARNING_MULTIPLIERS: Record<string, number> = {
   bronze: 1.0,
   silver: 1.25,
   gold: 1.5,
-  platinum: 2.0,
-  diamond: 3.0,
+  platinum: 1.75,
+  diamond: 2.0,
 };

@@ -33,10 +33,10 @@ interface Brand {
 
 const statusMultipliers: Record<number, number> = {
   0: 1.0,
-  1: 1.1,
-  2: 1.25,
-  3: 1.4,
-  4: 1.6,
+  1: 1.25,
+  2: 1.5,
+  3: 1.5,
+  4: 1.75,
   5: 2.0,
 };
 

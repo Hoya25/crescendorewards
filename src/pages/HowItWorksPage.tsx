@@ -19,9 +19,9 @@ const earningSubItems = [
 
 const tierData = [
   { emoji: "🥉", name: "Bronze", range: "0 – 99", multiplier: "1x", label: "Base rate", unlocks: "Tier 1 merch bounties, Merch Monday, basic Crescendo rewards" },
-  { emoji: "🥈", name: "Silver", range: "100 – 499", multiplier: "1.1x", label: "10% more on everything", unlocks: "Everything in Bronze + Tier 2 creative bounties (up to 1,200+ NCTR), NCTR Sighting bounty, Silver rewards" },
-  { emoji: "🥇", name: "Gold", range: "500 – 1,999", multiplier: "1.25x", label: "25% more on everything", unlocks: "Everything in Silver + Tier 3 campaign bounties (up to 3,000+ NCTR), Multi-Purchase Bonus, Gold rewards" },
-  { emoji: "💎", name: "Platinum", range: "2,000 – 9,999", multiplier: "1.5x", label: "50% more on everything", unlocks: "Everything in Gold + premium rewards, exclusive experiences, priority contributor listing" },
+  { emoji: "🥈", name: "Silver", range: "100 – 499", multiplier: "1.25x", label: "25% more on everything", unlocks: "Everything in Bronze + Tier 2 creative bounties (up to 1,200+ NCTR), NCTR Sighting bounty, Silver rewards" },
+  { emoji: "🥇", name: "Gold", range: "500 – 1,999", multiplier: "1.5x", label: "50% more on everything", unlocks: "Everything in Silver + Tier 3 campaign bounties (up to 3,000+ NCTR), Multi-Purchase Bonus, Gold rewards" },
+  { emoji: "💎", name: "Platinum", range: "2,000 – 9,999", multiplier: "1.75x", label: "75% more on everything", unlocks: "Everything in Gold + premium rewards, exclusive experiences, priority contributor listing" },
   { emoji: "👑", name: "Diamond", range: "10,000+", multiplier: "2x", label: "Double earnings on everything", unlocks: "Maximum rewards. Community leader. Every opportunity unlocked. Featured contributor." },
 ];
 
@@ -43,7 +43,7 @@ const faqItems = [
   },
   {
     question: "How do status multipliers work?",
-    answer: "Your Crescendo status gives you an earning multiplier on EVERYTHING — shopping, bounties, referrals, all of it. Silver earns 1.1x, Gold earns 1.25x, Platinum earns 1.5x, and Diamond earns 2x. For merch purchases and bounties, the 3x 360LOCK bonus stacks with your status multiplier. A Gold member earns 3.75x on merch (3x × 1.25x).",
+    answer: "Your Crescendo status gives you an earning multiplier on EVERYTHING — shopping, bounties, referrals, all of it. Silver earns 1.25x, Gold earns 1.5x, Platinum earns 1.75x, and Diamond earns 2x. For merch purchases and bounties, the 3x 360LOCK bonus stacks with your status multiplier. A Gold member earns 4.5x on merch (3x × 1.5x).",
   },
   {
     question: "How is Crescendo different from other rewards programs?",
@@ -286,7 +286,7 @@ export default function HowItWorksPage() {
               <ul className="space-y-2.5 text-sm text-text-body">
                 <li>• Applies to <span className="text-text-heading font-medium">ALL</span> earning — shopping, bounties, referrals, everything</li>
                 <li>• Your Crescendo tier determines your multiplier</li>
-                <li>• Bronze 1x → Silver 1.1x → Gold 1.25x → Platinum 1.5x → Diamond 2x</li>
+                <li>• Bronze 1x → Silver 1.25x → Gold 1.5x → Platinum 1.75x → Diamond 2x</li>
                 <li className="font-medium text-text-heading">• This is the #1 reason to level up</li>
               </ul>
             </div>

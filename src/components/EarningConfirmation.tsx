@@ -134,7 +134,7 @@ export function EarningConfirmation({
           )}
           {status_multiplier === 1 && (
             <p className="text-xs text-accent-lime">
-              Reach Silver for 1.1x on everything →
+              Reach Silver for 1.25x on everything →
             </p>
           )}
         </div>
