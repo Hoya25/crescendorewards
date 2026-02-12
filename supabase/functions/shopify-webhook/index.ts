@@ -123,6 +123,32 @@ async function getUserTierAndBounties(supabase: any, userId: string) {
   };
 }
 
+// HMAC verification for Shopify webhook authenticity
+async function verifyShopifyWebhook(req: Request, rawBody: string): Promise<boolean> {
+  const hmacHeader = req.headers.get('x-shopify-hmac-sha256');
+  if (!hmacHeader) return false;
+
+  const secret = Deno.env.get('SHOPIFY_WEBHOOK_SECRET');
+  if (!secret) {
+    console.error('SHOPIFY_WEBHOOK_SECRET not configured');
+    return false;
+  }
+
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+
+  const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(rawBody));
+  const computedHmac = btoa(String.fromCharCode(...new Uint8Array(signature)));
+
+  return computedHmac === hmacHeader;
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -137,8 +163,20 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Read raw body for HMAC verification
+    const rawBody = await req.text();
+
+    // Verify HMAC signature
+    if (!await verifyShopifyWebhook(req, rawBody)) {
+      console.error('HMAC verification failed');
+      return new Response(JSON.stringify({ error: 'Invalid signature' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const topic = req.headers.get('x-shopify-topic');
-    console.log('Webhook received, topic:', topic);
+    console.log('Webhook received (verified), topic:', topic);
 
     // Only process orders/paid events
     if (topic !== 'orders/paid') {
@@ -149,7 +187,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const body = await req.json();
+    const body = JSON.parse(rawBody);
     console.log('Processing order:', body.id, 'Order number:', body.order_number);
 
     // Extract order data
