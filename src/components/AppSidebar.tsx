@@ -1,4 +1,4 @@
-import { Home, Compass, Gift, ShoppingBag, UserPlus, User, ChevronRight, HelpCircle, Crown, Shield, Upload } from 'lucide-react';
+import { Home, Compass, Gift, ShoppingBag, UserPlus, User, ChevronRight, HelpCircle, Crown, Shield, Upload, Heart } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
@@ -36,6 +36,7 @@ const mainNavItems = [
   { title: 'Shop Merch', url: '#', icon: ShoppingBag, external: 'https://nctr-merch.myshopify.com' },
   { title: 'The Garden', url: '#', icon: Crown, external: 'https://thegarden.nctr.live/' },
   { title: 'Share Content', url: '/submit-content', icon: Upload },
+  { title: 'Contribute', url: '/contribute', icon: Heart },
   { title: 'Invite Friends', url: '/invite', icon: UserPlus },
   { title: 'My Account', url: '/profile', icon: User },
   { title: 'Help', url: '/help', icon: HelpCircle },
