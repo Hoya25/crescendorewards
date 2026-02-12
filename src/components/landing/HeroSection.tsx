@@ -48,16 +48,16 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
         {/* Left: Copy */}
         <div className="space-y-6 md:space-y-8">
           <h1 className="text-[2.5rem] md:text-[3.25rem] lg:text-[4rem] font-black tracking-tight leading-[1.05] text-text-heading">
-            Get Rewarded for{' '}
+            Don't Buy It.{' '}
             <span className="text-accent-lime" style={{ textShadow: '0 0 30px hsl(var(--accent-lime) / 0.25)' }}>
-              Showing Up.
+              Earn It. Own It.
             </span>
           </h1>
 
           <p className="text-base md:text-lg lg:text-xl leading-relaxed max-w-lg text-text-body">
-            Crescendo is the rewards program that pays you to participate — not
-            just spend. Shop, create, refer, contribute. The more you commit,
-            the more you earn.
+            You already shop, share, and create. Crescendo turns all of it into
+            NCTR. Commit it. Build your status. Unlock rewards others pay
+            thousands for.
           </p>
 
           <p className="text-xs text-text-body-muted">
