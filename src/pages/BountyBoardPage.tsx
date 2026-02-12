@@ -1,17 +1,25 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useBounties, useBountyClaims, useMerchEligibility, useBountyStats, Bounty } from '@/hooks/useBounties';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { BountyCard } from '@/components/bounties/BountyCard';
 import { BountyClaimDialog } from '@/components/bounties/BountyClaimDialog';
-import { MerchBountiesHero } from '@/components/bounties/MerchBountiesHero';
+import { BountyBoardHero } from '@/components/bounties/BountyBoardHero';
+import { LockedBountiesSection } from '@/components/bounties/LockedBountiesSection';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Target } from 'lucide-react';
 
-type FilterTab = 'all' | 'merch' | 'general';
+type FilterTab = 'all' | 'available' | 'merch' | 'recurring';
+
+const TIER_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
+
+function isTierSufficient(userTierName: string | undefined, requiredTier: string | null): boolean {
+  if (!requiredTier) return true;
+  if (!userTierName) return false;
+  return TIER_ORDER.indexOf(userTierName.toLowerCase()) >= TIER_ORDER.indexOf(requiredTier.toLowerCase());
+}
 
 export default function BountyBoardPage() {
   const { user } = useAuthContext();
@@ -19,24 +27,62 @@ export default function BountyBoardPage() {
   const { data: bounties = [], isLoading } = useBounties();
   const { data: claims = [] } = useBountyClaims();
   const { data: merchEligibility = [] } = useMerchEligibility();
-  const { data: stats } = useBountyStats();
 
-  const [filter, setFilter] = useState<FilterTab>('all');
+  const hasCompletedAny = claims.length > 0;
+
+  // Default to 'available' for new users, 'all' for returning
+  const [filter, setFilter] = useState<FilterTab>(hasCompletedAny ? 'all' : 'available');
   const [claimTarget, setClaimTarget] = useState<Bounty | null>(null);
   const [claiming, setClaiming] = useState(false);
 
+  // Update default filter when claims load
+  useEffect(() => {
+    if (!hasCompletedAny) setFilter('available');
+  }, [hasCompletedAny]);
+
   const hasMerchEligibility = merchEligibility.length > 0;
+  const userTierName = tier?.tier_name?.toLowerCase();
+
+  // Split bounties: available vs locked (by status)
+  const { availableBounties, lockedBounties } = useMemo(() => {
+    const available: Bounty[] = [];
+    const locked: Bounty[] = [];
+    for (const b of bounties) {
+      const meets = isTierSufficient(userTierName, b.min_status_required);
+      const needsPurchase = b.requires_purchase && !hasMerchEligibility;
+      if (!meets || needsPurchase) {
+        locked.push(b);
+      } else {
+        available.push(b);
+      }
+    }
+    return { availableBounties: available, lockedBounties: locked };
+  }, [bounties, userTierName, hasMerchEligibility]);
+
+  // Filter counts
+  const counts = useMemo(() => {
+    const recurring = availableBounties.filter(b => b.is_recurring);
+    const merch = availableBounties.filter(b => b.bounty_tier?.startsWith('merch_'));
+    return {
+      all: availableBounties.length,
+      available: availableBounties.length,
+      merch: merch.length,
+      recurring: recurring.length,
+    };
+  }, [availableBounties]);
 
   const filteredBounties = useMemo(() => {
     switch (filter) {
+      case 'available':
+        return availableBounties;
       case 'merch':
-        return bounties.filter(b => b.bounty_tier.startsWith('merch_'));
-      case 'general':
-        return bounties.filter(b => b.bounty_tier === 'general');
+        return availableBounties.filter(b => b.bounty_tier?.startsWith('merch_'));
+      case 'recurring':
+        return availableBounties.filter(b => b.is_recurring);
       default:
-        return bounties;
+        return availableBounties;
     }
-  }, [bounties, filter]);
+  }, [availableBounties, filter]);
 
   const handleClaim = async () => {
     if (!claimTarget || !profile?.id) return;
@@ -69,54 +115,42 @@ export default function BountyBoardPage() {
     }
   };
 
-  const showMerchHero = filter === 'merch';
-
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <Target className="h-6 w-6 text-primary" /> Bounty Board
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Complete bounties to earn NCTR. Merch bounties earn 3x with 360LOCK commitment.
-        </p>
+    <div className="space-y-4">
+      {/* Hero explainer */}
+      <BountyBoardHero
+        tier={tier}
+        availableCount={counts.available}
+        totalCount={bounties.length}
+      />
+
+      {/* Filter tabs with counts */}
+      <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
+        <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterTab)}>
+          <TabsList>
+            <TabsTrigger value="all">All ({counts.all})</TabsTrigger>
+            <TabsTrigger value="available">Available to Me ({counts.available})</TabsTrigger>
+            <TabsTrigger value="merch">Merch Bounties ({counts.merch})</TabsTrigger>
+            <TabsTrigger value="recurring">Recurring ({counts.recurring})</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
-
-      {/* Filter tabs */}
-      <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterTab)}>
-        <TabsList>
-          <TabsTrigger value="all">All Bounties</TabsTrigger>
-          <TabsTrigger value="merch">Merch Bounties</TabsTrigger>
-          <TabsTrigger value="general">General</TabsTrigger>
-        </TabsList>
-      </Tabs>
-
-      {/* Merch hero */}
-      {showMerchHero && stats && (
-        <MerchBountiesHero
-          activeMerchCount={stats.activeMerchCount}
-          totalNctrEarned={stats.totalNctrEarned}
-          currentTier={tier}
-        />
-      )}
 
       {/* Bounty grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-72 rounded-xl" />
           ))}
         </div>
       ) : filteredBounties.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground">
-          <Target className="h-10 w-10 mx-auto mb-3 opacity-30" />
-          <p className="font-medium">No bounties available</p>
-          <p className="text-sm mt-1">Check back soon for new opportunities to earn.</p>
+        <div className="text-center py-12 text-muted-foreground">
+          <p className="font-medium">No bounties in this category</p>
+          <p className="text-sm mt-1">Try a different filter or check back soon.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredBounties.map(bounty => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {filteredBounties.map((bounty, idx) => (
             <BountyCard
               key={bounty.id}
               bounty={bounty}
@@ -126,10 +160,15 @@ export default function BountyBoardPage() {
               claims={claims}
               hasMerchEligibility={hasMerchEligibility}
               onClaim={setClaimTarget}
+              isFirstAvailable={idx === 0}
+              hasCompletedAny={hasCompletedAny}
             />
           ))}
         </div>
       )}
+
+      {/* Locked bounties aspiration section */}
+      <LockedBountiesSection bounties={lockedBounties} tierName={userTierName} />
 
       {/* Claim confirmation dialog */}
       <BountyClaimDialog
