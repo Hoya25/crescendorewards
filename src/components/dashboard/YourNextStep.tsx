@@ -133,7 +133,7 @@ function Condition2({ navigate, earned }: { navigate: (path: string) => void; ea
       <h3 className="text-xl font-bold text-white mb-2">Commit Your NCTR with 360LOCK</h3>
       <p className="text-sm text-white/70 mb-3">
         You have <span className="font-semibold text-white">{earned.toLocaleString()} NCTR</span> earned.
-        Lock it for 360 days to get 3x rewards and start building your Crescendo status.
+        Lock it for 360 days to boost your rewards and start building your Crescendo status.
       </p>
       {wouldReach && (
         <div className="rounded-lg bg-white/5 border border-white/10 px-4 py-2.5 mb-4 text-sm text-white/80">
