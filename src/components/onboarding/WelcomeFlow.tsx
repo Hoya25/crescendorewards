@@ -1,13 +1,12 @@
-import { useState } from "react";
-import { Gift, ShoppingBag, UserPlus, Sparkles, ArrowRight, X, Check, User } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ShoppingBag, Shirt, Camera, Users, Gift, ArrowRight, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CrescendoLogo } from "../CrescendoLogo";
+import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
+import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 interface WelcomeFlowProps {
@@ -16,238 +15,301 @@ interface WelcomeFlowProps {
   claimsBalance?: number;
 }
 
-const ONBOARDED_KEY = "crescendo_onboarded";
+const ONBOARDED_KEY = "crescendo_onboarding_complete";
 
-const rewardImages = [
-  { src: "/rewards/spotify-premium.jpg", alt: "Spotify Premium" },
-  { src: "/rewards/netflix-premium.jpg", alt: "Netflix Premium" },
-  { src: "/rewards/amazon-gift-card.jpg", alt: "Amazon Gift Card" },
-  { src: "/rewards/discord-nitro.jpg", alt: "Discord Nitro" },
+const earningWays = [
+  { icon: ShoppingBag, emoji: "🛍️", title: "Shop The Garden", desc: "6,000+ brands. Same prices. You earn NCTR." },
+  { icon: Shirt, emoji: "👕", title: "Rep the Brand", desc: "Buy NCTR merch. Unlock content bounties. Earn 3x." },
+  { icon: Camera, emoji: "📸", title: "Complete Bounties", desc: "Create content, refer friends, hit milestones. Get paid in NCTR." },
+  { icon: Users, emoji: "🤝", title: "Invite Friends", desc: "They join, you both earn." },
+  { icon: Gift, emoji: "🎁", title: "Contribute Rewards", desc: "List a reward. Earn when others claim it." },
 ];
 
-const earningSteps = [
-  {
-    icon: ShoppingBag,
-    title: "Shop",
-    description: "Earn from 6,000+ brands",
-    color: "from-emerald-500 to-green-500",
-  },
-  {
-    icon: UserPlus,
-    title: "Invite",
-    description: "Bring friends, earn together",
-    color: "from-primary to-primary/80",
-  },
-  {
-    icon: Sparkles,
-    title: "Earn",
-    description: "Every action builds your level",
-    color: "from-amber-500 to-orange-500",
-  },
+const tiers = [
+  { emoji: "🥉", name: "Bronze", mult: "1x", desc: "Just getting started" },
+  { emoji: "🥈", name: "Silver", mult: "1.1x", desc: "Unlocks Tier 2 bounties + better rewards" },
+  { emoji: "🥇", name: "Gold", mult: "1.25x", desc: "Unlocks campaign bounties worth up to 3,000 NCTR" },
+  { emoji: "💎", name: "Platinum", mult: "1.5x", desc: "Premium access + exclusive experiences" },
+  { emoji: "👑", name: "Diamond", mult: "2x", desc: "Top tier. Double earnings. Community leader." },
 ];
 
-export function WelcomeFlow({ isOpen, onClose, claimsBalance = 0 }: WelcomeFlowProps) {
-  const [currentStep, setCurrentStep] = useState(0);
+const paths = [
+  { emoji: "🛍️", label: "Shop The Garden", route: "/rewards" },
+  { emoji: "👕", label: "Browse NCTR Merch", route: "https://nctr-merch.myshopify.com" },
+  { emoji: "📸", label: "See Available Bounties", route: "/bounties" },
+];
+
+export function WelcomeFlow({ isOpen, onClose }: WelcomeFlowProps) {
+  const [step, setStep] = useState(0);
+  const [displayName, setDisplayName] = useState("");
+  const [nameSubmitted, setNameSubmitted] = useState(false);
+  const [selectedPath, setSelectedPath] = useState<number | null>(null);
+  const [nctrTotal, setNctrTotal] = useState(25); // signup bonus already counted
   const navigate = useNavigate();
-  const totalSteps = 3;
+  const { profile, refreshUnifiedProfile } = useUnifiedUser();
+
+  const totalSteps = 4;
+
+  const handleSkip = () => {
+    localStorage.setItem(ONBOARDED_KEY, "true");
+    onClose();
+  };
 
   const handleNext = () => {
-    if (currentStep < totalSteps - 1) {
-      setCurrentStep(currentStep + 1);
+    if (step < totalSteps - 1) setStep(step + 1);
+  };
+
+  const handleNameSubmit = async () => {
+    if (!displayName.trim() || !profile?.id) return;
+    try {
+      await supabase
+        .from("unified_profiles")
+        .update({ display_name: displayName.trim() })
+        .eq("id", profile.id);
+      setNameSubmitted(true);
+      setNctrTotal(35);
+    } catch (e) {
+      console.error("Failed to update name:", e);
     }
   };
 
-  const handleComplete = (destination?: string) => {
+  const handleComplete = async () => {
     localStorage.setItem(ONBOARDED_KEY, "true");
+
+    // Award bonuses (best effort)
+    if (profile?.id) {
+      try {
+        await supabase.from("nctr_transactions").insert([
+          { user_id: profile.id, source: "signup_bonus", base_amount: 25, status_multiplier: 1, merch_lock_multiplier: 1, final_amount: 25, notes: "Welcome to Crescendo", lock_type: "360lock" },
+          { user_id: profile.id, source: "profile_completion", base_amount: 10, status_multiplier: 1, merch_lock_multiplier: 1, final_amount: 10, notes: "Profile completed during onboarding", lock_type: "360lock" },
+        ]);
+        await supabase
+          .from("unified_profiles")
+          .update({ has_completed_onboarding: true, signup_bonus_awarded: true })
+          .eq("id", profile.id);
+        refreshUnifiedProfile();
+      } catch (e) {
+        console.error("Failed to record onboarding bonuses:", e);
+      }
+    }
+
+    toast.success("🎉 You earned 35 NCTR! Welcome to Crescendo.");
     onClose();
-    if (destination) {
-      navigate(destination);
+
+    const chosen = selectedPath !== null ? paths[selectedPath] : null;
+    if (chosen) {
+      if (chosen.route.startsWith("http")) {
+        navigate("/dashboard");
+      } else {
+        navigate(chosen.route);
+      }
     }
   };
 
-  const handleDismiss = () => {
-    localStorage.setItem(ONBOARDED_KEY, "true");
-    onClose();
-  };
+  if (!isOpen) return null;
 
-  const handleOpenChange = (open: boolean) => {
-    if (!open) {
-      localStorage.setItem(ONBOARDED_KEY, "true");
-      onClose();
-    }
-  };
+  const canComplete = nameSubmitted && selectedPath !== null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden">
-        <button
-          onClick={handleDismiss}
-          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 z-10"
-        >
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </button>
-
+    <div className="fixed inset-0 z-50 bg-page-bg flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
         <AnimatePresence mode="wait">
           <motion.div
-            key={currentStep}
-            initial={{ opacity: 0, x: 20 }}
+            key={step}
+            initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2 }}
-            className="p-8 flex flex-col items-center text-center"
+            exit={{ opacity: 0, x: -40 }}
+            transition={{ duration: 0.25 }}
+            className="flex flex-col items-center text-center"
           >
-            {/* Screen 1: Welcome */}
-            {currentStep === 0 && (
-              <>
-                <CrescendoLogo className="mb-6" />
-                <h2 className="text-2xl font-bold mb-2">Welcome to Crescendo! 🎉</h2>
-                <p className="text-muted-foreground mb-6">
-                  You're about to unlock rewards from brands you love.
+            {/* SCREEN 1 */}
+            {step === 0 && (
+              <div className="space-y-6">
+                <p className="text-xs tracking-widest text-text-body-muted uppercase">NCTR Alliance</p>
+                <h1 className="text-4xl font-bold text-text-heading">Welcome to Crescendo</h1>
+                <p className="text-text-body">The rewards program that pays you to participate.</p>
+                <p className="text-sm text-text-body-muted max-w-sm mx-auto">
+                  Most rewards programs reward spending. Crescendo rewards contribution. The more you participate and commit, the more you earn.
                 </p>
-                
-                <div className="grid grid-cols-2 gap-3 w-full mb-8">
-                  {rewardImages.map((img, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: i * 0.1 }}
-                      className="aspect-[4/3] rounded-xl overflow-hidden border shadow-sm"
-                    >
-                      <img
-                        src={img.src}
-                        alt={img.alt}
-                        className="w-full h-full object-cover"
-                      />
-                    </motion.div>
+                <Button onClick={handleNext} className="w-full max-w-xs mx-auto bg-accent-lime text-black font-semibold hover:bg-accent-lime/90">
+                  How It Works <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+                <button onClick={handleSkip} className="text-sm text-text-body-muted hover:text-text-body transition-colors">Skip</button>
+              </div>
+            )}
+
+            {/* SCREEN 2 */}
+            {step === 1 && (
+              <div className="space-y-6 w-full">
+                <h1 className="text-3xl font-bold text-text-heading">Earn NCTR Your Way</h1>
+                <p className="text-text-body">Five ways to earn — pick what fits your life.</p>
+                <div className="space-y-3 text-left">
+                  {earningWays.map((way) => (
+                    <div key={way.title} className="flex items-start gap-3">
+                      <way.icon className="w-5 h-5 text-accent-lime mt-0.5 shrink-0" />
+                      <div>
+                        <span className="font-semibold text-sm text-text-heading">{way.title}</span>
+                        <span className="text-sm text-text-body"> — {way.desc}</span>
+                      </div>
+                    </div>
                   ))}
                 </div>
-
-                <Button onClick={handleNext} className="w-full" size="lg">
-                  Let's Go
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                <Button onClick={handleNext} className="w-full max-w-xs mx-auto bg-accent-lime text-black font-semibold hover:bg-accent-lime/90">
+                  What Do I Do With NCTR? <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
-              </>
+                <button onClick={handleSkip} className="text-sm text-text-body-muted hover:text-text-body transition-colors">Skip</button>
+              </div>
             )}
 
-            {/* Screen 2: How You'll Earn */}
-            {currentStep === 1 && (
-              <>
-                <h2 className="text-2xl font-bold mb-2">How You'll Earn</h2>
-                <p className="text-muted-foreground mb-6">
-                  Every action builds your membership and unlocks better rewards.
-                </p>
-                
-                <div className="w-full space-y-4 mb-8">
-                  {earningSteps.map((step, index) => {
-                    const IconComponent = step.icon;
-                    return (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 border border-border/50"
-                      >
-                        <div className={cn(
-                          "w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br shadow-lg",
-                          step.color
-                        )}>
-                          <IconComponent className="w-6 h-6 text-white" />
-                        </div>
-                        <div className="text-left">
-                          <h3 className="font-semibold text-foreground">{step.title}</h3>
-                          <p className="text-sm text-muted-foreground">{step.description}</p>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+            {/* SCREEN 3 */}
+            {step === 2 && (
+              <div className="space-y-6 w-full">
+                <h1 className="text-3xl font-bold text-text-heading">Commit More, Unlock More</h1>
+                <p className="text-text-body">Your NCTR is always yours. Locking it is a commitment, not a cost.</p>
+                <div className="space-y-2 text-left">
+                  {tiers.map((t) => (
+                    <div key={t.name} className="flex items-center gap-3 py-2">
+                      <span className="text-xl">{t.emoji}</span>
+                      <div className="flex-1">
+                        <span className="font-semibold text-sm text-text-heading">{t.name}</span>
+                        <span className="text-sm text-accent-lime ml-2">({t.mult})</span>
+                        <span className="text-sm text-text-body"> — {t.desc}</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-
-                <Button onClick={handleNext} className="w-full" size="lg">
-                  Got It
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                <div className="rounded-lg p-4 bg-accent-lime/5 border border-accent-lime/20">
+                  <p className="text-sm text-text-body">
+                    <span className="font-semibold text-text-heading">The secret:</span> Choose 360LOCK on merch purchases and your rewards are multiplied 3x — on top of your status multiplier. Higher status literally makes everything worth more.
+                  </p>
+                </div>
+                <Button onClick={handleNext} className="w-full max-w-xs mx-auto bg-accent-lime text-black font-semibold hover:bg-accent-lime/90">
+                  Let's Earn Your First NCTR <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
-              </>
+                <button onClick={handleSkip} className="text-sm text-text-body-muted hover:text-text-body transition-colors">Skip</button>
+              </div>
             )}
 
-            {/* Screen 3: Claim Your First Points */}
-            {currentStep === 2 && (
-              <>
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-6">
-                  <Gift className="w-10 h-10 text-primary" />
-                </div>
-                
-                <h2 className="text-2xl font-bold mb-2">Claim Your First Points</h2>
-                <p className="text-muted-foreground mb-6">
-                  Complete your profile to earn 25 points instantly.
-                </p>
+            {/* SCREEN 4 */}
+            {step === 3 && (
+              <div className="space-y-6 w-full">
+                <h1 className="text-3xl font-bold text-text-heading">Let's make it official.</h1>
+                <p className="text-text-body">Complete your profile and earn your first NCTR right now.</p>
 
-                <div className="w-full space-y-3 mb-6">
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
-                    <User className="w-5 h-5 text-muted-foreground" />
-                    <span className="text-sm">Add your name & avatar</span>
-                    <span className="ml-auto text-xs font-semibold text-primary">+10 pts</span>
+                {/* Checklist */}
+                <div className="space-y-3 text-left">
+                  {/* Auto-completed: Signup */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-card-bg border border-border-card"
+                  >
+                    <div className="w-6 h-6 rounded-full bg-accent-lime flex items-center justify-center shrink-0">
+                      <Check className="w-4 h-4 text-black" />
+                    </div>
+                    <span className="text-sm text-text-heading line-through opacity-70">Signed up for Crescendo</span>
+                    <span className="ml-auto text-sm font-semibold text-accent-lime">+25 NCTR</span>
+                  </motion.div>
+
+                  {/* Display name */}
+                  <div className="p-3 rounded-lg bg-card-bg border border-border-card">
+                    <div className="flex items-center gap-3">
+                      {nameSubmitted ? (
+                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-6 h-6 rounded-full bg-accent-lime flex items-center justify-center shrink-0">
+                          <Check className="w-4 h-4 text-black" />
+                        </motion.div>
+                      ) : (
+                        <div className="w-6 h-6 rounded-full border-2 border-border-card shrink-0" />
+                      )}
+                      <span className={cn("text-sm text-text-heading", nameSubmitted && "line-through opacity-70")}>
+                        Add your display name
+                      </span>
+                      <span className="ml-auto text-sm font-semibold text-accent-lime">+10 NCTR</span>
+                    </div>
+                    {!nameSubmitted && (
+                      <div className="flex gap-2 mt-3">
+                        <Input
+                          placeholder="Your display name"
+                          value={displayName}
+                          onChange={(e) => setDisplayName(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && handleNameSubmit()}
+                          className="text-sm bg-page-bg border-border-card"
+                        />
+                        <Button size="sm" onClick={handleNameSubmit} disabled={!displayName.trim()} className="bg-accent-lime text-black hover:bg-accent-lime/90">
+                          Save
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
-                    <Gift className="w-5 h-5 text-muted-foreground" />
-                    <span className="text-sm">Add items to your wishlist</span>
-                    <span className="ml-auto text-xs font-semibold text-primary">+10 pts</span>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
-                    <Sparkles className="w-5 h-5 text-muted-foreground" />
-                    <span className="text-sm">Explore the marketplace</span>
-                    <span className="ml-auto text-xs font-semibold text-primary">+5 pts</span>
+
+                  {/* Choose path */}
+                  <div className="p-3 rounded-lg bg-card-bg border border-border-card">
+                    <div className="flex items-center gap-3 mb-3">
+                      {selectedPath !== null ? (
+                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-6 h-6 rounded-full bg-accent-lime flex items-center justify-center shrink-0">
+                          <Check className="w-4 h-4 text-black" />
+                        </motion.div>
+                      ) : (
+                        <div className="w-6 h-6 rounded-full border-2 border-border-card shrink-0" />
+                      )}
+                      <span className="text-sm text-text-heading">Choose your first earning path</span>
+                    </div>
+                    <div className="grid gap-2">
+                      {paths.map((p, i) => (
+                        <button
+                          key={p.label}
+                          onClick={() => setSelectedPath(i)}
+                          className={cn(
+                            "text-left text-sm px-3 py-2 rounded-lg border transition-all",
+                            selectedPath === i
+                              ? "border-accent-lime bg-accent-lime/10 text-text-heading"
+                              : "border-border-card bg-page-bg text-text-body hover:border-accent-lime/30"
+                          )}
+                        >
+                          {p.emoji} {p.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-3 w-full">
-                  <Button 
-                    onClick={() => handleComplete('/profile')} 
-                    className="w-full" 
-                    size="lg"
-                  >
-                    <User className="w-4 h-4 mr-2" />
-                    Complete Profile
-                  </Button>
-                  <Button 
-                    onClick={() => handleComplete('/rewards')} 
-                    variant="outline"
-                    className="w-full" 
-                    size="lg"
-                  >
-                    <Gift className="w-4 h-4 mr-2" />
-                    Browse Rewards First
-                  </Button>
+                {/* Running total */}
+                <div className="text-center">
+                  <p className="text-sm text-text-body">
+                    Your NCTR: <motion.span key={nctrTotal} initial={{ scale: 1.3 }} animate={{ scale: 1 }} className="text-lg font-bold text-accent-lime">{nctrTotal}</motion.span>
+                  </p>
+                  <p className="text-xs text-text-body-muted mt-1">This NCTR is yours. After onboarding you'll choose how to lock it.</p>
                 </div>
-              </>
+
+                <Button
+                  onClick={handleComplete}
+                  disabled={!canComplete}
+                  className="w-full max-w-xs mx-auto bg-accent-lime text-black font-semibold hover:bg-accent-lime/90 disabled:opacity-40"
+                >
+                  Enter Crescendo <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
             )}
           </motion.div>
         </AnimatePresence>
 
-        {/* Progress Dots */}
-        <div className="flex justify-center gap-2 pb-6">
-          {Array.from({ length: totalSteps }).map((_, index) => (
+        {/* Progress dots */}
+        <div className="flex justify-center gap-2 mt-8">
+          {Array.from({ length: totalSteps }).map((_, i) => (
             <div
-              key={index}
+              key={i}
               className={cn(
                 "w-2 h-2 rounded-full transition-all",
-                index === currentStep 
-                  ? "bg-primary w-6" 
-                  : index < currentStep 
-                    ? "bg-primary/60" 
-                    : "bg-muted-foreground/30"
+                i === step ? "bg-accent-lime w-6" : i < step ? "bg-accent-lime/60" : "bg-text-body-muted/30"
               )}
             />
           ))}
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }
 
-// Helper to check if user has been onboarded
 export function hasBeenOnboarded(): boolean {
   return localStorage.getItem(ONBOARDED_KEY) === "true";
 }

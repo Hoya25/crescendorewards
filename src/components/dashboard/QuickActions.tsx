@@ -116,23 +116,23 @@ export function QuickActions() {
         {displayActions.map((action) => (
           <Card
             key={action.title}
-            className={`group cursor-pointer hover:shadow-md transition-all duration-200 shrink-0 w-[260px] md:w-auto ${
+            className={`group cursor-pointer transition-all duration-200 shrink-0 w-[260px] md:w-auto bg-card-bg border-border-card hover:bg-card-hover ${
               action.highlight
-                ? "border-cta/40 bg-cta/5 hover:border-cta/60"
-                : "hover:border-cta/30"
+                ? "border-accent-lime/40 bg-accent-lime/5 hover:border-accent-lime/60"
+                : "hover:border-accent-lime/30"
             }`}
             onClick={action.onClick}
           >
             <CardContent className="p-4 flex flex-col h-full">
               <div className="text-3xl mb-2">{action.emoji}</div>
-              <h3 className="font-semibold text-sm">{action.title}</h3>
-              <p className="text-xs text-muted-foreground mt-1 flex-1">
+              <h3 className="font-semibold text-sm text-text-heading">{action.title}</h3>
+              <p className="text-xs text-text-body-muted mt-1 flex-1">
                 {action.subtitle}
               </p>
               <Button
                 variant="ghost"
                 size="sm"
-                className="mt-3 w-full justify-center text-xs text-cta hover:text-cta hover:bg-cta/10 gap-1"
+                className="mt-3 w-full justify-center text-xs text-accent-lime hover:text-accent-lime hover:bg-accent-lime/10 gap-1"
               >
                 {action.cta}
                 <ChevronRight className="w-3 h-3" />

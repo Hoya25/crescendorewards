@@ -95,7 +95,7 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 p-4 overflow-hidden">
+                <div className="absolute bottom-0 left-0 right-0 p-4">
                   <Badge variant="outline" className="mb-1.5 text-[10px] border-white/20 text-white/80">
                     {tierEmoji[tier] || '⭐'} {tierLabel[tier] || 'All Members'}
                   </Badge>
