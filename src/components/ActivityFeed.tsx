@@ -305,8 +305,16 @@ export function ActivityFeed({ className = '', maxItems = 10 }: ActivityFeedProp
         <CardContent>
           <div className="text-center py-6 text-muted-foreground">
             <Gift className="w-10 h-10 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">No recent activity</p>
-            <p className="text-xs mt-1">Start by browsing rewards!</p>
+            <p className="text-sm">Your story is just beginning.</p>
+            <p className="text-xs mt-1">Complete an action above to add to your timeline.</p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-3 gap-1"
+              onClick={() => navigate('/bounties')}
+            >
+              Browse Bounties <ChevronRight className="w-3 h-3" />
+            </Button>
           </div>
         </CardContent>
       </Card>

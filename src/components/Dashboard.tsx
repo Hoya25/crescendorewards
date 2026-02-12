@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
-import { Button } from "./ui/button";
-import { ChevronRight } from "lucide-react";
 import { SEO } from "./SEO";
-import { FeaturedRewardsCarousel } from "./rewards/FeaturedRewardsCarousel";
 import { WelcomeFlow, hasBeenOnboarded } from "./onboarding/WelcomeFlow";
 import { OnboardingChecklist } from "./onboarding/OnboardingChecklist";
 import { OnboardingProgress } from "./OnboardingProgress";
@@ -16,13 +13,12 @@ import { trackEvent } from "@/lib/analytics";
 import { StatusHero } from "./dashboard/StatusHero";
 import { QuickActions } from "./dashboard/QuickActions";
 import { NextUnlocks } from "./dashboard/NextUnlocks";
+import { StatusExplainer } from "./dashboard/StatusExplainer";
 import { MerchBountiesWidget } from "./dashboard/MerchBountiesWidget";
-import { CommunityFeedSection } from "./dashboard/CommunityFeedSection";
-import { Gift } from "lucide-react";
 
 export function Dashboard() {
   const navigate = useNavigate();
-  const { profile, tier } = useUnifiedUser();
+  const { profile } = useUnifiedUser();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [showReferredModal, setShowReferredModal] = useState(false);
   const [referrerName, setReferrerName] = useState<string | undefined>();
@@ -100,50 +96,28 @@ export function Dashboard() {
 
       <main className="flex-1 px-4 md:px-6 pt-3 pb-4">
         <div className="max-w-7xl mx-auto space-y-5">
-          {/* Onboarding */}
+          {/* Onboarding checklist (conditional) */}
           <OnboardingChecklist />
 
-          {/* 1. STATUS HERO */}
+          {/* 1. STATUS PROGRESS CARD */}
           <StatusHero />
 
-          {/* 2. QUICK ACTIONS */}
+          {/* 2. QUICK ACTIONS — "Your Next Move" */}
           <QuickActions />
 
-          {/* 3. WHAT'S UNLOCKING NEXT */}
-          <NextUnlocks />
+          {/* 3. ACTIVITY FEED */}
+          <ActivityFeed maxItems={10} />
 
-          {/* 4. FEATURED REWARDS */}
-          <section>
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-lg font-semibold flex items-center gap-2">
-                <Gift className="w-4 h-4 text-primary" />
-                Featured Rewards
-              </h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/rewards")}
-                className="gap-1 h-7 text-xs"
-              >
-                Browse All <ChevronRight className="w-3 h-3" />
-              </Button>
-            </div>
-            <FeaturedRewardsCarousel
-              type="all"
-              maxItems={6}
-              showHeader={false}
-              claimBalance={claimBalance}
-            />
-          </section>
+          {/* 4. WHAT'S UNLOCKING NEXT */}
+          <div id="next-unlocks">
+            <NextUnlocks />
+          </div>
 
           {/* 5. MERCH BOUNTIES (conditional) */}
           <MerchBountiesWidget />
 
-          {/* 6. COMMUNITY FEED */}
-          <CommunityFeedSection />
-
-          {/* 7. ACTIVITY FEED */}
-          <ActivityFeed maxItems={10} />
+          {/* 6. STATUS EXPLAINER (collapsible) */}
+          <StatusExplainer />
 
           {/* Bottom padding for mobile nav */}
           <div className="h-20 md:hidden" />
