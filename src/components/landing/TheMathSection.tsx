@@ -80,9 +80,9 @@ export function TheMathSection() {
           Same hoodie. Different commitment.
         </p>
         <p className="text-center text-sm max-w-2xl mx-auto mb-4 text-text-body">
-          And that's just at Bronze. Hit Gold (1.5x) and that same hoodie earns you{' '}
-          <span className="font-semibold text-text-heading">495 NCTR</span> from the purchase +{' '}
-          <span className="font-semibold text-text-heading">1,125</span> from the bounty.{' '}
+          And that's just at Bronze. Hit Gold (1.25x) and that same hoodie earns you{' '}
+          <span className="font-semibold text-text-heading">413 NCTR</span> from the purchase +{' '}
+          <span className="font-semibold text-text-heading">938</span> from the bounty.{' '}
           <span className="font-bold text-text-accent">Status multiplies everything.</span>
         </p>
 
@@ -101,10 +101,10 @@ export function TheMathSection() {
         <div className="rounded-xl p-4 text-center mb-10 border border-border-card bg-page-bg">
           <p className="text-sm text-text-body">
             💡 <span className="font-semibold text-text-heading">At Gold status</span>, your earning multiplier jumps to{' '}
-            <span className="font-bold text-text-accent">1.5x on everything</span>.
+            <span className="font-bold text-text-accent">1.25x on everything</span>.
             That same 2,580 NCTR becomes{' '}
-            <span className="font-bold text-text-accent">3,870 NCTR</span>.
-            At Diamond? <span className="font-bold text-text-accent">3x</span>. The math keeps getting better.
+            <span className="font-bold text-text-accent">3,225 NCTR</span>.
+            At Diamond? <span className="font-bold text-text-accent">2x</span>. The math keeps getting better.
           </p>
         </div>
 
