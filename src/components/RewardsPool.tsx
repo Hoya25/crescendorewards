@@ -605,6 +605,23 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         </nav>
       )}
 
+      {/* Zero Claims Banner */}
+      {isAuthenticated && claimBalance === 0 && !localStorage.getItem('dismiss-zero-claims-banner') && (
+        <div className="container mx-auto px-4 max-w-full">
+          <div className="flex items-center justify-between gap-3 px-4 py-2.5 my-1 rounded-md" style={{ backgroundColor: '#141416', borderLeft: '2px solid #C8FF00' }}>
+            <p className="text-sm text-neutral-300">
+              You have <span className="font-semibold text-white">0 Claims</span>. Get some to start claiming rewards{' '}
+              <button onClick={() => navigate('/buy-claims')} className="font-semibold hover:underline" style={{ color: '#C8FF00' }}>→</button>
+            </p>
+            <button
+              onClick={(e) => { localStorage.setItem('dismiss-zero-claims-banner', 'true'); (e.target as HTMLElement).closest('[style]')?.remove(); }}
+              className="text-neutral-500 hover:text-neutral-300 text-lg leading-none px-1"
+              aria-label="Dismiss"
+            >×</button>
+          </div>
+        </div>
+      )}
+
       {/* Combined sticky bar: tier + categories + filters */}
       <div className={cn(
         "sticky z-30 bg-background/95 backdrop-blur border-b",
@@ -1078,13 +1095,27 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 <Button variant="outline" onClick={() => setShowDetailModal(false)} className="flex-1">
                   Cancel
                 </Button>
-                <Button 
-                  onClick={handleClaimClick} 
-                  disabled={!canAfford(selectedReward.cost)}
-                  className="flex-1"
-                >
-                  {canAfford(selectedReward.cost) ? 'Claim Reward' : 'Insufficient Balance'}
-                </Button>
+                {canAfford(selectedReward.cost) ? (
+                  <Button 
+                    onClick={handleClaimClick} 
+                    className="flex-1"
+                  >
+                    Claim Reward
+                  </Button>
+                ) : (
+                  <div className="flex-1 space-y-1">
+                    <Button 
+                      onClick={() => navigate('/buy-claims')}
+                      className="w-full font-semibold"
+                      style={{ backgroundColor: '#C8FF00', color: '#000' }}
+                    >
+                      Get Claims to Unlock
+                    </Button>
+                    <p className="text-xs text-muted-foreground text-center">
+                      You need {selectedReward.cost - claimBalance} more Claims
+                    </p>
+                  </div>
+                )}
               </DialogFooter>
             </>
           )}
