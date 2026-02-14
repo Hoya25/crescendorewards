@@ -72,12 +72,20 @@ const categoryIcons: Record<string, React.ElementType> = {
 
 const tierOrder = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
 
-const tierColors: Record<string, string> = {
-  bronze: 'bg-amber-700 text-white',
-  silver: 'bg-gray-400 text-white',
-  gold: 'bg-yellow-500 text-white',
-  platinum: 'bg-slate-300 text-slate-800',
-  diamond: 'bg-cyan-400 text-white',
+const tierHexColors: Record<string, string> = {
+  bronze: '#CD7F32',
+  silver: '#C0C0C0',
+  gold: '#FFD700',
+  platinum: '#E5E4E2',
+  diamond: '#B9F2FF',
+};
+
+const tierTextColors: Record<string, string> = {
+  bronze: 'text-white',
+  silver: 'text-gray-800',
+  gold: 'text-gray-900',
+  platinum: 'text-gray-800',
+  diamond: 'text-gray-900',
 };
 
 function isUserTierEligible(
@@ -134,7 +142,8 @@ export function VisualRewardCard({
   const pricing = getRewardPriceForUser(rewardForPricing, userTier.tierName);
   const canClaim = isAuthenticated && isEligible && claimBalance >= pricing.price && pricing.price >= 0;
   const requiredTier = reward.min_status_tier ? getTierDisplayName(reward.min_status_tier) : null;
-  const tierColorClass = reward.min_status_tier ? tierColors[reward.min_status_tier.toLowerCase()] || 'bg-amber-500 text-white' : '';
+  const tierBgColor = reward.min_status_tier ? tierHexColors[reward.min_status_tier.toLowerCase()] || '#CD7F32' : '';
+  const tierTextColor = reward.min_status_tier ? tierTextColors[reward.min_status_tier.toLowerCase()] || 'text-white' : '';
 
   const handleCtaClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -186,10 +195,13 @@ export function VisualRewardCard({
 
         {/* TOP-LEFT: Tier badge overlay */}
         {reward.min_status_tier && (
-          <Badge className={cn(
-            "absolute top-3 left-3 text-xs font-semibold shadow-lg border-0 px-2.5 py-1",
-            tierColorClass
-          )}>
+          <Badge 
+            className={cn(
+              "absolute top-3 left-3 text-xs font-semibold shadow-lg border-0 px-2.5 py-1",
+              tierTextColor
+            )}
+            style={{ backgroundColor: tierBgColor }}
+          >
             {isEligible ? getTierDisplayName(reward.min_status_tier) + '+' : (
               <span className="flex items-center gap-1">
                 <Lock className="w-3 h-3" />

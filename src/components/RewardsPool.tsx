@@ -146,6 +146,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const [searchQuery, setSearchQuery] = useState<string>(() => 
     searchParams.get('q') || ''
   );
+  const [statusFilter, setStatusFilter] = useState<string>(() =>
+    getValidParam(searchParams.get('status'), ['all', 'eligible', 'bronze', 'silver', 'gold', 'platinum', 'diamond'], 'all')
+  );
   const [selectedReward, setSelectedReward] = useState<Reward | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showClaimModal, setShowClaimModal] = useState(false);
@@ -177,10 +180,11 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     if (affordableFilter) params.set('affordable', 'true');
     if (sponsoredFilter) params.set('sponsored', 'true');
     if (featuredFilter) params.set('featured', 'true');
+    if (statusFilter !== 'all') params.set('status', statusFilter);
     if (searchQuery.trim()) params.set('q', searchQuery.trim());
     
     setSearchParams(params, { replace: true });
-  }, [sortBy, activeCategory, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, affordableFilter, sponsoredFilter, featuredFilter, searchQuery, setSearchParams]);
+  }, [sortBy, activeCategory, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, affordableFilter, sponsoredFilter, featuredFilter, statusFilter, searchQuery, setSearchParams]);
 
   // Update URL when filters change
   useEffect(() => {
@@ -276,6 +280,30 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       filtered = rewards.filter(r => r.is_featured);
     }
 
+    // Apply status tier filter
+    if (statusFilter !== 'all') {
+      const tierOrder = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
+      if (statusFilter === 'eligible') {
+        // Show only rewards the user's tier qualifies for
+        const userTierName = tier?.tier_name?.toLowerCase() || 'bronze';
+        const userTierIdx = tierOrder.indexOf(userTierName);
+        filtered = filtered.filter(r => {
+          if (!r.min_status_tier) return true;
+          const reqIdx = tierOrder.indexOf(r.min_status_tier.toLowerCase());
+          return reqIdx === -1 || userTierIdx >= reqIdx;
+        });
+      } else {
+        // Show rewards up to and including the selected tier
+        const filterIdx = tierOrder.indexOf(statusFilter);
+        filtered = filtered.filter(r => {
+          if (!r.min_status_tier) return true;
+          const reqIdx = tierOrder.indexOf(r.min_status_tier.toLowerCase());
+          return reqIdx === -1 || reqIdx <= filterIdx;
+        });
+      }
+    }
+
+
     // Apply sorting with prioritization for customized rewards
     const sortedFiltered = [...filtered].sort((a, b) => {
       // Prioritize customized rewards
@@ -333,7 +361,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     if (outOfStockIds.length > 0) {
       fetchWatchCounts(outOfStockIds);
     }
-  }, [activeCategory, rewards, sortBy, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, affordableFilter, sponsoredFilter, featuredFilter, claimBalance, searchQuery, fetchWatchCounts]);
+  }, [activeCategory, rewards, sortBy, priceFilter, availabilityFilter, exclusiveFilter, highValueFilter, affordableFilter, sponsoredFilter, featuredFilter, statusFilter, claimBalance, searchQuery, fetchWatchCounts, tier]);
 
   const loadRewards = async (isRetry = false) => {
     try {
@@ -780,7 +808,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             </Button>
 
             {/* Clear Filters (if active) */}
-            {(affordableFilter || sponsoredFilter || priceFilter !== 'all' || activeCategory !== 'all') && (
+            {(affordableFilter || sponsoredFilter || priceFilter !== 'all' || activeCategory !== 'all' || statusFilter !== 'all') && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -792,6 +820,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                   setActiveCategory('all');
                   setAvailabilityFilter('all');
                   setExclusiveFilter('all');
+                  setStatusFilter('all');
                 }}
               >
                 <X className="w-3.5 h-3.5 mr-1" />
@@ -864,6 +893,23 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 <SelectContent>
                   <SelectItem value="all">All Rewards</SelectItem>
                   <SelectItem value="exclusive">Exclusive Only</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Status Level Filter */}
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[160px] h-9 bg-background">
+                  <Shield className="w-3.5 h-3.5 mr-1.5" />
+                  <SelectValue placeholder="Status Level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status Levels</SelectItem>
+                  <SelectItem value="eligible">My Eligible</SelectItem>
+                  <SelectItem value="bronze">Bronze & Below</SelectItem>
+                  <SelectItem value="silver">Silver & Below</SelectItem>
+                  <SelectItem value="gold">Gold & Below</SelectItem>
+                  <SelectItem value="platinum">Platinum & Below</SelectItem>
+                  <SelectItem value="diamond">Diamond</SelectItem>
                 </SelectContent>
               </Select>
 

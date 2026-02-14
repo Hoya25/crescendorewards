@@ -131,15 +131,29 @@ export function RewardCard({
             </Badge>
           )}
           {/* Status Access Badge */}
-          {reward.min_status_tier && reward.min_status_tier !== 'bronze' && (
-            <Badge className="bg-gradient-to-r from-amber-500/90 to-yellow-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
-              {reward.min_status_tier === 'silver' && '🥈'}
-              {reward.min_status_tier === 'gold' && '🥇'}
-              {reward.min_status_tier === 'platinum' && '💎'}
-              {reward.min_status_tier === 'diamond' && '👑'}
-              <span className="ml-1 capitalize">{reward.min_status_tier}+</span>
-            </Badge>
-          )}
+          {reward.min_status_tier && (() => {
+            const tierHexColors: Record<string, string> = {
+              bronze: '#CD7F32', silver: '#C0C0C0', gold: '#FFD700', platinum: '#E5E4E2', diamond: '#B9F2FF'
+            };
+            const tierTextClass: Record<string, string> = {
+              bronze: 'text-white', silver: 'text-gray-800', gold: 'text-gray-900', platinum: 'text-gray-800', diamond: 'text-gray-900'
+            };
+            const tierEmojis: Record<string, string> = {
+              bronze: '🥉', silver: '🥈', gold: '🥇', platinum: '💎', diamond: '👑'
+            };
+            const bgColor = tierHexColors[reward.min_status_tier] || '#CD7F32';
+            const textClass = tierTextClass[reward.min_status_tier] || 'text-white';
+            const emoji = tierEmojis[reward.min_status_tier] || '🥉';
+            return (
+              <Badge 
+                className={`backdrop-blur-sm border-0 shadow-lg text-xs ${textClass}`}
+                style={{ backgroundColor: bgColor }}
+              >
+                {emoji}
+                <span className="ml-1 capitalize">{reward.min_status_tier}+</span>
+              </Badge>
+            );
+          })()}
           {reward.token_gated && reward.token_symbol && (
             <Badge className="bg-purple-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
               <Lock className="w-3 h-3 mr-1" />

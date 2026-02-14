@@ -733,11 +733,23 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
 
                 {/* Price Display */}
                 {isLocked ? (
-                  <div className="text-center py-4">
+                  <div className="text-center py-4 space-y-4">
                     <Lock className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
                     <p className="text-lg font-semibold text-muted-foreground">
                       Unlock at {getTierDisplayName(reward.min_status_tier || '')}
                     </p>
+                    <p className="text-sm text-muted-foreground">
+                      This reward requires {getTierDisplayName(reward.min_status_tier || '')} status or higher.
+                      {userTier && (
+                        <> You're currently <span className="font-semibold capitalize">{userTierDisplay}</span> — keep earning to level up!</>
+                      )}
+                    </p>
+                    <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+                      <p className="text-sm text-primary font-medium mb-1">🚀 Level Up Your Status</p>
+                      <p className="text-xs text-muted-foreground">
+                        Keep earning through The Garden, referrals, and bounties to unlock this reward!
+                      </p>
+                    </div>
                     <Button 
                       variant="outline" 
                       className="mt-3 gap-2" 
