@@ -12,7 +12,8 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { NCTRLogo } from './NCTRLogo';
 import { toast } from '@/hooks/use-toast';
-import { ArrowLeft, Upload, Save, User, Mail, Wallet, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift, X, Crown, ChevronRight, FileText, Check, Lock, TrendingUp, Sparkles, Truck, Package } from 'lucide-react';
+import { ArrowLeft, Upload, Save, User, Mail, Wallet, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift, X, Crown, ChevronRight, FileText, Check, Lock, TrendingUp, Sparkles, Truck, Package, HelpCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationPreferences } from '@/components/profile/NotificationPreferences';
 import { CompactReferralCard } from '@/components/referral/CompactReferralCard';
 import { Progress } from '@/components/ui/progress';
@@ -1010,6 +1011,19 @@ export function ProfilePage() {
                       <p className="text-xs text-muted-foreground">
                         Link your Base wallet for seamless authentication
                       </p>
+                      <TooltipProvider delayDuration={200}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button type="button" className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors mt-1">
+                              <HelpCircle className="w-3 h-3" />
+                              <span>What's a wallet?</span>
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom" className="max-w-[260px] text-center">
+                            <p className="text-xs">Your account is secured by a digital wallet — think of it like a username and password, but more secure. We'll walk you through it.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   )}
                 </div>
