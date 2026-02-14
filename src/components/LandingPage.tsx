@@ -12,6 +12,7 @@ import { FinalCTA } from "./landing/FinalCTA";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { CrescendoLogo } from "@/components/brand/CrescendoLogo";
 
 function ScrollReveal({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -68,9 +69,7 @@ export function LandingPage() {
       {/* Navigation */}
       <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 md:px-12 py-4 md:py-5 w-full max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
-          <span className="text-xl sm:text-2xl font-black tracking-tight text-text-heading">
-            Crescendo
-          </span>
+          <CrescendoLogo variant="orbital" size={36} />
           <span
             className="text-[10px] font-semibold uppercase tracking-widest px-1.5 py-0.5 rounded border"
             style={{ color: '#AAFF00', borderColor: 'rgba(170,255,0,0.3)', background: 'rgba(170,255,0,0.08)' }}
