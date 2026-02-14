@@ -1,4 +1,5 @@
 import { ReactNode, useState, useEffect } from 'react';
+import { Footer } from '@/components/Footer';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
@@ -170,6 +171,9 @@ export function AppLayout({ children }: AppLayoutProps) {
           <main className="flex-1 overflow-auto">
             {children || <Outlet />}
           </main>
+
+          {/* Footer */}
+          <Footer />
         </div>
 
         {/* First-time Onboarding Flow */}

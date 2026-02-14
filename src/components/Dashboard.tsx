@@ -110,6 +110,19 @@ export function Dashboard() {
 
       <main className="flex-1 px-4 md:px-6 pt-3 pb-4">
         <div className="max-w-7xl mx-auto space-y-5">
+          {/* Welcome header with logo badge */}
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-full border-[3px] dark:border-accent-lime border-gray-800 flex items-center justify-center flex-shrink-0">
+              <span className="text-gray-800 dark:text-accent-lime font-black text-sm tracking-tight">360</span>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-foreground">
+                Welcome back{userName ? `, ${userName.split(' ')[0]}` : ''}
+              </h1>
+              <p className="text-sm text-muted-foreground">Here's your Crescendo overview</p>
+            </div>
+          </div>
+
           {/* 0. YOUR NEXT STEP — dynamic contextual CTA */}
           <YourNextStep />
 

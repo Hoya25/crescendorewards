@@ -1,98 +1,30 @@
 import { Link } from 'react-router-dom';
-import { Twitter, MessageCircle, Mail } from 'lucide-react';
-
 
 export function Footer() {
-  const currentYear = new Date().getFullYear();
-
   return (
-    <footer className="border-t bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-          {/* Left: Logo and NCTR Alliance */}
-          <div className="flex flex-col items-center md:items-start gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full border-[3px] dark:border-accent-lime border-gray-800 flex items-center justify-center">
-                <span className="text-gray-800 dark:text-accent-lime font-black text-xs tracking-tight">360</span>
-              </div>
-              <span className="text-lg font-semibold text-foreground">Crescendo</span>
-            </div>
-            <p className="text-sm text-text-body-muted">
-              Part of <span className="font-bold">NCTR</span> Alliance
-            </p>
+    <footer className="border-t bg-muted/30 mt-auto">
+      <div className="container mx-auto px-4 h-12 flex items-center justify-between text-xs text-muted-foreground">
+        {/* Left: Ring badge + copyright */}
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full border-2 dark:border-accent-lime border-gray-800 flex items-center justify-center flex-shrink-0">
+            <span className="text-gray-800 dark:text-accent-lime font-black text-[8px] tracking-tight">360</span>
           </div>
-
-          {/* Center: Navigation Links */}
-          <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
-            <Link 
-              to="/rewards" 
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Rewards
-            </Link>
-            <Link 
-              to="/help" 
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Help & FAQ
-            </Link>
-            <Link 
-              to="/terms" 
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Terms
-            </Link>
-            <Link 
-              to="/privacy" 
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Privacy
-            </Link>
-            <a 
-              href="mailto:support@crescendo.nctr.live" 
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Contact
-            </a>
-          </nav>
-
-          {/* Right: Social Icons */}
-          <div className="flex justify-center md:justify-end gap-4">
-            <a
-              href="https://twitter.com/NCTRAlliance"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Twitter/X"
-            >
-              <Twitter className="w-5 h-5" />
-            </a>
-            <a
-              href="https://discord.gg/lovable-dev"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Discord"
-            >
-              <MessageCircle className="w-5 h-5" />
-            </a>
-            <a
-              href="mailto:support@crescendo.nctr.live"
-              className="p-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Email"
-            >
-              <Mail className="w-5 h-5" />
-            </a>
-          </div>
+          <span>© 2026 NCTR Alliance · Crescendo</span>
         </div>
 
-        {/* Bottom Copyright */}
-        <div className="mt-8 pt-6 border-t text-center text-sm text-text-body-muted">
-          <p>© {currentYear} Crescendo. All rights reserved.</p>
-          <p className="mt-1 text-xs">
-            Beta version — Building the future of member-owned rewards.
-          </p>
-        </div>
+        {/* Right: Links */}
+        <nav className="flex items-center gap-4">
+          <Link to="/help" className="hover:text-foreground transition-colors">Help</Link>
+          <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+          <a
+            href="https://crescendo.nctr.live"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-foreground transition-colors"
+          >
+            crescendo.nctr.live
+          </a>
+        </nav>
       </div>
     </footer>
   );

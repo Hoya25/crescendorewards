@@ -11,6 +11,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useWalletAuth } from '@/hooks/useWalletAuth';
 import { NCTRLogo } from './NCTRLogo';
 import { Separator } from './ui/separator';
+import { CrescendoLogo } from '@/components/brand/CrescendoLogo';
 
 interface AuthModalProps {
   mode: 'signin' | 'signup';
@@ -167,9 +168,7 @@ export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalP
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center justify-center mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-xl flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-white" />
-            </div>
+            <CrescendoLogo variant="orbital" size={120} showWordmark={true} />
           </div>
           <DialogTitle className="text-center text-2xl">
             {mode === 'signin' ? 'Welcome Back' : 'Join Crescendo'}
