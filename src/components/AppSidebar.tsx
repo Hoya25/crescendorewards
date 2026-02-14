@@ -1,4 +1,4 @@
-import { Home, Compass, Gift, ShoppingBag, UserPlus, User, ChevronRight, HelpCircle, Crown, Shield, Upload, Heart } from 'lucide-react';
+import { Home, Compass, Gift, ShoppingBag, UserPlus, User, ChevronRight, HelpCircle, Crown, Shield, Upload, Heart, Coins } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
@@ -34,8 +34,9 @@ const mainNavItems = [
   { title: 'Home', url: '/dashboard', icon: Home },
   { title: 'Discover', url: '/discover', icon: Compass },
   { title: 'Rewards', url: '/rewards', icon: Gift },
-  { title: 'Shop Merch', url: '#', icon: ShoppingBag, external: 'https://nctr-merch.myshopify.com' },
+  { title: 'Get Claims', url: '/buy-claims', icon: Coins, highlight: true },
   { title: 'The Garden', url: '#', icon: Crown, external: 'https://thegarden.nctr.live/' },
+  { title: 'Shop Merch', url: '#', icon: ShoppingBag, external: 'https://nctr-merch.myshopify.com' },
   { title: 'Share Content', url: '/submit-content', icon: Upload },
   { title: 'Contribute', url: '/contribute', icon: Heart },
   { title: 'Invite Friends', url: '/invite', icon: UserPlus },
@@ -81,8 +82,12 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
                         : "hover:bg-accent hover:text-accent-foreground"
                     )}
                   >
-                    <item.icon className="h-4 w-4" />
-                    {open && <span>{item.title}</span>}
+                    <item.icon className={cn("h-4 w-4", (item as any).highlight && "text-[#C8FF00]")} />
+                    {open && (
+                      <span className={(item as any).highlight ? "text-[#C8FF00] font-semibold" : undefined}>
+                        {item.title}
+                      </span>
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
