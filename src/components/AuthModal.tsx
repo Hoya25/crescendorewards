@@ -3,7 +3,8 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
-import { Sparkles, Wallet, Gift, Loader2, AlertCircle } from 'lucide-react';
+import { Sparkles, Wallet, Gift, Loader2, AlertCircle, HelpCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
@@ -344,6 +345,19 @@ export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalP
                   );
                 }}
               </ConnectButton.Custom>
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button type="button" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mx-auto mt-1">
+                      <HelpCircle className="w-3.5 h-3.5" />
+                      <span>What's a wallet?</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-[260px] text-center">
+                    <p className="text-xs">Your account is secured by a digital wallet — think of it like a username and password, but more secure. We'll walk you through it.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         </div>
