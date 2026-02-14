@@ -1,4 +1,5 @@
 import { useLocation, Link } from "react-router-dom";
+import nctrIcon from '@/assets/nctr-yellow.png';
 import { useEffect } from "react";
 import { Home, ArrowLeft, Search, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,12 +17,10 @@ const NotFound = () => {
       <SEO title="Page Not Found" noIndex />
       <div className="flex min-h-screen items-center justify-center bg-background p-4">
         <div className="text-center max-w-md">
-          {/* 404 Illustration */}
+          {/* NCTR Icon + 404 */}
           <div className="mb-8">
+            <img src={nctrIcon} alt="NCTR" className="w-16 h-16 mx-auto mb-4" />
             <div className="text-8xl font-bold text-primary/20 mb-2">404</div>
-            <div className="w-24 h-24 mx-auto rounded-full bg-muted flex items-center justify-center">
-              <Search className="w-12 h-12 text-muted-foreground" />
-            </div>
           </div>
 
           <h1 className="mb-4 text-2xl font-bold text-foreground">Page Not Found</h1>
@@ -33,7 +32,7 @@ const NotFound = () => {
             <Button asChild>
               <Link to="/dashboard">
                 <Home className="w-4 h-4 mr-2" />
-                Go to Dashboard
+                Return to Crescendo
               </Link>
             </Button>
             <Button variant="outline" asChild>
