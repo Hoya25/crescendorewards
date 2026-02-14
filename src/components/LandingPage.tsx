@@ -70,8 +70,8 @@ export function LandingPage() {
       {/* Navigation */}
       <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 md:px-12 py-4 md:py-5 w-full max-w-7xl mx-auto">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-accent-lime flex items-center justify-center">
-            <span className="text-black font-black text-sm tracking-tight">360</span>
+          <div className="w-9 h-9 rounded-full border-[3px] border-accent-lime flex items-center justify-center relative">
+            <span className="text-accent-lime font-black text-xs tracking-tight">360</span>
           </div>
           <span className="text-xl font-bold text-foreground">Crescendo</span>
           <span className="px-2 py-0.5 rounded text-xs font-bold bg-accent-lime text-black">BETA</span>
