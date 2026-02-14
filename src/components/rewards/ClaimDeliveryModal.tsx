@@ -289,7 +289,7 @@ export function ClaimDeliveryModal({
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Connect your wallet or enter your Base wallet address manually
+                    Link your wallet or enter your Base wallet address manually
                   </p>
                 </div>
               );

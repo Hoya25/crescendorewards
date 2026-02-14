@@ -254,7 +254,7 @@ export function ProfilePage() {
     if (!isConnected || !address) {
       toast({
         title: 'Error',
-        description: 'Please connect your wallet first',
+        description: 'Please link your wallet first',
         variant: 'destructive',
       });
       return;
@@ -677,7 +677,7 @@ export function ProfilePage() {
                   ) : (
                     <div className="text-center py-4">
                       <p className="text-sm text-muted-foreground mb-3">
-                        Connect your wallet to view balance
+                        Link your wallet to view balance
                       </p>
                       <ConnectButton.Custom>
                         {({
@@ -709,7 +709,7 @@ export function ProfilePage() {
                                   onClick={openConnectModal}
                                 >
                                   <Wallet className="mr-2 h-4 w-4" />
-                                  Connect Wallet
+                                   Link Wallet
                                 </Button>
                               )}
                             </div>
@@ -989,7 +989,7 @@ export function ProfilePage() {
                                   onClick={openConnectModal}
                                 >
                                   <Wallet className="mr-2 h-4 w-4" />
-                                  Connect Base Wallet
+                                  Link Base Wallet
                                 </Button>
                               ) : (
                                 <Button
@@ -1008,7 +1008,7 @@ export function ProfilePage() {
                         }}
                       </ConnectButton.Custom>
                       <p className="text-xs text-muted-foreground">
-                        Connect your Base wallet for seamless authentication
+                        Link your Base wallet for seamless authentication
                       </p>
                     </div>
                   )}

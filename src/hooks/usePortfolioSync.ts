@@ -142,7 +142,7 @@ export function usePortfolioSync({ userId, onSyncSuccess, onSyncError }: UsePort
       if (context?.previousUser) {
         queryClient.setQueryData(['unified-user'], context.previousUser);
       }
-      toast.error('Failed to link wallet');
+      toast.error('Failed to link wallet. Please try again.');
     },
 
     onSuccess: (result) => {
