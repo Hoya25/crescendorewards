@@ -17,9 +17,11 @@ export function CrescendoLogo({ className = "" }: CrescendoLogoProps) {
         style={{ width: '1px', height: '20px', backgroundColor: '#27272A' }}
         aria-hidden="true"
       />
-      <span className="text-[#52525B] select-none" style={{ fontSize: '12px' }}>
-        by NCTR Alliance
-      </span>
+      <img
+        src="/brands/nctr-alliance-grey.png"
+        alt="by NCTR Alliance"
+        className="h-5 select-none opacity-60"
+      />
     </div>
   );
 }
