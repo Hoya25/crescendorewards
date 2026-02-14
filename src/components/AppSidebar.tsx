@@ -1,4 +1,5 @@
 import { Home, Gift, ShoppingBag, UserPlus, User, HelpCircle, Shield, Heart, Coins, Leaf } from 'lucide-react';
+import nctrIcon from '@/assets/nctr-yellow.png';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
@@ -69,6 +70,12 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   return (
     <Sidebar className={open ? 'w-60' : 'w-14'} collapsible="icon">
       <SidebarContent>
+        {/* Brand Mark */}
+        <div className={cn("flex items-center gap-2 px-3 py-3", !open && "justify-center")}>
+          <img src={nctrIcon} alt="NCTR" className="w-8 h-8 flex-shrink-0" />
+          {open && <span className="text-base font-bold tracking-wide text-foreground">Crescendo</span>}
+        </div>
+        <SidebarSeparator />
         {/* Primary Navigation */}
         <SidebarGroup>
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
