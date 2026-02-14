@@ -12,6 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, X, Clock, Package, Heart, Store, Trophy, User, ChevronDown, ChevronRight, LogOut, LayoutDashboard, FileCheck, Receipt, BarChart3, Crown, ArrowLeft, Shield, Settings, Plus, Pencil, Search, ArrowUpDown, LayoutGrid, List, SlidersHorizontal, Star, Megaphone } from 'lucide-react';
+import { MonthlyDrops } from '@/components/rewards/MonthlyDrops';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -907,6 +908,14 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           )}
         </div>
       </div>
+
+      {/* Monthly Drops Section */}
+      {!loading && (
+        <MonthlyDrops
+          userTierName={tier?.tier_name || 'Bronze'}
+          onViewReward={(rewardId) => navigate(`/rewards/${rewardId}`)}
+        />
+      )}
 
       {/* Main Rewards Grid — starts immediately */}
       <div className="container mx-auto px-4 pt-4 pb-8 max-w-full">
