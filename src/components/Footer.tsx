@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { CrescendoLogo } from './CrescendoLogo';
 import { Twitter, MessageCircle, Mail } from 'lucide-react';
 
 
@@ -12,7 +11,12 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
           {/* Left: Logo and NCTR Alliance */}
           <div className="flex flex-col items-center md:items-start gap-3">
-            <CrescendoLogo className="h-8 w-auto" />
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full border-[3px] dark:border-accent-lime border-gray-800 flex items-center justify-center">
+                <span className="text-gray-800 dark:text-accent-lime font-black text-xs tracking-tight">360</span>
+              </div>
+              <span className="text-lg font-semibold text-foreground">Crescendo</span>
+            </div>
             <p className="text-sm text-text-body-muted">
               Part of <span className="font-bold">NCTR</span> Alliance
             </p>
