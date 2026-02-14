@@ -27,7 +27,7 @@ const faqs = [
   },
   {
     question: "How do I level up my status?",
-    answer: "Lock NCTR tokens in The Garden to increase your tier. The more NCTR you lock, the higher your status level. Your tier is calculated based on your total locked NCTR balance."
+    answer: "Commit NCTR via 360LOCK to build your Crescendo Status. The more NCTR you commit, the higher your status level. Your tier is calculated based on your total committed NCTR balance."
   },
   {
     question: "What happens when I claim a reward?",
