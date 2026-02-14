@@ -106,7 +106,7 @@ export function ClaimsToNCTRCalculator({
           <div>
             <CardTitle className="text-lg">Claims → NCTR Calculator</CardTitle>
             <CardDescription>
-              See how your Claims convert to NCTR tokens
+              See how your Claims convert to NCTR
             </CardDescription>
           </div>
         </div>
@@ -205,7 +205,7 @@ export function ClaimsToNCTRCalculator({
                   {selectedCalc.totalNCTR.toLocaleString()}
                 </span>
               </div>
-              <span className="text-sm text-muted-foreground">NCTR Tokens</span>
+              <span className="text-sm text-muted-foreground">NCTR</span>
             </div>
           </div>
         </div>
@@ -267,7 +267,7 @@ export function ClaimsToNCTRCalculator({
         <div className="flex gap-3 p-3 bg-muted/30 rounded-lg border border-border/50">
           <Info className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
           <p className="text-xs text-muted-foreground">
-            Longer commitment periods yield more NCTR tokens. The 360-day commitment provides <span className="font-semibold text-primary">2.67x more NCTR</span> than the 90-day commitment.
+            Longer commitment periods yield more NCTR. The 360-day commitment provides <span className="font-semibold text-primary">2.67x more NCTR</span> than the 90-day commitment.
           </p>
         </div>
       </CardContent>

@@ -56,9 +56,9 @@ export function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">4. Rewards and NCTR Tokens</h2>
+              <h2 className="text-xl font-semibold mb-3">4. Rewards and NCTR</h2>
               <p className="text-muted-foreground leading-relaxed">
-                NCTR tokens and rewards are subject to availability and may be modified or discontinued at any time. Token balances and rewards have no cash value and cannot be exchanged for currency unless explicitly stated.
+                NCTR and rewards are subject to availability and may be modified or discontinued at any time. Balances and rewards have no cash value and cannot be exchanged for currency unless explicitly stated.
               </p>
             </section>
 

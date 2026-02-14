@@ -481,9 +481,9 @@ export function BecomeASponsorPage() {
           <div className="space-y-6">
             {[
               { q: 'How much does it cost?', a: 'It depends on your contribution model. You can list rewards for free with our "Contribute" model, or choose to fully sponsor rewards for members.' },
-              { q: 'How do I get paid?', a: 'For contributed rewards, you receive NCTR tokens when members claim your rewards. These can be used within our ecosystem or converted.' },
+              { q: 'How do I get paid?', a: 'For contributed rewards, you receive NCTR when members claim your rewards. These can be used within our ecosystem or converted.' },
               { q: 'Can individuals sponsor?', a: 'Yes! Anyone can become a sponsor. Individual contributors are welcome to support the community with personal contributions.' },
-              { q: 'How are members verified?', a: 'Members earn access through active participation in the community. They lock tokens to demonstrate long-term commitment.' },
+              { q: 'How are members verified?', a: 'Members earn access through active participation in the community. They commit NCTR to demonstrate long-term involvement.' },
               { q: 'What\'s the approval process?', a: 'We review all applications within 24-48 hours. Approved sponsors can immediately start listing rewards.' },
             ].map((faq, i) => (
               <Card key={i}>

@@ -326,7 +326,7 @@ export default function InviteLandingPage() {
                 icon: Shield,
                 emoji: '🔒',
                 title: 'BUILD STATUS',
-                description: 'Lock NCTR tokens to level up from Bronze → Diamond. Higher status = better rewards, bigger discounts, and exclusive access.',
+                description: 'Lock NCTR to level up from Bronze → Diamond. Higher status = better rewards, bigger discounts, and exclusive access.',
                 gradient: 'from-amber-500/20 to-yellow-500/20',
               },
               {
