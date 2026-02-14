@@ -35,7 +35,7 @@ const rewardCategories = [
 const faqItems = [
   {
     question: "What is NCTR?",
-    answer: "NCTR is the reward you earn through Crescendo. You earn it by shopping, creating content, referring friends, and participating. Unlike points that expire, your NCTR is yours to keep.",
+    answer: "NCTR is the reward you earn through Crescendo. You earn it by shopping, creating content, referring friends, and participating. Unlike traditional rewards that expire, your NCTR is yours to keep.",
   },
   {
     question: "What is 360LOCK?",

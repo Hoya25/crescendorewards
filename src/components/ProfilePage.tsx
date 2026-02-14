@@ -134,7 +134,7 @@ export function ProfilePage() {
               </Button>
               <div>
               <h1 className="text-2xl font-bold">My Account</h1>
-              <p className="text-sm text-muted-foreground">Manage your profile, level, and preferences</p>
+              <p className="text-sm text-muted-foreground">Manage your profile, status, and preferences</p>
               </div>
             </div>
           </div>
@@ -346,7 +346,7 @@ export function ProfilePage() {
             </Button>
             <div>
               <h1 className="text-2xl font-bold">My Account</h1>
-              <p className="text-sm text-muted-foreground">Manage your profile, level, and preferences</p>
+              <p className="text-sm text-muted-foreground">Manage your profile, status, and preferences</p>
             </div>
           </div>
         </div>
@@ -447,15 +447,21 @@ export function ProfilePage() {
                       <CardDescription>Your current status</CardDescription>
                     </div>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => navigate('/membership')}
-                    className="gap-1"
-                  >
-                    Upgrade
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
+                  {nextTier ? (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => navigate('/membership')}
+                      className="gap-1"
+                    >
+                      Upgrade
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  ) : (
+                    <Badge className="bg-[hsl(var(--accent-lime))]/15 text-[hsl(var(--accent-lime))] border-[hsl(var(--accent-lime))]/30 font-semibold">
+                      MAX STATUS
+                    </Badge>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="space-y-5 pt-4">
