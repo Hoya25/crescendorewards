@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
+import { RewardPlaceholderCard } from '@/components/rewards/RewardPlaceholderCard';
 import { SponsorBadge } from '@/components/rewards/SponsorBadge';
 import { 
   Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, 
@@ -117,9 +118,7 @@ export function RewardCard({
             decoding="async"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Icon className="w-16 h-16 text-muted-foreground/30" />
-          </div>
+          <RewardPlaceholderCard title={reward.title} category={reward.category} />
         )}
 
         {/* Badge Stack - Top Left */}
