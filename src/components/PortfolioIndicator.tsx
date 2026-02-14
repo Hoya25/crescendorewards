@@ -183,7 +183,7 @@ export function PortfolioIndicator({ className }: PortfolioIndicatorProps) {
                   </div>
                   <Progress value={progressToNextTier} className="h-1.5" />
                   <p className="text-[10px] text-muted-foreground mt-1">
-                    Lock {(nextTier.min_nctr_360_locked - total360Locked).toLocaleString()} more NCTR
+                    Commit {(nextTier.min_nctr_360_locked - total360Locked).toLocaleString()} more NCTR
                   </p>
                 </div>
               )}

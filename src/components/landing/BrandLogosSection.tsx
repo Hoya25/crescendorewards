@@ -55,7 +55,7 @@ export function BrandLogosSection() {
 
         <div className="bg-muted/50 rounded-xl p-4 md:p-6 text-center mb-8 border">
           <p className="text-sm md:text-base text-muted-foreground">
-            <span className="font-semibold text-foreground">Example:</span> Spend $100 at Nike → Earn up to 500 NCTR → Lock it → Level up your status → Unlock premium rewards
+            <span className="font-semibold text-foreground">Example:</span> Spend $100 at Nike → Earn up to 500 NCTR → Commit it → Level up your status → Unlock premium rewards
           </p>
         </div>
 

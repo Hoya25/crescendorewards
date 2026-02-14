@@ -386,7 +386,7 @@ export default function InviteLandingPage() {
               Climb the Ranks
             </h2>
             <p className="text-muted-foreground">
-              Lock more NCTR to unlock higher tiers and better rewards
+              Commit more NCTR to unlock higher tiers and better rewards
             </p>
           </motion.div>
 

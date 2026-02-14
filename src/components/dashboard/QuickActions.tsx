@@ -64,7 +64,7 @@ export function QuickActions() {
     actions.push({
       emoji: "🔥",
       title: `Almost ${nextTier.display_name}!`,
-      subtitle: `Lock ${nctrToNext.toLocaleString()} more NCTR to unlock new rewards`,
+      subtitle: `Commit ${nctrToNext.toLocaleString()} more NCTR to unlock new rewards`,
       cta: "See What's Waiting",
       onClick: () => {
         const el = document.getElementById("next-unlocks");

@@ -572,7 +572,7 @@ export function ProfilePage() {
                         ))}
                       </ul>
                       <p className="text-xs text-muted-foreground">
-                        Lock {(nextTier.min_nctr_360_locked - total360Locked).toLocaleString()} more NCTR to unlock
+                        Commit {(nextTier.min_nctr_360_locked - total360Locked).toLocaleString()} more NCTR to unlock
                       </p>
                     </div>
                   </>

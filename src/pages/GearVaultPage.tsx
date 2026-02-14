@@ -168,7 +168,7 @@ export default function GearVaultPage() {
                   <AlertCircle className="h-6 w-6 text-amber-400" />
                   <div>
                     <p className="font-medium text-amber-400">Reach Bronze Status to access Gear Vault</p>
-                    <p className="text-sm text-slate-400">Lock NCTR to reach Bronze Status and unlock Gear Vault access</p>
+                    <p className="text-sm text-slate-400">Commit NCTR to reach Bronze Status and unlock Gear Vault access</p>
                   </div>
                 </>
               )}

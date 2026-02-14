@@ -226,16 +226,16 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
   // ─── CHOOSE PHASE ───
   const faqs = [
     {
-      q: 'What happens to my NCTR when I lock it?',
-      a: 'Your NCTR stays in your wallet — it is not spent or consumed. It is simply committed for the lock period. After the period ends, it unlocks and you can use it freely or re-lock for continued status.',
+      q: 'What happens to my NCTR when I commit it?',
+      a: 'Your NCTR stays in your wallet — it is not spent or consumed. It is simply committed for the chosen period. After the period ends, it becomes available and you can use it freely or re-commit for continued status.',
     },
     {
-      q: 'Can I unlock early?',
-      a: 'No. Once committed, your NCTR is locked for the full period. This is what makes Crescendo status meaningful — it represents real commitment to the community.',
+      q: 'Can I withdraw my NCTR before 360 days?',
+      a: 'No. Once committed, your NCTR is held for the full period. This is what makes Crescendo status meaningful — it represents real commitment to the community.',
     },
     {
       q: 'What is Crescendo status?',
-      a: 'Your status tier (Bronze through Diamond) determines what rewards and opportunities you can access. Higher status = better access. It is determined by your total locked NCTR amount.',
+      a: 'Your status tier (Bronze through Diamond) determines what rewards and opportunities you can access. Higher status = better access. It is determined by your total committed NCTR amount.',
     },
   ];
 
@@ -247,7 +247,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
         <div className="p-6 pb-4 text-center border-b border-white/10">
           <h2 className="text-2xl font-bold text-white">Commit Your NCTR</h2>
           <p className="text-sm text-white/60 mt-1.5 max-w-md mx-auto">
-            Choose how long to lock. Longer commitment = bigger rewards + higher Crescendo status.
+            Choose how long to commit. Longer commitment = bigger rewards + higher Crescendo status.
           </p>
           <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full" style={{ background: 'rgba(200,255,0,0.08)', border: '1px solid rgba(200,255,0,0.2)' }}>
             <span className="text-xs text-white/50">Available to commit:</span>

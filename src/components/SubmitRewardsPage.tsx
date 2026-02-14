@@ -369,7 +369,7 @@ export function SubmitRewardsPage() {
                   Contributor Compensation
                 </CardTitle>
                 <CardDescription>
-                  Set your floor amount and choose how long to lock your NCTR for bonus multipliers
+                  Set your floor amount and choose how long to commit your NCTR for bonus multipliers
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
