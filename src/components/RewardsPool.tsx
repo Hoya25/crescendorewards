@@ -264,9 +264,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       filtered = filtered.filter(r => r.cost <= claimBalance);
     }
 
-    // Apply sponsored filter - show only sponsored rewards
+    // Apply free filter - show only free rewards (cost = 0)
     if (sponsoredFilter) {
-      filtered = filtered.filter(r => r.sponsor_enabled || r.is_sponsored);
+      filtered = filtered.filter(r => r.cost === 0);
     }
 
     // Apply featured filter - show only featured rewards
@@ -652,13 +652,13 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             {[
               { key: 'all', label: 'All', icon: Gift, filter: 'category' },
               { key: 'featured', label: 'Featured', icon: Star, filter: 'featured' },
-              { key: 'sponsored', label: 'Sponsored', icon: Megaphone, filter: 'sponsored' },
+              { key: 'free', label: 'Free', icon: Coins, filter: 'free' },
               { key: 'experiences', label: 'Experiences', icon: Sparkles, filter: 'category' },
               { key: 'subscriptions', label: 'Subscriptions', icon: Trophy, filter: 'category' },
               { key: 'alliance_tokens', label: 'Opportunities', icon: Coins, filter: 'category' },
             ].map(({ key, label, icon: Icon, filter }) => {
               const isActive = 
-                key === 'sponsored' ? sponsoredFilter :
+                key === 'free' ? sponsoredFilter :
                 key === 'featured' ? featuredFilter :
                 filter === 'category' && activeCategory === key && !sponsoredFilter && !featuredFilter;
               
@@ -678,7 +678,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                       setAffordableFilter(false);
                       setActiveCategory('all');
                       setPriceFilter('all');
-                    } else if (key === 'sponsored') {
+                    } else if (key === 'free') {
                       setSponsoredFilter(true);
                       setFeaturedFilter(false);
                       setAffordableFilter(false);
