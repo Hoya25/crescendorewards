@@ -34,7 +34,7 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
       if (!session) {
         toast({
           title: "Not authenticated",
-          description: "Please sign in to sync your portfolio",
+          description: "Please sign in to sync your balance",
           variant: "destructive",
         });
         return;
@@ -54,13 +54,13 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
       
       if (data.portfolio?.length > 0) {
         toast({
-          title: "Portfolio synced!",
+          title: "Balance synced!",
           description: `Found ${data.portfolio.length} wallet(s) with data`,
         });
         await refreshUnifiedProfile();
       } else {
         toast({
-          title: "No portfolio data yet",
+          title: "No balance data yet",
           description: "Your account is synced but no wallet data found. Link a wallet in The Garden first.",
         });
       }
@@ -68,7 +68,7 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
       console.error('Sync error:', error);
       toast({
         title: "Sync failed",
-        description: error instanceof Error ? error.message : "Failed to sync portfolio",
+        description: error instanceof Error ? error.message : "Failed to sync balance",
         variant: "destructive",
       });
     } finally {
@@ -199,13 +199,13 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
       </CardHeader>
       <CardContent className="space-y-4">
         {!hasPortfolioData ? (
-          // No portfolio data - show sync prompt
+          // No balance data - show sync prompt
           <div className="text-center py-6 space-y-4">
             <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
               <Wallet className="w-8 h-8 text-muted-foreground" />
             </div>
             <div>
-              <p className="font-medium">No portfolio data found</p>
+              <p className="font-medium">No balance data found</p>
               <p className="text-sm text-muted-foreground">
                 Sync your wallet from The Garden to see your NCTR holdings
               </p>

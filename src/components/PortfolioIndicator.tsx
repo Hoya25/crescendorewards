@@ -50,11 +50,11 @@ export function PortfolioIndicator({ className }: PortfolioIndicatorProps) {
       if (response.error) throw new Error(response.error.message);
 
       if (response.data?.portfolio?.length > 0) {
-        toast({ title: "Portfolio synced!" });
+        toast({ title: "Balance synced!" });
         await refreshUnifiedProfile();
       } else {
         toast({ 
-          title: "No portfolio data yet", 
+          title: "No balance data yet", 
           description: "Link your wallet in The Garden first" 
         });
       }
@@ -121,10 +121,10 @@ export function PortfolioIndicator({ className }: PortfolioIndicatorProps) {
           </div>
 
           {!hasPortfolioData ? (
-            // No portfolio data prompt
+            // No balance data prompt
             <div className="text-center py-4 space-y-3">
               <p className="text-sm text-muted-foreground">
-                No portfolio data. Sync from The Garden to see your NCTR holdings.
+                No balance data. Sync from The Garden to see your NCTR holdings.
               </p>
               <Button 
                 size="sm" 
@@ -133,7 +133,7 @@ export function PortfolioIndicator({ className }: PortfolioIndicatorProps) {
                 disabled={syncing}
               >
                 {syncing ? <RefreshCw className="w-3 h-3 animate-spin" /> : <ExternalLink className="w-3 h-3" />}
-                Sync Portfolio
+                Sync Balance
               </Button>
             </div>
           ) : (

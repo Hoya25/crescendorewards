@@ -839,7 +839,7 @@ export function ProfilePage() {
               </CardContent>
             </Card>
 
-            {/* Portfolio Summary */}
+            {/* NCTR Overview */}
             <PortfolioSummaryCard showLink={true} />
             <Card>
               <CardHeader>
