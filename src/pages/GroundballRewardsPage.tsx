@@ -283,7 +283,7 @@ export default function GroundballRewardsPage() {
               {statusFilter === 'my-selections'
                 ? 'Browse rewards and start selecting!'
                 : statusFilter === 'available'
-                ? `Lock GROUNDBALL tokens to unlock rewards! You're currently at ${userTier === 'none' ? 'Member' : userTier.charAt(0).toUpperCase() + userTier.slice(1)} status. Lock 100+ $GBS to reach Bronze and unlock your first reward selections.`
+                ? `Commit GROUNDBALL tokens to unlock rewards! You're currently at ${userTier === 'none' ? 'Member' : userTier.charAt(0).toUpperCase() + userTier.slice(1)} status. Commit 100+ $GBS to reach Bronze and unlock your first reward selections.`
                 : 'Try adjusting your filters to see more rewards.'}
             </p>
             {statusFilter === 'my-selections' && (

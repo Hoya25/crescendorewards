@@ -92,7 +92,7 @@ export function TheMathSection() {
           style={{ background: 'hsl(var(--accent-lime-subtle))', borderColor: 'hsl(var(--accent-lime) / 0.15)' }}
         >
           <p className="text-sm text-text-body">
-            And every NCTR you lock raises your Crescendo status. Which unlocks better bounties.
+            And every NCTR you commit raises your Crescendo status. Which unlocks better bounties.
             Which earn more NCTR. Which raises your status more.{' '}
             <span className="font-bold text-text-heading">The flywheel never stops.</span>
           </p>

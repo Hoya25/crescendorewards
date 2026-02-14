@@ -267,7 +267,7 @@ export function ClaimsToNCTRCalculator({
         <div className="flex gap-3 p-3 bg-muted/30 rounded-lg border border-border/50">
           <Info className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
           <p className="text-xs text-muted-foreground">
-            Longer lock periods yield more NCTR tokens. The 360-day lock provides <span className="font-semibold text-primary">2.67x more NCTR</span> than the 90-day lock.
+            Longer commitment periods yield more NCTR tokens. The 360-day commitment provides <span className="font-semibold text-primary">2.67x more NCTR</span> than the 90-day commitment.
           </p>
         </div>
       </CardContent>

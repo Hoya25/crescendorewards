@@ -181,7 +181,7 @@ function Condition3({ navigate, locked }: { navigate: (path: string) => void; lo
       </h3>
       <TierProgress locked={locked} target={500} tierColor={TIER_COLORS.bronze} tierName="Silver" />
       <p className="text-sm text-white/70 mb-4">
-        Lock <span className="font-semibold text-white">{remaining.toLocaleString()}</span> more NCTR to reach Silver
+        Commit <span className="font-semibold text-white">{remaining.toLocaleString()}</span> more NCTR to reach Silver
         and unlock Tier 2 bounties and better rewards.
       </p>
       <Button
@@ -206,7 +206,7 @@ function Condition4({ navigate, locked }: { navigate: (path: string) => void; lo
       </h3>
       <TierProgress locked={locked} target={2000} tierColor={TIER_COLORS.silver} tierName="Gold" />
       <p className="text-sm text-white/70 mb-4">
-        Lock <span className="font-semibold text-white">{remaining.toLocaleString()}</span> more NCTR to reach Gold
+        Commit <span className="font-semibold text-white">{remaining.toLocaleString()}</span> more NCTR to reach Gold
         and unlock Tier 3 campaign bounties worth up to 3,000 NCTR each.
       </p>
       <Button

@@ -271,7 +271,7 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
                 </div>
                 <Progress value={progressToNextTier} className="h-2" />
                 <p className="text-xs text-muted-foreground">
-                  Lock {(nextTier.min_nctr_360_locked - total360Locked).toLocaleString()} more NCTR to reach {nextTier.display_name}
+                  Commit {(nextTier.min_nctr_360_locked - total360Locked).toLocaleString()} more NCTR to reach {nextTier.display_name}
                 </p>
               </div>
             )}
