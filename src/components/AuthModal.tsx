@@ -98,9 +98,11 @@ export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalP
 
         if (signUpError) {
           if (signUpError.message.includes('already registered')) {
-            setError('This email is already registered. Please sign in instead.');
+            setError('This email is already registered. Try signing in instead, or use "Forgot Password" to reset it.');
+          } else if (signUpError.message.includes('rate limit') || signUpError.message.includes('too many')) {
+            setError('Too many attempts. Please wait a minute and try again.');
           } else {
-            setError(signUpError.message);
+            setError('Something went wrong creating your account. Please try again, or use a different email address.');
           }
           return;
         }
@@ -121,9 +123,11 @@ export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalP
 
         if (signInError) {
           if (signInError.message.includes('Invalid login credentials')) {
-            setError('Invalid email or password. Please try again.');
+            setError('Incorrect email or password. Double-check your info and try again.');
+          } else if (signInError.message.includes('Email not confirmed')) {
+            setError('Please verify your email first. Check your inbox for a confirmation link.');
           } else {
-            setError(signInError.message);
+            setError('Something went wrong signing in. Please try again or reset your password.');
           }
           return;
         }
@@ -134,7 +138,7 @@ export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalP
         }
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
+      setError('Something unexpected happened. Try refreshing the page and signing in again.');
       console.error('Auth error:', err);
     } finally {
       setLoading(false);
