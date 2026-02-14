@@ -7,7 +7,7 @@ export function CrescendoLogo({ className = "" }: CrescendoLogoProps) {
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
       <span
-        className="font-extrabold text-[#C8FF00] select-none"
+        className="font-extrabold text-[#323232] dark:text-[#E2FF6D] select-none"
         style={{ fontSize: '18px', letterSpacing: '3px' }}
       >
         CRESCENDO
