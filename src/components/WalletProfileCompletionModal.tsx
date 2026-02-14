@@ -70,7 +70,7 @@ export function WalletProfileCompletionModal({
       // Get auth session for authenticated request
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        throw new Error('Not authenticated. Please sign in again.');
+        throw new Error('Your session expired. Please sign in again to continue.');
       }
 
       // Call the merge-wallet-user edge function to handle merging or updating
@@ -93,7 +93,7 @@ export function WalletProfileCompletionModal({
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to update profile');
+        throw new Error(data.error || 'Something went wrong. Please try again or contact support.');
       }
 
       if (data.merged) {
@@ -108,7 +108,7 @@ export function WalletProfileCompletionModal({
       onComplete();
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to update profile. Please try again.');
+      toast.error(error instanceof Error ? error.message : 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
