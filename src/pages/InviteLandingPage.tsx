@@ -479,7 +479,7 @@ export default function InviteLandingPage() {
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-primary" />
-              <span>Points Never Expire</span>
+              <span>Claims Never Expire</span>
             </div>
           </div>
         </div>

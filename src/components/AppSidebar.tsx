@@ -2,7 +2,7 @@ import { Home, Compass, Gift, ShoppingBag, UserPlus, User, ChevronRight, HelpCir
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
-import { useProfileCompletion } from '@/hooks/useProfileCompletion';
+import { useUserOnboarding } from '@/hooks/useUserOnboarding';
 import { StatusBadgeSidebar, StatusBadgeCollapsed } from '@/components/status/StatusBadgeWidget';
 
 import {
@@ -50,7 +50,9 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   const location = useLocation();
   const { isAdmin } = useAdminRole();
   const { profile, tier, nextTier, progressToNextTier, total360Locked } = useUnifiedUser();
-  const { percentage, isComplete, loading: completionLoading } = useProfileCompletion(profile as any);
+  const { progressPercent, completedCount, totalItems, loading: completionLoading } = useUserOnboarding();
+  const isComplete = completedCount >= totalItems && totalItems > 0;
+  const percentage = Math.round(progressPercent);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -155,7 +157,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
                     </div>
                     <Progress value={percentage} className="h-1.5" />
                     <p className="text-xs text-muted-foreground">
-                      Earn points by finishing setup
+                      Complete setup for bonus Claims
                     </p>
                   </div>
                 ) : (

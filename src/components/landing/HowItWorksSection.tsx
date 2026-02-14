@@ -18,7 +18,7 @@ export function HowItWorksSection() {
               <ShoppingBag className="w-7 h-7 text-white" />
             </div>
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Step 1</span>
-            <h3 className="text-xl font-bold mt-1 mb-2">Earn Points</h3>
+            <h3 className="text-xl font-bold mt-1 mb-2">Earn Claims</h3>
             <p className="text-sm text-muted-foreground">Shop at 6,000+ brands. Invite friends. Add value to the community.</p>
           </div>
 
@@ -28,7 +28,7 @@ export function HowItWorksSection() {
             </div>
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Step 2</span>
             <h3 className="text-xl font-bold mt-1 mb-2">Level Up</h3>
-            <p className="text-sm text-muted-foreground">Your points unlock membership tiers. Higher tier = better rewards.</p>
+            <p className="text-sm text-muted-foreground">Your Claims unlock membership tiers. Higher tier = better rewards.</p>
           </div>
 
           <div className="bg-background rounded-2xl p-6 text-center border">

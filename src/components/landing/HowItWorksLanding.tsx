@@ -66,7 +66,7 @@ export function HowItWorksLanding() {
           style={{ background: 'hsl(var(--accent-lime-subtle))', borderColor: 'hsl(var(--accent-lime) / 0.15)' }}
         >
           <p className="text-sm md:text-base text-text-body">
-            This isn't a points program that expires. Your NCTR is a{' '}
+            This isn't a rewards program that expires. Your NCTR is a{' '}
             <span className="font-semibold text-text-heading">real digital reward</span>.
             Your status is <span className="font-semibold text-text-heading">earned, not bought</span>.
           </p>
