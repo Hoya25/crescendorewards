@@ -65,11 +65,35 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           } as any)
           .eq('id', profile.id);
 
+        // Credit 5 Claims to profiles.claim_balance
+        const authUserId = profile.auth_user_id;
+        if (authUserId) {
+          await supabase
+            .from('profiles')
+            .update({ 
+              has_claimed_signup_bonus: true,
+              claim_balance: (profile.crescendo_data?.claim_balance as number || 0) + 5 
+            })
+            .eq('id', authUserId);
+        }
+
+        // Log signup bonus NCTR transaction
+        await supabase.from('nctr_transactions').insert({
+          user_id: profile.id,
+          source: 'signup_bonus',
+          base_amount: 25,
+          status_multiplier: 1,
+          merch_lock_multiplier: 1,
+          final_amount: 25,
+          notes: 'Welcome to Crescendo — 25 NCTR + 5 Claims',
+          lock_type: '360lock',
+        });
+
         await supabase.from('cross_platform_activity_log').insert({
           user_id: profile.id,
           platform: 'crescendo',
           action_type: 'signup_bonus',
-          action_data: { amount: 25, type: 'signup_bonus', description: 'Welcome to Crescendo' },
+          action_data: { amount: 25, type: 'signup_bonus', nctr: 25, claims: 5, description: 'Welcome to Crescendo' },
         });
       }
 
@@ -78,7 +102,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       console.error('Error completing onboarding:', err);
     }
     onComplete();
-    toast.success('🎉 Welcome to Crescendo!');
+    toast.success('Welcome! You received 5 free Claims 🎉');
   }, [profile, refreshUnifiedProfile, onComplete]);
 
   const handleSkip = useCallback(async () => {
