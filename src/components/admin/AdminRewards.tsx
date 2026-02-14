@@ -255,6 +255,9 @@ export function AdminRewards() {
     delivery_instructions: null as string | null,
     // Status tier restriction
     min_status_tier: null as string | null,
+    // Monthly Drop scheduling
+    publish_at: null as string | null,
+    unpublish_at: null as string | null,
   });
 
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -297,6 +300,8 @@ export function AdminRewards() {
           required_user_data: rewardToEdit.required_user_data || ['email'],
           delivery_instructions: rewardToEdit.delivery_instructions,
           min_status_tier: rewardToEdit.min_status_tier || null,
+          publish_at: rewardToEdit.publish_at || null,
+          unpublish_at: rewardToEdit.unpublish_at || null,
         });
         // Set existing images from image_url (primary image)
         const existingImgUrls = rewardToEdit.image_url ? [rewardToEdit.image_url] : [];
@@ -631,6 +636,8 @@ export function AdminRewards() {
         required_user_data: reward.required_user_data || ['email'],
         delivery_instructions: reward.delivery_instructions,
         min_status_tier: reward.min_status_tier || null,
+        publish_at: reward.publish_at || null,
+        unpublish_at: reward.unpublish_at || null,
       });
       // Set tier pricing state from existing reward
       const hasPricing = reward.status_tier_claims_cost && 
@@ -678,6 +685,8 @@ export function AdminRewards() {
         required_user_data: ['email'],
         delivery_instructions: null,
         min_status_tier: null,
+        publish_at: null,
+        unpublish_at: null,
       });
       setTierPricingEnabled(false);
       setTierPricing(null);
@@ -714,7 +723,9 @@ export function AdminRewards() {
       delivery_method: (reward.delivery_method as DeliveryMethod) || 'email',
       required_user_data: reward.required_user_data || ['email'],
       delivery_instructions: reward.delivery_instructions,
-      min_status_tier: reward.min_status_tier || null, // Keep tier restriction on duplicate
+      min_status_tier: reward.min_status_tier || null,
+      publish_at: null, // Don't duplicate scheduling
+      unpublish_at: null,
     });
     const existingImgUrls = reward.image_url ? [reward.image_url] : [];
     setExistingImages(existingImgUrls);
@@ -1964,6 +1975,68 @@ export function AdminRewards() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Monthly Drop Toggle */}
+            <div className="space-y-4 pt-4 border-t">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-base font-semibold flex items-center gap-2">
+                    <Calendar className="w-4 h-4" /> Make this a Monthly Drop
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-1">Set publish/unpublish dates to feature as a limited-time drop</p>
+                </div>
+                <Switch 
+                  checked={!!(formData.publish_at && formData.unpublish_at)} 
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      const now = new Date();
+                      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                      setFormData({ 
+                        ...formData, 
+                        publish_at: now.toISOString().slice(0, 16),
+                        unpublish_at: endOfMonth.toISOString().slice(0, 16),
+                      });
+                    } else {
+                      setFormData({ ...formData, publish_at: null, unpublish_at: null });
+                    }
+                  }}
+                />
+              </div>
+              {formData.publish_at && formData.unpublish_at && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label className="text-sm">Publish At</Label>
+                    <Input
+                      type="datetime-local"
+                      value={formData.publish_at?.slice(0, 16) || ''}
+                      onChange={(e) => setFormData({ ...formData, publish_at: e.target.value ? new Date(e.target.value).toISOString() : null })}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-sm">Unpublish At</Label>
+                    <Input
+                      type="datetime-local"
+                      value={formData.unpublish_at?.slice(0, 16) || ''}
+                      onChange={(e) => setFormData({ ...formData, unpublish_at: e.target.value ? new Date(e.target.value).toISOString() : null })}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-sm">Minimum Status Tier for Drop</Label>
+                    <Select 
+                      value={formData.min_status_tier || 'none'} 
+                      onValueChange={(v) => setFormData({ ...formData, min_status_tier: v === 'none' ? null : v })}
+                    >
+                      <SelectTrigger><SelectValue placeholder="All Members" /></SelectTrigger>
+                      <SelectContent>
+                        {STATUS_TIER_OPTIONS.map(t => (
+                          <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Tier-Based Pricing */}
