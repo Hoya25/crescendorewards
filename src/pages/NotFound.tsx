@@ -1,5 +1,6 @@
 import { useLocation, Link } from "react-router-dom";
-import nctrIcon from '@/assets/nctr-yellow.png';
+import nctrIconDark from '@/assets/nctr-grey.png';
+import nctrIconLight from '@/assets/nctr-yellow.png';
 import { useEffect } from "react";
 import { Home, ArrowLeft, Search, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,8 @@ const NotFound = () => {
         <div className="text-center max-w-md">
           {/* NCTR Icon + 404 */}
           <div className="mb-8">
-            <img src={nctrIcon} alt="NCTR" className="w-16 h-16 mx-auto mb-4" />
+            <img src={nctrIconDark} alt="NCTR" className="block dark:hidden w-16 h-16 mx-auto mb-4" />
+            <img src={nctrIconLight} alt="NCTR" className="hidden dark:block w-16 h-16 mx-auto mb-4" />
             <div className="text-8xl font-bold text-primary/20 mb-2">404</div>
           </div>
 
