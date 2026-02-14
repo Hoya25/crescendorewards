@@ -142,7 +142,7 @@ export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalP
 
   const handleWalletAuth = async () => {
     if (!isConnected) {
-      toast.error('Please connect your wallet using the button below');
+      toast.error('Please select a wallet using the button below');
       return;
     }
 
@@ -322,7 +322,7 @@ export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalP
                           onClick={openConnectModal}
                         >
                           <Wallet className="mr-2 h-4 w-4" />
-                          Connect Base Wallet
+                          Continue with Wallet
                         </Button>
                       ) : (
                         <Button

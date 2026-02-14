@@ -86,7 +86,7 @@ export function useWalletAuth() {
 
   const authenticateWallet = async () => {
     if (!address || !isConnected) {
-      toast.error('Please connect your wallet first');
+      toast.error('Please select a wallet to continue');
       return { success: false };
     }
 
@@ -94,7 +94,7 @@ export function useWalletAuth() {
       // Step 1: Get challenge from server
       const challenge = await getChallenge(address);
       if (!challenge) {
-        toast.error('Failed to get authentication challenge');
+        toast.error('Something went wrong. Please try again.');
         return { success: false };
       }
 
@@ -107,13 +107,13 @@ export function useWalletAuth() {
       // Step 3: Verify signature on server
       const verifyResult = await verifySignature(address, signature, challenge.nonce);
       if (!verifyResult || !verifyResult.success) {
-        toast.error(verifyResult?.error || 'Wallet verification failed');
+        toast.error(verifyResult?.error || 'Verification failed. Please try again.');
         return { success: false };
       }
 
       // Step 4: Exchange token_hash for a real session
       if (!verifyResult.token_hash) {
-        toast.error('Server did not return session token');
+        toast.error('Something went wrong. Please try again.');
         return { success: false };
       }
 
@@ -124,7 +124,7 @@ export function useWalletAuth() {
 
       if (otpError || !otpData?.session) {
         console.error('Failed to establish session:', otpError);
-        toast.error('Failed to sign in with wallet');
+        toast.error('Sign-in failed. Please try again or use email instead.');
         return { success: false };
       }
 
@@ -145,9 +145,9 @@ export function useWalletAuth() {
 
       const errorMessage = error instanceof Error ? error.message : '';
       if (errorMessage.includes('User rejected') || errorMessage.includes('rejected')) {
-        toast.error('Signature request was rejected');
+        toast.error('You cancelled the sign-in request. Try again when ready.');
       } else {
-        toast.error('Failed to authenticate with wallet');
+        toast.error('Something went wrong. Please try again or use email instead.');
       }
 
       return { success: false };
@@ -156,7 +156,7 @@ export function useWalletAuth() {
 
   const linkWalletToAccount = async (userId: string) => {
     if (!address || !isConnected) {
-      toast.error('Please connect your wallet first');
+      toast.error('Please select a wallet to link');
       return false;
     }
 
@@ -164,7 +164,7 @@ export function useWalletAuth() {
       // Get challenge for verification
       const challenge = await getChallenge(address);
       if (!challenge) {
-        toast.error('Failed to get authentication challenge');
+        toast.error('Something went wrong. Please try again.');
         return false;
       }
 
@@ -177,7 +177,7 @@ export function useWalletAuth() {
       // Verify signature
       const verifyResult = await verifySignature(address, signature, challenge.nonce);
       if (!verifyResult || !verifyResult.success) {
-        toast.error('Wallet verification failed');
+        toast.error('Verification failed. Please try again.');
         return false;
       }
 
@@ -196,9 +196,9 @@ export function useWalletAuth() {
       
       const errorMessage = error instanceof Error ? error.message : '';
       if (errorMessage.includes('User rejected') || errorMessage.includes('rejected')) {
-        toast.error('Signature request was rejected');
+        toast.error('You cancelled the request. Try again when ready.');
       } else {
-        toast.error('Failed to link wallet');
+        toast.error('Failed to link wallet. Please try again.');
       }
       
       return false;

@@ -71,7 +71,7 @@ export function useProfileCompletion(profile: Profile | null): UseProfileComplet
       },
       {
         id: 'wallet',
-        label: 'Connect wallet',
+        label: 'Link wallet',
         isComplete: !!profile.wallet_address,
         weight: 20,
       },
