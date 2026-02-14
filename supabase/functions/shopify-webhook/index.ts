@@ -322,12 +322,22 @@ Deno.serve(async (req) => {
         .single();
 
       if (profileData?.auth_user_id) {
-        // Update profiles table (legacy)
-        await supabase.rpc('sql', {
-          query: `UPDATE profiles SET locked_nctr = locked_nctr + ${finalNctr} WHERE id = '${profileData.auth_user_id}'`
-        }).catch(() => {
-          console.log('Note: Could not auto-credit NCTR via rpc');
-        });
+        // Update profiles table (legacy) - use parameterized Supabase client instead of raw SQL
+        const { data: currentProfile } = await supabase
+          .from('profiles')
+          .select('locked_nctr')
+          .eq('id', profileData.auth_user_id)
+          .single();
+
+        if (currentProfile) {
+          await supabase
+            .from('profiles')
+            .update({ 
+              locked_nctr: (currentProfile.locked_nctr || 0) + finalNctr,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', profileData.auth_user_id);
+        }
 
         // Update crescendo_data in unified_profiles
         const currentData = profileData.crescendo_data || {};
