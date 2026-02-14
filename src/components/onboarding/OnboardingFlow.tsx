@@ -214,7 +214,7 @@ function StepWelcome() {
         className="text-base mb-6"
         style={{ color: '#ccc' }}
       >
-        The rewards marketplace built by the people, for the people.
+        Live and earn. Built by the people, for the people.
       </motion.p>
       <motion.p
         initial={{ opacity: 0 }}

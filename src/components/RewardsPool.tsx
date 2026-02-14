@@ -585,7 +585,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   return (
     <div className="min-h-screen bg-background pb-20 w-full max-w-[100vw] overflow-x-hidden">
       <SEO 
-        title="Rewards Marketplace"
+        title="Rewards"
         description="Browse and claim exclusive rewards including experiences, merchandise, subscriptions, and more."
       />
 

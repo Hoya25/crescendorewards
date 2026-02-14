@@ -10,8 +10,8 @@ interface SEOProps {
 }
 
 const defaultMeta = {
-  title: "Crescendo | The People's Rewards Marketplace",
-  description: "Member-built, member-owned rewards marketplace. Earn by shopping, inviting, and contributing. Build ownership in a community you help create.",
+  title: "Crescendo | Live and Earn | by NCTR Alliance",
+  description: "Earn status through participation. Shop, contribute, commit for 360 days, and rise from Bronze to Diamond. Crescendo by NCTR Alliance.",
   ogImage: "https://crescendo.nctr.live/og-image.png",
   siteUrl: "https://crescendo.nctr.live",
 };

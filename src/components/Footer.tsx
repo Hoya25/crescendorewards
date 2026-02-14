@@ -88,7 +88,7 @@ export function Footer() {
 
         {/* Bottom Copyright */}
         <div className="mt-8 pt-6 border-t text-center text-sm text-text-body-muted">
-          <p>© {currentYear} Crescendo Opportunity & Rewards Marketplace. All rights reserved.</p>
+          <p>© {currentYear} Crescendo. All rights reserved.</p>
           <p className="mt-1 text-xs">
             Beta version — Building the future of member-owned rewards.
           </p>
