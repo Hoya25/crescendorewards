@@ -32,6 +32,7 @@ import { LockExpiryWidget } from './LockExpiryWidget';
 import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow, subDays, format, startOfDay } from 'date-fns';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
+import { MonthlyClaimsDistributionButton } from './MonthlyClaimsDistributionButton';
 import {
   LineChart,
   Line,
@@ -788,6 +789,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             <CreditCard className="w-4 h-4" />
             View Purchases
           </Button>
+          <MonthlyClaimsDistributionButton />
         </div>
       </div>
 

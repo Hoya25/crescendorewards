@@ -519,6 +519,31 @@ export function ProfilePage() {
 
                 <Separator />
 
+                {/* Monthly Claims Allocation */}
+                <div className="space-y-2 animate-fade-in" style={{ animationDelay: '0.15s' }}>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground flex items-center gap-1.5">
+                      <Gift className="w-3.5 h-3.5" />
+                      Monthly Claims
+                    </span>
+                    <span className="font-bold">
+                      {(tier?.claims_per_month || 0)}/month
+                    </span>
+                  </div>
+                  {nextTier && (nextTier.claims_per_month || 0) > (tier?.claims_per_month || 0) && (
+                    <p 
+                      className="text-xs flex items-center gap-1 cursor-pointer hover:underline"
+                      style={{ color: nextTier.badge_color || 'hsl(var(--muted-foreground))' }}
+                      onClick={() => navigate('/membership')}
+                    >
+                      <TrendingUp className="w-3 h-3" />
+                      {nextTier.display_name} members get {nextTier.claims_per_month}/month
+                    </p>
+                  )}
+                </div>
+
+                <Separator />
+
                 {/* Benefits List with staggered animations */}
                 <div className="space-y-3">
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide animate-fade-in" style={{ animationDelay: '0.2s' }}>
