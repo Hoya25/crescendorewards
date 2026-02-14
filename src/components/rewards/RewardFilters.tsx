@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Gift, Sparkles, ShoppingBag, CreditCard, Coins, X, 
-  Package, ArrowUpDown, Search, Trophy, Heart, Wallet, SlidersHorizontal, Star, Megaphone
+  Package, ArrowUpDown, Search, Trophy, Heart, Wallet, SlidersHorizontal
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
@@ -37,12 +37,11 @@ interface RewardFiltersProps {
 // Simplified category tabs for main filter row
 const quickCategories = [
   { key: 'all', label: 'All', icon: Gift },
-  { key: 'featured', label: 'Featured', icon: Star },
-  { key: 'sponsored', label: 'Sponsored', icon: Megaphone },
-  { key: 'affordable', label: 'Can Afford', icon: Wallet },
-  { key: 'free', label: 'Free', icon: Gift },
+  { key: 'free', label: 'Free', icon: Coins },
   { key: 'experiences', label: 'Experiences', icon: Sparkles },
+  { key: 'merch', label: 'Merch', icon: ShoppingBag },
   { key: 'subscriptions', label: 'Subscriptions', icon: Trophy },
+  { key: 'community', label: 'Community', icon: Heart },
 ];
 
 export function RewardFilters({
@@ -84,32 +83,16 @@ export function RewardFilters({
   };
 
   const handleQuickCategory = (key: string) => {
-    if (key === 'featured') {
-      clearSpecialFilters();
-      onFeaturedFilterChange?.(true);
-      onCategoryChange('all');
-    } else if (key === 'sponsored') {
-      clearSpecialFilters();
-      onSponsoredFilterChange?.(true);
-      onCategoryChange('all');
-    } else if (key === 'affordable') {
-      clearSpecialFilters();
-      onAffordableFilterChange?.(true);
-      onCategoryChange('all');
-    } else if (key === 'free') {
-      clearSpecialFilters();
+    clearSpecialFilters();
+    if (key === 'free') {
       onCategoryChange('all');
       onPriceFilterChange('free');
     } else {
-      clearSpecialFilters();
       onCategoryChange(key);
     }
   };
 
   const getActiveTab = () => {
-    if (featuredFilter) return 'featured';
-    if (sponsoredFilter) return 'sponsored';
-    if (affordableFilter) return 'affordable';
     if (priceFilter === 'free' && activeCategory === 'all') return 'free';
     return activeCategory;
   };
@@ -203,11 +186,13 @@ export function RewardFilters({
                   <SelectContent>
                     <SelectItem value="all">All Categories</SelectItem>
                     <SelectItem value="experiences">Experiences</SelectItem>
-                    <SelectItem value="subscriptions">Subscriptions</SelectItem>
-                    <SelectItem value="gift_cards">Gift Cards</SelectItem>
                     <SelectItem value="merch">Merchandise</SelectItem>
-                    <SelectItem value="alliance_tokens">Alliance Tokens</SelectItem>
+                    <SelectItem value="subscriptions">Subscriptions</SelectItem>
+                    <SelectItem value="community">Community</SelectItem>
+                    <SelectItem value="gift_cards">Gift Cards</SelectItem>
+                    <SelectItem value="entertainment">Entertainment</SelectItem>
                     <SelectItem value="wellness">Wellness</SelectItem>
+                    <SelectItem value="alliance_tokens">Alliance Tokens</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

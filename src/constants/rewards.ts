@@ -20,6 +20,7 @@ export const REWARD_CATEGORIES = [
   { value: 'wellness', label: 'Health & Wellness', icon: Heart },
   { value: 'crypto', label: 'Crypto', icon: Bitcoin },
   { value: 'opportunity', label: 'Opportunity', icon: Rocket },
+  { value: 'community', label: 'Community', icon: Gift },
 ] as const;
 
 // For filter dropdowns that need an "All" option
