@@ -58,7 +58,7 @@ export function EarnNCTR() {
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-background/80">
-        <SEO title="Earn NCTR" description="Multiple ways to earn NCTR tokens" />
+        <SEO title="Earn NCTR" description="Multiple ways to earn NCTR" />
         <div className="container mx-auto px-4 py-8">
           <Button variant="ghost" onClick={() => navigate('/dashboard')} className="mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -83,7 +83,7 @@ export function EarnNCTR() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80">
-      <SEO title="Earn NCTR" description="Multiple ways to earn NCTR tokens" />
+      <SEO title="Earn NCTR" description="Multiple ways to earn NCTR" />
       
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
@@ -198,7 +198,7 @@ export function EarnNCTR() {
                 <TooltipContent side="bottom" className="max-w-xs">
                   <p className="font-medium mb-1">What is 360LOCK?</p>
                   <p className="text-xs text-muted-foreground">
-                    NCTR tokens locked for 360 days. Higher locks mean better membership tier, 
+                    NCTR locked for 360 days. Higher locks mean better membership tier, 
                     lower reward costs, and exclusive benefits.
                   </p>
                 </TooltipContent>

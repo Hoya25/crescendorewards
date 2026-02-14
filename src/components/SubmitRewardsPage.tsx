@@ -354,7 +354,7 @@ export function SubmitRewardsPage() {
                   </div>
                   <div>
                     <p className="text-foreground">
-                      You receive NCTR tokens with your chosen lock multiplier
+                      You receive NCTR with your chosen lock multiplier
                     </p>
                   </div>
                 </div>
