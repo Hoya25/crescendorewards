@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, User, Mail, AlertCircle, Wallet, CheckCircle2 } from 'lucide-react';
+import { Loader2, User, Mail, AlertCircle, Wallet, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -128,6 +128,15 @@ export function WalletProfileCompletionModal({
             Add your name and email to unlock all features and receive reward notifications.
           </DialogDescription>
         </DialogHeader>
+
+        <button
+            type="button"
+            onClick={onClose}
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors -mt-2 mb-1"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back</span>
+          </button>
 
         <div className="space-y-4">
           {/* Wallet Connected Badge */}
