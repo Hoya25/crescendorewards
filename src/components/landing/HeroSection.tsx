@@ -60,9 +60,11 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
             thousands for.
           </p>
 
-          <p className="text-xs text-text-body-muted">
-            by NCTR Alliance
-          </p>
+          <img
+            src="/brands/nctr-alliance-grey.png"
+            alt="by NCTR Alliance"
+            className="h-6 opacity-50"
+          />
 
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
