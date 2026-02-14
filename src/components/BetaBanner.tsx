@@ -23,9 +23,9 @@ export function BetaBanner() {
     <div className="bg-gradient-to-r from-amber-500/90 to-orange-500/90 text-white px-4 py-2 relative">
       <div className="container mx-auto flex items-center justify-center gap-2 text-sm">
         <FlaskConical className="w-4 h-4 flex-shrink-0" />
-        <span className="font-medium">Beta</span>
+        <span className="font-medium">Crescendo Beta</span>
         <span className="hidden sm:inline">—</span>
-        <span className="hidden sm:inline">Help us improve!</span>
+        <span className="hidden sm:inline">Help us improve Crescendo! Share feedback anytime.</span>
         <span className="font-medium">Your feedback shapes the future</span>
         <Button
           variant="ghost"
