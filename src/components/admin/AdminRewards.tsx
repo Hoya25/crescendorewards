@@ -99,14 +99,15 @@ const STATUS_TIER_OPTIONS = [
 
 const CATEGORIES = [
   { value: 'all', label: 'All Categories' },
-  { value: 'alliance_tokens', label: 'Alliance Tokens' },
   { value: 'experiences', label: 'Experiences' },
   { value: 'merch', label: 'Merchandise' },
-  { value: 'gift_cards', label: 'Gift Cards' },
-  { value: 'gaming', label: 'Gaming' },
-  { value: 'entertainment', label: 'Entertainment' },
   { value: 'subscriptions', label: 'Subscriptions' },
+  { value: 'community', label: 'Community' },
+  { value: 'gift_cards', label: 'Gift Cards' },
+  { value: 'entertainment', label: 'Entertainment' },
+  { value: 'gaming', label: 'Gaming' },
   { value: 'wellness', label: 'Health & Wellness' },
+  { value: 'alliance_tokens', label: 'Alliance Tokens' },
   { value: 'crypto', label: 'Crypto' },
   { value: 'opportunity', label: 'Opportunity' },
 ];

@@ -67,6 +67,7 @@ const categoryIcons: Record<string, React.ElementType> = {
   gaming: Zap,
   music: Music,
   events: Ticket,
+  community: Gift,
 };
 
 const tierOrder = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];

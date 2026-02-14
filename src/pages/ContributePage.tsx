@@ -21,11 +21,12 @@ import {
 } from '@/components/ui/select';
 
 const CATEGORIES = [
-  'Service',
-  'Experience',
-  'Product',
-  'Discount / Offer',
-  'Knowledge / Education',
+  'Experiences',
+  'Merch',
+  'Subscriptions',
+  'Community',
+  'Gift Cards',
+  'Entertainment',
   'Other',
 ];
 
