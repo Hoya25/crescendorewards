@@ -15,6 +15,7 @@ export interface StatusTier {
   sort_order: number;
   is_active: boolean;
   earning_multiplier?: number;
+  claims_per_month?: number;
 }
 
 export interface WalletPortfolio {
