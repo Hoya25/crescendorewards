@@ -67,11 +67,18 @@ export function WalletProfileCompletionModal({
     setLoading(true);
 
     try {
+      // Get auth session for authenticated request
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Not authenticated. Please sign in again.');
+      }
+
       // Call the merge-wallet-user edge function to handle merging or updating
       const response = await fetch(MERGE_FUNCTION_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
           'apikey': import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
         },
         body: JSON.stringify({
