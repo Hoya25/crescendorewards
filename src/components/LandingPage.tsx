@@ -71,7 +71,7 @@ export function LandingPage() {
       {/* Navigation */}
       <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 md:px-12 py-4 md:py-5 w-full max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
-          <CrescendoLogo variant="orbital" size={48} theme={theme} className="min-w-[48px] min-h-[48px]" />
+          <CrescendoLogo variant="orbital" size={56} theme={theme} className="min-w-[56px] min-h-[56px]" />
           <span className="font-semibold text-lg text-foreground">Crescendo</span>
           <span className="text-[10px] font-semibold uppercase tracking-widest px-1.5 py-0.5 rounded bg-accent-lime text-black">
             Beta
