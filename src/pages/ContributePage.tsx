@@ -28,9 +28,6 @@ const CATEGORIES = [
   'Merch',
   'Subscriptions',
   'Community',
-  'Gift Cards',
-  'Entertainment',
-  'Other',
 ];
 
 const DELIVERY_METHODS = [

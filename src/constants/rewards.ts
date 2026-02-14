@@ -10,16 +10,9 @@ import {
 // ============================================================================
 
 export const REWARD_CATEGORIES = [
-  { value: 'alliance_tokens', label: 'Alliance Tokens', icon: Coins },
   { value: 'experiences', label: 'Experiences', icon: Sparkles },
-  { value: 'merch', label: 'Merchandise', icon: ShoppingBag },
-  { value: 'gift_cards', label: 'Gift Cards', icon: CreditCard },
-  { value: 'gaming', label: 'Gaming', icon: Gamepad2 },
-  { value: 'entertainment', label: 'Entertainment', icon: Film },
+  { value: 'merch', label: 'Merch', icon: ShoppingBag },
   { value: 'subscriptions', label: 'Subscriptions', icon: Trophy },
-  { value: 'wellness', label: 'Health & Wellness', icon: Heart },
-  { value: 'crypto', label: 'Crypto', icon: Bitcoin },
-  { value: 'opportunity', label: 'Opportunity', icon: Rocket },
   { value: 'community', label: 'Community', icon: Gift },
 ] as const;
 
