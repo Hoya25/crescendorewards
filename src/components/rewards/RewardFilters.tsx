@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Gift, Sparkles, ShoppingBag, CreditCard, Coins, X, 
-  Package, ArrowUpDown, Search, Trophy, Heart, Wallet, SlidersHorizontal
+  Package, ArrowUpDown, Search, Trophy, Heart, Wallet, SlidersHorizontal, Crown
 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
@@ -30,8 +30,11 @@ interface RewardFiltersProps {
   onFeaturedFilterChange?: (enabled: boolean) => void;
   sponsoredFilter?: boolean;
   onSponsoredFilterChange?: (enabled: boolean) => void;
+  statusFilter?: string;
+  onStatusFilterChange?: (filter: string) => void;
   resultsCount?: number;
   userBalance?: number;
+  userTier?: string;
 }
 
 // Simplified category tabs for main filter row
@@ -63,22 +66,27 @@ export function RewardFilters({
   onFeaturedFilterChange,
   sponsoredFilter = false,
   onSponsoredFilterChange,
+  statusFilter = 'all',
+  onStatusFilterChange,
   resultsCount = 0,
   userBalance = 0,
+  userTier = 'bronze',
 }: RewardFiltersProps) {
-  const hasActiveFilters = priceFilter !== 'all' || availabilityFilter !== 'all' || exclusiveFilter !== 'all' || featuredFilter || sponsoredFilter;
+  const hasActiveFilters = priceFilter !== 'all' || availabilityFilter !== 'all' || exclusiveFilter !== 'all' || featuredFilter || sponsoredFilter || statusFilter !== 'all';
   const activeFilterCount = [
     priceFilter !== 'all',
     availabilityFilter !== 'all',
     exclusiveFilter !== 'all',
     featuredFilter,
-    sponsoredFilter
+    sponsoredFilter,
+    statusFilter !== 'all'
   ].filter(Boolean).length;
 
   const clearSpecialFilters = () => {
     onAffordableFilterChange?.(false);
     onFeaturedFilterChange?.(false);
     onSponsoredFilterChange?.(false);
+    onStatusFilterChange?.('all');
     if (priceFilter === 'free') onPriceFilterChange('all');
   };
 
@@ -248,6 +256,28 @@ export function RewardFilters({
                 </div>
               )}
 
+              {/* Status Level Filter */}
+              {onStatusFilterChange && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">My Status Level</label>
+                  <Select value={statusFilter} onValueChange={onStatusFilterChange}>
+                    <SelectTrigger className="w-full bg-background">
+                      <Crown className="w-4 h-4 mr-2" />
+                      <SelectValue placeholder="Status Level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Rewards</SelectItem>
+                      <SelectItem value="eligible">My Eligible Rewards</SelectItem>
+                      <SelectItem value="bronze">Bronze & Below</SelectItem>
+                      <SelectItem value="silver">Silver & Below</SelectItem>
+                      <SelectItem value="gold">Gold & Below</SelectItem>
+                      <SelectItem value="platinum">Platinum & Below</SelectItem>
+                      <SelectItem value="diamond">Diamond</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
               {/* Clear Filters */}
               {hasActiveFilters && (
                 <Button
@@ -260,6 +290,7 @@ export function RewardFilters({
                     onAffordableFilterChange?.(false);
                     onFeaturedFilterChange?.(false);
                     onSponsoredFilterChange?.(false);
+                    onStatusFilterChange?.('all');
                   }}
                 >
                   <X className="w-4 h-4 mr-2" />
