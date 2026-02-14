@@ -80,14 +80,26 @@ export function WelcomeFlow({ isOpen, onClose }: WelcomeFlowProps) {
     if (profile?.id) {
       try {
         await supabase.from("nctr_transactions").insert([
-          { user_id: profile.id, source: "signup_bonus", base_amount: 25, status_multiplier: 1, merch_lock_multiplier: 1, final_amount: 25, notes: "Welcome to Crescendo", lock_type: "360lock" },
+          { user_id: profile.id, source: "signup_bonus", base_amount: 25, status_multiplier: 1, merch_lock_multiplier: 1, final_amount: 25, notes: "Welcome to Crescendo — 25 NCTR + 5 Claims", lock_type: "360lock" },
           { user_id: profile.id, source: "profile_completion", base_amount: 10, status_multiplier: 1, merch_lock_multiplier: 1, final_amount: 10, notes: "Profile completed during onboarding", lock_type: "360lock" },
         ]);
+        // Credit 5 Claims to profiles
+        const authUserId = profile.auth_user_id;
+        if (authUserId) {
+          await supabase
+            .from('profiles')
+            .update({ 
+              has_claimed_signup_bonus: true,
+              claim_balance: ((profile as any).crescendo_data?.claim_balance || 0) + 5 
+            })
+            .eq('id', authUserId);
+        }
         await supabase
           .from("unified_profiles")
           .update({ has_completed_onboarding: true, signup_bonus_awarded: true })
           .eq("id", profile.id);
         refreshUnifiedProfile();
+        toast.success('Welcome! You received 5 free Claims 🎉');
       } catch (e) {
         console.error("Failed to record onboarding bonuses:", e);
       }
