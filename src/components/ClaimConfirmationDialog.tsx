@@ -19,6 +19,7 @@ import { useState } from "react";
 import type { DeliveryMethod } from "@/types/delivery";
 import { DELIVERY_METHOD_LABELS } from "@/types/delivery";
 import { InvitePromptCard } from "@/components/referral/InvitePromptCard";
+import { CrescendoLogo } from "@/components/brand/CrescendoLogo";
 
 interface ClaimConfirmationDialogProps {
   isOpen: boolean;
@@ -143,13 +144,16 @@ export function ClaimConfirmationDialog({
       <AlertDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <AlertDialogContent className="sm:max-w-md text-center">
           <div className="flex flex-col items-center py-6 space-y-4">
-            {/* Confetti/Celebration */}
+            {/* Crescendo Logo celebration */}
             <div className="relative">
               <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/20 via-primary/20 to-amber-500/20 blur-xl rounded-full animate-pulse" />
-              <div className="relative flex items-center justify-center gap-2">
-                <PartyPopper className="w-6 h-6 text-amber-500 animate-bounce" />
-                {successContent.icon}
-                <PartyPopper className="w-6 h-6 text-amber-500 animate-bounce" style={{ animationDelay: '0.2s' }} />
+              <div className="relative flex flex-col items-center gap-2">
+                <CrescendoLogo variant="orbital" size={80} showWordmark={false} />
+                <div className="flex items-center gap-2">
+                  <PartyPopper className="w-5 h-5 text-amber-500 animate-bounce" />
+                  {successContent.icon}
+                  <PartyPopper className="w-5 h-5 text-amber-500 animate-bounce" style={{ animationDelay: '0.2s' }} />
+                </div>
               </div>
             </div>
 
