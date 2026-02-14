@@ -20,7 +20,7 @@ const initialSteps: OnboardingStep[] = [
   {
     id: "rewards",
     title: "Explore Rewards",
-    description: "Browse the opportunity and rewards marketplace",
+    description: "Browse rewards and opportunities",
     icon: Gift,
     route: "/rewards",
     completed: false,

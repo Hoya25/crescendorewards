@@ -1,23 +1,25 @@
-import { useTheme } from './ThemeProvider';
-import crescendoLogoLight from '@/assets/crescendo-logo-light.png';
-import crescendoLogoDark from '@/assets/crescendo-logo-dark.png';
-
 interface CrescendoLogoProps {
   className?: string;
   showSubtitle?: boolean;
 }
 
-export function CrescendoLogo({ className = "", showSubtitle = true }: CrescendoLogoProps) {
-  const { theme } = useTheme();
-  
-  // Use dark logo on dark theme (white text), light logo on light theme (dark text)
-  const logoSrc = theme === 'dark' ? crescendoLogoDark : crescendoLogoLight;
-
+export function CrescendoLogo({ className = "" }: CrescendoLogoProps) {
   return (
-    <img 
-      src={logoSrc}
-      alt="Crescendo Opportunity & Rewards Marketplace"
-      className={`h-auto w-24 sm:w-28 md:w-30 object-contain ${className}`}
-    />
+    <div className={`flex items-center gap-2.5 ${className}`}>
+      <span
+        className="font-extrabold text-[#C8FF00] select-none"
+        style={{ fontSize: '18px', letterSpacing: '3px' }}
+      >
+        CRESCENDO
+      </span>
+      <span
+        className="block"
+        style={{ width: '1px', height: '20px', backgroundColor: '#27272A' }}
+        aria-hidden="true"
+      />
+      <span className="text-[#52525B] select-none" style={{ fontSize: '12px' }}>
+        by NCTR Alliance
+      </span>
+    </div>
   );
 }
