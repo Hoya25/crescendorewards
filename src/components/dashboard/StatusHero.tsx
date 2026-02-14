@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 import { Crown } from "lucide-react";
 import { DEFAULT_EARNING_MULTIPLIERS } from "@/utils/calculateReward";
+import { CrescendoProgressRing } from "@/components/brand/CrescendoLogo";
 
 export function StatusHero() {
   const { tier, nextTier, progressToNextTier, total360Locked, profile } = useUnifiedUser();
@@ -26,6 +27,7 @@ export function StatusHero() {
         <div className="flex flex-col md:flex-row md:items-center gap-5">
           {/* Left: Current tier */}
           <div className="flex items-center gap-3 shrink-0">
+            <CrescendoProgressRing progress={Math.round(progressToNextTier)} tier={tierName as any} size={80} />
             <span className="text-5xl">{tier?.badge_emoji || "🥉"}</span>
             <div>
               <p className="text-xs text-text-body-muted font-medium uppercase tracking-wider">
