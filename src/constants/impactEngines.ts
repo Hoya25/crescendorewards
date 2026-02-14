@@ -112,8 +112,9 @@ export const GROUNDBALL_NAV_TABS = [
 export const REWARD_CATEGORY_OPTIONS = [
   { value: 'all', label: 'All Categories', emoji: '🎯' },
   { value: 'experiences', label: 'Experiences', emoji: '⭐' },
-  { value: 'gear', label: 'Gear', emoji: '🥍' },
-  { value: 'give-back', label: 'Give-Back', emoji: '💚' },
+  { value: 'merch', label: 'Merch', emoji: '🛍️' },
+  { value: 'subscriptions', label: 'Subscriptions', emoji: '🏆' },
+  { value: 'community', label: 'Community', emoji: '💚' },
 ] as const;
 
 export const REWARD_CADENCE_OPTIONS = [

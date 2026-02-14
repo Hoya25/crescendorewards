@@ -652,11 +652,11 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             <div className="flex items-center gap-1.5 overflow-x-auto py-1 -mx-4 px-4 scrollbar-hide">
             {[
               { key: 'all', label: 'All', icon: Gift, filter: 'category' },
-              { key: 'featured', label: 'Featured', icon: Star, filter: 'featured' },
               { key: 'free', label: 'Free', icon: Coins, filter: 'free' },
               { key: 'experiences', label: 'Experiences', icon: Sparkles, filter: 'category' },
+              { key: 'merch', label: 'Merch', icon: ShoppingBag, filter: 'category' },
               { key: 'subscriptions', label: 'Subscriptions', icon: Trophy, filter: 'category' },
-              { key: 'alliance_tokens', label: 'Opportunities', icon: Coins, filter: 'category' },
+              { key: 'community', label: 'Community', icon: Heart, filter: 'category' },
             ].map(({ key, label, icon: Icon, filter }) => {
               const isActive = 
                 key === 'free' ? sponsoredFilter :
