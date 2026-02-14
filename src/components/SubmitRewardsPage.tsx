@@ -30,7 +30,7 @@ const rewardTypes = [
   { id: 'digital', label: 'Digital Good', icon: Zap },
   { id: 'giftcard', label: 'Gift Card', icon: CreditCard },
   { id: 'experience', label: 'Experience', icon: Ticket },
-  { id: 'nft', label: 'NFT/Crypto', icon: Sparkles },
+  { id: 'nft', label: 'Digital Collectible', icon: Sparkles },
   { id: 'merch', label: 'Merchandise', icon: Shirt },
   { id: 'subscription', label: 'Subscription', icon: Star },
   { id: 'other', label: 'Other', icon: Gift },

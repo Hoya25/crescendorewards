@@ -1106,7 +1106,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
               {reward.category === 'merch' || reward.category === 'experiences' 
                 ? 'Please provide your shipping information'
                 : reward.category === 'crypto' || reward.category === 'nft' || reward.category === 'tokens'
-                ? 'Please provide your wallet address for delivery'
+                ? 'Please provide your digital wallet address for delivery'
                 : 'Please confirm your delivery details'}
             </DialogDescription>
           </DialogHeader>
@@ -1127,7 +1127,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
               <p className="text-xs text-muted-foreground">We'll send confirmation and delivery updates here</p>
             </div>
 
-            {/* Digital Asset Fields - for crypto, nft, tokens categories */}
+            {/* Digital Asset Fields - for digital collectible, nft, tokens categories */}
             {(reward.category === 'crypto' || reward.category === 'nft' || reward.category === 'tokens') && (
               <>
                 <Separator />
@@ -1283,7 +1283,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
               </>
             )}
 
-            {/* Digital (non-crypto) rewards - subscriptions, streaming, etc. */}
+            {/* Digital (non-wallet) rewards - subscriptions, streaming, etc. */}
             {reward.category !== 'merch' && 
              reward.category !== 'experiences' && 
              reward.category !== 'crypto' && 

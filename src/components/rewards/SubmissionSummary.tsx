@@ -18,7 +18,7 @@ const rewardTypeLabels: Record<string, string> = {
   digital: 'Digital Good',
   giftcard: 'Gift Card',
   experience: 'Experience',
-  nft: 'NFT/Crypto',
+  nft: 'Digital Collectible',
   merch: 'Merchandise',
   subscription: 'Subscription',
   other: 'Other',

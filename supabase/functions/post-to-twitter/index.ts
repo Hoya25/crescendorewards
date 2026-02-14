@@ -135,7 +135,7 @@ function generatePostContent(reward: {
     merch: ['👕', 'Fresh merch alert!', 'Rep your favorites!'],
     gift_cards: ['🎁', 'Gift yourself something nice!', 'Turn loyalty into spending power!'],
     wellness: ['💪', 'Invest in yourself!', 'Your wellness journey starts here!'],
-    crypto: ['🪙', 'Earn your way into Web3!', 'Crypto rewards, no wallet required!'],
+    crypto: ['🪙', 'Earn your way in!', 'Digital rewards, no wallet required!'],
     alliance_tokens: ['🌟', 'Exclusive NCTR rewards!', 'Alliance benefits unlocked!'],
     opportunity: ['🚀', 'Opportunity knocks!', 'Your next big break awaits!'],
   };
