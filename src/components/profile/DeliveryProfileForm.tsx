@@ -308,13 +308,13 @@ export function DeliveryProfileForm() {
           </AccordionContent>
         </AccordionItem>
 
-        {/* Crypto Wallet */}
+        {/* Digital Wallet */}
         <AccordionItem value="wallet" className="border rounded-lg px-4">
           <AccordionTrigger className="py-4">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <FieldIcon name="Wallet" filled={!!formData.wallet_address} />
-                <span>Crypto Wallet</span>
+                <span>Digital Wallet</span>
               </div>
               {formData.wallet_address && (
                 <Check className="w-4 h-4 text-emerald-500" />

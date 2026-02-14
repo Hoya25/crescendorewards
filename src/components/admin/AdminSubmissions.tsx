@@ -75,7 +75,7 @@ const CATEGORIES = [
   { value: 'experiences', label: 'Experiences' },
   { value: 'merchandise', label: 'Merchandise' },
   { value: 'gift_cards', label: 'Gift Cards' },
-  { value: 'crypto', label: 'Crypto' },
+  { value: 'crypto', label: 'Digital Collectible' },
 ];
 
 export function AdminSubmissions() {

@@ -113,7 +113,7 @@ export const DELIVERY_METHODS = [
   { value: 'email', label: 'Email Delivery', description: 'Send digital content via email' },
   { value: 'instant_code', label: 'Instant Code', description: 'User receives code immediately' },
   { value: 'shipping', label: 'Physical Shipping', description: 'Ship physical product' },
-  { value: 'wallet', label: 'Crypto Wallet', description: 'Send to user wallet address' },
+  { value: 'wallet', label: 'Digital Wallet', description: 'Send to user wallet address' },
   { value: 'discord', label: 'Discord Delivery', description: 'Send via Discord DM' },
   { value: 'manual', label: 'Manual Fulfillment', description: 'Admin handles delivery' },
 ] as const;
