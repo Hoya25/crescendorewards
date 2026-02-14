@@ -8,8 +8,8 @@ interface HeroSectionProps {
 }
 
 const FLYWHEEL_NODES = [
-  { label: 'Earn', sub: 'Shop, create, refer', Icon: TrendingUp, angle: -90 },
-  { label: 'Commit', sub: 'Lock for 360 days', Icon: Lock, angle: 30 },
+  { label: 'Earn', sub: 'Shop, contribute, refer', Icon: TrendingUp, angle: -90 },
+  { label: 'Commit', sub: 'Commit for 360 days', Icon: Lock, angle: 30 },
   { label: 'Unlock', sub: 'Level up your status', Icon: Trophy, angle: 150 },
 ];
 
