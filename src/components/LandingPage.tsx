@@ -12,7 +12,6 @@ import { FinalCTA } from "./landing/FinalCTA";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { CrescendoLogo } from "@/components/brand/CrescendoLogo";
 import { useTheme } from "./ThemeProvider";
 
 function ScrollReveal({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -70,12 +69,12 @@ export function LandingPage() {
 
       {/* Navigation */}
       <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 md:px-12 py-4 md:py-5 w-full max-w-7xl mx-auto">
-        <div className="flex items-center gap-2">
-          <CrescendoLogo variant="bold" size={56} theme={theme} className="min-w-[56px] min-h-[56px]" />
-          <span className="font-semibold text-lg text-foreground">Crescendo</span>
-          <span className="text-[10px] font-semibold uppercase tracking-widest px-1.5 py-0.5 rounded bg-accent-lime text-black">
-            Beta
-          </span>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-accent-lime flex items-center justify-center">
+            <span className="text-black font-black text-sm tracking-tight">360</span>
+          </div>
+          <span className="text-xl font-bold text-foreground">Crescendo</span>
+          <span className="px-2 py-0.5 rounded text-xs font-bold bg-accent-lime text-black">BETA</span>
         </div>
         <div className="hidden md:flex items-center gap-4">
           <Button
