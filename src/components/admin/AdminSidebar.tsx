@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, 
-  Heart, TrendingUp, Building2, Megaphone, Shield, Activity, Package, MessageSquare, 
+  Heart, TrendingUp, Building2, Megaphone, Shield, Activity, Package, MessageSquare, Star, 
   Coins, Bell, ChevronDown, ChevronRight, Trophy, Handshake, Twitter, UserCircle, Library, Target
 } from 'lucide-react';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
@@ -79,6 +79,7 @@ const MENU_GROUPS: MenuGroup[] = [
       { title: 'Campaigns', view: 'campaigns', icon: Megaphone, permission: 'sponsors_view' },
       { title: 'Earning Opps', view: 'earning', icon: Coins, permission: 'rewards_edit' },
       { title: 'Bounties', view: 'bounties', icon: Target, permission: 'rewards_edit' },
+      { title: 'Founding 111', view: 'founding-111', icon: Star, permission: 'admins_view' },
     ],
   },
   {

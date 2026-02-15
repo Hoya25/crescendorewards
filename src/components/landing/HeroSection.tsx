@@ -93,7 +93,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
 
           {showFounding111 && (
             <p className="text-sm font-semibold" style={{ color: '#E2FF6D' }}>
-              Join the Founding 111 — only {founding111SpotsLeft} spots left
+              Join the Founding 111 — only {founding111SpotsLeft} spots left • First 200 sign-ups eligible
             </p>
           )}
 
