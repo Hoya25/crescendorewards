@@ -6,6 +6,7 @@ import { BountyCardStatic, type StaticBounty } from '@/components/bounty/BountyC
 import { ReferralBountyCard } from '@/components/bounty/ReferralBountyCard';
 import { StreakBountyCard } from '@/components/bounty/StreakBountyCard';
 import { SocialShareBountyCard } from '@/components/bounty/SocialShareBountyCard';
+import { Founding111BountyCard } from '@/components/bounty/Founding111BountyCard';
 
 // ── BOUNTY DEFINITIONS ──────────────────────────────────────────────
 
@@ -273,7 +274,9 @@ export default function BountyBoardPage() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {section.bounties.map((bounty) =>
-              bounty.isReferral ? (
+              bounty.id === 'founding-111' ? (
+                <Founding111BountyCard key={bounty.id} bounty={bounty} />
+              ) : bounty.isReferral ? (
                 <ReferralBountyCard
                   key={bounty.id}
                   bounty={bounty}
