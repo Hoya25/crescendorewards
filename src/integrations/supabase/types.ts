@@ -3318,6 +3318,7 @@ export type Database = {
           id: string
           last_active_crescendo: string | null
           last_active_garden: string | null
+          leaderboard_opt_in: boolean
           nctr_lock_duration_days: number | null
           nctr_lock_expires_at: string | null
           onchain_vesting_contract: string | null
@@ -3348,6 +3349,7 @@ export type Database = {
           id?: string
           last_active_crescendo?: string | null
           last_active_garden?: string | null
+          leaderboard_opt_in?: boolean
           nctr_lock_duration_days?: number | null
           nctr_lock_expires_at?: string | null
           onchain_vesting_contract?: string | null
@@ -3378,6 +3380,7 @@ export type Database = {
           id?: string
           last_active_crescendo?: string | null
           last_active_garden?: string | null
+          leaderboard_opt_in?: boolean
           nctr_lock_duration_days?: number | null
           nctr_lock_expires_at?: string | null
           onchain_vesting_contract?: string | null
@@ -3843,6 +3846,7 @@ export type Database = {
         }[]
       }
       get_referral_code_by_slug: { Args: { p_slug: string }; Returns: Json }
+      get_referral_leaderboard: { Args: { p_user_id?: string }; Returns: Json }
       get_reward_watch_count: { Args: { p_reward_id: string }; Returns: number }
       get_share_status: { Args: { p_user_id: string }; Returns: Json }
       get_sponsor_stats: { Args: { p_sponsor_id: string }; Returns: Json }
@@ -3978,6 +3982,10 @@ export type Database = {
           p_title: string
           p_version_notes: string
         }
+        Returns: Json
+      }
+      toggle_leaderboard_opt_in: {
+        Args: { p_opt_in: boolean; p_user_id: string }
         Returns: Json
       }
       track_reward_conversion: {
