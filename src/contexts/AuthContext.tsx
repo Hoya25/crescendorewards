@@ -123,19 +123,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Mark for post-signup redirect
           pendingSignupRedirect.current = true;
 
-          // Try to assign Founding 111
+          // Try to assign Founding 111 candidate status
           try {
-            const { data: foundingResult } = await supabase.rpc('assign_founding_111', {
+            const { data: candidateResult } = await supabase.rpc('assign_founding_111_candidate', {
               p_user_id: newProfile.id
             });
             
-            const result = foundingResult as Record<string, unknown> | null;
+            const result = candidateResult as { is_candidate?: boolean } | null;
             
             // Show toasts after a brief delay to let the UI settle
             setTimeout(() => {
               toast.success('Welcome to Crescendo! You earned 625 NCTR just for joining. 🎉');
-              if (result?.success && result?.founding_number) {
-                toast.success(`You're Founding Member #${result.founding_number}! 🎉`, {
+              if (result?.is_candidate) {
+                toast.success("You're a Founding 111 Candidate — make a purchase and invite a friend to lock in your spot!", {
                   duration: 6000,
                 });
               }
@@ -143,7 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               window.location.href = '/bounties';
             }, 500);
           } catch (err) {
-            console.error('Error assigning founding 111:', err);
+            console.error('Error assigning founding 111 candidate:', err);
             setTimeout(() => {
               toast.success('Welcome to Crescendo! You earned 625 NCTR just for joining. 🎉');
               window.location.href = '/bounties';
