@@ -147,7 +147,7 @@ function AppRoutes() {
               path="/" 
               element={
                 isAuthenticated ? (
-                  <Navigate to="/dashboard" replace />
+                  <Navigate to="/bounties" replace />
                 ) : (
                   <LandingPage />
                 )
