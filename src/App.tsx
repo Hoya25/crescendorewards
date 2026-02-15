@@ -62,6 +62,7 @@ const PrivacyPage = lazy(() => import('./pages/PrivacyPage').then(m => ({ defaul
 const NotFound = lazy(() => import('./pages/NotFound'));
 const InviteLandingPage = lazy(() => import('./pages/InviteLandingPage'));
 const JoinRedirectPage = lazy(() => import('./pages/JoinRedirectPage'));
+const RefCodeRedirectPage = lazy(() => import('./pages/RefCodeRedirectPage'));
 const BenefitsPage = lazy(() => import('./components/benefits/BenefitsPage').then(m => ({ default: m.BenefitsPage })));
 const GroundballOverviewPage = lazy(() => import('./pages/GroundballOverviewPage'));
 const GroundballRewardsPage = lazy(() => import('./pages/GroundballRewardsPage'));
@@ -163,6 +164,7 @@ function AppRoutes() {
             {/* Public referral landing pages */}
             <Route path="/join/:slug" element={<InviteLandingPage />} />
             <Route path="/join" element={<InviteLandingPage />} />
+            <Route path="/ref/:code" element={<RefCodeRedirectPage />} />
 
             {/* ========================================= */}
             {/* SEMI-PUBLIC ROUTES (viewable by anyone but with layout) */}

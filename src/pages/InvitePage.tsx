@@ -118,26 +118,38 @@ export default function InvitePage() {
                 <div className="grid md:grid-cols-2 gap-6 mt-6">
                   <div className="bg-white/10 backdrop-blur rounded-xl p-5">
                     <div className="flex items-center gap-2 mb-2">
-                      <Lock className="w-5 h-5 text-emerald-300" />
+                      <Lock className="w-5 h-5" style={{ color: '#E2FF6D' }} />
                       <span className="font-semibold">You Earn</span>
+                      <span 
+                        className="text-[10px] font-black px-1.5 py-0.5 rounded-full ml-auto"
+                        style={{ backgroundColor: '#E2FF6D', color: '#1A1A2E' }}
+                      >
+                        360LOCK
+                      </span>
                     </div>
-                    <div className="text-4xl font-bold flex items-center gap-2">
-                      {allocation360Lock.toLocaleString()}
-                      <NCTRLogo size="md" variant="dark" />
+                    <div className="text-4xl font-bold flex items-center gap-2" style={{ color: '#E2FF6D' }}>
+                      7,500
+                      <span className="text-lg font-bold">NCTR</span>
                     </div>
-                    <p className="text-sm text-white/70 mt-1">in 360LOCK per referral</p>
+                    <p className="text-sm text-white/70 mt-1">per successful referral</p>
                   </div>
                   
                   <div className="bg-white/10 backdrop-blur rounded-xl p-5">
                     <div className="flex items-center gap-2 mb-2">
-                      <Gift className="w-5 h-5 text-amber-300" />
+                      <Gift className="w-5 h-5" style={{ color: '#E2FF6D' }} />
                       <span className="font-semibold">Friend Gets</span>
+                      <span 
+                        className="text-[10px] font-black px-1.5 py-0.5 rounded-full ml-auto"
+                        style={{ backgroundColor: '#E2FF6D', color: '#1A1A2E' }}
+                      >
+                        360LOCK
+                      </span>
                     </div>
-                    <div className="text-4xl font-bold flex items-center gap-2">
-                      {allocation360Lock.toLocaleString()}
-                      <NCTRLogo size="md" variant="dark" />
+                    <div className="text-4xl font-bold flex items-center gap-2" style={{ color: '#E2FF6D' }}>
+                      3,000
+                      <span className="text-lg font-bold">NCTR</span>
                     </div>
-                    <p className="text-sm text-white/70 mt-1">welcome bonus in 360LOCK</p>
+                    <p className="text-sm text-white/70 mt-1">welcome bonus on signup</p>
                   </div>
                 </div>
               </div>
@@ -293,16 +305,23 @@ export default function InvitePage() {
               </Card>
               <Card>
                 <CardContent className="p-4 text-center">
-                  <Lock className="w-6 h-6 mx-auto mb-2 text-violet-500" />
+                  <Lock className="w-6 h-6 mx-auto mb-2" style={{ color: '#E2FF6D' }} />
                   {isLoading ? (
                     <Skeleton className="h-8 w-12 mx-auto" />
                   ) : (
-                    <p className="text-3xl font-bold flex items-center justify-center gap-1">
-                      {stats?.totalEarned || 0}
-                      <NCTRLogo size="sm" />
+                    <p className="text-3xl font-bold" style={{ color: '#E2FF6D' }}>
+                      {((stats?.totalReferrals || 0) * 7500).toLocaleString()}
                     </p>
                   )}
-                  <p className="text-xs text-muted-foreground">360LOCK Earned</p>
+                  <div className="flex items-center justify-center gap-1 mt-1">
+                    <p className="text-xs text-muted-foreground">NCTR Earned</p>
+                    <span 
+                      className="text-[9px] font-black px-1.5 py-0.5 rounded-full"
+                      style={{ backgroundColor: '#E2FF6D', color: '#1A1A2E' }}
+                    >
+                      360LOCK
+                    </span>
+                  </div>
                 </CardContent>
               </Card>
               <Card>
