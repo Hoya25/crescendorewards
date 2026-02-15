@@ -1,186 +1,216 @@
-import { useState, useMemo, useEffect } from 'react';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useBounties, useBountyClaims, useMerchEligibility, useBountyStats, Bounty } from '@/hooks/useBounties';
+import { useState } from 'react';
+import { Lock, Gift, Users, Share2, PenTool, Flame, Clock, Info } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
-import { useAuthContext } from '@/contexts/AuthContext';
-import { BountyCard } from '@/components/bounties/BountyCard';
-import { BountyClaimDialog } from '@/components/bounties/BountyClaimDialog';
-import { BountyBoardHero } from '@/components/bounties/BountyBoardHero';
-import { LockedBountiesSection } from '@/components/bounties/LockedBountiesSection';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { Skeleton } from '@/components/ui/skeleton';
 
-type FilterTab = 'all' | 'available' | 'merch' | 'recurring';
-
-const TIER_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
-
-function isTierSufficient(userTierName: string | undefined, requiredTier: string | null): boolean {
-  if (!requiredTier) return true;
-  if (!userTierName) return false;
-  return TIER_ORDER.indexOf(userTierName.toLowerCase()) >= TIER_ORDER.indexOf(requiredTier.toLowerCase());
+interface StaticBounty {
+  id: string;
+  title: string;
+  description: string;
+  nctrReward: number;
+  icon: React.ElementType;
+  tag?: string;
+  frequency: string;
+  showProgress?: boolean;
+  progressLabel?: string;
+  progressValue?: number;
+  progressMax?: number;
 }
 
+const BOUNTIES: StaticBounty[] = [
+  {
+    id: 'early-adopter',
+    title: 'Early Adopter Bonus',
+    description: 'Be among the first 300 members to join Crescendo and earn a massive welcome reward.',
+    nctrReward: 25000,
+    icon: Gift,
+    tag: 'LIMITED',
+    frequency: 'One-time • First 300 members',
+  },
+  {
+    id: 'signup-bonus',
+    title: 'Sign-up Bonus',
+    description: 'Automatically applied when you create your account. Welcome to the community!',
+    nctrReward: 15000,
+    icon: Gift,
+    frequency: 'One-time • Auto-applied',
+  },
+  {
+    id: 'refer-friend',
+    title: 'Refer a Friend',
+    description: 'Share your referral link and earn NCTR every time someone joins through it.',
+    nctrReward: 7500,
+    icon: Users,
+    frequency: 'Per referral',
+  },
+  {
+    id: 'referred-welcome',
+    title: 'Referred Welcome',
+    description: 'Joined through a friend\'s link? You get a bonus too. Everyone wins.',
+    nctrReward: 3000,
+    icon: Users,
+    frequency: 'One-time for referred member',
+  },
+  {
+    id: 'weekly-checkin',
+    title: 'Weekly Check-in Streak',
+    description: 'Visit 7 days in a row to earn your streak bonus. Consistency is rewarded.',
+    nctrReward: 1500,
+    icon: Flame,
+    frequency: 'Weekly',
+    showProgress: true,
+    progressLabel: 'Streak progress',
+    progressValue: 3,
+    progressMax: 7,
+  },
+  {
+    id: 'social-share',
+    title: 'Social Share',
+    description: 'Share Crescendo on social media and earn NCTR. Up to 4 shares per month.',
+    nctrReward: 750,
+    icon: Share2,
+    frequency: 'Per share • Max 4/month',
+    showProgress: true,
+    progressLabel: 'Shares this month',
+    progressValue: 1,
+    progressMax: 4,
+  },
+  {
+    id: 'content-creation',
+    title: 'Content Creation',
+    description: 'Create original content about Crescendo or NCTR. Earn NCTR for every approved post.',
+    nctrReward: 5000,
+    icon: PenTool,
+    frequency: 'Per approved post',
+  },
+];
+
+const TOTAL_EARNABLE = '43,000+';
+
 export default function BountyBoardPage() {
-  const { user } = useAuthContext();
-  const { profile, tier, nextTier, total360Locked } = useUnifiedUser();
-  const { data: bounties = [], isLoading } = useBounties();
-  const { data: claims = [] } = useBountyClaims();
-  const { data: merchEligibility = [] } = useMerchEligibility();
-
-  const hasCompletedAny = claims.length > 0;
-
-  // Default to 'available' for new users, 'all' for returning
-  const [filter, setFilter] = useState<FilterTab>(hasCompletedAny ? 'all' : 'available');
-  const [claimTarget, setClaimTarget] = useState<Bounty | null>(null);
-  const [claiming, setClaiming] = useState(false);
-
-  // Update default filter when claims load
-  useEffect(() => {
-    if (!hasCompletedAny) setFilter('available');
-  }, [hasCompletedAny]);
-
-  const hasMerchEligibility = merchEligibility.length > 0;
-  const userTierName = tier?.tier_name?.toLowerCase();
-
-  // Split bounties: available vs locked (by status)
-  const { availableBounties, lockedBounties } = useMemo(() => {
-    const available: Bounty[] = [];
-    const locked: Bounty[] = [];
-    for (const b of bounties) {
-      const meets = isTierSufficient(userTierName, b.min_status_required);
-      const needsPurchase = b.requires_purchase && !hasMerchEligibility;
-      if (!meets || needsPurchase) {
-        locked.push(b);
-      } else {
-        available.push(b);
-      }
-    }
-    return { availableBounties: available, lockedBounties: locked };
-  }, [bounties, userTierName, hasMerchEligibility]);
-
-  // Filter counts
-  const counts = useMemo(() => {
-    const recurring = availableBounties.filter(b => b.is_recurring);
-    const merch = availableBounties.filter(b => b.bounty_tier?.startsWith('merch_'));
-    return {
-      all: availableBounties.length,
-      available: availableBounties.length,
-      merch: merch.length,
-      recurring: recurring.length,
-    };
-  }, [availableBounties]);
-
-  const filteredBounties = useMemo(() => {
-    switch (filter) {
-      case 'available':
-        return availableBounties;
-      case 'merch':
-        return availableBounties.filter(b => b.bounty_tier?.startsWith('merch_'));
-      case 'recurring':
-        return availableBounties.filter(b => b.is_recurring);
-      default:
-        return availableBounties;
-    }
-  }, [availableBounties, filter]);
-
-  const handleClaim = async () => {
-    if (!claimTarget || !profile?.id) return;
-    setClaiming(true);
-    try {
-      const multipliedReward = claimTarget.requires_360lock
-        ? claimTarget.nctr_reward * claimTarget.lock_multiplier
-        : claimTarget.nctr_reward;
-
-      const { error } = await supabase.from('bounty_claims').insert({
-        user_id: profile.id,
-        bounty_id: claimTarget.id,
-        nctr_earned: multipliedReward,
-        multiplier_applied: claimTarget.requires_360lock ? claimTarget.lock_multiplier : 1,
-        locked_to_360: claimTarget.requires_360lock,
-        status: 'pending',
-      });
-
-      if (error) throw error;
-
-      toast.success(
-        `Bounty claimed! You earned ${multipliedReward.toLocaleString()} NCTR${claimTarget.requires_360lock ? ` (${claimTarget.lock_multiplier}x multiplier)` : ''}`,
-      );
-      setClaimTarget(null);
-    } catch (err) {
-      console.error('Claim error:', err);
-      toast.error('Failed to claim bounty. Please try again.');
-    } finally {
-      setClaiming(false);
-    }
-  };
+  const { tier } = useUnifiedUser();
 
   return (
-    <div className="space-y-4">
-      {/* Hero explainer */}
-      <BountyBoardHero
-        tier={tier}
-        availableCount={counts.available}
-        totalCount={bounties.length}
-      />
-
-      {/* Filter tabs with counts */}
-      <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterTab)}>
-          <TabsList>
-            <TabsTrigger value="all">All ({counts.all})</TabsTrigger>
-            <TabsTrigger value="available">Available to Me ({counts.available})</TabsTrigger>
-            <TabsTrigger value="merch">Merch Bounties ({counts.merch})</TabsTrigger>
-            <TabsTrigger value="recurring">Recurring ({counts.recurring})</TabsTrigger>
-          </TabsList>
-        </Tabs>
+    <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      {/* Hero Banner */}
+      <div
+        className="rounded-xl p-5 sm:p-6"
+        style={{ background: 'linear-gradient(135deg, hsl(240 10% 10%), hsl(240 10% 16%))' }}
+      >
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+              🎯 Bounty Board
+            </h1>
+            <p className="text-sm text-white/60 max-w-md">
+              Complete bounties. Commit with 360LOCK. Earn NCTR and build your Crescendo Status.
+            </p>
+          </div>
+          <div className="shrink-0 text-center sm:text-right">
+            <p className="text-2xl sm:text-3xl font-black" style={{ color: '#E2FF6D' }}>
+              {TOTAL_EARNABLE}
+            </p>
+            <p className="text-[11px] text-white/50 uppercase tracking-wider mt-0.5">Total Earnable NCTR</p>
+          </div>
+        </div>
+        {tier && (
+          <div className="mt-3">
+            <Badge
+              className="text-xs font-bold border-0 px-2.5 py-1"
+              style={{ backgroundColor: tier.badge_color + '30', color: tier.badge_color }}
+            >
+              {tier.badge_emoji} {tier.display_name}
+            </Badge>
+          </div>
+        )}
       </div>
 
-      {/* Bounty grid */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-72 rounded-xl" />
-          ))}
-        </div>
-      ) : filteredBounties.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <p className="font-medium">No bounties in this category</p>
-          <p className="text-sm mt-1">Try a different filter or check back soon.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {filteredBounties.map((bounty, idx) => (
-            <BountyCard
-              key={bounty.id}
-              bounty={bounty}
-              userTier={tier}
-              total360Locked={total360Locked}
-              nextTier={nextTier}
-              claims={claims}
-              hasMerchEligibility={hasMerchEligibility}
-              onClaim={setClaimTarget}
-              isFirstAvailable={idx === 0}
-              hasCompletedAny={hasCompletedAny}
-            />
-          ))}
+      {/* Bounty Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {BOUNTIES.map((bounty) => (
+          <BountyCardStatic key={bounty.id} bounty={bounty} />
+        ))}
+      </div>
+
+      {/* 360LOCK Explainer */}
+      <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+        <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+          <Info className="h-4 w-4 text-muted-foreground" />
+          What is 360LOCK?
+        </h2>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          Your tokens are committed for exactly 360 days. You own them — they just can't be sold during the lock period.
+          This commitment strengthens the ecosystem and earns you status that unlocks more rewards.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function BountyCardStatic({ bounty }: { bounty: StaticBounty }) {
+  const Icon = bounty.icon;
+
+  return (
+    <Card className="relative overflow-hidden border-border hover:border-[#E2FF6D]/30 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5">
+      {bounty.tag && (
+        <div className="absolute top-3 right-3 z-10">
+          <Badge className="text-[10px] font-black border-0 px-2 py-0.5 bg-red-500 text-white">
+            {bounty.tag}
+          </Badge>
         </div>
       )}
+      <CardContent className="p-4 space-y-3">
+        {/* Icon + Title */}
+        <div className="flex items-start gap-3">
+          <div
+            className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+            style={{ backgroundColor: '#E2FF6D20' }}
+          >
+            <Icon className="h-5 w-5" style={{ color: '#E2FF6D' }} />
+          </div>
+          <div className="min-w-0">
+            <h3 className="font-bold text-sm text-foreground leading-tight">{bounty.title}</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">{bounty.frequency}</p>
+          </div>
+        </div>
 
-      {/* Locked bounties aspiration section */}
-      <LockedBountiesSection bounties={lockedBounties} tierName={userTierName} />
+        {/* Description */}
+        <p className="text-xs text-muted-foreground leading-relaxed">{bounty.description}</p>
 
-      {/* Claim confirmation dialog */}
-      <BountyClaimDialog
-        bounty={claimTarget}
-        open={!!claimTarget}
-        onClose={() => setClaimTarget(null)}
-        onConfirm={handleClaim}
-        claiming={claiming}
-        total360Locked={total360Locked}
-        currentTier={tier}
-        nextTier={nextTier}
-      />
-    </div>
+        {/* NCTR Amount */}
+        <div className="rounded-lg bg-muted/50 p-3 flex items-center justify-between">
+          <span className="text-xs text-muted-foreground font-medium">Reward</span>
+          <span className="text-lg font-black" style={{ color: '#E2FF6D' }}>
+            {bounty.nctrReward.toLocaleString()} NCTR
+          </span>
+        </div>
+
+        {/* 360LOCK Badge */}
+        <Badge
+          className="text-[10px] font-bold border-0 gap-1 px-2 py-0.5"
+          style={{ backgroundColor: '#E2FF6D', color: '#1A1A2E' }}
+        >
+          <Lock className="h-3 w-3" /> 360LOCK
+        </Badge>
+
+        {/* Progress bar */}
+        {bounty.showProgress && (
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>{bounty.progressLabel}</span>
+              <span className="font-medium">
+                {bounty.progressValue}/{bounty.progressMax}
+              </span>
+            </div>
+            <Progress
+              value={((bounty.progressValue || 0) / (bounty.progressMax || 1)) * 100}
+              className="h-1.5"
+            />
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
