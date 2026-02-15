@@ -19,6 +19,7 @@ import { DevToolsPanel } from "./components/DevToolsPanel";
 import { MobileBottomNav } from "./components/navigation/MobileBottomNav";
 import { BetaBanner } from "./components/BetaBanner";
 import { DemoModeToggle } from "./components/groundball/DemoModeToggle";
+import { UserbackProvider } from "./components/UserbackProvider";
 import { useClaimDeliveryNotifications } from "./hooks/useClaimDeliveryNotifications";
 import { AppLayout } from "./components/layout/AppLayout";
 import { NavigationSafetyNet } from "./components/layout/NavigationSafetyNet";
@@ -610,6 +611,7 @@ const App = () => (
               <LockDecisionProvider>
               <ActivityTrackerProvider>
                 <DemoModeProvider>
+                  <UserbackProvider />
                   <AppRoutes />
                 </DemoModeProvider>
               </ActivityTrackerProvider>
