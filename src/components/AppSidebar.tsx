@@ -1,4 +1,4 @@
-import { Home, Gift, ShoppingBag, UserPlus, User, HelpCircle, Shield, Heart, Coins, Leaf } from 'lucide-react';
+import { Home, Gift, ShoppingBag, UserPlus, User, HelpCircle, Shield, Heart, Coins, Leaf, Target } from 'lucide-react';
 import nctrIconDark from '@/assets/nctr-grey.png';
 import nctrIconLight from '@/assets/nctr-yellow.png';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -34,6 +34,7 @@ interface AppSidebarProps {
 
 const primaryNavItems = [
   { title: 'Home', url: '/dashboard', icon: Home },
+  { title: 'Bounties', url: '/bounties', icon: Target },
   { title: 'Rewards', url: '/rewards', icon: Gift },
   { title: 'Get Claims', url: '/buy-claims', icon: Coins, highlight: true },
   { title: 'The Garden', url: '#', icon: Leaf, external: 'https://thegarden.nctr.live/' },
