@@ -2792,6 +2792,33 @@ export type Database = {
         }
         Relationships: []
       }
+      social_shares: {
+        Row: {
+          created_at: string
+          id: string
+          month_year: string
+          platform: string
+          shared_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          month_year?: string
+          platform: string
+          shared_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          month_year?: string
+          platform?: string
+          shared_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sponsor_applications: {
         Row: {
           admin_notes: string | null
@@ -3817,6 +3844,7 @@ export type Database = {
       }
       get_referral_code_by_slug: { Args: { p_slug: string }; Returns: Json }
       get_reward_watch_count: { Args: { p_reward_id: string }; Returns: number }
+      get_share_status: { Args: { p_user_id: string }; Returns: Json }
       get_sponsor_stats: { Args: { p_sponsor_id: string }; Returns: Json }
       get_tier_user_counts: {
         Args: never
@@ -3917,6 +3945,10 @@ export type Database = {
       is_reserved_slug: { Args: { slug: string }; Returns: boolean }
       is_valid_slug: { Args: { slug: string }; Returns: boolean }
       perform_daily_checkin: { Args: { p_user_id: string }; Returns: Json }
+      perform_social_share: {
+        Args: { p_platform: string; p_user_id: string }
+        Returns: Json
+      }
       process_referral: {
         Args: { p_referred_id: string; p_referrer_code: string }
         Returns: Json
