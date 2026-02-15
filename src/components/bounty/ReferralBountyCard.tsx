@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Lock, Copy, Check, Send } from 'lucide-react';
+import { Lock, Copy, Check, Send, Trophy } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ interface Props {
 
 export function ReferralBountyCard({ bounty, referralCode, referralCount }: Props) {
   const [copied, setCopied] = useState(false);
+  const navigate = useNavigate();
   const Icon = bounty.icon;
   const referralLink = generateReferralLink(referralCode);
   const hasCode = referralCode && referralCode !== 'LOADING';
@@ -128,6 +130,16 @@ export function ReferralBountyCard({ bounty, referralCode, referralCount }: Prop
             </div>
           </div>
         )}
+
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => navigate('/leaderboard')}
+          className="w-full gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+        >
+          <Trophy className="h-3.5 w-3.5" />
+          View Leaderboard
+        </Button>
       </CardContent>
     </Card>
   );
