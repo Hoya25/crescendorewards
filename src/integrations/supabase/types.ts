@@ -736,6 +736,27 @@ export type Database = {
         }
         Relationships: []
       }
+      check_ins: {
+        Row: {
+          checked_in_at: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          checked_in_at?: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          checked_in_at?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       claim_gifts: {
         Row: {
           admin_notes: string | null
@@ -3776,6 +3797,7 @@ export type Database = {
           user_name: string
         }[]
       }
+      get_checkin_streak: { Args: { p_user_id: string }; Returns: Json }
       get_gift_stats: { Args: never; Returns: Json }
       get_member_reward_price: {
         Args: { p_member_tier: string; p_reward_id: string }
@@ -3894,6 +3916,7 @@ export type Database = {
       }
       is_reserved_slug: { Args: { slug: string }; Returns: boolean }
       is_valid_slug: { Args: { slug: string }; Returns: boolean }
+      perform_daily_checkin: { Args: { p_user_id: string }; Returns: Json }
       process_referral: {
         Args: { p_referred_id: string; p_referrer_code: string }
         Returns: Json
