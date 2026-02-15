@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
@@ -30,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [showProfileCompletion, setShowProfileCompletion] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [needsProfileCompletion, setNeedsProfileCompletion] = useState(false);
+  const pendingSignupRedirect = useRef(false);
 
   // Check if user needs to complete their profile (wallet users without real email/name)
   const checkProfileCompletion = async (authUser: User) => {
@@ -76,7 +78,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Ensure unified profile exists for new users
   const ensureUnifiedProfile = async (authUser: User) => {
     try {
-      // Check if unified profile exists
       const { data: existingProfile, error: fetchError } = await supabase
         .from('unified_profiles')
         .select('id')
@@ -88,18 +89,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // If no profile exists, create one
       if (!existingProfile) {
         console.log('Creating unified profile for new user:', authUser.id);
         
-        // Get default tier (Droplet)
         const { data: defaultTier } = await supabase
           .from('status_tiers')
           .select('id')
           .eq('tier_name', 'droplet')
           .single();
 
-        const { error: insertError } = await supabase
+        const { data: newProfile, error: insertError } = await supabase
           .from('unified_profiles')
           .insert({
             auth_user_id: authUser.id,
@@ -108,17 +107,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             current_tier_id: defaultTier?.id || null,
             crescendo_data: {
               claims_balance: 0,
-              available_nctr: 100, // Welcome bonus
+              available_nctr: 100,
               role: 'member'
             },
             garden_data: {},
             last_active_crescendo: new Date().toISOString()
-          });
+          })
+          .select('id')
+          .single();
 
         if (insertError) {
           console.error('Error creating unified profile:', insertError);
-        } else {
+        } else if (newProfile) {
           console.log('Unified profile created successfully');
+          // Mark for post-signup redirect
+          pendingSignupRedirect.current = true;
+
+          // Try to assign Founding 111
+          try {
+            const { data: foundingResult } = await supabase.rpc('assign_founding_111', {
+              p_user_id: newProfile.id
+            });
+            
+            const result = foundingResult as Record<string, unknown> | null;
+            
+            // Show toasts after a brief delay to let the UI settle
+            setTimeout(() => {
+              toast.success('Welcome to Crescendo! You earned 625 NCTR just for joining. 🎉');
+              if (result?.success && result?.founding_number) {
+                toast.success(`You're Founding Member #${result.founding_number}! 🎉`, {
+                  duration: 6000,
+                });
+              }
+              // Navigate to bounties
+              window.location.href = '/bounties';
+            }, 500);
+          } catch (err) {
+            console.error('Error assigning founding 111:', err);
+            setTimeout(() => {
+              toast.success('Welcome to Crescendo! You earned 625 NCTR just for joining. 🎉');
+              window.location.href = '/bounties';
+            }, 500);
+          }
         }
       }
     } catch (error) {

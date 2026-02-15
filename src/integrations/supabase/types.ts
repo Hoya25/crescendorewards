@@ -3313,6 +3313,8 @@ export type Database = {
           current_tier_id: string | null
           display_name: string | null
           email: string | null
+          founding_111: boolean
+          founding_111_number: number | null
           garden_data: Json | null
           has_completed_onboarding: boolean | null
           id: string
@@ -3344,6 +3346,8 @@ export type Database = {
           current_tier_id?: string | null
           display_name?: string | null
           email?: string | null
+          founding_111?: boolean
+          founding_111_number?: number | null
           garden_data?: Json | null
           has_completed_onboarding?: boolean | null
           id?: string
@@ -3375,6 +3379,8 @@ export type Database = {
           current_tier_id?: string | null
           display_name?: string | null
           email?: string | null
+          founding_111?: boolean
+          founding_111_number?: number | null
           garden_data?: Json | null
           has_completed_onboarding?: boolean | null
           id?: string
@@ -3771,6 +3777,7 @@ export type Database = {
         Args: { p_admin_notes?: string; p_reward_id: string; p_user_id: string }
         Returns: Json
       }
+      assign_founding_111: { Args: { p_user_id: string }; Returns: Json }
       calculate_nctr_reward: {
         Args: {
           p_base_amount: number
@@ -3828,6 +3835,7 @@ export type Database = {
         }[]
       }
       get_checkin_streak: { Args: { p_user_id: string }; Returns: Json }
+      get_founding_111_count: { Args: never; Returns: number }
       get_gift_stats: { Args: never; Returns: Json }
       get_member_reward_price: {
         Args: { p_member_tier: string; p_reward_id: string }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, ChevronDown, TrendingUp, Lock, Trophy } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useFounding111 } from '@/hooks/useFounding111';
 
 interface HeroSectionProps {
   onJoin: () => void;
@@ -15,6 +16,9 @@ const FLYWHEEL_NODES = [
 
 export function HeroSection({ onJoin }: HeroSectionProps) {
   const [memberCount, setMemberCount] = useState<number>(0);
+  const { data: founding111Count = 0 } = useFounding111();
+  const founding111SpotsLeft = Math.max(0, 111 - founding111Count);
+  const showFounding111 = founding111Count < 111;
 
   useEffect(() => {
     const fetchCount = async () => {
@@ -86,6 +90,12 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
               <ChevronDown className="ml-2 w-4 h-4" />
             </Button>
           </div>
+
+          {showFounding111 && (
+            <p className="text-sm font-semibold" style={{ color: '#E2FF6D' }}>
+              Join the Founding 111 — only {founding111SpotsLeft} spots left
+            </p>
+          )}
 
           <p className="text-sm text-text-body-muted">
             {displayCount
