@@ -1616,6 +1616,38 @@ export type Database = {
         }
         Relationships: []
       }
+      merch_milestones: {
+        Row: {
+          awarded_at: string
+          id: string
+          milestone_key: string
+          nctr_awarded: number
+          user_id: string
+        }
+        Insert: {
+          awarded_at?: string
+          id?: string
+          milestone_key: string
+          nctr_awarded?: number
+          user_id: string
+        }
+        Update: {
+          awarded_at?: string
+          id?: string
+          milestone_key?: string
+          nctr_awarded?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merch_milestones_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       merch_purchase_bounty_eligibility: {
         Row: {
           bounties_completed: number | null
@@ -3852,6 +3884,7 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: Json
       }
+      check_merch_milestones: { Args: { p_user_id: string }; Returns: Json }
       check_purchase_milestones: { Args: { p_user_id: string }; Returns: Json }
       check_referral_milestones: { Args: { p_user_id: string }; Returns: Json }
       check_slug_availability: {
@@ -3917,6 +3950,7 @@ export type Database = {
         Args: { p_member_tier: string; p_reward_id: string }
         Returns: Json
       }
+      get_merch_milestones: { Args: { p_user_id: string }; Returns: Json }
       get_my_founding_111_status: { Args: { p_user_id: string }; Returns: Json }
       get_public_stats: { Args: never; Returns: Json }
       get_purchase_milestones: { Args: { p_user_id: string }; Returns: Json }
