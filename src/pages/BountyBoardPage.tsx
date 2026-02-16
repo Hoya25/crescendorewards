@@ -371,6 +371,26 @@ export default function BountyBoardPage() {
           Your tokens are committed for exactly 360 days. You own them — they just can't be sold during the lock period.
           This commitment strengthens the ecosystem and earns you status that unlocks more rewards.
         </p>
+        <a href="/how-it-works#360lock" className="text-xs font-medium hover:underline" style={{ color: '#E2FF6D' }}>
+          How does this work? →
+        </a>
+      </div>
+
+      {/* How It Works Banner */}
+      <div
+        className="rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+        style={{ background: '#1a1a1a', border: '1px solid rgba(226,255,109,0.1)' }}
+      >
+        <div>
+          <p className="text-sm font-medium text-white/80">Want to understand how this all works?</p>
+        </div>
+        <a
+          href="/how-it-works"
+          className="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-lg shrink-0"
+          style={{ backgroundColor: '#E2FF6D', color: '#111' }}
+        >
+          See How It Works →
+        </a>
       </div>
     </div>
   );
