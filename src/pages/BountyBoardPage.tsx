@@ -6,7 +6,7 @@ import { BountyCardStatic, type StaticBounty } from '@/components/bounty/BountyC
 import { ReferralBountyCard } from '@/components/bounty/ReferralBountyCard';
 import { StreakBountyCard } from '@/components/bounty/StreakBountyCard';
 import { SocialShareBountyCard } from '@/components/bounty/SocialShareBountyCard';
-import { Founding111BountyCard } from '@/components/bounty/Founding111BountyCard';
+
 
 // ── BOUNTY DEFINITIONS ──────────────────────────────────────────────
 
@@ -20,17 +20,13 @@ const ENTRY_BOUNTIES: StaticBounty[] = [
     frequency: 'One-time • Auto-applied',
   },
   {
-    id: 'founding-111',
-    title: 'Founding 111 Bonus',
-    description: 'Be among the first 111 members to join Crescendo and make a purchase. Achieving Founding status is a one-time opportunity that can never be earned again.',
+    id: 'early-adopter',
+    title: 'Early Adopter Bonus',
+    description: "Joined during our launch period? Extra NCTR for being here early.",
     nctrReward: 1250,
     icon: Star,
-    tag: 'LIMITED',
-    frequency: 'One-time • First 111 members',
-    showProgress: true,
-    progressLabel: 'Slots claimed',
-    progressValue: 0, // TODO: live counter
-    progressMax: 111,
+    tag: 'LIMITED TIME',
+    frequency: 'One-time · Launch period only',
   },
   {
     id: 'referred-welcome',
@@ -144,7 +140,7 @@ const REFERRAL_BOUNTIES: StaticBounty[] = [
   {
     id: 'referral-every-purchase',
     title: 'Referral Every Purchase',
-    description: 'Earn on every purchase your referrals make. Founding 111 members earn 500, standard earn 100.',
+    description: 'Earn on every purchase your referrals make. Early adopters earn 500, standard earn 100.',
     nctrReward: 500,
     icon: Users,
     frequency: 'Per referral purchase',
@@ -275,9 +271,7 @@ export default function BountyBoardPage() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {section.bounties.map((bounty) =>
-              bounty.id === 'founding-111' ? (
-                <Founding111BountyCard key={bounty.id} bounty={bounty} />
-              ) : bounty.isReferral ? (
+              bounty.isReferral ? (
                 <ReferralBountyCard
                   key={bounty.id}
                   bounty={bounty}

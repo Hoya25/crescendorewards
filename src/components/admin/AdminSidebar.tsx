@@ -79,7 +79,7 @@ const MENU_GROUPS: MenuGroup[] = [
       { title: 'Campaigns', view: 'campaigns', icon: Megaphone, permission: 'sponsors_view' },
       { title: 'Earning Opps', view: 'earning', icon: Coins, permission: 'rewards_edit' },
       { title: 'Bounties', view: 'bounties', icon: Target, permission: 'rewards_edit' },
-      { title: 'Founding 111', view: 'founding-111', icon: Star, permission: 'admins_view' },
+      
     ],
   },
   {

@@ -29,7 +29,7 @@ import { AdminContentLibrary } from './AdminContentLibrary';
 import { AdminContributors } from './AdminContributors';
 import { AdminContributedRewards } from './AdminContributedRewards';
 import { AdminBounties } from './AdminBounties';
-import { AdminFounding111 } from './AdminFounding111';
+
 import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import AdminGifts from './AdminGifts';
 import { AdminUserNotifications } from './AdminUserNotifications';
@@ -102,8 +102,6 @@ export function AdminPanel() {
         return <AdminContributedRewards />;
       case 'bounties':
         return <AdminBounties />;
-      case 'founding-111':
-        return <AdminFounding111 />;
       default:
         return <AdminDashboard onNavigate={setCurrentView} />;
     }
