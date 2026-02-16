@@ -22,7 +22,7 @@ const ENTRY_BOUNTIES: StaticBounty[] = [
   {
     id: 'founding-111',
     title: 'Founding 111 Bonus',
-    description: 'Be among the first 111 members to join Crescendo and make a purchase. Founding status is permanent and can never be earned again.',
+    description: 'Be among the first 111 members to join Crescendo and make a purchase. Achieving Founding status is a one-time opportunity that can never be earned again.',
     nctrReward: 1250,
     icon: Star,
     tag: 'LIMITED',
