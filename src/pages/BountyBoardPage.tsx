@@ -212,9 +212,7 @@ const SECTIONS: BountySection[] = [
   { title: 'Stay Active', emoji: '🔥', bounties: ENGAGEMENT_BOUNTIES },
 ];
 
-// ── TOTAL EARNABLE ──────────────────────────────────────────────────
-
-const TOTAL_EARNABLE = '55,000+';
+// (TOTAL_EARNABLE removed — purchase & referral bounties are uncapped)
 
 // ── MAIN PAGE ───────────────────────────────────────────────────────
 
@@ -250,7 +248,10 @@ export default function BountyBoardPage() {
               <span className="text-base font-bold text-white/50">NCTR</span>
             </p>
             <p className="text-[11px] text-white/40">
-              Total earnable: <span className="text-white/60 font-bold">{TOTAL_EARNABLE}</span>
+              Sign-up · Purchases · Referrals · Streaks
+            </p>
+            <p className="text-[10px] text-white/30 italic">
+              Keep shopping. Keep sharing. Keep earning.
             </p>
           </div>
         </div>
