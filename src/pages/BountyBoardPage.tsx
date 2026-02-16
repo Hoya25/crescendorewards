@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { useReferralStats } from '@/hooks/useReferralStats';
 import { usePurchaseMilestones } from '@/hooks/usePurchaseMilestones';
+import { useMerchMilestones } from '@/hooks/useMerchMilestones';
 import { BountyCardStatic, type StaticBounty } from '@/components/bounty/BountyCardStatic';
 import { ReferralBountyCard } from '@/components/bounty/ReferralBountyCard';
 import { StreakBountyCard } from '@/components/bounty/StreakBountyCard';
@@ -213,6 +214,7 @@ export default function BountyBoardPage() {
   const { tier, profile } = useUnifiedUser();
   const { data: stats } = useReferralStats();
   const { data: milestones } = usePurchaseMilestones();
+  const { data: merchData } = useMerchMilestones();
 
   const crescendoData = profile?.crescendo_data || {};
   const referralCode = crescendoData.referral_code || '';
@@ -258,13 +260,35 @@ export default function BountyBoardPage() {
     });
   }, [milestones]);
 
+  // Build merch bounties with real data
+  const merchBounties = useMemo(() => {
+    const totalMerch = merchData?.total_merch_purchases ?? 0;
+    const firstDone = merchData?.first_merch_completed ?? false;
+    const totalMerchDrip = merchData?.total_merch_drip_nctr ?? 0;
+
+    return MERCH_BOUNTIES.map((b) => {
+      const copy = { ...b };
+      if (b.id === 'first-merch') {
+        if (firstDone) {
+          copy.completed = true;
+          copy.completedLabel = 'Completed ✓';
+        } else {
+          copy.description = 'Shop NCTR merch to earn 5,000 NCTR.';
+        }
+      } else if (b.id === 'every-merch') {
+        copy.subtitle = `${totalMerch} merch purchase${totalMerch !== 1 ? 's' : ''} · ${Number(totalMerchDrip).toLocaleString()} NCTR earned`;
+      }
+      return copy;
+    });
+  }, [merchData]);
+
   const sections: BountySection[] = useMemo(() => [
     { title: 'Get Started', emoji: '🚀', bounties: ENTRY_BOUNTIES },
     { title: 'Shop & Earn', emoji: '🛒', bounties: revenueBounties },
-    { title: 'Merch Rewards', emoji: '👕', bounties: MERCH_BOUNTIES },
+    { title: 'Merch Rewards', emoji: '👕', bounties: merchBounties },
     { title: 'Build Your Team', emoji: '🤝', bounties: REFERRAL_BOUNTIES },
     { title: 'Stay Active', emoji: '🔥', bounties: ENGAGEMENT_BOUNTIES },
-  ], [revenueBounties]);
+  ], [revenueBounties, merchBounties]);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 space-y-8">
