@@ -1,4 +1,4 @@
-import { Home, Gift, ShoppingBag, UserPlus, User, HelpCircle, Shield, Heart, Coins, Leaf, Target, Trophy } from 'lucide-react';
+import { Home, Gift, ShoppingBag, UserPlus, User, HelpCircle, Shield, Heart, Coins, Leaf, Target, Trophy, BookOpen } from 'lucide-react';
 import nctrIconDark from '@/assets/nctr-grey.png';
 import nctrIconLight from '@/assets/nctr-yellow.png';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -37,6 +37,7 @@ const primaryNavItems = [
   { title: 'Bounties', url: '/bounties', icon: Target },
   { title: 'Leaderboard', url: '/leaderboard', icon: Trophy },
   { title: 'Rewards', url: '/rewards', icon: Gift },
+  { title: 'How It Works', url: '/how-it-works', icon: BookOpen },
   { title: 'Get Claims', url: '/buy-claims', icon: Coins, highlight: true },
   { title: 'The Garden', url: '#', icon: Leaf, external: 'https://thegarden.nctr.live/' },
   { title: 'My Account', url: '/profile', icon: User },
