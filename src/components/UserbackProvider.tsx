@@ -65,7 +65,7 @@ export function UserbackProvider() {
         const crescendoData = profile.crescendo_data || {};
         window.Userback.setData({
           tier: tier?.tier_name || 'none',
-          founding_111: (profile as any).founding_111 ? 'yes' : 'no',
+          
           referral_count: (crescendoData as any).referral_count || 0,
         });
       }
