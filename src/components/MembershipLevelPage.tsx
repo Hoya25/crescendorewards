@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
+import { useTracking } from '@/contexts/ActivityTrackerContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -25,6 +26,7 @@ import { TierUpgradeCelebration } from './TierUpgradeCelebration';
 
 export function MembershipLevelPage() {
   const navigate = useNavigate();
+  const { trackAction } = useTracking();
   const { profile, tier, portfolio, nextTier, progressToNextTier, total360Locked, allTiers } = useUnifiedUser();
   const [showLockDialog, setShowLockDialog] = useState(false);
   const [showConfirmLock, setShowConfirmLock] = useState(false);
@@ -101,6 +103,7 @@ export function MembershipLevelPage() {
     }
 
     setProcessing(true);
+    trackAction('commit_360lock', { amount });
     try {
       const oldTier = getMembershipTierByNCTR(currentLockedNCTR);
       const newLockedAmount = currentLockedNCTR + amount;

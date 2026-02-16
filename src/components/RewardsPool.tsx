@@ -40,6 +40,7 @@ import { NoRewardsEmpty } from '@/components/EmptyState';
 import { DataErrorState } from '@/components/DataErrorState';
 import { BetaTestingNotice } from '@/components/BetaTestingNotice';
 import { useAdminRole } from '@/hooks/useAdminRole';
+import { useTracking } from '@/contexts/ActivityTrackerContext';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { useFavorites } from '@/hooks/useFavorites';
 import { cn } from '@/lib/utils';
@@ -99,6 +100,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const { isAuthenticated, signOut, setShowAuthModal, setAuthMode } = useAuthContext();
   const { profile, tier } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
+  const { trackAction } = useTracking();
   const { isWatching, toggleWatch, isAnimating: isWatchAnimating, getWatchCount, fetchWatchCounts } = useWatchlist();
   const { favorites, toggleFavorite, animatingIds: favAnimatingIds } = useFavorites();
   const [rewards, setRewards] = useState<Reward[]>([]);
@@ -560,6 +562,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
     try {
       setClaiming(true);
+      trackAction('claim_reward', { reward_id: selectedReward.id, reward_name: selectedReward.title });
 
       // Prepare shipping info only for physical items
       const needsShipping = selectedReward.category === 'merch' || selectedReward.category === 'experiences';
