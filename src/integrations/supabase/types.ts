@@ -1861,6 +1861,38 @@ export type Database = {
           },
         ]
       }
+      purchase_milestones: {
+        Row: {
+          awarded_at: string
+          id: string
+          milestone_count: number
+          nctr_awarded: number
+          user_id: string
+        }
+        Insert: {
+          awarded_at?: string
+          id?: string
+          milestone_count: number
+          nctr_awarded?: number
+          user_id: string
+        }
+        Update: {
+          awarded_at?: string
+          id?: string
+          milestone_count?: number
+          nctr_awarded?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_milestones_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       purchases: {
         Row: {
           amount_paid: number
@@ -3820,6 +3852,7 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: Json
       }
+      check_purchase_milestones: { Args: { p_user_id: string }; Returns: Json }
       check_referral_milestones: { Args: { p_user_id: string }; Returns: Json }
       check_slug_availability: {
         Args: { p_slug: string; p_user_id?: string }
@@ -3886,6 +3919,7 @@ export type Database = {
       }
       get_my_founding_111_status: { Args: { p_user_id: string }; Returns: Json }
       get_public_stats: { Args: never; Returns: Json }
+      get_purchase_milestones: { Args: { p_user_id: string }; Returns: Json }
       get_recent_admin_activity: {
         Args: { p_limit?: number }
         Returns: {
