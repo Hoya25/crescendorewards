@@ -131,7 +131,7 @@ export function Founding111BountyCard({ bounty }: { bounty: StaticBounty }) {
         {(!isAuthenticated || status === 'not_candidate') && (
           <div className="rounded-lg bg-muted/50 p-3 text-center">
             <p className="text-xs text-muted-foreground">
-              Founding 111 — First 200 sign-ups eligible
+              First 111 members — earned through participation
             </p>
           </div>
         )}
@@ -172,18 +172,10 @@ function ChecklistItem({ checked, label }: { checked: boolean; label: string }) 
 }
 
 function LiveCounter({ count, loading }: { count: number; loading: boolean }) {
-  if (count < 25) {
-    return (
-      <p className="text-xs text-muted-foreground text-center">
-        Limited — apply by making a purchase and inviting a friend
-      </p>
-    );
-  }
-
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>Founding Members verified</span>
+        <span>Founding Members</span>
         <span className="font-medium">{loading ? '...' : count}/111</span>
       </div>
       <Progress
