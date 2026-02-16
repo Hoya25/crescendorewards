@@ -172,6 +172,14 @@ function ChecklistItem({ checked, label }: { checked: boolean; label: string }) 
 }
 
 function LiveCounter({ count, loading }: { count: number; loading: boolean }) {
+  if (count < 25) {
+    return (
+      <p className="text-xs text-muted-foreground text-center">
+        Limited — apply by making a purchase and inviting a friend
+      </p>
+    );
+  }
+
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
