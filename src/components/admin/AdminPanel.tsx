@@ -29,6 +29,7 @@ import { AdminContentLibrary } from './AdminContentLibrary';
 import { AdminContributors } from './AdminContributors';
 import { AdminContributedRewards } from './AdminContributedRewards';
 import { AdminBounties } from './AdminBounties';
+import { AdminUserActivity } from './AdminUserActivity';
 
 import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import AdminGifts from './AdminGifts';
@@ -80,6 +81,8 @@ export function AdminPanel() {
         return <AdminSyncVerification />;
       case 'team':
         return <AdminManagement />;
+      case 'user-activity':
+        return <AdminUserActivity />;
       case 'activity':
         return <AdminActivityLog />;
       case 'feedback':

@@ -112,6 +112,7 @@ const MENU_GROUPS: MenuGroup[] = [
       { title: 'Dashboard', view: 'dashboard', icon: LayoutDashboard, badgeKey: 'total' },
       { title: 'Wishlists', view: 'wishlists', icon: Heart, permission: 'users_view' },
       { title: 'Wishlist Analytics', view: 'wishlist-analytics', icon: TrendingUp, permission: 'users_view' },
+      { title: 'User Activity', view: 'user-activity', icon: Activity, permission: 'admins_view' },
       { title: 'Activity Log', view: 'activity', icon: Activity, permission: 'admins_view' },
     ],
   },
