@@ -16,11 +16,11 @@ export function BetaTestingNotice({ variant = 'rewards', className }: BetaTestin
       )}>
         <CreditCard className="h-4 w-4 text-emerald-600" />
         <AlertTitle className="text-emerald-700 dark:text-emerald-400 font-semibold">
-          Beta Investment Protection
+          Beta Commitment Protection
         </AlertTitle>
         <AlertDescription className="text-emerald-600/90 dark:text-emerald-300/90 text-sm">
           Any Claims you purchase during Beta will be <span className="font-semibold">credited to your account</span> when rewards go live. 
-          Your investment is protected!
+          Your commitment is protected!
         </AlertDescription>
       </Alert>
     );
