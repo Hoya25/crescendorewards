@@ -2,10 +2,13 @@ import { Gift, Users, Share2, PenTool, Flame, Info, ShoppingBag, ShoppingCart, T
 import { Badge } from '@/components/ui/badge';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { useReferralStats } from '@/hooks/useReferralStats';
+import { usePurchaseMilestones } from '@/hooks/usePurchaseMilestones';
 import { BountyCardStatic, type StaticBounty } from '@/components/bounty/BountyCardStatic';
 import { ReferralBountyCard } from '@/components/bounty/ReferralBountyCard';
 import { StreakBountyCard } from '@/components/bounty/StreakBountyCard';
 import { SocialShareBountyCard } from '@/components/bounty/SocialShareBountyCard';
+import { useMemo } from 'react';
+
 
 
 // ── BOUNTY DEFINITIONS ──────────────────────────────────────────────
@@ -200,13 +203,7 @@ interface BountySection {
   bounties: StaticBounty[];
 }
 
-const SECTIONS: BountySection[] = [
-  { title: 'Get Started', emoji: '🚀', bounties: ENTRY_BOUNTIES },
-  { title: 'Shop & Earn', emoji: '🛒', bounties: REVENUE_BOUNTIES },
-  { title: 'Merch Rewards', emoji: '👕', bounties: MERCH_BOUNTIES },
-  { title: 'Build Your Team', emoji: '🤝', bounties: REFERRAL_BOUNTIES },
-  { title: 'Stay Active', emoji: '🔥', bounties: ENGAGEMENT_BOUNTIES },
-];
+// SECTIONS moved inside component to use dynamic revenueBounties
 
 // (TOTAL_EARNABLE removed — purchase & referral bounties are uncapped)
 
@@ -215,9 +212,59 @@ const SECTIONS: BountySection[] = [
 export default function BountyBoardPage() {
   const { tier, profile } = useUnifiedUser();
   const { data: stats } = useReferralStats();
+  const { data: milestones } = usePurchaseMilestones();
 
   const crescendoData = profile?.crescendo_data || {};
   const referralCode = crescendoData.referral_code || '';
+
+  // Build revenue bounties with real purchase data
+  const revenueBounties = useMemo(() => {
+    const totalPurchases = milestones?.total_purchases ?? 0;
+    const milestonesHit = milestones?.milestones_hit ?? [];
+    const totalDripNctr = milestones?.total_drip_nctr ?? 0;
+
+    return REVENUE_BOUNTIES.map((b) => {
+      const copy = { ...b };
+
+      if (b.id === 'first-purchase') {
+        if (milestonesHit.includes(1)) {
+          copy.completed = true;
+          copy.completedLabel = 'Completed ✓';
+        } else {
+          copy.description = 'Make your first purchase to earn 2,500 NCTR.';
+        }
+      } else if (b.id === 'every-purchase') {
+        copy.subtitle = `${totalPurchases} purchase${totalPurchases !== 1 ? 's' : ''} · ${Number(totalDripNctr).toLocaleString()} NCTR earned`;
+      } else if (b.id === '5th-purchase') {
+        if (milestonesHit.includes(5)) {
+          copy.completed = true;
+        } else {
+          copy.progressValue = Math.min(totalPurchases, 5);
+        }
+      } else if (b.id === '10th-purchase') {
+        if (milestonesHit.includes(10)) {
+          copy.completed = true;
+        } else {
+          copy.progressValue = Math.min(totalPurchases, 10);
+        }
+      } else if (b.id === '25th-purchase') {
+        if (milestonesHit.includes(25)) {
+          copy.completed = true;
+        } else {
+          copy.progressValue = Math.min(totalPurchases, 25);
+        }
+      }
+      return copy;
+    });
+  }, [milestones]);
+
+  const sections: BountySection[] = useMemo(() => [
+    { title: 'Get Started', emoji: '🚀', bounties: ENTRY_BOUNTIES },
+    { title: 'Shop & Earn', emoji: '🛒', bounties: revenueBounties },
+    { title: 'Merch Rewards', emoji: '👕', bounties: MERCH_BOUNTIES },
+    { title: 'Build Your Team', emoji: '🤝', bounties: REFERRAL_BOUNTIES },
+    { title: 'Stay Active', emoji: '🔥', bounties: ENGAGEMENT_BOUNTIES },
+  ], [revenueBounties]);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 space-y-8">
@@ -264,7 +311,7 @@ export default function BountyBoardPage() {
       </div>
 
       {/* Bounty Sections */}
-      {SECTIONS.map((section) => (
+      {sections.map((section) => (
         <div key={section.title} className="space-y-4">
           <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
             <span>{section.emoji}</span> {section.title}
