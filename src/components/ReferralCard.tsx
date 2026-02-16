@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTracking } from '@/contexts/ActivityTrackerContext';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -26,6 +27,7 @@ interface ReferralCardProps {
 export function ReferralCard({ stats, referralCode, isLoading }: ReferralCardProps) {
   const [copied, setCopied] = useState(false);
   const { data: referralSettings } = useReferralSettings();
+  const { trackClick } = useTracking();
 
   // Always use production domain for referral links
   const referralLink = generateReferralLink(referralCode);
@@ -35,6 +37,7 @@ export function ReferralCard({ stats, referralCode, isLoading }: ReferralCardPro
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
+      trackClick('copy_referral_link', 'Copy Referral Link', { referral_code: referralCode });
       toast.success('Copied to clipboard!');
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {

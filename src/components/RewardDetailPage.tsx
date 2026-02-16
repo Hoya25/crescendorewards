@@ -38,6 +38,7 @@ import { useTheme } from 'next-themes';
 import type { DeliveryMethod, RequiredDataField } from '@/types/delivery';
 import { DELIVERY_METHOD_REQUIRED_FIELDS } from '@/types/delivery';
 import { useRewardCreators } from '@/hooks/useFeaturedCreators';
+import { useTracking } from '@/contexts/ActivityTrackerContext';
 import { CreatorMiniCard } from '@/components/creators/CreatorMiniCard';
 import { CommunityReviews } from '@/components/rewards/CommunityReviews';
 import { PostClaimReviewPrompt } from '@/components/rewards/PostClaimReviewPrompt';
@@ -126,6 +127,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const { checkRequiredFields, profile: deliveryProfile } = useDeliveryProfile();
   const { theme, resolvedTheme } = useTheme();
   const { creators: featuredCreators } = useRewardCreators(rewardId);
+  const { trackAction } = useTracking();
   const currentTheme = resolvedTheme || theme;
   const [reward, setReward] = useState<Reward | null>(null);
   const [brand, setBrand] = useState<Brand | null>(null);
@@ -330,6 +332,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const handleClaim = async () => {
     if (!profile || !reward) return;
     setClaiming(true);
+    trackAction('claim_reward', { reward_id: reward.id, reward_name: reward.title });
     try {
       // Combine delivery data with any shipping info
       const claimData = {

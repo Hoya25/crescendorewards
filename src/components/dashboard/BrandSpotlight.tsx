@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ExternalLink, ChevronRight, Play, Sparkles } from 'lucide-react';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { useNavigate } from 'react-router-dom';
+import { useTracking } from '@/contexts/ActivityTrackerContext';
 
 interface SpotlightBrand {
   id: string;
@@ -23,6 +24,7 @@ interface BrandSpotlightProps {
 
 export function BrandSpotlight({ brand }: BrandSpotlightProps) {
   const navigate = useNavigate();
+  const { trackClick } = useTracking();
 
   return (
     <section>
@@ -90,7 +92,10 @@ export function BrandSpotlight({ brand }: BrandSpotlightProps) {
               <Button
                 size="sm"
                 className="gap-1"
-                onClick={() => window.open(brand.shop_url, '_blank')}
+                onClick={() => {
+                  trackClick('shop_brand', `Shop ${brand.name}`, { brand_id: brand.id, brand_name: brand.name });
+                  window.open(brand.shop_url, '_blank');
+                }}
               >
                 Shop {brand.name} <ExternalLink className="w-3 h-3" />
               </Button>
