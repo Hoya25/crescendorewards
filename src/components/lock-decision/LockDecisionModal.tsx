@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { Lock, ChevronRight, ChevronDown, Star, Info, Sparkles, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { format, addDays } from 'date-fns';
 import { TierUpgradeCelebration } from '@/components/TierUpgradeCelebration';
 import { calculateReward, DEFAULT_EARNING_MULTIPLIERS } from '@/utils/calculateReward';
 import type { LockDecisionRequest } from '@/contexts/LockDecisionContext';
@@ -40,6 +42,7 @@ interface Props {
 }
 
 export function LockDecisionModalInner({ request, onComplete }: Props) {
+  const navigate = useNavigate();
   const { tier, nextTier, total360Locked, allTiers, profile } = useUnifiedUser();
   const tierName = (tier?.tier_name || 'bronze').toLowerCase();
   const statusMultiplier = (tier as any)?.earning_multiplier ?? DEFAULT_EARNING_MULTIPLIERS[tierName] ?? 1;
@@ -162,62 +165,53 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
 
   // ─── SUCCESS PHASE ───
   if (phase === 'success') {
+    const is360 = selected === '360lock';
+    const unlockDate = format(addDays(new Date(), is360 ? 360 : 90), 'MMMM d, yyyy');
+    const tierDisplayName = newTier?.display_name || tier?.display_name || 'Bronze';
+
+    if (is360) {
+      return <Lock360Celebration
+        amount={selectedAmount}
+        tierName={tierDisplayName}
+        tierEmoji={newTier?.badge_emoji || tier?.badge_emoji || '🥉'}
+        tierColor={TIER_COLORS[(newTier?.tier_name || newTier?.display_name || tierName).toLowerCase()] || '#CD7F32'}
+        unlockDate={unlockDate}
+        onViewRewards={() => {
+          handleDone();
+          navigate('/rewards');
+        }}
+      />;
+    }
+
+    // 90-day success (unchanged)
     return (
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-        <div className="w-full max-w-md rounded-2xl p-6 text-center space-y-5" style={{ background: '#1A1A2E' }}>
-          {selected === '360lock' ? (
-            <>
-              <div className="text-5xl">🎉</div>
-              <h2 className="text-2xl font-bold text-white">
-                {selectedAmount.toLocaleString()} NCTR Locked!
-              </h2>
-              <p className="text-sm font-semibold" style={{ color: '#C8FF00' }}>
-                {multiplier}x multiplier applied
-              </p>
-              <StatusBar
-                newTier={newTier}
-                newNextTier={newNextTier}
-                newLocked={newLocked}
-                nctrToNewNext={nctrToNewNext}
-                barColor="#C8FF00"
-              />
-              <Button
-                className="w-full font-semibold"
-                style={{ background: '#C8FF00', color: '#1A1A2E' }}
-                onClick={handleDone}
-              >
-                Keep Earning →
-              </Button>
-            </>
-          ) : (
-            <>
-              <div className="w-14 h-14 rounded-full mx-auto flex items-center justify-center" style={{ background: 'rgba(200,255,0,0.1)' }}>
-                <Check className="w-7 h-7" style={{ color: '#C8FF00' }} />
-              </div>
-              <h2 className="text-xl font-bold text-white">
-                {selectedAmount.toLocaleString()} NCTR Locked
-              </h2>
-              <div className="p-3 rounded-lg text-left" style={{ background: 'rgba(255,255,255,0.05)' }}>
-                <p className="text-xs text-white/60">
-                  💡 <span className="font-semibold text-white/80">Tip:</span> Choose 360LOCK next time to earn {multiplier}x. It adds up fast.
-                </p>
-              </div>
-              <StatusBar
-                newTier={newTier}
-                newNextTier={newNextTier}
-                newLocked={newLocked}
-                nctrToNewNext={nctrToNewNext}
-                barColor={newTier?.badge_color || '#CD7F32'}
-              />
-              <Button
-                variant="outline"
-                className="w-full text-white border-white/20 hover:bg-white/10"
-                onClick={handleDone}
-              >
-                Got It →
-              </Button>
-            </>
-          )}
+        <div className="w-full max-w-md rounded-2xl p-6 text-center space-y-5" style={{ background: '#323232' }}>
+          <div className="w-14 h-14 rounded-full mx-auto flex items-center justify-center" style={{ background: 'rgba(226,255,109,0.1)' }}>
+            <Check className="w-7 h-7" style={{ color: '#E2FF6D' }} />
+          </div>
+          <h2 className="text-xl font-bold text-white">
+            {selectedAmount.toLocaleString()} NCTR Locked
+          </h2>
+          <div className="p-3 rounded-lg text-left" style={{ background: 'rgba(255,255,255,0.05)' }}>
+            <p className="text-xs text-white/60">
+              💡 <span className="font-semibold text-white/80">Tip:</span> Choose 360LOCK next time to earn {multiplier}x. It adds up fast.
+            </p>
+          </div>
+          <StatusBar
+            newTier={newTier}
+            newNextTier={newNextTier}
+            newLocked={newLocked}
+            nctrToNewNext={nctrToNewNext}
+            barColor={newTier?.badge_color || '#CD7F32'}
+          />
+          <Button
+            variant="outline"
+            className="w-full text-white border-white/20 hover:bg-white/10"
+            onClick={handleDone}
+          >
+            Got It →
+          </Button>
         </div>
       </div>
     );
@@ -504,6 +498,104 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
             ))}
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── 360LOCK Celebratory Confirmation ─── */
+function Lock360Celebration({
+  amount,
+  tierName,
+  tierEmoji,
+  tierColor,
+  unlockDate,
+  onViewRewards,
+}: {
+  amount: number;
+  tierName: string;
+  tierEmoji: string;
+  tierColor: string;
+  unlockDate: string;
+  onViewRewards: () => void;
+}) {
+  const [bgFlash, setBgFlash] = useState(true);
+
+  useEffect(() => {
+    // Fire confetti on mount
+    confetti({
+      particleCount: 120,
+      spread: 80,
+      origin: { y: 0.5 },
+      colors: ['#E2FF6D', '#FFD700', '#00CED1', '#ffffff'],
+    });
+    // Flash lime background for 1 second then settle
+    const timer = setTimeout(() => setBgFlash(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const summaryItems = [
+    { label: 'Amount Locked', value: `${amount.toLocaleString()} NCTR` },
+    { label: 'Lock Duration', value: '360 Days' },
+    { label: 'Status Tier', value: tierName, isBadge: true, badgeColor: tierColor, badgeEmoji: tierEmoji },
+    { label: 'Unlock Date', value: unlockDate },
+  ];
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 transition-colors duration-1000"
+      style={{ background: bgFlash ? '#E2FF6D' : '#323232' }}
+    >
+      <div
+        className="w-full max-w-lg rounded-2xl p-8 text-center space-y-6 animate-scale-in"
+        style={{ background: '#323232', border: '1px solid rgba(226,255,109,0.15)' }}
+      >
+        {/* Headline */}
+        <div className="space-y-3">
+          <h1 className="text-3xl sm:text-4xl font-bold text-white">
+            🔒 Locked & Loaded!
+          </h1>
+          <p className="text-base text-white/80">
+            Your <span className="font-bold" style={{ color: '#E2FF6D' }}>{amount.toLocaleString()} NCTR</span> is committed for 360 days.
+          </p>
+          <p className="text-sm" style={{ color: '#5A5A58' }}>
+            Your {tierName} status is now active. Your rewards are waiting below.
+          </p>
+        </div>
+
+        {/* Lock Summary — 4 items in a row */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {summaryItems.map((item) => (
+            <div
+              key={item.label}
+              className="rounded-xl p-3 space-y-1"
+              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+            >
+              <p className="text-[10px] uppercase tracking-wider" style={{ color: '#5A5A58' }}>
+                {item.label}
+              </p>
+              {item.isBadge ? (
+                <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold"
+                  style={{ background: item.badgeColor, color: '#323232' }}
+                >
+                  {item.badgeEmoji} {item.value}
+                </span>
+              ) : (
+                <p className="text-sm font-bold text-white">{item.value}</p>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* CTA Button */}
+        <Button
+          className="w-full h-14 text-base font-bold rounded-xl"
+          style={{ background: '#E2FF6D', color: '#323232' }}
+          onClick={onViewRewards}
+        >
+          View My Rewards
+        </Button>
       </div>
     </div>
   );
