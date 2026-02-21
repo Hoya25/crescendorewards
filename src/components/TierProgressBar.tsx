@@ -146,13 +146,13 @@ export default function TierProgressBar({ balance = 0, lockedBalance = 0, onLeve
               ↑ Level Up
             </button>
           )}
-          <button onClick={() => setPerksOpen(!perksOpen)} style={{ height: '40px', padding: '0 22px', background: 'transparent', color: 'rgba(217,217,217,0.6)', fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, border: '1px solid rgba(255,255,255,0.14)', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}>
+          <button onClick={() => { setPerksOpen(p => !p); if (onViewPerks) onViewPerks(); }} style={{ height: '40px', padding: '0 22px', background: 'transparent', color: 'rgba(217,217,217,0.6)', fontFamily: 'var(--font-body)', fontSize: '12px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const, border: '1px solid rgba(255,255,255,0.14)', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}>
             {perksOpen ? '▴ Hide' : '▾ View'} {tier.name} Perks
           </button>
         </div>
 
         {/* Perks drawer */}
-        {perksOpen && (
+        <div style={{ maxHeight: perksOpen ? '320px' : '0', opacity: perksOpen ? 1 : 0, overflow: 'hidden', transition: 'max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease' }}>
           <div style={{ background: `rgba(${tier.rgb},0.06)`, border: `1px solid rgba(${tier.rgb},0.14)`, borderRadius: '10px', padding: '0.875rem', transition: 'all 0.3s ease' }}>
             <p style={{ fontFamily: 'var(--font-body)', fontSize: '9px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: `rgba(${tier.rgb},0.5)`, marginBottom: '8px' }}>{tier.name} Tier Perks</p>
             {tier.perks.map((perk, pi) => (
@@ -164,7 +164,7 @@ export default function TierProgressBar({ balance = 0, lockedBalance = 0, onLeve
               </div>
             ))}
           </div>
-        )}
+        </div>
       </div>
     </article>
   );
