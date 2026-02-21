@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Sparkles } from 'lucide-react';
+import { Heart, Sparkles, Lock, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { VisualRewardCard } from '@/components/rewards/VisualRewardCard';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -26,6 +26,81 @@ interface WellnessReward {
   min_status_tier?: string | null;
   is_sponsored?: boolean;
   status_tier_claims_cost?: Record<string, number> | null;
+}
+
+const TIER_WELLNESS_UNLOCKS: { tier: string; level: number; color: string; emoji: string; items: string[] }[] = [
+  { tier: 'Bronze', level: 1, color: '#CD7F32', emoji: '🥉', items: ['Kroma Starter Bundle ($75 value)', 'Access to all Bronze-tier wellness rewards'] },
+  { tier: 'Silver', level: 2, color: '#C0C0C0', emoji: '🥈', items: ['Kroma Beauty Matcha 3-Pack ($120 value)', 'Kroma Super Core 3-Pack ($150 value)', '+ all Bronze rewards'] },
+  { tier: 'Gold', level: 3, color: '#FFD700', emoji: '🥇', items: ['Kroma 5-Day Reset Kit ($385 value)', '+ all Silver & Bronze rewards'] },
+  { tier: 'Platinum', level: 4, color: '#E5E4E2', emoji: '💎', items: ['Kroma VIP Reset + Consultation ($750 value)', '+ all Gold, Silver & Bronze rewards'] },
+  { tier: 'Diamond', level: 5, color: '#B9F2FF', emoji: '👑', items: ['Everything + priority access to new INSPIRATION partner rewards', '+ founding recognition in the INSPIRATION ecosystem'] },
+];
+
+function TierUnlockPreview({ userTierLevel, userTierName }: { userTierLevel: number; userTierName: string }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="mb-6">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center justify-between gap-2 rounded-xl border border-border bg-card px-4 py-3 text-left hover:bg-accent/50 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-amber-500" />
+          <span className="text-sm font-semibold text-foreground">
+            What each tier unlocks in INSPIRATION Wellness
+          </span>
+          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+            Your tier: {userTierName}
+          </Badge>
+        </div>
+        {expanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+      </button>
+
+      {expanded && (
+        <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 animate-fade-in">
+          {TIER_WELLNESS_UNLOCKS.map((t) => {
+            const isUnlocked = userTierLevel >= t.level;
+            return (
+              <div
+                key={t.tier}
+                className={cn(
+                  'rounded-xl border p-3 transition-all relative overflow-hidden',
+                  isUnlocked
+                    ? 'border-primary/30 bg-card shadow-sm'
+                    : 'border-border bg-muted/30 opacity-70'
+                )}
+              >
+                <div className="flex items-center gap-1.5 mb-2">
+                  <span className="text-base">{t.emoji}</span>
+                  <span className="text-xs font-bold" style={{ color: t.color }}>{t.tier}</span>
+                  {isUnlocked ? (
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 ml-auto" />
+                  ) : (
+                    <Lock className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
+                  )}
+                </div>
+                <ul className="space-y-1">
+                  {t.items.map((item, i) => (
+                    <li key={i} className="text-[11px] leading-snug text-muted-foreground flex items-start gap-1">
+                      <span className="shrink-0 mt-0.5">🌿</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                {isUnlocked && (
+                  <div
+                    className="absolute inset-x-0 bottom-0 h-0.5"
+                    style={{ backgroundColor: t.color }}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function WellnessRewardsSection() {
@@ -125,6 +200,8 @@ export function WellnessRewardsSection() {
           </div>
           <span className="text-muted-foreground group-hover:translate-x-1 transition-transform text-lg shrink-0">→</span>
         </a>
+        {/* Tier Unlock Preview */}
+        <TierUnlockPreview userTierLevel={userTier.tierLevel} userTierName={userTier.tierName} />
 
         {/* Rewards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-5">
