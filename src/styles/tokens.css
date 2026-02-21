@@ -1,0 +1,448 @@
+/* ============================================================
+   NCTR Design System — tokens.css
+   A comprehensive, portable design-token file for all NCTR platforms.
+   Import: import './styles/tokens.css';
+   ============================================================ */
+
+/* —————————————————————————————————————————————
+   1. CSS CUSTOM PROPERTIES
+   ————————————————————————————————————————————— */
+
+:root {
+  /* ——— Brand Colors (HSL) ——— */
+  --nctr-primary: 0 0% 20%;          /* #323232 */
+  --nctr-secondary: 40 1% 35%;       /* #5A5A58 */
+  --nctr-light: 0 0% 85%;            /* #D9D9D9 */
+  --nctr-accent: 72 100% 71%;        /* #E2FF6D */
+  --nctr-white: 0 0% 100%;
+  --nctr-black: 0 0% 0%;
+
+  /* Semantic surfaces */
+  --nctr-surface: 0 0% 100%;
+  --nctr-surface-alt: 0 0% 97%;
+  --nctr-surface-elevated: 0 0% 94%;
+  --nctr-on-surface: 0 0% 7%;
+
+  /* Feedback */
+  --nctr-success: 142 71% 45%;
+  --nctr-warning: 38 92% 50%;
+  --nctr-error: 0 84% 60%;
+  --nctr-info: 210 80% 55%;
+
+  /* ——— Typography ——— */
+  --nctr-font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --nctr-font-display: 'Space Grotesk', var(--nctr-font-sans);
+  --nctr-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Mobile-first type scale */
+  --nctr-text-xs: 0.75rem;    /* 12px */
+  --nctr-text-sm: 0.875rem;   /* 14px */
+  --nctr-text-base: 1rem;     /* 16px */
+  --nctr-text-lg: 1.125rem;   /* 18px */
+  --nctr-text-xl: 1.25rem;    /* 20px */
+  --nctr-text-2xl: 1.5rem;    /* 24px */
+  --nctr-text-3xl: 2rem;      /* 32px */
+  --nctr-text-4xl: 2.5rem;    /* 40px */
+  --nctr-text-5xl: 3rem;      /* 48px */
+
+  /* Font weights */
+  --nctr-font-normal: 400;
+  --nctr-font-medium: 500;
+  --nctr-font-semibold: 600;
+  --nctr-font-bold: 700;
+  --nctr-font-extrabold: 800;
+
+  /* Line heights */
+  --nctr-leading-tight: 1.15;
+  --nctr-leading-snug: 1.3;
+  --nctr-leading-normal: 1.5;
+  --nctr-leading-relaxed: 1.65;
+
+  /* ——— Spacing (4px base) ——— */
+  --nctr-space-1: 0.25rem;   /*  4px */
+  --nctr-space-2: 0.5rem;    /*  8px */
+  --nctr-space-3: 0.75rem;   /* 12px */
+  --nctr-space-4: 1rem;      /* 16px */
+  --nctr-space-5: 1.25rem;   /* 20px */
+  --nctr-space-6: 1.5rem;    /* 24px */
+  --nctr-space-8: 2rem;      /* 32px */
+  --nctr-space-10: 2.5rem;   /* 40px */
+  --nctr-space-12: 3rem;     /* 48px */
+  --nctr-space-16: 4rem;     /* 64px */
+
+  /* ——— Border Radius ——— */
+  --nctr-radius-sm: 0.25rem;
+  --nctr-radius-md: 0.5rem;
+  --nctr-radius-lg: 0.75rem;
+  --nctr-radius-xl: 1rem;
+  --nctr-radius-full: 9999px;
+
+  /* ——— Shadows ——— */
+  --nctr-shadow-subtle: 0 1px 3px 0 hsl(0 0% 0% / 0.06);
+  --nctr-shadow-medium: 0 4px 12px -2px hsl(0 0% 0% / 0.1);
+  --nctr-shadow-strong: 0 10px 30px -4px hsl(0 0% 0% / 0.18);
+  --nctr-shadow-accent: 0 4px 20px -4px hsl(var(--nctr-accent) / 0.35);
+
+  /* ——— Transitions ——— */
+  --nctr-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --nctr-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --nctr-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --nctr-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --nctr-duration-fast: 150ms;
+  --nctr-duration-standard: 300ms;
+  --nctr-duration-slow: 500ms;
+
+  /* ——— Z-index scale ——— */
+  --nctr-z-base: 0;
+  --nctr-z-dropdown: 10;
+  --nctr-z-sticky: 20;
+  --nctr-z-overlay: 30;
+  --nctr-z-modal: 40;
+  --nctr-z-toast: 50;
+}
+
+/* Desktop type scale override */
+@media (min-width: 768px) {
+  :root {
+    --nctr-text-base: 1.125rem;  /* 18px */
+    --nctr-text-lg: 1.25rem;     /* 20px */
+    --nctr-text-xl: 1.5rem;      /* 24px */
+    --nctr-text-2xl: 1.875rem;   /* 30px */
+    --nctr-text-3xl: 2.5rem;     /* 40px */
+    --nctr-text-4xl: 3rem;       /* 48px */
+    --nctr-text-5xl: 4rem;       /* 64px */
+  }
+}
+
+
+/* —————————————————————————————————————————————
+   2. UTILITY CLASSES
+   ————————————————————————————————————————————— */
+
+/* ——— Text Colors ——— */
+.nctr-text-primary   { color: hsl(var(--nctr-primary)); }
+.nctr-text-secondary { color: hsl(var(--nctr-secondary)); }
+.nctr-text-light     { color: hsl(var(--nctr-light)); }
+.nctr-text-accent    { color: hsl(var(--nctr-accent)); }
+.nctr-text-white     { color: hsl(var(--nctr-white)); }
+.nctr-text-success   { color: hsl(var(--nctr-success)); }
+.nctr-text-warning   { color: hsl(var(--nctr-warning)); }
+.nctr-text-error     { color: hsl(var(--nctr-error)); }
+
+/* ——— Text Sizes ——— */
+.nctr-text-xs  { font-size: var(--nctr-text-xs); }
+.nctr-text-sm  { font-size: var(--nctr-text-sm); }
+.nctr-text-base { font-size: var(--nctr-text-base); }
+.nctr-text-lg  { font-size: var(--nctr-text-lg); }
+.nctr-text-xl  { font-size: var(--nctr-text-xl); }
+.nctr-text-2xl { font-size: var(--nctr-text-2xl); }
+.nctr-text-3xl { font-size: var(--nctr-text-3xl); }
+.nctr-text-4xl { font-size: var(--nctr-text-4xl); }
+.nctr-text-5xl { font-size: var(--nctr-text-5xl); }
+
+/* ——— Font Weights ——— */
+.nctr-font-normal    { font-weight: var(--nctr-font-normal); }
+.nctr-font-medium    { font-weight: var(--nctr-font-medium); }
+.nctr-font-semibold  { font-weight: var(--nctr-font-semibold); }
+.nctr-font-bold      { font-weight: var(--nctr-font-bold); }
+.nctr-font-extrabold { font-weight: var(--nctr-font-extrabold); }
+
+/* ——— Background Colors ——— */
+.nctr-bg-primary   { background-color: hsl(var(--nctr-primary)); }
+.nctr-bg-secondary { background-color: hsl(var(--nctr-secondary)); }
+.nctr-bg-light     { background-color: hsl(var(--nctr-light)); }
+.nctr-bg-accent    { background-color: hsl(var(--nctr-accent)); }
+.nctr-bg-surface   { background-color: hsl(var(--nctr-surface)); }
+.nctr-bg-surface-alt { background-color: hsl(var(--nctr-surface-alt)); }
+.nctr-bg-elevated  { background-color: hsl(var(--nctr-surface-elevated)); }
+
+/* ——— Spacing (Padding) ——— */
+.nctr-p-1  { padding: var(--nctr-space-1); }
+.nctr-p-2  { padding: var(--nctr-space-2); }
+.nctr-p-3  { padding: var(--nctr-space-3); }
+.nctr-p-4  { padding: var(--nctr-space-4); }
+.nctr-p-5  { padding: var(--nctr-space-5); }
+.nctr-p-6  { padding: var(--nctr-space-6); }
+.nctr-p-8  { padding: var(--nctr-space-8); }
+.nctr-p-10 { padding: var(--nctr-space-10); }
+.nctr-p-12 { padding: var(--nctr-space-12); }
+.nctr-p-16 { padding: var(--nctr-space-16); }
+
+.nctr-px-4 { padding-inline: var(--nctr-space-4); }
+.nctr-px-6 { padding-inline: var(--nctr-space-6); }
+.nctr-px-8 { padding-inline: var(--nctr-space-8); }
+.nctr-py-2 { padding-block: var(--nctr-space-2); }
+.nctr-py-4 { padding-block: var(--nctr-space-4); }
+.nctr-py-6 { padding-block: var(--nctr-space-6); }
+.nctr-py-8 { padding-block: var(--nctr-space-8); }
+
+/* ——— Spacing (Margin) ——— */
+.nctr-m-1  { margin: var(--nctr-space-1); }
+.nctr-m-2  { margin: var(--nctr-space-2); }
+.nctr-m-4  { margin: var(--nctr-space-4); }
+.nctr-m-6  { margin: var(--nctr-space-6); }
+.nctr-m-8  { margin: var(--nctr-space-8); }
+.nctr-mx-auto { margin-inline: auto; }
+.nctr-mt-4 { margin-top: var(--nctr-space-4); }
+.nctr-mt-6 { margin-top: var(--nctr-space-6); }
+.nctr-mt-8 { margin-top: var(--nctr-space-8); }
+.nctr-mb-4 { margin-bottom: var(--nctr-space-4); }
+.nctr-mb-6 { margin-bottom: var(--nctr-space-6); }
+.nctr-mb-8 { margin-bottom: var(--nctr-space-8); }
+
+/* ——— Gap ——— */
+.nctr-gap-1 { gap: var(--nctr-space-1); }
+.nctr-gap-2 { gap: var(--nctr-space-2); }
+.nctr-gap-3 { gap: var(--nctr-space-3); }
+.nctr-gap-4 { gap: var(--nctr-space-4); }
+.nctr-gap-6 { gap: var(--nctr-space-6); }
+.nctr-gap-8 { gap: var(--nctr-space-8); }
+
+/* ——— Flexbox Layouts ——— */
+.nctr-flex        { display: flex; }
+.nctr-flex-col    { display: flex; flex-direction: column; }
+.nctr-flex-row    { display: flex; flex-direction: row; }
+.nctr-flex-wrap   { flex-wrap: wrap; }
+.nctr-flex-center { display: flex; align-items: center; justify-content: center; }
+.nctr-flex-between { display: flex; align-items: center; justify-content: space-between; }
+.nctr-flex-start  { display: flex; align-items: flex-start; }
+.nctr-flex-end    { display: flex; align-items: flex-end; justify-content: flex-end; }
+.nctr-items-center { align-items: center; }
+.nctr-justify-center { justify-content: center; }
+.nctr-flex-1 { flex: 1; }
+
+/* ——— Grid ——— */
+.nctr-grid     { display: grid; }
+.nctr-grid-2   { display: grid; grid-template-columns: repeat(2, 1fr); }
+.nctr-grid-3   { display: grid; grid-template-columns: repeat(3, 1fr); }
+.nctr-grid-4   { display: grid; grid-template-columns: repeat(4, 1fr); }
+
+/* ——— Button Styles ——— */
+.nctr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--nctr-space-2);
+  padding: var(--nctr-space-3) var(--nctr-space-6);
+  font-size: var(--nctr-text-sm);
+  font-weight: var(--nctr-font-semibold);
+  line-height: 1;
+  border-radius: var(--nctr-radius-md);
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--nctr-duration-fast) var(--nctr-ease);
+  outline: none;
+}
+
+.nctr-btn:focus-visible {
+  box-shadow: 0 0 0 2px hsl(var(--nctr-surface)), 0 0 0 4px hsl(var(--nctr-accent));
+}
+
+.nctr-btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.nctr-btn-primary {
+  background-color: hsl(var(--nctr-primary));
+  color: hsl(var(--nctr-white));
+}
+.nctr-btn-primary:hover {
+  background-color: hsl(var(--nctr-primary) / 0.85);
+}
+
+.nctr-btn-accent {
+  background-color: hsl(var(--nctr-accent));
+  color: hsl(var(--nctr-primary));
+}
+.nctr-btn-accent:hover {
+  background-color: hsl(var(--nctr-accent) / 0.85);
+  box-shadow: var(--nctr-shadow-accent);
+}
+
+.nctr-btn-secondary {
+  background-color: transparent;
+  color: hsl(var(--nctr-primary));
+  border: 1px solid hsl(var(--nctr-light));
+}
+.nctr-btn-secondary:hover {
+  background-color: hsl(var(--nctr-surface-alt));
+}
+
+.nctr-btn-ghost {
+  background-color: transparent;
+  color: hsl(var(--nctr-secondary));
+}
+.nctr-btn-ghost:hover {
+  background-color: hsl(var(--nctr-primary) / 0.06);
+  color: hsl(var(--nctr-primary));
+}
+
+.nctr-btn-sm {
+  padding: var(--nctr-space-2) var(--nctr-space-4);
+  font-size: var(--nctr-text-xs);
+}
+
+.nctr-btn-lg {
+  padding: var(--nctr-space-4) var(--nctr-space-8);
+  font-size: var(--nctr-text-base);
+}
+
+/* ——— Card Styles ——— */
+.nctr-card {
+  background-color: hsl(var(--nctr-surface));
+  border: 1px solid hsl(var(--nctr-light) / 0.5);
+  border-radius: var(--nctr-radius-lg);
+  padding: var(--nctr-space-6);
+  box-shadow: var(--nctr-shadow-subtle);
+  transition: box-shadow var(--nctr-duration-fast) var(--nctr-ease),
+              transform var(--nctr-duration-fast) var(--nctr-ease);
+}
+
+.nctr-card-hover:hover {
+  box-shadow: var(--nctr-shadow-medium);
+  transform: translateY(-2px);
+}
+
+.nctr-card-elevated {
+  background-color: hsl(var(--nctr-surface));
+  border: none;
+  border-radius: var(--nctr-radius-lg);
+  padding: var(--nctr-space-6);
+  box-shadow: var(--nctr-shadow-medium);
+}
+
+.nctr-card-accent {
+  background-color: hsl(var(--nctr-primary));
+  color: hsl(var(--nctr-white));
+  border: none;
+  border-radius: var(--nctr-radius-lg);
+  padding: var(--nctr-space-6);
+}
+
+/* ——— Dividers ——— */
+.nctr-divider {
+  border: none;
+  height: 1px;
+  background-color: hsl(var(--nctr-light) / 0.4);
+  margin-block: var(--nctr-space-4);
+}
+
+/* ——— Badges ——— */
+.nctr-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--nctr-space-1) var(--nctr-space-3);
+  font-size: var(--nctr-text-xs);
+  font-weight: var(--nctr-font-semibold);
+  border-radius: var(--nctr-radius-full);
+  line-height: 1;
+}
+
+.nctr-badge-accent {
+  background-color: hsl(var(--nctr-accent) / 0.15);
+  color: hsl(82 60% 30%);
+}
+
+.nctr-badge-primary {
+  background-color: hsl(var(--nctr-primary));
+  color: hsl(var(--nctr-white));
+}
+
+
+/* —————————————————————————————————————————————
+   3. ANIMATION KEYFRAMES
+   ————————————————————————————————————————————— */
+
+/* Fade */
+@keyframes nctr-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes nctr-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes nctr-fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes nctr-fade-in-down {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Slide */
+@keyframes nctr-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes nctr-slide-down {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes nctr-slide-in-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes nctr-slide-in-left {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+/* Scale */
+@keyframes nctr-scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Glow / Pulse */
+@keyframes nctr-glow {
+  0%, 100% { box-shadow: 0 0 8px hsl(var(--nctr-accent) / 0.3); }
+  50%      { box-shadow: 0 0 24px hsl(var(--nctr-accent) / 0.6); }
+}
+@keyframes nctr-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.6; }
+}
+@keyframes nctr-pulse-scale {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+
+/* Marquee */
+@keyframes nctr-marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes nctr-marquee-reverse {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+/* Spin */
+@keyframes nctr-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Animation utility classes */
+.nctr-animate-fade-in      { animation: nctr-fade-in var(--nctr-duration-standard) var(--nctr-ease) both; }
+.nctr-animate-fade-out     { animation: nctr-fade-out var(--nctr-duration-standard) var(--nctr-ease) both; }
+.nctr-animate-fade-in-up   { animation: nctr-fade-in-up var(--nctr-duration-standard) var(--nctr-ease-out) both; }
+.nctr-animate-fade-in-down { animation: nctr-fade-in-down var(--nctr-duration-standard) var(--nctr-ease-out) both; }
+.nctr-animate-slide-up     { animation: nctr-slide-up var(--nctr-duration-standard) var(--nctr-ease-out) both; }
+.nctr-animate-slide-down   { animation: nctr-slide-down var(--nctr-duration-standard) var(--nctr-ease-out) both; }
+.nctr-animate-scale-in     { animation: nctr-scale-in var(--nctr-duration-fast) var(--nctr-ease-out) both; }
+.nctr-animate-glow         { animation: nctr-glow 2s ease-in-out infinite; }
+.nctr-animate-pulse        { animation: nctr-pulse 2s ease-in-out infinite; }
+.nctr-animate-pulse-scale  { animation: nctr-pulse-scale 2s ease-in-out infinite; }
+.nctr-animate-marquee      { animation: nctr-marquee 30s linear infinite; }
+.nctr-animate-marquee-rev  { animation: nctr-marquee-reverse 30s linear infinite; }
+.nctr-animate-spin         { animation: nctr-spin 1s linear infinite; }
+
+/* Staggered children helper — apply to parent, add --nctr-stagger-i on each child */
+.nctr-stagger > * {
+  animation-delay: calc(var(--nctr-stagger-i, 0) * 80ms);
+}
