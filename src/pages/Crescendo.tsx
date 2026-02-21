@@ -8,7 +8,7 @@ export default function Crescendo() {
   return (
     <div>
       <CrescendoHero
-        onExploreRewards={() => navigate('/crescendo/rewards')}
+        onViewRewards={() => navigate('/crescendo/rewards')}
         onLevelUp={() => navigate('/crescendo/level-up')}
       />
       <div>
