@@ -1344,6 +1344,42 @@ export type Database = {
           },
         ]
       }
+      glossary_terms: {
+        Row: {
+          category: string | null
+          created_at: string
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          long_definition: string | null
+          short_definition: string
+          term: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          long_definition?: string | null
+          short_definition: string
+          term: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          long_definition?: string | null
+          short_definition?: string
+          term?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       groundball_rewards: {
         Row: {
           cadence: string | null
