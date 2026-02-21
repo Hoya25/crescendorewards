@@ -17,11 +17,11 @@ const DARK_BG = '#323232';
 const MID_GREY = '#5A5A58';
 
 const tierLadder = [
-  { emoji: '💎', name: 'Diamond', desc: 'Top tier — VIP event access, maximum rewards' },
-  { emoji: '🥇', name: 'Platinum', desc: 'Priority opportunities, premium partner perks' },
-  { emoji: '🥈', name: 'Gold', desc: 'Exclusive partner discounts, enhanced earning' },
-  { emoji: '🥉', name: 'Silver', desc: 'Bonus rewards, community recognition' },
-  { emoji: '🟫', name: 'Bronze', desc: 'Starting tier — your journey begins here' },
+  { emoji: '💎', name: 'Diamond', desc: 'Exclusive access, premium rewards' },
+  { emoji: '🥇', name: 'Platinum', desc: 'Priority opportunities, VIP benefits' },
+  { emoji: '🥈', name: 'Gold', desc: 'Enhanced rewards, partner discounts' },
+  { emoji: '🥉', name: 'Silver', desc: 'Growing benefits, community access' },
+  { emoji: '🟫', name: 'Bronze', desc: 'Starting tier, foundation rewards' },
 ];
 
 export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
