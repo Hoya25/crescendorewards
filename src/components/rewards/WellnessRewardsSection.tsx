@@ -107,6 +107,25 @@ export function WellnessRewardsSection() {
           </Badge>
         </div>
 
+        {/* Kroma Cross-Link Banner */}
+        <a
+          href="https://thegarden.nctr.live"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group mb-6 flex items-center gap-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-r from-emerald-50 to-amber-50 dark:from-emerald-950/30 dark:to-amber-950/20 p-4 hover:shadow-md transition-all"
+        >
+          <span className="text-3xl shrink-0">🌿</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-foreground">
+              Shop Kroma Wellness on The Garden → Earn INSPIRATION toward these rewards
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Every Kroma purchase earns NCTR. Commit via 360LOCK to unlock the rewards below.
+            </p>
+          </div>
+          <span className="text-muted-foreground group-hover:translate-x-1 transition-transform text-lg shrink-0">→</span>
+        </a>
+
         {/* Rewards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-5">
           {rewards.map((reward, i) => (
