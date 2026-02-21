@@ -1,5 +1,6 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { Footer } from '@/components/Footer';
+import { LockCalloutBanner } from '@/components/navigation/LockCalloutBanner';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
@@ -166,6 +167,9 @@ export function AppLayout({ children }: AppLayoutProps) {
 
           {/* Onboarding Tracker - tracks page visits for onboarding progress */}
           <OnboardingTracker />
+
+          {/* Lock Callout Banner */}
+          <LockCalloutBanner />
 
           {/* Main Content */}
           <main className="flex-1 overflow-auto">
