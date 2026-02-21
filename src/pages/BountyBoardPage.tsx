@@ -1,4 +1,4 @@
-import { Gift, Users, Share2, PenTool, Flame, Info, ShoppingBag, ShoppingCart, Trophy, Star, Shirt } from 'lucide-react';
+import { Gift, Users, Share2, PenTool, Flame, Info, ShoppingBag, ShoppingCart, Trophy, Star, Shirt, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { useReferralStats } from '@/hooks/useReferralStats';
@@ -8,7 +8,7 @@ import { BountyCardStatic, type StaticBounty } from '@/components/bounty/BountyC
 import { ReferralBountyCard } from '@/components/bounty/ReferralBountyCard';
 import { StreakBountyCard } from '@/components/bounty/StreakBountyCard';
 import { SocialShareBountyCard } from '@/components/bounty/SocialShareBountyCard';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 
 
@@ -206,7 +206,87 @@ interface BountySection {
 
 // SECTIONS moved inside component to use dynamic revenueBounties
 
-// (TOTAL_EARNABLE removed — purchase & referral bounties are uncapped)
+// ── 360LOCK EXPLAINER CARD ───────────────────────────────────────────
+function LockExplainerCard({ dismissed, onDismiss }: { dismissed: boolean; onDismiss: () => void }) {
+  if (dismissed) {
+    // Collapsed persistent version
+    return (
+      <div
+        className="col-span-full rounded-lg bg-card p-3 flex items-center gap-2"
+        style={{ borderLeft: '4px solid #E2FF6D' }}
+      >
+        <span className="text-sm">🔒</span>
+        <p className="text-xs font-medium text-muted-foreground">
+          360LOCK: Commit 360 days → 3x rewards
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="col-span-full rounded-lg bg-card p-4 sm:px-5 relative"
+      style={{ borderLeft: '4px solid #E2FF6D' }}
+    >
+      <button
+        onClick={onDismiss}
+        className="absolute top-3 right-3 text-muted-foreground hover:text-foreground transition-colors"
+        aria-label="Dismiss"
+      >
+        <X className="w-4 h-4" />
+      </button>
+      <div className="flex items-start gap-2 mb-2">
+        <span className="text-lg leading-none mt-0.5">🔒</span>
+        <h3 className="text-[15px] font-bold text-foreground">Why 360LOCK?</h3>
+      </div>
+      <p className="text-sm leading-relaxed mb-2" style={{ color: '#5A5A58' }}>
+        Every bounty reward can be amplified 3x by choosing 360LOCK — a 360-day commitment.
+        Your rewards stay yours. They just stay committed for 360 days. In return, you unlock
+        higher Crescendo status, premium rewards, and a stronger position in the ecosystem.
+        It's one decision that changes everything.
+      </p>
+      <p className="text-xs italic" style={{ color: '#D9D9D9' }}>
+        This same commitment principle applies to every participant in the ecosystem — members, brands, and partners alike.
+      </p>
+    </div>
+  );
+}
+
+// ── BOUNTY GRID ITEM (renders card + optional explainer) ────────────
+function BountyGridItem({
+  bounty,
+  referralCode,
+  referralCount,
+  showExplainer,
+  explainerDismissed,
+  onDismissExplainer,
+}: {
+  bounty: StaticBounty;
+  referralCode: string;
+  referralCount: number;
+  showExplainer: boolean;
+  explainerDismissed: boolean;
+  onDismissExplainer: () => void;
+}) {
+  const card = bounty.isReferral ? (
+    <ReferralBountyCard bounty={bounty} referralCode={referralCode} referralCount={referralCount} />
+  ) : bounty.isStreak ? (
+    <StreakBountyCard bounty={bounty} />
+  ) : bounty.isSocialShare ? (
+    <SocialShareBountyCard bounty={bounty} />
+  ) : (
+    <BountyCardStatic bounty={bounty} />
+  );
+
+  return (
+    <>
+      {showExplainer && (
+        <LockExplainerCard dismissed={explainerDismissed} onDismiss={onDismissExplainer} />
+      )}
+      {card}
+    </>
+  );
+}
 
 // ── MAIN PAGE ───────────────────────────────────────────────────────
 
@@ -215,6 +295,9 @@ export default function BountyBoardPage() {
   const { data: stats } = useReferralStats();
   const { data: milestones } = usePurchaseMilestones();
   const { data: merchData } = useMerchMilestones();
+  const [lockExplainerDismissed, setLockExplainerDismissed] = useState(
+    () => localStorage.getItem('360lock_explainer_dismissed') === '1'
+  );
 
   const crescendoData = profile?.crescendo_data || {};
   const referralCode = crescendoData.referral_code || '';
@@ -335,28 +418,26 @@ export default function BountyBoardPage() {
       </div>
 
       {/* Bounty Sections */}
-      {sections.map((section) => (
+      {sections.map((section, sectionIdx) => (
         <div key={section.title} className="space-y-4">
           <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
             <span>{section.emoji}</span> {section.title}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {section.bounties.map((bounty) =>
-              bounty.isReferral ? (
-                <ReferralBountyCard
-                  key={bounty.id}
-                  bounty={bounty}
-                  referralCode={referralCode}
-                  referralCount={stats?.totalReferrals || 0}
-                />
-              ) : bounty.isStreak ? (
-                <StreakBountyCard key={bounty.id} bounty={bounty} />
-              ) : bounty.isSocialShare ? (
-                <SocialShareBountyCard key={bounty.id} bounty={bounty} />
-              ) : (
-                <BountyCardStatic key={bounty.id} bounty={bounty} />
-              )
-            )}
+            {section.bounties.map((bounty, bountyIdx) => (
+              <BountyGridItem
+                key={bounty.id}
+                bounty={bounty}
+                referralCode={referralCode}
+                referralCount={stats?.totalReferrals || 0}
+                showExplainer={sectionIdx === 0 && bountyIdx === 2}
+                explainerDismissed={lockExplainerDismissed}
+                onDismissExplainer={() => {
+                  localStorage.setItem('360lock_explainer_dismissed', '1');
+                  setLockExplainerDismissed(true);
+                }}
+              />
+            ))}
           </div>
         </div>
       ))}
