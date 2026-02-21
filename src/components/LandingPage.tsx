@@ -116,6 +116,19 @@ export function LandingPage() {
       {/* Section 1: Hero */}
       <HeroSection onJoin={handleJoin} />
 
+      {/* Core Principle Callout */}
+      <div className="container mx-auto px-4 -mt-2 mb-4">
+        <div
+          className="rounded-xl px-5 py-4 max-w-3xl mx-auto"
+          style={{ backgroundColor: '#323232', color: '#E2FF6D' }}
+        >
+          <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-1 opacity-70">The Core Principle</p>
+          <p className="text-sm leading-relaxed">
+            Commitment is rewarded. 360LOCK is how members participate — one commitment, 360 days, amplified rewards. The longer you commit, the stronger your position.
+          </p>
+        </div>
+      </div>
+
       {/* Section 2: How It Works */}
       <ScrollReveal>
         <HowItWorksLanding />
