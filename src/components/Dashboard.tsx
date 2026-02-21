@@ -19,6 +19,7 @@ import { YourNextStep } from "./dashboard/YourNextStep";
 import { MerchBountyReminderCard } from "./dashboard/MerchBountyReminderCard";
 import { MerchCelebrationModal } from "./merch/MerchCelebrationModal";
 import { useUncelebratedPurchases } from "@/hooks/useMerchCelebration";
+import { MilestoneProgress } from "@/components/referral/MilestoneProgress";
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -148,6 +149,9 @@ export function Dashboard() {
 
           {/* 5. MERCH BOUNTIES (conditional) */}
           <MerchBountiesWidget />
+
+          {/* 5.5 REFERRAL MILESTONE PROGRESS */}
+          <MilestoneProgress currentReferrals={profile?.crescendo_data?.referral_count as number ?? 0} />
 
           {/* 6. STATUS EXPLAINER (collapsible) */}
           <StatusExplainer />
