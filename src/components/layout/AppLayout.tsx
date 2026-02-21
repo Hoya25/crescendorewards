@@ -8,6 +8,7 @@ import { CrescendoLogo } from '@/components/CrescendoLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { NotificationsDropdown } from '@/components/NotificationsDropdown';
 import { OnboardingTracker } from '@/components/onboarding/OnboardingTracker';
+import { InviteHeaderCTA } from '@/components/navigation/InviteHeaderCTA';
 import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 import { useNCTREarningDetection } from '@/hooks/useNCTREarningDetection';
 import { useLockDecision } from '@/contexts/LockDecisionContext';
@@ -126,6 +127,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 </div>
 
                 <div className="flex items-center gap-3">
+                  <InviteHeaderCTA />
                   <NotificationsDropdown />
                   <ThemeToggle />
                   

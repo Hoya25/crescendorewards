@@ -21,6 +21,7 @@ import { BetaBanner } from "./components/BetaBanner";
 import { DemoModeToggle } from "./components/groundball/DemoModeToggle";
 import { UserbackProvider } from "./components/UserbackProvider";
 import { useClaimDeliveryNotifications } from "./hooks/useClaimDeliveryNotifications";
+import { useReferralSuccessNotification } from "./hooks/useReferralSuccessNotification";
 import { AppLayout } from "./components/layout/AppLayout";
 import { NavigationSafetyNet } from "./components/layout/NavigationSafetyNet";
 
@@ -115,6 +116,7 @@ function AppRoutes() {
 
   // Enable real-time toast notifications for claim delivery status updates
   useClaimDeliveryNotifications();
+  useReferralSuccessNotification();
 
   // NCTR earning detection now handled by AppLayout + LockDecisionContext
 
