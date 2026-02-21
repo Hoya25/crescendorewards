@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, ChevronDown, TrendingUp, Lock, Trophy } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -13,7 +14,14 @@ const FLYWHEEL_NODES = [
   { label: 'Unlock', sub: 'Level up your status', Icon: Trophy, angle: 150 },
 ];
 
+const STAT_TILES = [
+  { headline: '5 Status Tiers', sub: 'Bronze to Diamond' },
+  { headline: '360 Days', sub: 'One commitment, instant activation' },
+  { headline: 'Earn in The Garden', sub: 'Shop brands to fuel your status' },
+];
+
 export function HeroSection({ onJoin }: HeroSectionProps) {
+  const navigate = useNavigate();
   const [memberCount, setMemberCount] = useState<number>(0);
 
   useEffect(() => {
@@ -48,32 +56,37 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
         {/* Left: Copy */}
         <div className="space-y-6 md:space-y-8">
           <h1 className="text-[2.5rem] md:text-[3.25rem] lg:text-[4rem] font-black tracking-tight leading-[1.05] text-text-heading">
-            Don't Buy It.{' '}
+            Your Status.{' '}
             <span className="text-accent-lime" style={{ textShadow: '0 0 30px hsl(var(--accent-lime) / 0.25)' }}>
-              Earn It. Own It.
+              Your Rewards. Your Life.
             </span>
           </h1>
 
           <p className="text-base md:text-lg lg:text-xl leading-relaxed max-w-lg text-text-body">
-            You already shop, share, and create. Crescendo turns all of it into
-            NCTR. Commit it. Build your status. Unlock rewards others pay
-            thousands for.
+            Bronze through Diamond — your Crescendo status level determines every reward, opportunity, and benefit you can access.
           </p>
 
-          <img
-            src="/brands/nctr-alliance-grey.png"
-            alt="by NCTR Alliance"
-            className="h-6 opacity-50"
-          />
+          {/* Stat Tiles */}
+          <div className="grid grid-cols-3 gap-3">
+            {STAT_TILES.map((tile) => (
+              <div
+                key={tile.headline}
+                className="rounded-xl px-3 py-3 text-center border border-border-card bg-card-bg"
+              >
+                <p className="text-sm md:text-base font-bold text-accent-lime">{tile.headline}</p>
+                <p className="text-[11px] md:text-xs text-text-body-muted mt-0.5">{tile.sub}</p>
+              </div>
+            ))}
+          </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
               size="lg"
-              onClick={onJoin}
+              onClick={() => navigate('/membership')}
               className="font-bold text-base px-8 py-6 rounded-full shadow-lg transition-all hover:scale-[1.02] no-min-touch bg-cta text-cta-foreground"
               style={{ boxShadow: '0 0 30px hsl(var(--accent-lime) / 0.12)' }}
             >
-              Join Crescendo — It's Free
+              Check My Status
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
             <Button
@@ -88,9 +101,14 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
           </div>
 
           <p className="text-sm text-text-body-muted">
-            {displayCount
-              ? `${displayCount.toLocaleString()}+ members earning rewards`
-              : 'Beta — Limited Access'}
+            <a
+              href="https://thegarden.nctr.live"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-accent-lime transition-colors underline underline-offset-2"
+            >
+              Don't have NCTR yet? Earn it in The Garden →
+            </a>
           </p>
         </div>
 
