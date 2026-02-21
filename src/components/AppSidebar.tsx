@@ -1,4 +1,4 @@
-import { Home, Gift, ShoppingBag, UserPlus, User, HelpCircle, Shield, Heart, Coins, Leaf, Target, Trophy, BookOpen } from 'lucide-react';
+import { Home, Gift, ShoppingBag, UserPlus, User, HelpCircle, Shield, Heart, Coins, Leaf, Target, Trophy, BookOpen, Zap, Lock } from 'lucide-react';
 import nctrIconDark from '@/assets/nctr-grey.png';
 import nctrIconLight from '@/assets/nctr-yellow.png';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -26,27 +26,44 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 interface AppSidebarProps {
   onNavigate?: () => void;
 }
 
-const primaryNavItems = [
+interface NavItem {
+  title: string;
+  url: string;
+  icon: any;
+  emoji?: string;
+  subtext?: string;
+  external?: string;
+  highlight?: boolean;
+}
+
+const coreNavItems: NavItem[] = [
   { title: 'Home', url: '/dashboard', icon: Home },
-  { title: 'Bounties', url: '/bounties', icon: Target },
-  { title: 'Leaderboard', url: '/leaderboard', icon: Trophy },
-  { title: 'Rewards', url: '/rewards', icon: Gift },
-  { title: 'How It Works', url: '/how-it-works', icon: BookOpen },
-  { title: 'Get Claims', url: '/buy-claims', icon: Coins, highlight: true },
-  { title: 'The Garden', url: '#', icon: Leaf, external: 'https://thegarden.nctr.live/' },
-  { title: 'My Account', url: '/profile', icon: User },
+  { title: 'My Rewards', url: '/rewards', icon: Gift, emoji: '🎁', subtext: 'Redeem with your locked NCTR' },
+  { title: 'My Status', url: '/membership', icon: Lock, emoji: '💎', subtext: 'Your 360LOCK dashboard & tier' },
+  { title: 'Shop & Earn', url: '#', icon: ShoppingBag, emoji: '🛒', subtext: 'Earn NCTR on every purchase', external: 'https://thegarden.nctr.live/' },
+  { title: 'Bounties', url: '/bounties', icon: Zap, emoji: '⚡', subtext: 'Complete missions, earn NCTR' },
 ];
 
-const secondaryNavItems = [
+const secondaryNavItems: NavItem[] = [
+  { title: 'How It Works', url: '/how-it-works', icon: BookOpen },
+  { title: 'Get Claims', url: '/buy-claims', icon: Coins, highlight: true },
+  { title: 'Leaderboard', url: '/leaderboard', icon: Trophy },
+  { title: 'Invite Friends', url: '/invite', icon: UserPlus },
   { title: 'Shop Merch', url: '#', icon: ShoppingBag, external: 'https://nctr-merch.myshopify.com' },
   { title: 'Contribute', url: '/contribute', icon: Heart },
-  { title: 'Invite Friends', url: '/invite', icon: UserPlus },
+  { title: 'My Account', url: '/profile', icon: User },
   { title: 'Help', url: '/help', icon: HelpCircle },
 ];
 
@@ -71,6 +88,61 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
     onNavigate?.();
   };
 
+  const renderNavItem = (item: NavItem) => {
+    const active = isActive(item.url);
+    const button = (
+      <SidebarMenuButton
+        onClick={() => handleNavigation(item.url, item.external)}
+        className={cn(
+          "cursor-pointer",
+          active 
+            ? "bg-accent text-accent-foreground" 
+            : "hover:bg-accent hover:text-accent-foreground"
+        )}
+      >
+        {item.emoji && open ? (
+          <span className="text-base leading-none w-4 flex items-center justify-center">{item.emoji}</span>
+        ) : (
+          <item.icon className={cn("h-4 w-4", item.highlight && "text-[#E2FF6D]")} />
+        )}
+        {open && (
+          <div className="flex flex-col min-w-0">
+            <span className={cn(
+              "text-sm leading-tight truncate",
+              item.highlight && "text-[#E2FF6D] font-semibold"
+            )}>
+              {item.title}
+            </span>
+            {item.subtext && (
+              <span className="text-[10px] text-muted-foreground truncate leading-tight">
+                {item.subtext}
+              </span>
+            )}
+          </div>
+        )}
+      </SidebarMenuButton>
+    );
+
+    // Show tooltip with subtext when sidebar is collapsed
+    if (!open && item.subtext) {
+      return (
+        <TooltipProvider key={item.title} delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <SidebarMenuItem>{button}</SidebarMenuItem>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="max-w-[200px]">
+              <p className="font-semibold text-sm">{item.title}</p>
+              <p className="text-xs text-muted-foreground">{item.subtext}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+
+    return <SidebarMenuItem key={item.title}>{button}</SidebarMenuItem>;
+  };
+
   return (
     <Sidebar className={open ? 'w-60' : 'w-14'} collapsible="icon">
       <SidebarContent>
@@ -81,31 +153,13 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
           {open && <span className="text-base font-bold tracking-wide text-foreground">Crescendo</span>}
         </div>
         <SidebarSeparator />
-        {/* Primary Navigation */}
+
+        {/* Core Navigation — Earn & Redeem */}
         <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
+          {open && <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">Earn & Redeem</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
-              {primaryNavItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    onClick={() => handleNavigation(item.url, (item as any).external)}
-                    className={cn(
-                      "cursor-pointer",
-                      isActive(item.url) 
-                        ? "bg-accent text-accent-foreground" 
-                        : "hover:bg-accent hover:text-accent-foreground"
-                    )}
-                  >
-                    <item.icon className={cn("h-4 w-4", (item as any).highlight && "text-[#C8FF00]")} />
-                    {open && (
-                      <span className={(item as any).highlight ? "text-[#C8FF00] font-semibold" : undefined}>
-                        {item.title}
-                      </span>
-                    )}
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {coreNavItems.map(renderNavItem)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -113,28 +167,10 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
         {/* Secondary Navigation */}
         <SidebarSeparator />
         <SidebarGroup>
+          {open && <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">More</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
-              {secondaryNavItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    onClick={() => handleNavigation(item.url, (item as any).external)}
-                    className={cn(
-                      "cursor-pointer",
-                      isActive(item.url) 
-                        ? "bg-accent text-accent-foreground" 
-                        : "hover:bg-accent hover:text-accent-foreground"
-                    )}
-                  >
-                    <item.icon className="h-4 w-4 text-[#52525B]" />
-                    {open && (
-                      <span className="text-sm text-[#52525B]">
-                        {item.title}
-                      </span>
-                    )}
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {secondaryNavItems.map(renderNavItem)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

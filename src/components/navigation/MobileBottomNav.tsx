@@ -1,13 +1,13 @@
-import { Home, Compass, Gift, UserPlus, User } from "lucide-react";
+import { Home, Gift, Zap, ShoppingBag, Lock } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { icon: Home, label: "Home", route: "/dashboard" },
-  { icon: Compass, label: "Discover", route: "/discover" },
-  { icon: Gift, label: "Rewards", route: "/rewards" },
-  { icon: UserPlus, label: "Invite", route: "/invite" },
-  { icon: User, label: "Account", route: "/profile" },
+  { icon: Home, label: "Home", route: "/dashboard", emoji: undefined },
+  { icon: Gift, label: "Rewards", route: "/rewards", emoji: "🎁" },
+  { icon: Lock, label: "Status", route: "/membership", emoji: "💎" },
+  { icon: ShoppingBag, label: "Shop", route: undefined, emoji: "🛒", external: "https://thegarden.nctr.live/" },
+  { icon: Zap, label: "Bounties", route: "/bounties", emoji: "⚡" },
 ];
 
 export function MobileBottomNav() {
@@ -21,8 +21,8 @@ export function MobileBottomNav() {
   };
 
   const handleClick = (item: typeof navItems[0]) => {
-    if ((item as any).external) {
-      window.open((item as any).external, '_blank');
+    if (item.external) {
+      window.open(item.external, '_blank');
     } else if (item.route) {
       navigate(item.route);
     }
@@ -47,7 +47,11 @@ export function MobileBottomNav() {
                 active ? "text-primary" : "text-muted-foreground"
               )}
             >
-              <Icon className={cn("w-5 h-5 transition-all", active && "scale-110")} />
+              {item.emoji ? (
+                <span className={cn("text-lg leading-none transition-all", active && "scale-110")}>{item.emoji}</span>
+              ) : (
+                <Icon className={cn("w-5 h-5 transition-all", active && "scale-110")} />
+              )}
               <span className="text-xs font-medium">{item.label}</span>
             </button>
           );
