@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Trophy, Zap, Gift, Tag, Check, Lock, ShoppingCart, Sparkles, Ticket, Crown } from 'lucide-react';
+import { ArrowLeft, Trophy, Zap, Gift, Tag, Check, Lock, ShoppingCart, Sparkles, Ticket, Crown, Leaf } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { NCTRLogo } from './NCTRLogo';
 
@@ -131,6 +131,15 @@ const statusTiers: StatusTier[] = [
     bgColor: 'hsl(180 100% 96%)'
   }
 ];
+
+function WellnessItem({ text }: { text: string }) {
+  return (
+    <div className="flex items-start gap-2">
+      <span className="text-base leading-5 shrink-0">🌿</span>
+      <span className="text-sm font-medium">{text}</span>
+    </div>
+  );
+}
 
 export function StatusPage({ onBack }: StatusPageProps) {
   const { profile } = useAuth();
@@ -458,6 +467,55 @@ export function StatusPage({ onBack }: StatusPageProps) {
                             </span>
                           </div>
                         ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* INSPIRATION Wellness Unlocks */}
+                <div>
+                  <h4 className="font-semibold mb-3 flex items-center gap-2">
+                    <Leaf className="w-4 h-4 text-emerald-600" />
+                    INSPIRATION Wellness Rewards
+                  </h4>
+                  <Card className="border-emerald-200/60 dark:border-emerald-900/40" style={{ backgroundColor: '#FDFAF6' }}>
+                    <CardContent className="p-4 space-y-2">
+                      {tier.level === 1 && (
+                        <>
+                          <WellnessItem text="Kroma Starter Bundle ($75 value)" />
+                          <p className="text-xs text-muted-foreground pl-6">+ access to all Bronze-tier wellness rewards</p>
+                        </>
+                      )}
+                      {tier.level === 2 && (
+                        <>
+                          <WellnessItem text="Kroma Beauty Matcha 3-Pack ($120 value)" />
+                          <WellnessItem text="Kroma Super Core 3-Pack ($150 value)" />
+                          <p className="text-xs text-muted-foreground pl-6">+ all Bronze rewards</p>
+                        </>
+                      )}
+                      {tier.level === 3 && (
+                        <>
+                          <WellnessItem text="Kroma 5-Day Reset Kit ($385 value)" />
+                          <p className="text-xs text-muted-foreground pl-6">+ all Silver &amp; Bronze rewards</p>
+                        </>
+                      )}
+                      {tier.level === 4 && (
+                        <>
+                          <WellnessItem text="Kroma VIP Reset + Consultation ($750 value)" />
+                          <p className="text-xs text-muted-foreground pl-6">+ all Gold, Silver &amp; Bronze rewards</p>
+                        </>
+                      )}
+                      {tier.level === 5 && (
+                        <>
+                          <WellnessItem text="Everything + priority access to new INSPIRATION partner rewards" />
+                          <p className="text-xs text-muted-foreground pl-6">+ founding recognition in the INSPIRATION ecosystem</p>
+                        </>
+                      )}
+                      <div
+                        className="mt-3 rounded-lg px-3 py-2 text-xs"
+                        style={{ backgroundColor: '#E2FF6D', color: '#323232' }}
+                      >
+                        <span className="font-semibold">INSPIRATION</span> — Earned through shopping, unlocked through commitment.
                       </div>
                     </CardContent>
                   </Card>
