@@ -17,6 +17,7 @@ import { StatusExplainer } from "./dashboard/StatusExplainer";
 import { MerchBountiesWidget } from "./dashboard/MerchBountiesWidget";
 import { YourNextStep } from "./dashboard/YourNextStep";
 import { MerchBountyReminderCard } from "./dashboard/MerchBountyReminderCard";
+import { EarningsHistory } from "./dashboard/EarningsHistory";
 import { MerchCelebrationModal } from "./merch/MerchCelebrationModal";
 import { useUncelebratedPurchases } from "@/hooks/useMerchCelebration";
 import { MilestoneProgress } from "@/components/referral/MilestoneProgress";
@@ -139,8 +140,11 @@ export function Dashboard() {
           {/* 2. QUICK ACTIONS — "Your Next Move" */}
           <QuickActions />
 
-          {/* 3. ACTIVITY FEED */}
-          <ActivityFeed maxItems={10} />
+          {/* 3. ACTIVITY FEED + NCTR EARNINGS */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <ActivityFeed maxItems={10} />
+            <EarningsHistory />
+          </div>
 
           {/* 4. WHAT'S UNLOCKING NEXT */}
           <div id="next-unlocks">
