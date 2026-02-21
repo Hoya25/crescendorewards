@@ -24,6 +24,7 @@ import { FeaturedRewardsCarousel } from '@/components/rewards/FeaturedRewardsCar
 import { StickyStatusBar } from '@/components/rewards/StickyStatusBar';
 import { SponsoredRewardsCarousel } from '@/components/rewards/SponsoredRewardsCarousel';
 import { SponsoredBanner } from '@/components/rewards/SponsoredBanner';
+import { WellnessRewardsSection } from '@/components/rewards/WellnessRewardsSection';
 import { StatusBenefitsBanner } from '@/components/user/StatusBenefitsBanner';
 import { CrescendoLogo } from '@/components/CrescendoLogo';
 import { BetaBadge } from '@/components/BetaBadge';
@@ -957,6 +958,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           )}
         </div>
       </div>
+
+      {/* Wellness Rewards Featured Section */}
+      {!loading && <WellnessRewardsSection />}
 
       {/* Monthly Drops Section */}
       {!loading && (
