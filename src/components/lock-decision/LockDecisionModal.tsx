@@ -195,7 +195,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
           </h2>
           <div className="p-3 rounded-lg text-left" style={{ background: 'rgba(255,255,255,0.05)' }}>
             <p className="text-xs text-white/60">
-              💡 <span className="font-semibold text-white/80">Tip:</span> Choose 360LOCK next time to earn {multiplier}x. It adds up fast.
+              💡 <span className="font-semibold text-white/80">Tip:</span> Choose 360 days next time to earn {multiplier}x and raise your status faster.
             </p>
           </div>
           <StatusBar
@@ -239,9 +239,9 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
 
         {/* SECTION 1 — Header */}
         <div className="p-6 pb-4 text-center border-b border-white/10">
-          <h2 className="text-2xl font-bold text-white">Commit Your NCTR</h2>
+          <h2 className="text-2xl font-bold text-white">Raise Your Status</h2>
           <p className="text-sm text-white/60 mt-1.5 max-w-md mx-auto">
-            Choose how long to commit. Longer commitment = bigger rewards + higher Crescendo status.
+            Commit your NCTR to power your status level. Longer commitment = higher status + bigger rewards.
           </p>
           <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full" style={{ background: 'rgba(200,255,0,0.08)', border: '1px solid rgba(200,255,0,0.2)' }}>
             <span className="text-xs text-white/50">Available to commit:</span>
@@ -558,8 +558,8 @@ function Lock360Celebration({
           <p className="text-base text-white/80">
             Your <span className="font-bold" style={{ color: '#E2FF6D' }}>{amount.toLocaleString()} NCTR</span> is committed for 360 days.
           </p>
-          <p className="text-sm" style={{ color: '#5A5A58' }}>
-            Your {tierName} status is now active. Your rewards are waiting below.
+           <p className="text-sm" style={{ color: '#5A5A58' }}>
+            Your {tierName} status is now active. Every reward, opportunity, and benefit available to {tierName} members is now unlocked for you.
           </p>
         </div>
 
@@ -660,7 +660,7 @@ function Required360View({
   return (
     <div className="space-y-3">
       <p className="text-sm text-white/60 text-center">
-        This bounty requires 360LOCK commitment.
+        This bounty requires a 360-day commitment to power your status.
       </p>
       <div
         className="rounded-xl p-5 border-2 text-center space-y-2"
@@ -682,13 +682,13 @@ function Required360View({
           )}
         </div>
         <p className="text-xs text-white/40">
-          +{amount360.toLocaleString()} toward your Crescendo status
+          +{amount360.toLocaleString()} toward your status level
         </p>
       </div>
       <div className="flex items-start gap-2 p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)' }}>
         <Info className="w-4 h-4 text-white/40 shrink-0 mt-0.5" />
         <p className="text-xs text-white/50">
-          Why 360LOCK only? Merch bounties reward commitment. The {calc360.merchBonus > 1 ? `${calc360.merchBonus}x merch bonus` : `${multiplier}x multiplier`} is built in.
+          Why 360 days only? Merch bounties reward commitment to your status. The {calc360.merchBonus > 1 ? `${calc360.merchBonus}x merch bonus` : `${multiplier}x multiplier`} is built in.
           {statusMultiplier > 1 && ` Your ${tierName} status adds ${statusMultiplier}x on top.`}
         </p>
       </div>
