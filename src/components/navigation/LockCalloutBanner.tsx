@@ -37,7 +37,7 @@ export function LockCalloutBanner() {
         style={{ color: '#323232' }}
       >
         <span className="truncate">
-          You have <span className="font-bold">{availableNctr.toLocaleString()} NCTR</span> ready to lock. Lock now to activate your rewards.
+          You have <span className="font-bold">{availableNctr.toLocaleString()} NCTR</span> ready. Commit it for 360 days to activate your status and unlock your rewards.
         </span>
         <ArrowRight className="w-4 h-4 flex-shrink-0" />
       </button>

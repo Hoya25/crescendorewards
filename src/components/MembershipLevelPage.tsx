@@ -179,10 +179,10 @@ export function MembershipLevelPage() {
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Crown className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold">Membership Levels</h1>
+            <h1 className="text-3xl font-bold">Your Status Level Unlocks Everything</h1>
           </div>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Build your membership level by locking NCTR in 360LOCK. Unlock greater rewards, enhanced earning rates, and exclusive benefits.
+            Bronze through Diamond — the higher your status, the more you access. 360LOCK your NCTR for 360 days to activate.
           </p>
         </div>
 
@@ -238,7 +238,7 @@ export function MembershipLevelPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-primary" />
-              How Membership Levels Work
+              How Your Status Works
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -247,22 +247,22 @@ export function MembershipLevelPage() {
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <TrendingUp className="w-5 h-5 text-primary" />
                 </div>
-                <h3 className="font-semibold">Get Free Claims</h3>
-                <p className="text-sm text-muted-foreground">Earn through The Garden from everyday purchases</p>
+                <h3 className="font-semibold">Earn NCTR</h3>
+                <p className="text-sm text-muted-foreground">Earn through The Garden and bounties — NCTR is the fuel for your status</p>
               </div>
               <div className="space-y-2">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <Lock className="w-5 h-5 text-primary" />
                 </div>
-                <h3 className="font-semibold">Lock in 360LOCK</h3>
-                <p className="text-sm text-muted-foreground">Commit NCTR for 360 days to build your membership level</p>
+                <h3 className="font-semibold">Commit via 360LOCK</h3>
+                <p className="text-sm text-muted-foreground">Commit NCTR for 360 days to power your status level</p>
               </div>
               <div className="space-y-2">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <Crown className="w-5 h-5 text-primary" />
                 </div>
                 <h3 className="font-semibold">Unlock Benefits</h3>
-                <p className="text-sm text-muted-foreground">Enjoy enhanced earning rates, rewards, and exclusive perks</p>
+                <p className="text-sm text-muted-foreground">Enjoy enhanced earning rates, rewards, and exclusive perks at higher status levels</p>
               </div>
             </div>
           </CardContent>
@@ -270,7 +270,7 @@ export function MembershipLevelPage() {
 
         {/* All Membership Tiers */}
         <div className="space-y-4">
-          <h2 className="text-2xl font-bold">All Membership Levels</h2>
+          <h2 className="text-2xl font-bold">All Status Levels</h2>
           <div className="grid gap-6 md:grid-cols-2">
             {membershipTiers.map((tier) => {
               const isCurrentTier = tier.level === currentTier.level;
@@ -361,10 +361,10 @@ export function MembershipLevelPage() {
       <Dialog open={showLockDialog} onOpenChange={setShowLockDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Lock NCTR for 360 Days</DialogTitle>
+            <DialogTitle>Commit NCTR to Raise Your Status</DialogTitle>
             <DialogDescription>
-              Lock your NCTR in 360LOCK to upgrade to {selectedTier?.name} membership level.
-              Your tokens will be locked for 360 days and contribute to your membership benefits.
+              Commit your NCTR via 360LOCK to reach {selectedTier?.name} status.
+              Your NCTR will be committed for 360 days and power your status level and rewards.
             </DialogDescription>
           </DialogHeader>
 
