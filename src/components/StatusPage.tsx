@@ -171,7 +171,7 @@ export function StatusPage({ onBack }: StatusPageProps) {
             </div>
             <div>
               <h1 className="text-3xl font-bold">Status Levels & Benefits</h1>
-              <p className="text-muted-foreground">Build your status, unlock greater rewards</p>
+              <p className="text-muted-foreground">Your status reflects your commitment. 360LOCK is one simple decision — the same principle that drives the entire ecosystem.</p>
             </div>
           </div>
         </div>

@@ -142,6 +142,7 @@ export function BountyCard({ bounty, userTier, total360Locked, nextTier, claims,
             <p className="text-base font-bold" style={{ color: 'hsl(var(--accent-lime))' }}>
               With 360LOCK: {lockReward.toLocaleString()} NCTR
             </p>
+            <p className="text-[11px]" style={{ color: '#5A5A58' }}>Commitment amplifies everything</p>
           </div>
 
           {/* Status tags row */}
