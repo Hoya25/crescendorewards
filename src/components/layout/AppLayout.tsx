@@ -47,9 +47,9 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { showLockDecision, isOpen: isLockOpen } = useLockDecision();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  // Check if onboarding should be shown
+  // Check if onboarding should be shown (localStorage flag)
   useEffect(() => {
-    if (profile && !(profile as any).has_completed_onboarding) {
+    if (profile && localStorage.getItem('crescendo_onboarded') !== 'true') {
       setShowOnboarding(true);
     }
   }, [profile]);
