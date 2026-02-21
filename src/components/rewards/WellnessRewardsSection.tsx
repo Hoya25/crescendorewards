@@ -135,13 +135,27 @@ export function WellnessRewardsSection() {
         </div>
 
         {/* Explainer Callout */}
-        <div
-          className="rounded-xl px-4 py-3 max-w-xl text-sm leading-relaxed"
-          style={{ backgroundColor: '#323232', color: '#E2FF6D' }}
-        >
-          <span className="font-semibold">How it works:</span>{' '}
-          Shop through The Garden → Earn INSPIRATION → Commit via 360LOCK → Unlock these rewards.
-          Your commitment unlocks value — you never spend your earned rewards.
+        <div className="flex flex-col sm:flex-row gap-3 max-w-3xl">
+          <div
+            className="rounded-xl px-4 py-3 flex-1 text-sm leading-relaxed"
+            style={{ backgroundColor: '#323232', color: '#E2FF6D' }}
+          >
+            <span className="font-semibold">How it works:</span>{' '}
+            Shop through The Garden → Earn INSPIRATION → Commit via 360LOCK → Unlock these rewards.
+            Your commitment unlocks value — you never spend your earned rewards.
+          </div>
+          <a
+            href="https://thegarden.nctr.live"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-xl px-4 py-3 text-sm leading-relaxed border border-emerald-200 dark:border-emerald-800 bg-card hover:bg-accent transition-colors flex items-center gap-2 sm:max-w-[240px]"
+          >
+            <span className="text-base">🛒</span>
+            <span>
+              <span className="font-semibold block text-foreground">Shop Kroma &amp; 6,000+ brands</span>
+              <span className="text-muted-foreground text-xs">on The Garden to earn toward these rewards →</span>
+            </span>
+          </a>
         </div>
       </div>
     </section>
