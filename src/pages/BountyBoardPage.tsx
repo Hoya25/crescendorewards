@@ -8,10 +8,8 @@ import { BountyCardStatic, type StaticBounty } from '@/components/bounty/BountyC
 import { ReferralBountyCard } from '@/components/bounty/ReferralBountyCard';
 import { StreakBountyCard } from '@/components/bounty/StreakBountyCard';
 import { SocialShareBountyCard } from '@/components/bounty/SocialShareBountyCard';
-import { useMemo, useState } from 'react';
-
-
-
+import { BountyDetailModal, type BountyModalData } from '@/components/bounty/BountyDetailModal';
+import { useMemo, useState, useRef, useCallback } from 'react';
 // ── BOUNTY DEFINITIONS ──────────────────────────────────────────────
 
 const ENTRY_BOUNTIES: StaticBounty[] = [
@@ -260,6 +258,7 @@ function BountyGridItem({
   showExplainer,
   explainerDismissed,
   onDismissExplainer,
+  onCardClick,
 }: {
   bounty: StaticBounty;
   referralCode: string;
@@ -267,7 +266,19 @@ function BountyGridItem({
   showExplainer: boolean;
   explainerDismissed: boolean;
   onDismissExplainer: () => void;
+  onCardClick?: (bounty: StaticBounty) => void;
 }) {
+  const isInteractive = bounty.isReferral || bounty.isStreak || bounty.isSocialShare;
+
+  const handleClick = (e: React.MouseEvent) => {
+    // Don't intercept clicks on buttons/links inside interactive cards
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('a')) return;
+    if (!isInteractive && onCardClick) {
+      onCardClick(bounty);
+    }
+  };
+
   const card = bounty.isReferral ? (
     <ReferralBountyCard bounty={bounty} referralCode={referralCode} referralCount={referralCount} />
   ) : bounty.isStreak ? (
@@ -283,7 +294,7 @@ function BountyGridItem({
       {showExplainer && (
         <LockExplainerCard dismissed={explainerDismissed} onDismiss={onDismissExplainer} />
       )}
-      {card}
+      <div onClick={handleClick}>{card}</div>
     </>
   );
 }
@@ -298,11 +309,59 @@ export default function BountyBoardPage() {
   const [lockExplainerDismissed, setLockExplainerDismissed] = useState(
     () => localStorage.getItem('360lock_explainer_dismissed') === '1'
   );
+  const [modalData, setModalData] = useState<BountyModalData | null>(null);
+  const getStartedRef = useRef<HTMLDivElement>(null);
+  const [heroHovered, setHeroHovered] = useState(false);
 
   const crescendoData = profile?.crescendo_data || {};
   const referralCode = crescendoData.referral_code || '';
 
-  // Build revenue bounties with real purchase data
+  const getModalData = useCallback((bounty: StaticBounty): BountyModalData | null => {
+    const totalPurchases = milestones?.total_purchases ?? 0;
+    const totalMerch = merchData?.total_merch_purchases ?? 0;
+    const totalMerchDrip = merchData?.total_merch_drip_nctr ?? 0;
+
+    switch (bounty.id) {
+      case 'signup-bonus':
+        return { bounty, type: 'auto-applied' };
+      case 'early-adopter':
+        return { bounty, type: 'auto-applied', isLimitedTime: true };
+      case 'referred-welcome':
+        return { bounty, type: 'auto-applied' };
+      case 'first-purchase':
+        return { bounty, type: 'shop-cta', ctaLabel: 'Shop at The Garden', ctaHref: 'https://thegarden.nctr.live' };
+      case '5th-purchase':
+        return { bounty, type: 'milestone-progress', progress: { value: Math.min(totalPurchases, 5), max: 5, label: 'Purchases' } };
+      case '10th-purchase':
+        return { bounty, type: 'milestone-progress', progress: { value: Math.min(totalPurchases, 10), max: 10, label: 'Purchases' } };
+      case '25th-purchase':
+        return { bounty, type: 'milestone-progress', progress: { value: Math.min(totalPurchases, 25), max: 25, label: 'Purchases' } };
+      case 'first-merch':
+        return { bounty, type: 'merch-cta', ctaLabel: 'Shop NCTR Merch', ctaHref: 'https://thegarden.nctr.live/collections/merch' };
+      case 'every-merch':
+        return { bounty, type: 'merch-history', earningsSubtitle: `${totalMerch} merch purchase${totalMerch !== 1 ? 's' : ''} · ${Number(totalMerchDrip).toLocaleString()} NCTR earned` };
+      case 'content-creation':
+        return { bounty, type: 'content-submit' };
+      case 'referral-every-purchase':
+        return { bounty, type: 'referral-stats', earningsSubtitle: `${stats?.totalReferrals || 0} referrals active` };
+      case 'referral-5-purchases':
+        return { bounty, type: 'referral-milestone', progress: { value: 0, max: 5, label: 'Referral purchases' } };
+      case 'referral-10-purchases':
+        return { bounty, type: 'referral-milestone', progress: { value: 0, max: 10, label: 'Referral purchases' } };
+      default:
+        return { bounty, type: 'auto-applied' };
+    }
+  }, [milestones, merchData, stats]);
+
+  const handleCardClick = useCallback((bounty: StaticBounty) => {
+    const data = getModalData(bounty);
+    if (data) setModalData(data);
+  }, [getModalData]);
+
+  const handleHeroClick = () => {
+    getStartedRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const revenueBounties = useMemo(() => {
     const totalPurchases = milestones?.total_purchases ?? 0;
     const milestonesHit = milestones?.milestones_hit ?? [];
@@ -377,8 +436,11 @@ export default function BountyBoardPage() {
     <div className="max-w-4xl mx-auto px-4 py-6 space-y-8">
       {/* Hero Banner */}
       <div
-        className="rounded-xl p-5 sm:p-6"
-        style={{ background: 'linear-gradient(135deg, hsl(240 10% 10%), hsl(240 10% 16%))' }}
+        className="rounded-xl p-5 sm:p-6 cursor-pointer transition-all duration-200 ease-out hover:-translate-y-[3px] hover:shadow-[0_8px_24px_rgba(226,255,109,0.12)] relative"
+        style={{ background: 'linear-gradient(135deg, hsl(240 10% 10%), hsl(240 10% 16%))', border: heroHovered ? '1px solid rgba(226,255,109,0.5)' : '1px solid transparent' }}
+        onClick={handleHeroClick}
+        onMouseEnter={() => setHeroHovered(true)}
+        onMouseLeave={() => setHeroHovered(false)}
       >
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1.5">
@@ -415,11 +477,18 @@ export default function BountyBoardPage() {
             </Badge>
           </div>
         )}
+        {/* Explore hint on hover */}
+        <span
+          className="absolute bottom-3 right-4 text-[11px] font-medium transition-opacity duration-200"
+          style={{ color: '#E2FF6D', opacity: heroHovered ? 1 : 0 }}
+        >
+          Explore Bounties ↓
+        </span>
       </div>
 
       {/* Bounty Sections */}
       {sections.map((section, sectionIdx) => (
-        <div key={section.title} className="space-y-4">
+        <div key={section.title} className="space-y-4" ref={sectionIdx === 0 ? getStartedRef : undefined}>
           <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
             <span>{section.emoji}</span> {section.title}
           </h2>
@@ -436,6 +505,7 @@ export default function BountyBoardPage() {
                   localStorage.setItem('360lock_explainer_dismissed', '1');
                   setLockExplainerDismissed(true);
                 }}
+                onCardClick={handleCardClick}
               />
             ))}
           </div>
@@ -473,6 +543,9 @@ export default function BountyBoardPage() {
           See How It Works →
         </a>
       </div>
+
+      {/* Detail Modal */}
+      <BountyDetailModal data={modalData} onClose={() => setModalData(null)} />
     </div>
   );
 }

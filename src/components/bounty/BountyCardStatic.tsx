@@ -30,10 +30,10 @@ export function BountyCardStatic({ bounty }: { bounty: StaticBounty }) {
 
   return (
     <Card
-      className={`relative overflow-hidden border-border transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 ${
+      className={`relative overflow-hidden border-border cursor-pointer transition-all duration-200 ease-out hover:-translate-y-[3px] hover:border-[#E2FF6D]/50 hover:shadow-[0_8px_24px_rgba(226,255,109,0.12)] ${
         isCompleted
           ? 'border-[#E2FF6D]/40 bg-[#E2FF6D]/5'
-          : 'hover:border-[#E2FF6D]/30'
+          : ''
       } ${bounty.prominent && !isCompleted ? 'ring-1 ring-[#E2FF6D]/20' : ''}`}
     >
       {bounty.tag && !isCompleted && (

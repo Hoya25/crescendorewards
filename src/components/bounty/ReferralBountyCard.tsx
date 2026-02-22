@@ -61,7 +61,7 @@ export function ReferralBountyCard({ bounty, referralCode, referralCount }: Prop
   };
 
   return (
-    <Card className="relative overflow-hidden border-border hover:border-[#E2FF6D]/30 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5">
+    <Card className="relative overflow-hidden border-border cursor-pointer transition-all duration-200 ease-out hover:-translate-y-[3px] hover:border-[#E2FF6D]/50 hover:shadow-[0_8px_24px_rgba(226,255,109,0.12)]">
       <CardContent className="p-4 space-y-3">
         <div className="flex items-start gap-3">
           <div
