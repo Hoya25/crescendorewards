@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -7,11 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Upload, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ImageWithFallback } from '@/components/ImageWithFallback';
-import { validateImageFile } from '@/lib/image-validation';
-import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
+import { RewardImageGallery, type GalleryImage, saveGalleryImages, loadGalleryImages } from '@/components/RewardImageGallery';
 
 interface UpdateRewardModalProps {
   open: boolean;
@@ -46,57 +44,14 @@ export function UpdateRewardModal({ open, onClose, submission, onSuccess }: Upda
     image_url: submission.image_url || '',
     version_notes: '',
   });
-  const [uploadingImage, setUploadingImage] = useState(false);
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate image file
-    const validation = validateImageFile(file);
-    if (!validation.valid) {
-      toast.error(validation.error);
-      e.target.value = ''; // Reset file input
-      return;
+  // Load gallery images on mount
+  useEffect(() => {
+    if (submission.id && open) {
+      loadGalleryImages(submission.id, submission.image_url).then(setGalleryImages);
     }
-
-    try {
-      setUploadingImage(true);
-
-      // Compress image before upload
-      const { file: compressedFile, originalSize, compressedSize, compressionRatio } = 
-        await compressImageWithStats(file);
-
-      // Show compression stats
-      if (compressionRatio > 0.1) {
-        toast.success(
-          `Image compressed: ${formatBytes(originalSize)} → ${formatBytes(compressedSize)} (${(compressionRatio * 100).toFixed(0)}% reduction)`
-        );
-      }
-
-      const fileExt = compressedFile.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('reward-images')
-        .upload(filePath, compressedFile);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('reward-images')
-        .getPublicUrl(filePath);
-
-      setFormData(prev => ({ ...prev, image_url: publicUrl }));
-      toast.success('Image uploaded successfully');
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      toast.error('Failed to upload image');
-    } finally {
-      setUploadingImage(false);
-    }
-  };
+  }, [submission.id, open]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,6 +63,13 @@ export function UpdateRewardModal({ open, onClose, submission, onSuccess }: Upda
 
     setLoading(true);
     try {
+      // Upload any new gallery images and get primary URL
+      let primaryImageUrl = formData.image_url || null;
+      if (galleryImages.some(g => g.file)) {
+        const { primaryUrl } = await saveGalleryImages(submission.id, galleryImages);
+        if (primaryUrl) primaryImageUrl = primaryUrl;
+      }
+
       const { data, error } = await supabase.rpc('submit_reward_version', {
         p_parent_submission_id: submission.id,
         p_title: formData.title,
@@ -119,7 +81,7 @@ export function UpdateRewardModal({ open, onClose, submission, onSuccess }: Upda
         p_nctr_value: formData.nctr_value,
         p_claim_passes_required: formData.claim_passes_required,
         p_stock_quantity: formData.stock_quantity || null,
-        p_image_url: formData.image_url || null,
+        p_image_url: primaryImageUrl,
         p_version_notes: formData.version_notes,
       }) as { data: any; error: any };
 
@@ -148,7 +110,8 @@ export function UpdateRewardModal({ open, onClose, submission, onSuccess }: Upda
     formData.nctr_value !== submission.nctr_value ||
     formData.claim_passes_required !== submission.claim_passes_required ||
     formData.stock_quantity !== (submission.stock_quantity || 0) ||
-    formData.image_url !== (submission.image_url || '');
+    galleryImages.some(g => g.file) || // New images added
+    galleryImages.length !== (submission.image_url ? 1 : 0); // Images changed
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -258,30 +221,11 @@ export function UpdateRewardModal({ open, onClose, submission, onSuccess }: Upda
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Reward Image</Label>
-            <div className="flex gap-4 items-start">
-              {formData.image_url && (
-                <ImageWithFallback
-                  src={formData.image_url}
-                  alt="Preview"
-                  className="w-32 h-32 object-cover rounded-lg"
-                />
-              )}
-              <div className="flex-1">
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={uploadingImage}
-                  className="mb-2"
-                />
-                <p className="text-xs text-muted-foreground">
-                  {uploadingImage ? 'Uploading...' : 'Upload a new image to replace the current one'}
-                </p>
-              </div>
-            </div>
-          </div>
+          <RewardImageGallery
+            images={galleryImages}
+            onChange={setGalleryImages}
+            compact
+          />
 
           <div className="space-y-2">
             <Label htmlFor="notes">What Changed? *</Label>
@@ -302,7 +246,7 @@ export function UpdateRewardModal({ open, onClose, submission, onSuccess }: Upda
             <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
               Cancel
             </Button>
-            <Button type="submit" disabled={loading || !hasChanges || uploadingImage}>
+            <Button type="submit" disabled={loading || !hasChanges}>
               {loading ? 'Submitting...' : 'Submit Update'}
             </Button>
           </div>
