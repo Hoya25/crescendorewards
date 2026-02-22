@@ -565,6 +565,8 @@ export type Database = {
           title: string
           total_completions: number | null
           updated_at: string | null
+          validation_config: Json
+          validation_type: string
           xp_reward: number | null
         }
         Insert: {
@@ -595,6 +597,8 @@ export type Database = {
           title: string
           total_completions?: number | null
           updated_at?: string | null
+          validation_config?: Json
+          validation_type?: string
           xp_reward?: number | null
         }
         Update: {
@@ -625,6 +629,8 @@ export type Database = {
           title?: string
           total_completions?: number | null
           updated_at?: string | null
+          validation_config?: Json
+          validation_type?: string
           xp_reward?: number | null
         }
         Relationships: []
@@ -4004,6 +4010,17 @@ export type Database = {
           user_name: string
         }[]
       }
+      get_bounty_earnings_history: {
+        Args: { p_user_id: string }
+        Returns: {
+          amount: number
+          created_at: string
+          id: string
+          source: string
+          status: string
+          title: string
+        }[]
+      }
       get_checkin_streak: { Args: { p_user_id: string }; Returns: Json }
       get_founding_111_candidates: {
         Args: never
@@ -4200,6 +4217,15 @@ export type Database = {
       }
       update_claim_status: {
         Args: { p_claim_id: string; p_status: string }
+        Returns: Json
+      }
+      validate_and_claim_bounty: {
+        Args: {
+          p_bounty_id: string
+          p_submission_notes?: string
+          p_submission_url?: string
+          p_user_id: string
+        }
         Returns: Json
       }
     }

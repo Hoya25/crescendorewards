@@ -21,11 +21,11 @@ export function StreakBountyCard({ bounty }: { bounty: StaticBounty }) {
     try {
       const result = await checkIn();
       if (result.streak_completed) {
-        toast.success(result.message, { duration: 5000 });
+        toast.success(`🎉 ${result.message}`, { duration: 5000, style: { backgroundColor: '#E2FF6D', color: '#323232', fontWeight: 700 } });
       } else if (result.already_checked_in) {
-        toast.info('Already checked in today ✓');
+        toast('✓ Already checked in today', { duration: 3000 });
       } else {
-        toast.success(result.message);
+        toast(`🔥 Day ${result.streak} of 7 — keep going!`, { duration: 3000, style: { color: '#E2FF6D' } });
       }
     } catch {
       toast.error('Check-in failed. Try again.');
