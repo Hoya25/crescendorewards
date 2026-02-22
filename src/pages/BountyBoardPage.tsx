@@ -9,6 +9,7 @@ import { ReferralBountyCard } from '@/components/bounty/ReferralBountyCard';
 import { StreakBountyCard } from '@/components/bounty/StreakBountyCard';
 import { SocialShareBountyCard } from '@/components/bounty/SocialShareBountyCard';
 import { BountyDetailModal, type BountyModalData } from '@/components/bounty/BountyDetailModal';
+import { BountyEarningsPanel } from '@/components/bounty/BountyEarningsPanel';
 import { useMemo, useState, useRef, useCallback } from 'react';
 // ── BOUNTY DEFINITIONS ──────────────────────────────────────────────
 
@@ -312,7 +313,7 @@ export default function BountyBoardPage() {
   const [modalData, setModalData] = useState<BountyModalData | null>(null);
   const getStartedRef = useRef<HTMLDivElement>(null);
   const [heroHovered, setHeroHovered] = useState(false);
-
+  const [earningsOpen, setEarningsOpen] = useState(false);
   const crescendoData = profile?.crescendo_data || {};
   const referralCode = crescendoData.referral_code || '';
 
@@ -358,7 +359,13 @@ export default function BountyBoardPage() {
     if (data) setModalData(data);
   }, [getModalData]);
 
-  const handleHeroClick = () => {
+  const handleHeroClick = (e: React.MouseEvent) => {
+    // If clicking the NCTR amount, toggle earnings panel
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-earnings-toggle]')) {
+      setEarningsOpen((prev) => !prev);
+      return;
+    }
     getStartedRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -451,16 +458,16 @@ export default function BountyBoardPage() {
               Complete bounties. Commit with 360LOCK. Earn NCTR and build your Crescendo Status.
             </p>
           </div>
-          <div className="shrink-0 text-center sm:text-right space-y-1">
+          <div className="shrink-0 text-center sm:text-right space-y-1" data-earnings-toggle>
             <p className="text-[11px] text-white/50 uppercase tracking-wider">My Earnings</p>
-            <p className="text-3xl sm:text-4xl font-black" style={{ color: '#E2FF6D' }}>
+            <p className="text-3xl sm:text-4xl font-black cursor-pointer hover:opacity-80 transition-opacity" style={{ color: '#E2FF6D' }}>
               {profile?.crescendo_data?.locked_nctr
                 ? Number(profile.crescendo_data.locked_nctr).toLocaleString()
                 : '0'}{' '}
               <span className="text-base font-bold text-white/50">NCTR</span>
             </p>
             <p className="text-[11px] text-white/40">
-              Sign-up · Purchases · Referrals · Streaks
+              {earningsOpen ? 'Click to close ↑' : 'Click for details ↓'}
             </p>
             <p className="text-[10px] text-white/30 italic">
               Keep shopping. Keep sharing. Keep earning.
@@ -485,6 +492,9 @@ export default function BountyBoardPage() {
           Explore Bounties ↓
         </span>
       </div>
+
+      {/* Earnings History Panel */}
+      <BountyEarningsPanel open={earningsOpen} />
 
       {/* Bounty Sections */}
       {sections.map((section, sectionIdx) => (

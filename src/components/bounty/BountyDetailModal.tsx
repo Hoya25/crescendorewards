@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { useBountyValidation } from '@/hooks/useBountyValidation';
 import type { StaticBounty } from './BountyCardStatic';
 
 export interface BountyModalData {
@@ -34,7 +35,7 @@ interface Props {
 export function BountyDetailModal({ data, onClose }: Props) {
   const [contentLink, setContentLink] = useState('');
   const [contentDesc, setContentDesc] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  const { validate, isValidating } = useBountyValidation();
 
   const handleBackdrop = useCallback(
     (e: React.MouseEvent) => {
@@ -59,20 +60,77 @@ export function BountyDetailModal({ data, onClose }: Props) {
   const { bounty, type } = data;
   const Icon = bounty.icon;
 
+  const showValidationToast = (result: { success: boolean; status: string; message: string }) => {
+    switch (result.status) {
+      case 'eligible':
+        toast.success(`🎉 ${bounty.title} — ${result.message}`, {
+          duration: 4000,
+          style: { backgroundColor: '#E2FF6D', color: '#323232', fontWeight: 700 },
+        });
+        break;
+      case 'auto_applied':
+      case 'auto_drip':
+        toast.success(`✓ ${result.message}`, {
+          duration: 4000,
+          style: { backgroundColor: '#E2FF6D', color: '#323232', fontWeight: 700 },
+        });
+        break;
+      case 'pending':
+        toast('📋 Submitted for review! We\'ll notify you when approved.', {
+          duration: 4000,
+          style: { border: '1px solid #E2FF6D', backgroundColor: '#1a1a1a', color: '#fff' },
+        });
+        break;
+      case 'not_eligible':
+        toast.warning(`⚠️ ${result.message}`, { duration: 5000 });
+        break;
+      case 'already_claimed':
+        toast('✓ Already claimed', { duration: 3000 });
+        break;
+      default:
+        if (!result.success) {
+          toast.error(result.message || 'Something went wrong');
+        }
+    }
+  };
+
+  const handleValidate = async () => {
+    try {
+      const result = await validate({ bountyId: bounty.id });
+      showValidationToast(result);
+      if (result.status === 'pending' || result.status === 'eligible') {
+        onClose();
+      }
+    } catch {
+      toast.error('Failed to validate bounty. Try again.');
+    }
+  };
+
   const handleContentSubmit = async () => {
     if (!contentLink.trim()) {
       toast.error('Please add a link to your content');
       return;
     }
-    setSubmitting(true);
-    // Simulate submission — in production, this would call an edge function
-    await new Promise((r) => setTimeout(r, 1200));
-    toast.success('Content submitted for review!');
-    setSubmitting(false);
-    setContentLink('');
-    setContentDesc('');
-    onClose();
+    try {
+      const result = await validate({
+        bountyId: 'content-creation',
+        submissionUrl: contentLink.trim(),
+        submissionNotes: contentDesc.trim() || undefined,
+      });
+      showValidationToast(result);
+      if (result.success) {
+        setContentLink('');
+        setContentDesc('');
+        onClose();
+      }
+    } catch {
+      toast.error('Failed to submit content. Try again.');
+    }
   };
+
+  // Determine if we should show a "Check Eligibility" button
+  const showCheckButton = ['auto-applied', 'milestone-progress', 'merch-cta', 'merch-history', 'referral-stats', 'referral-milestone'].includes(type)
+    && !bounty.completed;
 
   return (
     <div
@@ -144,7 +202,7 @@ export function BountyDetailModal({ data, onClose }: Props) {
         </Badge>
 
         {/* Progress bar for milestones */}
-        {data.progress && type === 'milestone-progress' && (
+        {data.progress && (type === 'milestone-progress' || type === 'referral-milestone') && (
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-xs text-white/50">
               <span>{data.progress.label}</span>
@@ -165,22 +223,6 @@ export function BountyDetailModal({ data, onClose }: Props) {
                 {data.progress.max - data.progress.value} more to go
               </p>
             )}
-          </div>
-        )}
-
-        {/* Referral milestone progress */}
-        {type === 'referral-milestone' && data.progress && (
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between text-xs text-white/50">
-              <span>{data.progress.label}</span>
-              <span className="font-medium">
-                {data.progress.value}/{data.progress.max}
-              </span>
-            </div>
-            <Progress
-              value={(data.progress.value / data.progress.max) * 100}
-              className="h-2 [&>div]:bg-[#E2FF6D]"
-            />
           </div>
         )}
 
@@ -226,11 +268,11 @@ export function BountyDetailModal({ data, onClose }: Props) {
             </div>
             <Button
               onClick={handleContentSubmit}
-              disabled={submitting}
+              disabled={isValidating}
               className="w-full font-bold text-sm rounded-lg"
               style={{ backgroundColor: '#E2FF6D', color: '#323232' }}
             >
-              {submitting ? (
+              {isValidating ? (
                 <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Submitting...</>
               ) : (
                 'Submit for Review'
@@ -253,6 +295,22 @@ export function BountyDetailModal({ data, onClose }: Props) {
           >
             {data.ctaLabel || 'Go'} <ExternalLink className="h-4 w-4" />
           </a>
+        )}
+
+        {/* Check Eligibility / Validate button */}
+        {showCheckButton && type !== 'content-submit' && (
+          <Button
+            onClick={handleValidate}
+            disabled={isValidating}
+            className="w-full font-bold text-sm rounded-lg"
+            style={{ backgroundColor: 'rgba(226,255,109,0.15)', color: '#E2FF6D', border: '1px solid rgba(226,255,109,0.3)' }}
+          >
+            {isValidating ? (
+              <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Checking...</>
+            ) : (
+              'Check Eligibility'
+            )}
+          </Button>
         )}
       </div>
     </div>
