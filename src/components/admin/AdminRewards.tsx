@@ -33,10 +33,9 @@ import { RewardPreviewDialog } from './RewardPreviewDialog';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { EditableCell } from './EditableCell';
-import { validateImageFile } from '@/lib/image-validation';
-import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 import { cn } from '@/lib/utils';
 import type { DeliveryMethod, RequiredDataField } from '@/types/delivery';
+import { RewardImageGallery, type GalleryImage, saveGalleryImages, loadGalleryImages } from '@/components/RewardImageGallery';
 import { DELIVERY_METHOD_LABELS, DELIVERY_METHOD_REQUIRED_FIELDS } from '@/types/delivery';
 import { validateTierPricing, type ValidationResult } from '@/utils/tierPricingValidation';
 
@@ -160,11 +159,7 @@ export function AdminRewards() {
   const [showModal, setShowModal] = useState(false);
   const [editingReward, setEditingReward] = useState<Reward | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [selectedImages, setSelectedImages] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [existingImages, setExistingImages] = useState<string[]>([]);
-  const [isDragging, setIsDragging] = useState(false);
-  const MAX_IMAGES = 4;
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   
   // Filters
   const [quickFilterTab, setQuickFilterTab] = useState('all');
@@ -296,11 +291,8 @@ export function AdminRewards() {
           publish_at: rewardToEdit.publish_at || null,
           unpublish_at: rewardToEdit.unpublish_at || null,
         });
-        // Set existing images from image_url (primary image)
-        const existingImgUrls = rewardToEdit.image_url ? [rewardToEdit.image_url] : [];
-        setExistingImages(existingImgUrls);
-        setImagePreviews(existingImgUrls);
-        setSelectedImages([]);
+        // Load gallery images async
+        loadGalleryImages(rewardToEdit.id, rewardToEdit.image_url).then(setGalleryImages);
         setShowModal(true);
         // Clear the edit param from URL
         searchParams.delete('edit');
@@ -647,10 +639,7 @@ export function AdminRewards() {
       } else {
         setTierPricing(null);
       }
-      const existingImgUrls = reward.image_url ? [reward.image_url] : [];
-      setExistingImages(existingImgUrls);
-      setImagePreviews(existingImgUrls);
-      setSelectedImages([]);
+      loadGalleryImages(reward.id, reward.image_url).then(setGalleryImages);
     } else {
       setEditingReward(null);
       setFormData({
@@ -683,9 +672,7 @@ export function AdminRewards() {
       });
       setTierPricingEnabled(false);
       setTierPricing(null);
-      setExistingImages([]);
-      setImagePreviews([]);
-      setSelectedImages([]);
+      setGalleryImages([]);
     }
     setShowModal(true);
   };
@@ -720,10 +707,7 @@ export function AdminRewards() {
       publish_at: null, // Don't duplicate scheduling
       unpublish_at: null,
     });
-    const existingImgUrls = reward.image_url ? [reward.image_url] : [];
-    setExistingImages(existingImgUrls);
-    setImagePreviews(existingImgUrls);
-    setSelectedImages([]);
+    loadGalleryImages(reward.id, reward.image_url).then(setGalleryImages);
     setShowModal(true);
   };
 
@@ -1158,104 +1142,6 @@ export function AdminRewards() {
   };
 
   // Image handling - multiple images support
-  const validateAndAddImage = (file: File) => {
-    const validation = validateImageFile(file);
-    if (!validation.valid) {
-      toast({
-        title: 'Error',
-        description: validation.error,
-        variant: 'destructive',
-      });
-      return;
-    }
-    
-    const totalImages = existingImages.length + selectedImages.length;
-    if (totalImages >= MAX_IMAGES) {
-      toast({
-        title: 'Maximum images reached',
-        description: `You can only upload up to ${MAX_IMAGES} images`,
-        variant: 'destructive',
-      });
-      return;
-    }
-    
-    setSelectedImages(prev => [...prev, file]);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreviews(prev => [...prev, reader.result as string]);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    const remainingSlots = MAX_IMAGES - (existingImages.length + selectedImages.length);
-    const filesToAdd = files.slice(0, remainingSlots);
-    
-    filesToAdd.forEach(file => validateAndAddImage(file));
-    e.target.value = ''; // Reset input
-  };
-
-  const handleDragEnter = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true); };
-  const handleDragLeave = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false); };
-  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); e.stopPropagation(); };
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault(); e.stopPropagation(); setIsDragging(false);
-    const files = Array.from(e.dataTransfer.files || []);
-    const remainingSlots = MAX_IMAGES - (existingImages.length + selectedImages.length);
-    const filesToAdd = files.slice(0, remainingSlots);
-    
-    filesToAdd.forEach(file => validateAndAddImage(file));
-  };
-
-  const handleRemoveImage = (index: number) => {
-    // Check if it's an existing image or a new one
-    if (index < existingImages.length) {
-      // Remove from existing images
-      setExistingImages(prev => prev.filter((_, i) => i !== index));
-      setImagePreviews(prev => prev.filter((_, i) => i !== index));
-    } else {
-      // Remove from new selected images
-      const newImageIndex = index - existingImages.length;
-      setSelectedImages(prev => prev.filter((_, i) => i !== newImageIndex));
-      setImagePreviews(prev => prev.filter((_, i) => i !== index));
-    }
-  };
-
-  const uploadImages = async (): Promise<string[]> => {
-    const uploadedUrls: string[] = [...existingImages];
-    
-    if (selectedImages.length === 0) return uploadedUrls;
-    
-    try {
-      setUploading(true);
-      
-      for (const imageFile of selectedImages) {
-        const { file: compressedFile, originalSize, compressedSize, compressionRatio } = 
-          await compressImageWithStats(imageFile);
-        if (compressionRatio > 0.1) {
-          toast({ title: 'Image Compressed', description: `Reduced from ${formatBytes(originalSize)} to ${formatBytes(compressedSize)}` });
-        }
-        const fileExt = compressedFile.name.split('.').pop();
-        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
-        const filePath = `rewards/${fileName}`;
-        const { error: uploadError } = await supabase.storage
-          .from('reward-images')
-          .upload(filePath, compressedFile, { cacheControl: '3600', upsert: false });
-        if (uploadError) throw uploadError;
-        const { data: { publicUrl } } = supabase.storage.from('reward-images').getPublicUrl(filePath);
-        uploadedUrls.push(publicUrl);
-      }
-      
-      return uploadedUrls;
-    } catch (error: any) {
-      toast({ title: 'Upload failed', description: error.message || 'Failed to upload image', variant: 'destructive' });
-      return existingImages; // Return existing on failure
-    } finally {
-      setUploading(false);
-    }
-  };
-
   const handleSave = async () => {
     // Validate tier pricing if enabled
     if (tierPricingEnabled && tierPricing) {
@@ -1271,36 +1157,51 @@ export function AdminRewards() {
     }
 
     try {
-      const imageUrls = await uploadImages();
-      // Use first image as primary image_url for backwards compatibility
-      const primaryImageUrl = imageUrls.length > 0 ? imageUrls[0] : null;
-      
+      setUploading(true);
+
+      // Determine primary image from gallery
+      const primaryImageUrl = galleryImages.length > 0
+        ? (galleryImages[0].file ? null : galleryImages[0].url) // Will be set after upload
+        : null;
+
       // Build the data to save, including tier pricing
-      const dataToSave: any = { 
-        ...formData, 
+      const dataToSave: any = {
+        ...formData,
         image_url: primaryImageUrl,
-        // Set status_tier_claims_cost based on tier pricing
         status_tier_claims_cost: tierPricingEnabled && tierPricing ? tierPricing : null,
       };
-      
+
+      let savedRewardId: string;
+
       if (editingReward) {
         const { error } = await supabase.from('rewards').update(dataToSave).eq('id', editingReward.id);
         if (error) throw error;
-        toast({ title: 'Success', description: 'Reward updated successfully' });
+        savedRewardId = editingReward.id;
       } else {
-        const { error } = await supabase.from('rewards').insert([dataToSave]);
+        const { data: inserted, error } = await supabase.from('rewards').insert([dataToSave]).select('id').single();
         if (error) throw error;
-        toast({ title: 'Success', description: 'Reward created successfully' });
+        savedRewardId = inserted.id;
       }
+
+      // Save gallery images to reward_images table
+      if (galleryImages.length > 0) {
+        const { primaryUrl } = await saveGalleryImages(savedRewardId, galleryImages);
+        // Update the primary image_url on the reward for backwards compat
+        if (primaryUrl) {
+          await supabase.from('rewards').update({ image_url: primaryUrl }).eq('id', savedRewardId);
+        }
+      }
+
+      toast({ title: 'Success', description: editingReward ? 'Reward updated successfully' : 'Reward created successfully' });
       setShowModal(false);
-      setSelectedImages([]);
-      setImagePreviews([]);
-      setExistingImages([]);
+      setGalleryImages([]);
       setTierPricingEnabled(false);
       setTierPricing(null);
       loadRewards();
     } catch (error: any) {
       toast({ title: 'Error', description: error.message || 'Failed to save reward', variant: 'destructive' });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -1837,67 +1738,12 @@ export function AdminRewards() {
             <DialogTitle>{editingReward ? 'Edit Reward' : 'Create Reward'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            {/* Multi-Image Upload */}
-            <div className="space-y-2">
-              <Label className="flex items-center justify-between">
-                <span>Reward Images</span>
-                <span className="text-xs text-muted-foreground">{imagePreviews.length}/{MAX_IMAGES} images</span>
-              </Label>
-              
-              {/* Image previews grid */}
-              {imagePreviews.length > 0 && (
-                <div className="grid grid-cols-2 gap-2">
-                  {imagePreviews.map((preview, index) => (
-                    <div key={index} className="relative aspect-video rounded-lg overflow-hidden border">
-                      <img src={preview} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
-                      <div className="absolute top-1 left-1">
-                        <Badge variant="secondary" className="text-xs">
-                          {index === 0 ? 'Primary' : `#${index + 1}`}
-                        </Badge>
-                      </div>
-                      <Button 
-                        type="button" 
-                        variant="destructive" 
-                        size="icon" 
-                        className="absolute top-1 right-1 h-6 w-6"
-                        onClick={() => handleRemoveImage(index)}
-                      >
-                        <X className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-              
-              {/* Upload area - show only if we have room for more */}
-              {imagePreviews.length < MAX_IMAGES && (
-                <div
-                  onDragEnter={handleDragEnter}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  className={cn(
-                    "w-full h-32 border-2 border-dashed rounded-lg flex flex-col items-center justify-center gap-2 transition-colors cursor-pointer",
-                    isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
-                  )}
-                  onClick={() => document.getElementById('image-upload')?.click()}
-                >
-                  <Upload className="w-6 h-6 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">
-                    {imagePreviews.length === 0 ? 'Drag & drop or click to upload' : 'Add more images'}
-                  </p>
-                  <p className="text-xs text-muted-foreground/70">PNG/JPG • Max 5MB each • Up to {MAX_IMAGES} images</p>
-                  <Input 
-                    id="image-upload" 
-                    type="file" 
-                    accept="image/*" 
-                    multiple
-                    onChange={handleImageSelect} 
-                    className="hidden" 
-                  />
-                </div>
-              )}
-            </div>
+            {/* Image Gallery */}
+            <RewardImageGallery
+              images={galleryImages}
+              onChange={setGalleryImages}
+              disabled={uploading}
+            />
 
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
@@ -2451,7 +2297,7 @@ export function AdminRewards() {
           category: formData.category,
           cost: formData.cost,
           stock_quantity: formData.stock_quantity,
-          image_url: imagePreviews[0] || formData.image_url,
+          image_url: galleryImages[0]?.url || formData.image_url,
           is_featured: formData.is_featured,
           sponsor_enabled: formData.sponsor_enabled,
           sponsor_name: formData.sponsor_name,
@@ -2461,7 +2307,7 @@ export function AdminRewards() {
           delivery_method: formData.delivery_method,
           delivery_instructions: formData.delivery_instructions,
         } : null}
-        imagePreviews={imagePreviews}
+        imagePreviews={galleryImages.map(g => g.url)}
       />
     </div>
   );
