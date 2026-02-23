@@ -29,7 +29,7 @@ import {
 
 export default function InvitePage() {
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
-  const [selectedLinkType, setSelectedLinkType] = useState<'standard' | 'personalized'>('standard');
+  const [selectedLinkType, setSelectedLinkType] = useState<'standard' | 'personalized'>('personalized');
   const navigate = useNavigate();
   const { data: referralSettings } = useReferralSettings();
   const { data: stats, isLoading } = useReferralStats();
@@ -40,14 +40,20 @@ export default function InvitePage() {
   const referralCode = crescendoData.referral_code || 'LOADING';
   const allocation360Lock = referralSettings?.allocation360Lock ?? 500;
   
-  // Generate links - standard and personalized (with saved slug)
+  const handle = profile?.handle;
+  
+  // Generate links - standard and personalized (handle > slug > null)
   const standardLink = generateReferralLink(referralCode);
   const personalizedLink = useMemo(() => {
+    // Prefer handle-based link, fall back to slug-based link
+    if (handle) {
+      return `${PRODUCTION_DOMAIN}/ref/@${handle}`;
+    }
     if (currentSlug) {
       return `${PRODUCTION_DOMAIN}/join/${currentSlug}`;
     }
     return null;
-  }, [currentSlug]);
+  }, [handle, currentSlug]);
   
   // Get the active referral link based on selection
   const getActiveReferralLink = () => {
@@ -155,8 +161,8 @@ export default function InvitePage() {
               </div>
             </div>
 
-            {/* Personalized Link Setup Card - Show if no slug yet */}
-            {!isLoadingSlug && !currentSlug && (
+            {/* Personalized Link Setup Card - Show if no handle and no slug yet */}
+            {!isLoadingSlug && !currentSlug && !handle && (
               <div className="mb-6">
                 <SlugSetupCard 
                   onSlugSaved={(slug) => {
