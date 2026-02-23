@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Check, X, Loader2, AtSign, Sparkles, AlertTriangle } from 'lucide-react';
+import { HandleSuggestionsDropdown } from './HandleSuggestionsDropdown';
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,8 @@ function generateSuggestions(base: string): string[] {
 export function ClaimHandleCard() {
   const { profile, refreshUnifiedProfile } = useUnifiedUser();
   const [input, setInput] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const [checking, setChecking] = useState(false);
   const [claiming, setClaiming] = useState(false);
   const [availability, setAvailability] = useState<{
@@ -105,6 +108,17 @@ export function ClaimHandleCard() {
     return () => clearTimeout(timer);
   }, [input, checkAvailability]);
 
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
   // Already has handle — show success banner
   if (profile?.handle) {
     return (
@@ -129,6 +143,13 @@ export function ClaimHandleCard() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const cleaned = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
     setInput(cleaned);
+    setShowDropdown(cleaned.length >= 3);
+  };
+
+  const handleSelectSuggestion = (handle: string) => {
+    setInput(handle);
+    setAvailability({ available: true });
+    setShowDropdown(false);
   };
 
   const handlePickSuggestion = (handle: string) => {
@@ -192,16 +213,22 @@ export function ClaimHandleCard() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
+          <div className="space-y-2" ref={wrapperRef}>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm">@</span>
               <Input
                 value={input}
                 onChange={handleInputChange}
+                onFocus={() => input.length >= 3 && setShowDropdown(true)}
                 placeholder="yourhandle"
                 maxLength={20}
                 className="pl-8"
                 disabled={claiming}
+              />
+              <HandleSuggestionsDropdown
+                input={input}
+                visible={showDropdown}
+                onSelect={handleSelectSuggestion}
               />
             </div>
             {status && (
