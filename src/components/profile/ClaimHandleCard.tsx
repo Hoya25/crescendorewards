@@ -2,10 +2,28 @@ import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Check, X, Loader2, AtSign } from 'lucide-react';
+import { Check, X, Loader2, AtSign, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { toast } from 'sonner';
+
+function generateSuggestions(base: string): string[] {
+  if (!base || base.length < 3) return [];
+  const cleaned = base.replace(/[^a-z0-9_]/g, '');
+  if (cleaned.length < 2) return [];
+  const suffixes = [
+    '_' + Math.floor(Math.random() * 90 + 10),
+    cleaned.length <= 17 ? cleaned + '_og' : null,
+    cleaned.length <= 16 ? cleaned + '_real' : null,
+    cleaned.length <= 18 ? cleaned + '_x' : null,
+    cleaned.length <= 17 ? 'the' + cleaned : null,
+  ];
+  return suffixes
+    .filter((s): s is string => s !== null)
+    .map(s => s.startsWith(cleaned) || s.startsWith('the') ? s : cleaned + s.replace(cleaned, ''))
+    .filter(s => s.length >= 3 && s.length <= 20)
+    .slice(0, 3);
+}
 
 export function ClaimHandleCard() {
   const { profile, refreshUnifiedProfile } = useUnifiedUser();
@@ -16,11 +34,14 @@ export function ClaimHandleCard() {
     available: boolean;
     reason?: string;
   } | null>(null);
+  const [suggestions, setSuggestions] = useState<{ handle: string; available: boolean }[]>([]);
+  const [checkingSuggestions, setCheckingSuggestions] = useState(false);
 
   // Debounced availability check
   const checkAvailability = useCallback(async (value: string) => {
     if (value.length < 3) {
       setAvailability(null);
+      setSuggestions([]);
       return;
     }
     setChecking(true);
@@ -29,8 +50,30 @@ export function ClaimHandleCard() {
       if (error) throw error;
       const result = data as unknown as { available: boolean; reason?: string };
       setAvailability(result);
+
+      // If taken, check suggestions
+      if (!result.available) {
+        setCheckingSuggestions(true);
+        const candidates = generateSuggestions(value);
+        const results = await Promise.all(
+          candidates.map(async (h) => {
+            try {
+              const { data: d } = await supabase.rpc('check_handle_available', { p_handle: h });
+              const r = d as unknown as { available: boolean };
+              return { handle: h, available: r?.available ?? false };
+            } catch {
+              return { handle: h, available: false };
+            }
+          })
+        );
+        setSuggestions(results.filter((s) => s.available).slice(0, 3));
+        setCheckingSuggestions(false);
+      } else {
+        setSuggestions([]);
+      }
     } catch {
       setAvailability(null);
+      setSuggestions([]);
     } finally {
       setChecking(false);
     }
@@ -42,6 +85,7 @@ export function ClaimHandleCard() {
         checkAvailability(input);
       } else {
         setAvailability(null);
+        setSuggestions([]);
       }
     }, 500);
     return () => clearTimeout(timer);
@@ -69,9 +113,15 @@ export function ClaimHandleCard() {
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Only allow lowercase letters, numbers, underscores
     const cleaned = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
     setInput(cleaned);
+  };
+
+  const handleSuggestionClick = (handle: string) => {
+    setInput(handle);
+    setSuggestions([]);
+    // Trigger immediate check
+    setAvailability({ available: true });
   };
 
   const handleClaim = async () => {
@@ -102,7 +152,7 @@ export function ClaimHandleCard() {
     if (checking) return { icon: <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />, text: 'Checking...', color: 'text-muted-foreground' };
     if (!availability) return null;
     if (availability.available) return { icon: <Check className="h-4 w-4" style={{ color: '#E2FF6D' }} />, text: 'Available!', color: 'text-[#E2FF6D]' };
-    
+
     const reasons: Record<string, string> = {
       taken: 'Already taken',
       reserved: 'This handle is reserved',
@@ -146,6 +196,35 @@ export function ClaimHandleCard() {
             </div>
           )}
         </div>
+
+        {/* Suggested available handles when taken */}
+        {(suggestions.length > 0 || checkingSuggestions) && !availability?.available && (
+          <div className="rounded-lg border border-border/50 p-3 space-y-2" style={{ backgroundColor: 'rgba(226,255,109,0.04)' }}>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Sparkles className="h-3.5 w-3.5" style={{ color: '#E2FF6D' }} />
+              <span>Try one of these instead:</span>
+            </div>
+            {checkingSuggestions ? (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                <span>Finding available handles…</span>
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {suggestions.map((s) => (
+                  <button
+                    key={s.handle}
+                    onClick={() => handleSuggestionClick(s.handle)}
+                    className="inline-flex items-center gap-1 rounded-md border border-border/50 px-2.5 py-1 text-xs font-medium transition-colors hover:border-[#E2FF6D]/50 hover:bg-[#E2FF6D]/10"
+                  >
+                    <span className="text-muted-foreground">@</span>
+                    <span>{s.handle}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         <Button
           onClick={handleClaim}
