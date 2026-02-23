@@ -2,7 +2,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Check, X, Loader2, AtSign, Sparkles } from 'lucide-react';
+import { Check, X, Loader2, AtSign, Sparkles, AlertTriangle } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { toast } from 'sonner';
@@ -11,18 +19,17 @@ function generateSuggestions(base: string): string[] {
   if (!base || base.length < 3) return [];
   const cleaned = base.replace(/[^a-z0-9_]/g, '');
   if (cleaned.length < 2) return [];
-  const suffixes = [
-    '_' + Math.floor(Math.random() * 90 + 10),
+  const candidates = [
+    cleaned + '_' + Math.floor(Math.random() * 90 + 10),
     cleaned.length <= 17 ? cleaned + '_og' : null,
     cleaned.length <= 16 ? cleaned + '_real' : null,
     cleaned.length <= 18 ? cleaned + '_x' : null,
-    cleaned.length <= 17 ? 'the' + cleaned : null,
+    cleaned.length <= 17 ? 'the_' + cleaned : null,
+    cleaned.length <= 16 ? cleaned + '_here' : null,
   ];
-  return suffixes
-    .filter((s): s is string => s !== null)
-    .map(s => s.startsWith(cleaned) || s.startsWith('the') ? s : cleaned + s.replace(cleaned, ''))
-    .filter(s => s.length >= 3 && s.length <= 20)
-    .slice(0, 3);
+  return candidates
+    .filter((s): s is string => s !== null && s.length >= 3 && s.length <= 20)
+    .slice(0, 5);
 }
 
 export function ClaimHandleCard() {
@@ -34,14 +41,16 @@ export function ClaimHandleCard() {
     available: boolean;
     reason?: string;
   } | null>(null);
-  const [suggestions, setSuggestions] = useState<{ handle: string; available: boolean }[]>([]);
-  const [checkingSuggestions, setCheckingSuggestions] = useState(false);
 
-  // Debounced availability check
+  // Conflict modal state
+  const [showConflictModal, setShowConflictModal] = useState(false);
+  const [conflictHandle, setConflictHandle] = useState('');
+  const [modalSuggestions, setModalSuggestions] = useState<{ handle: string; available: boolean; checking: boolean }[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+
   const checkAvailability = useCallback(async (value: string) => {
     if (value.length < 3) {
       setAvailability(null);
-      setSuggestions([]);
       return;
     }
     setChecking(true);
@@ -51,33 +60,39 @@ export function ClaimHandleCard() {
       const result = data as unknown as { available: boolean; reason?: string };
       setAvailability(result);
 
-      // If taken, check suggestions
-      if (!result.available) {
-        setCheckingSuggestions(true);
-        const candidates = generateSuggestions(value);
-        const results = await Promise.all(
-          candidates.map(async (h) => {
-            try {
-              const { data: d } = await supabase.rpc('check_handle_available', { p_handle: h });
-              const r = d as unknown as { available: boolean };
-              return { handle: h, available: r?.available ?? false };
-            } catch {
-              return { handle: h, available: false };
-            }
-          })
-        );
-        setSuggestions(results.filter((s) => s.available).slice(0, 3));
-        setCheckingSuggestions(false);
-      } else {
-        setSuggestions([]);
+      // Open conflict modal when handle is taken
+      if (!result.available && result.reason === 'taken') {
+        setConflictHandle(value);
+        setShowConflictModal(true);
+        loadSuggestions(value);
       }
     } catch {
       setAvailability(null);
-      setSuggestions([]);
     } finally {
       setChecking(false);
     }
   }, []);
+
+  const loadSuggestions = async (base: string) => {
+    setLoadingSuggestions(true);
+    const candidates = generateSuggestions(base);
+    const initial = candidates.map((h) => ({ handle: h, available: false, checking: true }));
+    setModalSuggestions(initial);
+
+    const results = await Promise.all(
+      candidates.map(async (h) => {
+        try {
+          const { data: d } = await supabase.rpc('check_handle_available', { p_handle: h });
+          const r = d as unknown as { available: boolean };
+          return { handle: h, available: r?.available ?? false, checking: false };
+        } catch {
+          return { handle: h, available: false, checking: false };
+        }
+      })
+    );
+    setModalSuggestions(results);
+    setLoadingSuggestions(false);
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -85,7 +100,6 @@ export function ClaimHandleCard() {
         checkAvailability(input);
       } else {
         setAvailability(null);
-        setSuggestions([]);
       }
     }, 500);
     return () => clearTimeout(timer);
@@ -117,11 +131,10 @@ export function ClaimHandleCard() {
     setInput(cleaned);
   };
 
-  const handleSuggestionClick = (handle: string) => {
+  const handlePickSuggestion = (handle: string) => {
     setInput(handle);
-    setSuggestions([]);
-    // Trigger immediate check
     setAvailability({ available: true });
+    setShowConflictModal(false);
   };
 
   const handleClaim = async () => {
@@ -154,7 +167,7 @@ export function ClaimHandleCard() {
     if (availability.available) return { icon: <Check className="h-4 w-4" style={{ color: '#E2FF6D' }} />, text: 'Available!', color: 'text-[#E2FF6D]' };
 
     const reasons: Record<string, string> = {
-      taken: 'Already taken',
+      taken: 'Already taken — click to see alternatives',
       reserved: 'This handle is reserved',
       invalid_format: '3-20 characters, letters/numbers/underscores only',
     };
@@ -162,87 +175,144 @@ export function ClaimHandleCard() {
   };
 
   const status = getStatusMessage();
+  const availableSuggestions = modalSuggestions.filter((s) => s.available);
 
   return (
-    <Card className="border-2 overflow-hidden" style={{ borderColor: '#E2FF6D30' }}>
-      <CardHeader className="pb-3" style={{ background: 'linear-gradient(135deg, rgba(226,255,109,0.08), transparent)' }}>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#E2FF6D20' }}>
-            <AtSign className="h-5 w-5" style={{ color: '#E2FF6D' }} />
-          </div>
-          <div>
-            <CardTitle className="text-lg">Claim Your @Handle</CardTitle>
-            <CardDescription>Choose your permanent identity on Crescendo</CardDescription>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm">@</span>
-            <Input
-              value={input}
-              onChange={handleInputChange}
-              placeholder="yourhandle"
-              maxLength={20}
-              className="pl-8"
-              disabled={claiming}
-            />
-          </div>
-          {status && (
-            <div className={`flex items-center gap-1.5 text-xs ${status.color}`}>
-              {status.icon}
-              <span>{status.text}</span>
+    <>
+      <Card className="border-2 overflow-hidden" style={{ borderColor: '#E2FF6D30' }}>
+        <CardHeader className="pb-3" style={{ background: 'linear-gradient(135deg, rgba(226,255,109,0.08), transparent)' }}>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#E2FF6D20' }}>
+              <AtSign className="h-5 w-5" style={{ color: '#E2FF6D' }} />
             </div>
-          )}
-        </div>
+            <div>
+              <CardTitle className="text-lg">Claim Your @Handle</CardTitle>
+              <CardDescription>Choose your permanent identity on Crescendo</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-sm">@</span>
+              <Input
+                value={input}
+                onChange={handleInputChange}
+                placeholder="yourhandle"
+                maxLength={20}
+                className="pl-8"
+                disabled={claiming}
+              />
+            </div>
+            {status && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (availability && !availability.available && availability.reason === 'taken') {
+                    setConflictHandle(input);
+                    setShowConflictModal(true);
+                    loadSuggestions(input);
+                  }
+                }}
+                className={`flex items-center gap-1.5 text-xs ${status.color} ${
+                  availability && !availability.available && availability.reason === 'taken'
+                    ? 'cursor-pointer hover:underline'
+                    : 'cursor-default'
+                }`}
+              >
+                {status.icon}
+                <span>{status.text}</span>
+              </button>
+            )}
+          </div>
 
-        {/* Suggested available handles when taken */}
-        {(suggestions.length > 0 || checkingSuggestions) && !availability?.available && (
-          <div className="rounded-lg border border-border/50 p-3 space-y-2" style={{ backgroundColor: 'rgba(226,255,109,0.04)' }}>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Sparkles className="h-3.5 w-3.5" style={{ color: '#E2FF6D' }} />
-              <span>Try one of these instead:</span>
-            </div>
-            {checkingSuggestions ? (
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Loader2 className="h-3 w-3 animate-spin" />
-                <span>Finding available handles…</span>
-              </div>
+          <Button
+            onClick={handleClaim}
+            disabled={!availability?.available || claiming || checking}
+            className="w-full font-bold border-0"
+            style={{ backgroundColor: '#E2FF6D', color: '#323232' }}
+          >
+            {claiming ? (
+              <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Claiming...</>
             ) : (
-              <div className="flex flex-wrap gap-1.5">
-                {suggestions.map((s) => (
-                  <button
-                    key={s.handle}
-                    onClick={() => handleSuggestionClick(s.handle)}
-                    className="inline-flex items-center gap-1 rounded-md border border-border/50 px-2.5 py-1 text-xs font-medium transition-colors hover:border-[#E2FF6D]/50 hover:bg-[#E2FF6D]/10"
-                  >
-                    <span className="text-muted-foreground">@</span>
-                    <span>{s.handle}</span>
-                  </button>
-                ))}
+              `Claim @${input || '...'}`
+            )}
+          </Button>
+
+          <p className="text-[11px] text-muted-foreground text-center">
+            Choose carefully — this cannot be changed later
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Handle Conflict Resolution Modal */}
+      <Dialog open={showConflictModal} onOpenChange={setShowConflictModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-destructive/10">
+                <AlertTriangle className="h-4 w-4 text-destructive" />
+              </div>
+              <div>
+                <DialogTitle className="text-base">@{conflictHandle} is taken</DialogTitle>
+                <DialogDescription className="text-xs">
+                  Pick an available alternative or go back and try a different name
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="space-y-2 py-2">
+            {loadingSuggestions ? (
+              <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Finding available handles…
+              </div>
+            ) : availableSuggestions.length > 0 ? (
+              <>
+                <p className="text-xs text-muted-foreground flex items-center gap-1.5 mb-3">
+                  <Sparkles className="h-3.5 w-3.5" style={{ color: '#E2FF6D' }} />
+                  Available alternatives
+                </p>
+                <div className="space-y-1.5">
+                  {availableSuggestions.map((s) => (
+                    <button
+                      key={s.handle}
+                      onClick={() => handlePickSuggestion(s.handle)}
+                      className="w-full flex items-center justify-between rounded-lg border border-border/60 px-4 py-3 text-sm transition-all hover:border-[#E2FF6D]/60 hover:bg-[#E2FF6D]/5 group"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <span className="text-muted-foreground">@</span>
+                        <span className="font-medium">{s.handle}</span>
+                      </span>
+                      <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors flex items-center gap-1">
+                        <Check className="h-3 w-3" style={{ color: '#E2FF6D' }} />
+                        Use this
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-6">
+                <p className="text-sm text-muted-foreground">
+                  No close alternatives found. Try a different handle.
+                </p>
               </div>
             )}
           </div>
-        )}
 
-        <Button
-          onClick={handleClaim}
-          disabled={!availability?.available || claiming || checking}
-          className="w-full font-bold border-0"
-          style={{ backgroundColor: '#E2FF6D', color: '#323232' }}
-        >
-          {claiming ? (
-            <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Claiming...</>
-          ) : (
-            `Claim @${input || '...'}`
-          )}
-        </Button>
-
-        <p className="text-[11px] text-muted-foreground text-center">
-          Choose carefully — this cannot be changed later
-        </p>
-      </CardContent>
-    </Card>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowConflictModal(false)}
+              className="w-full"
+            >
+              Try a different name
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
