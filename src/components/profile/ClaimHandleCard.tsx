@@ -47,8 +47,26 @@ export function ClaimHandleCard() {
     return () => clearTimeout(timer);
   }, [input, checkAvailability]);
 
-  // Already has handle — don't render
-  if (profile?.handle) return null;
+  // Already has handle — show success banner
+  if (profile?.handle) {
+    return (
+      <Card className="border-2 overflow-hidden" style={{ borderColor: '#E2FF6D50' }}>
+        <CardContent className="flex items-center gap-3 py-4">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#E2FF6D20' }}>
+            <Check className="h-5 w-5" style={{ color: '#E2FF6D' }} />
+          </div>
+          <div className="flex-1">
+            <p className="font-bold text-sm" style={{ color: '#E2FF6D' }}>
+              @{profile.handle}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Your handle is claimed and active across Crescendo
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Only allow lowercase letters, numbers, underscores
