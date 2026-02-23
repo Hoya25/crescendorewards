@@ -157,7 +157,7 @@ export const CAMPAIGN_TYPE_CONFIG: Record<CampaignType, { label: string; descrip
   ongoing: { label: 'Ongoing', description: 'Continuous sponsorship without end date' },
   limited_time: { label: 'Limited Time', description: 'Time-bound promotional campaign' },
   event: { label: 'Event', description: 'Sponsorship tied to a specific event' },
-  mission_aligned: { label: 'Mission Aligned', description: 'Supporting a specific Mission Engine' },
+  mission_aligned: { label: 'Mission Aligned', description: 'Supporting a specific Impact Engine' },
 };
 
 // Helper functions

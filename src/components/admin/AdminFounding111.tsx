@@ -35,7 +35,7 @@ export function AdminFounding111() {
     try {
       const result = await approveMutation.mutateAsync(candidate.id);
       if (result.success) {
-        toast.success(`Approved as Founding Member #${result.founding_number}`);
+        toast.success(`Approved as Founding 111 #${result.founding_number}`);
         // Send approval email via edge function
         try {
           await supabase.functions.invoke('founding-111-email', {

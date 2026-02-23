@@ -36,7 +36,7 @@ export function Founding111BountyCard({ bounty }: { bounty: StaticBounty }) {
             </span>
           </div>
           <Progress value={100} className="h-1.5 [&>div]:bg-muted-foreground" />
-          <p className="text-xs text-muted-foreground text-center">111/111 Founding Members verified</p>
+          <p className="text-xs text-muted-foreground text-center">111/111 Founding 111 spots claimed</p>
         </CardContent>
       </Card>
     );
@@ -62,7 +62,7 @@ export function Founding111BountyCard({ bounty }: { bounty: StaticBounty }) {
               className="ml-auto text-xs font-black border-0 px-3 py-1"
               style={{ backgroundColor: '#E2FF6D', color: '#323232' }}
             >
-              ⚡ Founding Member #{myStatus?.founding_number}
+              ⚡ Founding 111 #{myStatus?.founding_number}
             </Badge>
           </div>
           <div className="rounded-lg p-3 text-center" style={{ backgroundColor: '#E2FF6D10' }}>
@@ -175,7 +175,7 @@ function LiveCounter({ count, loading }: { count: number; loading: boolean }) {
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>Founding Members</span>
+        <span>Founding 111</span>
         <span className="font-medium">{loading ? '...' : count}/111</span>
       </div>
       <Progress

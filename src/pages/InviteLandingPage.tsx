@@ -445,7 +445,7 @@ export default function InviteLandingPage() {
               { icon: Star, text: 'Early access before public launch' },
               { icon: Trophy, text: 'Bonus NCTR earning opportunities' },
               { icon: Sparkles, text: 'Help shape the platform with feedback' },
-              { icon: CheckCircle2, text: 'Founding member recognition at launch' },
+              { icon: CheckCircle2, text: 'Founding 111 recognition at launch' },
             ].map((benefit, idx) => (
               <motion.div
                 key={idx}
