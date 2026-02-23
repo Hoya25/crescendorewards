@@ -108,7 +108,7 @@ export default function InvitePage() {
             </div>
 
             {/* Hero Section */}
-            <div className="relative mb-8 rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-8 text-primary-foreground">
+            <div className="relative mb-8 rounded-2xl overflow-hidden bg-gradient-to-br from-[#1A1A2E] via-[#252540] to-[#1A1A2E] p-8 text-white">
               <div className="absolute inset-0 bg-[url('/placeholder.svg')] opacity-5" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-4">
