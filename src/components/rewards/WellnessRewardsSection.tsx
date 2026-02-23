@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Sparkles, Lock, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, Lock, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { VisualRewardCard } from '@/components/rewards/VisualRewardCard';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -29,11 +29,11 @@ interface WellnessReward {
 }
 
 const TIER_WELLNESS_UNLOCKS: { tier: string; level: number; color: string; emoji: string; items: string[] }[] = [
-  { tier: 'Bronze', level: 1, color: '#CD7F32', emoji: '🥉', items: ['Kroma Starter Bundle ($75 value)', 'Access to all Bronze-tier wellness rewards'] },
-  { tier: 'Silver', level: 2, color: '#C0C0C0', emoji: '🥈', items: ['Kroma Beauty Matcha 3-Pack ($120 value)', 'Kroma Super Core 3-Pack ($150 value)', '+ all Bronze rewards'] },
-  { tier: 'Gold', level: 3, color: '#FFD700', emoji: '🥇', items: ['Kroma 5-Day Reset Kit ($385 value)', '+ all Silver & Bronze rewards'] },
-  { tier: 'Platinum', level: 4, color: '#E5E4E2', emoji: '💎', items: ['Kroma VIP Reset + Consultation ($750 value)', '+ all Gold, Silver & Bronze rewards'] },
-  { tier: 'Diamond', level: 5, color: '#B9F2FF', emoji: '👑', items: ['Everything + priority access to new INSPIRATION partner rewards', '+ recognition in the INSPIRATION ecosystem'] },
+  { tier: 'Bronze', level: 1, color: '#CD7F32', emoji: '🥉', items: ['Kroma 5-Day Reset Kit', '24K Chicken Bone Broth', 'Super Ramen'] },
+  { tier: 'Silver', level: 2, color: '#C0C0C0', emoji: '🥈', items: ['Beauty Matcha Latte', 'Super Core Colostrum', '+ all Bronze rewards'] },
+  { tier: 'Gold', level: 3, color: '#FFD700', emoji: '🥇', items: ['Priority access to new Kroma drops', '+ all Silver & Bronze rewards'] },
+  { tier: 'Platinum', level: 4, color: '#E5E4E2', emoji: '💎', items: ['Kroma VIP access & exclusive bundles', '+ all Gold, Silver & Bronze rewards'] },
+  { tier: 'Diamond', level: 5, color: '#B9F2FF', emoji: '👑', items: ['Everything + first access to INSPIRATION partner rewards'] },
 ];
 
 function TierUnlockPreview({ userTierLevel, userTierName }: { userTierLevel: number; userTierName: string }) {
@@ -160,34 +160,42 @@ export function WellnessRewardsSection() {
       }}
     >
       <div className="container mx-auto px-4 max-w-full">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Heart className="w-5 h-5 text-rose-500" />
-              <h2 className="text-xl font-bold">
-                ✨ Wellness Rewards — Powered by INSPIRATION
-              </h2>
+        {/* Header with Kroma branding */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+          <div className="flex items-start gap-4">
+            <img
+              src="https://yhwcaodofmbusjurawhp.supabase.co/storage/v1/object/public/reward-images/kroma/kroma-logo.webp"
+              alt="Kroma Wellness"
+              className="w-20 h-auto shrink-0 dark:invert"
+            />
+            <div>
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <h2 className="text-xl font-bold">
+                  INSPIRATION Wellness Rewards
+                </h2>
+                <Badge
+                  className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border-0"
+                  style={{ backgroundColor: '#E2FF6D', color: '#323232' }}
+                >
+                  <Sparkles className="w-3 h-3" />
+                  FEATURED PARTNER
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground max-w-lg">
+                <span className="font-medium text-foreground">Food is medicine.</span>{' '}
+                Earn through participation. Unlock through commitment. These rewards are earned, not bought.
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground max-w-lg">
-              Earn through participation. Unlock through commitment. These rewards are earned, not bought.
-            </p>
           </div>
-          <Badge
-            className="self-start sm:self-auto flex items-center gap-1.5 px-3 py-1 text-xs font-semibold border-0 whitespace-nowrap"
-            style={{ backgroundColor: '#E2FF6D', color: '#323232' }}
-          >
-            <Sparkles className="w-3 h-3" />
-            INSPIRATION Ecosystem
-          </Badge>
         </div>
 
         {/* Kroma Cross-Link Banner */}
         <a
-          href="https://thegarden.nctr.live"
+          href="https://kromawellness.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="group mb-6 flex items-center gap-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-r from-emerald-50 to-amber-50 dark:from-emerald-950/30 dark:to-amber-950/20 p-4 hover:shadow-md transition-all"
+          className="group mb-6 flex items-center gap-4 rounded-xl border border-amber-200/60 dark:border-amber-800/40 p-4 hover:shadow-md transition-all"
+          style={{ backgroundColor: '#FDFAF6' }}
         >
           <span className="text-3xl shrink-0">🌿</span>
           <div className="flex-1 min-w-0">
