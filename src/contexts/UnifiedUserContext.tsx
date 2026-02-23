@@ -42,6 +42,7 @@ export interface UnifiedProfile {
   email: string | null;
   display_name: string | null;
   avatar_url: string | null;
+  handle: string | null;
   current_tier_id: string | null;
   tier_calculated_at: string | null;
   garden_data: Record<string, any>;

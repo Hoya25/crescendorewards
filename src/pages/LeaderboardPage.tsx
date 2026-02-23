@@ -142,7 +142,7 @@ export default function LeaderboardPage() {
                   {entry.rank <= 3 ? ['🥇', '🥈', '🥉'][entry.rank - 1] : `#${entry.rank}`}
                 </span>
                 <span className="text-sm font-medium text-foreground truncate">
-                  {entry.display_name || 'Anonymous'}
+                  {entry.handle ? `@${entry.handle}` : entry.display_name || 'Anonymous'}
                   {entry.is_current_user && (
                     <span className="text-[10px] ml-1.5 text-muted-foreground">(you)</span>
                   )}
@@ -168,7 +168,7 @@ export default function LeaderboardPage() {
                   {userRank ? `#${userRank}` : '—'}
                 </span>
                 <span className="text-sm font-medium text-foreground truncate">
-                  {currentUser.display_name || 'You'}{' '}
+                  {currentUser.handle ? `@${currentUser.handle}` : currentUser.display_name || 'You'}{' '}
                   <span className="text-[10px] text-muted-foreground">(you)</span>
                 </span>
                 <span className="text-sm text-center text-muted-foreground">{currentUser.referral_count}</span>
