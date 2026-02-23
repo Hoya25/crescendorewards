@@ -70,7 +70,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     }
   }, [pendingEarning, isLockOpen]);
 
-  const userName = profile?.display_name || profile?.email?.split('@')[0] || 'User';
+  const userName = profile?.handle ? `@${profile.handle}` : profile?.display_name || profile?.email?.split('@')[0] || 'User';
 
   const handleSignOut = async () => {
     await signOut();

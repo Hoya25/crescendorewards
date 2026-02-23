@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 /**
  * Handles /ref/:code routes
+ * Supports both referral codes and @handle format
  * Stores referral code in localStorage and redirects to signup
  */
 export default function RefCodeRedirectPage() {
@@ -16,16 +18,41 @@ export default function RefCodeRedirectPage() {
       return;
     }
 
-    // Store referral code with 30-day expiry
-    const expiry = Date.now() + 30 * 24 * 60 * 60 * 1000;
-    localStorage.setItem('referral_code', code);
-    localStorage.setItem('referral_link_type', 'direct');
-    localStorage.setItem('referral_expiry', expiry.toString());
-    sessionStorage.setItem('referral_code', code);
-    sessionStorage.setItem('referral_link_type', 'direct');
+    const processRef = async () => {
+      let referralCode = code;
 
-    // Redirect to landing page with ref param so AuthModal picks it up
-    window.location.href = `/?ref=${code}&link_type=direct`;
+      // If code starts with @, look up the user's referral code by handle
+      if (code.startsWith('@')) {
+        const handle = code.slice(1);
+        try {
+          const { data } = await supabase.rpc('get_referral_code_by_handle', { p_handle: handle });
+          const result = data as unknown as { success: boolean; referral_code?: string };
+          if (result?.success && result.referral_code) {
+            referralCode = result.referral_code;
+          } else {
+            // Handle not found — redirect to home
+            navigate('/', { replace: true });
+            return;
+          }
+        } catch {
+          navigate('/', { replace: true });
+          return;
+        }
+      }
+
+      // Store referral code with 30-day expiry
+      const expiry = Date.now() + 30 * 24 * 60 * 60 * 1000;
+      localStorage.setItem('referral_code', referralCode);
+      localStorage.setItem('referral_link_type', 'direct');
+      localStorage.setItem('referral_expiry', expiry.toString());
+      sessionStorage.setItem('referral_code', referralCode);
+      sessionStorage.setItem('referral_link_type', 'direct');
+
+      // Redirect to landing page with ref param so AuthModal picks it up
+      window.location.href = `/?ref=${referralCode}&link_type=direct`;
+    };
+
+    processRef();
   }, [code, navigate]);
 
   return (

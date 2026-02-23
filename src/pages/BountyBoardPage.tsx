@@ -1,4 +1,4 @@
-import { Gift, Users, Share2, PenTool, Flame, Info, ShoppingBag, ShoppingCart, Trophy, Star, Shirt, X } from 'lucide-react';
+import { Gift, Users, Share2, PenTool, Flame, Info, ShoppingBag, ShoppingCart, Trophy, Star, Shirt, X, AtSign } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { useReferralStats } from '@/hooks/useReferralStats';
@@ -38,6 +38,15 @@ const ENTRY_BOUNTIES: StaticBounty[] = [
     nctrReward: 375,
     icon: Users,
     frequency: 'One-time • Auto-applied if referred',
+  },
+  {
+    id: 'claim-handle',
+    title: 'Claim Your @Handle',
+    description: 'Choose your permanent Crescendo identity.',
+    nctrReward: 250,
+    icon: AtSign,
+    tag: 'ONE-TIME',
+    frequency: 'One-time',
   },
 ];
 
@@ -355,6 +364,11 @@ export default function BountyBoardPage() {
   }, [milestones, merchData, stats]);
 
   const handleCardClick = useCallback((bounty: StaticBounty) => {
+    // Handle claim-handle: navigate to profile
+    if (bounty.id === 'claim-handle') {
+      window.location.href = '/profile';
+      return;
+    }
     const data = getModalData(bounty);
     if (data) setModalData(data);
   }, [getModalData]);
@@ -431,13 +445,23 @@ export default function BountyBoardPage() {
     });
   }, [merchData]);
 
+  // Dynamically mark handle bounty as completed
+  const entryBounties = useMemo(() => {
+    return ENTRY_BOUNTIES.map(b => {
+      if (b.id === 'claim-handle' && profile?.handle) {
+        return { ...b, completed: true, completedLabel: `@${profile.handle} ✓` };
+      }
+      return b;
+    });
+  }, [profile?.handle]);
+
   const sections: BountySection[] = useMemo(() => [
-    { title: 'Get Started', emoji: '🚀', bounties: ENTRY_BOUNTIES },
+    { title: 'Get Started', emoji: '🚀', bounties: entryBounties },
     { title: 'Shop & Earn', emoji: '🛒', bounties: revenueBounties },
     { title: 'Merch Rewards', emoji: '👕', bounties: merchBounties },
     { title: 'Build Your Team', emoji: '🤝', bounties: REFERRAL_BOUNTIES },
     { title: 'Stay Active', emoji: '🔥', bounties: ENGAGEMENT_BOUNTIES },
-  ], [revenueBounties, merchBounties]);
+  ], [entryBounties, revenueBounties, merchBounties]);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 space-y-8">

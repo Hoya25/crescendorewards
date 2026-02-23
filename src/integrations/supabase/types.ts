@@ -3472,6 +3472,7 @@ export type Database = {
           founding_111_qualified: boolean
           founding_111_qualified_at: string | null
           garden_data: Json | null
+          handle: string | null
           has_completed_onboarding: boolean | null
           id: string
           last_active_crescendo: string | null
@@ -3510,6 +3511,7 @@ export type Database = {
           founding_111_qualified?: boolean
           founding_111_qualified_at?: string | null
           garden_data?: Json | null
+          handle?: string | null
           has_completed_onboarding?: boolean | null
           id?: string
           last_active_crescendo?: string | null
@@ -3548,6 +3550,7 @@ export type Database = {
           founding_111_qualified?: boolean
           founding_111_qualified_at?: string | null
           garden_data?: Json | null
+          handle?: string | null
           has_completed_onboarding?: boolean | null
           id?: string
           last_active_crescendo?: string | null
@@ -3971,6 +3974,7 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: Json
       }
+      check_handle_available: { Args: { p_handle: string }; Returns: Json }
       check_merch_milestones: { Args: { p_user_id: string }; Returns: Json }
       check_purchase_milestones: { Args: { p_user_id: string }; Returns: Json }
       check_referral_milestones: { Args: { p_user_id: string }; Returns: Json }
@@ -3980,6 +3984,10 @@ export type Database = {
       }
       claim_gift: {
         Args: { p_gift_code: string; p_user_id: string }
+        Returns: Json
+      }
+      claim_handle: {
+        Args: { p_handle: string; p_user_id: string }
         Returns: Json
       }
       claim_reward: {
@@ -4063,6 +4071,7 @@ export type Database = {
           title: string
         }[]
       }
+      get_referral_code_by_handle: { Args: { p_handle: string }; Returns: Json }
       get_referral_code_by_slug: { Args: { p_slug: string }; Returns: Json }
       get_referral_leaderboard: { Args: { p_user_id?: string }; Returns: Json }
       get_reward_watch_count: { Args: { p_reward_id: string }; Returns: number }

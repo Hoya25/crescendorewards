@@ -36,6 +36,7 @@ import { useDeliveryProfile } from '@/hooks/useDeliveryProfile';
 import { PortfolioSummaryCard } from '@/components/PortfolioSummaryCard';
 import { ProfileActivityStats } from '@/components/profile/ProfileActivityStats';
 import { GroundballStatusBadge } from '@/components/groundball/GroundballStatusBadge';
+import { ClaimHandleCard } from '@/components/profile/ClaimHandleCard';
 const getCrescendoData = (profile: any) => {
   const crescendoData = profile?.crescendo_data || {};
   return {
@@ -345,7 +346,12 @@ export function ProfilePage() {
               Back
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">My Account</h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold">My Account</h1>
+                {unifiedProfile?.handle && (
+                  <span className="text-lg font-bold" style={{ color: '#E2FF6D' }}>@{unifiedProfile.handle}</span>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground">Manage your profile, status, and preferences</p>
             </div>
           </div>
@@ -357,8 +363,10 @@ export function ProfilePage() {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Left Column - Avatar & Stats */}
           <div className="space-y-6">
+            {/* Claim Handle Card */}
+            <ClaimHandleCard />
             {/* Profile Completion Card */}
-            <ProfileCompletion 
+            <ProfileCompletion
               profile={profile}
               onAvatarClick={() => avatarInputRef.current?.click()}
               onNameClick={() => {

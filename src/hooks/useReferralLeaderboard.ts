@@ -5,6 +5,7 @@ import { useAuthContext } from '@/contexts/AuthContext';
 interface LeaderboardEntry {
   rank: number;
   display_name: string;
+  handle?: string;
   referral_count: number;
   paid_referrals: number;
   is_current_user?: boolean;
@@ -13,6 +14,7 @@ interface LeaderboardEntry {
 interface CurrentUserEntry {
   rank: number | null;
   display_name: string;
+  handle?: string;
   referral_count: number;
   paid_referrals: number;
   opted_in: boolean;
