@@ -5,7 +5,7 @@ const TIERS = [
   { id: 'silver', name: 'Silver', min: 1000, color: '#C8C8D4', rgb: '200,200,212', glow: 'rgba(200,200,212,0.45)', perks: ['Everything in Bronze','Early access to new partner brands','2× NCTR on select partners','Silver-exclusive reward drops'] },
   { id: 'gold', name: 'Gold', min: 5000, color: '#FFD700', rgb: '255,215,0', glow: 'rgba(255,215,0,0.6)', perks: ['Everything in Silver','Exclusive Gold reward drops','Priority member support','Quarterly Gold member event access'] },
   { id: 'platinum', name: 'Platinum', min: 15000, color: '#E2E2EE', rgb: '226,226,238', glow: 'rgba(226,226,238,0.42)', perks: ['Everything in Gold','VIP brand partner experiences','Dedicated account access','Platinum-only product drops'] },
-  { id: 'diamond', name: 'Diamond', min: 50000, color: '#B9F2FF', rgb: '185,242,255', glow: 'rgba(185,242,255,0.62)', perks: ['Everything in Platinum','Founding Diamond member status','Exclusive Diamond drops','Direct founder access & input'] },
+  { id: 'diamond', name: 'Diamond', min: 50000, color: '#B9F2FF', rgb: '185,242,255', glow: 'rgba(185,242,255,0.62)', perks: ['Everything in Platinum','Diamond member status','Exclusive Diamond drops','Direct access & input'] },
 ];
 
 interface TierProgressBarProps {

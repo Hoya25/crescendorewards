@@ -33,7 +33,7 @@ const TIER_WELLNESS_UNLOCKS: { tier: string; level: number; color: string; emoji
   { tier: 'Silver', level: 2, color: '#C0C0C0', emoji: '🥈', items: ['Kroma Beauty Matcha 3-Pack ($120 value)', 'Kroma Super Core 3-Pack ($150 value)', '+ all Bronze rewards'] },
   { tier: 'Gold', level: 3, color: '#FFD700', emoji: '🥇', items: ['Kroma 5-Day Reset Kit ($385 value)', '+ all Silver & Bronze rewards'] },
   { tier: 'Platinum', level: 4, color: '#E5E4E2', emoji: '💎', items: ['Kroma VIP Reset + Consultation ($750 value)', '+ all Gold, Silver & Bronze rewards'] },
-  { tier: 'Diamond', level: 5, color: '#B9F2FF', emoji: '👑', items: ['Everything + priority access to new INSPIRATION partner rewards', '+ founding recognition in the INSPIRATION ecosystem'] },
+  { tier: 'Diamond', level: 5, color: '#B9F2FF', emoji: '👑', items: ['Everything + priority access to new INSPIRATION partner rewards', '+ recognition in the INSPIRATION ecosystem'] },
 ];
 
 function TierUnlockPreview({ userTierLevel, userTierName }: { userTierLevel: number; userTierName: string }) {
