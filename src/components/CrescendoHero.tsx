@@ -5,7 +5,7 @@ const TIERS = [
   { id: 'silver', name: 'Silver', min: 1000, color: '#C8C8D4', rgb: '200,200,212', glowRgba: 'rgba(200,200,212,0.38)', tagline: 'Early access. More earning.', perks: ['Everything in Bronze','Early access to new brands','2× NCTR on select partners'] },
   { id: 'gold', name: 'Gold', min: 5000, color: '#FFD700', rgb: '255,215,0', glowRgba: 'rgba(255,215,0,0.5)', tagline: 'Exclusive drops. Priority support.', perks: ['Everything in Silver','Exclusive Gold reward drops','Priority member support'] },
   { id: 'platinum', name: 'Platinum', min: 15000, color: '#E2E2EE', rgb: '226,226,238', glowRgba: 'rgba(226,226,238,0.35)', tagline: 'VIP experiences. Dedicated access.', perks: ['Everything in Gold','VIP brand partner experiences','Dedicated account access'] },
-  { id: 'diamond', name: 'Diamond', min: 50000, color: '#B9F2FF', rgb: '185,242,255', glowRgba: 'rgba(185,242,255,0.55)', tagline: 'Founding status. Diamond drops.', perks: ['Everything in Platinum','Founding Diamond member status','Exclusive Diamond drops'] },
+  { id: 'diamond', name: 'Diamond', min: 50000, color: '#B9F2FF', rgb: '185,242,255', glowRgba: 'rgba(185,242,255,0.55)', tagline: 'Elite status. Diamond drops.', perks: ['Everything in Platinum','Diamond member status','Exclusive Diamond drops'] },
 ];
 
 interface CrescendoHeroProps {

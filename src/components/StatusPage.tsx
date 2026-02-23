@@ -508,7 +508,7 @@ export function StatusPage({ onBack }: StatusPageProps) {
                       {tier.level === 5 && (
                         <>
                           <WellnessItem text="Everything + priority access to new INSPIRATION partner rewards" />
-                          <p className="text-xs text-muted-foreground pl-6">+ founding recognition in the INSPIRATION ecosystem</p>
+                          <p className="text-xs text-muted-foreground pl-6">+ recognition in the INSPIRATION ecosystem</p>
                         </>
                       )}
                       <div

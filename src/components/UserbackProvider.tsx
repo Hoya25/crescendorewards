@@ -11,7 +11,7 @@ declare global {
 /**
  * Configures the Userback widget with NCTR branding and passes
  * authenticated user context so every feedback submission includes
- * who sent it, their tier, and founding status.
+ * who sent it, their tier, and early adopter status.
  */
 export function UserbackProvider() {
   const { user, isAuthenticated } = useAuthContext();

@@ -69,7 +69,7 @@ function getUnlockCards(tierName: string): UnlockCard[] {
     ],
     diamond: [
       { icon: <Gem className={iconClass} />, title: 'Diamond-exclusive Everything', description: 'Every reward in Crescendo is available to you' },
-      { icon: <Shield className={iconClass} />, title: 'Founding Circle Access', description: 'Join the inner circle shaping Crescendo\'s future' },
+      { icon: <Shield className={iconClass} />, title: 'Inner Circle Access', description: 'Join the inner circle shaping Crescendo\'s future' },
       { icon: <Crown className={iconClass} />, title: 'Maximum Governance Influence', description: 'The highest level of community leadership' },
     ],
   };
@@ -80,7 +80,7 @@ const NEXT_TIER_PREVIEWS: Record<string, string[]> = {
   bronze: ['Tier 2 Merch Bounties worth up to 1,500 NCTR', 'NCTR Sighting Bounty'],
   silver: ['Campaign Bounties worth up to 3,000 NCTR', 'VIP Opportunities'],
   gold: ['Platinum-exclusive Rewards', 'Priority Feature Access'],
-  platinum: ['Diamond-exclusive Everything', 'Founding Circle Access'],
+  platinum: ['Diamond-exclusive Everything', 'Inner Circle Access'],
 };
 
 export function TierUpgradeCelebration({
