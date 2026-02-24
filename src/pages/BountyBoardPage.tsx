@@ -5,6 +5,7 @@ import { useReferralStats } from '@/hooks/useReferralStats';
 import { usePurchaseMilestones } from '@/hooks/usePurchaseMilestones';
 import { useMerchMilestones } from '@/hooks/useMerchMilestones';
 import { BountyCardStatic, type StaticBounty } from '@/components/bounty/BountyCardStatic';
+import { HandleBountyCard } from '@/components/bounty/HandleBountyCard';
 import { ReferralBountyCard } from '@/components/bounty/ReferralBountyCard';
 import { StreakBountyCard } from '@/components/bounty/StreakBountyCard';
 import { SocialShareBountyCard } from '@/components/bounty/SocialShareBountyCard';
@@ -289,7 +290,9 @@ function BountyGridItem({
     }
   };
 
-  const card = bounty.isReferral ? (
+  const card = bounty.id === 'claim-handle' ? (
+    <HandleBountyCard />
+  ) : bounty.isReferral ? (
     <ReferralBountyCard bounty={bounty} referralCode={referralCode} referralCount={referralCount} />
   ) : bounty.isStreak ? (
     <StreakBountyCard bounty={bounty} />
@@ -445,15 +448,8 @@ export default function BountyBoardPage() {
     });
   }, [merchData]);
 
-  // Dynamically mark handle bounty as completed
-  const entryBounties = useMemo(() => {
-    return ENTRY_BOUNTIES.map(b => {
-      if (b.id === 'claim-handle' && profile?.handle) {
-        return { ...b, completed: true, completedLabel: `@${profile.handle} ✓` };
-      }
-      return b;
-    });
-  }, [profile?.handle]);
+  // Entry bounties — handle card renders its own gating via HandleBountyCard
+  const entryBounties = useMemo(() => ENTRY_BOUNTIES, []);
 
   const sections: BountySection[] = useMemo(() => [
     { title: 'Get Started', emoji: '🚀', bounties: entryBounties },
