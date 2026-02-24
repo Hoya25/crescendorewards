@@ -30,6 +30,7 @@ import { AdminContributors } from './AdminContributors';
 import { AdminContributedRewards } from './AdminContributedRewards';
 import { AdminBounties } from './AdminBounties';
 import { AdminUserActivity } from './AdminUserActivity';
+import { AdminHandleManagement } from './AdminHandleManagement';
 
 import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import AdminGifts from './AdminGifts';
@@ -105,6 +106,8 @@ export function AdminPanel() {
         return <AdminContributedRewards />;
       case 'bounties':
         return <AdminBounties />;
+      case 'handles':
+        return <AdminHandleManagement />;
       default:
         return <AdminDashboard onNavigate={setCurrentView} />;
     }

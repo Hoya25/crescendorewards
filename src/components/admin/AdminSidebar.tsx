@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Gift, ShoppingBag, Users, Settings, Store, FileCheck, Receipt, 
   Heart, TrendingUp, Building2, Megaphone, Shield, Activity, Package, MessageSquare, Star, 
-  Coins, Bell, ChevronDown, ChevronRight, Trophy, Handshake, Twitter, UserCircle, Library, Target
+  Coins, Bell, ChevronDown, ChevronRight, Trophy, Handshake, Twitter, UserCircle, Library, Target, AtSign
 } from 'lucide-react';
 import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 import { useAdminRole } from '@/hooks/useAdminRole';
@@ -98,6 +98,7 @@ const MENU_GROUPS: MenuGroup[] = [
     defaultOpen: false,
     items: [
       { title: 'Users', view: 'users', icon: Users, permission: 'users_view' },
+      { title: 'Handles', view: 'handles', icon: AtSign, permission: 'users_view' },
       { title: 'Notifications', view: 'user-notifications', icon: Bell, permission: 'users_view' },
       { title: 'Submissions', view: 'submissions', icon: FileCheck, badgeKey: 'submissions', permission: 'submissions_view' },
       { title: 'Sponsor Apps', view: 'sponsor-applications', icon: FileCheck, permission: 'sponsors_view' },
