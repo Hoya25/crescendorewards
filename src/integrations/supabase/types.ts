@@ -2090,6 +2090,47 @@ export type Database = {
           },
         ]
       }
+      reserved_handles: {
+        Row: {
+          category: string
+          created_at: string | null
+          created_by: string | null
+          expires_at: string | null
+          handle: string
+          id: string
+          reason: string | null
+          reserved_for: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          handle: string
+          id?: string
+          reason?: string | null
+          reserved_for?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          handle?: string
+          id?: string
+          reason?: string | null
+          reserved_for?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reserved_handles_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reward_featured_creators: {
         Row: {
           created_at: string
