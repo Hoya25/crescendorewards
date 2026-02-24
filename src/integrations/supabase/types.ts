@@ -1502,6 +1502,44 @@ export type Database = {
           },
         ]
       }
+      handle_history: {
+        Row: {
+          changed_at: string | null
+          id: string
+          new_handle: string
+          old_handle: string
+          reason: string
+          tier_at_change: string | null
+          user_id: string
+        }
+        Insert: {
+          changed_at?: string | null
+          id?: string
+          new_handle: string
+          old_handle: string
+          reason: string
+          tier_at_change?: string | null
+          user_id: string
+        }
+        Update: {
+          changed_at?: string | null
+          id?: string
+          new_handle?: string
+          old_handle?: string
+          reason?: string
+          tier_at_change?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "handle_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       member_active_benefits: {
         Row: {
           activated_at: string | null
