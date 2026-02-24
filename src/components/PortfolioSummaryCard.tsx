@@ -168,17 +168,17 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
   return (
     <Card className="border-primary/20 bg-gradient-to-br from-background to-primary/5">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Wallet className="w-5 h-5 text-primary" />
-            Your NCTR
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <CardTitle className="text-base sm:text-lg flex items-center gap-2 min-w-0">
+            <Wallet className="w-5 h-5 text-primary shrink-0" />
+            <span className="truncate">Your NCTR</span>
             <NCTRHelp />
           </CardTitle>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 shrink-0">
             {tier && (
               <Badge 
                 variant="outline" 
-                className="gap-1 px-3 py-1"
+                className="gap-1 px-2 sm:px-3 py-1 text-xs"
                 style={{ borderColor: tier.badge_color, color: tier.badge_color }}
               >
                 {tier.badge_emoji} {tier.display_name}
@@ -226,39 +226,38 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
         ) : (
           <>
             {/* Total Balance */}
-            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-              <span className="text-muted-foreground">Total NCTR</span>
-              <span className="text-2xl font-bold flex items-center gap-2">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 gap-2">
+              <span className="text-muted-foreground shrink-0 text-sm">Total NCTR</span>
+              <span className="text-xl sm:text-2xl font-bold flex items-center gap-2 min-w-0 truncate">
                 {(total360Locked + total90Locked + totalBalance).toLocaleString()}
-                <NCTRLogo className="w-5 h-5" />
+                <NCTRLogo className="w-5 h-5 shrink-0" />
               </span>
             </div>
 
             {/* Breakdown */}
-            <div className="grid grid-cols-3 gap-3">
-              <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="p-2 sm:p-3 rounded-lg bg-primary/10 border border-primary/20 min-w-0 overflow-hidden">
                 <div className="flex items-center gap-1 text-primary mb-1">
-                  <Lock className="w-3 h-3" />
-                  <span className="text-xs font-medium">360LOCK</span>
-                  <LockHelp />
+                  <Lock className="w-3 h-3 shrink-0" />
+                  <span className="text-[10px] sm:text-xs font-medium truncate">360LOCK</span>
                 </div>
-                <p className="font-semibold">{total360Locked.toLocaleString()}</p>
+                <p className="font-semibold text-sm sm:text-base truncate">{total360Locked.toLocaleString()}</p>
               </div>
               
-              <div className="p-3 rounded-lg bg-secondary/50 border border-secondary">
+              <div className="p-2 sm:p-3 rounded-lg bg-secondary/50 border border-secondary min-w-0 overflow-hidden">
                 <div className="flex items-center gap-1 text-secondary-foreground mb-1">
-                  <Lock className="w-3 h-3" />
-                  <span className="text-xs font-medium">90LOCK</span>
+                  <Lock className="w-3 h-3 shrink-0" />
+                  <span className="text-[10px] sm:text-xs font-medium truncate">90LOCK</span>
                 </div>
-                <p className="font-semibold">{total90Locked.toLocaleString()}</p>
+                <p className="font-semibold text-sm sm:text-base truncate">{total90Locked.toLocaleString()}</p>
               </div>
               
-              <div className="p-3 rounded-lg bg-accent/50 border border-accent">
+              <div className="p-2 sm:p-3 rounded-lg bg-accent/50 border border-accent min-w-0 overflow-hidden">
                 <div className="flex items-center gap-1 text-accent-foreground mb-1">
-                  <TrendingUp className="w-3 h-3" />
-                  <span className="text-xs font-medium">Available</span>
+                  <TrendingUp className="w-3 h-3 shrink-0" />
+                  <span className="text-[10px] sm:text-xs font-medium truncate">Available</span>
                 </div>
-                <p className="font-semibold">{(totalBalance + totalUnlocked).toLocaleString()}</p>
+                <p className="font-semibold text-sm sm:text-base truncate">{(totalBalance + totalUnlocked).toLocaleString()}</p>
               </div>
             </div>
 
