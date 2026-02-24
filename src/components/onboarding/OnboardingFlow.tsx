@@ -32,6 +32,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   const completeOnboarding = useCallback(async () => {
     localStorage.setItem(ONBOARDED_KEY, 'true');
+    localStorage.setItem('crescendo_onboarding_complete', 'true');
 
     if (profile) {
       try {

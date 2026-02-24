@@ -48,11 +48,30 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { showLockDecision, isOpen: isLockOpen } = useLockDecision();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  // Check if onboarding should be shown (localStorage flag)
+  // Check if onboarding should be shown — DB flag is primary, localStorage is fallback
   useEffect(() => {
-    if (profile && localStorage.getItem('crescendo_onboarded') !== 'true') {
-      setShowOnboarding(true);
+    if (!profile) return;
+
+    // If DB says completed, sync localStorage and skip
+    if (profile.has_completed_onboarding) {
+      localStorage.setItem('crescendo_onboarded', 'true');
+      localStorage.setItem('crescendo_onboarding_complete', 'true');
+      return;
     }
+
+    // If localStorage says completed (survives even if DB missed it), skip
+    if (localStorage.getItem('crescendo_onboarded') === 'true' || localStorage.getItem('crescendo_onboarding_complete') === 'true') {
+      return;
+    }
+
+    // Safety net: if user has any transaction history or signup bonus, treat as returning user
+    const hasActivity = profile.signup_bonus_awarded || (profile.crescendo_data as any)?.available_nctr > 0;
+    if (hasActivity) {
+      localStorage.setItem('crescendo_onboarded', 'true');
+      return;
+    }
+
+    setShowOnboarding(true);
   }, [profile]);
 
   // When NCTR earning is detected, show the lock decision modal instead of the old celebration

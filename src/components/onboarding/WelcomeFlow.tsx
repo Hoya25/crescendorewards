@@ -50,8 +50,20 @@ export function WelcomeFlow({ isOpen, onClose }: WelcomeFlowProps) {
 
   const totalSteps = 4;
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
     localStorage.setItem(ONBOARDED_KEY, "true");
+    localStorage.setItem("crescendo_onboarded", "true");
+    // Persist to DB so it survives browser clears
+    if (profile?.id) {
+      try {
+        await supabase
+          .from("unified_profiles")
+          .update({ has_completed_onboarding: true })
+          .eq("id", profile.id);
+      } catch (e) {
+        console.error("Failed to persist onboarding skip:", e);
+      }
+    }
     onClose();
   };
 
@@ -75,6 +87,7 @@ export function WelcomeFlow({ isOpen, onClose }: WelcomeFlowProps) {
 
   const handleComplete = async () => {
     localStorage.setItem(ONBOARDED_KEY, "true");
+    localStorage.setItem("crescendo_onboarded", "true");
 
     // Award bonuses (best effort)
     if (profile?.id) {

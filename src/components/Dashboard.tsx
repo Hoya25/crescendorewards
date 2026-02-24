@@ -78,10 +78,28 @@ export function Dashboard() {
   }, [profile]);
 
   useEffect(() => {
-    if (!hasBeenOnboarded() && !showReferredModal) {
+    if (!profile) return;
+
+    // DB flag is primary
+    if (profile.has_completed_onboarding) {
+      localStorage.setItem('crescendo_onboarding_complete', 'true');
+      return;
+    }
+
+    // localStorage fallback
+    if (hasBeenOnboarded()) return;
+
+    // Safety net: returning user with activity
+    const crescendoData = profile.crescendo_data as any;
+    if (crescendoData?.available_nctr > 0 || profile.signup_bonus_awarded) {
+      localStorage.setItem('crescendo_onboarding_complete', 'true');
+      return;
+    }
+
+    if (!showReferredModal) {
       setShowWelcomeModal(true);
     }
-  }, [showReferredModal]);
+  }, [showReferredModal, profile]);
 
   const handleWelcomeClose = () => {
     setShowWelcomeModal(false);

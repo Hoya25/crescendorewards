@@ -45,6 +45,8 @@ export interface UnifiedProfile {
   handle: string | null;
   current_tier_id: string | null;
   tier_calculated_at: string | null;
+  has_completed_onboarding: boolean | null;
+  signup_bonus_awarded: boolean | null;
   garden_data: Record<string, any>;
   crescendo_data: {
     claims_balance?: number;
