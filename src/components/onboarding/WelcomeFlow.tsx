@@ -336,5 +336,8 @@ export function WelcomeFlow({ isOpen, onClose }: WelcomeFlowProps) {
 }
 
 export function hasBeenOnboarded(): boolean {
-  return localStorage.getItem(ONBOARDED_KEY) === "true";
+  return (
+    localStorage.getItem(ONBOARDED_KEY) === "true" ||
+    localStorage.getItem("crescendo_onboarded") === "true"
+  );
 }

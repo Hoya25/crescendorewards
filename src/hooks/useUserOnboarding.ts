@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/lib/supabase";
-import { useAuthContext } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 import { toast } from "sonner";
 
 interface OnboardingProgress {
@@ -41,14 +41,17 @@ const NCTR_REWARDS = {
 };
 
 export function useUserOnboarding() {
-  const { user } = useAuthContext();
+  // Use unified profile ID (the one user_onboarding FK references)
+  const { profile } = useUnifiedUser();
+  const unifiedId = profile?.id;
+
   const [progress, setProgress] = useState<OnboardingProgress | null>(null);
   const [loading, setLoading] = useState(true);
   const [isNewUser, setIsNewUser] = useState(false);
 
   // Fetch or create onboarding progress
   const fetchProgress = useCallback(async () => {
-    if (!user?.id) {
+    if (!unifiedId) {
       setLoading(false);
       return;
     }
@@ -58,7 +61,7 @@ export function useUserOnboarding() {
       const { data, error } = await supabase
         .from('user_onboarding')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', unifiedId)
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
@@ -88,7 +91,7 @@ export function useUserOnboarding() {
         // Create new record - use upsert to handle race conditions
         const { data: newData, error: insertError } = await supabase
           .from('user_onboarding')
-          .upsert({ user_id: user.id }, { onConflict: 'user_id' })
+          .upsert({ user_id: unifiedId }, { onConflict: 'user_id' })
           .select()
           .single();
 
@@ -97,7 +100,7 @@ export function useUserOnboarding() {
           const { data: retryData } = await supabase
             .from('user_onboarding')
             .select('*')
-            .eq('user_id', user.id)
+            .eq('user_id', unifiedId)
             .maybeSingle();
           
           if (retryData) {
@@ -116,7 +119,7 @@ export function useUserOnboarding() {
     } finally {
       setLoading(false);
     }
-  }, [user?.id]);
+  }, [unifiedId]);
 
   useEffect(() => {
     fetchProgress();
@@ -127,7 +130,7 @@ export function useUserOnboarding() {
     itemId: keyof typeof NCTR_REWARDS,
     skipToast = false
   ) => {
-    if (!user?.id || !progress) return;
+    if (!unifiedId || !profile?.auth_user_id || !progress) return;
 
     // Check if already completed
     if (progress[itemId]) return;
@@ -136,7 +139,7 @@ export function useUserOnboarding() {
     const nctrReward = NCTR_REWARDS[itemId];
 
     try {
-      // Update onboarding progress
+      // Update onboarding progress using unified profile ID
       const { error: updateError } = await supabase
         .from('user_onboarding')
         .update({
@@ -144,18 +147,19 @@ export function useUserOnboarding() {
           [timestampField]: new Date().toISOString(),
           onboarding_nctr_awarded: (progress.onboarding_nctr_awarded || 0) + nctrReward,
         })
-        .eq('user_id', user.id);
+        .eq('user_id', unifiedId);
 
       if (updateError) {
         console.error('Error updating onboarding:', updateError);
         return;
       }
 
-      // Award NCTR to user's available balance
+      // Award NCTR to user's available balance (profiles uses auth user ID)
+      const authUserId = profile.auth_user_id;
       const { data: profileData } = await supabase
         .from('profiles')
         .select('available_nctr')
-        .eq('id', user.id)
+        .eq('id', authUserId)
         .single();
 
       if (profileData) {
@@ -164,7 +168,7 @@ export function useUserOnboarding() {
           .update({
             available_nctr: (profileData.available_nctr || 0) + nctrReward,
           })
-          .eq('id', user.id);
+          .eq('id', authUserId);
       }
 
       // Update local state
@@ -192,23 +196,23 @@ export function useUserOnboarding() {
     } catch (err) {
       console.error('Error completing onboarding item:', err);
     }
-  }, [user?.id, progress]);
+  }, [unifiedId, profile?.auth_user_id, progress]);
 
   // Dismiss the onboarding checklist
   const dismissOnboarding = useCallback(async () => {
-    if (!user?.id) return;
+    if (!unifiedId) return;
 
     try {
       await supabase
         .from('user_onboarding')
         .update({ is_dismissed: true })
-        .eq('user_id', user.id);
+        .eq('user_id', unifiedId);
 
       setProgress(prev => prev ? { ...prev, is_dismissed: true } : null);
     } catch (err) {
       console.error('Error dismissing onboarding:', err);
     }
-  }, [user?.id]);
+  }, [unifiedId]);
 
   // Get checklist items with completion status
   const checklistItems: OnboardingItem[] = progress ? [
