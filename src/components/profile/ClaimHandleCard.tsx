@@ -401,7 +401,7 @@ export function ClaimHandleCard() {
             <Progress value={progressPercent} className="h-2" />
           </div>
           <p className="text-xs text-muted-foreground">
-            Lock {Math.max(0, BRONZE_REQUIREMENT - Math.floor(total360Locked))} more NCTR to reach Bronze and unlock your permanent @handle identity.
+            Lock {Math.max(0, BRONZE_REQUIREMENT - Math.floor(total360Locked))} more NCTR to reach Bronze and unlock your custom @kroma
           </p>
           <Button variant="outline" className="w-full text-sm" onClick={() => navigate('/membership')}>
             <Lock className="h-4 w-4 mr-2" />
