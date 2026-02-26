@@ -567,15 +567,17 @@ export default function BountyBoardPage() {
               return (
                 <button key={cat.key}
                   onClick={() => { setActiveTab(cat.key); setExpandedId(null); }}
-                  className="relative flex items-center gap-1.5 px-3 py-2 text-sm font-semibold shrink-0 transition-colors"
+                  className="relative flex items-center gap-1.5 px-3 py-2 text-sm font-semibold shrink-0 transition-colors group"
                   style={{
-                    color: isActive ? (tokens.dark ? '#E2FF6D' : '#323232') : tokens.textMuted,
+                    color: isActive ? (tokens.dark ? '#E2FF6D' : '#323232') : (tokens.dark ? '#D9D9D9' : tokens.textMuted),
                     background: isActive ? tokens.tabActiveBg : 'transparent',
                     borderRadius: '8px 8px 0 0',
-                  }}>
+                  }}
+                  onMouseEnter={e => { if (!isActive && tokens.dark) (e.currentTarget as HTMLElement).style.color = '#FFFFFF'; }}
+                  onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.color = tokens.dark ? '#D9D9D9' : tokens.textMuted; }}>
                   {cat.label}
                   <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold"
-                    style={{ background: isActive ? tokens.tabCountBg : tokens.tabCountInactiveBg, color: isActive ? (tokens.dark ? '#E2FF6D' : '#323232') : tokens.textMuted }}>
+                    style={{ background: isActive ? tokens.tabCountBg : (tokens.dark ? 'rgba(255,255,255,0.08)' : tokens.tabCountInactiveBg), color: isActive ? (tokens.dark ? '#E2FF6D' : '#323232') : (tokens.dark ? '#D9D9D9' : tokens.textMuted) }}>
                     {categoryCounts[cat.key]}
                   </span>
                   {isActive && (
