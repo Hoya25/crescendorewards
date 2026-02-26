@@ -1,9 +1,10 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import {
   Zap, Trophy, Flame, Diamond, ChevronDown, ChevronUp,
   ShoppingCart, Users, Share2, Heart, Check, ExternalLink,
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { toast } from 'sonner';
 
 // ── TYPES ────────────────────────────────────────────────────────────
 
@@ -129,7 +130,7 @@ function ProgressRing({ percent }: { percent: number }) {
 }
 
 // ── BOUNTY CARD ──────────────────────────────────────────────────────
-function BountyCard({ bounty, expanded, onToggle }: { bounty: MockBounty; expanded: boolean; onToggle: () => void }) {
+function BountyCard({ bounty, expanded, onToggle, onClaim }: { bounty: MockBounty; expanded: boolean; onToggle: () => void; onClaim: (bounty: MockBounty) => void }) {
   const isCompleted = bounty.status === 'completed';
   const isClaimReady = bounty.status === 'claim_ready';
   const isInProgress = bounty.status === 'in_progress';
@@ -311,7 +312,8 @@ function BountyCard({ bounty, expanded, onToggle }: { bounty: MockBounty; expand
             )}
             {/* CTA */}
             {isClaimReady && (
-              <button className="w-full py-2.5 rounded-xl text-sm font-extrabold transition-transform hover:scale-[1.03]"
+              <button className="w-full py-2.5 rounded-xl text-sm font-extrabold transition-transform active:scale-[0.97]"
+                onClick={(e) => { e.stopPropagation(); onClaim(bounty); }}
                 style={{ background: '#E2FF6D', color: '#323232', boxShadow: '0 0 16px rgba(226,255,109,0.3)' }}>
                 Claim {bounty.nctrAmount.toLocaleString()} NCTR
               </button>
@@ -348,16 +350,91 @@ export default function BountyBoardPage() {
   const [activeTab, setActiveTab] = useState<Category>('shopping');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [bountyData, setBountyData] = useState<Record<Category, MockBounty[]>>(() => ({
+    shopping: [...SHOPPING_BOUNTIES],
+    referral: [...REFERRAL_BOUNTIES],
+    social: [...SOCIAL_BOUNTIES],
+    engagement: [...ENGAGEMENT_BOUNTIES],
+  }));
+  const [balance, setBalance] = useState(MOCK_STATS.balance);
+  const [completedCount, setCompletedCount] = useState(MOCK_STATS.completed);
+  const [history, setHistory] = useState([...COMPLETED_HISTORY]);
   const tabsRef = useRef<HTMLDivElement>(null);
+  const claimBtnRef = useRef<HTMLButtonElement>(null);
 
-  const bounties = ALL_BOUNTIES[activeTab];
-  const completionPercent = Math.round((MOCK_STATS.completed / MOCK_STATS.total) * 100);
+  const bounties = bountyData[activeTab];
+  const totalBounties = Object.values(bountyData).reduce((s, l) => s + l.length, 0);
+  const completionPercent = Math.round((completedCount / totalBounties) * 100);
 
   const categoryCounts = useMemo(() => {
     const counts: Record<Category, number> = { shopping: 0, referral: 0, social: 0, engagement: 0 };
-    for (const [cat, list] of Object.entries(ALL_BOUNTIES)) counts[cat as Category] = list.length;
+    for (const [cat, list] of Object.entries(bountyData)) counts[cat as Category] = list.length;
     return counts;
+  }, [bountyData]);
+
+  // Claim a single bounty
+  const claimBounty = useCallback((bounty: MockBounty) => {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+    // Update bounty status across all categories
+    setBountyData(prev => {
+      const updated = { ...prev };
+      for (const cat of Object.keys(updated) as Category[]) {
+        updated[cat] = updated[cat].map(b =>
+          b.id === bounty.id ? { ...b, status: 'completed' as BountyStatus, completedDate: dateStr } : b
+        );
+      }
+      return updated;
+    });
+
+    setBalance(prev => prev + bounty.nctrAmount);
+    setCompletedCount(prev => prev + 1);
+    setHistory(prev => [{ emoji: bounty.emoji, title: bounty.title, date: dateStr, amount: bounty.nctrAmount }, ...prev]);
+
+    toast.success(`🎉 ${bounty.nctrAmount.toLocaleString()} NCTR Claimed!`, {
+      style: { background: '#323232', color: '#E2FF6D', border: '1px solid rgba(226,255,109,0.3)', boxShadow: '0 0 12px rgba(226,255,109,0.15)' },
+      duration: 2500,
+    });
   }, []);
+
+  // Claim all claim_ready bounties (bottom bar)
+  const claimAll = useCallback(() => {
+    const allClaimReady: MockBounty[] = [];
+    for (const list of Object.values(bountyData)) {
+      for (const b of list) {
+        if (b.status === 'claim_ready') allClaimReady.push(b);
+      }
+    }
+
+    if (allClaimReady.length === 0) {
+      toast('No rewards ready to claim yet', {
+        style: { background: '#323232', color: '#5A5A58', border: '1px solid rgba(255,255,255,0.1)' },
+        duration: 2500,
+      });
+    } else {
+      const totalAmount = allClaimReady.reduce((s, b) => s + b.nctrAmount, 0);
+      allClaimReady.forEach(b => claimBounty(b));
+      // The individual claimBounty calls handle balance/history; show a summary toast
+    }
+
+    // Click animation
+    if (claimBtnRef.current) {
+      claimBtnRef.current.style.transform = 'scale(0.97)';
+      setTimeout(() => { if (claimBtnRef.current) claimBtnRef.current.style.transform = 'scale(1)'; }, 150);
+    }
+  }, [bountyData, claimBounty]);
+
+  // Find next claimable amount for bottom bar
+  const nextClaimAmount = useMemo(() => {
+    let total = 0;
+    for (const list of Object.values(bountyData)) {
+      for (const b of list) {
+        if (b.status === 'claim_ready') total += b.nctrAmount;
+      }
+    }
+    return total;
+  }, [bountyData]);
 
   const handleToggle = (id: string) => setExpandedId(prev => (prev === id ? null : id));
 
@@ -381,8 +458,8 @@ export default function BountyBoardPage() {
           {/* Stats row */}
           <div className="flex items-center gap-0 overflow-x-auto no-scrollbar py-2 -mx-4 px-4">
             {[
-              { icon: <Zap className="w-3.5 h-3.5" style={{ color: '#E2FF6D' }} />, value: MOCK_STATS.balance.toLocaleString(), label: 'Your NCTR', color: '#E2FF6D' },
-              { icon: <Trophy className="w-3.5 h-3.5 text-white" />, value: `${MOCK_STATS.completed}/${MOCK_STATS.total}`, label: 'Completed', color: '#fff' },
+              { icon: <Zap className="w-3.5 h-3.5" style={{ color: '#E2FF6D' }} />, value: balance.toLocaleString(), label: 'Your NCTR', color: '#E2FF6D' },
+              { icon: <Trophy className="w-3.5 h-3.5 text-white" />, value: `${completedCount}/${totalBounties}`, label: 'Completed', color: '#fff' },
               { icon: <Flame className="w-3.5 h-3.5" style={{ color: MOCK_STATS.streak > 0 ? '#E2FF6D' : '#5A5A58' }} />, value: String(MOCK_STATS.streak), label: 'Day Streak', color: MOCK_STATS.streak > 0 ? '#E2FF6D' : '#5A5A58' },
               { icon: <Diamond className="w-3.5 h-3.5" style={{ color: TIER_COLORS[MOCK_STATS.tier] }} />, value: MOCK_STATS.tier, label: 'Tier', color: TIER_COLORS[MOCK_STATS.tier] },
             ].map((stat, i) => (
@@ -430,7 +507,7 @@ export default function BountyBoardPage() {
           {bounties.map((b, i) => (
             <div key={b.id} className={`${b.isWide ? 'col-span-full' : ''} animate-fade-in`}
               style={{ animationDelay: `${i * 0.06}s`, animationFillMode: 'both' }}>
-              <BountyCard bounty={b} expanded={expandedId === b.id} onToggle={() => handleToggle(b.id)} />
+              <BountyCard bounty={b} expanded={expandedId === b.id} onToggle={() => handleToggle(b.id)} onClaim={claimBounty} />
             </div>
           ))}
         </div>
@@ -458,7 +535,7 @@ export default function BountyBoardPage() {
               style={{ background: 'rgba(50,50,50,0.6)', border: '1px solid rgba(226,255,109,0.1)' }}>
               <div>
                 <h3 className="text-sm font-bold text-white">Your Bounty History</h3>
-                <p className="text-[11px]" style={{ color: '#5A5A58' }}>{COMPLETED_HISTORY.length} completed bounties</p>
+                <p className="text-[11px]" style={{ color: '#5A5A58' }}>{history.length} completed bounties</p>
               </div>
               <div className="transition-transform duration-200" style={{ transform: historyOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                 <ChevronDown className="w-5 h-5" style={{ color: '#5A5A58' }} />
@@ -467,9 +544,9 @@ export default function BountyBoardPage() {
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className="mt-2 rounded-xl overflow-hidden" style={{ background: 'rgba(50,50,50,0.4)', border: '1px solid rgba(226,255,109,0.08)' }}>
-              {COMPLETED_HISTORY.map((item, i) => (
+              {history.map((item, i) => (
                 <div key={i} className="flex items-center gap-3 px-4 py-3 animate-fade-in"
-                  style={{ borderBottom: i < COMPLETED_HISTORY.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', animationDelay: `${i * 0.08}s` }}>
+                  style={{ borderBottom: i < history.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', animationDelay: `${i * 0.08}s` }}>
                   <span className="text-base">{item.emoji}</span>
                   <div className="flex-1 min-w-0">
                     <span className="text-xs font-semibold text-white">{item.title}</span>
@@ -500,15 +577,16 @@ export default function BountyBoardPage() {
               <Zap className="w-4 h-4" style={{ color: '#E2FF6D' }} />
             </div>
             <div>
-              <span className="text-sm font-bold" style={{ color: '#E2FF6D', fontFamily: "'DM Mono', monospace" }}>{MOCK_STATS.balance.toLocaleString()} NCTR</span>
+              <span className="text-sm font-bold" style={{ color: '#E2FF6D', fontFamily: "'DM Mono', monospace" }}>{balance.toLocaleString()} NCTR</span>
               <p className="text-[9px] uppercase" style={{ color: '#5A5A58' }}>Your Balance</p>
             </div>
           </div>
           <div className="text-center hidden sm:block">
             <p className="text-[9px] uppercase" style={{ color: '#5A5A58' }}>Next reward</p>
-            <p className="text-xs font-bold text-white">625 NCTR ready</p>
+            <p className="text-xs font-bold text-white">{nextClaimAmount > 0 ? `${nextClaimAmount.toLocaleString()} NCTR ready` : 'Keep earning!'}</p>
           </div>
-          <button className="px-5 py-2.5 rounded-[14px] text-sm font-extrabold transition-all hover:scale-[1.03]"
+          <button ref={claimBtnRef} onClick={claimAll}
+            className="px-5 py-2.5 rounded-[14px] text-sm font-extrabold transition-all hover:scale-[1.03]"
             style={{ background: '#E2FF6D', color: '#323232', boxShadow: '0 0 12px rgba(226,255,109,0.3)' }}>
             Claim Now
           </button>
