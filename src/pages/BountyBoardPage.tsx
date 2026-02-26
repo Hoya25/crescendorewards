@@ -102,7 +102,7 @@ function useTokens() {
     pageBg: dark ? '#323232' : '#F5F5F0',
     headerBg: dark ? 'rgba(50, 50, 50, 0.88)' : 'rgba(245, 245, 240, 0.88)',
     headerBorder: dark ? 'none' : '1px solid #D9D9D9',
-    bottomBarBg: dark ? 'rgba(50, 50, 50, 0.92)' : 'rgba(245, 245, 240, 0.92)',
+    bottomBarBg: dark ? 'rgba(50, 50, 50, 0.92)' : 'rgba(255, 255, 255, 0.92)',
     bottomBarBorder: dark ? '1px solid rgba(226,255,109,0.1)' : '1px solid #D9D9D9',
     cardBg: dark ? 'rgba(50, 50, 50, 0.6)' : '#FFFFFF',
     cardBorder: dark ? '1px solid rgba(226,255,109,0.15)' : '1px solid #D9D9D9',
@@ -125,31 +125,36 @@ function useTokens() {
     ctaHoverBg: dark ? '#C8FF3C' : '#5A5A58',
     // Claim Now button
     claimBg: dark ? '#E2FF6D' : '#323232',
-    claimText: dark ? '#323232' : '#E2FF6D',
+    claimText: dark ? '#323232' : '#FFFFFF',
     claimShadow: dark ? '0 0 12px rgba(226,255,109,0.3)' : '0 1px 4px rgba(0,0,0,0.12)',
     // Difficulty badges
     diffEasy: dark
       ? { bg: 'rgba(226, 255, 109, 0.2)', color: '#E2FF6D' }
-      : { bg: 'rgba(50, 50, 50, 0.08)', color: '#323232' },
+      : { bg: 'rgba(50, 50, 50, 0.1)', color: '#323232' },
     diffMedium: dark
       ? { bg: 'rgba(250, 204, 21, 0.2)', color: '#FACC15' }
-      : { bg: 'rgba(250, 204, 21, 0.15)', color: '#B8860B' },
+      : { bg: 'rgba(180, 130, 0, 0.12)', color: '#8B6914' },
     diffHard: dark
       ? { bg: 'rgba(255, 68, 68, 0.2)', color: '#FF4444' }
-      : { bg: 'rgba(255, 68, 68, 0.12)', color: '#CC0000' },
+      : { bg: 'rgba(200, 0, 0, 0.1)', color: '#CC0000' },
     // Progress bar
     progressTrack: dark ? 'rgba(255,255,255,0.07)' : '#D9D9D9',
+    progressFill: dark ? 'linear-gradient(90deg, #E2FF6D, #C8FF3C)' : 'linear-gradient(90deg, #323232, #5A5A58)',
+    progressGlow: dark ? '0 0 8px rgba(226,255,109,0.5)' : 'none',
     progressRingTrack: dark ? 'rgba(255,255,255,0.08)' : '#D9D9D9',
     // Emoji icon box
     iconBoxBg: dark ? 'rgba(42,42,42,1)' : 'rgba(0,0,0,0.04)',
     iconBoxBorder: dark ? '1px solid rgba(255,255,255,0.10)' : '1px solid #D9D9D9',
-    iconBoxCompletedBg: dark ? 'rgba(226,255,109,0.12)' : 'rgba(226,255,109,0.12)',
-    iconBoxCompletedBorder: dark ? '1px solid rgba(226,255,109,0.2)' : '1px solid rgba(226,255,109,0.3)',
+    iconBoxCompletedBg: dark ? 'rgba(226,255,109,0.12)' : 'rgba(50,50,50,0.06)',
+    iconBoxCompletedBorder: dark ? '1px solid rgba(226,255,109,0.2)' : '1px solid #D9D9D9',
     // Misc
     divider: dark ? 'rgba(255,255,255,0.10)' : '#D9D9D9',
     tabActiveBg: dark ? 'rgba(226,255,109,0.06)' : 'rgba(50,50,50,0.06)',
-    tabCountBg: dark ? 'rgba(226,255,109,0.15)' : 'rgba(50,50,50,0.08)',
+    tabActiveColor: dark ? '#E2FF6D' : '#323232',
+    tabCountBg: dark ? 'rgba(226,255,109,0.15)' : 'rgba(50,50,50,0.12)',
     tabCountInactiveBg: dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+    tabUnderline: dark ? '#E2FF6D' : '#323232',
+    tabUnderlineShadow: dark ? '0 0 6px rgba(226,255,109,0.5)' : 'none',
     historyRowBorder: dark ? '1px solid rgba(255,255,255,0.04)' : '1px solid #D9D9D9',
     specialNoteBg: dark ? 'rgba(30,30,30,1)' : 'rgba(0,0,0,0.03)',
     specialNoteBorder: dark ? '1px solid rgba(255,255,255,0.06)' : '1px solid #D9D9D9',
@@ -159,21 +164,26 @@ function useTokens() {
     streakBannerBg: dark ? 'rgba(50,50,50,0.6)' : '#FFFFFF',
     streakBannerBorder: dark ? '1px solid rgba(255, 150, 50, 0.15)' : '1px solid #D9D9D9',
     streakTextColor: dark ? '#E2FF6D' : '#323232',
-    streakNumberColor: dark ? '#E2FF6D' : '#E2FF6D',
+    streakNumberColor: dark ? '#E2FF6D' : '#323232',
     footerBrandColor: dark ? '#E2FF6D' : '#323232',
-    badgeLimeBg: dark ? 'rgba(226,255,109,0.12)' : 'rgba(226,255,109,0.15)',
-    badgeLimeColor: dark ? '#E2FF6D' : '#5A8A00',
-    claimReadyBadgeBg: dark ? 'rgba(226,255,109,0.2)' : 'rgba(226,255,109,0.2)',
-    claimReadyBadgeColor: dark ? '#E2FF6D' : '#5A8A00',
-    completedBadgeBg: dark ? 'rgba(226,255,109,0.15)' : 'rgba(50,50,50,0.08)',
+    badgeLimeBg: dark ? 'rgba(226,255,109,0.12)' : 'rgba(50,50,50,0.08)',
+    badgeLimeColor: dark ? '#E2FF6D' : '#323232',
+    claimReadyBadgeBg: dark ? 'rgba(226,255,109,0.2)' : 'rgba(50,50,50,0.1)',
+    claimReadyBadgeColor: dark ? '#E2FF6D' : '#323232',
+    completedBadgeBg: dark ? 'rgba(226,255,109,0.15)' : 'rgba(50,50,50,0.1)',
     completedBadgeColor: dark ? '#E2FF6D' : '#323232',
-    inProgressBadgeBg: dark ? 'rgba(250,204,21,0.12)' : 'rgba(250,204,21,0.15)',
-    inProgressBadgeColor: dark ? '#FACC15' : '#B8860B',
+    inProgressBadgeBg: dark ? 'rgba(250,204,21,0.12)' : 'rgba(180,130,0,0.1)',
+    inProgressBadgeColor: dark ? '#FACC15' : '#8B6914',
     weekDotEmpty: dark ? 'rgba(255,255,255,0.07)' : '#D9D9D9',
+    weekDotFilled: dark ? '#E2FF6D' : '#323232',
+    weekDotGlow: dark ? '0 0 6px rgba(226,255,109,0.4)' : 'none',
     streakDayEmptyBg: dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
-    streakDayFilledBg: dark ? 'rgba(226,255,109,0.12)' : 'rgba(226,255,109,0.15)',
-    streakDayFilledColor: dark ? '#E2FF6D' : '#5A8A00',
-    checkCircleBg: dark ? '#E2FF6D' : '#E2FF6D',
+    streakDayFilledBg: dark ? 'rgba(226,255,109,0.12)' : 'rgba(50,50,50,0.08)',
+    streakDayFilledColor: dark ? '#E2FF6D' : '#323232',
+    checkCircleBg: dark ? '#E2FF6D' : '#323232',
+    checkCircleBorder: dark ? '1.5px solid #E2FF6D' : '1.5px solid #323232',
+    historyAmountColor: dark ? '#E2FF6D' : '#323232',
+    statIconColor: dark ? '#E2FF6D' : '#323232',
   }), [dark]);
 }
 
@@ -342,8 +352,8 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
                 <div className="h-full rounded-full transition-all duration-1000 ease-out"
                   style={{
                     width: `${((bounty.progressCurrent || 0) / bounty.progressTarget) * 100}%`,
-                    background: 'linear-gradient(90deg, #E2FF6D, #C8FF3C)',
-                    boxShadow: '0 0 8px rgba(226,255,109,0.5)',
+                    background: tokens.progressFill,
+                    boxShadow: tokens.progressGlow,
                   }} />
               </div>
             </div>
@@ -353,8 +363,8 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
             <div className="flex gap-2 mt-2.5">
               {bounty.weekDots.map((filled, i) => (
                 <div key={i} className="w-6 h-2 rounded-full" style={{
-                  background: filled ? '#E2FF6D' : tokens.weekDotEmpty,
-                  boxShadow: filled ? '0 0 6px rgba(226,255,109,0.4)' : 'none',
+                  background: filled ? tokens.weekDotFilled : tokens.weekDotEmpty,
+                  boxShadow: filled ? tokens.weekDotGlow : 'none',
                 }} />
               ))}
             </div>
@@ -385,11 +395,11 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
 
           {isCompleted && bounty.completedDate && (
             <div className="flex items-center gap-1.5 mt-2.5">
-              <div className="w-[18px] h-[18px] rounded-full flex items-center justify-center" style={{ background: tokens.checkCircleBg, border: '1.5px solid #E2FF6D' }}>
-                <Check className="w-3 h-3" style={{ color: '#323232' }} />
+              <div className="w-[18px] h-[18px] rounded-full flex items-center justify-center" style={{ background: tokens.checkCircleBg, border: tokens.checkCircleBorder }}>
+                <Check className="w-3 h-3" style={{ color: tokens.dark ? '#323232' : '#FFFFFF' }} />
               </div>
               <span className="text-[11px] font-medium bg-clip-text text-transparent animate-shimmer"
-                style={{ backgroundImage: tokens.dark ? 'linear-gradient(90deg, #E2FF6D 0%, #fff 50%, #E2FF6D 100%)' : 'linear-gradient(90deg, #5A8A00 0%, #323232 50%, #5A8A00 100%)', backgroundSize: '200% 100%' }}>
+                style={{ backgroundImage: tokens.dark ? 'linear-gradient(90deg, #E2FF6D 0%, #fff 50%, #E2FF6D 100%)' : 'linear-gradient(90deg, #323232 0%, #5A5A58 50%, #323232 100%)', backgroundSize: '200% 100%' }}>
                 Completed — {bounty.completedDate}
               </span>
             </div>
@@ -409,7 +419,7 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
             {isClaimReady && (
               <button className="w-full py-2.5 rounded-xl text-sm font-extrabold transition-transform active:scale-[0.97]"
                 onClick={(e) => { e.stopPropagation(); onClaim(bounty); }}
-                style={{ background: tokens.ctaBg, color: tokens.dark ? '#323232' : '#E2FF6D', boxShadow: tokens.dark ? '0 0 16px rgba(226,255,109,0.3)' : '0 1px 4px rgba(0,0,0,0.12)' }}>
+                style={{ background: tokens.ctaBg, color: tokens.ctaText, boxShadow: tokens.dark ? '0 0 16px rgba(226,255,109,0.3)' : '0 1px 4px rgba(0,0,0,0.12)' }}>
                 Claim {bounty.nctrAmount.toLocaleString()} NCTR
               </button>
             )}
@@ -543,9 +553,9 @@ export default function BountyBoardPage() {
 
           <div className="flex items-center gap-0 overflow-x-auto no-scrollbar py-2 -mx-4 px-4">
             {[
-              { icon: <Zap className="w-3.5 h-3.5" style={{ color: tokens.dark ? '#E2FF6D' : '#5A8A00' }} />, value: balance.toLocaleString(), label: 'Your NCTR', color: tokens.dark ? '#E2FF6D' : '#323232' },
+              { icon: <Zap className="w-3.5 h-3.5" style={{ color: tokens.statIconColor }} />, value: balance.toLocaleString(), label: 'Your NCTR', color: tokens.amountColor },
               { icon: <Trophy className="w-3.5 h-3.5" style={{ color: tokens.textPrimary }} />, value: `${completedCount}/${totalBounties}`, label: 'Completed', color: tokens.textPrimary },
-              { icon: <Flame className="w-3.5 h-3.5" style={{ color: MOCK_STATS.streak > 0 ? (tokens.dark ? '#E2FF6D' : '#5A8A00') : tokens.textMuted }} />, value: String(MOCK_STATS.streak), label: 'Day Streak', color: MOCK_STATS.streak > 0 ? (tokens.dark ? '#E2FF6D' : '#5A8A00') : tokens.textMuted },
+              { icon: <Flame className="w-3.5 h-3.5" style={{ color: MOCK_STATS.streak > 0 ? tokens.statIconColor : tokens.textMuted }} />, value: String(MOCK_STATS.streak), label: 'Day Streak', color: MOCK_STATS.streak > 0 ? tokens.amountColor : tokens.textMuted },
               { icon: <Diamond className="w-3.5 h-3.5" style={{ color: TIER_COLORS[MOCK_STATS.tier] }} />, value: MOCK_STATS.tier, label: 'Tier', color: TIER_COLORS[MOCK_STATS.tier] },
             ].map((stat, i) => (
               <div key={i} className="flex items-center gap-0">
@@ -569,7 +579,7 @@ export default function BountyBoardPage() {
                   onClick={() => { setActiveTab(cat.key); setExpandedId(null); }}
                   className="relative flex items-center gap-1.5 px-3 py-2 text-sm font-semibold shrink-0 transition-colors group"
                   style={{
-                    color: isActive ? (tokens.dark ? '#E2FF6D' : '#323232') : (tokens.dark ? '#D9D9D9' : tokens.textMuted),
+                    color: isActive ? tokens.tabActiveColor : (tokens.dark ? '#D9D9D9' : tokens.textMuted),
                     background: isActive ? tokens.tabActiveBg : 'transparent',
                     borderRadius: '8px 8px 0 0',
                   }}
@@ -577,12 +587,12 @@ export default function BountyBoardPage() {
                   onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.color = tokens.dark ? '#D9D9D9' : tokens.textMuted; }}>
                   {cat.label}
                   <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold"
-                    style={{ background: isActive ? tokens.tabCountBg : (tokens.dark ? 'rgba(255,255,255,0.08)' : tokens.tabCountInactiveBg), color: isActive ? (tokens.dark ? '#E2FF6D' : '#323232') : (tokens.dark ? '#D9D9D9' : tokens.textMuted) }}>
+                    style={{ background: isActive ? tokens.tabCountBg : (tokens.dark ? 'rgba(255,255,255,0.08)' : tokens.tabCountInactiveBg), color: isActive ? tokens.tabActiveColor : (tokens.dark ? '#D9D9D9' : tokens.textMuted) }}>
                     {categoryCounts[cat.key]}
                   </span>
                   {isActive && (
                     <div className="absolute bottom-0 left-[15%] right-[15%] h-[2.5px] rounded-full"
-                      style={{ background: '#E2FF6D', boxShadow: '0 0 6px rgba(226,255,109,0.5)' }} />
+                      style={{ background: tokens.tabUnderline, boxShadow: tokens.tabUnderlineShadow }} />
                   )}
                 </button>
               );
@@ -642,7 +652,7 @@ export default function BountyBoardPage() {
                     <span className="text-xs font-semibold" style={{ color: tokens.textPrimary }}>{item.title}</span>
                     <span className="text-[10px] ml-2" style={{ color: tokens.textMuted }}>{item.date}</span>
                   </div>
-                  <span className="text-xs font-bold shrink-0" style={{ color: tokens.dark ? '#E2FF6D' : '#5A8A00', fontFamily: "'DM Mono', monospace" }}>
+                  <span className="text-xs font-bold shrink-0" style={{ color: tokens.historyAmountColor, fontFamily: "'DM Mono', monospace" }}>
                     +{item.amount.toLocaleString()} NCTR
                   </span>
                 </div>
@@ -663,11 +673,11 @@ export default function BountyBoardPage() {
       <div className="fixed bottom-0 left-0 right-0 z-50 transition-colors duration-300" style={{ background: tokens.bottomBarBg, backdropFilter: 'blur(20px)', borderTop: tokens.bottomBarBorder }}>
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: tokens.dark ? 'rgba(226,255,109,0.1)' : 'rgba(226,255,109,0.12)' }}>
-              <Zap className="w-4 h-4" style={{ color: '#E2FF6D' }} />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: tokens.dark ? 'rgba(226,255,109,0.1)' : 'rgba(50,50,50,0.08)' }}>
+              <Zap className="w-4 h-4" style={{ color: tokens.statIconColor }} />
             </div>
             <div>
-              <span className="text-sm font-bold" style={{ color: tokens.dark ? '#E2FF6D' : '#323232', fontFamily: "'DM Mono', monospace" }}>{balance.toLocaleString()} NCTR</span>
+              <span className="text-sm font-bold" style={{ color: tokens.amountColor, fontFamily: "'DM Mono', monospace" }}>{balance.toLocaleString()} NCTR</span>
               <p className="text-[9px] uppercase" style={{ color: tokens.textMuted }}>Your Balance</p>
             </div>
           </div>
