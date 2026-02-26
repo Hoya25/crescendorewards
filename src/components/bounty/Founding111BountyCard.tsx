@@ -32,11 +32,11 @@ export function Founding111BountyCard({ bounty }: { bounty: StaticBounty }) {
           </div>
           <div className="rounded-lg bg-muted/50 p-3 text-center">
             <span className="text-sm font-bold text-muted-foreground">
-              CLOSED — Founding 111 is full
+              CLOSED — Early Adopter period ended
             </span>
           </div>
           <Progress value={100} className="h-1.5 [&>div]:bg-muted-foreground" />
-          <p className="text-xs text-muted-foreground text-center">111/111 Founding 111 spots claimed</p>
+          <p className="text-xs text-muted-foreground text-center">Early Adopter period closed</p>
         </CardContent>
       </Card>
     );
@@ -62,7 +62,7 @@ export function Founding111BountyCard({ bounty }: { bounty: StaticBounty }) {
               className="ml-auto text-xs font-black border-0 px-3 py-1"
               style={{ backgroundColor: '#E2FF6D', color: '#323232' }}
             >
-              ⚡ Founding 111 #{myStatus?.founding_number}
+              ⚡ Early Adopter #{myStatus?.founding_number}
             </Badge>
           </div>
           <div className="rounded-lg p-3 text-center" style={{ backgroundColor: '#E2FF6D10' }}>
@@ -105,7 +105,7 @@ export function Founding111BountyCard({ bounty }: { bounty: StaticBounty }) {
         {/* Status-specific content */}
         {isAuthenticated && status === 'candidate' && (
           <div className="rounded-lg bg-muted/50 p-3 space-y-2">
-            <p className="text-xs font-semibold text-foreground">Your path to Founding 111:</p>
+            <p className="text-xs font-semibold text-foreground">Your path to Early Adopter:</p>
             <div className="space-y-1.5">
               <ChecklistItem
                 checked={myStatus?.has_purchase || false}
@@ -123,7 +123,7 @@ export function Founding111BountyCard({ bounty }: { bounty: StaticBounty }) {
           <div className="rounded-lg p-3 text-center" style={{ backgroundColor: '#E2FF6D10' }}>
             <Sparkles className="h-4 w-4 mx-auto mb-1" style={{ color: '#E2FF6D' }} />
             <p className="text-sm font-semibold text-foreground">
-              You've qualified! Your Founding 111 status is being verified. ✨
+              You've qualified! Your Early Adopter status is being verified. ✨
             </p>
           </div>
         )}
@@ -175,7 +175,7 @@ function LiveCounter({ count, loading }: { count: number; loading: boolean }) {
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>Founding 111</span>
+        <span>Early Adopters</span>
         <span className="font-medium">{loading ? '...' : count}/111</span>
       </div>
       <Progress
@@ -184,7 +184,7 @@ function LiveCounter({ count, loading }: { count: number; loading: boolean }) {
         style={{ ['--progress-color' as string]: '#E2FF6D' }}
       />
       <p className="text-xs font-semibold text-center" style={{ color: '#E2FF6D' }}>
-        {Math.max(0, 111 - count)} spots remaining
+        {Math.max(0, 111 - count)} spots available
       </p>
     </div>
   );

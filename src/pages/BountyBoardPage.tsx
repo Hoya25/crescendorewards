@@ -33,6 +33,7 @@ interface MockBounty {
   specialGlow?: boolean;
   specialNote?: string;
   resetsLabel?: string;
+  tag?: string;
 }
 
 // ── MOCK DATA ────────────────────────────────────────────────────────
@@ -64,7 +65,7 @@ const SOCIAL_BOUNTIES: MockBounty[] = [
 
 const ENGAGEMENT_BOUNTIES: MockBounty[] = [
   { id: 'e1', emoji: '👋', title: 'Welcome Aboard', description: 'Create your Crescendo account', nctrAmount: 625, difficulty: 'easy', category: 'engagement', status: 'completed', completedDate: 'Jan 15, 2026' },
-  { id: 'e2', emoji: '🏛️', title: 'Founding 111', description: 'Be among the first 111 members to join AND make a purchase', nctrAmount: 1250, difficulty: 'medium', category: 'engagement', status: 'in_progress', progressCurrent: 47, progressTarget: 111, isWide: true, specialGlow: true, specialNote: '64 spots remaining' },
+  { id: 'e2', emoji: '⭐', title: 'Early Adopter Bonus', description: 'Joined during our launch period? Extra NCTR for being here early.', nctrAmount: 1250, difficulty: 'easy', category: 'engagement', status: 'completed', completedDate: 'Jan 15, 2026', tag: 'LIMITED TIME' },
   { id: 'e3', emoji: '🔒', title: 'First Commit', description: 'Make your first 90LOCK commitment', nctrAmount: 500, difficulty: 'medium', category: 'engagement', status: 'completed', completedDate: 'Jan 28, 2026' },
   { id: 'e4', emoji: '⬆️', title: 'Level Up', description: 'Upgrade from 90LOCK to 360LOCK', nctrAmount: 500, difficulty: 'hard', category: 'engagement', status: 'not_started' },
   { id: 'e5', emoji: '🔥', title: 'Daily Check-in', description: 'Visit Crescendo 7 days in a row', nctrAmount: 500, difficulty: 'medium', category: 'engagement', status: 'in_progress', progressCurrent: 5, progressTarget: 7, streakDays: [true, true, true, true, true, false, false] },
@@ -193,6 +194,12 @@ function BountyCard({ bounty, expanded, onToggle }: { bounty: MockBounty; expand
                 Earns more bounties
               </span>
             )}
+            {bounty.tag && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                style={{ background: 'rgba(226,255,109,0.2)', color: '#E2FF6D' }}>
+                {bounty.tag}
+              </span>
+            )}
             {bounty.capLabel && <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: '#5A5A58' }}>{bounty.capLabel}</span>}
             {bounty.resetsLabel && <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: '#5A5A58' }}>{bounty.resetsLabel}</span>}
 
@@ -300,13 +307,6 @@ function BountyCard({ bounty, expanded, onToggle }: { bounty: MockBounty; expand
             {bounty.specialNote && !bounty.progressTarget && (
               <div className="rounded-lg p-3" style={{ background: 'rgba(30,30,30,1)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <p className="text-[11px]" style={{ color: '#5A5A58' }}>{bounty.specialNote}</p>
-              </div>
-            )}
-            {bounty.id === 'e2' && (
-              <div className="rounded-lg p-3" style={{ background: 'rgba(30,30,30,1)', border: '1px solid rgba(226,255,109,0.1)' }}>
-                <p className="text-[11px] leading-relaxed" style={{ color: '#D9D9D9' }}>
-                  Sign up AND make your first purchase to claim your Founding spot. Early Adopters earn 5X referral rewards for the first 6 months. Once 111 spots fill, this closes forever.
-                </p>
               </div>
             )}
             {/* CTA */}
