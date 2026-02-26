@@ -54,6 +54,7 @@ interface BountyRow {
   instructions: string | null;
   completion_message: string | null;
   created_at: string | null;
+  status: 'active' | 'paused' | 'hidden';
 }
 
 interface ClaimRow {
@@ -93,6 +94,7 @@ const EMPTY_FORM: Partial<BountyRow> = {
   cta_text: 'Claim This Bounty',
   instructions: null,
   completion_message: null,
+  status: 'active',
 };
 
 const DIFFICULTY_COLORS: Record<string, string> = {
@@ -140,6 +142,9 @@ export function AdminBounties() {
   const [claimFilterStatus, setClaimFilterStatus] = useState('all');
   const [claimSearch, setClaimSearch] = useState('');
 
+  // Inline NCTR editing
+  const [editingNctrId, setEditingNctrId] = useState<string | null>(null);
+  const [editingNctrValue, setEditingNctrValue] = useState('');
   // ── Queries ──
   const { data: bounties = [], isLoading: loadingBounties } = useQuery({
     queryKey: ['admin-bounties'],
@@ -167,10 +172,12 @@ export function AdminBounties() {
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     return {
-      activeBounties: bounties.filter(b => b.is_active).length,
+      activeBounties: bounties.filter(b => b.status === 'active').length,
       claimsThisWeek: claims.filter(c => c.created_at && new Date(c.created_at) >= weekAgo).length,
       pendingClaims: claims.filter(c => c.status === 'pending').length,
       totalNctr: claims.filter(c => c.status === 'completed' || c.status === 'approved').reduce((s, c) => s + (c.nctr_earned || 0), 0),
+      pausedBounties: bounties.filter(b => b.status === 'paused').length,
+      hiddenBounties: bounties.filter(b => b.status === 'hidden').length,
     };
   }, [bounties, claims]);
 
@@ -181,7 +188,7 @@ export function AdminBounties() {
     if (filterDifficulty !== 'all') list = list.filter(b => b.difficulty === filterDifficulty);
     if (filterTier !== 'all') list = list.filter(b => b.bounty_tier === filterTier);
     if (filterStatus !== 'all') list = list.filter(b => (b.min_status_required || '') === (filterStatus === 'none' ? '' : filterStatus));
-    if (filterActive !== 'all') list = list.filter(b => b.is_active === (filterActive === 'active'));
+    if (filterActive !== 'all') list = list.filter(b => b.status === filterActive);
     list.sort((a, b) => {
       const dir = sortDir === 'asc' ? 1 : -1;
       if (sortBy === 'title') return dir * a.title.localeCompare(b.title);
@@ -222,12 +229,25 @@ export function AdminBounties() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const toggleActive = useMutation({
-    mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
-      const { error } = await supabase.from('bounties').update({ is_active: active } as any).eq('id', id);
+  const updateBountyStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: 'active' | 'paused' | 'hidden' }) => {
+      const { error } = await supabase.from('bounties').update({ status, is_active: status === 'active' } as any).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-bounties'] }),
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const inlineUpdateNctr = useMutation({
+    mutationFn: async ({ id, nctr_reward }: { id: string; nctr_reward: number }) => {
+      const { error } = await supabase.from('bounties').update({ nctr_reward } as any).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-bounties'] });
+      toast.success('NCTR amount updated');
+      setEditingNctrId(null);
+    },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -353,7 +373,8 @@ export function AdminBounties() {
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="paused">Paused</SelectItem>
+                <SelectItem value="hidden">Hidden</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -364,13 +385,12 @@ export function AdminBounties() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="cursor-pointer" onClick={() => toggleSort('title')}>Title {sortBy === 'title' && (sortDir === 'asc' ? '↑' : '↓')}</TableHead>
-                  <TableHead>Difficulty</TableHead>
+                  <TableHead>Category</TableHead>
                   <TableHead className="cursor-pointer" onClick={() => toggleSort('nctr_reward')}>NCTR {sortBy === 'nctr_reward' && (sortDir === 'asc' ? '↑' : '↓')}</TableHead>
-                  <TableHead>Multiplier</TableHead>
-                  <TableHead>Status Req</TableHead>
-                  <TableHead>Tier</TableHead>
+                  <TableHead>Difficulty</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Recurring</TableHead>
                   <TableHead className="cursor-pointer" onClick={() => toggleSort('total_completions')}>Claims {sortBy === 'total_completions' && (sortDir === 'asc' ? '↑' : '↓')}</TableHead>
-                  <TableHead>Active</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -378,33 +398,66 @@ export function AdminBounties() {
                 {loadingBounties ? (
                   <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">Loading…</TableCell></TableRow>
                 ) : filteredBounties.length === 0 ? (
-                  <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">No bounties found</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">No bounties found</TableCell></TableRow>
                 ) : filteredBounties.map(b => (
-                  <TableRow key={b.id}>
+                  <TableRow key={b.id} className={b.status === 'hidden' ? 'opacity-40' : b.status === 'paused' ? 'opacity-70' : ''}>
                     <TableCell>
                       <button onClick={() => openEdit(b)} className="text-left font-medium hover:text-primary transition-colors">
                         {b.image_emoji && <span className="mr-1">{b.image_emoji}</span>}
                         {b.title}
                       </button>
                     </TableCell>
+                    <TableCell className="text-xs capitalize">{b.category}</TableCell>
+                    <TableCell>
+                      {editingNctrId === b.id ? (
+                        <Input
+                          type="number"
+                          className="w-24 h-7 text-xs font-mono"
+                          value={editingNctrValue}
+                          onChange={e => setEditingNctrValue(e.target.value)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') {
+                              inlineUpdateNctr.mutate({ id: b.id, nctr_reward: Number(editingNctrValue) });
+                            } else if (e.key === 'Escape') {
+                              setEditingNctrId(null);
+                            }
+                          }}
+                          onBlur={() => setEditingNctrId(null)}
+                          autoFocus
+                        />
+                      ) : (
+                        <button
+                          className="font-mono hover:text-primary transition-colors cursor-pointer"
+                          onClick={() => { setEditingNctrId(b.id); setEditingNctrValue(String(b.nctr_reward)); }}
+                        >
+                          {Number(b.nctr_reward).toLocaleString()}
+                        </button>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <Badge className={cn('text-xs', DIFFICULTY_COLORS[b.difficulty || 'medium'])}>
                         {b.difficulty || 'medium'}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-mono">{Number(b.nctr_reward).toLocaleString()}</TableCell>
-                    <TableCell className="font-mono">{b.requires_360lock ? `${b.lock_multiplier}x` : '—'}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className="text-xs">
-                        {STATUS_LABELS[b.min_status_required || ''] || 'All Members'}
-                      </Badge>
+                      <Select value={b.status || 'active'} onValueChange={(v: 'active' | 'paused' | 'hidden') => updateBountyStatus.mutate({ id: b.id, status: v })}>
+                        <SelectTrigger className={cn('w-[100px] h-7 text-xs font-semibold', {
+                          'text-green-500 border-green-500/30': b.status === 'active',
+                          'text-yellow-500 border-yellow-500/30': b.status === 'paused',
+                          'text-red-500 border-red-500/30': b.status === 'hidden',
+                        })}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="paused">Paused</SelectItem>
+                          <SelectItem value="hidden">Hidden</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </TableCell>
-                    <TableCell className="text-xs">{TIER_LABELS[b.bounty_tier || 'general'] || b.bounty_tier}</TableCell>
+                    <TableCell className="text-xs">{b.is_recurring ? 'Yes' : 'No'}</TableCell>
                     <TableCell>
                       {b.total_completions || 0}{b.max_completions ? ` / ${b.max_completions}` : ''}
-                    </TableCell>
-                    <TableCell>
-                      <Switch checked={!!b.is_active} onCheckedChange={v => toggleActive.mutate({ id: b.id, active: v })} />
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
@@ -615,9 +668,16 @@ export function AdminBounties() {
               <Label>Completion Message</Label>
               <Textarea value={formData.completion_message || ''} onChange={e => setFormData(p => ({ ...p, completion_message: e.target.value || null }))} rows={2} />
             </div>
-            <div className="flex items-center gap-3">
-              <Switch checked={!!formData.is_active} onCheckedChange={v => setFormData(p => ({ ...p, is_active: v }))} />
-              <Label>Active</Label>
+            <div className="grid gap-2">
+              <Label>Visibility Status</Label>
+              <Select value={formData.status || 'active'} onValueChange={(v: 'active' | 'paused' | 'hidden') => setFormData(p => ({ ...p, status: v, is_active: v === 'active' }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active — visible on Bounty Board</SelectItem>
+                  <SelectItem value="paused">Paused — hidden from board, data preserved</SelectItem>
+                  <SelectItem value="hidden">Hidden — completely removed from board</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>

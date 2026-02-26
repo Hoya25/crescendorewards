@@ -562,6 +562,7 @@ export type Database = {
           recurrence_period: string | null
           requires_360lock: boolean | null
           requires_purchase: boolean | null
+          status: Database["public"]["Enums"]["bounty_status"]
           title: string
           total_completions: number | null
           updated_at: string | null
@@ -594,6 +595,7 @@ export type Database = {
           recurrence_period?: string | null
           requires_360lock?: boolean | null
           requires_purchase?: boolean | null
+          status?: Database["public"]["Enums"]["bounty_status"]
           title: string
           total_completions?: number | null
           updated_at?: string | null
@@ -626,6 +628,7 @@ export type Database = {
           recurrence_period?: string | null
           requires_360lock?: boolean | null
           requires_purchase?: boolean | null
+          status?: Database["public"]["Enums"]["bounty_status"]
           title?: string
           total_completions?: number | null
           updated_at?: string | null
@@ -4357,6 +4360,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      bounty_status: "active" | "paused" | "hidden"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4485,6 +4489,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      bounty_status: ["active", "paused", "hidden"],
     },
   },
 } as const
