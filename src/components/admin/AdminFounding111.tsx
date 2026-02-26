@@ -35,7 +35,7 @@ export function AdminFounding111() {
     try {
       const result = await approveMutation.mutateAsync(candidate.id);
       if (result.success) {
-        toast.success(`Approved as Founding 111 #${result.founding_number}`);
+        toast.success(`Approved as Early Adopter #${result.founding_number}`);
         // Send approval email via edge function
         try {
           await supabase.functions.invoke('founding-111-email', {
@@ -87,7 +87,7 @@ export function AdminFounding111() {
             <Star className="h-5 w-5" style={{ color: '#E2FF6D' }} />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-foreground">Founding 111 — Member Approval</h2>
+            <h2 className="text-xl font-bold text-foreground">Early Adopter — Member Approval</h2>
             <p className="text-sm text-muted-foreground">Review and approve qualified candidates</p>
           </div>
         </div>
