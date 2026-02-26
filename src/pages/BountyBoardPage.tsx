@@ -111,7 +111,7 @@ function useTokens() {
     cardCompletedBg: dark
       ? 'radial-gradient(ellipse at top left, rgba(226,255,109,0.06), rgba(50,50,50,0.6) 60%)'
       : '#FFFFFF',
-    cardClaimBorder: dark ? '1px solid rgba(226,255,109,0.3)' : '1px solid #E2FF6D',
+    cardClaimBorder: dark ? '1px solid rgba(226,255,109,0.3)' : '1px solid #323232',
     textPrimary: dark ? '#FFFFFF' : '#323232',
     textSecondary: '#5A5A58',
     textMuted: '#5A5A58',
@@ -250,13 +250,13 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
   const cardStyle: React.CSSProperties = {
     background: isCompleted ? tokens.cardCompletedBg : tokens.cardBg,
     border: isClaimReady ? tokens.cardClaimBorder
-      : bounty.specialGlow ? (tokens.dark ? '1px solid rgba(226,255,109,0.4)' : '1px solid #E2FF6D')
+      : bounty.specialGlow ? (tokens.dark ? '1px solid rgba(226,255,109,0.4)' : '1px solid #323232')
       : tokens.cardBorder,
     backdropFilter: tokens.dark ? 'blur(10px)' : 'none',
     boxShadow: isClaimReady
-      ? (tokens.dark ? '0 0 0 1px rgba(226,255,109,0.15)' : '0 0 0 1px rgba(226,255,109,0.2), 0 1px 3px rgba(0,0,0,0.08)')
+      ? (tokens.dark ? '0 0 0 1px rgba(226,255,109,0.15)' : '0 0 0 1px rgba(50,50,50,0.2), 0 1px 3px rgba(0,0,0,0.08)')
       : bounty.specialGlow
-      ? (tokens.dark ? '0 0 16px rgba(226,255,109,0.12), 0 0 0 1px rgba(226,255,109,0.2)' : '0 0 8px rgba(226,255,109,0.1), 0 1px 3px rgba(0,0,0,0.08)')
+      ? (tokens.dark ? '0 0 16px rgba(226,255,109,0.12), 0 0 0 1px rgba(226,255,109,0.2)' : '0 0 8px rgba(50,50,50,0.08), 0 1px 3px rgba(0,0,0,0.08)')
       : tokens.cardShadow,
     fontFamily: "'DM Sans', sans-serif",
   };
@@ -269,8 +269,8 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
       style={cardStyle}
       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = tokens.cardBorderHover; }}
       onMouseLeave={e => {
-        const border = isClaimReady ? (tokens.dark ? 'rgba(226,255,109,0.3)' : '#E2FF6D')
-          : bounty.specialGlow ? (tokens.dark ? 'rgba(226,255,109,0.4)' : '#E2FF6D')
+        const border = isClaimReady ? (tokens.dark ? 'rgba(226,255,109,0.3)' : '#323232')
+          : bounty.specialGlow ? (tokens.dark ? 'rgba(226,255,109,0.4)' : '#323232')
           : (tokens.dark ? 'rgba(226,255,109,0.15)' : '#D9D9D9');
         (e.currentTarget as HTMLElement).style.borderColor = border;
       }}
@@ -280,7 +280,7 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
         <div
           className="w-[42px] h-[42px] rounded-[11px] flex items-center justify-center shrink-0 text-xl"
           style={{
-            background: isCompleted ? tokens.iconBoxCompletedBg : isInProgress ? (tokens.dark ? 'rgba(226,255,109,0.08)' : 'rgba(226,255,109,0.06)') : tokens.iconBoxBg,
+            background: isCompleted ? tokens.iconBoxCompletedBg : isInProgress ? (tokens.dark ? 'rgba(226,255,109,0.08)' : 'rgba(50,50,50,0.06)') : tokens.iconBoxBg,
             border: isCompleted ? tokens.iconBoxCompletedBorder : tokens.iconBoxBorder,
           }}
         >
@@ -309,7 +309,7 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
             )}
             {bounty.tag && (
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                style={{ background: tokens.dark ? 'rgba(226,255,109,0.2)' : 'rgba(226,255,109,0.15)', color: tokens.badgeLimeColor }}>
+                style={{ background: tokens.dark ? 'rgba(226,255,109,0.2)' : 'rgba(50,50,50,0.1)', color: tokens.badgeLimeColor }}>
                 {bounty.tag}
               </span>
             )}
@@ -381,8 +381,8 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
                       style={{
                         background: filled ? tokens.streakDayFilledBg : tokens.streakDayEmptyBg,
                         color: filled ? tokens.streakDayFilledColor : tokens.textMuted,
-                        boxShadow: isToday ? '0 0 8px rgba(226,255,109,0.4)' : 'none',
-                        border: isToday ? '1px solid rgba(226,255,109,0.4)' : '1px solid transparent',
+                        boxShadow: isToday ? (tokens.dark ? '0 0 8px rgba(226,255,109,0.4)' : '0 0 6px rgba(50,50,50,0.2)') : 'none',
+                        border: isToday ? (tokens.dark ? '1px solid rgba(226,255,109,0.4)' : '1px solid #323232') : '1px solid transparent',
                       }}>
                       {label}
                     </div>
