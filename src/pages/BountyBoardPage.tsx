@@ -1,581 +1,527 @@
-import { Gift, Users, Share2, PenTool, Flame, Info, ShoppingBag, ShoppingCart, Trophy, Star, Shirt, X, AtSign } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
-import { useReferralStats } from '@/hooks/useReferralStats';
-import { usePurchaseMilestones } from '@/hooks/usePurchaseMilestones';
-import { useMerchMilestones } from '@/hooks/useMerchMilestones';
-import { BountyCardStatic, type StaticBounty } from '@/components/bounty/BountyCardStatic';
-import { HandleBountyCard } from '@/components/bounty/HandleBountyCard';
-import { ReferralBountyCard } from '@/components/bounty/ReferralBountyCard';
-import { StreakBountyCard } from '@/components/bounty/StreakBountyCard';
-import { SocialShareBountyCard } from '@/components/bounty/SocialShareBountyCard';
-import { BountyDetailModal, type BountyModalData } from '@/components/bounty/BountyDetailModal';
-import { BountyEarningsPanel } from '@/components/bounty/BountyEarningsPanel';
-import { useMemo, useState, useRef, useCallback } from 'react';
-// ── BOUNTY DEFINITIONS ──────────────────────────────────────────────
+import { useState, useMemo, useRef, useEffect } from 'react';
+import {
+  Zap, Trophy, Flame, Diamond, ChevronDown, ChevronUp,
+  ShoppingCart, Users, Share2, Heart, Check, ExternalLink,
+} from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
-const ENTRY_BOUNTIES: StaticBounty[] = [
-  {
-    id: 'signup-bonus',
-    title: 'Sign-up Bonus',
-    description: 'Automatically applied when you create your account. Welcome to Crescendo!',
-    nctrReward: 625,
-    icon: Gift,
-    frequency: 'One-time • Auto-applied',
-  },
-  {
-    id: 'early-adopter',
-    title: 'Early Adopter Bonus',
-    description: "Joined during our launch period? Extra NCTR for being here early.",
-    nctrReward: 1250,
-    icon: Star,
-    tag: 'LIMITED TIME',
-    frequency: 'One-time · Launch period only',
-  },
-  {
-    id: 'referred-welcome',
-    title: 'Referred Welcome',
-    description: "Joined through a friend's link? You get a bonus too. Everyone wins.",
-    nctrReward: 375,
-    icon: Users,
-    frequency: 'One-time • Auto-applied if referred',
-  },
-  {
-    id: 'claim-handle',
-    title: 'Claim Your @Handle',
-    description: 'Choose your permanent Crescendo identity.',
-    nctrReward: 250,
-    icon: AtSign,
-    tag: 'ONE-TIME',
-    frequency: 'One-time',
-  },
-];
+// ── TYPES ────────────────────────────────────────────────────────────
 
-const REVENUE_BOUNTIES: StaticBounty[] = [
-  {
-    id: 'first-purchase',
-    title: 'First Purchase',
-    description: 'Make any purchase to unlock this reward. Your first step into earning real NCTR.',
-    nctrReward: 2500,
-    icon: ShoppingBag,
-    frequency: 'One-time',
-    prominent: true,
-  },
-  {
-    id: 'every-purchase',
-    title: 'Every Purchase Drip',
-    description: 'Earn NCTR on every single purchase you make. The more you shop, the more you earn.',
-    nctrReward: 250,
-    icon: ShoppingCart,
-    frequency: 'Per purchase • Ongoing',
-    prominent: true,
-  },
-  {
-    id: '5th-purchase',
-    title: '5th Purchase Milestone',
-    description: 'Hit 5 purchases and unlock a major bonus. Consistency pays.',
-    nctrReward: 5000,
-    icon: Trophy,
-    frequency: 'One-time milestone',
-    prominent: true,
-    showProgress: true,
-    progressLabel: 'Purchases',
-    progressValue: 0,
-    progressMax: 5,
-  },
-  {
-    id: '10th-purchase',
-    title: '10th Purchase Milestone',
-    description: 'Reach 10 purchases for a massive reward. You\'re building something real.',
-    nctrReward: 10000,
-    icon: Trophy,
-    frequency: 'One-time milestone',
-    prominent: true,
-    showProgress: true,
-    progressLabel: 'Purchases',
-    progressValue: 0,
-    progressMax: 10,
-  },
-  {
-    id: '25th-purchase',
-    title: '25th Purchase Milestone',
-    description: 'The ultimate purchase milestone. 25 purchases earns you legend status.',
-    nctrReward: 25000,
-    icon: Trophy,
-    frequency: 'One-time milestone',
-    prominent: true,
-    showProgress: true,
-    progressLabel: 'Purchases',
-    progressValue: 0,
-    progressMax: 25,
-  },
-];
+type Difficulty = 'easy' | 'medium' | 'hard';
+type Category = 'shopping' | 'referral' | 'social' | 'engagement';
+type BountyStatus = 'completed' | 'in_progress' | 'claim_ready' | 'not_started' | 'recurring';
 
-const MERCH_BOUNTIES: StaticBounty[] = [
-  {
-    id: 'first-merch',
-    title: 'First Merch Purchase',
-    description: 'Buy your first piece of NCTR merch and earn 2× the standard purchase reward.',
-    nctrReward: 5000,
-    icon: Shirt,
-    frequency: 'One-time',
-    prominent: true,
-  },
-  {
-    id: 'every-merch',
-    title: 'Every Merch Purchase',
-    description: 'Every merch purchase earns 2× the standard drip. Rep the brand, earn the rewards.',
-    nctrReward: 500,
-    icon: Shirt,
-    frequency: 'Per merch purchase • Ongoing',
-  },
-];
-
-const REFERRAL_BOUNTIES: StaticBounty[] = [
-  {
-    id: 'referral-signup',
-    title: 'Referral Signs Up',
-    description: 'Share your link and earn NCTR when someone creates an account through it.',
-    nctrReward: 625,
-    icon: Users,
-    frequency: 'Per referral',
-    isReferral: true,
-  },
-  {
-    id: 'referral-first-purchase',
-    title: 'Referral First Purchase',
-    description: 'When your referral makes their first purchase, you earn a big bonus.',
-    nctrReward: 2500,
-    icon: Users,
-    frequency: 'Per referral',
-    isReferral: true,
-  },
-  {
-    id: 'referral-every-purchase',
-    title: 'Referral Every Purchase',
-    description: 'Earn on every purchase your referrals make. Early adopters earn 500, standard earn 100.',
-    nctrReward: 500,
-    icon: Users,
-    frequency: 'Per referral purchase',
-  },
-  {
-    id: 'referral-5-purchases',
-    title: 'Referral 5 Purchases',
-    description: 'When your referral hits 5 purchases, you unlock a milestone bonus.',
-    nctrReward: 2500,
-    icon: Trophy,
-    frequency: 'Per referral milestone',
-  },
-  {
-    id: 'referral-10-purchases',
-    title: 'Referral 10 Purchases',
-    description: 'When your referral hits 10 purchases, you earn big. Build your team.',
-    nctrReward: 5000,
-    icon: Trophy,
-    frequency: 'Per referral milestone',
-  },
-];
-
-const ENGAGEMENT_BOUNTIES: StaticBounty[] = [
-  {
-    id: 'weekly-checkin',
-    title: 'Weekly Check-in Streak',
-    description: 'Visit 7 days in a row to earn your streak bonus. Consistency is rewarded.',
-    nctrReward: 500,
-    icon: Flame,
-    frequency: 'Weekly',
-    isStreak: true,
-  },
-  {
-    id: 'social-share',
-    title: 'Social Share',
-    description: 'Share Crescendo on social media and earn NCTR. Up to 4 shares per month.',
-    nctrReward: 250,
-    icon: Share2,
-    frequency: 'Per share • Max 4/month',
-    isSocialShare: true,
-  },
-  {
-    id: 'content-creation',
-    title: 'Content Creation',
-    description: 'Create original content about Crescendo or NCTR. Earn NCTR for every approved post.',
-    nctrReward: 2000,
-    icon: PenTool,
-    frequency: 'Per approved post',
-  },
-];
-
-// ── SECTION CONFIG ──────────────────────────────────────────────────
-
-interface BountySection {
-  title: string;
+interface MockBounty {
+  id: string;
   emoji: string;
-  bounties: StaticBounty[];
+  title: string;
+  description: string;
+  nctrAmount: number;
+  nctrLabel?: string;
+  difficulty: Difficulty;
+  category: Category;
+  status: BountyStatus;
+  completedDate?: string;
+  progressCurrent?: number;
+  progressTarget?: number;
+  progressUnit?: string;
+  isWide?: boolean;
+  isViral?: boolean;
+  capLabel?: string;
+  streakDays?: boolean[];
+  weekDots?: boolean[];
+  specialGlow?: boolean;
+  specialNote?: string;
+  resetsLabel?: string;
 }
 
-// SECTIONS moved inside component to use dynamic revenueBounties
+// ── MOCK DATA ────────────────────────────────────────────────────────
 
-// ── 360LOCK EXPLAINER CARD ───────────────────────────────────────────
-function LockExplainerCard({ dismissed, onDismiss }: { dismissed: boolean; onDismiss: () => void }) {
-  if (dismissed) {
-    // Collapsed persistent version
-    return (
-      <div
-        className="col-span-full rounded-lg bg-card p-3 flex items-center gap-2"
-        style={{ borderLeft: '4px solid #E2FF6D' }}
-      >
-        <span className="text-sm">🔒</span>
-        <p className="text-xs font-medium text-muted-foreground">
-          360LOCK: Commit 360 days → 3x rewards
-        </p>
-      </div>
-    );
-  }
+const SHOPPING_BOUNTIES: MockBounty[] = [
+  { id: 's1', emoji: '🛒', title: 'First Purchase', description: 'Make any purchase through The Garden', nctrAmount: 2500, difficulty: 'easy', category: 'shopping', status: 'completed', completedDate: 'Feb 12, 2026' },
+  { id: 's2', emoji: '🧭', title: 'Brand Explorer', description: 'Shop from 3 different categories in The Garden', nctrAmount: 2500, difficulty: 'medium', category: 'shopping', status: 'in_progress', progressCurrent: 1, progressTarget: 3 },
+  { id: 's3', emoji: '📅', title: 'Weekly Shopper', description: 'Make a Garden purchase 3 weeks in a row', nctrAmount: 5000, difficulty: 'hard', category: 'shopping', status: 'not_started', progressCurrent: 0, progressTarget: 3, progressUnit: 'weeks', weekDots: [false, false, false], isWide: true },
+  { id: 's4', emoji: '🏅', title: '5th Purchase', description: 'Reach 5 total purchases', nctrAmount: 5000, difficulty: 'medium', category: 'shopping', status: 'not_started', progressCurrent: 0, progressTarget: 5 },
+  { id: 's5', emoji: '🏆', title: '10th Purchase', description: 'Reach 10 total purchases', nctrAmount: 10000, difficulty: 'hard', category: 'shopping', status: 'not_started', progressCurrent: 0, progressTarget: 10 },
+  { id: 's6', emoji: '👑', title: '25th Purchase', description: 'Reach 25 purchases, Legend status', nctrAmount: 25000, difficulty: 'hard', category: 'shopping', status: 'not_started', progressCurrent: 0, progressTarget: 25, isWide: true },
+  { id: 's7', emoji: '👕', title: 'Rep the Brand', description: 'Make your first NCTR merch purchase', nctrAmount: 5000, difficulty: 'easy', category: 'shopping', status: 'not_started' },
+  { id: 's8', emoji: '💧', title: 'Every Purchase Drip', description: 'Earn 250 NCTR on every Garden purchase', nctrAmount: 250, difficulty: 'easy', category: 'shopping', status: 'recurring' },
+];
 
+const REFERRAL_BOUNTIES: MockBounty[] = [
+  { id: 'r1', emoji: '🤝', title: 'Invite a Friend', description: 'Friend creates an account using your link', nctrAmount: 625, difficulty: 'easy', category: 'referral', status: 'claim_ready', isViral: true },
+  { id: 'r2', emoji: '💰', title: 'Revenue Referral', description: 'Friend makes their first purchase', nctrAmount: 2500, difficulty: 'medium', category: 'referral', status: 'in_progress', progressCurrent: 2, progressTarget: 5, isViral: true },
+  { id: 'r3', emoji: '🫂', title: 'Squad Builder', description: 'Refer 5 friends who all make purchases', nctrAmount: 2500, difficulty: 'hard', category: 'referral', status: 'in_progress', progressCurrent: 2, progressTarget: 5, isViral: true },
+  { id: 'r4', emoji: '💸', title: 'Referral Purchase Drip', description: 'Earn NCTR every time your referral shops', nctrAmount: 500, nctrLabel: '500 / 100 NCTR', difficulty: 'easy', category: 'referral', status: 'recurring', isViral: true, specialNote: '500 NCTR (Early Adopter) / 100 NCTR (standard)' },
+  { id: 'r5', emoji: '🎖️', title: 'Community Captain', description: 'Refer 10+ active members', nctrAmount: 5000, difficulty: 'hard', category: 'referral', status: 'in_progress', progressCurrent: 2, progressTarget: 10, isViral: true, isWide: true },
+];
+
+const SOCIAL_BOUNTIES: MockBounty[] = [
+  { id: 'so1', emoji: '📱', title: 'Follow NCTR', description: 'Follow @NCTRAlliance on X and Instagram', nctrAmount: 250, difficulty: 'easy', category: 'social', status: 'completed', completedDate: 'Feb 10, 2026' },
+  { id: 'so2', emoji: '📣', title: 'Share the Mission', description: 'Share a post about NCTR on any platform', nctrAmount: 250, difficulty: 'easy', category: 'social', status: 'not_started', capLabel: 'Cap: 4/month' },
+  { id: 'so3', emoji: '🎬', title: 'Content Creator', description: 'Create original content about the participation economy', nctrAmount: 2000, difficulty: 'medium', category: 'social', status: 'not_started', specialNote: 'Manual review required', isWide: true },
+];
+
+const ENGAGEMENT_BOUNTIES: MockBounty[] = [
+  { id: 'e1', emoji: '👋', title: 'Welcome Aboard', description: 'Create your Crescendo account', nctrAmount: 625, difficulty: 'easy', category: 'engagement', status: 'completed', completedDate: 'Jan 15, 2026' },
+  { id: 'e2', emoji: '🏛️', title: 'Founding 111', description: 'Be among the first 111 members to join AND make a purchase', nctrAmount: 1250, difficulty: 'medium', category: 'engagement', status: 'in_progress', progressCurrent: 47, progressTarget: 111, isWide: true, specialGlow: true, specialNote: '64 spots remaining' },
+  { id: 'e3', emoji: '🔒', title: 'First Commit', description: 'Make your first 90LOCK commitment', nctrAmount: 500, difficulty: 'medium', category: 'engagement', status: 'completed', completedDate: 'Jan 28, 2026' },
+  { id: 'e4', emoji: '⬆️', title: 'Level Up', description: 'Upgrade from 90LOCK to 360LOCK', nctrAmount: 500, difficulty: 'hard', category: 'engagement', status: 'not_started' },
+  { id: 'e5', emoji: '🔥', title: 'Daily Check-in', description: 'Visit Crescendo 7 days in a row', nctrAmount: 500, difficulty: 'medium', category: 'engagement', status: 'in_progress', progressCurrent: 5, progressTarget: 7, streakDays: [true, true, true, true, true, false, false] },
+  { id: 'e6', emoji: '🏅', title: 'Monthly Leaderboard', description: 'Finish in the Top 10 earners this month', nctrAmount: 5000, difficulty: 'hard', category: 'engagement', status: 'not_started', resetsLabel: 'Resets monthly' },
+];
+
+const ALL_BOUNTIES: Record<Category, MockBounty[]> = {
+  shopping: SHOPPING_BOUNTIES,
+  referral: REFERRAL_BOUNTIES,
+  social: SOCIAL_BOUNTIES,
+  engagement: ENGAGEMENT_BOUNTIES,
+};
+
+const CATEGORIES: { key: Category; label: string; icon: React.ElementType }[] = [
+  { key: 'shopping', label: 'Shopping', icon: ShoppingCart },
+  { key: 'referral', label: 'Referral', icon: Users },
+  { key: 'social', label: 'Social', icon: Share2 },
+  { key: 'engagement', label: 'Engagement', icon: Heart },
+];
+
+const COMPLETED_HISTORY = [
+  { emoji: '👋', title: 'Welcome Aboard', date: 'Jan 15, 2026', amount: 625 },
+  { emoji: '🔒', title: 'First Commit', date: 'Jan 28, 2026', amount: 500 },
+  { emoji: '📱', title: 'Follow NCTR', date: 'Feb 10, 2026', amount: 250 },
+  { emoji: '🛒', title: 'First Purchase', date: 'Feb 12, 2026', amount: 2500 },
+];
+
+// ── MOCK USER STATS ──────────────────────────────────────────────────
+const MOCK_STATS = { balance: 3875, completed: 4, total: 24, streak: 5, tier: 'Silver' as const };
+const TIER_COLORS: Record<string, string> = { Bronze: '#CD7F32', Silver: '#C0C0C0', Gold: '#FFD700', Platinum: '#E5E4E2', Diamond: '#B9F2FF' };
+
+// ── DIFFICULTY CONFIG ────────────────────────────────────────────────
+const DIFF_STYLES: Record<Difficulty, { bg: string; color: string }> = {
+  easy: { bg: 'rgba(226, 255, 109, 0.2)', color: '#E2FF6D' },
+  medium: { bg: 'rgba(250, 204, 21, 0.2)', color: '#FACC15' },
+  hard: { bg: 'rgba(255, 68, 68, 0.2)', color: '#FF4444' },
+};
+
+// ── PROGRESS RING ────────────────────────────────────────────────────
+function ProgressRing({ percent }: { percent: number }) {
+  const r = 18; const c = 2 * Math.PI * r;
+  const [offset, setOffset] = useState(c);
+  useEffect(() => {
+    const t = setTimeout(() => setOffset(c - (c * percent) / 100), 100);
+    return () => clearTimeout(t);
+  }, [percent, c]);
   return (
-    <div
-      className="col-span-full rounded-lg bg-card p-4 sm:px-5 relative"
-      style={{ borderLeft: '4px solid #E2FF6D' }}
-    >
-      <button
-        onClick={onDismiss}
-        className="absolute top-3 right-3 text-muted-foreground hover:text-foreground transition-colors"
-        aria-label="Dismiss"
-      >
-        <X className="w-4 h-4" />
-      </button>
-      <div className="flex items-start gap-2 mb-2">
-        <span className="text-lg leading-none mt-0.5">🔒</span>
-        <h3 className="text-[15px] font-bold text-foreground">Why 360LOCK?</h3>
+    <div className="relative w-11 h-11 shrink-0">
+      <svg viewBox="0 0 44 44" className="w-full h-full -rotate-90">
+        <circle cx="22" cy="22" r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="3" />
+        <circle cx="22" cy="22" r={r} fill="none" stroke="#E2FF6D" strokeWidth="3" strokeLinecap="round"
+          strokeDasharray={c} strokeDashoffset={offset}
+          style={{ transition: 'stroke-dashoffset 1.3s ease', filter: 'drop-shadow(0 0 4px rgba(226,255,109,0.5))' }} />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-[10px] font-bold leading-none" style={{ color: '#E2FF6D', fontFamily: "'DM Mono', monospace" }}>{percent}%</span>
+        <span className="text-[7px] uppercase" style={{ color: '#5A5A58' }}>Done</span>
       </div>
-      <p className="text-sm leading-relaxed mb-2" style={{ color: '#5A5A58' }}>
-        Every bounty reward can be amplified 3x by choosing 360LOCK — a 360-day commitment.
-        Your rewards stay yours. They just stay committed for 360 days. In return, you unlock
-        higher Crescendo status, premium rewards, and a stronger position in the ecosystem.
-        It's one decision that changes everything.
-      </p>
-      <p className="text-xs italic" style={{ color: '#D9D9D9' }}>
-        This same commitment principle applies to every participant in the ecosystem — members, brands, and partners alike.
-      </p>
     </div>
   );
 }
 
-// ── BOUNTY GRID ITEM (renders card + optional explainer) ────────────
-function BountyGridItem({
-  bounty,
-  referralCode,
-  referralCount,
-  showExplainer,
-  explainerDismissed,
-  onDismissExplainer,
-  onCardClick,
-}: {
-  bounty: StaticBounty;
-  referralCode: string;
-  referralCount: number;
-  showExplainer: boolean;
-  explainerDismissed: boolean;
-  onDismissExplainer: () => void;
-  onCardClick?: (bounty: StaticBounty) => void;
-}) {
-  const isInteractive = bounty.isReferral || bounty.isStreak || bounty.isSocialShare;
+// ── BOUNTY CARD ──────────────────────────────────────────────────────
+function BountyCard({ bounty, expanded, onToggle }: { bounty: MockBounty; expanded: boolean; onToggle: () => void }) {
+  const isCompleted = bounty.status === 'completed';
+  const isClaimReady = bounty.status === 'claim_ready';
+  const isInProgress = bounty.status === 'in_progress';
 
-  const handleClick = (e: React.MouseEvent) => {
-    // Don't intercept clicks on buttons/links inside interactive cards
-    const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('a')) return;
-    if (!isInteractive && onCardClick) {
-      onCardClick(bounty);
-    }
+  const cardStyle: React.CSSProperties = {
+    background: isCompleted
+      ? 'radial-gradient(ellipse at top left, rgba(226,255,109,0.06), rgba(50,50,50,0.6) 60%)'
+      : 'rgba(50, 50, 50, 0.6)',
+    border: isClaimReady
+      ? '1px solid rgba(226, 255, 109, 0.3)'
+      : bounty.specialGlow
+      ? '1px solid rgba(226, 255, 109, 0.4)'
+      : '1px solid rgba(226, 255, 109, 0.15)',
+    backdropFilter: 'blur(10px)',
+    boxShadow: isClaimReady
+      ? '0 0 0 1px rgba(226,255,109,0.15)'
+      : bounty.specialGlow
+      ? '0 0 16px rgba(226,255,109,0.12), 0 0 0 1px rgba(226,255,109,0.2)'
+      : 'none',
+    fontFamily: "'DM Sans', sans-serif",
   };
 
-  const card = bounty.id === 'claim-handle' ? (
-    <HandleBountyCard />
-  ) : bounty.isReferral ? (
-    <ReferralBountyCard bounty={bounty} referralCode={referralCode} referralCount={referralCount} />
-  ) : bounty.isStreak ? (
-    <StreakBountyCard bounty={bounty} />
-  ) : bounty.isSocialShare ? (
-    <SocialShareBountyCard bounty={bounty} />
-  ) : (
-    <BountyCardStatic bounty={bounty} />
-  );
+  const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
   return (
-    <>
-      {showExplainer && (
-        <LockExplainerCard dismissed={explainerDismissed} onDismiss={onDismissExplainer} />
+    <div
+      className={`rounded-xl cursor-pointer transition-all duration-300 hover:border-[rgba(226,255,109,0.4)] ${bounty.isWide ? 'col-span-full' : ''}`}
+      style={cardStyle}
+      onClick={onToggle}
+    >
+      <div className="p-4 flex items-start gap-3">
+        {/* Emoji icon box */}
+        <div
+          className="w-[42px] h-[42px] rounded-[11px] flex items-center justify-center shrink-0 text-xl"
+          style={{
+            background: isCompleted ? 'rgba(226,255,109,0.12)' : isInProgress ? 'rgba(226,255,109,0.08)' : 'rgba(42,42,42,1)',
+            border: isCompleted ? '1px solid rgba(226,255,109,0.2)' : '1px solid rgba(255,255,255,0.10)',
+          }}
+        >
+          {bounty.emoji}
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="font-bold text-sm text-white leading-tight">{bounty.title}</h3>
+            <span className="shrink-0 font-bold text-sm" style={{ color: '#E2FF6D', fontFamily: "'DM Mono', monospace" }}>
+              {bounty.nctrLabel || `${bounty.nctrAmount.toLocaleString()} NCTR`}
+            </span>
+          </div>
+          <p className="text-xs mt-0.5" style={{ color: '#5A5A58' }}>{bounty.description}</p>
+
+          {/* Badges row */}
+          <div className="flex flex-wrap items-center gap-1.5 mt-2">
+            <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full"
+              style={{ background: DIFF_STYLES[bounty.difficulty].bg, color: DIFF_STYLES[bounty.difficulty].color }}>
+              {bounty.difficulty}
+            </span>
+            {bounty.isViral && (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                style={{ background: 'rgba(226,255,109,0.12)', color: '#E2FF6D' }}>
+                Earns more bounties
+              </span>
+            )}
+            {bounty.capLabel && <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: '#5A5A58' }}>{bounty.capLabel}</span>}
+            {bounty.resetsLabel && <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.06)', color: '#5A5A58' }}>{bounty.resetsLabel}</span>}
+
+            {/* Status badge */}
+            {isCompleted && (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 ml-auto"
+                style={{ background: 'rgba(226,255,109,0.15)', color: '#E2FF6D' }}>
+                <Check className="w-3 h-3" /> Completed
+              </span>
+            )}
+            {isInProgress && (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full ml-auto"
+                style={{ background: 'rgba(250,204,21,0.12)', color: '#FACC15' }}>
+                In Progress
+              </span>
+            )}
+            {bounty.status === 'recurring' && (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full ml-auto"
+                style={{ background: 'rgba(226,255,109,0.12)', color: '#E2FF6D' }}>
+                Recurring
+              </span>
+            )}
+            {isClaimReady && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto animate-pulse"
+                style={{ background: 'rgba(226,255,109,0.2)', color: '#E2FF6D' }}>
+                Claim Ready!
+              </span>
+            )}
+          </div>
+
+          {/* Progress bar */}
+          {bounty.progressTarget && bounty.progressTarget > 0 && !bounty.streakDays && !bounty.weekDots && (
+            <div className="mt-2.5">
+              <div className="flex justify-between text-[10px] mb-1">
+                <span style={{ color: '#5A5A58' }}>{bounty.progressCurrent}/{bounty.progressTarget} {bounty.progressUnit || ''}</span>
+                {bounty.specialNote && <span style={{ color: '#E2FF6D' }}>{bounty.specialNote}</span>}
+              </div>
+              <div className="h-[5px] rounded-full" style={{ background: 'rgba(255,255,255,0.07)' }}>
+                <div className="h-full rounded-full transition-all duration-1000 ease-out"
+                  style={{
+                    width: `${((bounty.progressCurrent || 0) / bounty.progressTarget) * 100}%`,
+                    background: 'linear-gradient(90deg, #E2FF6D, #C8FF3C)',
+                    boxShadow: '0 0 8px rgba(226,255,109,0.5)',
+                  }} />
+              </div>
+            </div>
+          )}
+
+          {/* Week dots */}
+          {bounty.weekDots && (
+            <div className="flex gap-2 mt-2.5">
+              {bounty.weekDots.map((filled, i) => (
+                <div key={i} className="w-6 h-2 rounded-full" style={{
+                  background: filled ? '#E2FF6D' : 'rgba(255,255,255,0.07)',
+                  boxShadow: filled ? '0 0 6px rgba(226,255,109,0.4)' : 'none',
+                }} />
+              ))}
+            </div>
+          )}
+
+          {/* Streak day dots */}
+          {bounty.streakDays && (
+            <div className="flex items-center gap-1.5 mt-2.5">
+              {DAY_LABELS.map((label, i) => {
+                const filled = bounty.streakDays![i];
+                const isToday = i === (bounty.progressCurrent || 0) - 1;
+                return (
+                  <div key={i} className="flex flex-col items-center gap-0.5">
+                    <div className="w-5 h-5 rounded flex items-center justify-center text-[9px] font-bold"
+                      style={{
+                        background: filled ? 'rgba(226,255,109,0.12)' : 'rgba(255,255,255,0.04)',
+                        color: filled ? '#E2FF6D' : '#5A5A58',
+                        boxShadow: isToday ? '0 0 8px rgba(226,255,109,0.4)' : 'none',
+                        border: isToday ? '1px solid rgba(226,255,109,0.4)' : '1px solid transparent',
+                      }}>
+                      {label}
+                    </div>
+                  </div>
+                );
+              })}
+              <span className="text-base ml-1">🔥</span>
+            </div>
+          )}
+
+          {/* Completed date with shimmer */}
+          {isCompleted && bounty.completedDate && (
+            <div className="flex items-center gap-1.5 mt-2.5">
+              <div className="w-[18px] h-[18px] rounded-full flex items-center justify-center" style={{ background: '#E2FF6D', border: '1.5px solid #E2FF6D' }}>
+                <Check className="w-3 h-3" style={{ color: '#323232' }} />
+              </div>
+              <span className="text-[11px] font-medium bg-clip-text text-transparent animate-shimmer"
+                style={{ backgroundImage: 'linear-gradient(90deg, #E2FF6D 0%, #fff 50%, #E2FF6D 100%)', backgroundSize: '200% 100%' }}>
+                Completed — {bounty.completedDate}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Expanded detail */}
+      {expanded && (
+        <div className="px-4 pb-4 pt-0 border-t border-white/5 animate-fade-in">
+          <div className="mt-3 space-y-3">
+            <p className="text-xs leading-relaxed" style={{ color: '#D9D9D9' }}>{bounty.description}</p>
+            {bounty.specialNote && !bounty.progressTarget && (
+              <div className="rounded-lg p-3" style={{ background: 'rgba(30,30,30,1)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <p className="text-[11px]" style={{ color: '#5A5A58' }}>{bounty.specialNote}</p>
+              </div>
+            )}
+            {bounty.id === 'e2' && (
+              <div className="rounded-lg p-3" style={{ background: 'rgba(30,30,30,1)', border: '1px solid rgba(226,255,109,0.1)' }}>
+                <p className="text-[11px] leading-relaxed" style={{ color: '#D9D9D9' }}>
+                  Sign up AND make your first purchase to claim your Founding spot. Early Adopters earn 5X referral rewards for the first 6 months. Once 111 spots fill, this closes forever.
+                </p>
+              </div>
+            )}
+            {/* CTA */}
+            {isClaimReady && (
+              <button className="w-full py-2.5 rounded-xl text-sm font-extrabold transition-transform hover:scale-[1.03]"
+                style={{ background: '#E2FF6D', color: '#323232', boxShadow: '0 0 16px rgba(226,255,109,0.3)' }}>
+                Claim {bounty.nctrAmount.toLocaleString()} NCTR
+              </button>
+            )}
+            {bounty.status === 'not_started' && bounty.category === 'shopping' && (
+              <a href="https://thegarden.nctr.live" target="_blank" rel="noopener noreferrer"
+                className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl text-sm font-extrabold transition-transform hover:scale-[1.03]"
+                style={{ background: '#E2FF6D', color: '#323232' }}>
+                Start Shopping <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            )}
+            {isInProgress && (
+              <button className="w-full py-2.5 rounded-xl text-sm font-semibold opacity-50 cursor-not-allowed"
+                style={{ background: 'rgba(255,255,255,0.06)', color: '#5A5A58' }} disabled>
+                In Progress
+              </button>
+            )}
+            {isCompleted && (
+              <button className="w-full py-2.5 rounded-xl text-sm font-semibold opacity-40 cursor-not-allowed"
+                style={{ background: 'rgba(255,255,255,0.04)', color: '#5A5A58' }} disabled>
+                Completed
+              </button>
+            )}
+          </div>
+        </div>
       )}
-      <div onClick={handleClick}>{card}</div>
-    </>
+    </div>
   );
 }
 
-// ── MAIN PAGE ───────────────────────────────────────────────────────
+// ── MAIN PAGE ────────────────────────────────────────────────────────
 
 export default function BountyBoardPage() {
-  const { tier, profile } = useUnifiedUser();
-  const { data: stats } = useReferralStats();
-  const { data: milestones } = usePurchaseMilestones();
-  const { data: merchData } = useMerchMilestones();
-  const [lockExplainerDismissed, setLockExplainerDismissed] = useState(
-    () => localStorage.getItem('360lock_explainer_dismissed') === '1'
-  );
-  const [modalData, setModalData] = useState<BountyModalData | null>(null);
-  const getStartedRef = useRef<HTMLDivElement>(null);
-  const [heroHovered, setHeroHovered] = useState(false);
-  const [earningsOpen, setEarningsOpen] = useState(false);
-  const crescendoData = profile?.crescendo_data || {};
-  const referralCode = crescendoData.referral_code || '';
+  const [activeTab, setActiveTab] = useState<Category>('shopping');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const tabsRef = useRef<HTMLDivElement>(null);
 
-  const getModalData = useCallback((bounty: StaticBounty): BountyModalData | null => {
-    const totalPurchases = milestones?.total_purchases ?? 0;
-    const totalMerch = merchData?.total_merch_purchases ?? 0;
-    const totalMerchDrip = merchData?.total_merch_drip_nctr ?? 0;
+  const bounties = ALL_BOUNTIES[activeTab];
+  const completionPercent = Math.round((MOCK_STATS.completed / MOCK_STATS.total) * 100);
 
-    switch (bounty.id) {
-      case 'signup-bonus':
-        return { bounty, type: 'auto-applied' };
-      case 'early-adopter':
-        return { bounty, type: 'auto-applied', isLimitedTime: true };
-      case 'referred-welcome':
-        return { bounty, type: 'auto-applied' };
-      case 'first-purchase':
-        return { bounty, type: 'shop-cta', ctaLabel: 'Shop at The Garden', ctaHref: 'https://thegarden.nctr.live' };
-      case '5th-purchase':
-        return { bounty, type: 'milestone-progress', progress: { value: Math.min(totalPurchases, 5), max: 5, label: 'Purchases' } };
-      case '10th-purchase':
-        return { bounty, type: 'milestone-progress', progress: { value: Math.min(totalPurchases, 10), max: 10, label: 'Purchases' } };
-      case '25th-purchase':
-        return { bounty, type: 'milestone-progress', progress: { value: Math.min(totalPurchases, 25), max: 25, label: 'Purchases' } };
-      case 'first-merch':
-        return { bounty, type: 'merch-cta', ctaLabel: 'Shop NCTR Merch', ctaHref: 'https://thegarden.nctr.live/collections/merch' };
-      case 'every-merch':
-        return { bounty, type: 'merch-history', earningsSubtitle: `${totalMerch} merch purchase${totalMerch !== 1 ? 's' : ''} · ${Number(totalMerchDrip).toLocaleString()} NCTR earned` };
-      case 'content-creation':
-        return { bounty, type: 'content-submit' };
-      case 'referral-every-purchase':
-        return { bounty, type: 'referral-stats', earningsSubtitle: `${stats?.totalReferrals || 0} referrals active` };
-      case 'referral-5-purchases':
-        return { bounty, type: 'referral-milestone', progress: { value: 0, max: 5, label: 'Referral purchases' } };
-      case 'referral-10-purchases':
-        return { bounty, type: 'referral-milestone', progress: { value: 0, max: 10, label: 'Referral purchases' } };
-      default:
-        return { bounty, type: 'auto-applied' };
-    }
-  }, [milestones, merchData, stats]);
+  const categoryCounts = useMemo(() => {
+    const counts: Record<Category, number> = { shopping: 0, referral: 0, social: 0, engagement: 0 };
+    for (const [cat, list] of Object.entries(ALL_BOUNTIES)) counts[cat as Category] = list.length;
+    return counts;
+  }, []);
 
-  const handleCardClick = useCallback((bounty: StaticBounty) => {
-    // Handle claim-handle: navigate to profile
-    if (bounty.id === 'claim-handle') {
-      window.location.href = '/profile';
-      return;
-    }
-    const data = getModalData(bounty);
-    if (data) setModalData(data);
-  }, [getModalData]);
-
-  const handleHeroClick = (e: React.MouseEvent) => {
-    // If clicking the NCTR amount, toggle earnings panel
-    const target = e.target as HTMLElement;
-    if (target.closest('[data-earnings-toggle]')) {
-      setEarningsOpen((prev) => !prev);
-      return;
-    }
-    getStartedRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const revenueBounties = useMemo(() => {
-    const totalPurchases = milestones?.total_purchases ?? 0;
-    const milestonesHit = milestones?.milestones_hit ?? [];
-    const totalDripNctr = milestones?.total_drip_nctr ?? 0;
-
-    return REVENUE_BOUNTIES.map((b) => {
-      const copy = { ...b };
-
-      if (b.id === 'first-purchase') {
-        if (milestonesHit.includes(1)) {
-          copy.completed = true;
-          copy.completedLabel = 'Completed ✓';
-        } else {
-          copy.description = 'Make your first purchase to earn 2,500 NCTR.';
-        }
-      } else if (b.id === 'every-purchase') {
-        copy.subtitle = `${totalPurchases} purchase${totalPurchases !== 1 ? 's' : ''} · ${Number(totalDripNctr).toLocaleString()} NCTR earned`;
-      } else if (b.id === '5th-purchase') {
-        if (milestonesHit.includes(5)) {
-          copy.completed = true;
-        } else {
-          copy.progressValue = Math.min(totalPurchases, 5);
-        }
-      } else if (b.id === '10th-purchase') {
-        if (milestonesHit.includes(10)) {
-          copy.completed = true;
-        } else {
-          copy.progressValue = Math.min(totalPurchases, 10);
-        }
-      } else if (b.id === '25th-purchase') {
-        if (milestonesHit.includes(25)) {
-          copy.completed = true;
-        } else {
-          copy.progressValue = Math.min(totalPurchases, 25);
-        }
-      }
-      return copy;
-    });
-  }, [milestones]);
-
-  // Build merch bounties with real data
-  const merchBounties = useMemo(() => {
-    const totalMerch = merchData?.total_merch_purchases ?? 0;
-    const firstDone = merchData?.first_merch_completed ?? false;
-    const totalMerchDrip = merchData?.total_merch_drip_nctr ?? 0;
-
-    return MERCH_BOUNTIES.map((b) => {
-      const copy = { ...b };
-      if (b.id === 'first-merch') {
-        if (firstDone) {
-          copy.completed = true;
-          copy.completedLabel = 'Completed ✓';
-        } else {
-          copy.description = 'Shop NCTR merch to earn 5,000 NCTR.';
-        }
-      } else if (b.id === 'every-merch') {
-        copy.subtitle = `${totalMerch} merch purchase${totalMerch !== 1 ? 's' : ''} · ${Number(totalMerchDrip).toLocaleString()} NCTR earned`;
-      }
-      return copy;
-    });
-  }, [merchData]);
-
-  // Entry bounties — handle card renders its own gating via HandleBountyCard
-  const entryBounties = useMemo(() => ENTRY_BOUNTIES, []);
-
-  const sections: BountySection[] = useMemo(() => [
-    { title: 'Get Started', emoji: '🚀', bounties: entryBounties },
-    { title: 'Shop & Earn', emoji: '🛒', bounties: revenueBounties },
-    { title: 'Merch Rewards', emoji: '👕', bounties: merchBounties },
-    { title: 'Build Your Team', emoji: '🤝', bounties: REFERRAL_BOUNTIES },
-    { title: 'Stay Active', emoji: '🔥', bounties: ENGAGEMENT_BOUNTIES },
-  ], [entryBounties, revenueBounties, merchBounties]);
+  const handleToggle = (id: string) => setExpandedId(prev => (prev === id ? null : id));
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 space-y-8">
-      {/* Hero Banner */}
-      <div
-        className="rounded-xl p-5 sm:p-6 cursor-pointer transition-all duration-200 ease-out hover:-translate-y-[3px] hover:shadow-[0_8px_24px_rgba(226,255,109,0.12)] relative"
-        style={{ background: 'linear-gradient(135deg, hsl(240 10% 10%), hsl(240 10% 16%))', border: heroHovered ? '1px solid rgba(226,255,109,0.5)' : '1px solid transparent' }}
-        onClick={handleHeroClick}
-        onMouseEnter={() => setHeroHovered(true)}
-        onMouseLeave={() => setHeroHovered(false)}
-      >
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="space-y-1.5">
-            <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
-              🎯 Bounty Board
-            </h1>
-            <p className="text-sm text-white/60 max-w-md">
-              Complete bounties. Commit with 360LOCK. Earn NCTR and build your Crescendo Status.
-            </p>
+    <div className="min-h-screen pb-28" style={{ background: '#323232', fontFamily: "'DM Sans', sans-serif" }}>
+      {/* ── STICKY HEADER ─────────────────────────────── */}
+      <div className="sticky top-0 z-50" style={{ background: 'rgba(50, 50, 50, 0.88)', backdropFilter: 'blur(20px)' }}>
+        <div className="max-w-3xl mx-auto px-4">
+          {/* Top row */}
+          <div className="flex items-center justify-between py-3">
+            <div>
+              <h1 className="text-xl font-bold text-white flex items-center gap-2">
+                <img src="/nctr-n-lime.svg" alt="NCTR" className="w-6 h-6" />
+                Bounty Board
+              </h1>
+              <p className="text-[11px] uppercase tracking-widest" style={{ color: '#5A5A58' }}>Crescendo Rewards</p>
+            </div>
+            <ProgressRing percent={completionPercent} />
           </div>
-          <div className="shrink-0 text-center sm:text-right space-y-1" data-earnings-toggle>
-            <p className="text-[11px] text-white/50 uppercase tracking-wider">My Earnings</p>
-            <p className="text-3xl sm:text-4xl font-black cursor-pointer hover:opacity-80 transition-opacity" style={{ color: '#E2FF6D' }}>
-              {profile?.crescendo_data?.locked_nctr
-                ? Number(profile.crescendo_data.locked_nctr).toLocaleString()
-                : '0'}{' '}
-              <span className="text-base font-bold text-white/50">NCTR</span>
-            </p>
-            <p className="text-[11px] text-white/40">
-              {earningsOpen ? 'Click to close ↑' : 'Click for details ↓'}
-            </p>
-            <p className="text-[10px] text-white/30 italic">
-              Keep shopping. Keep sharing. Keep earning.
-            </p>
-          </div>
-        </div>
-        {tier && (
-          <div className="mt-3">
-            <Badge
-              className="text-xs font-bold border-0 px-2.5 py-1"
-              style={{ backgroundColor: tier.badge_color + '30', color: tier.badge_color }}
-            >
-              {tier.badge_emoji} {tier.display_name}
-            </Badge>
-          </div>
-        )}
-        {/* Explore hint on hover */}
-        <span
-          className="absolute bottom-3 right-4 text-[11px] font-medium transition-opacity duration-200"
-          style={{ color: '#E2FF6D', opacity: heroHovered ? 1 : 0 }}
-        >
-          Explore Bounties ↓
-        </span>
-      </div>
 
-      {/* Earnings History Panel */}
-      <BountyEarningsPanel open={earningsOpen} />
-
-      {/* Bounty Sections */}
-      {sections.map((section, sectionIdx) => (
-        <div key={section.title} className="space-y-4" ref={sectionIdx === 0 ? getStartedRef : undefined}>
-          <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
-            <span>{section.emoji}</span> {section.title}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {section.bounties.map((bounty, bountyIdx) => (
-              <BountyGridItem
-                key={bounty.id}
-                bounty={bounty}
-                referralCode={referralCode}
-                referralCount={stats?.totalReferrals || 0}
-                showExplainer={sectionIdx === 0 && bountyIdx === 2}
-                explainerDismissed={lockExplainerDismissed}
-                onDismissExplainer={() => {
-                  localStorage.setItem('360lock_explainer_dismissed', '1');
-                  setLockExplainerDismissed(true);
-                }}
-                onCardClick={handleCardClick}
-              />
+          {/* Stats row */}
+          <div className="flex items-center gap-0 overflow-x-auto no-scrollbar py-2 -mx-4 px-4">
+            {[
+              { icon: <Zap className="w-3.5 h-3.5" style={{ color: '#E2FF6D' }} />, value: MOCK_STATS.balance.toLocaleString(), label: 'Your NCTR', color: '#E2FF6D' },
+              { icon: <Trophy className="w-3.5 h-3.5 text-white" />, value: `${MOCK_STATS.completed}/${MOCK_STATS.total}`, label: 'Completed', color: '#fff' },
+              { icon: <Flame className="w-3.5 h-3.5" style={{ color: MOCK_STATS.streak > 0 ? '#E2FF6D' : '#5A5A58' }} />, value: String(MOCK_STATS.streak), label: 'Day Streak', color: MOCK_STATS.streak > 0 ? '#E2FF6D' : '#5A5A58' },
+              { icon: <Diamond className="w-3.5 h-3.5" style={{ color: TIER_COLORS[MOCK_STATS.tier] }} />, value: MOCK_STATS.tier, label: 'Tier', color: TIER_COLORS[MOCK_STATS.tier] },
+            ].map((stat, i) => (
+              <div key={i} className="flex items-center gap-0">
+                {i > 0 && <div className="w-px h-5 mx-3 shrink-0" style={{ background: 'rgba(255,255,255,0.10)' }} />}
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {stat.icon}
+                  <div>
+                    <span className="text-xs font-bold" style={{ color: stat.color, fontFamily: "'DM Mono', monospace" }}>{stat.value}</span>
+                    <span className="text-[9px] ml-1" style={{ color: '#5A5A58' }}>{stat.label}</span>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
-        </div>
-      ))}
 
-      {/* 360LOCK Explainer */}
-      <div className="rounded-xl border border-border bg-card p-5 space-y-3">
-        <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-          <Info className="h-4 w-4 text-muted-foreground" />
-          What is 360LOCK?
-        </h2>
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          Your tokens are committed for exactly 360 days. You own them — they just can't be sold during the lock period.
-          This commitment strengthens the ecosystem and earns you status that unlocks more rewards.
-        </p>
-        <a href="/how-it-works#360lock" className="text-xs font-medium hover:underline" style={{ color: '#E2FF6D' }}>
-          How does this work? →
-        </a>
+          {/* Category tabs */}
+          <div ref={tabsRef} className="flex items-center gap-1 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
+            {CATEGORIES.map(cat => {
+              const isActive = activeTab === cat.key;
+              return (
+                <button key={cat.key}
+                  onClick={() => { setActiveTab(cat.key); setExpandedId(null); }}
+                  className="relative flex items-center gap-1.5 px-3 py-2 text-sm font-semibold shrink-0 transition-colors"
+                  style={{ color: isActive ? '#E2FF6D' : '#5A5A58', background: isActive ? 'rgba(226,255,109,0.06)' : 'transparent', borderRadius: '8px 8px 0 0' }}>
+                  {cat.label}
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold"
+                    style={{ background: isActive ? 'rgba(226,255,109,0.15)' : 'rgba(255,255,255,0.06)', color: isActive ? '#E2FF6D' : '#5A5A58' }}>
+                    {categoryCounts[cat.key]}
+                  </span>
+                  {isActive && (
+                    <div className="absolute bottom-0 left-[15%] right-[15%] h-[2.5px] rounded-full"
+                      style={{ background: '#E2FF6D', boxShadow: '0 0 6px rgba(226,255,109,0.5)' }} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
-      {/* How It Works Banner */}
-      <div
-        className="rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
-        style={{ background: '#1a1a1a', border: '1px solid rgba(226,255,109,0.1)' }}
-      >
-        <div>
-          <p className="text-sm font-medium text-white/80">Want to understand how this all works?</p>
+      {/* ── BOUNTY CARDS ──────────────────────────────── */}
+      <div className="max-w-3xl mx-auto px-4 mt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {bounties.map((b, i) => (
+            <div key={b.id} className={`${b.isWide ? 'col-span-full' : ''} animate-fade-in`}
+              style={{ animationDelay: `${i * 0.06}s`, animationFillMode: 'both' }}>
+              <BountyCard bounty={b} expanded={expandedId === b.id} onToggle={() => handleToggle(b.id)} />
+            </div>
+          ))}
         </div>
-        <a
-          href="/how-it-works"
-          className="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-lg shrink-0"
-          style={{ backgroundColor: '#E2FF6D', color: '#111' }}
-        >
-          See How It Works →
-        </a>
+
+        {/* ── STREAK BANNER ─────────────────────────────── */}
+        {MOCK_STATS.streak > 0 && (
+          <div className="mt-4 rounded-xl p-4 flex items-center gap-4"
+            style={{ background: 'rgba(50,50,50,0.6)', border: '1px solid rgba(255, 150, 50, 0.15)', boxShadow: '0 0 30px rgba(226,255,109,0.06)' }}>
+            <span className="text-[28px] shrink-0">🔥</span>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-sm" style={{ color: '#E2FF6D' }}>{MOCK_STATS.streak}-day streak!</p>
+              <p className="text-[11px] mt-0.5" style={{ color: '#5A5A58' }}>Come back tomorrow to keep it alive and unlock bonus multipliers.</p>
+            </div>
+            <div className="text-right shrink-0">
+              <span className="text-[28px] font-bold leading-none" style={{ color: '#E2FF6D', fontFamily: "'DM Mono', monospace" }}>{MOCK_STATS.streak}</span>
+              <p className="text-[9px] uppercase" style={{ color: '#5A5A58' }}>Days</p>
+            </div>
+          </div>
+        )}
+
+        {/* ── BOUNTY HISTORY ──────────────────────────── */}
+        <Collapsible open={historyOpen} onOpenChange={setHistoryOpen} className="mt-6">
+          <CollapsibleTrigger className="w-full">
+            <div className="rounded-xl p-4 flex items-center justify-between cursor-pointer transition-colors"
+              style={{ background: 'rgba(50,50,50,0.6)', border: '1px solid rgba(226,255,109,0.1)' }}>
+              <div>
+                <h3 className="text-sm font-bold text-white">Your Bounty History</h3>
+                <p className="text-[11px]" style={{ color: '#5A5A58' }}>{COMPLETED_HISTORY.length} completed bounties</p>
+              </div>
+              <div className="transition-transform duration-200" style={{ transform: historyOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                <ChevronDown className="w-5 h-5" style={{ color: '#5A5A58' }} />
+              </div>
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="mt-2 rounded-xl overflow-hidden" style={{ background: 'rgba(50,50,50,0.4)', border: '1px solid rgba(226,255,109,0.08)' }}>
+              {COMPLETED_HISTORY.map((item, i) => (
+                <div key={i} className="flex items-center gap-3 px-4 py-3 animate-fade-in"
+                  style={{ borderBottom: i < COMPLETED_HISTORY.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', animationDelay: `${i * 0.08}s` }}>
+                  <span className="text-base">{item.emoji}</span>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-xs font-semibold text-white">{item.title}</span>
+                    <span className="text-[10px] ml-2" style={{ color: '#5A5A58' }}>{item.date}</span>
+                  </div>
+                  <span className="text-xs font-bold shrink-0" style={{ color: '#E2FF6D', fontFamily: "'DM Mono', monospace" }}>
+                    +{item.amount.toLocaleString()} NCTR
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* ── FOOTER ──────────────────────────────────── */}
+        <div className="mt-10 mb-4 text-center">
+          <p className="text-[10px] uppercase tracking-widest" style={{ color: '#5A5A58' }}>
+            Powered by <span className="font-bold" style={{ color: '#E2FF6D' }}>NCTR Alliance</span> · Crescendo Rewards
+          </p>
+        </div>
       </div>
 
-      {/* Detail Modal */}
-      <BountyDetailModal data={modalData} onClose={() => setModalData(null)} />
+      {/* ── BOTTOM STICKY BAR ─────────────────────────── */}
+      <div className="fixed bottom-0 left-0 right-0 z-50" style={{ background: 'rgba(50, 50, 50, 0.92)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(226,255,109,0.1)' }}>
+        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(226,255,109,0.1)' }}>
+              <Zap className="w-4 h-4" style={{ color: '#E2FF6D' }} />
+            </div>
+            <div>
+              <span className="text-sm font-bold" style={{ color: '#E2FF6D', fontFamily: "'DM Mono', monospace" }}>{MOCK_STATS.balance.toLocaleString()} NCTR</span>
+              <p className="text-[9px] uppercase" style={{ color: '#5A5A58' }}>Your Balance</p>
+            </div>
+          </div>
+          <div className="text-center hidden sm:block">
+            <p className="text-[9px] uppercase" style={{ color: '#5A5A58' }}>Next reward</p>
+            <p className="text-xs font-bold text-white">625 NCTR ready</p>
+          </div>
+          <button className="px-5 py-2.5 rounded-[14px] text-sm font-extrabold transition-all hover:scale-[1.03]"
+            style={{ background: '#E2FF6D', color: '#323232', boxShadow: '0 0 12px rgba(226,255,109,0.3)' }}>
+            Claim Now
+          </button>
+        </div>
+      </div>
+
+      {/* ── SHIMMER ANIMATION ─────────────────────────── */}
+      <style>{`
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .animate-shimmer { animation: shimmer 3s linear infinite; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </div>
   );
 }
