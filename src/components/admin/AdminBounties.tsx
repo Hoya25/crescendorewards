@@ -55,6 +55,11 @@ interface BountyRow {
   completion_message: string | null;
   created_at: string | null;
   status: 'active' | 'paused' | 'hidden';
+  // New fields for Bounty Board integration
+  is_wide: boolean | null;
+  cap_per_month: number | null;
+  progress_target: number | null;
+  sort_order: number | null;
 }
 
 interface ClaimRow {
@@ -76,7 +81,7 @@ interface ClaimRow {
 const EMPTY_FORM: Partial<BountyRow> = {
   title: '',
   description: '',
-  category: 'general',
+  category: 'shopping',
   difficulty: 'medium',
   nctr_reward: 0,
   xp_reward: 0,
@@ -95,7 +100,18 @@ const EMPTY_FORM: Partial<BountyRow> = {
   instructions: null,
   completion_message: null,
   status: 'active',
+  is_wide: false,
+  cap_per_month: null,
+  progress_target: null,
+  sort_order: 0,
 };
+
+const BOARD_CATEGORIES = [
+  { value: 'shopping', label: 'Shopping' },
+  { value: 'referral', label: 'Referral' },
+  { value: 'social', label: 'Social' },
+  { value: 'engagement', label: 'Engagement' },
+];
 
 const DIFFICULTY_COLORS: Record<string, string> = {
   easy: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-400',
@@ -561,8 +577,13 @@ export function AdminBounties() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label>Category / Bounty Type</Label>
-                <Input value={formData.category || ''} onChange={e => setFormData(p => ({ ...p, category: e.target.value }))} placeholder="e.g. Photo Post, Video, Review" />
+                <Label>Board Category</Label>
+                <Select value={formData.category || 'shopping'} onValueChange={v => setFormData(p => ({ ...p, category: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {BOARD_CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid gap-2">
                 <Label>Difficulty</Label>
@@ -667,6 +688,30 @@ export function AdminBounties() {
             <div className="grid gap-2">
               <Label>Completion Message</Label>
               <Textarea value={formData.completion_message || ''} onChange={e => setFormData(p => ({ ...p, completion_message: e.target.value || null }))} rows={2} />
+            </div>
+            {/* ── Bounty Board layout fields ── */}
+            <div className="border-t pt-4 mt-2">
+              <p className="text-sm font-semibold text-muted-foreground mb-3">Bounty Board Layout</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-3">
+                  <Switch checked={!!formData.is_wide} onCheckedChange={v => setFormData(p => ({ ...p, is_wide: v }))} />
+                  <Label>Wide Card (full width)</Label>
+                </div>
+                <div className="grid gap-2">
+                  <Label>Sort Order</Label>
+                  <Input type="number" value={formData.sort_order ?? 0} onChange={e => setFormData(p => ({ ...p, sort_order: Number(e.target.value) }))} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mt-3">
+                <div className="grid gap-2">
+                  <Label>Cap Per Month (0 = none)</Label>
+                  <Input type="number" value={formData.cap_per_month ?? ''} onChange={e => setFormData(p => ({ ...p, cap_per_month: Number(e.target.value) || null }))} placeholder="e.g. 4" />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Progress Target (0 = none)</Label>
+                  <Input type="number" value={formData.progress_target ?? ''} onChange={e => setFormData(p => ({ ...p, progress_target: Number(e.target.value) || null }))} placeholder="e.g. 5" />
+                </div>
+              </div>
             </div>
             <div className="grid gap-2">
               <Label>Visibility Status</Label>

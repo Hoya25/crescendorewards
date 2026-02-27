@@ -7,6 +7,8 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
 import { useTheme } from '@/components/ThemeProvider';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 // ── TYPES ────────────────────────────────────────────────────────────
 
@@ -14,7 +16,7 @@ type Difficulty = 'easy' | 'medium' | 'hard';
 type Category = 'shopping' | 'referral' | 'social' | 'engagement';
 type BountyStatus = 'completed' | 'in_progress' | 'claim_ready' | 'not_started' | 'recurring';
 
-interface MockBounty {
+interface DisplayBounty {
   id: string;
   emoji: string;
   title: string;
@@ -39,41 +41,7 @@ interface MockBounty {
   tag?: string;
 }
 
-// ── MOCK DATA ────────────────────────────────────────────────────────
-
-const SHOPPING_BOUNTIES: MockBounty[] = [
-  { id: 's1', emoji: '🛒', title: 'First Purchase', description: 'Make any purchase through The Garden', nctrAmount: 2500, difficulty: 'easy', category: 'shopping', status: 'completed', completedDate: 'Feb 12, 2026' },
-  { id: 's2', emoji: '🧭', title: 'Brand Explorer', description: 'Shop from 3 different categories in The Garden', nctrAmount: 2500, difficulty: 'medium', category: 'shopping', status: 'in_progress', progressCurrent: 1, progressTarget: 3 },
-  { id: 's3', emoji: '📅', title: 'Weekly Shopper', description: 'Make a Garden purchase 3 weeks in a row', nctrAmount: 5000, difficulty: 'hard', category: 'shopping', status: 'not_started', progressCurrent: 0, progressTarget: 3, progressUnit: 'weeks', weekDots: [false, false, false], isWide: true },
-  { id: 's4', emoji: '🏅', title: '5th Purchase', description: 'Reach 5 total purchases', nctrAmount: 5000, difficulty: 'medium', category: 'shopping', status: 'not_started', progressCurrent: 0, progressTarget: 5 },
-  { id: 's5', emoji: '🏆', title: '10th Purchase', description: 'Reach 10 total purchases', nctrAmount: 10000, difficulty: 'hard', category: 'shopping', status: 'not_started', progressCurrent: 0, progressTarget: 10 },
-  { id: 's6', emoji: '👑', title: '25th Purchase', description: 'Reach 25 purchases, Legend status', nctrAmount: 25000, difficulty: 'hard', category: 'shopping', status: 'not_started', progressCurrent: 0, progressTarget: 25, isWide: true },
-  { id: 's7', emoji: '👕', title: 'Rep the Brand', description: 'Make your first NCTR merch purchase', nctrAmount: 5000, difficulty: 'easy', category: 'shopping', status: 'not_started' },
-  { id: 's8', emoji: '💧', title: 'Every Purchase Drip', description: 'Earn 250 NCTR on every Garden purchase', nctrAmount: 250, difficulty: 'easy', category: 'shopping', status: 'recurring' },
-];
-
-const REFERRAL_BOUNTIES: MockBounty[] = [
-  { id: 'r1', emoji: '🤝', title: 'Invite a Friend', description: 'Friend creates an account using your link', nctrAmount: 625, difficulty: 'easy', category: 'referral', status: 'claim_ready', isViral: true },
-  { id: 'r2', emoji: '💰', title: 'Revenue Referral', description: 'Friend makes their first purchase', nctrAmount: 2500, difficulty: 'medium', category: 'referral', status: 'in_progress', progressCurrent: 2, progressTarget: 5, isViral: true },
-  { id: 'r3', emoji: '🫂', title: 'Squad Builder', description: 'Refer 5 friends who all make purchases', nctrAmount: 2500, difficulty: 'hard', category: 'referral', status: 'in_progress', progressCurrent: 2, progressTarget: 5, isViral: true },
-  { id: 'r4', emoji: '💸', title: 'Referral Purchase Drip', description: 'Earn NCTR every time your referral shops', nctrAmount: 500, nctrLabel: '500 / 100 NCTR', difficulty: 'easy', category: 'referral', status: 'recurring', isViral: true, specialNote: '500 NCTR (Early Adopter) / 100 NCTR (standard)' },
-  { id: 'r5', emoji: '🎖️', title: 'Community Captain', description: 'Refer 10+ active members', nctrAmount: 5000, difficulty: 'hard', category: 'referral', status: 'in_progress', progressCurrent: 2, progressTarget: 10, isViral: true, isWide: true },
-];
-
-const SOCIAL_BOUNTIES: MockBounty[] = [
-  { id: 'so1', emoji: '📱', title: 'Follow NCTR', description: 'Follow @NCTRAlliance on X and Instagram', nctrAmount: 250, difficulty: 'easy', category: 'social', status: 'completed', completedDate: 'Feb 10, 2026' },
-  { id: 'so2', emoji: '📣', title: 'Share the Mission', description: 'Share a post about NCTR on any platform', nctrAmount: 250, difficulty: 'easy', category: 'social', status: 'not_started', capLabel: 'Cap: 4/month' },
-  { id: 'so3', emoji: '🎬', title: 'Content Creator', description: 'Create original content about the participation economy', nctrAmount: 2000, difficulty: 'medium', category: 'social', status: 'not_started', specialNote: 'Manual review required', isWide: true },
-];
-
-const ENGAGEMENT_BOUNTIES: MockBounty[] = [
-  { id: 'e1', emoji: '👋', title: 'Welcome Aboard', description: 'Create your Crescendo account', nctrAmount: 625, difficulty: 'easy', category: 'engagement', status: 'completed', completedDate: 'Jan 15, 2026' },
-  { id: 'e2', emoji: '⭐', title: 'Early Adopter Bonus', description: 'Joined during our launch period? Extra NCTR for being here early.', nctrAmount: 1250, difficulty: 'easy', category: 'engagement', status: 'completed', completedDate: 'Jan 15, 2026', tag: 'LIMITED TIME' },
-  { id: 'e3', emoji: '🔒', title: 'First Commit', description: 'Make your first 90LOCK commitment', nctrAmount: 500, difficulty: 'medium', category: 'engagement', status: 'completed', completedDate: 'Jan 28, 2026' },
-  { id: 'e4', emoji: '⬆️', title: 'Level Up', description: 'Upgrade from 90LOCK to 360LOCK', nctrAmount: 500, difficulty: 'hard', category: 'engagement', status: 'not_started' },
-  { id: 'e5', emoji: '🔥', title: 'Daily Check-in', description: 'Visit Crescendo 7 days in a row', nctrAmount: 500, difficulty: 'medium', category: 'engagement', status: 'in_progress', progressCurrent: 5, progressTarget: 7, streakDays: [true, true, true, true, true, false, false] },
-  { id: 'e6', emoji: '🏅', title: 'Monthly Leaderboard', description: 'Finish in the Top 10 earners this month', nctrAmount: 5000, difficulty: 'hard', category: 'engagement', status: 'not_started', resetsLabel: 'Resets monthly' },
-];
+const VALID_CATEGORIES: Category[] = ['shopping', 'referral', 'social', 'engagement'];
 
 const CATEGORIES: { key: Category; label: string; icon: React.ElementType }[] = [
   { key: 'shopping', label: 'Shopping', icon: ShoppingCart },
@@ -82,14 +50,7 @@ const CATEGORIES: { key: Category; label: string; icon: React.ElementType }[] = 
   { key: 'engagement', label: 'Engagement', icon: Heart },
 ];
 
-const COMPLETED_HISTORY = [
-  { emoji: '👋', title: 'Welcome Aboard', date: 'Jan 15, 2026', amount: 625 },
-  { emoji: '🔒', title: 'First Commit', date: 'Jan 28, 2026', amount: 500 },
-  { emoji: '📱', title: 'Follow NCTR', date: 'Feb 10, 2026', amount: 250 },
-  { emoji: '🛒', title: 'First Purchase', date: 'Feb 12, 2026', amount: 2500 },
-];
-
-// ── MOCK USER STATS ──────────────────────────────────────────────────
+// ── MOCK USER STATS (will be replaced with real data later) ──────────
 const MOCK_STATS = { balance: 3875, completed: 4, total: 24, streak: 5, tier: 'Silver' as const };
 const TIER_COLORS: Record<string, string> = { Bronze: '#CD7F32', Silver: '#C0C0C0', Gold: '#FFD700', Platinum: '#E5E4E2', Diamond: '#B9F2FF' };
 
@@ -116,18 +77,14 @@ function useTokens() {
     textSecondary: '#5A5A58',
     textMuted: '#5A5A58',
     lime: '#E2FF6D',
-    // In light mode, lime accent text on amounts — still use lime for mono numbers
     amountColor: dark ? '#E2FF6D' : '#323232',
-    amountAccent: '#E2FF6D', // used for lime-on-dark contexts
-    // CTA colors
+    amountAccent: '#E2FF6D',
     ctaBg: dark ? '#E2FF6D' : '#323232',
     ctaText: dark ? '#323232' : '#FFFFFF',
     ctaHoverBg: dark ? '#C8FF3C' : '#5A5A58',
-    // Claim Now button
     claimBg: dark ? '#E2FF6D' : '#323232',
     claimText: dark ? '#323232' : '#FFFFFF',
     claimShadow: dark ? '0 0 12px rgba(226,255,109,0.3)' : '0 1px 4px rgba(0,0,0,0.12)',
-    // Difficulty badges
     diffEasy: dark
       ? { bg: 'rgba(226, 255, 109, 0.2)', color: '#E2FF6D' }
       : { bg: 'rgba(50, 50, 50, 0.1)', color: '#323232' },
@@ -137,17 +94,14 @@ function useTokens() {
     diffHard: dark
       ? { bg: 'rgba(255, 68, 68, 0.2)', color: '#FF4444' }
       : { bg: 'rgba(200, 0, 0, 0.1)', color: '#CC0000' },
-    // Progress bar
     progressTrack: dark ? 'rgba(255,255,255,0.07)' : '#D9D9D9',
     progressFill: dark ? 'linear-gradient(90deg, #E2FF6D, #C8FF3C)' : 'linear-gradient(90deg, #323232, #5A5A58)',
     progressGlow: dark ? '0 0 8px rgba(226,255,109,0.5)' : 'none',
     progressRingTrack: dark ? 'rgba(255,255,255,0.08)' : '#D9D9D9',
-    // Emoji icon box
     iconBoxBg: dark ? 'rgba(42,42,42,1)' : 'rgba(0,0,0,0.04)',
     iconBoxBorder: dark ? '1px solid rgba(255,255,255,0.10)' : '1px solid #D9D9D9',
     iconBoxCompletedBg: dark ? 'rgba(226,255,109,0.12)' : 'rgba(50,50,50,0.06)',
     iconBoxCompletedBorder: dark ? '1px solid rgba(226,255,109,0.2)' : '1px solid #D9D9D9',
-    // Misc
     divider: dark ? 'rgba(255,255,255,0.10)' : '#D9D9D9',
     tabActiveBg: dark ? 'rgba(226,255,109,0.06)' : 'rgba(50,50,50,0.06)',
     tabActiveColor: dark ? '#E2FF6D' : '#323232',
@@ -185,6 +139,32 @@ function useTokens() {
     historyAmountColor: dark ? '#E2FF6D' : '#323232',
     statIconColor: dark ? '#E2FF6D' : '#323232',
   }), [dark]);
+}
+
+// ── MAP DB ROW → DISPLAY BOUNTY ──────────────────────────────────────
+function mapDbToDisplay(row: any): DisplayBounty | null {
+  const cat = (row.category || '').toLowerCase() as Category;
+  if (!VALID_CATEGORIES.includes(cat)) return null;
+  
+  const isRecurring = !!row.is_recurring;
+
+  return {
+    id: row.id,
+    emoji: row.image_emoji || '🎯',
+    title: row.title,
+    description: row.description || '',
+    nctrAmount: row.nctr_reward || 0,
+    difficulty: (['easy', 'medium', 'hard'].includes(row.difficulty) ? row.difficulty : 'medium') as Difficulty,
+    category: cat,
+    status: isRecurring ? 'recurring' : 'not_started',
+    isWide: !!row.is_wide,
+    isViral: cat === 'referral',
+    capLabel: row.cap_per_month ? `Cap: ${row.cap_per_month}/month` : undefined,
+    progressTarget: row.progress_target || undefined,
+    progressCurrent: 0,
+    specialNote: row.completion_message || undefined,
+    resetsLabel: row.is_recurring && row.recurrence_period ? `Resets ${row.recurrence_period}` : undefined,
+  };
 }
 
 // ── PROGRESS RING ────────────────────────────────────────────────────
@@ -236,7 +216,7 @@ function BountyThemeToggle() {
 
 // ── BOUNTY CARD ──────────────────────────────────────────────────────
 function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
-  bounty: MockBounty; expanded: boolean; onToggle: () => void; onClaim: (bounty: MockBounty) => void;
+  bounty: DisplayBounty; expanded: boolean; onToggle: () => void; onClaim: (bounty: DisplayBounty) => void;
   tokens: ReturnType<typeof useTokens>;
 }) {
   const isCompleted = bounty.status === 'completed';
@@ -458,21 +438,46 @@ export default function BountyBoardPage() {
   const [activeTab, setActiveTab] = useState<Category>('shopping');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
-  const [bountyData, setBountyData] = useState<Record<Category, MockBounty[]>>(() => ({
-    shopping: [...SHOPPING_BOUNTIES],
-    referral: [...REFERRAL_BOUNTIES],
-    social: [...SOCIAL_BOUNTIES],
-    engagement: [...ENGAGEMENT_BOUNTIES],
-  }));
+  const [localOverrides, setLocalOverrides] = useState<Record<string, Partial<DisplayBounty>>>({});
   const [balance, setBalance] = useState(MOCK_STATS.balance);
   const [completedCount, setCompletedCount] = useState(MOCK_STATS.completed);
-  const [history, setHistory] = useState([...COMPLETED_HISTORY]);
+  const [history, setHistory] = useState<{ emoji: string; title: string; date: string; amount: number }[]>([]);
   const tabsRef = useRef<HTMLDivElement>(null);
   const claimBtnRef = useRef<HTMLButtonElement>(null);
 
+  // ── FETCH BOUNTIES FROM SUPABASE ──
+  const { data: dbBounties = [], isLoading } = useQuery({
+    queryKey: ['bounty-board'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('bounties')
+        .select('*')
+        .eq('status', 'active')
+        .order('sort_order', { ascending: true })
+        .order('nctr_reward', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+    staleTime: 2 * 60 * 1000,
+  });
+
+  // ── MAP DB → DISPLAY ──
+  const bountyData = useMemo(() => {
+    const result: Record<Category, DisplayBounty[]> = { shopping: [], referral: [], social: [], engagement: [] };
+    for (const row of dbBounties) {
+      const mapped = mapDbToDisplay(row);
+      if (!mapped) continue;
+      // Apply local overrides (for claim/status changes during session)
+      const override = localOverrides[mapped.id];
+      const final = override ? { ...mapped, ...override } : mapped;
+      result[final.category].push(final);
+    }
+    return result;
+  }, [dbBounties, localOverrides]);
+
   const bounties = bountyData[activeTab];
   const totalBounties = Object.values(bountyData).reduce((s, l) => s + l.length, 0);
-  const completionPercent = Math.round((completedCount / totalBounties) * 100);
+  const completionPercent = totalBounties > 0 ? Math.round((completedCount / totalBounties) * 100) : 0;
 
   const categoryCounts = useMemo(() => {
     const counts: Record<Category, number> = { shopping: 0, referral: 0, social: 0, engagement: 0 };
@@ -480,18 +485,13 @@ export default function BountyBoardPage() {
     return counts;
   }, [bountyData]);
 
-  const claimBounty = useCallback((bounty: MockBounty) => {
+  const claimBounty = useCallback((bounty: DisplayBounty) => {
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    setBountyData(prev => {
-      const updated = { ...prev };
-      for (const cat of Object.keys(updated) as Category[]) {
-        updated[cat] = updated[cat].map(b =>
-          b.id === bounty.id ? { ...b, status: 'completed' as BountyStatus, completedDate: dateStr } : b
-        );
-      }
-      return updated;
-    });
+    setLocalOverrides(prev => ({
+      ...prev,
+      [bounty.id]: { status: 'completed' as BountyStatus, completedDate: dateStr },
+    }));
     setBalance(prev => prev + bounty.nctrAmount);
     setCompletedCount(prev => prev + 1);
     setHistory(prev => [{ emoji: bounty.emoji, title: bounty.title, date: dateStr, amount: bounty.nctrAmount }, ...prev]);
@@ -502,7 +502,7 @@ export default function BountyBoardPage() {
   }, []);
 
   const claimAll = useCallback(() => {
-    const allClaimReady: MockBounty[] = [];
+    const allClaimReady: DisplayBounty[] = [];
     for (const list of Object.values(bountyData)) {
       for (const b of list) {
         if (b.status === 'claim_ready') allClaimReady.push(b);
@@ -533,6 +533,17 @@ export default function BountyBoardPage() {
   }, [bountyData]);
 
   const handleToggle = (id: string) => setExpandedId(prev => (prev === id ? null : id));
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: tokens.pageBg }}>
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin mx-auto mb-3" style={{ borderColor: tokens.amountColor, borderTopColor: 'transparent' }} />
+          <p className="text-sm" style={{ color: tokens.textMuted }}>Loading bounties…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-28 transition-colors duration-300" style={{ background: tokens.pageBg, fontFamily: "'DM Sans', sans-serif" }}>
@@ -612,6 +623,11 @@ export default function BountyBoardPage() {
               <BountyCard bounty={b} expanded={expandedId === b.id} onToggle={() => handleToggle(b.id)} onClaim={claimBounty} tokens={tokens} />
             </div>
           ))}
+          {bounties.length === 0 && (
+            <div className="col-span-full text-center py-12">
+              <p className="text-sm" style={{ color: tokens.textMuted }}>No bounties in this category yet.</p>
+            </div>
+          )}
         </div>
 
         {/* ── STREAK BANNER ─────────────────────────────── */}
@@ -646,7 +662,11 @@ export default function BountyBoardPage() {
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className="mt-2 rounded-xl overflow-hidden" style={{ background: tokens.cardBg, border: tokens.cardBorder, boxShadow: tokens.cardShadow }}>
-              {history.map((item, i) => (
+              {history.length === 0 ? (
+                <div className="px-4 py-6 text-center">
+                  <p className="text-xs" style={{ color: tokens.textMuted }}>No completed bounties yet. Start earning!</p>
+                </div>
+              ) : history.map((item, i) => (
                 <div key={i} className="flex items-center gap-3 px-4 py-3 animate-fade-in"
                   style={{ borderBottom: i < history.length - 1 ? tokens.historyRowBorder : 'none', animationDelay: `${i * 0.08}s` }}>
                   <span className="text-base">{item.emoji}</span>
