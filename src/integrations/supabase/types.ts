@@ -539,6 +539,7 @@ export type Database = {
       bounties: {
         Row: {
           bounty_tier: string | null
+          cap_per_month: number | null
           category: string
           completion_message: string | null
           created_at: string | null
@@ -554,14 +555,17 @@ export type Database = {
           is_active: boolean | null
           is_featured: boolean | null
           is_recurring: boolean | null
+          is_wide: boolean
           lock_multiplier: number | null
           max_completions: number | null
           min_status_required: string | null
           nctr_reward: number
+          progress_target: number | null
           purchase_product_type: string | null
           recurrence_period: string | null
           requires_360lock: boolean | null
           requires_purchase: boolean | null
+          sort_order: number
           status: Database["public"]["Enums"]["bounty_status"]
           title: string
           total_completions: number | null
@@ -572,6 +576,7 @@ export type Database = {
         }
         Insert: {
           bounty_tier?: string | null
+          cap_per_month?: number | null
           category?: string
           completion_message?: string | null
           created_at?: string | null
@@ -587,14 +592,17 @@ export type Database = {
           is_active?: boolean | null
           is_featured?: boolean | null
           is_recurring?: boolean | null
+          is_wide?: boolean
           lock_multiplier?: number | null
           max_completions?: number | null
           min_status_required?: string | null
           nctr_reward?: number
+          progress_target?: number | null
           purchase_product_type?: string | null
           recurrence_period?: string | null
           requires_360lock?: boolean | null
           requires_purchase?: boolean | null
+          sort_order?: number
           status?: Database["public"]["Enums"]["bounty_status"]
           title: string
           total_completions?: number | null
@@ -605,6 +613,7 @@ export type Database = {
         }
         Update: {
           bounty_tier?: string | null
+          cap_per_month?: number | null
           category?: string
           completion_message?: string | null
           created_at?: string | null
@@ -620,14 +629,17 @@ export type Database = {
           is_active?: boolean | null
           is_featured?: boolean | null
           is_recurring?: boolean | null
+          is_wide?: boolean
           lock_multiplier?: number | null
           max_completions?: number | null
           min_status_required?: string | null
           nctr_reward?: number
+          progress_target?: number | null
           purchase_product_type?: string | null
           recurrence_period?: string | null
           requires_360lock?: boolean | null
           requires_purchase?: boolean | null
+          sort_order?: number
           status?: Database["public"]["Enums"]["bounty_status"]
           title?: string
           total_completions?: number | null
