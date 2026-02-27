@@ -1,4 +1,5 @@
 import { Home, Gift, ShoppingBag, UserPlus, User, HelpCircle, Shield, Heart, Coins, Leaf, Target, Trophy, BookOpen, Zap, Lock } from 'lucide-react';
+import { toast } from 'sonner';
 import nctrIconDark from '@/assets/nctr-grey.png';
 import nctrIconLight from '@/assets/nctr-yellow.png';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -79,9 +80,17 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const handleNavigation = (url: string, external?: string) => {
+  const handleNavigation = async (url: string, external?: string) => {
     if (external) {
-      window.open(external, '_blank');
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        await fetch(external, { method: 'HEAD', mode: 'no-cors', signal: controller.signal });
+        clearTimeout(timeoutId);
+        window.open(external, '_blank');
+      } catch {
+        toast.info("The Garden is being updated. Check back soon!");
+      }
     } else {
       navigate(url);
     }
@@ -103,13 +112,13 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
         {item.emoji && open ? (
           <span className="text-base leading-none w-4 flex items-center justify-center">{item.emoji}</span>
         ) : (
-          <item.icon className={cn("h-4 w-4", item.highlight && "text-[#E2FF6D]")} />
+          <item.icon className={cn("h-4 w-4", item.highlight && "dark:text-[#E2FF6D] text-[#323232]")} />
         )}
         {open && (
           <div className="flex flex-col min-w-0">
             <span className={cn(
               "text-sm leading-tight truncate",
-              item.highlight && "text-[#E2FF6D] font-semibold"
+              item.highlight && "dark:text-[#E2FF6D] text-[#323232] font-semibold"
             )}>
               {item.title}
             </span>
