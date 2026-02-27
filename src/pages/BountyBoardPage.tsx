@@ -195,16 +195,18 @@ function ProgressRing({ percent, tokens }: { percent: number; tokens: ReturnType
     const t = setTimeout(() => setOffset(c - (c * percent) / 100), 100);
     return () => clearTimeout(t);
   }, [percent, c]);
+  const ringStroke = tokens.dark ? '#E2FF6D' : '#323232';
+  const ringFilter = tokens.dark ? 'drop-shadow(0 0 4px rgba(226,255,109,0.5))' : 'none';
   return (
     <div className="relative w-11 h-11 shrink-0">
       <svg viewBox="0 0 44 44" className="w-full h-full -rotate-90">
         <circle cx="22" cy="22" r={r} fill="none" stroke={tokens.progressRingTrack} strokeWidth="3" />
-        <circle cx="22" cy="22" r={r} fill="none" stroke="#E2FF6D" strokeWidth="3" strokeLinecap="round"
+        <circle cx="22" cy="22" r={r} fill="none" stroke={ringStroke} strokeWidth="3" strokeLinecap="round"
           strokeDasharray={c} strokeDashoffset={offset}
-          style={{ transition: 'stroke-dashoffset 1.3s ease', filter: 'drop-shadow(0 0 4px rgba(226,255,109,0.5))' }} />
+          style={{ transition: 'stroke-dashoffset 1.3s ease', filter: ringFilter }} />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-[10px] font-bold leading-none" style={{ color: '#E2FF6D', fontFamily: "'DM Mono', monospace" }}>{percent}%</span>
+        <span className="text-[10px] font-bold leading-none" style={{ color: tokens.dark ? '#E2FF6D' : '#323232', fontFamily: "'DM Mono', monospace" }}>{percent}%</span>
         <span className="text-[7px] uppercase" style={{ color: tokens.textMuted }}>Done</span>
       </div>
     </div>
@@ -270,7 +272,7 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = tokens.cardBorderHover; }}
       onMouseLeave={e => {
         const border = isClaimReady ? (tokens.dark ? 'rgba(226,255,109,0.3)' : '#323232')
-          : bounty.specialGlow ? (tokens.dark ? 'rgba(226,255,109,0.4)' : '#323232')
+          : bounty.specialGlow ? (tokens.dark ? 'rgba(226,255,109,0.4)' : 'rgba(50,50,50,0.3)')
           : (tokens.dark ? 'rgba(226,255,109,0.15)' : '#D9D9D9');
         (e.currentTarget as HTMLElement).style.borderColor = border;
       }}
