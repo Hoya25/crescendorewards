@@ -2,8 +2,9 @@ import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import {
   Zap, Trophy, Flame, Diamond, ChevronDown, ChevronUp,
   ShoppingCart, Users, Share2, Heart, Check, ExternalLink,
-  Sun, Moon,
+  Sun, Moon, ArrowLeft,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
 import { useTheme } from '@/components/ThemeProvider';
@@ -74,8 +75,8 @@ function useTokens() {
       : '#FFFFFF',
     cardClaimBorder: dark ? '1px solid rgba(226,255,109,0.3)' : '1px solid #323232',
     textPrimary: dark ? '#FFFFFF' : '#323232',
-    textSecondary: '#5A5A58',
-    textMuted: '#5A5A58',
+    textSecondary: dark ? '#8A8A88' : '#5A5A58',
+    textMuted: dark ? '#8A8A88' : '#5A5A58',
     lime: '#E2FF6D',
     amountColor: dark ? '#E2FF6D' : '#323232',
     amountAccent: '#E2FF6D',
@@ -435,6 +436,7 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
 
 export default function BountyBoardPage() {
   const tokens = useTokens();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Category>('shopping');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -510,7 +512,7 @@ export default function BountyBoardPage() {
     }
     if (allClaimReady.length === 0) {
       toast('No rewards ready to claim yet', {
-        style: { background: '#323232', color: '#5A5A58', border: '1px solid rgba(255,255,255,0.1)' },
+        style: { background: '#323232', color: '#8A8A88', border: '1px solid rgba(255,255,255,0.1)' },
         duration: 2500,
       });
     } else {
@@ -551,12 +553,24 @@ export default function BountyBoardPage() {
       <div className="sticky top-0 z-50 transition-colors duration-300" style={{ background: tokens.headerBg, backdropFilter: 'blur(20px)', borderBottom: tokens.headerBorder }}>
         <div className="max-w-3xl mx-auto px-4">
           <div className="flex items-center justify-between py-3">
-            <div>
+           <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate('/')}
+                className="w-8 h-8 rounded-full flex items-center justify-center transition-colors no-min-touch"
+                style={{ background: 'transparent' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = tokens.dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                aria-label="Go back"
+              >
+                <ArrowLeft className="w-5 h-5" style={{ color: tokens.textPrimary }} />
+              </button>
+              <div>
               <h1 className="text-xl font-bold flex items-center gap-2" style={{ color: tokens.textPrimary }}>
-                <img src="/nctr-n-lime.svg" alt="NCTR" className="w-6 h-6" />
+                <img src="/nctr-n-lime.svg" alt="NCTR" className="w-6 h-6" style={{ filter: tokens.dark ? 'none' : 'brightness(0) saturate(100%)' }} />
                 Bounty Board
               </h1>
               <p className="text-[11px] uppercase tracking-widest" style={{ color: tokens.textMuted }}>Crescendo Rewards</p>
+            </div>
             </div>
             <div className="flex items-center gap-2">
               <ProgressRing percent={completionPercent} tokens={tokens} />
