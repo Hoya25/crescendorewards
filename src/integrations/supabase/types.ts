@@ -559,6 +559,9 @@ export type Database = {
           lock_multiplier: number | null
           max_completions: number | null
           min_status_required: string | null
+          multiplier_status_tiers: Json | null
+          multiplier_type: string | null
+          multiplier_value: number | null
           nctr_reward: number
           progress_target: number | null
           purchase_product_type: string | null
@@ -596,6 +599,9 @@ export type Database = {
           lock_multiplier?: number | null
           max_completions?: number | null
           min_status_required?: string | null
+          multiplier_status_tiers?: Json | null
+          multiplier_type?: string | null
+          multiplier_value?: number | null
           nctr_reward?: number
           progress_target?: number | null
           purchase_product_type?: string | null
@@ -633,6 +639,9 @@ export type Database = {
           lock_multiplier?: number | null
           max_completions?: number | null
           min_status_required?: string | null
+          multiplier_status_tiers?: Json | null
+          multiplier_type?: string | null
+          multiplier_value?: number | null
           nctr_reward?: number
           progress_target?: number | null
           purchase_product_type?: string | null
