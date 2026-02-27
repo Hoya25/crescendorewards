@@ -53,7 +53,7 @@ const coreNavItems: NavItem[] = [
   { title: 'My Rewards', url: '/rewards', icon: Gift, emoji: '🎁', subtext: 'Redeem with your locked NCTR' },
   { title: 'My Status', url: '/membership', icon: Lock, emoji: '💎', subtext: 'Your status level unlocks your rewards' },
   { title: 'Shop & Earn', url: '#', icon: ShoppingBag, emoji: '🛒', subtext: 'Earn NCTR on every purchase', external: 'https://thegarden.nctr.live/' },
-  { title: 'Bounties', url: '/bounties', icon: Zap, emoji: '⚡', subtext: 'Complete missions, earn NCTR' },
+  { title: 'Bounties', url: '/bounties', icon: Zap, emoji: '⚡', subtext: 'Complete bounties, earn NCTR' },
 ];
 
 const secondaryNavItems: NavItem[] = [
