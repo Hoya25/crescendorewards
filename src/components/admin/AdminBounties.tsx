@@ -55,11 +55,13 @@ interface BountyRow {
   completion_message: string | null;
   created_at: string | null;
   status: 'active' | 'paused' | 'hidden';
-  // New fields for Bounty Board integration
   is_wide: boolean | null;
   cap_per_month: number | null;
   progress_target: number | null;
   sort_order: number | null;
+  multiplier_type: string | null;
+  multiplier_value: number | null;
+  multiplier_status_tiers: Record<string, number> | null;
 }
 
 interface ClaimRow {
@@ -77,6 +79,14 @@ interface ClaimRow {
   created_at: string | null;
   bounty?: { title: string } | null;
 }
+
+const DEFAULT_STATUS_TIERS: Record<string, number> = {
+  Bronze: 1, Silver: 1.5, Gold: 2, Platinum: 2.5, Diamond: 3,
+};
+
+const TIER_COLORS_MAP: Record<string, string> = {
+  Bronze: '#CD7F32', Silver: '#C0C0C0', Gold: '#FFD700', Platinum: '#E5E4E2', Diamond: '#B9F2FF',
+};
 
 const EMPTY_FORM: Partial<BountyRow> = {
   title: '',
@@ -104,6 +114,9 @@ const EMPTY_FORM: Partial<BountyRow> = {
   cap_per_month: null,
   progress_target: null,
   sort_order: 0,
+  multiplier_type: null,
+  multiplier_value: null,
+  multiplier_status_tiers: null,
 };
 
 const BOARD_CATEGORIES = [
@@ -404,6 +417,7 @@ export function AdminBounties() {
                   <TableHead>Category</TableHead>
                   <TableHead className="cursor-pointer" onClick={() => toggleSort('nctr_reward')}>NCTR {sortBy === 'nctr_reward' && (sortDir === 'asc' ? '↑' : '↓')}</TableHead>
                   <TableHead>Difficulty</TableHead>
+                  <TableHead>Multiplier</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Recurring</TableHead>
                   <TableHead className="cursor-pointer" onClick={() => toggleSort('total_completions')}>Claims {sortBy === 'total_completions' && (sortDir === 'asc' ? '↑' : '↓')}</TableHead>
@@ -454,6 +468,14 @@ export function AdminBounties() {
                       <Badge className={cn('text-xs', DIFFICULTY_COLORS[b.difficulty || 'medium'])}>
                         {b.difficulty || 'medium'}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      {b.multiplier_type === 'status_based' ? (() => {
+                        const tiers = b.multiplier_status_tiers as Record<string, number> | null;
+                        if (!tiers) return 'Status: 1x–3x';
+                        const vals = Object.values(tiers);
+                        return `Status: ${Math.min(...vals)}x–${Math.max(...vals)}x`;
+                      })() : b.multiplier_type === 'flat_bonus' ? `${b.multiplier_value || 2}x Bonus` : '—'}
                     </TableCell>
                     <TableCell>
                       <Select value={b.status || 'active'} onValueChange={(v: 'active' | 'paused' | 'hidden') => updateBountyStatus.mutate({ id: b.id, status: v })}>
@@ -712,6 +734,70 @@ export function AdminBounties() {
                   <Input type="number" value={formData.progress_target ?? ''} onChange={e => setFormData(p => ({ ...p, progress_target: Number(e.target.value) || null }))} placeholder="e.g. 5" />
                 </div>
               </div>
+            </div>
+
+            {/* ── Multiplier System ── */}
+            <div className="border-t pt-4 mt-2">
+              <p className="text-sm font-semibold text-muted-foreground mb-3">Multiplier System</p>
+              <div className="grid gap-2">
+                <Label>Multiplier Type</Label>
+                <Select value={formData.multiplier_type || 'none'} onValueChange={v => {
+                  const mt = v === 'none' ? null : v;
+                  setFormData(p => ({
+                    ...p,
+                    multiplier_type: mt,
+                    multiplier_value: mt === 'flat_bonus' ? (p.multiplier_value || 2) : null,
+                    multiplier_status_tiers: mt === 'status_based' ? (p.multiplier_status_tiers || DEFAULT_STATUS_TIERS) : null,
+                  }));
+                }}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None — flat amount, no multiplier</SelectItem>
+                    <SelectItem value="status_based">Status Based — scales with Crescendo tier</SelectItem>
+                    <SelectItem value="flat_bonus">Flat Bonus — fixed multiplier for all users</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {formData.multiplier_type === 'status_based' && (
+                <div className="mt-3 space-y-2">
+                  <Label className="text-xs text-muted-foreground">Tier Multipliers</Label>
+                  <div className="grid gap-2 rounded-lg border p-3 bg-muted/30">
+                    {['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'].map(tier => (
+                      <div key={tier} className="flex items-center gap-3">
+                        <span className="text-sm font-bold w-20" style={{ color: TIER_COLORS_MAP[tier] }}>{tier}</span>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          className="w-24 h-8 text-sm font-mono"
+                          value={(formData.multiplier_status_tiers as any)?.[tier] ?? DEFAULT_STATUS_TIERS[tier]}
+                          onChange={e => {
+                            const current = (formData.multiplier_status_tiers || DEFAULT_STATUS_TIERS) as Record<string, number>;
+                            setFormData(p => ({ ...p, multiplier_status_tiers: { ...current, [tier]: Number(e.target.value) } }));
+                          }}
+                        />
+                        <span className="text-xs text-muted-foreground">×</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {formData.multiplier_type === 'flat_bonus' && (
+                <div className="mt-3 grid gap-2">
+                  <Label>Multiplier Value</Label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    min="1"
+                    className="w-32"
+                    value={formData.multiplier_value ?? 2}
+                    onChange={e => setFormData(p => ({ ...p, multiplier_value: Number(e.target.value) }))}
+                  />
+                  <p className="text-xs text-muted-foreground">e.g. 2.0 means users earn 2× the base NCTR</p>
+                </div>
+              )}
             </div>
             <div className="grid gap-2">
               <Label>Visibility Status</Label>

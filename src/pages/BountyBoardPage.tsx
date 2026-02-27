@@ -40,6 +40,9 @@ interface DisplayBounty {
   specialNote?: string;
   resetsLabel?: string;
   tag?: string;
+  multiplierType?: string | null;
+  multiplierValue?: number | null;
+  multiplierStatusTiers?: Record<string, number> | null;
 }
 
 const VALID_CATEGORIES: Category[] = ['shopping', 'referral', 'social', 'engagement'];
@@ -165,6 +168,9 @@ function mapDbToDisplay(row: any): DisplayBounty | null {
     progressCurrent: 0,
     specialNote: row.completion_message || undefined,
     resetsLabel: row.is_recurring && row.recurrence_period ? `Resets ${row.recurrence_period}` : undefined,
+    multiplierType: row.multiplier_type || null,
+    multiplierValue: row.multiplier_value || null,
+    multiplierStatusTiers: row.multiplier_status_tiers || null,
   };
 }
 
@@ -278,6 +284,33 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
             </span>
           </div>
           <p className="text-xs mt-0.5" style={{ color: tokens.textSecondary }}>{bounty.description}</p>
+
+          {/* Multiplier badges */}
+          {bounty.multiplierType === 'status_based' && bounty.multiplierStatusTiers && (() => {
+            const userTier = MOCK_STATS.tier;
+            const userMult = bounty.multiplierStatusTiers[userTier] || 1;
+            const maxMult = Math.max(...Object.values(bounty.multiplierStatusTiers));
+            const maxAmount = Math.round(bounty.nctrAmount * maxMult);
+            return (
+              <div className="mt-1.5 space-y-0.5">
+                <span className="inline-flex text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                  style={{ background: tokens.dark ? 'rgba(226,255,109,0.1)' : 'rgba(50,50,50,0.06)', color: tokens.dark ? '#E2FF6D' : '#323232' }}>
+                  {userMult}x {userTier} Bonus
+                </span>
+                <p className="text-[10px]" style={{ color: tokens.textMuted }}>
+                  Earn up to {maxAmount.toLocaleString()} at Diamond
+                </p>
+              </div>
+            );
+          })()}
+          {bounty.multiplierType === 'flat_bonus' && bounty.multiplierValue && (
+            <div className="mt-1.5">
+              <span className="inline-flex text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                style={{ background: tokens.dark ? 'rgba(226,255,109,0.1)' : 'rgba(50,50,50,0.06)', color: tokens.dark ? '#E2FF6D' : '#323232' }}>
+                {bounty.multiplierValue}x Bonus Active
+              </span>
+            </div>
+          )}
 
           <div className="flex flex-wrap items-center gap-1.5 mt-2">
             <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full"
