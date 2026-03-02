@@ -252,6 +252,13 @@ html.theme-transitioning *::after {
 }
 
 @layer utilities {
+
+  @keyframes mcpPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+
   .animate-scale-in {
     animation: scaleIn 0.3s ease-out;
   }
