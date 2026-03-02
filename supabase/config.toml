@@ -19,3 +19,7 @@ verify_jwt = false
 # Monthly claims distribution - admin only, validated in code
 [functions.monthly-claims-distribution]
 verify_jwt = false
+
+# MCP server - public API for AI agents
+[functions.mcp]
+verify_jwt = false
