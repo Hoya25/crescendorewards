@@ -1,4 +1,4 @@
-// Mobile Impact Engines modal/sheet
+// Mobile Community Categories modal/sheet
 import { useNavigate } from 'react-router-dom';
 import { Hexagon, Lock, ChevronRight, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -34,10 +34,10 @@ export function ImpactEnginesSheet({ open, onOpenChange }: ImpactEnginesSheetPro
             <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500/20 to-primary/20">
               <Hexagon className="w-5 h-5 text-emerald-500" />
             </div>
-            Impact Engines
+            Community Categories
           </SheetTitle>
           <p className="text-sm text-muted-foreground">
-            Token-powered community reward engines
+            Token-powered community reward categories
           </p>
         </SheetHeader>
 
@@ -110,7 +110,7 @@ export function ImpactEnginesSheet({ open, onOpenChange }: ImpactEnginesSheetPro
         {/* Bottom Info */}
         <div className="pt-4 border-t text-center">
           <p className="text-xs text-muted-foreground">
-            More engines launching throughout 2025
+            More categories launching throughout 2025
           </p>
         </div>
       </SheetContent>

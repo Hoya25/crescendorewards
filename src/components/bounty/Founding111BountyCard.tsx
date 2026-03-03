@@ -32,7 +32,7 @@ export function Founding111BountyCard({ bounty }: { bounty: StaticBounty }) {
           </div>
           <div className="rounded-lg bg-muted/50 p-3 text-center">
             <span className="text-sm font-bold text-muted-foreground">
-              CLOSED — Early Adopter period ended
+               CLOSED — Early Adopter period ended
             </span>
           </div>
           <Progress value={100} className="h-1.5 [&>div]:bg-muted-foreground" />

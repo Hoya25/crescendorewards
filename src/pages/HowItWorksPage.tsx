@@ -38,13 +38,13 @@ const REWARD_CHANNELS = [
   { emoji: "🎁", title: "Treasury-Purchased", subtitle: "FUNDED BY COMMERCE", desc: "The treasury uses its revenue to purchase gift cards, experiences, and exclusive opportunities at scale." },
 ];
 
-const IMPACT_ENGINES = [
-  { name: "THROTTLE", sport: "Powersports", emoji: "🏍️" },
-  { name: "GROUNDBALL", sport: "Lacrosse", emoji: "🥍" },
-  { name: "STARDUST", sport: "Entertainment", emoji: "✨" },
-  { name: "SWEAT", sport: "Skilled Trades", emoji: "🔧" },
-  { name: "SISU", sport: "Recovery", emoji: "💪" },
-  { name: "SHIFT", sport: "Hospitality", emoji: "🍽️" },
+const COMMUNITY_CATEGORIES = [
+  { name: "Powersports", sport: "Powersports", emoji: "🏍️" },
+  { name: "Lacrosse", sport: "Lacrosse", emoji: "🥍" },
+  { name: "Entertainment", sport: "Entertainment", emoji: "✨" },
+  { name: "Skilled Trades", sport: "Skilled Trades", emoji: "🔧" },
+  { name: "Recovery", sport: "Recovery", emoji: "💪" },
+  { name: "Hospitality", sport: "Hospitality", emoji: "🍽️" },
 ];
 
 const BUILT_TO_LAST = [
@@ -225,17 +225,17 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      {/* ── IMPACT ENGINES ── */}
+      {/* ── COMMUNITY CATEGORIES ── */}
       <section className="py-16 md:py-24 px-4 md:px-6" style={{ background: '#111' }}>
         <div className="max-w-5xl mx-auto">
           <motion.div {...fadeIn} className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Impact Engines</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Community Categories</h2>
             <p className="text-sm max-w-xl mx-auto" style={{ color: 'rgba(255,255,255,0.5)' }}>
-              NCTR isn't one community — it's infrastructure for many. Each Impact Engine is a token economy built for a specific passion. Same treasury model. Different world.
+              NCTR isn't one community — it's infrastructure for many. Each category is a token economy built for a specific passion. Same treasury model. Different world.
             </p>
           </motion.div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {IMPACT_ENGINES.map((eng, i) => (
+            {COMMUNITY_CATEGORIES.map((eng, i) => (
               <motion.div
                 key={i}
                 {...fadeIn}

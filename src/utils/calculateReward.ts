@@ -2,7 +2,7 @@
  * Reward calculation utility — handles status multiplier × merch bonus stacking.
  *
  * TWO LAYERS THAT STACK:
- * 1. STATUS MULTIPLIER — applies to ALL earning (Bronze 1x → Diamond 3x)
+ * 1. STATUS MULTIPLIER — applies to ALL earning (Bronze 1x → Diamond 2.5x)
  * 2. MERCH 360LOCK BONUS — 3x automatic on merch purchases + merch bounties ONLY
  *
  * FORMULA: final = base × merch_bonus (if applicable) × status_multiplier
@@ -69,6 +69,6 @@ export const DEFAULT_EARNING_MULTIPLIERS: Record<string, number> = {
   bronze: 1.0,
   silver: 1.25,
   gold: 1.5,
-  platinum: 1.75,
-  diamond: 2.0,
+  platinum: 2.0,
+  diamond: 2.5,
 };
