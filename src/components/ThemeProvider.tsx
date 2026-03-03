@@ -14,13 +14,8 @@ const STORAGE_KEY = 'crescendo_theme';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
-    // Check localStorage first
     const saved = localStorage.getItem(STORAGE_KEY) as Theme | null;
     if (saved === 'light' || saved === 'dark') return saved;
-    // Check system preference, but default to dark
-    if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: light)').matches) {
-      return 'light';
-    }
     return 'dark';
   });
 
