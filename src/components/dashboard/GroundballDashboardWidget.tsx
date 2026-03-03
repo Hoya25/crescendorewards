@@ -79,7 +79,7 @@ export function GroundballDashboardWidget() {
     <Card className={cn('border-2', statusConfig.borderColor, 'bg-gradient-to-br from-emerald-500/5 to-transparent')}>
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
-          🥍 GROUNDBALL Impact Engine
+          🥍 Lacrosse Community
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -134,7 +134,7 @@ export function GroundballDashboardWidget() {
               You haven't selected any rewards yet
             </p>
             <p className="text-xs text-muted-foreground">
-              Browse the GROUNDBALL marketplace to get started
+              Browse the rewards marketplace to get started
             </p>
           </div>
         )}

@@ -38,7 +38,7 @@ export interface SponsorshipCampaign {
   budget_spent: number;
   start_date: string;
   end_date?: string;
-  target_mission_engine?: string;
+  target_community_category?: string;
   target_tiers: string[];
   is_active: boolean;
   created_at: string;

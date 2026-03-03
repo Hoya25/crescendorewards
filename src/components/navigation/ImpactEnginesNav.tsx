@@ -1,4 +1,4 @@
-// Impact Engines collapsible navigation group for main sidebar
+// Community Categories collapsible navigation group for main sidebar
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronDown, ChevronRight, Hexagon, Lock } from 'lucide-react';
@@ -52,7 +52,7 @@ export function ImpactEnginesNav({ onNavigate }: ImpactEnginesNavProps) {
                   "cursor-pointer",
                   anyEngineActive && "bg-emerald-500/10 text-emerald-500"
                 )}
-                title="Impact Engines"
+                title="Community Categories"
               >
                 <Hexagon className={cn(
                   "h-4 w-4",
@@ -82,7 +82,7 @@ export function ImpactEnginesNav({ onNavigate }: ImpactEnginesNavProps) {
                 "h-3.5 w-3.5",
                 anyEngineActive ? "text-emerald-500" : "text-muted-foreground"
               )} />
-              <span>Impact Engines</span>
+              <span>Community Categories</span>
             </div>
             {isExpanded ? (
               <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />

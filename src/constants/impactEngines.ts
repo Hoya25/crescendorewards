@@ -1,4 +1,4 @@
-// Impact Engine Configuration - Scalable for future tokens
+// Community Categories Configuration - Scalable for future tokens
 
 export type ImpactEngineSlug = 'groundball' | 'throttle' | 'stardust' | 'sweat' | 'sisu';
 
