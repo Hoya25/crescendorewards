@@ -31,6 +31,9 @@ export function Footer() {
           </a>
         </nav>
       </div>
+      <p className="text-center pb-3 px-4" style={{ fontSize: '11px', color: '#5A5A58' }}>
+        NCTR is a utility token used within the NCTR Alliance commerce network. Not an investment product. Not a security.
+      </p>
     </footer>
   );
 }
