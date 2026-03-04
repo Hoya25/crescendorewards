@@ -14,6 +14,7 @@ const TIER_INFO = [
     key: "bronze",
     emoji: "🥉",
     range: "0–99 NCTR locked",
+    mult: "1.0x",
     perks: "All Tier 1 bounties + Merch Monday",
     color: "#CD7F32",
   },
@@ -22,6 +23,7 @@ const TIER_INFO = [
     key: "silver",
     emoji: "🥈",
     range: "100–499 NCTR locked",
+    mult: "1.25x",
     perks: "Tier 2 bounties + NCTR Sighting",
     color: "#C0C0C0",
   },
@@ -30,6 +32,7 @@ const TIER_INFO = [
     key: "gold",
     emoji: "🥇",
     range: "500–1,999 NCTR locked",
+    mult: "1.5x",
     perks: "Tier 3 campaign bounties + Multi-Purchase Bonus",
     color: "#FFD700",
   },
@@ -37,7 +40,8 @@ const TIER_INFO = [
     name: "Platinum",
     key: "platinum",
     emoji: "💎",
-    range: "2,000–9,999 NCTR locked",
+    range: "10,000–49,999 NCTR locked",
+    mult: "1.8x",
     perks: "Premium rewards + exclusive experiences",
     color: "#E5E4E2",
   },
@@ -45,7 +49,8 @@ const TIER_INFO = [
     name: "Diamond",
     key: "diamond",
     emoji: "👑",
-    range: "10,000+ NCTR locked",
+    range: "50,000+ NCTR locked",
+    mult: "2.5x",
     perks: "Maximum rewards. Community leader.",
     color: "#00BFFF",
   },
@@ -99,6 +104,9 @@ export function StatusExplainer() {
                   </p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">
                     {t.range}
+                  </p>
+                  <p className="text-xs font-bold mt-1" style={{ color: t.color }}>
+                    {t.mult}
                   </p>
                   <p className="text-[10px] text-muted-foreground/70 mt-1 leading-tight">
                     {t.perks}

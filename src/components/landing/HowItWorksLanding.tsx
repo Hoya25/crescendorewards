@@ -19,7 +19,7 @@ const steps = [
     emoji: '🏆',
     title: 'Unlock Rewards & Status',
     description:
-      'Your locked NCTR determines your Crescendo status: Bronze → Silver → Gold → Platinum → Diamond. Higher status gives you a higher earning multiplier on everything — 1.25x at Silver up to 2x at Diamond. Plus exclusive bounties, better rewards, and premium experiences.',
+      'Your locked NCTR determines your Crescendo status: Bronze → Silver → Gold → Platinum → Diamond. Higher status gives you a higher earning multiplier on everything — 1.0x at Bronze up to 2.5x at Diamond. Plus exclusive bounties, better rewards, and premium experiences.',
   },
 ];
 
