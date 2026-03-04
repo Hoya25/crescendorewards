@@ -7,7 +7,7 @@ export const REFERRAL_REWARDS = {
   // Default values - these can be overridden by admin settings
   defaults: {
     allocation360Lock: 500,
-    signupBonus: 100,
+    signupBonus: 625,
     claimsPerReferral: 0, // Currently not awarding claims per referral
   },
   

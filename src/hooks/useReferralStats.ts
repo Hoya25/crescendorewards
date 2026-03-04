@@ -21,7 +21,7 @@ export function useReferralStats() {
           totalReferrals: 0,
           successfulReferrals: 0,
           totalEarned: 0,
-          signupBonus: 100,
+          signupBonus: 625,
           hasClaimedSignupBonus: false,
         };
       }
@@ -56,7 +56,7 @@ export function useReferralStats() {
         totalReferrals,
         successfulReferrals,
         totalEarned,
-        signupBonus: 100,
+        signupBonus: 625,
         hasClaimedSignupBonus: profile?.has_claimed_signup_bonus ?? false,
       };
     },

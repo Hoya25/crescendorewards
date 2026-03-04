@@ -441,7 +441,7 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
               </button>
             )}
             {bounty.status === 'not_started' && bounty.category === 'shopping' && (
-              <a href="https://thegarden.nctr.live" target="_blank" rel="noopener noreferrer"
+              <a href="https://thegarden.nctr.live/garden" target="_blank" rel="noopener noreferrer"
                 className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl text-sm font-extrabold transition-transform hover:scale-[1.03]"
                 style={{ background: tokens.ctaBg, color: tokens.ctaText }}>
                 Start Shopping <ExternalLink className="w-3.5 h-3.5" />
@@ -608,7 +608,7 @@ export default function BountyBoardPage() {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <a
-                        href="https://thegarden.nctr.live/for-agents"
+                        href="https://thegarden.nctr.live/garden"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 no-min-touch transition-opacity hover:opacity-80"
