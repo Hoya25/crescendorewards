@@ -35,7 +35,7 @@ const statusMultipliers: Record<number, number> = {
   0: 1.0,    // Bronze
   1: 1.25,   // Silver
   2: 1.5,    // Gold
-  3: 2.0,    // Platinum
+  3: 1.8,    // Platinum
   4: 2.5,    // Diamond
 };
 

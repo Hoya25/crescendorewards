@@ -35,12 +35,12 @@ const tierUnlocks: Record<string, { icon: any; title: string; desc: string }[]> 
   platinum: [
     { icon: Gem, title: "Premium Rewards", desc: "Exclusive experiences and opportunities" },
     { icon: Star, title: "Priority Contributor", desc: "Your contributed rewards get featured placement" },
-    { icon: Zap, title: "1.5x Earning", desc: "50% more on everything" },
+    { icon: Zap, title: "1.8x Earning", desc: "80% more on everything" },
   ],
   diamond: [
     { icon: Crown, title: "Maximum Status", desc: "Every opportunity in Crescendo is yours" },
     { icon: Users, title: "Community Leader", desc: "Featured contributor, maximum influence" },
-    { icon: TrendingUp, title: "2x Earning", desc: "Double rewards on every action" },
+    { icon: TrendingUp, title: "2.5x Earning", desc: "Maximum rewards on every action" },
   ],
 };
 
