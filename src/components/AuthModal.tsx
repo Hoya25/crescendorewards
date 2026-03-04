@@ -186,7 +186,7 @@ export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalP
                 <Gift className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                 <div>
                   <p className="font-semibold text-amber-900 dark:text-amber-100 flex items-center gap-1">
-                    Welcome Bonus: 100 <NCTRLogo size="sm" />
+                    Welcome Bonus: 625 <NCTRLogo size="sm" />
                   </p>
                   <p className="text-sm text-amber-800 dark:text-amber-200">Plus earn rewards on signup!</p>
                 </div>
