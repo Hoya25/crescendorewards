@@ -140,7 +140,18 @@ export function AdminDeposits() {
     if (error) {
       toast.error('Failed to credit deposit');
     } else {
-      toast.success('Deposit credited — tier recalculation triggered');
+      // Trigger tier recalculation — find unified_profiles.id from auth_user_id
+      const { data: unifiedProfile } = await supabase
+        .from('unified_profiles')
+        .select('id')
+        .eq('auth_user_id', creditDeposit.user_id)
+        .single();
+
+      if (unifiedProfile) {
+        await supabase.rpc('calculate_user_tier', { p_user_id: unifiedProfile.id });
+      }
+
+      toast.success('Deposit credited — tier recalculated');
       setCreditDeposit(null);
       fetchDeposits();
     }
@@ -179,7 +190,18 @@ export function AdminDeposits() {
           .eq('id', withdrawDeposit.user_id);
       }
 
-      toast.success('Withdrawal approved');
+      // Recalculate tier after withdrawal
+      const { data: unifiedProfile } = await supabase
+        .from('unified_profiles')
+        .select('id')
+        .eq('auth_user_id', withdrawDeposit.user_id)
+        .single();
+
+      if (unifiedProfile) {
+        await supabase.rpc('calculate_user_tier', { p_user_id: unifiedProfile.id });
+      }
+
+      toast.success('Withdrawal approved — tier recalculated');
       setWithdrawDeposit(null);
       setWithdrawTxHash('');
       fetchDeposits();
