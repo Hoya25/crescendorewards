@@ -13,6 +13,7 @@ import {
   getTierDisplayName,
   type Reward 
 } from '@/utils/getRewardPrice';
+import { calculateClaimsForUser, getClaimDiscountUpsell } from '@/utils/calculateClaimsForUser';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { CreatorShowcase, CreatorHandles } from '@/components/creators/CreatorShowcase';
 import { useRewardCreators } from '@/hooks/useFeaturedCreators';
@@ -282,31 +283,40 @@ export function VisualRewardCard({
           <CreatorHandles creators={rewardCreators} max={2} />
         )}
         {/* Price row */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            {pricing.isFree ? (
-              <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 text-sm font-semibold px-2 py-0.5">
-                FREE
-              </Badge>
-            ) : (
-              <>
-                <Coins className="w-4 h-4 text-primary" />
-                <span className="text-lg font-bold text-foreground">{pricing.price}</span>
-                <span className="text-sm text-muted-foreground">claims</span>
-                {pricing.discount > 0 && (
-                  <span className="text-sm text-muted-foreground line-through ml-1">{pricing.originalPrice}</span>
-                )}
-              </>
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              {pricing.isFree ? (
+                <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 text-sm font-semibold px-2 py-0.5">
+                  FREE
+                </Badge>
+              ) : (
+                <>
+                  <Coins className="w-4 h-4 text-primary" />
+                  <span className="text-lg font-bold text-foreground">
+                    {calculateClaimsForUser(pricing.price, userTier.tierName)}
+                  </span>
+                  <span className="text-sm text-muted-foreground">claims</span>
+                  {calculateClaimsForUser(pricing.price, userTier.tierName) < pricing.price && (
+                    <span className="text-sm text-muted-foreground line-through ml-1">{pricing.price}</span>
+                  )}
+                </>
+              )}
+            </div>
+            {remainingStock !== null && remainingStock <= 20 && remainingStock > 0 && (
+              <span className={cn(
+                "text-xs flex items-center gap-1",
+                remainingStock <= 5 ? "text-orange-500 font-medium" : "text-muted-foreground"
+              )}>
+                <Package className="w-3 h-3" />
+                {remainingStock} left
+              </span>
             )}
           </div>
-          {remainingStock !== null && remainingStock <= 20 && remainingStock > 0 && (
-            <span className={cn(
-              "text-xs flex items-center gap-1",
-              remainingStock <= 5 ? "text-orange-500 font-medium" : "text-muted-foreground"
-            )}>
-              <Package className="w-3 h-3" />
-              {remainingStock} left
-            </span>
+          {!pricing.isFree && pricing.price > 0 && (
+            <p className="text-xs text-muted-foreground leading-tight">
+              {getClaimDiscountUpsell(pricing.price, userTier.tierName)}
+            </p>
           )}
         </div>
 
