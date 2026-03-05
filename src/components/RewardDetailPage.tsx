@@ -33,6 +33,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { useDeliveryProfile } from '@/hooks/useDeliveryProfile';
 import { getRewardPriceForUser, canUserClaimReward, getTierDisplayName, getAllTierPrices, type Reward as RewardType } from '@/utils/getRewardPrice';
+import { calculateClaimsForUser, getClaimDiscountUpsell, getAllTierDiscountedPrices } from '@/utils/calculateClaimsForUser';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import type { DeliveryMethod, RequiredDataField } from '@/types/delivery';
@@ -783,24 +784,30 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                   </div>
                 ) : (
                   <div className="text-center py-4">
-                    <div className="flex items-center justify-center gap-2">
-                      <Coins className="w-8 h-8 text-primary" />
-                      <span className="text-5xl font-bold text-primary">{pricing.price}</span>
-                      <span className="text-xl text-muted-foreground">claims</span>
-                    </div>
-                    {pricing.discount > 0 && (
-                      <p className="text-muted-foreground mt-2">
-                        <span className="line-through">{pricing.originalPrice} claims</span>
-                        <Badge variant="secondary" className="ml-2 bg-emerald-500/10 text-emerald-600">
-                          Save {pricing.discount}%
-                        </Badge>
-                      </p>
-                    )}
-                    {bronzePrice > pricing.price && (
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Bronze members pay {bronzePrice} claims
-                      </p>
-                    )}
+                    {(() => {
+                      const discountedCost = calculateClaimsForUser(pricing.price, userTier);
+                      const hasDiscount = discountedCost < pricing.price;
+                      return (
+                        <>
+                          <div className="flex items-center justify-center gap-2">
+                            <Coins className="w-8 h-8 text-primary" />
+                            <span className="text-5xl font-bold text-primary">{discountedCost}</span>
+                            <span className="text-xl text-muted-foreground">claims</span>
+                          </div>
+                          {hasDiscount && (
+                            <p className="text-muted-foreground mt-2">
+                              <span className="line-through">{pricing.price} claims</span>
+                              <Badge variant="secondary" className="ml-2 bg-emerald-500/10 text-emerald-600">
+                                {getTierDisplayName(userTier)} discount
+                              </Badge>
+                            </p>
+                          )}
+                          <p className="text-sm text-muted-foreground mt-2">
+                            {getClaimDiscountUpsell(pricing.price, userTier)}
+                          </p>
+                        </>
+                      );
+                    })()}
                   </div>
                 )}
 
@@ -830,6 +837,50 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                 )}
               </CardContent>
             </Card>
+
+            {/* Tier Pricing Breakdown */}
+            {!isLocked && !pricing.isFree && (
+              <Card className="overflow-hidden">
+                <CardContent className="p-5 space-y-3">
+                  <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Claim Cost by Status</h3>
+                  <div className="space-y-0">
+                    {getAllTierDiscountedPrices(pricing.price).map(({ tier, displayName, cost }) => {
+                      const isCurrentTier = tier === userTier;
+                      return (
+                        <div
+                          key={tier}
+                          className={cn(
+                            "flex items-center justify-between py-2 px-3 rounded-md text-sm",
+                            isCurrentTier && "border-l-[3px] bg-[#E2FF6D]/10",
+                            !isCurrentTier && "border-l-[3px] border-transparent"
+                          )}
+                          style={isCurrentTier ? { borderLeftColor: '#E2FF6D' } : undefined}
+                        >
+                          <span className={cn("flex items-center gap-2", isCurrentTier && "font-semibold")}>
+                            {tierEmojis[tier] || '🎫'} {displayName}
+                            {isCurrentTier && (
+                              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">You</Badge>
+                            )}
+                          </span>
+                          <span className={cn(isCurrentTier ? "font-bold text-foreground" : "text-muted-foreground")}>
+                            {cost} claim{cost !== 1 ? 's' : ''}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-muted-foreground pt-1">
+                    Higher status = fewer claims.{' '}
+                    <button
+                      onClick={() => navigate('/status')}
+                      className="text-primary hover:underline inline-flex items-center gap-0.5"
+                    >
+                      See how to level up →
+                    </button>
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Description */}
             <div>

@@ -1768,6 +1768,24 @@ export function AdminRewards() {
                 </Select>
               </div>
               <div className="space-y-2">
+                <Label>Reward Dollar Value ($)</Label>
+                <Input 
+                  type="number" 
+                  step="0.01"
+                  value={(formData as any).dollar_value ?? ''} 
+                  placeholder="e.g. 25.00"
+                  onChange={(e) => {
+                    const dollarVal = e.target.value ? parseFloat(e.target.value) : null;
+                    setFormData({ 
+                      ...formData, 
+                      cost: dollarVal ? Math.ceil(dollarVal / 5) : formData.cost,
+                      ...(dollarVal !== null ? { dollar_value: dollarVal } : {}) 
+                    } as any);
+                  }} 
+                />
+                <p className="text-xs text-muted-foreground">Auto-fills claim cost as ⌈dollar_value ÷ 5⌉</p>
+              </div>
+              <div className="space-y-2">
                 <Label>Cost (claims)</Label>
                 <Input type="number" value={formData.cost} onChange={(e) => setFormData({ ...formData, cost: parseInt(e.target.value) || 0 })} />
               </div>
