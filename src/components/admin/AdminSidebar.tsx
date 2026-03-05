@@ -89,6 +89,7 @@ const MENU_GROUPS: MenuGroup[] = [
     items: [
       { title: 'Claims', view: 'claims', icon: ShoppingBag, badgeKey: 'claims', permission: 'claims_view' },
       { title: 'Purchases', view: 'purchases', icon: Receipt, permission: 'claims_view' },
+      { title: 'Deposits', view: 'deposits', icon: Coins, permission: 'claims_view' },
       { title: 'Gifts', view: 'gifts', icon: Gift, permission: 'claims_view' },
     ],
   },
