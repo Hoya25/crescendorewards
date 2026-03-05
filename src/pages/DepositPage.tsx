@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { Copy, Check, Lock, ArrowRight, Wallet, Clock, AlertCircle } from 'lucide-react';
+import { Copy, Check, Lock, ArrowRight, Wallet, Clock, AlertCircle, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
 
 const OPS_WALLET = '0x921D9D535DE02618BaB75B309e46207C735c17BC';
@@ -37,6 +37,15 @@ export default function DepositPage() {
   const [submitting, setSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showChangeWallet, setShowChangeWallet] = useState(false);
+  const [totalLockedNctr, setTotalLockedNctr] = useState(0);
+
+  const TIER_THRESHOLDS = [
+    { name: 'Bronze', min: 100 },
+    { name: 'Silver', min: 1000 },
+    { name: 'Gold', min: 5000 },
+    { name: 'Platinum', min: 25000 },
+    { name: 'Diamond', min: 100000 },
+  ];
 
   useEffect(() => {
     if (user?.id) {
@@ -48,12 +57,13 @@ export default function DepositPage() {
   async function loadProfile() {
     const { data } = await supabase
       .from('profiles')
-      .select('registered_wallet_address')
+      .select('registered_wallet_address, total_locked_nctr')
       .eq('id', user!.id)
       .single();
     if (data?.registered_wallet_address) {
       setRegisteredWallet(data.registered_wallet_address);
     }
+    setTotalLockedNctr(Number(data?.total_locked_nctr) || 0);
     setLoading(false);
   }
 
@@ -257,6 +267,27 @@ export default function DepositPage() {
               >
                 View ops wallet on BaseScan ↗
               </a>
+            </div>
+
+            {/* Tier Projection */}
+            <div className="rounded-lg border border-border bg-background/50 p-4 space-y-3">
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                <TrendingUp className="w-4 h-4 text-[#E2FF6D]" />
+                <span>Your Status: {totalLockedNctr.toLocaleString()} NCTR locked</span>
+              </div>
+              <div className="space-y-1.5">
+                {TIER_THRESHOLDS.filter(t => t.min > totalLockedNctr).map(t => (
+                  <div key={t.name} className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">
+                      Deposit <span className="text-foreground font-medium">{(t.min - totalLockedNctr).toLocaleString()}</span> more NCTR
+                    </span>
+                    <span className="text-[#E2FF6D] font-semibold">→ reach {t.name}</span>
+                  </div>
+                ))}
+                {TIER_THRESHOLDS.every(t => t.min <= totalLockedNctr) && (
+                  <p className="text-xs text-[#E2FF6D]">🏆 You've reached Diamond — max status!</p>
+                )}
+              </div>
             </div>
 
             {/* TX Hash submission */}

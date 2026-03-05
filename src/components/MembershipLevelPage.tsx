@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { useTracking } from '@/contexts/ActivityTrackerContext';
@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Trophy, Zap, Gift, Tag, Check, Lock, Sparkles, Crown, TrendingUp, BarChart3, History, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Trophy, Zap, Gift, Tag, Check, Lock, Sparkles, Crown, TrendingUp, BarChart3, History, AlertCircle, Wallet } from 'lucide-react';
 import { ConfirmationDialog } from '@/components/ConfirmationDialog';
 import { cn } from '@/lib/utils';
 import { 
@@ -35,6 +35,33 @@ export function MembershipLevelPage() {
   const [processing, setProcessing] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [upgradedTier, setUpgradedTier] = useState<{ old: MembershipTier; new: MembershipTier; newLockedAmount: number } | null>(null);
+  const [depositInfo, setDepositInfo] = useState<{ total: number; earliestUnlock: string | null }>({ total: 0, earliestUnlock: null });
+
+  // Fetch deposit locked info from profiles
+  useEffect(() => {
+    if (!profile) return;
+    const fetchDepositInfo = async () => {
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('total_locked_nctr')
+        .eq('id', profile.auth_user_id)
+        .single();
+      
+      const { data: deposits } = await supabase
+        .from('nctr_deposits')
+        .select('unlocks_at')
+        .eq('user_id', profile.auth_user_id)
+        .in('status', ['confirmed', 'credited'])
+        .order('unlocks_at', { ascending: true })
+        .limit(1);
+      
+      setDepositInfo({
+        total: Number(profileData?.total_locked_nctr) || 0,
+        earliestUnlock: deposits?.[0]?.unlocks_at || null,
+      });
+    };
+    fetchDepositInfo();
+  }, [profile]);
 
   if (!profile) return null;
 
@@ -208,6 +235,20 @@ export function MembershipLevelPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* NCTR Breakdown */}
+            {depositInfo.total > 0 && (
+              <div className="rounded-lg bg-[#E2FF6D]/5 border border-[#E2FF6D]/20 p-3 space-y-1">
+                <div className="flex items-center gap-2 text-sm">
+                  <Wallet className="w-4 h-4 text-[#E2FF6D]" />
+                  <span className="font-medium">Deposited NCTR: {depositInfo.total.toLocaleString()}</span>
+                  {depositInfo.earliestUnlock && (
+                    <span className="text-xs text-muted-foreground">
+                      locked until {new Date(depositInfo.earliestUnlock).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
             {nextTierDisplay && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
