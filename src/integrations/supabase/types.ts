@@ -1831,6 +1831,62 @@ export type Database = {
           },
         ]
       }
+      nctr_deposits: {
+        Row: {
+          amount_nctr: number
+          created_at: string | null
+          deposited_at: string | null
+          id: string
+          lock_type: string | null
+          status: string | null
+          tx_hash: string | null
+          unlocks_at: string | null
+          user_id: string | null
+          wallet_address: string
+          withdrawal_approved_at: string | null
+          withdrawal_requested_at: string | null
+          withdrawal_tx_hash: string | null
+        }
+        Insert: {
+          amount_nctr: number
+          created_at?: string | null
+          deposited_at?: string | null
+          id?: string
+          lock_type?: string | null
+          status?: string | null
+          tx_hash?: string | null
+          unlocks_at?: string | null
+          user_id?: string | null
+          wallet_address: string
+          withdrawal_approved_at?: string | null
+          withdrawal_requested_at?: string | null
+          withdrawal_tx_hash?: string | null
+        }
+        Update: {
+          amount_nctr?: number
+          created_at?: string | null
+          deposited_at?: string | null
+          id?: string
+          lock_type?: string | null
+          status?: string | null
+          tx_hash?: string | null
+          unlocks_at?: string | null
+          user_id?: string | null
+          wallet_address?: string
+          withdrawal_approved_at?: string | null
+          withdrawal_requested_at?: string | null
+          withdrawal_tx_hash?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nctr_deposits_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       nctr_transactions: {
         Row: {
           base_amount: number
@@ -1980,8 +2036,11 @@ export type Database = {
           referral_milestones_claimed: Json | null
           referral_slug: string | null
           referred_by: string | null
+          registered_wallet_address: string | null
+          total_locked_nctr: number | null
           updated_at: string
           wallet_address: string | null
+          wallet_verified_at: string | null
         }
         Insert: {
           available_nctr?: number
@@ -2001,8 +2060,11 @@ export type Database = {
           referral_milestones_claimed?: Json | null
           referral_slug?: string | null
           referred_by?: string | null
+          registered_wallet_address?: string | null
+          total_locked_nctr?: number | null
           updated_at?: string
           wallet_address?: string | null
+          wallet_verified_at?: string | null
         }
         Update: {
           available_nctr?: number
@@ -2022,8 +2084,11 @@ export type Database = {
           referral_milestones_claimed?: Json | null
           referral_slug?: string | null
           referred_by?: string | null
+          registered_wallet_address?: string | null
+          total_locked_nctr?: number | null
           updated_at?: string
           wallet_address?: string | null
+          wallet_verified_at?: string | null
         }
         Relationships: [
           {
