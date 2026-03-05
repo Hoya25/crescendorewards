@@ -19,6 +19,7 @@ export function Footer() {
 
         {/* Right: Links */}
         <nav className="flex items-center gap-4">
+          <Link to="/about" className="hover:text-foreground transition-colors">About</Link>
           <Link to="/help" className="hover:text-foreground transition-colors">Help</Link>
           <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
           <a

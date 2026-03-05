@@ -80,6 +80,7 @@ const ContributePage = lazy(() => import('./pages/ContributePage'));
 const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
 const Crescendo = lazy(() => import('./pages/Crescendo'));
 const DepositPage = lazy(() => import('./pages/DepositPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
 
 // Admin panel - separate chunk for code splitting
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel').then(m => ({ default: m.AdminPanel })));
@@ -166,6 +167,7 @@ function AppRoutes() {
             <Route path="/faq" element={<HelpPage />} />
             <Route path="/claim" element={<ClaimGiftPage />} />
             <Route path="/how-it-works" element={<HowItWorksPage />} />
+            <Route path="/about" element={<AboutPage />} />
             
             {/* Public referral landing pages */}
             <Route path="/join/:slug" element={<InviteLandingPage />} />
