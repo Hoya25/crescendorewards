@@ -57,6 +57,21 @@ export function SEO({
       <meta name="twitter:title" content={pageTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={fullOgImage} />
+      
+      {/* Organization JSON-LD */}
+      <script type="application/ld+json">{JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "NCTR Alliance",
+        "alternateName": "Nectar Alliance",
+        "url": "https://nctr.live",
+        "description": "NCTR Alliance is a participation token economy on the Base blockchain. Members earn NCTR tokens through shopping and commit them via 360LOCK to unlock rewards and status on Crescendo.",
+        "sameAs": [
+          "https://crescendo.nctr.live",
+          "https://thegarden.nctr.live",
+          "https://basecamp.nctr.live"
+        ]
+      })}</script>
     </Helmet>
   );
 }
