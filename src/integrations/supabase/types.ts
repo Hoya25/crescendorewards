@@ -2710,6 +2710,7 @@ export type Database = {
           delivery_method: string | null
           description: string
           display_order: number | null
+          dollar_value: number | null
           id: string
           image_quality_approved: boolean | null
           image_source_url: string | null
@@ -2767,6 +2768,7 @@ export type Database = {
           delivery_method?: string | null
           description: string
           display_order?: number | null
+          dollar_value?: number | null
           id?: string
           image_quality_approved?: boolean | null
           image_source_url?: string | null
@@ -2824,6 +2826,7 @@ export type Database = {
           delivery_method?: string | null
           description?: string
           display_order?: number | null
+          dollar_value?: number | null
           id?: string
           image_quality_approved?: boolean | null
           image_source_url?: string | null
@@ -3417,6 +3420,7 @@ export type Database = {
           badge_emoji: string | null
           benefit_slots: number | null
           benefits: Json | null
+          claim_discount_multiplier: number | null
           claims_per_month: number | null
           claims_per_year: number | null
           concierge_service: boolean | null
@@ -3444,6 +3448,7 @@ export type Database = {
           badge_emoji?: string | null
           benefit_slots?: number | null
           benefits?: Json | null
+          claim_discount_multiplier?: number | null
           claims_per_month?: number | null
           claims_per_year?: number | null
           concierge_service?: boolean | null
@@ -3471,6 +3476,7 @@ export type Database = {
           badge_emoji?: string | null
           benefit_slots?: number | null
           benefits?: Json | null
+          claim_discount_multiplier?: number | null
           claims_per_month?: number | null
           claims_per_year?: number | null
           concierge_service?: boolean | null
