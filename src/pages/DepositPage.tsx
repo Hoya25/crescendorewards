@@ -37,6 +37,7 @@ export default function DepositPage() {
   const [submitting, setSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showChangeWallet, setShowChangeWallet] = useState(false);
+  const [showChangeConfirm, setShowChangeConfirm] = useState(false);
   const [totalLockedNctr, setTotalLockedNctr] = useState(0);
 
   const TIER_THRESHOLDS = [
@@ -178,7 +179,7 @@ export default function DepositPage() {
               <h2 className="text-lg font-semibold">Connect Your Wallet</h2>
             </div>
             <p className="text-sm text-muted-foreground">
-              Enter the Base wallet address you'll send NCTR from. This becomes your permanent withdrawal address.
+              Enter the Base wallet address you'll send NCTR from. This is also where your NCTR will be returned at the end of your lock period. You can update this address anytime.
             </p>
             <input
               type="text"
@@ -222,10 +223,7 @@ export default function DepositPage() {
                 <h2 className="text-lg font-semibold">Send NCTR</h2>
               </div>
               <button
-                onClick={() => {
-                  setWalletAddress(registeredWallet);
-                  setShowChangeWallet(true);
-                }}
+                onClick={() => setShowChangeConfirm(true)}
                 className="text-xs text-muted-foreground hover:text-[#E2FF6D] underline transition-colors"
               >
                 change wallet
@@ -376,6 +374,41 @@ export default function DepositPage() {
           )}
         </section>
       </div>
+
+      {/* Change Wallet Confirmation Modal */}
+      {showChangeConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="rounded-xl border border-border bg-card p-6 max-w-md w-full mx-4 space-y-4 nctr-animate-fade-in-up">
+            <h3 className="text-lg font-semibold">Update Withdrawal Wallet</h3>
+            <p className="text-sm text-muted-foreground">
+              Are you sure you want to change your withdrawal address? Make sure you control the new wallet before updating.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowChangeConfirm(false)}
+                className="px-4 py-2 text-sm rounded-lg border border-border text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  await supabase
+                    .from('profiles')
+                    .update({ registered_wallet_address: null, wallet_verified_at: null } as any)
+                    .eq('id', user!.id);
+                  setRegisteredWallet(null);
+                  setWalletAddress('');
+                  setShowChangeConfirm(false);
+                  setShowChangeWallet(false);
+                }}
+                className="px-4 py-2 text-sm rounded-lg bg-[#E2FF6D] text-zinc-900 font-semibold hover:bg-[#E2FF6D]/90 transition-colors"
+              >
+                Update Address
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
