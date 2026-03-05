@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -40,6 +41,8 @@ export interface RewardCardData {
   is_sponsored?: boolean | null;
   status_tier_claims_cost?: Record<string, number> | null;
   min_status_tier?: string | null;
+  min_tier_required?: string | null;
+  reward_tier?: string | null;
 }
 
 const categoryIcons = {
@@ -85,15 +88,26 @@ export function RewardCard({
   watchCount = 0,
   userTier = 'droplet',
 }: RewardCardProps) {
+  const navigate = useNavigate();
   const Icon = categoryIcons[reward.category as keyof typeof categoryIcons] || Gift;
   
+  // Tier gating: use min_tier_required with fallback to min_status_tier
+  const tierOrder = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
+  const effectiveMinTier = reward.min_tier_required || reward.min_status_tier;
+  const userTierIdx = tierOrder.indexOf(userTier.toLowerCase());
+  const reqTierIdx = effectiveMinTier ? tierOrder.indexOf(effectiveMinTier.toLowerCase()) : -1;
+  const isTierLocked = reqTierIdx !== -1 && userTierIdx < reqTierIdx;
+  const requiredTierDisplay = effectiveMinTier 
+    ? effectiveMinTier.charAt(0).toUpperCase() + effectiveMinTier.slice(1) 
+    : '';
+
   // Calculate tier-based pricing
   const tierPricing = getRewardPriceForUser(
     { id: reward.id, cost: reward.cost, is_sponsored: reward.is_sponsored, status_tier_claims_cost: reward.status_tier_claims_cost },
     userTier
   );
   
-  const affordable = claimBalance >= tierPricing.price;
+  const affordable = !isTierLocked && claimBalance >= tierPricing.price;
   const outOfStock = reward.stock_quantity !== null && reward.stock_quantity <= 0;
   const stockPercentage = reward.stock_quantity !== null ? (reward.stock_quantity / 100) * 100 : 100;
 
@@ -103,10 +117,18 @@ export function RewardCard({
     '72f47f23-1309-4632-bae0-0c749a2b1c26'
   ];
 
+  const handleCardClick = () => {
+    if (isTierLocked) {
+      navigate(`/crescendo?unlock=${encodeURIComponent(requiredTierDisplay)}`);
+      return;
+    }
+    onClick();
+  };
+
   return (
     <Card
-      className="group cursor-pointer transition-all hover:scale-[1.02] hover:shadow-xl overflow-hidden"
-      onClick={onClick}
+      className={`group cursor-pointer transition-all hover:scale-[1.02] hover:shadow-xl overflow-hidden ${isTierLocked ? 'opacity-60' : ''}`}
+      onClick={handleCardClick}
     >
       <div className="relative w-full h-56 bg-gradient-to-br from-muted/50 to-muted/20">
         {reward.image_url ? (
@@ -130,8 +152,8 @@ export function RewardCard({
               Community
             </Badge>
           )}
-          {/* Status Access Badge */}
-          {reward.min_status_tier && (() => {
+          {/* Status Access Badge — uses effectiveMinTier */}
+          {effectiveMinTier && (() => {
             const tierHexColors: Record<string, string> = {
               bronze: '#CD7F32', silver: '#C0C0C0', gold: '#FFD700', platinum: '#E5E4E2', diamond: '#B9F2FF'
             };
@@ -141,16 +163,19 @@ export function RewardCard({
             const tierEmojis: Record<string, string> = {
               bronze: '🥉', silver: '🥈', gold: '🥇', platinum: '💎', diamond: '👑'
             };
-            const bgColor = tierHexColors[reward.min_status_tier] || '#CD7F32';
-            const textClass = tierTextClass[reward.min_status_tier] || 'text-white';
-            const emoji = tierEmojis[reward.min_status_tier] || '🥉';
+            const bgColor = tierHexColors[effectiveMinTier] || '#CD7F32';
+            const textClass = tierTextClass[effectiveMinTier] || 'text-white';
+            const emoji = tierEmojis[effectiveMinTier] || '🥉';
             return (
               <Badge 
                 className={`backdrop-blur-sm border-0 shadow-lg text-xs ${textClass}`}
                 style={{ backgroundColor: bgColor }}
               >
+                {isTierLocked && <Lock className="w-3 h-3 mr-1" />}
                 {emoji}
-                <span className="ml-1 capitalize">{reward.min_status_tier}+</span>
+                <span className="ml-1 capitalize">
+                  {effectiveMinTier}+ {isTierLocked ? 'required' : ''}
+                </span>
               </Badge>
             );
           })()}
@@ -282,7 +307,19 @@ export function RewardCard({
         )}
 
         {/* Action Button */}
-        {outOfStock ? (
+        {isTierLocked ? (
+          <Button
+            className="w-full"
+            variant="secondary"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/crescendo?unlock=${encodeURIComponent(requiredTierDisplay)}`);
+            }}
+          >
+            <Lock className="w-4 h-4 mr-2" />
+            {requiredTierDisplay}+ Required
+          </Button>
+        ) : outOfStock ? (
           <Button
             className={`w-full transition-all ${isAnimatingWatch ? 'scale-95' : ''}`}
             variant={isWatching ? "secondary" : "outline"}

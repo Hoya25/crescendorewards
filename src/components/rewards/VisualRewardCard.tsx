@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,8 @@ export interface VisualRewardCardData {
   sponsor_logo_url?: string | null;
   sponsor_logo?: string | null;
   min_status_tier?: string | null;
+  min_tier_required?: string | null;
+  reward_tier?: string | null;
   status_tier_claims_cost?: Record<string, number> | null;
   campaign_id?: string | null;
   sponsor_enabled?: boolean;
@@ -112,6 +115,7 @@ export function VisualRewardCard({
   isAdmin = false,
   onAdminEdit,
 }: VisualRewardCardProps) {
+  const navigate = useNavigate();
   const { isAuthenticated, setShowAuthModal, setAuthMode } = useAuthContext();
   const Icon = categoryIcons[reward.category] || Gift;
   
@@ -126,7 +130,10 @@ export function VisualRewardCard({
   const sponsorName = reward.sponsor_name;
   const sponsorLogo = reward.sponsor_logo_url || reward.sponsor_logo;
   
-  const isEligible = isUserTierEligible(reward.min_status_tier, userTier.tierName);
+  // Use min_tier_required (new column) with fallback to min_status_tier (legacy)
+  const effectiveMinTier = reward.min_tier_required || reward.min_status_tier;
+  const isEligible = isUserTierEligible(effectiveMinTier, userTier.tierName);
+  const isTierLocked = isAuthenticated && !isEligible && !!effectiveMinTier;
   const remainingStock = reward.stock_quantity;
   
   // Build reward object for price display
@@ -135,22 +142,34 @@ export function VisualRewardCard({
     cost: reward.cost,
     is_sponsored: reward.is_sponsored,
     status_tier_claims_cost: reward.status_tier_claims_cost,
-    min_status_tier: reward.min_status_tier,
+    min_status_tier: effectiveMinTier,
     stock_quantity: reward.stock_quantity,
     is_active: reward.is_active,
   };
 
   const pricing = getRewardPriceForUser(rewardForPricing, userTier.tierName);
   const canClaim = isAuthenticated && isEligible && claimBalance >= pricing.price && pricing.price >= 0;
-  const requiredTier = reward.min_status_tier ? getTierDisplayName(reward.min_status_tier) : null;
-  const tierBgColor = reward.min_status_tier ? tierHexColors[reward.min_status_tier.toLowerCase()] || '#CD7F32' : '';
-  const tierTextColor = reward.min_status_tier ? tierTextColors[reward.min_status_tier.toLowerCase()] || 'text-white' : '';
+  const requiredTier = effectiveMinTier ? getTierDisplayName(effectiveMinTier) : null;
+  const tierBgColor = effectiveMinTier ? tierHexColors[effectiveMinTier.toLowerCase()] || '#CD7F32' : '';
+  const tierTextColor = effectiveMinTier ? tierTextColors[effectiveMinTier.toLowerCase()] || 'text-white' : '';
 
   const handleCtaClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!isAuthenticated) {
       setAuthMode('signup');
       setShowAuthModal(true);
+      return;
+    }
+    if (isTierLocked) {
+      navigate(`/crescendo?unlock=${encodeURIComponent(requiredTier || '')}`);
+      return;
+    }
+    onClick();
+  };
+
+  const handleCardClick = () => {
+    if (isTierLocked) {
+      navigate(`/crescendo?unlock=${encodeURIComponent(requiredTier || '')}`);
       return;
     }
     onClick();
@@ -163,11 +182,12 @@ export function VisualRewardCard({
         "hover:scale-[1.02] hover:shadow-2xl",
         "rounded-xl border bg-card",
         "shadow-md",
+        isTierLocked && "opacity-60",
         isSponsored 
           ? "border-amber-400/40 ring-1 ring-amber-400/20" 
           : "border-border/60"
       )}
-      onClick={onClick}
+      onClick={handleCardClick}
     >
       {/* HERO IMAGE — large, prominent */}
       <div className="relative aspect-[4/3] sm:aspect-[4/3] w-full overflow-hidden">
@@ -195,7 +215,7 @@ export function VisualRewardCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
         {/* TOP-LEFT: Tier badge overlay */}
-        {reward.min_status_tier && (
+        {effectiveMinTier && (
           <Badge 
             className={cn(
               "absolute top-3 left-3 text-xs font-semibold shadow-lg border-0 px-2.5 py-1",
@@ -203,10 +223,10 @@ export function VisualRewardCard({
             )}
             style={{ backgroundColor: tierBgColor }}
           >
-            {isEligible ? getTierDisplayName(reward.min_status_tier) + '+' : (
+            {isEligible ? getTierDisplayName(effectiveMinTier) + '+' : (
               <span className="flex items-center gap-1">
                 <Lock className="w-3 h-3" />
-                {getTierDisplayName(reward.min_status_tier)}
+                {getTierDisplayName(effectiveMinTier)}+ required
               </span>
             )}
           </Badge>
@@ -326,21 +346,20 @@ export function VisualRewardCard({
             "w-full font-semibold text-sm h-9",
             !isAuthenticated
               ? "bg-primary hover:bg-primary/90 text-primary-foreground"
-              : !isEligible
-                ? "bg-muted text-muted-foreground cursor-not-allowed"
+              : isTierLocked
+                ? "bg-muted text-muted-foreground"
                 : canClaim
                   ? "bg-emerald-600 hover:bg-emerald-700 text-white"
                   : "bg-primary hover:bg-primary/90 text-primary-foreground"
           )}
           onClick={handleCtaClick}
-          disabled={isAuthenticated && !isEligible}
         >
           {!isAuthenticated ? (
             'Sign Up to Claim'
-          ) : !isEligible ? (
+          ) : isTierLocked ? (
             <span className="flex items-center gap-1.5">
               <Lock className="w-3.5 h-3.5" />
-              Unlock at {requiredTier}
+              {requiredTier}+ Required
             </span>
           ) : (
             'Claim Now'

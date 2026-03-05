@@ -71,6 +71,8 @@ interface Reward {
   sponsor_start_date?: string | null;
   sponsor_end_date?: string | null;
   min_status_tier?: string | null;
+  min_tier_required?: string | null;
+  reward_tier?: string | null;
   is_sponsored?: boolean | null;
 }
 
@@ -287,20 +289,22 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     if (statusFilter !== 'all') {
       const tierOrder = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
       if (statusFilter === 'eligible') {
-        // Show only rewards the user's tier qualifies for
+        // Show only rewards the user's tier qualifies for (check both min_tier_required and min_status_tier)
         const userTierName = tier?.tier_name?.toLowerCase() || 'bronze';
         const userTierIdx = tierOrder.indexOf(userTierName);
         filtered = filtered.filter(r => {
-          if (!r.min_status_tier) return true;
-          const reqIdx = tierOrder.indexOf(r.min_status_tier.toLowerCase());
+          const effectiveMinTier = r.min_tier_required || r.min_status_tier;
+          if (!effectiveMinTier) return true;
+          const reqIdx = tierOrder.indexOf(effectiveMinTier.toLowerCase());
           return reqIdx === -1 || userTierIdx >= reqIdx;
         });
       } else {
         // Show rewards up to and including the selected tier
         const filterIdx = tierOrder.indexOf(statusFilter);
         filtered = filtered.filter(r => {
-          if (!r.min_status_tier) return true;
-          const reqIdx = tierOrder.indexOf(r.min_status_tier.toLowerCase());
+          const effectiveMinTier = r.min_tier_required || r.min_status_tier;
+          if (!effectiveMinTier) return true;
+          const reqIdx = tierOrder.indexOf(effectiveMinTier.toLowerCase());
           return reqIdx === -1 || reqIdx <= filterIdx;
         });
       }
