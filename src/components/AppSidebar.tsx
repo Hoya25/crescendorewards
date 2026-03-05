@@ -1,4 +1,4 @@
-import { Home, Gift, ShoppingBag, UserPlus, User, HelpCircle, Shield, Heart, Coins, Leaf, Target, Trophy, BookOpen, Zap, Lock } from 'lucide-react';
+import { Home, Gift, ShoppingBag, UserPlus, User, HelpCircle, Shield, Heart, Coins, Leaf, Target, Trophy, BookOpen, Zap, Lock, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
 import nctrIconDark from '@/assets/nctr-grey.png';
 import nctrIconLight from '@/assets/nctr-yellow.png';
@@ -53,6 +53,7 @@ const coreNavItems: NavItem[] = [
   { title: 'Home', url: '/dashboard', icon: Home },
   { title: 'My Rewards', url: '/rewards', icon: Gift, emoji: '🎁', subtext: 'Redeem with your locked NCTR' },
   { title: 'My Status', url: '/membership', icon: Lock, emoji: '💎', subtext: 'Your status level unlocks your rewards' },
+  { title: 'Deposit NCTR', url: '/deposit', icon: Wallet, emoji: '🔒', subtext: 'Lock NCTR to level up your status' },
   { title: 'Shop & Earn', url: '#', icon: ShoppingBag, emoji: '🛒', subtext: 'Earn NCTR on every purchase', external: 'https://thegarden.nctr.live/' },
   { title: 'Bounties', url: '/bounties', icon: Zap, emoji: '⚡', subtext: 'Complete bounties, earn NCTR' },
 ];

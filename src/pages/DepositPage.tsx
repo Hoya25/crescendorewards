@@ -105,6 +105,7 @@ export default function DepositPage() {
       tx_hash: txHash,
       status: 'pending',
       amount_nctr: 0,
+      lock_type: '360LOCK',
     });
     setSubmitting(false);
     if (error) {
@@ -248,6 +249,14 @@ export default function DepositPage() {
               <p className="text-xs text-muted-foreground">
                 Send NCTR from your registered wallet only. Deposits from unregistered wallets cannot be credited.
               </p>
+              <a
+                href={`https://basescan.org/address/${OPS_WALLET}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-[#E2FF6D] hover:underline"
+              >
+                View ops wallet on BaseScan ↗
+              </a>
             </div>
 
             {/* TX Hash submission */}
