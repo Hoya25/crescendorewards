@@ -79,6 +79,7 @@ const BountyBoardPage = lazy(() => import('./pages/BountyBoardPage'));
 const ContributePage = lazy(() => import('./pages/ContributePage'));
 const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
 const Crescendo = lazy(() => import('./pages/Crescendo'));
+const DepositPage = lazy(() => import('./pages/DepositPage'));
 
 // Admin panel - separate chunk for code splitting
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel').then(m => ({ default: m.AdminPanel })));
@@ -303,6 +304,16 @@ function AppRoutes() {
 
             {/* CRESCENDO */}
             <Route path="/crescendo" element={<Crescendo />} />
+
+            {/* DEPOSIT */}
+            <Route 
+              path="/deposit" 
+              element={
+                <ProtectedRoute>
+                  <AppLayout><DepositPage /></AppLayout>
+                </ProtectedRoute>
+              } 
+            />
 
             {/* REFERRAL LEADERBOARD - semi-public */}
             <Route 
