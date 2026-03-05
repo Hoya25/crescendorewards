@@ -2726,6 +2726,7 @@ export type Database = {
           rejection_reason: string | null
           required_user_data: Json | null
           revenue_share_percent: number | null
+          reward_tier: string | null
           showcase_mode: string | null
           sponsor_cta_text: string | null
           sponsor_cta_url: string | null
@@ -2784,6 +2785,7 @@ export type Database = {
           rejection_reason?: string | null
           required_user_data?: Json | null
           revenue_share_percent?: number | null
+          reward_tier?: string | null
           showcase_mode?: string | null
           sponsor_cta_text?: string | null
           sponsor_cta_url?: string | null
@@ -2842,6 +2844,7 @@ export type Database = {
           rejection_reason?: string | null
           required_user_data?: Json | null
           revenue_share_percent?: number | null
+          reward_tier?: string | null
           showcase_mode?: string | null
           sponsor_cta_text?: string | null
           sponsor_cta_url?: string | null
