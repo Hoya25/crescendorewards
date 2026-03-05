@@ -1,0 +1,1 @@
+ALTER TABLE rewards ADD COLUMN IF NOT EXISTS reward_tier TEXT DEFAULT 'standard';
