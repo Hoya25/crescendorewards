@@ -1,0 +1,1 @@
+ALTER TABLE rewards ADD COLUMN IF NOT EXISTS min_tier_required TEXT DEFAULT 'bronze';

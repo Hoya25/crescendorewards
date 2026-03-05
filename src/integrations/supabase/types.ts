@@ -2721,6 +2721,7 @@ export type Database = {
           is_sponsored: boolean | null
           linked_sponsor_id: string | null
           min_status_tier: string | null
+          min_tier_required: string | null
           minimum_token_balance: number | null
           publish_at: string | null
           rejection_reason: string | null
@@ -2780,6 +2781,7 @@ export type Database = {
           is_sponsored?: boolean | null
           linked_sponsor_id?: string | null
           min_status_tier?: string | null
+          min_tier_required?: string | null
           minimum_token_balance?: number | null
           publish_at?: string | null
           rejection_reason?: string | null
@@ -2839,6 +2841,7 @@ export type Database = {
           is_sponsored?: boolean | null
           linked_sponsor_id?: string | null
           min_status_tier?: string | null
+          min_tier_required?: string | null
           minimum_token_balance?: number | null
           publish_at?: string | null
           rejection_reason?: string | null
