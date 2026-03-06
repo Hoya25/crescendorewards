@@ -25,6 +25,7 @@ import { StickyStatusBar } from '@/components/rewards/StickyStatusBar';
 import { SponsoredRewardsCarousel } from '@/components/rewards/SponsoredRewardsCarousel';
 import { SponsoredBanner } from '@/components/rewards/SponsoredBanner';
 import { WellnessRewardsSection } from '@/components/rewards/WellnessRewardsSection';
+import { StatusPerksSection } from '@/components/rewards/StatusPerksSection';
 import { StatusBenefitsBanner } from '@/components/user/StatusBenefitsBanner';
 import { CrescendoLogo } from '@/components/CrescendoLogo';
 import { BetaBadge } from '@/components/BetaBadge';
@@ -973,6 +974,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           onViewReward={(rewardId) => navigate(`/rewards/${rewardId}`)}
         />
       )}
+
+      {/* Status Perks Section */}
+      {!loading && <StatusPerksSection />}
 
       {/* Main Rewards Grid — starts immediately */}
       <div className="container mx-auto px-4 pt-4 pb-8 max-w-full">
