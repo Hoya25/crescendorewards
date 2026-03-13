@@ -129,6 +129,12 @@ export default function DepositPage() {
     } else {
       toast.success("Deposit submitted! We'll verify your transaction and credit your account within 24 hours.");
       setTxHash('');
+
+      // Track first 360LOCK deposit
+      if (deposits.length === 0) {
+        track('first_lock_created', { amount_nctr: 0, lock_type: '360LOCK' });
+      }
+
       loadDeposits();
     }
   }

@@ -90,6 +90,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             action_type: 'signup_bonus',
             action_data: { amount: 25, type: 'signup_bonus', nctr: 25, claims: 5, description: 'Welcome to Crescendo' },
           });
+
+          track('first_token_earned', { source: 'crescendo', amount: 25 });
         }
 
         await refreshUnifiedProfile();

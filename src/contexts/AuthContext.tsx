@@ -121,6 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.error('Error creating unified profile:', insertError);
         } else if (newProfile) {
           console.log('Unified profile created successfully');
+          track('signup_completed');
           // Mark for post-signup redirect
           pendingSignupRedirect.current = true;
 

@@ -164,6 +164,7 @@ export function MembershipLevelPage() {
 
       // Check if tier upgraded
       if (newTier.level > oldTier.level) {
+        track('status_upgraded', { from_tier: oldTier.name.toLowerCase(), to_tier: newTier.name.toLowerCase() });
         setUpgradedTier({ old: oldTier, new: newTier, newLockedAmount: newLockedAmount });
         setShowCelebration(true);
       } else {
