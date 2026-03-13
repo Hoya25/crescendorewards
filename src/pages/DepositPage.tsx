@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { track } from '@/lib/track';
 import { Copy, Check, Lock, ArrowRight, Wallet, Clock, AlertCircle, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
 
