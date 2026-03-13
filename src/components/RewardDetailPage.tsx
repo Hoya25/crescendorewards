@@ -351,7 +351,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
       const result = data as { success: boolean; error?: string; claim_code?: string };
       if (!result.success) throw new Error(result.error || 'Claim failed');
 
-      track('reward_claimed', { reward_id: reward.id, claims_cost: pricing.yourPrice });
+      track('reward_claimed', { reward_id: reward.id, claims_cost: pricing.price });
       
       // Store claim code if returned (for instant_code delivery)
       if (result.claim_code) {
