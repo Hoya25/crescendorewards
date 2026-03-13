@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { toast } from 'sonner';
+import { track } from '@/lib/track';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock } from 'lucide-react';
 
