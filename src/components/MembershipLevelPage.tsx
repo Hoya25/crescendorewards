@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { useTracking } from '@/contexts/ActivityTrackerContext';
+import { track } from '@/lib/track';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -163,6 +164,7 @@ export function MembershipLevelPage() {
 
       // Check if tier upgraded
       if (newTier.level > oldTier.level) {
+        track('status_upgraded', { from_tier: oldTier.name.toLowerCase(), to_tier: newTier.name.toLowerCase() });
         setUpgradedTier({ old: oldTier, new: newTier, newLockedAmount: newLockedAmount });
         setShowCelebration(true);
       } else {

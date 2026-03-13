@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useRef, ReactNode } fro
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { track } from '@/lib/track';
 
 interface AuthContextType {
   user: User | null;
@@ -120,6 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.error('Error creating unified profile:', insertError);
         } else if (newProfile) {
           console.log('Unified profile created successfully');
+          track('signup_completed');
           // Mark for post-signup redirect
           pendingSignupRedirect.current = true;
 

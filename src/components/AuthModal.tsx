@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
+import { track } from '@/lib/track';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
@@ -23,6 +24,13 @@ interface AuthModalProps {
 export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  // track('signup_started') when sign-up flow first loads
+  useEffect(() => {
+    if (mode === 'signup') {
+      track('signup_started');
+    }
+  }, [mode]);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { toast } from 'sonner';
+import { track } from '@/lib/track';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock } from 'lucide-react';
 
@@ -89,6 +90,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             action_type: 'signup_bonus',
             action_data: { amount: 25, type: 'signup_bonus', nctr: 25, claims: 5, description: 'Welcome to Crescendo' },
           });
+
+          track('first_token_earned', { source: 'crescendo', amount: 25 });
         }
 
         await refreshUnifiedProfile();

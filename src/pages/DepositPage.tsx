@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { track } from '@/lib/track';
 import { Copy, Check, Lock, ArrowRight, Wallet, Clock, AlertCircle, TrendingUp } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -128,6 +129,12 @@ export default function DepositPage() {
     } else {
       toast.success("Deposit submitted! We'll verify your transaction and credit your account within 24 hours.");
       setTxHash('');
+
+      // Track first 360LOCK deposit
+      if (deposits.length === 0) {
+        track('first_lock_created', { amount_nctr: 0, lock_type: '360LOCK' });
+      }
+
       loadDeposits();
     }
   }
