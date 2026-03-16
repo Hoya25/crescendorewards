@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { syncTierToBountyHunter } from "@/lib/sync-tier-to-bounty-hunter";
 
 export interface PortfolioData {
   nctr_balance?: number;
