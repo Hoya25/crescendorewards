@@ -9,6 +9,7 @@ import { NCTRLogo } from './NCTRLogo';
 import { Skeleton } from './ui/skeleton';
 import { useReferralSettings } from '@/hooks/useReferralSettings';
 import { generateReferralLink } from '@/lib/referral-links';
+import { DualReferralLinks } from './referral/DualReferralLinks';
 
 interface ReferralStats {
   totalReferrals: number;
