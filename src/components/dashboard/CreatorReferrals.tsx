@@ -91,13 +91,6 @@ export function CreatorReferrals() {
 
   if (checkingVisibility || isLoading || !shouldShow) return null;
 
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(referralUrl);
-    setCopied(true);
-    toast.success('Link copied!');
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   const stats = data || { totalReferred: 0, totalNctr: 0, fansPurchased: 0, fansAtBronze: 0, aggregations: [], hasData: false };
 
   const getCount = (type: string) => stats.aggregations.find(a => a.event_type === type)?.count || 0;
