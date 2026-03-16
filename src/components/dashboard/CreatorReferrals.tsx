@@ -2,10 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Copy, Users, Coins, ShoppingBag, Shield } from 'lucide-react';
-import { useState } from 'react';
-import { toast } from 'sonner';
+import { Users, Coins, ShoppingBag, Shield } from 'lucide-react';
+import { DualReferralLinks } from '@/components/referral/DualReferralLinks';
 
 interface EventAggregation {
   event_type: string;
