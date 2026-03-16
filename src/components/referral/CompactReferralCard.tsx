@@ -14,6 +14,7 @@ import { useReferralSettings } from '@/hooks/useReferralSettings';
 import { useReferralStats } from '@/hooks/useReferralStats';
 import { useReferralSlug } from '@/hooks/useReferralSlug';
 import { generateReferralLink, PRODUCTION_DOMAIN } from '@/lib/referral-links';
+import { DualReferralLinks } from '@/components/referral/DualReferralLinks';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { REFERRAL_REWARDS } from '@/constants/referral';
 import { cn } from '@/lib/utils';
