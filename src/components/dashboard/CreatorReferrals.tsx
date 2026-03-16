@@ -21,10 +21,8 @@ const EVENT_LABELS: Record<string, { label: string; nctrPer: string }> = {
 
 export function CreatorReferrals() {
   const { profile } = useUnifiedUser();
-  const [copied, setCopied] = useState(false);
 
   const referralCode = (profile?.crescendo_data as any)?.referral_code || profile?.id?.slice(0, 8) || '';
-  const referralUrl = `https://earn-with-nctr.lovable.app/auth?ref=${referralCode}`;
 
   const { data, isLoading } = useQuery({
     queryKey: ['creator-referral-earnings', profile?.id],
