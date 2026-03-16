@@ -21,6 +21,7 @@ import { EarningsHistory } from "./dashboard/EarningsHistory";
 import { MerchCelebrationModal } from "./merch/MerchCelebrationModal";
 import { useUncelebratedPurchases } from "@/hooks/useMerchCelebration";
 import { MilestoneProgress } from "@/components/referral/MilestoneProgress";
+import { CreatorReferrals } from "./dashboard/CreatorReferrals";
 
 export function Dashboard() {
   const navigate = useNavigate();
