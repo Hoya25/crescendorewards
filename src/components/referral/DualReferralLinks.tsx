@@ -19,7 +19,7 @@ export function DualReferralLinks({ referralCode, className, compact = false }: 
   const links = [
     {
       key: 'crescendo',
-      label: 'Earn rewards link',
+      label: 'Rewards link',
       url: `${CRESCENDO_DOMAIN}?ref=${referralCode}`,
     },
     {
