@@ -3,6 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { track } from '@/lib/track';
+import { syncTierToBountyHunter } from '@/lib/sync-tier-to-bounty-hunter';
 
 interface AuthContextType {
   user: User | null;
