@@ -1049,6 +1049,48 @@ export type Database = {
           },
         ]
       }
+      creator_referral_earnings: {
+        Row: {
+          created_at: string | null
+          creator_profile_id: string
+          event_type: string
+          id: string
+          nctr_amount: number
+          referred_profile_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          creator_profile_id: string
+          event_type: string
+          id?: string
+          nctr_amount?: number
+          referred_profile_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          creator_profile_id?: string
+          event_type?: string
+          id?: string
+          nctr_amount?: number
+          referred_profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_referral_earnings_creator_profile_id_fkey"
+            columns: ["creator_profile_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "creator_referral_earnings_referred_profile_id_fkey"
+            columns: ["referred_profile_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cross_platform_activity_log: {
         Row: {
           action_data: Json | null
@@ -3702,6 +3744,7 @@ export type Database = {
           onchain_vesting_synced: boolean | null
           primary_wallet_address: string | null
           signup_bonus_awarded: boolean | null
+          source_category: string | null
           tier_calculated_at: string | null
           tier_override: string | null
           tier_override_at: string | null
@@ -3741,6 +3784,7 @@ export type Database = {
           onchain_vesting_synced?: boolean | null
           primary_wallet_address?: string | null
           signup_bonus_awarded?: boolean | null
+          source_category?: string | null
           tier_calculated_at?: string | null
           tier_override?: string | null
           tier_override_at?: string | null
@@ -3780,6 +3824,7 @@ export type Database = {
           onchain_vesting_synced?: boolean | null
           primary_wallet_address?: string | null
           signup_bonus_awarded?: boolean | null
+          source_category?: string | null
           tier_calculated_at?: string | null
           tier_override?: string | null
           tier_override_at?: string | null
