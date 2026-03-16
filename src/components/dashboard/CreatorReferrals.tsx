@@ -165,22 +165,11 @@ export function CreatorReferrals() {
         </CardContent>
       </Card>
 
-      {/* Share Link */}
+      {/* Share Links */}
       <Card className="border-border/50 bg-card">
         <CardContent className="p-4 space-y-2">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">Share Your Link</p>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 text-xs bg-muted/50 rounded px-3 py-2 truncate text-muted-foreground font-mono">
-              {referralUrl}
-            </code>
-            <Button size="sm" variant="outline" onClick={handleCopy} className="shrink-0">
-              <Copy className="w-3.5 h-3.5" />
-              {copied ? 'Copied' : 'Copy'}
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Every fan who joins through your link earns you NCTR when they shop.
-          </p>
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">Share Your Links</p>
+          <DualReferralLinks referralCode={referralCode} compact />
         </CardContent>
       </Card>
     </div>
