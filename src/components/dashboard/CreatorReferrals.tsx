@@ -108,15 +108,7 @@ export function CreatorReferrals() {
             <p className="text-sm text-muted-foreground">
               No referrals yet. Share your link to start earning from your community.
             </p>
-            <div className="flex items-center gap-2 max-w-md mx-auto">
-              <code className="flex-1 text-xs bg-muted/50 rounded px-3 py-2 truncate text-muted-foreground font-mono">
-                {referralUrl}
-              </code>
-              <Button size="sm" variant="outline" onClick={handleCopy} className="shrink-0">
-                <Copy className="w-3.5 h-3.5" />
-                {copied ? 'Copied' : 'Copy'}
-              </Button>
-            </div>
+            <DualReferralLinks referralCode={referralCode} compact className="max-w-md mx-auto text-left" />
           </CardContent>
         </Card>
       </div>
