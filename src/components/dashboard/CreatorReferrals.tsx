@@ -2,10 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Copy, Users, Coins, ShoppingBag, Shield } from 'lucide-react';
-import { useState } from 'react';
-import { toast } from 'sonner';
+import { Users, Coins, ShoppingBag, Shield } from 'lucide-react';
+import { DualReferralLinks } from '@/components/referral/DualReferralLinks';
 
 interface EventAggregation {
   event_type: string;
@@ -23,10 +21,8 @@ const EVENT_LABELS: Record<string, { label: string; nctrPer: string }> = {
 
 export function CreatorReferrals() {
   const { profile } = useUnifiedUser();
-  const [copied, setCopied] = useState(false);
 
   const referralCode = (profile?.crescendo_data as any)?.referral_code || profile?.id?.slice(0, 8) || '';
-  const referralUrl = `https://earn-with-nctr.lovable.app/auth?ref=${referralCode}`;
 
   const { data, isLoading } = useQuery({
     queryKey: ['creator-referral-earnings', profile?.id],
@@ -95,13 +91,6 @@ export function CreatorReferrals() {
 
   if (checkingVisibility || isLoading || !shouldShow) return null;
 
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(referralUrl);
-    setCopied(true);
-    toast.success('Link copied!');
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   const stats = data || { totalReferred: 0, totalNctr: 0, fansPurchased: 0, fansAtBronze: 0, aggregations: [], hasData: false };
 
   const getCount = (type: string) => stats.aggregations.find(a => a.event_type === type)?.count || 0;
@@ -119,15 +108,7 @@ export function CreatorReferrals() {
             <p className="text-sm text-muted-foreground">
               No referrals yet. Share your link to start earning from your community.
             </p>
-            <div className="flex items-center gap-2 max-w-md mx-auto">
-              <code className="flex-1 text-xs bg-muted/50 rounded px-3 py-2 truncate text-muted-foreground font-mono">
-                {referralUrl}
-              </code>
-              <Button size="sm" variant="outline" onClick={handleCopy} className="shrink-0">
-                <Copy className="w-3.5 h-3.5" />
-                {copied ? 'Copied' : 'Copy'}
-              </Button>
-            </div>
+            <DualReferralLinks referralCode={referralCode} compact className="max-w-md mx-auto text-left" />
           </CardContent>
         </Card>
       </div>
@@ -184,22 +165,11 @@ export function CreatorReferrals() {
         </CardContent>
       </Card>
 
-      {/* Share Link */}
+      {/* Share Links */}
       <Card className="border-border/50 bg-card">
         <CardContent className="p-4 space-y-2">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">Share Your Link</p>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 text-xs bg-muted/50 rounded px-3 py-2 truncate text-muted-foreground font-mono">
-              {referralUrl}
-            </code>
-            <Button size="sm" variant="outline" onClick={handleCopy} className="shrink-0">
-              <Copy className="w-3.5 h-3.5" />
-              {copied ? 'Copied' : 'Copy'}
-            </Button>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Every fan who joins through your link earns you NCTR when they shop.
-          </p>
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">Share Your Links</p>
+          <DualReferralLinks referralCode={referralCode} compact />
         </CardContent>
       </Card>
     </div>
