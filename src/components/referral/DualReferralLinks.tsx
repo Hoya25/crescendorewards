@@ -4,7 +4,7 @@ import { Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
-const BOUNTY_HUNTER_DOMAIN = 'https://earn-with-nctr.lovable.app';
+const BOUNTY_HUNTER_DOMAIN = 'https://bountyhunter.nctr.live';
 const CRESCENDO_DOMAIN = 'https://crescendo.nctr.live';
 
 interface DualReferralLinksProps {
