@@ -170,9 +170,7 @@ export function CompactReferralCard({
                 bgColor="#ffffff"
                 fgColor="#000000"
               />
-              <p className="text-xs text-muted-foreground text-center max-w-[180px] truncate">
-                {displayLink}
-              </p>
+              <DualReferralLinks referralCode={referralCode} compact />
             </div>
           )}
         </CardContent>
