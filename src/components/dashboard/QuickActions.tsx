@@ -52,7 +52,7 @@ export function QuickActions() {
 
   const handleCopyInvite = () => {
     const code = (profile?.crescendo_data as any)?.referral_code || profile?.id?.slice(0, 8);
-    const link = `${window.location.origin}/join?ref=${code}`;
+    const link = `https://crescendo.nctr.live?ref=${code}`;
     navigator.clipboard.writeText(link);
     toast.success("Invite link copied!");
   };
