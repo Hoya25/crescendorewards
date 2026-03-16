@@ -23,3 +23,7 @@ verify_jwt = false
 # MCP server - public API for AI agents
 [functions.mcp]
 verify_jwt = false
+
+# Cross-project sync endpoint - authenticated via SYNC_SECRET header
+[functions.receive-lock-request]
+verify_jwt = false
