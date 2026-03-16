@@ -242,38 +242,20 @@ export function CompactReferralCard({
       {/* Expandable Mini QR */}
       {showQR && (
         <div 
-          className="absolute right-4 top-full mt-2 z-50 p-4 bg-white dark:bg-gray-900 rounded-xl shadow-xl border animate-in zoom-in-95 duration-200"
+          className="absolute right-4 top-full mt-2 z-50 p-4 bg-card rounded-xl shadow-xl border animate-in zoom-in-95 duration-200 w-80"
           onClick={(e) => e.stopPropagation()}
         >
-          <QRCodeSVG
-            value={displayLink}
-            size={100}
-            level="M"
-            includeMargin={true}
-            bgColor="#ffffff"
-            fgColor="#000000"
-          />
-          <p className="text-xs text-muted-foreground text-center mt-2 max-w-[120px] truncate">
-            Scan to join
-          </p>
-          <div className="flex gap-1 mt-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="flex-1 text-xs h-7"
-              onClick={handleCopy}
-            >
-              {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="flex-1 text-xs h-7"
-              onClick={handleShare}
-            >
-              <Share2 className="w-3 h-3" />
-            </Button>
+          <div className="flex justify-center mb-3">
+            <QRCodeSVG
+              value={displayLink}
+              size={100}
+              level="M"
+              includeMargin={true}
+              bgColor="#ffffff"
+              fgColor="#000000"
+            />
           </div>
+          <DualReferralLinks referralCode={referralCode} compact />
         </div>
       )}
     </div>
