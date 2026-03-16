@@ -176,6 +176,9 @@ export function Dashboard() {
           {/* 5.5 REFERRAL MILESTONE PROGRESS */}
           <MilestoneProgress currentReferrals={profile?.crescendo_data?.referral_count as number ?? 0} />
 
+          {/* 5.6 CREATOR REFERRALS (conditional) */}
+          <CreatorReferrals />
+
           {/* 6. STATUS EXPLAINER (collapsible) */}
           <StatusExplainer />
 
