@@ -21,6 +21,7 @@ import { EarningsHistory } from "./dashboard/EarningsHistory";
 import { MerchCelebrationModal } from "./merch/MerchCelebrationModal";
 import { useUncelebratedPurchases } from "@/hooks/useMerchCelebration";
 import { MilestoneProgress } from "@/components/referral/MilestoneProgress";
+import { CreatorReferrals } from "./dashboard/CreatorReferrals";
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -174,6 +175,9 @@ export function Dashboard() {
 
           {/* 5.5 REFERRAL MILESTONE PROGRESS */}
           <MilestoneProgress currentReferrals={profile?.crescendo_data?.referral_count as number ?? 0} />
+
+          {/* 5.6 CREATOR REFERRALS (conditional) */}
+          <CreatorReferrals />
 
           {/* 6. STATUS EXPLAINER (collapsible) */}
           <StatusExplainer />
