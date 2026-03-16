@@ -211,6 +211,17 @@ export function AdminDeposits() {
 
       if (unifiedProfile) {
         await supabase.rpc('calculate_user_tier', { p_user_id: unifiedProfile.id });
+
+        // Fire-and-forget: sync to Bounty Hunter
+        const { data: tierRow } = await supabase
+          .from('unified_profiles')
+          .select('current_tier_id, email')
+          .eq('id', unifiedProfile.id)
+          .single();
+        if (tierRow?.email && tierRow.current_tier_id) {
+          const { data: st } = await supabase.from('status_tiers').select('tier_name').eq('id', tierRow.current_tier_id).single();
+          syncTierToBountyHunter(withdrawDeposit.user_id, tierRow.email, st?.tier_name ?? null);
+        }
       }
 
       toast.success('Withdrawal approved — tier recalculated');
