@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { syncTierToBountyHunter } from "@/lib/sync-tier-to-bounty-hunter";
 
 export interface PortfolioData {
   nctr_balance?: number;
@@ -63,6 +64,25 @@ export async function syncWalletPortfolio(
     if (tierError) {
       console.warn('[Portfolio Sync] Tier calculation warning:', tierError);
       // Don't fail the sync if tier calculation has issues
+    }
+
+    // Fire-and-forget: sync new tier to Bounty Hunter
+    if (tierId) {
+      const { data: tierRow } = await supabase
+        .from('status_tiers')
+        .select('tier_name')
+        .eq('id', tierId)
+        .single();
+
+      const { data: up } = await supabase
+        .from('unified_profiles')
+        .select('auth_user_id, email')
+        .eq('id', userId)
+        .single();
+
+      if (up?.auth_user_id && up?.email) {
+        syncTierToBountyHunter(up.auth_user_id, up.email, tierRow?.tier_name ?? null);
+      }
     }
 
     console.log(`[Portfolio Sync] Successfully synced portfolio for user ${userId} from ${source}`);

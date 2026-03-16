@@ -3,6 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { track } from '@/lib/track';
+import { syncTierToBountyHunter } from '@/lib/sync-tier-to-bounty-hunter';
 
 interface AuthContextType {
   user: User | null;
@@ -137,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Track login activity by updating last_active_crescendo
+  // Track login activity and reconcile tier to Bounty Hunter
   const trackLoginActivity = async (authUserId: string) => {
     try {
       const { error } = await supabase
@@ -147,6 +148,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (error) {
         console.error('Error tracking login activity:', error);
+      }
+
+      // Reconciliation: sync current tier to Bounty Hunter on every session start
+      const { data: up } = await supabase
+        .from('unified_profiles')
+        .select('current_tier_id, email')
+        .eq('auth_user_id', authUserId)
+        .single();
+
+      if (up?.email && up.current_tier_id) {
+        const { data: tierRow } = await supabase
+          .from('status_tiers')
+          .select('tier_name')
+          .eq('id', up.current_tier_id)
+          .single();
+
+        syncTierToBountyHunter(authUserId, up.email, tierRow?.tier_name ?? null);
+      } else if (up?.email) {
+        // No tier yet — sync null so BH stays aligned
+        syncTierToBountyHunter(authUserId, up.email, null);
       }
     } catch (error) {
       console.error('Error in trackLoginActivity:', error);

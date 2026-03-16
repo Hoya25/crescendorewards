@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { syncTierToBountyHunter } from '@/lib/sync-tier-to-bounty-hunter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -149,6 +150,17 @@ export function AdminDeposits() {
 
       if (unifiedProfile) {
         await supabase.rpc('calculate_user_tier', { p_user_id: unifiedProfile.id });
+
+        // Fire-and-forget: sync to Bounty Hunter
+        const { data: tierRow } = await supabase
+          .from('unified_profiles')
+          .select('current_tier_id, email')
+          .eq('id', unifiedProfile.id)
+          .single();
+        if (tierRow?.email && tierRow.current_tier_id) {
+          const { data: st } = await supabase.from('status_tiers').select('tier_name').eq('id', tierRow.current_tier_id).single();
+          syncTierToBountyHunter(creditDeposit.user_id, tierRow.email, st?.tier_name ?? null);
+        }
       }
 
       toast.success('Deposit credited — tier recalculated');
@@ -199,6 +211,17 @@ export function AdminDeposits() {
 
       if (unifiedProfile) {
         await supabase.rpc('calculate_user_tier', { p_user_id: unifiedProfile.id });
+
+        // Fire-and-forget: sync to Bounty Hunter
+        const { data: tierRow } = await supabase
+          .from('unified_profiles')
+          .select('current_tier_id, email')
+          .eq('id', unifiedProfile.id)
+          .single();
+        if (tierRow?.email && tierRow.current_tier_id) {
+          const { data: st } = await supabase.from('status_tiers').select('tier_name').eq('id', tierRow.current_tier_id).single();
+          syncTierToBountyHunter(withdrawDeposit.user_id, tierRow.email, st?.tier_name ?? null);
+        }
       }
 
       toast.success('Withdrawal approved — tier recalculated');
