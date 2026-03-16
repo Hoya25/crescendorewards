@@ -135,31 +135,16 @@ export function ReferralCard({ stats, referralCode, isLoading }: ReferralCardPro
           </div>
         </div>
 
-        {/* Referral Link */}
+        {/* Referral Links */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium">Your Referral Link</label>
+            <label className="text-sm font-medium">Your Referral Links</label>
             <Badge variant="secondary" className="text-xs flex items-center gap-1">
               <Lock className="w-3 h-3" />
               {allocation360Lock.toLocaleString()} <NCTRLogo size="xs" /> 360LOCK
             </Badge>
           </div>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={referralLink}
-              readOnly
-              className="flex-1 px-3 py-2 text-sm bg-white dark:bg-gray-900 border border-violet-200 dark:border-violet-800 rounded-lg"
-            />
-            <Button
-              onClick={() => handleCopy(referralLink)}
-              variant="outline"
-              size="icon"
-              className="border-violet-200 dark:border-violet-800"
-            >
-              {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
-            </Button>
-          </div>
+          <DualReferralLinks referralCode={referralCode} />
         </div>
 
         {/* Info Text */}
