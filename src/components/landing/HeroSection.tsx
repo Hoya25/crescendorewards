@@ -27,27 +27,40 @@ function FlywheelSVG() {
     { label: 'UNLOCK', sub: 'Level up your status', angle: 150 },
   ];
 
-  // Arrow positions (midpoints between nodes)
-  const arrows = [0, 120, 240].map((deg) => {
-    const mid = deg + 60;
-    const rad = (mid * Math.PI) / 180;
-    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad), rot: mid + 90 };
+  const arrows = [
+    { deg: 60, rot: 150 },
+    { deg: 180, rot: 270 },
+    { deg: 300, rot: 30 },
+  ].map(({ deg, rot }) => {
+    const rad = (deg * Math.PI) / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad), rot };
   });
 
   return (
     <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-      {/* Orbit circle */}
-      <circle cx={cx} cy={cy} r={r} stroke="#D9D9D9" strokeWidth="2" fill="none" />
+      <style>{`
+        @keyframes orbit-spin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+        .flywheel-orbit {
+          animation: orbit-spin 12s linear infinite;
+          transform-origin: 200px 200px;
+        }
+      `}</style>
 
-      {/* Arrows */}
-      {arrows.map((a, i) => (
-        <polygon
-          key={i}
-          points="-5,-6 5,-6 0,7"
-          fill="#323232"
-          transform={`translate(${a.x},${a.y}) rotate(${a.rot})`}
-        />
-      ))}
+      {/* Rotating group: circle + arrows */}
+      <g className="flywheel-orbit">
+        <circle cx={cx} cy={cy} r={r} stroke="#D9D9D9" strokeWidth="2" fill="none" />
+        {arrows.map((a, i) => (
+          <polygon
+            key={i}
+            points="-4,-5 4,-5 0,6"
+            fill="#323232"
+            transform={`translate(${a.x},${a.y}) rotate(${a.rot})`}
+          />
+        ))}
+      </g>
 
       {/* Center text */}
       <text
@@ -59,37 +72,19 @@ function FlywheelSVG() {
         LIVE &amp; EARN
       </text>
 
-      {/* Nodes */}
+      {/* Nodes (static) */}
       {nodes.map((node) => {
         const rad = (node.angle * Math.PI) / 180;
         const nx = cx + r * Math.cos(rad);
         const ny = cy + r * Math.sin(rad);
         const boxW = 72, boxH = 48;
-
         return (
           <g key={node.label}>
-            {/* Node rectangle */}
-            <rect
-              x={nx - boxW / 2} y={ny - boxH / 2}
-              width={boxW} height={boxH}
-              fill="#FFFFFF" stroke="#323232" strokeWidth="2" rx="0"
-            />
-            {/* Node label */}
-            <text
-              x={nx} y={ny + 2}
-              textAnchor="middle"
-              dominantBaseline="central"
-              style={{ fontFamily: barlow, fontWeight: 700, fontSize: '13px', fill: '#323232', letterSpacing: '0.08em' }}
-            >
+            <rect x={nx - boxW / 2} y={ny - boxH / 2} width={boxW} height={boxH} fill="#FFFFFF" stroke="#323232" strokeWidth="2" rx="0" />
+            <text x={nx} y={ny + 2} textAnchor="middle" dominantBaseline="central" style={{ fontFamily: barlow, fontWeight: 700, fontSize: '13px', fill: '#323232', letterSpacing: '0.08em' }}>
               {node.label}
             </text>
-            {/* Sub-label below the box */}
-            <text
-              x={nx} y={ny + boxH / 2 + 16}
-              textAnchor="middle"
-              dominantBaseline="central"
-              style={{ fontFamily: dmSans, fontSize: '11px', fill: '#5A5A58' }}
-            >
+            <text x={nx} y={ny + boxH / 2 + 16} textAnchor="middle" dominantBaseline="central" style={{ fontFamily: dmSans, fontSize: '11px', fill: '#5A5A58' }}>
               {node.sub}
             </text>
           </g>
