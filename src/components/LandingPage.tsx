@@ -1,18 +1,19 @@
 import { useEffect, useRef } from "react";
 import { SEO } from "./SEO";
 import { MobileNav } from "./MobileNav";
-import { Footer } from "./Footer";
-import { ThemeToggle } from "./ThemeToggle";
 import { HeroSection } from "./landing/HeroSection";
 import { HowItWorksLanding } from "./landing/HowItWorksLanding";
 import { RewardsPreview } from "./landing/RewardsPreview";
 import { FiveWaysToEarn } from "./landing/FiveWaysToEarn";
 import { TheMathSection } from "./landing/TheMathSection";
 import { FinalCTA } from "./landing/FinalCTA";
-import { Button } from "./ui/button";
+import { LandingFooter } from "./landing/LandingFooter";
+import { LandingBetaBanner } from "./landing/LandingBetaBanner";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { useTheme } from "./ThemeProvider";
+
+const barlow = "'Barlow Condensed', sans-serif";
+const hoverCurve = 'cubic-bezier(0.4,0,0.2,1)';
 
 function ScrollReveal({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -24,7 +25,7 @@ function ScrollReveal({ children, className = "" }: { children: React.ReactNode;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          el.classList.add("landed-visible");
+          el.classList.add("editorial-visible");
           observer.unobserve(el);
         }
       },
@@ -38,7 +39,8 @@ function ScrollReveal({ children, className = "" }: { children: React.ReactNode;
   return (
     <div
       ref={ref}
-      className={`landed-hidden ${className}`}
+      className={`editorial-hidden ${className}`}
+      style={{ willChange: 'opacity, transform' }}
     >
       {children}
     </div>
@@ -48,7 +50,6 @@ function ScrollReveal({ children, className = "" }: { children: React.ReactNode;
 export function LandingPage() {
   const navigate = useNavigate();
   const { setShowAuthModal, setAuthMode } = useAuthContext();
-  const { theme } = useTheme();
 
   const handleJoin = () => {
     setAuthMode('signup');
@@ -61,51 +62,106 @@ export function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-page-bg">
+    <div className="min-h-screen w-full overflow-x-hidden" style={{ backgroundColor: '#F9F9F7' }}>
       <SEO 
         title="Get Rewarded for the Things You Already Do"
         description="Shop at 6,000+ brands, create content, and earn real rewards that grow the more you commit. Join Crescendo — it's free."
       />
 
+      {/* Beta Banner */}
+      <LandingBetaBanner />
+
       {/* Navigation */}
-      <nav className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 md:px-12 py-4 md:py-5 w-full max-w-7xl mx-auto">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full border-[3px] dark:border-accent-lime border-gray-800 flex items-center justify-center">
-            <span className="text-gray-800 dark:text-accent-lime font-black text-xs tracking-tight">360</span>
-          </div>
-          <span className="text-xl font-bold text-foreground">Crescendo</span>
-          <span className="px-2 py-0.5 rounded text-xs font-bold bg-accent-lime text-black">BETA</span>
-        </div>
-        <div className="hidden md:flex items-center gap-4">
-          <Button
-            variant="ghost"
-            className="text-sm font-medium text-text-body hover:text-text-accent hover:bg-transparent transition-colors"
+      <nav
+        className="sticky top-0 z-20 flex items-center justify-between px-6 md:px-12 py-4 md:py-5 w-full max-w-7xl mx-auto"
+        style={{ backgroundColor: '#F9F9F7' }}
+      >
+        <span
+          style={{
+            fontFamily: barlow,
+            fontWeight: 900,
+            fontSize: '26px',
+            color: '#323232',
+            letterSpacing: '-0.02em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+          }}
+          onClick={() => navigate('/')}
+        >
+          CRESCENDO
+        </span>
+
+        <div className="hidden md:flex items-center gap-5">
+          <button
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '14px',
+              color: '#5A5A58',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              transition: `color 300ms ${hoverCurve}`,
+            }}
             onClick={() => navigate('/rewards')}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#323232')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#5A5A58')}
           >
             Rewards
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-sm font-medium text-text-body hover:text-text-accent hover:bg-transparent transition-colors"
+          </button>
+          <button
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '14px',
+              color: '#5A5A58',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              transition: `color 300ms ${hoverCurve}`,
+            }}
             onClick={() => navigate('/how-it-works')}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#323232')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#5A5A58')}
           >
             How It Works
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-sm font-medium text-text-body hover:text-text-accent hover:bg-transparent transition-colors"
+          </button>
+          <button
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '14px',
+              color: '#323232',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              transition: `color 300ms ${hoverCurve}`,
+            }}
             onClick={handleSignIn}
           >
-            Sign in
-          </Button>
-          <ThemeToggle />
-          <Button
+            Sign In
+          </button>
+          <button
             onClick={handleJoin}
-            className="ml-3 font-semibold rounded-full px-5 text-sm bg-cta text-cta-foreground hover:bg-cta/90"
+            style={{
+              fontFamily: barlow,
+              fontWeight: 700,
+              fontSize: '13px',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              backgroundColor: '#323232',
+              color: '#FFFFFF',
+              border: 'none',
+              borderRadius: '0px',
+              padding: '10px 24px',
+              cursor: 'pointer',
+              marginLeft: '8px',
+              transition: `background-color 300ms ${hoverCurve}`,
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a1a1a')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#323232')}
           >
-            Join Free
-          </Button>
+            JOIN FREE
+          </button>
         </div>
+
         <MobileNav
           onViewRewards={() => navigate('/rewards')}
           onSignIn={handleSignIn}
@@ -113,49 +169,70 @@ export function LandingPage() {
         />
       </nav>
 
-      {/* Section 1: Hero */}
+      {/* Hero */}
       <HeroSection onJoin={handleJoin} />
 
+      {/* Spacer for stat cards overlap */}
+      <div style={{ height: '80px' }} />
+
       {/* Core Principle Callout */}
-      <div className="container mx-auto px-4 -mt-2 mb-4">
+      <div className="container mx-auto px-6 md:px-12 mt-8 mb-8">
         <div
-          className="rounded-xl px-5 py-4 max-w-3xl mx-auto"
-          style={{ backgroundColor: '#323232', color: '#E2FF6D' }}
+          className="max-w-3xl mx-auto"
+          style={{
+            backgroundColor: '#323232',
+            padding: '24px 28px',
+            borderRadius: '0px',
+          }}
         >
-          <p className="text-[10px] font-bold tracking-[0.2em] uppercase mb-1 opacity-70">The Core Principle</p>
-          <p className="text-sm leading-relaxed">
+          <p
+            style={{
+              fontFamily: barlow,
+              fontWeight: 700,
+              fontSize: '10px',
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.5)',
+              marginBottom: '6px',
+            }}
+          >
+            The Core Principle
+          </p>
+          <p
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '14px',
+              lineHeight: 1.6,
+              color: '#FFFFFF',
+            }}
+          >
             Commitment is rewarded. 360LOCK is how members participate — one commitment, 360 days, amplified rewards. The longer you commit, the stronger your position.
           </p>
         </div>
       </div>
 
-      {/* Section 2: How It Works */}
+      {/* Sections */}
       <ScrollReveal>
         <HowItWorksLanding />
       </ScrollReveal>
 
-      {/* Section 2.5: Five Ways to Earn */}
       <ScrollReveal>
         <FiveWaysToEarn />
       </ScrollReveal>
 
-      {/* Section 3: Rewards Preview */}
       <ScrollReveal>
         <RewardsPreview onJoin={handleJoin} />
       </ScrollReveal>
 
-      {/* Section 4: The Math */}
       <ScrollReveal>
         <TheMathSection />
       </ScrollReveal>
 
-      {/* Section 5: Final CTA */}
       <ScrollReveal>
         <FinalCTA />
       </ScrollReveal>
 
-      {/* Footer */}
-      <Footer />
+      <LandingFooter />
     </div>
   );
 }

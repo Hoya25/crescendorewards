@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { ArrowRight, ChevronDown, TrendingUp, Lock, Trophy } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
@@ -15,10 +14,15 @@ const FLYWHEEL_NODES = [
 ];
 
 const STAT_TILES = [
-  { headline: '5 Status Tiers', sub: 'Bronze to Diamond' },
-  { headline: '360 Days', sub: 'One commitment, instant activation' },
-  { headline: 'Earn in The Garden', sub: 'Shop brands to fuel your status' },
+  { headline: '5', label: 'STATUS TIERS', sub: 'Bronze to Diamond' },
+  { headline: '360', label: 'DAYS', sub: 'One commitment, instant activation' },
+  { headline: '∞', label: 'EARN IN THE GARDEN', sub: 'Shop brands to fuel your status' },
 ];
+
+const ambient = '0px 4px 20px rgba(50,50,50,0.04), 0px 10px 40px rgba(50,50,50,0.06)';
+const barlow = "'Barlow Condensed', sans-serif";
+const dmSans = "'DM Sans', sans-serif";
+const hoverCurve = 'cubic-bezier(0.4,0,0.2,1)';
 
 export function HeroSection({ onJoin }: HeroSectionProps) {
   const navigate = useNavigate();
@@ -38,87 +42,158 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
     fetchCount();
   }, []);
 
-  const displayCount = memberCount > 10 ? memberCount : null;
-
   const scrollToHowItWorks = () => {
     document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <section className="relative min-h-[90vh] md:min-h-screen flex items-center px-6 md:px-12 overflow-hidden pt-20 md:pt-0 bg-page-bg">
-      {/* Radial glow */}
-      <div
-        className="absolute top-1/2 right-[25%] -translate-y-1/2 w-[700px] h-[700px] rounded-full pointer-events-none hidden md:block"
-        style={{ background: 'radial-gradient(ellipse at center, hsl(var(--accent-lime-subtle)) 0%, transparent 60%)' }}
-      />
-
-      <div className="relative z-10 max-w-6xl mx-auto w-full grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+    <section
+      className="relative flex items-center px-6 md:px-12 pt-28 md:pt-0 md:min-h-screen"
+      style={{ backgroundColor: '#F9F9F7' }}
+    >
+      <div className="relative z-10 max-w-6xl mx-auto w-full grid md:grid-cols-2 gap-10 md:gap-20 items-center py-16 md:py-0">
         {/* Left: Copy */}
-        <div className="space-y-6 md:space-y-8">
-          <h1 className="text-[2.5rem] md:text-[3.25rem] lg:text-[4rem] font-black tracking-tight leading-[1.05] text-text-heading">
-            Your Status.{' '}
-            <span className="text-accent-lime" style={{ textShadow: '0 0 30px hsl(var(--accent-lime) / 0.25)' }}>
-              Your Rewards. Your Life.
+        <div className="space-y-8">
+          <h1 style={{ lineHeight: 1.0, letterSpacing: '-0.03em' }}>
+            <span
+              style={{
+                fontFamily: barlow,
+                fontWeight: 900,
+                fontSize: 'clamp(3rem, 6vw, 5rem)',
+                color: '#323232',
+                display: 'block',
+                textTransform: 'uppercase',
+              }}
+            >
+              Your Status.
+            </span>
+            <span
+              style={{
+                fontFamily: barlow,
+                fontWeight: 900,
+                fontSize: 'clamp(3rem, 6vw, 5rem)',
+                color: '#3A4A00',
+                display: 'block',
+                textTransform: 'uppercase',
+              }}
+            >
+              Your Rewards.
+            </span>
+            <span
+              style={{
+                fontFamily: barlow,
+                fontWeight: 900,
+                fontSize: 'clamp(3rem, 6vw, 5rem)',
+                color: '#323232',
+                display: 'block',
+                textTransform: 'uppercase',
+              }}
+            >
+              Your Life.
             </span>
           </h1>
 
-          <p className="text-base md:text-lg lg:text-xl leading-relaxed max-w-lg text-text-body">
+          <p
+            style={{
+              fontFamily: dmSans,
+              fontSize: '16px',
+              lineHeight: 1.6,
+              color: '#5A5A58',
+              maxWidth: '480px',
+            }}
+          >
             Bronze through Diamond — your Crescendo status level determines every reward, opportunity, and benefit you can access.
           </p>
 
-          {/* Stat Tiles */}
-          <div className="grid grid-cols-3 gap-3">
-            {STAT_TILES.map((tile) => (
-              <div
-                key={tile.headline}
-                className="rounded-xl px-3 py-3 text-center border border-border-card bg-card-bg"
-              >
-                <p className="text-sm md:text-base font-bold text-accent-lime">{tile.headline}</p>
-                <p className="text-[11px] md:text-xs text-text-body-muted mt-0.5">{tile.sub}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button
-              size="lg"
+          {/* CTA Buttons */}
+          <div className="flex flex-col gap-3 max-w-md">
+            <button
               onClick={() => navigate('/membership')}
-              className="font-bold text-base px-8 py-6 rounded-full shadow-lg transition-all hover:scale-[1.02] no-min-touch bg-cta text-cta-foreground"
-              style={{ boxShadow: '0 0 30px hsl(var(--accent-lime) / 0.12)' }}
+              style={{
+                fontFamily: barlow,
+                fontWeight: 700,
+                fontSize: '14px',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                backgroundColor: '#323232',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '0px',
+                height: '56px',
+                width: '100%',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                transition: `background-color 300ms ${hoverCurve}`,
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a1a1a')}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#323232')}
             >
-              Check My Status
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-            <Button
-              size="lg"
-              variant="ghost"
+              CHECK MY STATUS
+              <ArrowRight className="w-5 h-5" />
+            </button>
+            <button
               onClick={scrollToHowItWorks}
-              className="rounded-full px-6 py-6 text-text-body hover:text-text-accent transition-colors no-min-touch border border-border-card bg-transparent"
+              style={{
+                fontFamily: barlow,
+                fontWeight: 700,
+                fontSize: '14px',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                backgroundColor: 'transparent',
+                color: '#323232',
+                border: '1px solid #323232',
+                borderRadius: '0px',
+                height: '56px',
+                width: '100%',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                transition: `background-color 300ms ${hoverCurve}, color 300ms ${hoverCurve}`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#323232';
+                e.currentTarget.style.color = '#FFFFFF';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#323232';
+              }}
             >
-              See How It Works
-              <ChevronDown className="ml-2 w-4 h-4" />
-            </Button>
+              SEE HOW IT WORKS
+              <ChevronDown className="w-4 h-4" />
+            </button>
           </div>
 
-          <p className="text-sm text-text-body-muted">
-            <a
-              href="https://thegarden.nctr.live"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-accent-lime transition-colors underline underline-offset-2"
-            >
-              Don't have NCTR yet? Earn it in The Garden →
-            </a>
-          </p>
+          <a
+            href="https://thegarden.nctr.live"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontFamily: dmSans,
+              fontSize: '14px',
+              color: '#323232',
+              textDecoration: 'underline',
+              textUnderlineOffset: '3px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}
+          >
+            Don't have NCTR yet? Earn it in The Garden →
+          </a>
         </div>
 
         {/* Right: Flywheel */}
         <div className="flex items-center justify-center md:justify-end">
           <div className="relative w-72 h-72 md:w-[22rem] md:h-[22rem]">
+            {/* SVG orbit */}
             <svg viewBox="0 0 300 300" fill="none" className="absolute inset-0 w-full h-full">
-              <circle cx="150" cy="150" r="130" stroke="hsl(var(--flywheel-orbit))" strokeWidth="1.5" strokeDasharray="8 6"
-                className="animate-[spin_25s_linear_infinite]" style={{ transformOrigin: '150px 150px' }} />
-              <circle cx="150" cy="150" r="95" stroke="hsl(var(--flywheel-orbit, 0 0% 50% / 0.15))" strokeWidth="1" />
+              <circle cx="150" cy="150" r="130" stroke="#D9D9D9" strokeWidth="2" />
               {[0, 120, 240].map((deg) => {
                 const midAngle = deg + 60;
                 const rad = (midAngle * Math.PI) / 180;
@@ -126,39 +201,80 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
                 const cy = 150 + 130 * Math.sin(rad);
                 const rot = midAngle + 90;
                 return (
-                  <polygon key={deg} points="-4,-5 4,-5 0,5" fill="hsl(var(--flywheel-arrow))"
-                    transform={`translate(${cx},${cy}) rotate(${rot})`} />
+                  <polygon
+                    key={deg}
+                    points="-5,-6 5,-6 0,6"
+                    fill="#323232"
+                    transform={`translate(${cx},${cy}) rotate(${rot})`}
+                  />
                 );
               })}
             </svg>
 
+            {/* Nodes */}
             {FLYWHEEL_NODES.map((node) => {
               const rad = (node.angle * Math.PI) / 180;
               const r = 130;
               const x = 50 + (r / 150) * 50 * Math.cos(rad);
               const y = 50 + (r / 150) * 50 * Math.sin(rad);
-              const NodeIcon = node.Icon;
               return (
-                <div key={node.label} className="absolute flex flex-col items-center gap-1.5"
-                  style={{ left: `${x}%`, top: `${y}%`, transform: 'translate(-50%, -50%)' }}>
+                <div
+                  key={node.label}
+                  className="absolute flex flex-col items-center gap-1.5"
+                  style={{ left: `${x}%`, top: `${y}%`, transform: 'translate(-50%, -50%)' }}
+                >
                   <div
-                    className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center bg-card-bg border-2 border-flywheel-node-border"
-                    style={{ boxShadow: '0 2px 12px hsl(var(--flywheel-node-shadow))' }}
+                    style={{
+                      width: '60px',
+                      height: '60px',
+                      backgroundColor: '#FFFFFF',
+                      border: '2px solid #323232',
+                      borderRadius: '0px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
                   >
-                    <NodeIcon className="w-6 h-6 md:w-7 md:h-7 text-accent-lime" />
+                    <node.Icon style={{ width: '24px', height: '24px', color: '#323232' }} />
                   </div>
-                  <span className="text-[11px] md:text-xs font-bold uppercase tracking-wider text-flywheel-label">
+                  <span
+                    style={{
+                      fontFamily: barlow,
+                      fontWeight: 700,
+                      fontSize: '12px',
+                      color: '#323232',
+                      letterSpacing: '0.1em',
+                      textTransform: 'uppercase',
+                    }}
+                  >
                     {node.label}
                   </span>
-                  <span className="text-[10px] md:text-[11px] whitespace-nowrap text-flywheel-sublabel">
+                  <span
+                    style={{
+                      fontFamily: dmSans,
+                      fontSize: '12px',
+                      color: '#5A5A58',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
                     {node.sub}
                   </span>
                 </div>
               );
             })}
 
+            {/* Center label */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-xs md:text-sm uppercase tracking-[0.15em] font-extrabold text-flywheel-center">
+              <p
+                style={{
+                  fontFamily: barlow,
+                  fontWeight: 700,
+                  fontSize: '14px',
+                  color: '#323232',
+                  letterSpacing: '0.15em',
+                  textTransform: 'uppercase',
+                }}
+              >
                 Live &amp; Earn
               </p>
             </div>
@@ -166,9 +282,62 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 animate-bounce" style={{ animationDuration: '2s' }}>
-        <ChevronDown className="w-5 h-5 text-text-body-muted/40" />
+      {/* Stat Cards */}
+      <div
+        className="absolute bottom-0 left-0 right-0 px-6 md:px-12"
+        style={{ transform: 'translateY(50%)' }}
+      >
+        <div className="max-w-4xl mx-auto grid grid-cols-3 gap-4">
+          {STAT_TILES.map((tile) => (
+            <div
+              key={tile.label}
+              style={{
+                backgroundColor: '#FFFFFF',
+                boxShadow: ambient,
+                borderRadius: '0px',
+                padding: '24px 16px',
+                textAlign: 'center',
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: barlow,
+                  fontWeight: 900,
+                  fontSize: 'clamp(32px, 4vw, 48px)',
+                  color: '#323232',
+                  lineHeight: 1,
+                  margin: 0,
+                }}
+              >
+                {tile.headline}
+              </p>
+              <p
+                style={{
+                  fontFamily: dmSans,
+                  fontWeight: 400,
+                  fontSize: '12px',
+                  color: '#323232',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  marginTop: '8px',
+                }}
+              >
+                {tile.label}
+              </p>
+              <p
+                style={{
+                  fontFamily: dmSans,
+                  fontWeight: 400,
+                  fontSize: '11px',
+                  color: '#5A5A58',
+                  marginTop: '4px',
+                }}
+              >
+                {tile.sub}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
