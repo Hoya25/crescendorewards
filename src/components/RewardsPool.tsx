@@ -746,7 +746,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         </div>
 
         {/* Search + Sort + View row */}
-        <div className="container mx-auto px-4 py-1.5 max-w-full border-t">
+        <div className="container mx-auto px-4 py-1.5 max-w-full" style={{ borderTop: 'none' }}>
           <div className="flex flex-wrap items-center gap-3">
             {/* Search Input */}
             <div className="relative flex-1 min-w-[180px] max-w-sm">
