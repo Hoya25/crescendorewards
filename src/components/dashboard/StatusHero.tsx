@@ -11,6 +11,10 @@ export function StatusHero() {
   const isDiamond = !nextTier;
   const hasNoLocked = total360Locked <= 0;
 
+  // Cross-project point balances from Bounty Hunter sync
+  const nctrLockedPoints = Number((profile as any)?.nctr_locked_points) || 0;
+  const nctrBalancePoints = Number((profile as any)?.nctr_balance_points) || 0;
+
   const availableNCTR = (profile?.crescendo_data as any)?.available_nctr || 0;
 
   const nctrRemaining = nextTier
@@ -52,6 +56,24 @@ export function StatusHero() {
                   </span>
                 )}
               </p>
+              {nctrLockedPoints > 0 && (
+                <p className="text-[13px] text-muted-foreground">
+                  {nctrLockedPoints.toLocaleString()} NCTR locked · {tier?.display_name || "Bronze"} status
+                </p>
+              )}
+              {nctrBalancePoints > 0 && (
+                <p className="text-[13px] text-muted-foreground">
+                  {nctrBalancePoints.toLocaleString()} NCTR available to lock{' '}
+                  <a
+                    href="https://bountyhunter.nctr.live/lock"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    →
+                  </a>
+                </p>
+              )}
             </div>
           </div>
 
