@@ -621,7 +621,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const needsShipping = selectedReward?.category === 'merch' || selectedReward?.category === 'experiences';
 
   return (
-    <div className="min-h-screen bg-background pb-20 w-full max-w-[100vw] overflow-x-hidden">
+    <div className="min-h-screen pb-20 w-full max-w-[100vw] overflow-x-hidden" style={{ backgroundColor: '#131313', color: '#FFFFFF' }}>
       <SEO 
         title="Rewards"
         description="Browse and claim exclusive rewards including experiences, merchandise, subscriptions, and more."
