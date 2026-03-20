@@ -988,7 +988,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         {/* Section Header — compact */}
         {!loading && (
           <div className="flex items-center gap-2 mb-3">
-            <h2 className="text-lg font-semibold">
+          <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '20px', color: '#FFFFFF', letterSpacing: '-0.02em' }}>
               {activeCategory === 'all' ? 'All Rewards' : categoryLabels[activeCategory] || 'Rewards'}
             </h2>
             <Badge variant="secondary" className="text-xs">
