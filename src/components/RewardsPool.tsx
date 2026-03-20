@@ -972,7 +972,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             </div>
           )}
         </div>
-      </div>
+        </div>
+        </div>
 
       {/* Wellness Rewards Featured Section */}
       {!loading && <WellnessRewardsSection />}
