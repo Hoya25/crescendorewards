@@ -56,6 +56,24 @@ export function StatusHero() {
                   </span>
                 )}
               </p>
+              {nctrLockedPoints > 0 && (
+                <p className="text-[13px] text-muted-foreground">
+                  {nctrLockedPoints.toLocaleString()} NCTR locked · {tier?.display_name || "Bronze"} status
+                </p>
+              )}
+              {nctrBalancePoints > 0 && (
+                <p className="text-[13px] text-muted-foreground">
+                  {nctrBalancePoints.toLocaleString()} NCTR available to lock{' '}
+                  <a
+                    href="https://bountyhunter.nctr.live/lock"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    →
+                  </a>
+                </p>
+              )}
             </div>
           </div>
 
