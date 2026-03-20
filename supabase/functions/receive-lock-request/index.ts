@@ -27,7 +27,14 @@ serve(async (req) => {
       return json({ error: "Unauthorized" }, 401);
     }
 
-    const { email, nctr_amount, target_tier, status } = await req.json();
+    const {
+      email,
+      nctr_amount,
+      target_tier,
+      status,
+      nctr_locked_points,
+      nctr_balance_points,
+    } = await req.json();
 
     if (!email || nctr_amount == null) {
       return json({ error: "email and nctr_amount are required" }, 400);
@@ -68,21 +75,31 @@ serve(async (req) => {
       },
     };
 
+    // Build targeted update payload
+    const updatePayload: Record<string, unknown> = {
+      crescendo_data: updatedData,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (nctr_locked_points !== undefined) {
+      updatePayload.nctr_locked_points = nctr_locked_points;
+    }
+    if (nctr_balance_points !== undefined) {
+      updatePayload.nctr_balance_points = nctr_balance_points;
+    }
+
     const { error: updateError } = await supabaseAdmin
       .from("unified_profiles")
-      .update({
-        crescendo_data: updatedData,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updatePayload)
       .eq("id", profile.id);
 
     if (updateError) {
-      console.error("Failed to update crescendo_data:", updateError);
+      console.error("Failed to update unified_profiles:", updateError);
       return json({ received: false, error: updateError.message });
     }
 
     console.log(
-      `Lock request received: ${nctr_amount} NCTR for ${email}, tier=${target_tier ?? "none"}`
+      `Lock request received: ${nctr_amount} NCTR for ${email}, tier=${target_tier ?? "none"}, locked_pts=${nctr_locked_points ?? "n/a"}, balance_pts=${nctr_balance_points ?? "n/a"}`
     );
 
     return json({ received: true });
