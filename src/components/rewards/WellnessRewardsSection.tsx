@@ -139,7 +139,7 @@ export function WellnessRewardsSection() {
         <div className="container mx-auto px-4 max-w-full">
           <Skeleton className="h-8 w-64 mb-4" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[1, 2, 3].map(i => <Skeleton key={i} className="h-72 rounded-xl" />)}
+            {[1, 2, 3].map(i => <Skeleton key={i} className="h-72" style={{ borderRadius: '0px' }} />)}
           </div>
         </div>
       </section>
