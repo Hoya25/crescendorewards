@@ -171,7 +171,7 @@ export function WellnessRewardsSection() {
             <div>
               <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <h2 className="text-xl font-bold">
-                  INSPIRATION Wellness Rewards
+                  Kroma Wellness Rewards
                 </h2>
                 <Badge
                   className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border-0"
