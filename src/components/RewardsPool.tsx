@@ -733,6 +733,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                       setActiveCategory(key);
                       setPriceFilter('all');
                     }
+                    setTimeout(() => {
+                      document.getElementById('rewards-grid')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 50);
                   }}
                 >
                   <Icon className="w-3 h-3" />
