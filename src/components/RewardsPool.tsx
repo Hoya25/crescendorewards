@@ -661,7 +661,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       )}
 
       {/* Combined sticky bar: tier + categories + filters */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 50, backgroundColor: '#131313', borderBottom: '1px solid #1F2020', paddingTop: '4px', paddingBottom: '12px' }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 40, backgroundColor: '#131313', borderBottom: '1px solid #1F2020', paddingTop: '4px', paddingBottom: '12px', width: '100%', left: 0, right: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>
         {/* Tier info row (auth only) */}
         {isAuthenticated && (
           <div className="container mx-auto px-4 max-w-full border-b">
