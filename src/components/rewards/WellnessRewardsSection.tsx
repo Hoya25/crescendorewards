@@ -48,7 +48,7 @@ function TierUnlockPreview({ userTierLevel, userTierName }: { userTierLevel: num
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-amber-500" />
           <span className="text-sm font-semibold text-foreground">
-            What each tier unlocks in INSPIRATION Wellness
+            What each tier unlocks in Kroma Wellness
           </span>
           <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
             Your tier: {userTierName}
