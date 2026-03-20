@@ -41,7 +41,8 @@ export function BrandLogosSection() {
           {brands.map((brand) => (
             <div
               key={brand.name}
-              className="aspect-square rounded-xl border bg-background flex items-center justify-center p-3 md:p-5 hover:shadow-md transition-shadow"
+              className="aspect-square border bg-background flex items-center justify-center p-3 md:p-5 hover:shadow-md transition-shadow"
+              style={{ borderRadius: '0px' }}
             >
               <img
                 src={brand.logo}
@@ -53,7 +54,7 @@ export function BrandLogosSection() {
           ))}
         </div>
 
-        <div className="bg-muted/50 rounded-xl p-4 md:p-6 text-center mb-8 border">
+        <div className="bg-muted/50 p-4 md:p-6 text-center mb-8 border" style={{ borderRadius: '0px' }}>
           <p className="text-sm md:text-base text-muted-foreground">
             <span className="font-semibold text-foreground">Example:</span> Spend $100 at Nike → Earn up to 500 NCTR → Commit it → Level up your status → Unlock premium rewards
           </p>
@@ -63,7 +64,8 @@ export function BrandLogosSection() {
           <Button
             variant="outline"
             onClick={handleCTA}
-            className="rounded-full gap-2"
+            className="gap-2"
+            style={{ borderRadius: '0px' }}
           >
             See All Brands <ArrowRight className="w-4 h-4" />
           </Button>
