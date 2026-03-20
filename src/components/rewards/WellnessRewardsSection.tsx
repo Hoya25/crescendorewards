@@ -245,7 +245,7 @@ export function WellnessRewardsSection() {
             style={{ borderRadius: '0px', backgroundColor: '#323232', color: '#E2FF6D' }}
           >
             <span className="font-semibold">How it works:</span>{' '}
-            Shop through The Garden → Earn INSPIRATION → Commit via 360LOCK → Unlock these rewards.
+            Shop through The Garden → Earn NCTR → Commit via 360LOCK → Unlock these rewards.
             Your commitment unlocks value — you never spend your earned rewards.
           </div>
           <a
