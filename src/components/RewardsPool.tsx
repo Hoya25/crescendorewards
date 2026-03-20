@@ -683,6 +683,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           </div>
         )}
 
+        {/* Sticky filter container: tabs + search/sort */}
+        <div style={{ position: 'sticky', top: 0, zIndex: 50, backgroundColor: '#131313', paddingTop: '12px', paddingBottom: '12px', borderBottom: '1px solid #1F2020' }}>
         {/* Category pills row */}
         <div className="container mx-auto px-4 max-w-full">
           <div className="relative">
