@@ -156,7 +156,7 @@ export function WellnessRewardsSection() {
     <section
       className="py-8 relative overflow-hidden"
       style={{
-        background: 'linear-gradient(180deg, #F5EDE3 0%, hsl(var(--background)) 100%)',
+        background: '#1F2020',
       }}
     >
       <div className="container mx-auto px-4 max-w-full">
