@@ -33,7 +33,7 @@ const TIER_WELLNESS_UNLOCKS: { tier: string; level: number; color: string; emoji
   { tier: 'Silver', level: 2, color: '#C0C0C0', emoji: '🥈', items: ['Beauty Matcha Latte', 'Super Core Colostrum', '+ all Bronze rewards'] },
   { tier: 'Gold', level: 3, color: '#FFD700', emoji: '🥇', items: ['Priority access to new Kroma drops', '+ all Silver & Bronze rewards'] },
   { tier: 'Platinum', level: 4, color: '#E5E4E2', emoji: '💎', items: ['Kroma VIP access & exclusive bundles', '+ all Gold, Silver & Bronze rewards'] },
-  { tier: 'Diamond', level: 5, color: '#B9F2FF', emoji: '👑', items: ['Everything + first access to INSPIRATION partner rewards'] },
+  { tier: 'Diamond', level: 5, color: '#B9F2FF', emoji: '👑', items: ['Everything + first access to partner rewards'] },
 ];
 
 function TierUnlockPreview({ userTierLevel, userTierName }: { userTierLevel: number; userTierName: string }) {
@@ -48,7 +48,7 @@ function TierUnlockPreview({ userTierLevel, userTierName }: { userTierLevel: num
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-amber-500" />
           <span className="text-sm font-semibold text-foreground">
-            What each tier unlocks in INSPIRATION Wellness
+            What each tier unlocks in Kroma Wellness
           </span>
           <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
             Your tier: {userTierName}
@@ -171,7 +171,7 @@ export function WellnessRewardsSection() {
             <div>
               <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <h2 className="text-xl font-bold">
-                  INSPIRATION Wellness Rewards
+                  Kroma Wellness Rewards
                 </h2>
                 <Badge
                   className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border-0"
@@ -200,7 +200,7 @@ export function WellnessRewardsSection() {
           <span className="text-3xl shrink-0">🌿</span>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-foreground">
-              Shop Kroma Wellness on The Garden → Earn INSPIRATION toward these rewards
+              Shop Kroma Wellness on The Garden → Earn NCTR toward these rewards
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
               Every Kroma purchase earns NCTR. Commit via 360LOCK to unlock the rewards below.
@@ -245,7 +245,7 @@ export function WellnessRewardsSection() {
             style={{ borderRadius: '0px', backgroundColor: '#323232', color: '#E2FF6D' }}
           >
             <span className="font-semibold">How it works:</span>{' '}
-            Shop through The Garden → Earn INSPIRATION → Commit via 360LOCK → Unlock these rewards.
+            Shop through The Garden → Earn NCTR → Commit via 360LOCK → Unlock these rewards.
             Your commitment unlocks value — you never spend your earned rewards.
           </div>
           <a
