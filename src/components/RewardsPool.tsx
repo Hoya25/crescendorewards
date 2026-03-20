@@ -683,6 +683,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           </div>
         )}
 
+        {/* Sticky filter container: tabs + search/sort */}
+        <div style={{ position: 'sticky', top: 0, zIndex: 50, backgroundColor: '#131313', paddingTop: '12px', paddingBottom: '12px', borderBottom: '1px solid #1F2020' }}>
         {/* Category pills row */}
         <div className="container mx-auto px-4 max-w-full">
           <div className="relative">
@@ -970,7 +972,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             </div>
           )}
         </div>
-      </div>
+        </div>
+        </div>
 
       {/* Wellness Rewards Featured Section */}
       {!loading && <WellnessRewardsSection />}
@@ -987,7 +990,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       {!loading && <StatusPerksSection />}
 
       {/* Main Rewards Grid — starts immediately */}
-      <div id="rewards-grid" className="container mx-auto px-4 pt-4 pb-8 max-w-full" style={{ scrollMarginTop: '80px' }}>
+      <div id="rewards-grid" className="container mx-auto px-4 pt-4 pb-8 max-w-full" style={{ scrollMarginTop: '120px' }}>
         {/* Section Header — compact */}
         {!loading && (
           <div className="flex items-center gap-2 mb-3">
