@@ -629,15 +629,15 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
       {/* Simple nav bar for unauthenticated users (authenticated get AppLayout header) */}
       {!isAuthenticated && (
-        <nav className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
-          <div className="container mx-auto px-4 py-1 flex items-center justify-between max-w-full">
+        <nav className="sticky top-0 z-40" style={{ backgroundColor: '#131313' }}>
+          <div className="container mx-auto px-4 py-2 flex items-center justify-between max-w-full">
             <button onClick={() => navigate('/')} className="hover:opacity-80 transition-opacity">
-              <CrescendoLogo />
+              <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '26px', color: '#FFFFFF', letterSpacing: '-0.02em', textTransform: 'uppercase' as const }}>CRESCENDO</span>
             </button>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/how-it-works')}>How It Works</Button>
-              <Button variant="outline" size="sm" onClick={handleSignIn}>Sign In</Button>
-              <Button size="sm" onClick={() => { setAuthMode('signup'); setShowAuthModal(true); }}>Join Free</Button>
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="sm" onClick={() => navigate('/how-it-works')} style={{ color: '#5A5A58', borderRadius: '0px' }}>How It Works</Button>
+              <button onClick={handleSignIn} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#FFFFFF', background: 'none', border: 'none', cursor: 'pointer' }}>Sign In</button>
+              <button onClick={() => { setAuthMode('signup'); setShowAuthModal(true); }} style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '13px', letterSpacing: '0.06em', textTransform: 'uppercase' as const, backgroundColor: '#FFFFFF', color: '#131313', border: 'none', borderRadius: '0px', padding: '8px 20px', cursor: 'pointer' }}>JOIN FREE</button>
             </div>
           </div>
         </nav>
