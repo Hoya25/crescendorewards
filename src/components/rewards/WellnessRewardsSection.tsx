@@ -200,7 +200,7 @@ export function WellnessRewardsSection() {
           <span className="text-3xl shrink-0">🌿</span>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-foreground">
-              Shop Kroma Wellness on The Garden → Earn INSPIRATION toward these rewards
+              Shop Kroma Wellness on The Garden → Earn NCTR toward these rewards
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
               Every Kroma purchase earns NCTR. Commit via 360LOCK to unlock the rewards below.
