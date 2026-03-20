@@ -660,8 +660,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         </div>
       )}
 
-      {/* Combined sticky bar: tier + categories + filters */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 40, backgroundColor: '#131313', borderBottom: '1px solid #1F2020', paddingTop: '4px', paddingBottom: '12px', width: '100%', left: 0, right: 0, boxShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>
+      {/* Combined fixed bar: tier + categories + filters */}
+      <div style={{ position: 'fixed', top: '48px', left: 0, right: 0, width: '100%', zIndex: 100, backgroundColor: '#131313', borderBottom: '1px solid #1F2020', paddingTop: '4px', paddingBottom: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>
         {/* Tier info row (auth only) */}
         {isAuthenticated && (
           <div className="container mx-auto px-4 max-w-full border-b">
@@ -984,7 +984,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       {!loading && <StatusPerksSection />}
 
       {/* Main Rewards Grid — starts immediately */}
-      <div id="rewards-grid" className="container mx-auto px-4 pt-4 pb-8 max-w-full" style={{ scrollMarginTop: '120px' }}>
+      <div id="rewards-grid" className="container mx-auto px-4 pb-8 max-w-full" style={{ scrollMarginTop: '180px', paddingTop: '140px' }}>
         {/* Section Header — compact */}
         {!loading && (
           <div className="flex items-center gap-2 mb-3">
