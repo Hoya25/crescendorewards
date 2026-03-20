@@ -703,12 +703,16 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               return (
                 <Button
                   key={key}
-                  variant={isActive ? 'default' : 'ghost'}
+                  variant="ghost"
                   size="sm"
-                  className={cn(
-                    "flex-shrink-0 gap-1.5 rounded-full h-7 text-xs px-3",
-                    isActive && "shadow-sm"
-                  )}
+                  className="flex-shrink-0 gap-1.5 h-7 text-xs px-3"
+                  style={{
+                    borderRadius: '0px',
+                    backgroundColor: isActive ? '#FFFFFF' : 'transparent',
+                    color: isActive ? '#131313' : '#5A5A58',
+                    fontFamily: isActive ? "'Barlow Condensed', sans-serif" : "'DM Sans', sans-serif",
+                    fontWeight: isActive ? 700 : 400,
+                  }}
                   onClick={() => {
                     if (key === 'featured') {
                       setFeaturedFilter(true);
