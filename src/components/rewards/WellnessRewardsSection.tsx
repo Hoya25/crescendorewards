@@ -65,7 +65,7 @@ function TierUnlockPreview({ userTierLevel, userTierName }: { userTierLevel: num
               <div
                 key={t.tier}
                 className={cn(
-                  'rounded-xl border p-3 transition-all relative overflow-hidden',
+                  'border p-3 transition-all relative overflow-hidden',
                   isUnlocked
                     ? 'border-primary/30 bg-card shadow-sm'
                     : 'border-border bg-muted/30 opacity-70'
