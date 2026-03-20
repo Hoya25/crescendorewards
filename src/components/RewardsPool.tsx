@@ -621,7 +621,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const needsShipping = selectedReward?.category === 'merch' || selectedReward?.category === 'experiences';
 
   return (
-    <div className="min-h-screen bg-background pb-20 w-full max-w-[100vw] overflow-x-hidden">
+    <div className="min-h-screen pb-20 w-full max-w-[100vw] overflow-x-hidden" style={{ backgroundColor: '#131313', color: '#FFFFFF' }}>
       <SEO 
         title="Rewards"
         description="Browse and claim exclusive rewards including experiences, merchandise, subscriptions, and more."
@@ -629,15 +629,15 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
       {/* Simple nav bar for unauthenticated users (authenticated get AppLayout header) */}
       {!isAuthenticated && (
-        <nav className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b">
-          <div className="container mx-auto px-4 py-1 flex items-center justify-between max-w-full">
+        <nav className="sticky top-0 z-40" style={{ backgroundColor: '#131313' }}>
+          <div className="container mx-auto px-4 py-2 flex items-center justify-between max-w-full">
             <button onClick={() => navigate('/')} className="hover:opacity-80 transition-opacity">
-              <CrescendoLogo />
+              <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '26px', color: '#FFFFFF', letterSpacing: '-0.02em', textTransform: 'uppercase' as const }}>CRESCENDO</span>
             </button>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/how-it-works')}>How It Works</Button>
-              <Button variant="outline" size="sm" onClick={handleSignIn}>Sign In</Button>
-              <Button size="sm" onClick={() => { setAuthMode('signup'); setShowAuthModal(true); }}>Join Free</Button>
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="sm" onClick={() => navigate('/how-it-works')} style={{ color: '#5A5A58', borderRadius: '0px' }}>How It Works</Button>
+              <button onClick={handleSignIn} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#FFFFFF', background: 'none', border: 'none', cursor: 'pointer' }}>Sign In</button>
+              <button onClick={() => { setAuthMode('signup'); setShowAuthModal(true); }} style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '13px', letterSpacing: '0.06em', textTransform: 'uppercase' as const, backgroundColor: '#FFFFFF', color: '#131313', border: 'none', borderRadius: '0px', padding: '8px 20px', cursor: 'pointer' }}>JOIN FREE</button>
             </div>
           </div>
         </nav>
@@ -662,9 +662,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
       {/* Combined sticky bar: tier + categories + filters */}
       <div className={cn(
-        "sticky z-30 bg-background/95 backdrop-blur border-b",
+        "sticky z-30",
         isAuthenticated ? "top-[42px] md:top-[46px]" : "top-[42px] md:top-[46px]"
-      )}>
+      )} style={{ backgroundColor: '#131313' }}>
         {/* Tier info row (auth only) */}
         {isAuthenticated && (
           <div className="container mx-auto px-4 max-w-full border-b">
@@ -703,12 +703,16 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               return (
                 <Button
                   key={key}
-                  variant={isActive ? 'default' : 'ghost'}
+                  variant="ghost"
                   size="sm"
-                  className={cn(
-                    "flex-shrink-0 gap-1.5 rounded-full h-7 text-xs px-3",
-                    isActive && "shadow-sm"
-                  )}
+                  className="flex-shrink-0 gap-1.5 h-7 text-xs px-3"
+                  style={{
+                    borderRadius: '0px',
+                    backgroundColor: isActive ? '#FFFFFF' : 'transparent',
+                    color: isActive ? '#131313' : '#5A5A58',
+                    fontFamily: isActive ? "'Barlow Condensed', sans-serif" : "'DM Sans', sans-serif",
+                    fontWeight: isActive ? 700 : 400,
+                  }}
                   onClick={() => {
                     if (key === 'featured') {
                       setFeaturedFilter(true);
@@ -742,17 +746,18 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         </div>
 
         {/* Search + Sort + View row */}
-        <div className="container mx-auto px-4 py-1.5 max-w-full border-t">
+        <div className="container mx-auto px-4 py-1.5 max-w-full" style={{ borderTop: 'none' }}>
           <div className="flex flex-wrap items-center gap-3">
             {/* Search Input */}
             <div className="relative flex-1 min-w-[180px] max-w-sm">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: '#5A5A58' }} />
               <Input
                 type="text"
                 placeholder="Search rewards..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-9 bg-background"
+                className="pl-10 h-9 border-0"
+                style={{ backgroundColor: '#1F2020', color: '#FFFFFF', borderRadius: '0px' }}
               />
               {searchQuery && (
                 <Button
@@ -983,7 +988,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         {/* Section Header — compact */}
         {!loading && (
           <div className="flex items-center gap-2 mb-3">
-            <h2 className="text-lg font-semibold">
+          <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '20px', color: '#FFFFFF', letterSpacing: '-0.02em' }}>
               {activeCategory === 'all' ? 'All Rewards' : categoryLabels[activeCategory] || 'Rewards'}
             </h2>
             <Badge variant="secondary" className="text-xs">

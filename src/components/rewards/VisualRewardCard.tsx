@@ -76,21 +76,18 @@ const categoryIcons: Record<string, React.ElementType> = {
 
 const tierOrder = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
 
-const tierHexColors: Record<string, string> = {
-  bronze: '#CD7F32',
-  silver: '#C0C0C0',
-  gold: '#FFD700',
-  platinum: '#E5E4E2',
-  diamond: '#B9F2FF',
+// Kinetic Archive tier badge colors
+const tierBadgeStyles: Record<string, { bg: string; text: string }> = {
+  bronze:   { bg: '#8B6914', text: '#FFFFFF' },
+  silver:   { bg: '#3A3A3A', text: '#FFFFFF' },
+  gold:     { bg: '#C4991A', text: '#131313' },
+  platinum: { bg: '#2A2A4A', text: '#FFFFFF' },
+  diamond:  { bg: '#0A2A3A', text: '#E2FF6D' },
 };
 
-const tierTextColors: Record<string, string> = {
-  bronze: 'text-white',
-  silver: 'text-gray-800',
-  gold: 'text-gray-900',
-  platinum: 'text-gray-800',
-  diamond: 'text-gray-900',
-};
+const barlow = "'Barlow Condensed', sans-serif";
+const dmSans = "'DM Sans', sans-serif";
+const dmMono = "'DM Mono', monospace";
 
 function isUserTierEligible(
   minTier: string | null | undefined,
@@ -119,7 +116,6 @@ export function VisualRewardCard({
   const { isAuthenticated, setShowAuthModal, setAuthMode } = useAuthContext();
   const Icon = categoryIcons[reward.category] || Gift;
   
-  // Load featured creators for this reward
   const showcaseMode = reward.showcase_mode || 'default';
   const { creators: rewardCreators } = useRewardCreators(
     showcaseMode !== 'default' ? reward.id : undefined
@@ -130,13 +126,11 @@ export function VisualRewardCard({
   const sponsorName = reward.sponsor_name;
   const sponsorLogo = reward.sponsor_logo_url || reward.sponsor_logo;
   
-  // Use min_tier_required (new column) with fallback to min_status_tier (legacy)
   const effectiveMinTier = reward.min_tier_required || reward.min_status_tier;
   const isEligible = isUserTierEligible(effectiveMinTier, userTier.tierName);
   const isTierLocked = isAuthenticated && !isEligible && !!effectiveMinTier;
   const remainingStock = reward.stock_quantity;
   
-  // Build reward object for price display
   const rewardForPricing: Reward = {
     id: reward.id,
     cost: reward.cost,
@@ -150,8 +144,8 @@ export function VisualRewardCard({
   const pricing = getRewardPriceForUser(rewardForPricing, userTier.tierName);
   const canClaim = isAuthenticated && isEligible && claimBalance >= pricing.price && pricing.price >= 0;
   const requiredTier = effectiveMinTier ? getTierDisplayName(effectiveMinTier) : null;
-  const tierBgColor = effectiveMinTier ? tierHexColors[effectiveMinTier.toLowerCase()] || '#CD7F32' : '';
-  const tierTextColor = effectiveMinTier ? tierTextColors[effectiveMinTier.toLowerCase()] || 'text-white' : '';
+  const tierKey = effectiveMinTier?.toLowerCase() || '';
+  const tierStyle = tierBadgeStyles[tierKey] || tierBadgeStyles.bronze;
 
   const handleCtaClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -176,21 +170,21 @@ export function VisualRewardCard({
   };
 
   return (
-    <Card
+    <div
       className={cn(
         "group cursor-pointer overflow-hidden transition-all duration-300",
-        "hover:scale-[1.02] hover:shadow-2xl",
-        "rounded-xl border bg-card",
-        "shadow-md",
-        isTierLocked && "opacity-60",
-        isSponsored 
-          ? "border-amber-400/40 ring-1 ring-amber-400/20" 
-          : "border-border/60"
+        "hover:translate-y-[-2px]",
+        isTierLocked && "opacity-50",
       )}
+      style={{
+        backgroundColor: '#1F2020',
+        borderRadius: '0px',
+        transition: 'transform 300ms cubic-bezier(0.4,0,0.2,1), box-shadow 300ms cubic-bezier(0.4,0,0.2,1)',
+      }}
       onClick={handleCardClick}
     >
-      {/* HERO IMAGE — large, prominent */}
-      <div className="relative aspect-[4/3] sm:aspect-[4/3] w-full overflow-hidden">
+      {/* HERO IMAGE */}
+      <div className="relative w-full overflow-hidden" style={{ aspectRatio: '16/9' }}>
         {hasCreatorShowcase && (showcaseMode === 'single' || showcaseMode === 'carousel') ? (
           <CreatorShowcase
             creators={rewardCreators}
@@ -206,39 +200,44 @@ export function VisualRewardCard({
             decoding="async"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-            <Icon className="w-16 h-16 text-muted-foreground/30" />
+          <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#393939' }}>
+            <Icon className="w-16 h-16" style={{ color: '#5A5A58' }} />
           </div>
         )}
 
-        {/* Dark gradient for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+        {/* Bottom 40% gradient overlay */}
+        <div
+          className="absolute inset-x-0 bottom-0 pointer-events-none"
+          style={{ height: '40%', background: 'linear-gradient(transparent, #131313)' }}
+        />
 
-        {/* TOP-LEFT: Tier badge overlay */}
+        {/* TOP-LEFT: Tier badge */}
         {effectiveMinTier && (
-          <Badge 
-            className={cn(
-              "absolute top-3 left-3 text-xs font-semibold shadow-lg border-0 px-2.5 py-1",
-              tierTextColor
-            )}
-            style={{ backgroundColor: tierBgColor }}
+          <div
+            className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1"
+            style={{
+              backgroundColor: tierStyle.bg,
+              color: tierStyle.text,
+              fontFamily: dmMono,
+              fontSize: '11px',
+              fontWeight: 400,
+              borderRadius: '0px',
+            }}
           >
-            {isEligible ? getTierDisplayName(effectiveMinTier) + '+' : (
-              <span className="flex items-center gap-1">
-                <Lock className="w-3 h-3" />
-                {getTierDisplayName(effectiveMinTier)}+ required
-              </span>
-            )}
-          </Badge>
+            {!isEligible && <Lock className="w-3 h-3" />}
+            <span>{getTierDisplayName(effectiveMinTier)}+{!isEligible ? ' required' : ''}</span>
+          </div>
         )}
 
         {/* TOP-RIGHT: Favorites Heart */}
         <button
-          className={cn(
-            "absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center",
-            "bg-white/90 dark:bg-black/70 backdrop-blur-md shadow-lg",
-            "transition-all duration-200 hover:scale-110"
-          )}
+          className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center"
+          style={{
+            backgroundColor: 'rgba(31,32,32,0.85)',
+            borderRadius: '0px',
+            backdropFilter: 'blur(8px)',
+            transition: 'transform 300ms cubic-bezier(0.4,0,0.2,1)',
+          }}
           onClick={(e) => {
             e.stopPropagation();
             onToggleFavorites(reward.id, e);
@@ -247,125 +246,156 @@ export function VisualRewardCard({
           <Heart
             className={cn(
               "h-4 w-4 transition-all duration-200",
-              isInFavorites
-                ? "fill-red-500 text-red-500"
-                : "text-gray-600 dark:text-gray-300",
+              isInFavorites ? "fill-red-500 text-red-500" : "text-white/60",
               isAnimatingHeart && "animate-[heartBounce_0.3s_ease-in-out]"
             )}
           />
         </button>
 
-        {/* Admin Edit Button */}
+        {/* Admin Edit */}
         {isAdmin && onAdminEdit && (
           <button
-            className="absolute top-3 right-14 z-10 w-9 h-9 rounded-full flex items-center justify-center bg-amber-500/90 hover:bg-amber-600 backdrop-blur-md shadow-lg transition-all duration-200 hover:scale-110"
-            onClick={(e) => {
-              e.stopPropagation();
-              onAdminEdit(reward.id);
-            }}
+            className="absolute top-3 right-14 z-10 w-8 h-8 flex items-center justify-center"
+            style={{ backgroundColor: 'rgba(200,160,0,0.9)', borderRadius: '0px' }}
+            onClick={(e) => { e.stopPropagation(); onAdminEdit(reward.id); }}
           >
             <Pencil className="h-3.5 w-3.5 text-white" />
           </button>
         )}
 
         {/* BOTTOM of image: Title + Sponsor */}
-        <div className="absolute left-0 right-0 bottom-0 p-4">
+        <div className="absolute left-0 right-0 bottom-0 p-4 z-10">
           {isSponsored && sponsorName && (
-            <div className="flex items-center gap-1.5 mb-1.5">
+            <div className="flex items-center gap-1.5 mb-1">
               {sponsorLogo && (
-                <img 
-                  src={sponsorLogo} 
-                  alt={sponsorName} 
+                <img
+                  src={sponsorLogo}
+                  alt={sponsorName}
                   className="h-3.5 w-auto max-w-[36px] object-contain"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
               )}
-              <span className="text-[11px] text-white/70">
-                Sponsored by <span className="font-medium text-amber-300">{sponsorName}</span>
+              <span style={{ fontFamily: dmSans, fontSize: '12px', color: '#E2FF6D' }}>
+                {sponsorName}
               </span>
             </div>
           )}
-          <h3 className="font-bold text-base sm:text-lg text-white leading-tight line-clamp-2 drop-shadow-lg">
+          <h3
+            className="line-clamp-2"
+            style={{
+              fontFamily: barlow,
+              fontWeight: 700,
+              fontSize: '18px',
+              color: '#FFFFFF',
+              letterSpacing: '-0.02em',
+              lineHeight: 1.2,
+            }}
+          >
             {reward.title}
           </h3>
         </div>
       </div>
 
-      {/* CONTENT — Creators + Price + CTA */}
-      <div className="p-3.5 space-y-2.5 bg-card">
-        {/* Creator collage (when mode is collage) */}
+      {/* CONTENT: Creator + Price */}
+      <div className="p-3.5 space-y-2.5" style={{ backgroundColor: '#1F2020' }}>
         {hasCreatorShowcase && showcaseMode === 'collage' && (
           <CreatorShowcase creators={rewardCreators} mode="collage" size="sm" />
         )}
-        
-        {/* Creator handles */}
         {rewardCreators.length > 0 && showcaseMode !== 'default' && (
           <CreatorHandles creators={rewardCreators} max={2} />
         )}
+
         {/* Price row */}
         <div className="space-y-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               {pricing.isFree ? (
-                <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 text-sm font-semibold px-2 py-0.5">
-                  FREE
-                </Badge>
+                <span style={{ fontFamily: dmMono, fontSize: '14px', color: '#E2FF6D', fontWeight: 400 }}>FREE</span>
               ) : (
                 <>
-                  <Coins className="w-4 h-4 text-primary" />
-                  <span className="text-lg font-bold text-foreground">
+                  <span style={{ fontFamily: dmMono, fontSize: '18px', color: '#FFFFFF', fontWeight: 400 }}>
                     {calculateClaimsForUser(pricing.price, userTier.tierName)}
                   </span>
-                  <span className="text-sm text-muted-foreground">claims</span>
+                  <span style={{ fontFamily: dmMono, fontSize: '12px', color: '#5A5A58' }}>claims</span>
                   {calculateClaimsForUser(pricing.price, userTier.tierName) < pricing.price && (
-                    <span className="text-sm text-muted-foreground line-through ml-1">{pricing.price}</span>
+                    <span style={{ fontFamily: dmMono, fontSize: '12px', color: '#5A5A58', textDecoration: 'line-through', marginLeft: '4px' }}>
+                      {pricing.price}
+                    </span>
                   )}
                 </>
               )}
             </div>
             {remainingStock !== null && remainingStock <= 20 && remainingStock > 0 && (
-              <span className={cn(
-                "text-xs flex items-center gap-1",
-                remainingStock <= 5 ? "text-orange-500 font-medium" : "text-muted-foreground"
-              )}>
+              <span
+                className="flex items-center gap-1"
+                style={{
+                  fontFamily: dmMono,
+                  fontSize: '11px',
+                  color: remainingStock <= 5 ? '#E2FF6D' : '#FFFFFF',
+                }}
+              >
                 <Package className="w-3 h-3" />
                 {remainingStock} left
               </span>
             )}
           </div>
           {!pricing.isFree && pricing.price > 0 && (
-            <p className="text-xs text-muted-foreground leading-tight">
+            <p style={{ fontFamily: dmSans, fontSize: '11px', color: '#5A5A58', lineHeight: 1.4 }}>
               {getClaimDiscountUpsell(pricing.price, userTier.tierName)}
             </p>
           )}
         </div>
-
-        {/* CTA Button */}
-        <Button
-          className={cn(
-            "w-full font-semibold text-sm h-9",
-            !isAuthenticated
-              ? "bg-primary hover:bg-primary/90 text-primary-foreground"
-              : isTierLocked
-                ? "bg-muted text-muted-foreground"
-                : canClaim
-                  ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                  : "bg-primary hover:bg-primary/90 text-primary-foreground"
-          )}
-          onClick={handleCtaClick}
-        >
-          {!isAuthenticated ? (
-            'Sign Up to Claim'
-          ) : isTierLocked ? (
-            <span className="flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5" />
-              {requiredTier}+ Required
-            </span>
-          ) : (
-            'Claim Now'
-          )}
-        </Button>
       </div>
-    </Card>
+
+      {/* BOTTOM BAR: recessed */}
+      <div
+        className="flex items-center justify-between px-3.5 py-2"
+        style={{ backgroundColor: '#0E0E0E' }}
+      >
+        <span style={{ fontFamily: dmMono, fontSize: '11px', color: '#5A5A58' }}>
+          {reward.stock_quantity !== null ? `${reward.stock_quantity} remaining` : 'Unlimited'}
+        </span>
+      </div>
+
+      {/* CTA BUTTON */}
+      {isTierLocked ? (
+        <div className="px-3.5 pb-3.5 pt-2" style={{ backgroundColor: '#1F2020' }}>
+          <div className="text-center py-3">
+            <p style={{ fontFamily: barlow, fontWeight: 700, fontSize: '14px', color: '#FFFFFF', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+              REACH {(requiredTier || '').toUpperCase()} TO UNLOCK
+            </p>
+            <p style={{ fontFamily: dmMono, fontSize: '12px', color: '#5A5A58', marginTop: '4px' }}>
+              You're {Math.max(0, pricing.price - claimBalance)} NCTR from {requiredTier}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div style={{ backgroundColor: '#1F2020' }}>
+          <button
+            className="w-full"
+            style={{
+              fontFamily: barlow,
+              fontWeight: 700,
+              fontSize: '13px',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              backgroundColor: '#E2FF6D',
+              color: '#131313',
+              border: 'none',
+              borderRadius: '0px',
+              height: '48px',
+              cursor: 'pointer',
+              boxShadow: '0 10px 30px rgba(226,255,109,0.08)',
+              transition: 'opacity 300ms cubic-bezier(0.4,0,0.2,1)',
+            }}
+            onClick={handleCtaClick}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+          >
+            {!isAuthenticated ? 'SIGN UP TO CLAIM' : 'CLAIM NOW'}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
