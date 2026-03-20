@@ -43,10 +43,10 @@ export function TheMathSection() {
 
           {/* With 360LOCK */}
           <div
-            className="rounded-2xl p-6 border-2 space-y-4 relative border-accent-lime"
-            style={{ background: 'hsl(var(--accent-lime-subtle))' }}
+            className="p-6 space-y-4 relative"
+            style={{ background: 'hsl(var(--accent-lime-subtle))', border: '1px solid #323232', borderRadius: '0px' }}
           >
-            <div className="absolute -top-3 right-4 px-3 py-1 rounded-full text-xs font-bold bg-cta text-cta-foreground">
+            <div className="absolute -top-3 right-4 px-3 py-1 text-xs font-bold" style={{ backgroundColor: '#323232', color: '#FFFFFF', borderRadius: '0px' }}>
               ★ RECOMMENDED
             </div>
             <p className="text-xs font-bold uppercase tracking-wider text-text-accent">
