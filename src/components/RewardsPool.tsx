@@ -750,13 +750,14 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           <div className="flex flex-wrap items-center gap-3">
             {/* Search Input */}
             <div className="relative flex-1 min-w-[180px] max-w-sm">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: '#5A5A58' }} />
               <Input
                 type="text"
                 placeholder="Search rewards..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-9 bg-background"
+                className="pl-10 h-9 border-0"
+                style={{ backgroundColor: '#1F2020', color: '#FFFFFF', borderRadius: '0px' }}
               />
               {searchQuery && (
                 <Button
