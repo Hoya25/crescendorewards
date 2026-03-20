@@ -252,7 +252,7 @@ export function WellnessRewardsSection() {
             href="https://thegarden.nctr.live"
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-xl px-4 py-3 text-sm leading-relaxed border border-emerald-200 dark:border-emerald-800 bg-card hover:bg-accent transition-colors flex items-center gap-2 sm:max-w-[240px]"
+            className="px-4 py-3 text-sm leading-relaxed border border-emerald-200 dark:border-emerald-800 bg-card hover:bg-accent transition-colors flex items-center gap-2 sm:max-w-[240px]" style={{ borderRadius: '0px' }}
           >
             <span className="text-base">🛒</span>
             <span>
