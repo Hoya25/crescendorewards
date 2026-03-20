@@ -52,7 +52,7 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
           <Skeleton className="h-10 w-64 mx-auto mb-10 bg-muted" />
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Skeleton key={i} className="h-64 rounded-xl bg-muted" />
+              <Skeleton key={i} className="h-64 bg-muted" style={{ borderRadius: '0px' }} />
             ))}
           </div>
         </div>
@@ -78,7 +78,8 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
             return (
               <div
                 key={reward.id}
-                className="group relative rounded-xl overflow-hidden border border-border-card bg-card-bg transition-all duration-300 hover:border-accent-lime/30"
+                className="group relative overflow-hidden border border-border-card bg-card-bg transition-all duration-300 hover:border-accent-lime/30"
+                style={{ borderRadius: '0px' }}
               >
                 <div className="aspect-[4/3] w-full overflow-hidden bg-elevated-bg">
                   {reward.image_url ? (
@@ -96,7 +97,7 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <Badge variant="outline" className="mb-1.5 text-[10px] border-white/20 text-white/80">
+                  <Badge variant="outline" className="mb-1.5 text-[10px] border-white/20 text-white/80" style={{ borderRadius: '0px' }}>
                     {tierEmoji[tier] || '⭐'} {tierLabel[tier] || 'All Members'}
                   </Badge>
                   <h3 className="font-bold text-sm text-white leading-tight line-clamp-2 drop-shadow-md">
@@ -104,7 +105,7 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
                   </h3>
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
-                  <span className="text-sm font-bold px-4 py-2 rounded-full bg-cta text-cta-foreground">
+                  <span className="text-sm font-bold px-4 py-2 bg-cta text-cta-foreground" style={{ borderRadius: '0px' }}>
                     Join to Unlock
                   </span>
                 </div>

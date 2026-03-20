@@ -43,7 +43,7 @@ function TierUnlockPreview({ userTierLevel, userTierName }: { userTierLevel: num
     <div className="mb-6">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between gap-2 rounded-xl border border-border bg-card px-4 py-3 text-left hover:bg-accent/50 transition-colors"
+        className="w-full flex items-center justify-between gap-2 border border-border bg-card px-4 py-3 text-left hover:bg-accent/50 transition-colors" style={{ borderRadius: '0px' }}
       >
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-amber-500" />
@@ -65,7 +65,7 @@ function TierUnlockPreview({ userTierLevel, userTierName }: { userTierLevel: num
               <div
                 key={t.tier}
                 className={cn(
-                  'rounded-xl border p-3 transition-all relative overflow-hidden',
+                  'border p-3 transition-all relative overflow-hidden',
                   isUnlocked
                     ? 'border-primary/30 bg-card shadow-sm'
                     : 'border-border bg-muted/30 opacity-70'
@@ -139,7 +139,7 @@ export function WellnessRewardsSection() {
         <div className="container mx-auto px-4 max-w-full">
           <Skeleton className="h-8 w-64 mb-4" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[1, 2, 3].map(i => <Skeleton key={i} className="h-72 rounded-xl" />)}
+            {[1, 2, 3].map(i => <Skeleton key={i} className="h-72" style={{ borderRadius: '0px' }} />)}
           </div>
         </div>
       </section>
@@ -156,7 +156,7 @@ export function WellnessRewardsSection() {
     <section
       className="py-8 relative overflow-hidden"
       style={{
-        background: 'linear-gradient(180deg, #F5EDE3 0%, hsl(var(--background)) 100%)',
+        background: '#1F2020',
       }}
     >
       <div className="container mx-auto px-4 max-w-full">
@@ -175,7 +175,7 @@ export function WellnessRewardsSection() {
                 </h2>
                 <Badge
                   className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border-0"
-                  style={{ backgroundColor: '#E2FF6D', color: '#323232' }}
+                  style={{ backgroundColor: '#E2FF6D', color: '#323232', borderRadius: '0px' }}
                 >
                   <Sparkles className="w-3 h-3" />
                   FEATURED PARTNER
@@ -194,8 +194,8 @@ export function WellnessRewardsSection() {
           href="https://kromawellness.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="group mb-6 flex items-center gap-4 rounded-xl border border-amber-200/60 dark:border-amber-800/40 p-4 hover:shadow-md transition-all"
-          style={{ backgroundColor: '#FDFAF6' }}
+          className="group mb-6 flex items-center gap-4 border p-4 hover:shadow-md transition-all"
+          style={{ backgroundColor: '#1F2020', borderRadius: '0px', borderColor: '#323232', borderLeft: '3px solid #E2FF6D' }}
         >
           <span className="text-3xl shrink-0">🌿</span>
           <div className="flex-1 min-w-0">
@@ -241,8 +241,8 @@ export function WellnessRewardsSection() {
         {/* Explainer Callout */}
         <div className="flex flex-col sm:flex-row gap-3 max-w-3xl">
           <div
-            className="rounded-xl px-4 py-3 flex-1 text-sm leading-relaxed"
-            style={{ backgroundColor: '#323232', color: '#E2FF6D' }}
+            className="px-4 py-3 flex-1 text-sm leading-relaxed"
+            style={{ borderRadius: '0px', backgroundColor: '#323232', color: '#E2FF6D' }}
           >
             <span className="font-semibold">How it works:</span>{' '}
             Shop through The Garden → Earn INSPIRATION → Commit via 360LOCK → Unlock these rewards.
@@ -252,7 +252,7 @@ export function WellnessRewardsSection() {
             href="https://thegarden.nctr.live"
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-xl px-4 py-3 text-sm leading-relaxed border border-emerald-200 dark:border-emerald-800 bg-card hover:bg-accent transition-colors flex items-center gap-2 sm:max-w-[240px]"
+            className="px-4 py-3 text-sm leading-relaxed border border-emerald-200 dark:border-emerald-800 bg-card hover:bg-accent transition-colors flex items-center gap-2 sm:max-w-[240px]" style={{ borderRadius: '0px' }}
           >
             <span className="text-base">🛒</span>
             <span>

@@ -23,9 +23,10 @@ export function FiveWaysToEarn() {
           {ways.map((way) => (
             <div
               key={way.title}
-              className="shrink-0 min-w-[200px] md:min-w-0 rounded-xl p-5 bg-card-bg border border-border-card transition-all duration-200 hover:border-accent-lime/30"
+              className="shrink-0 min-w-[200px] md:min-w-0 p-5 bg-card-bg border border-border-card transition-all duration-200 hover:border-accent-lime/30"
+              style={{ borderRadius: '0px' }}
             >
-              <div className="w-10 h-10 rounded-full bg-elevated-bg flex items-center justify-center mb-4">
+              <div className="w-10 h-10 bg-elevated-bg flex items-center justify-center mb-4" style={{ borderRadius: '0px' }}>
                 <way.icon className="w-5 h-5 text-accent-lime" />
               </div>
               <h3 className="font-semibold text-sm text-text-heading mb-1">{way.title}</h3>

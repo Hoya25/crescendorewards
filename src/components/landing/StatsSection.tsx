@@ -48,7 +48,8 @@ export function StatsSection() {
           {statCards.map((stat) => (
             <div
               key={stat.label}
-              className="bg-muted/40 rounded-2xl p-6 border"
+              className="bg-muted/40 p-6 border"
+              style={{ borderRadius: '0px' }}
             >
               <p className="text-3xl md:text-4xl font-extrabold text-foreground mb-1">
                 {stat.value}
