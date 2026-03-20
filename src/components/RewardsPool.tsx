@@ -661,10 +661,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       )}
 
       {/* Combined sticky bar: tier + categories + filters */}
-      <div className={cn(
-        "sticky z-30",
-        isAuthenticated ? "top-[42px] md:top-[46px]" : "top-[42px] md:top-[46px]"
-      )} style={{ backgroundColor: '#131313' }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 50, backgroundColor: '#131313', borderBottom: '1px solid #1F2020', paddingTop: '4px', paddingBottom: '12px' }}>
         {/* Tier info row (auth only) */}
         {isAuthenticated && (
           <div className="container mx-auto px-4 max-w-full border-b">
@@ -683,8 +680,6 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           </div>
         )}
 
-        {/* Sticky filter container: tabs + search/sort */}
-        <div style={{ position: 'sticky', top: 0, zIndex: 50, backgroundColor: '#131313', paddingTop: '12px', paddingBottom: '12px', borderBottom: '1px solid #1F2020' }}>
         {/* Category pills row */}
         <div className="container mx-auto px-4 max-w-full">
           <div className="relative">
