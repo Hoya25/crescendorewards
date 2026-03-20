@@ -194,8 +194,8 @@ export function WellnessRewardsSection() {
           href="https://kromawellness.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="group mb-6 flex items-center gap-4 rounded-xl border border-amber-200/60 dark:border-amber-800/40 p-4 hover:shadow-md transition-all"
-          style={{ backgroundColor: '#FDFAF6' }}
+          className="group mb-6 flex items-center gap-4 border p-4 hover:shadow-md transition-all"
+          style={{ backgroundColor: '#1F2020', borderRadius: '0px', borderColor: '#323232', borderLeft: '3px solid #E2FF6D' }}
         >
           <span className="text-3xl shrink-0">🌿</span>
           <div className="flex-1 min-w-0">
