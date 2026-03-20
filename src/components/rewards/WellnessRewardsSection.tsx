@@ -241,7 +241,7 @@ export function WellnessRewardsSection() {
         {/* Explainer Callout */}
         <div className="flex flex-col sm:flex-row gap-3 max-w-3xl">
           <div
-            className="rounded-xl px-4 py-3 flex-1 text-sm leading-relaxed"
+            className="px-4 py-3 flex-1 text-sm leading-relaxed" style={{ borderRadius: '0px' }}
             style={{ backgroundColor: '#323232', color: '#E2FF6D' }}
           >
             <span className="font-semibold">How it works:</span>{' '}
