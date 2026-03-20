@@ -43,7 +43,7 @@ function TierUnlockPreview({ userTierLevel, userTierName }: { userTierLevel: num
     <div className="mb-6">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between gap-2 rounded-xl border border-border bg-card px-4 py-3 text-left hover:bg-accent/50 transition-colors"
+        className="w-full flex items-center justify-between gap-2 border border-border bg-card px-4 py-3 text-left hover:bg-accent/50 transition-colors" style={{ borderRadius: '0px' }}
       >
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-amber-500" />
