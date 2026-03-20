@@ -34,8 +34,8 @@ export function FinalCTA() {
         <Button
           size="lg"
           onClick={handleJoin}
-          className="font-bold text-lg px-10 py-6 rounded-full shadow-lg transition-all hover:scale-[1.02] bg-cta text-cta-foreground"
-          style={{ boxShadow: '0 0 40px hsl(var(--accent-lime) / 0.15)' }}
+          className="font-bold text-lg px-10 py-6 shadow-lg transition-all hover:opacity-90"
+          style={{ borderRadius: '0px', backgroundColor: '#323232', color: '#FFFFFF', boxShadow: '0px 4px 20px rgba(50,50,50,0.04), 0px 10px 40px rgba(50,50,50,0.06)' }}
         >
           {isAuthenticated ? 'Go to Dashboard' : 'Join Crescendo'}
           <ArrowRight className="ml-2 w-5 h-5" />

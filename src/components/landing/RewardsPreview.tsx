@@ -117,7 +117,8 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
           <Button
             size="lg"
             onClick={onJoin}
-            className="font-semibold rounded-full px-8 gap-2 bg-cta text-cta-foreground hover:bg-cta/90"
+            className="font-semibold px-8 gap-2 hover:opacity-90"
+            style={{ borderRadius: '0px', backgroundColor: '#323232', color: '#FFFFFF' }}
           >
             Join and Start Unlocking <ArrowRight className="w-4 h-4" />
           </Button>

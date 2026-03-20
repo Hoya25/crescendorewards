@@ -112,7 +112,8 @@ export function TheMathSection() {
           <Button
             size="lg"
             onClick={handleJoin}
-            className="font-semibold rounded-full px-8 gap-2 bg-cta text-cta-foreground hover:bg-cta/90"
+            className="font-semibold px-8 gap-2 hover:opacity-90"
+            style={{ borderRadius: '0px', backgroundColor: '#323232', color: '#FFFFFF' }}
           >
             See the Flywheel in Action <ArrowRight className="w-4 h-4" />
           </Button>
