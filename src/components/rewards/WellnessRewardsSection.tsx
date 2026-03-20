@@ -175,7 +175,7 @@ export function WellnessRewardsSection() {
                 </h2>
                 <Badge
                   className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border-0"
-                  style={{ backgroundColor: '#E2FF6D', color: '#323232' }}
+                  style={{ backgroundColor: '#E2FF6D', color: '#323232', borderRadius: '0px' }}
                 >
                   <Sparkles className="w-3 h-3" />
                   FEATURED PARTNER
