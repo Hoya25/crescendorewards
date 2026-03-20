@@ -1007,16 +1007,16 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             retrying={retrying}
           />
         ) : filteredRewards.length === 0 ? (
-          <div className="text-center py-16 space-y-4">
-            <div className="w-20 h-20 mx-auto rounded-full bg-muted flex items-center justify-center">
-              <Gift className="w-10 h-10 text-muted-foreground" />
-            </div>
-            <h3 className="text-xl font-semibold">No rewards found</h3>
-            <p className="text-muted-foreground max-w-md mx-auto">
-              We couldn't find any rewards matching your filters. Try adjusting your search or filters.
+          <div className="text-center" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#5A5A58' }}>
+              No {activeCategory !== 'all' ? (categoryLabels[activeCategory] || activeCategory).toLowerCase() : ''} rewards right now.
+              <br />
+              Check back soon — the community adds new rewards every week.
             </p>
             <Button
               variant="outline"
+              className="mt-6"
+              style={{ borderRadius: '0px' }}
               onClick={() => {
                 setActiveCategory('all');
                 setSearchQuery('');
