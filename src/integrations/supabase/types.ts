@@ -4321,6 +4321,7 @@ export type Database = {
       }
       get_founding_111_count: { Args: never; Returns: number }
       get_gift_stats: { Args: never; Returns: Json }
+      get_handle_by_email: { Args: { lookup_email: string }; Returns: string }
       get_member_reward_price: {
         Args: { p_member_tier: string; p_reward_id: string }
         Returns: Json
