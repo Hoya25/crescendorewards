@@ -22,10 +22,13 @@ import { MerchCelebrationModal } from "./merch/MerchCelebrationModal";
 import { useUncelebratedPurchases } from "@/hooks/useMerchCelebration";
 import { MilestoneProgress } from "@/components/referral/MilestoneProgress";
 import { CreatorReferrals } from "./dashboard/CreatorReferrals";
+import { DashboardReferralCard } from "./dashboard/DashboardReferralCard";
+import { useReferralSuccessToast } from "@/hooks/useReferralSuccessToast";
 
 export function Dashboard() {
   const navigate = useNavigate();
   const { profile } = useUnifiedUser();
+  useReferralSuccessToast();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [showReferredModal, setShowReferredModal] = useState(false);
   const [referrerName, setReferrerName] = useState<string | undefined>();
@@ -155,6 +158,9 @@ export function Dashboard() {
 
           {/* 1. STATUS PROGRESS CARD */}
           <StatusHero />
+
+          {/* 2.5 REFERRAL PROGRESS CARD */}
+          <DashboardReferralCard />
 
           {/* 2. QUICK ACTIONS — "Your Next Move" */}
           <QuickActions />
