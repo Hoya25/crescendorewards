@@ -318,6 +318,18 @@ function AppRoutes() {
               } 
             />
 
+            {/* MERCH */}
+            <Route 
+              path="/merch" 
+              element={
+                isAuthenticated ? (
+                  <AppLayout><MerchPage /></AppLayout>
+                ) : (
+                  <MerchPage />
+                )
+              } 
+            />
+
             {/* REFERRAL LEADERBOARD - semi-public */}
             <Route 
               path="/leaderboard" 
