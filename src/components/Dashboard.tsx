@@ -22,6 +22,8 @@ import { MerchCelebrationModal } from "./merch/MerchCelebrationModal";
 import { useUncelebratedPurchases } from "@/hooks/useMerchCelebration";
 import { MilestoneProgress } from "@/components/referral/MilestoneProgress";
 import { CreatorReferrals } from "./dashboard/CreatorReferrals";
+import { DashboardReferralCard } from "./dashboard/DashboardReferralCard";
+import { useReferralSuccessToast } from "@/hooks/useReferralSuccessToast";
 
 export function Dashboard() {
   const navigate = useNavigate();
