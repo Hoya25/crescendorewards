@@ -28,6 +28,7 @@ import { useReferralSuccessToast } from "@/hooks/useReferralSuccessToast";
 export function Dashboard() {
   const navigate = useNavigate();
   const { profile } = useUnifiedUser();
+  useReferralSuccessToast();
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [showReferredModal, setShowReferredModal] = useState(false);
   const [referrerName, setReferrerName] = useState<string | undefined>();
