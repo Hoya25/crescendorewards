@@ -80,6 +80,7 @@ const ContributePage = lazy(() => import('./pages/ContributePage'));
 const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
 const Crescendo = lazy(() => import('./pages/Crescendo'));
 const DepositPage = lazy(() => import('./pages/DepositPage'));
+const MerchPage = lazy(() => import('./pages/MerchPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 
 // Admin panel - separate chunk for code splitting
