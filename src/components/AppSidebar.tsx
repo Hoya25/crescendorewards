@@ -55,6 +55,7 @@ const coreNavItems: NavItem[] = [
   { title: 'My Status', url: '/membership', icon: Lock, emoji: '💎', subtext: 'Your status level unlocks your rewards' },
   { title: 'Deposit NCTR', url: '/deposit', icon: Wallet, emoji: '🔒', subtext: 'Lock NCTR to level up your status' },
   { title: 'Shop & Earn', url: '#', icon: ShoppingBag, emoji: '🛒', subtext: 'Earn NCTR on every purchase', external: 'https://thegarden.nctr.live/' },
+  { title: 'Merch', url: '/merch', icon: ShoppingBag, emoji: '👕', subtext: 'Shop merch & earn NCTR' },
   { title: 'Bounties', url: '/bounties', icon: Zap, emoji: '⚡', subtext: 'Complete bounties, earn NCTR' },
 ];
 
@@ -63,7 +64,7 @@ const secondaryNavItems: NavItem[] = [
   { title: 'Get Claims', url: '/buy-claims', icon: Coins, highlight: true },
   { title: 'Leaderboard', url: '/leaderboard', icon: Trophy },
   { title: 'Invite Friends', url: '/invite', icon: UserPlus },
-  { title: 'Shop Merch', url: '#', icon: ShoppingBag, external: 'https://nctr-merch.myshopify.com' },
+  { title: 'Shop Merch', url: '/merch', icon: ShoppingBag },
   { title: 'Contribute', url: '/contribute', icon: Heart },
   { title: 'My Account', url: '/profile', icon: User },
   { title: 'Help', url: '/help', icon: HelpCircle },
