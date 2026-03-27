@@ -159,6 +159,9 @@ export function Dashboard() {
           {/* 1. STATUS PROGRESS CARD */}
           <StatusHero />
 
+          {/* 2.5 REFERRAL PROGRESS CARD */}
+          <DashboardReferralCard />
+
           {/* 2. QUICK ACTIONS — "Your Next Move" */}
           <QuickActions />
 

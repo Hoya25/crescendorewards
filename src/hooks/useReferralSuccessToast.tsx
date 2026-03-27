@@ -66,7 +66,7 @@ export function useReferralSuccessToast() {
     const ids = unread.map((n) => n.id);
     supabase
       .from('notifications')
-      .update({ read: true })
+      .update({ is_read: true } as any)
       .in('id', ids)
       .then(() => {});
   }, [unread, user?.id, navigate]);
