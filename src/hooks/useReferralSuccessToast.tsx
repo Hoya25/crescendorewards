@@ -23,7 +23,7 @@ export function useReferralSuccessToast() {
         .select('id')
         .eq('user_id', user.id)
         .eq('type', 'referral_success')
-        .eq('read', false)
+        .eq('is_read', false)
         .limit(50);
       return data ?? [];
     },
