@@ -37,7 +37,7 @@ export default function MerchPage() {
         .eq('store_identifier', 'nctr-merch')
         .single();
       if (error) throw error;
-      return data as { nctr_per_dollar: number; is_active: boolean } | null;
+      return data as unknown as { nctr_per_dollar: number; is_active: boolean } | null;
     },
     staleTime: 1000 * 60 * 5,
   });
