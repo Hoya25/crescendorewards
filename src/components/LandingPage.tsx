@@ -68,8 +68,7 @@ export function LandingPage() {
         description="Shop at 6,000+ brands, create content, and earn real rewards that grow the more you commit. Join Crescendo — it's free."
       />
 
-      {/* Beta Banner */}
-      <LandingBetaBanner />
+      {/* Beta Banner removed — single banner lives in AppLayout/BetaBanner */}
 
       {/* Navigation */}
       <nav
