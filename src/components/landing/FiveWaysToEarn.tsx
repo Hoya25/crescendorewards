@@ -31,23 +31,37 @@ export function FiveWaysToEarn() {
           People earn by participating. Brands earn by sponsoring life. The Alliance grows because everyone has a stake in it.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4" style={{ alignItems: 'stretch' }}>
           {ways.map((way) => (
-            <button
+            <div
               key={way.title}
               onClick={() => handleClick(way.href)}
-              className="text-left relative group bg-card-bg border transition-all duration-200 hover:border-accent-lime/40 hover:-translate-y-0.5"
+              role="button"
+              tabIndex={0}
+              className="text-left group bg-card-bg transition-all duration-200 hover:-translate-y-0.5"
               style={{
                 borderRadius: 0,
                 cursor: 'pointer',
                 boxSizing: 'border-box',
-                boxShadow: way.accent ? 'inset 0 0 0 1px hsl(var(--accent-lime) / 0.3)' : undefined,
+                position: 'relative',
+                border: '1px solid hsl(var(--border))',
+                boxShadow: way.accent ? 'inset 0 0 0 1px hsl(var(--accent-lime) / 0.3)' : 'none',
+                display: 'flex',
+                flexDirection: 'column' as const,
               }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'hsl(var(--accent-lime) / 0.4)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'hsl(var(--border))'; }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleClick(way.href); }}
             >
+              {/* Badge — absolute, outside content flow */}
               {way.isLearnCard && (
                 <span
-                  className="absolute top-3 right-3 text-xs uppercase font-semibold px-2 py-0.5"
+                  className="text-xs uppercase font-semibold px-2 py-0.5"
                   style={{
+                    position: 'absolute',
+                    top: 12,
+                    right: 12,
+                    zIndex: 10,
                     border: '1px solid #5A5A58',
                     color: '#5A5A58',
                     background: 'transparent',
@@ -59,13 +73,14 @@ export function FiveWaysToEarn() {
                 </span>
               )}
 
-              <div className="pt-8 px-6 pb-6">
-                <div className="h-12 flex items-center mb-4">
-                  <div className="w-12 h-12 bg-elevated-bg flex items-center justify-center" style={{ borderRadius: 0 }}>
+              {/* Inner content — identical structure for ALL 6 cards */}
+              <div style={{ padding: '32px 24px 24px 24px' }}>
+                <div style={{ height: 48, display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+                  <div className="bg-elevated-bg" style={{ width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 0, flexShrink: 0 }}>
                     <way.icon className="w-6 h-6 text-accent-lime" />
                   </div>
                 </div>
-                <h3 className="font-semibold text-sm text-text-heading mb-2 flex items-center gap-2">
+                <h3 className="font-semibold text-sm text-text-heading flex items-center gap-2" style={{ marginBottom: 8 }}>
                   {way.title}
                   {way.showArrow && (
                     <ArrowRight className="w-3.5 h-3.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-accent-lime" />
@@ -73,7 +88,7 @@ export function FiveWaysToEarn() {
                 </h3>
                 <p className="text-xs text-text-body leading-relaxed">{way.description}</p>
                 {way.isLearnCard && (
-                  <div className="flex items-center gap-3 mt-3">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12 }}>
                     <a
                       href="https://x.com/NCTRAlliance"
                       target="_blank"
@@ -101,7 +116,7 @@ export function FiveWaysToEarn() {
                   </div>
                 )}
               </div>
-            </button>
+            </div>
           ))}
         </div>
 
