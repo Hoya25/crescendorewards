@@ -194,7 +194,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
           </div>
 
           <a
-            href="https://thegarden.nctr.live"
+            href="https://bountyhunter.nctr.live"
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -203,7 +203,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
               display: 'inline-flex', alignItems: 'center', gap: '4px',
             }}
           >
-            Don't have NCTR yet? Earn it in The Garden →
+            Start earning NCTR →
           </a>
         </div>
 

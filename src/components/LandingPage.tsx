@@ -205,7 +205,7 @@ export function LandingPage() {
               color: '#FFFFFF',
             }}
           >
-            Commitment is rewarded. 360LOCK is how members participate — one commitment, 360 days, amplified rewards. The longer you commit, the stronger your position.
+            Commitment is rewarded. 360LOCK is how members participate — one commitment, 360 days, amplified rewards. The longer you commit, the stronger your position. Earn NCTR through Bounty Hunter. Build your status here in Crescendo.
           </p>
         </div>
       </div>
