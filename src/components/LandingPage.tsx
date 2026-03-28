@@ -211,6 +211,9 @@ export function LandingPage() {
         </div>
       </div>
 
+      {/* Entry Paths */}
+      <EntryPathsSection />
+
       {/* Sections */}
       <ScrollReveal>
         <HowItWorksLanding />
