@@ -34,7 +34,7 @@ export function HowItWorksLanding() {
   };
 
   return (
-    <section id="how-it-works" className="py-20 md:py-28 px-4 md:px-6 bg-page-bg-alt">
+    <section id="how-it-works" className="py-12 md:py-16 px-4 md:px-6 bg-page-bg-alt">
       <div className="max-w-5xl mx-auto">
         <h2 className="text-2xl md:text-4xl font-bold text-center mb-14 text-text-heading" style={{ fontFamily: barlow, letterSpacing: '-0.02em' }}>
           Three Steps. Real Rewards.
