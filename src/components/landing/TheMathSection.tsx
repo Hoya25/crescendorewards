@@ -22,20 +22,20 @@ export function TheMathSection() {
 
         <div className="grid md:grid-cols-2 gap-5 mb-10">
           {/* Without 360LOCK */}
-          <div className="rounded-2xl p-6 border border-border-card bg-page-bg space-y-4">
+          <div className="p-6 border border-border-card bg-page-bg space-y-4" style={{ borderRadius: '0px' }}>
             <p className="text-xs font-bold uppercase tracking-wider text-text-body-muted">
               Without 360LOCK
             </p>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-text-body">Purchase reward</span>
-                <span className="text-text-heading font-medium">110 NCTR</span>
+                <span className="text-text-heading font-medium">275 NCTR</span>
               </div>
             </div>
             <div className="pt-3 border-t border-border-card">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-semibold text-text-heading">Total</span>
-                <span className="text-xl font-bold text-text-heading">110 NCTR</span>
+                <span className="text-xl font-bold text-text-heading">275 NCTR</span>
               </div>
               <p className="text-xs mt-2 text-text-body-muted">That's it.</p>
             </div>
@@ -54,10 +54,9 @@ export function TheMathSection() {
             </p>
             <div className="space-y-3">
               {[
-                { label: 'Purchase reward (3x merch)', amount: '330 NCTR' },
+                { label: 'Purchase reward (3x merch)', amount: '825 NCTR' },
+                { label: 'First Merch Purchase bounty', amount: '5,000 NCTR' },
                 { label: 'Rep the Brand bounty', amount: '750 NCTR' },
-                { label: 'Unboxing bounty', amount: '900 NCTR' },
-                { label: 'Merch Monday (monthly)', amount: '300 NCTR' },
               ].map((item) => (
                 <div key={item.label} className="flex justify-between items-center">
                   <span className="text-sm text-text-body">{item.label}</span>
@@ -67,9 +66,9 @@ export function TheMathSection() {
             </div>
             <div className="pt-3 border-t" style={{ borderColor: 'hsl(var(--accent-lime) / 0.2)' }}>
               <div className="flex justify-between items-center">
-                <span className="text-sm font-semibold text-text-heading">Month One Total</span>
+                <span className="text-sm font-semibold text-text-heading">Total</span>
                 <span className="text-2xl font-black text-text-accent">
-                  2,580+ NCTR
+                  6,575 NCTR
                 </span>
               </div>
             </div>
@@ -80,16 +79,17 @@ export function TheMathSection() {
           Same hoodie. Different commitment.
         </p>
         <p className="text-center text-sm max-w-2xl mx-auto mb-4 text-text-body">
-          And that's just at Bronze. Hit Gold (1.5x) and that same hoodie earns you{' '}
-          <span className="font-semibold text-text-heading">495 NCTR</span> from the purchase +{' '}
-          <span className="font-semibold text-text-heading">1,125</span> from the bounty.{' '}
+          And that's just at Bronze. Hit Gold (1.5x) and that 6,575 becomes{' '}
+          <span className="font-semibold text-text-heading">9,862 NCTR</span>.
+          At Diamond (2.5x)?{' '}
+          <span className="font-bold text-text-accent">16,437 NCTR</span>.{' '}
           <span className="font-bold text-text-accent">Status multiplies everything.</span>
         </p>
 
         {/* Multiplier teaser */}
         <div
-          className="rounded-xl p-5 text-center mb-4 border"
-          style={{ background: 'hsl(var(--accent-lime-subtle))', borderColor: 'hsl(var(--accent-lime) / 0.15)' }}
+          className="p-5 text-center mb-4 border"
+          style={{ background: 'hsl(var(--accent-lime-subtle))', borderColor: 'hsl(var(--accent-lime) / 0.15)', borderRadius: '0px' }}
         >
           <p className="text-sm text-text-body">
             And every NCTR you commit raises your Crescendo status. Which unlocks better bounties.
@@ -98,13 +98,13 @@ export function TheMathSection() {
           </p>
         </div>
 
-        <div className="rounded-xl p-4 text-center mb-10 border border-border-card bg-page-bg">
+        <div className="p-4 text-center mb-10 border border-border-card bg-page-bg" style={{ borderRadius: '0px' }}>
           <p className="text-sm text-text-body">
             💡 <span className="font-semibold text-text-heading">At Gold status</span>, your earning multiplier jumps to{' '}
             <span className="font-bold text-text-accent">1.5x on everything</span>.
-            That same 2,580 NCTR becomes{' '}
-            <span className="font-bold text-text-accent">3,870 NCTR</span>.
-            At Diamond? <span className="font-bold text-text-accent">2.5x</span>. The math keeps getting better.
+            That same 6,575 NCTR becomes{' '}
+            <span className="font-bold text-text-accent">9,862 NCTR</span>.
+            At Diamond? <span className="font-bold text-text-accent">16,437 NCTR</span>. The math keeps getting better.
           </p>
         </div>
 
