@@ -10,7 +10,7 @@ interface HeroSectionProps {
 const STAT_TILES = [
   { headline: '5', label: 'STATUS TIERS', sub: 'Bronze to Diamond' },
   { headline: '360', label: 'DAYS', sub: 'One commitment, instant activation' },
-  { headline: '∞', label: 'EARN IN THE GARDEN', sub: 'Shop brands to fuel your status' },
+  { headline: '∞', label: 'EARN IN BOUNTY HUNTER', sub: 'Shop, complete bounties, refer friends' },
 ];
 
 const ambient = '0px 4px 20px rgba(50,50,50,0.04), 0px 10px 40px rgba(50,50,50,0.06)';
