@@ -9,7 +9,7 @@ const cards = [
     icon: ShieldCheck,
     eyebrow: 'COMING FROM BOUNTY HUNTER?',
     headline: 'Your NCTR is already working',
-    body: 'Every NCTR you earn in Bounty Hunter builds your Crescendo status. Check your tier and see what you've unlocked.',
+    body: 'Every NCTR you earn in Bounty Hunter builds your Crescendo status. Check your tier and see what you\'ve unlocked.',
     cta: 'Check My Status →',
     to: '/membership',
   },
