@@ -155,7 +155,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
           </h1>
 
           <p style={{ fontFamily: dmSans, fontSize: '16px', lineHeight: 1.6, color: '#5A5A58', maxWidth: '480px' }}>
-            Bronze through Diamond — your Crescendo status level determines every reward, opportunity, and benefit you can access.
+            Earn in Bounty Hunter. Build status in Crescendo. Unlock rewards that grow with your commitment.
           </p>
 
           <div className="flex flex-col gap-3 max-w-md">
