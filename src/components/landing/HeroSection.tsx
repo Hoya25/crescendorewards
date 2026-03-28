@@ -10,7 +10,7 @@ interface HeroSectionProps {
 const STAT_TILES = [
   { headline: '5', label: 'STATUS TIERS', sub: 'Bronze to Diamond' },
   { headline: '360', label: 'DAYS', sub: 'One commitment, instant activation' },
-  { headline: '∞', label: 'EARN IN THE GARDEN', sub: 'Shop brands to fuel your status' },
+  { headline: '∞', label: 'EARN IN BOUNTY HUNTER', sub: 'Shop, complete bounties, refer friends' },
 ];
 
 const ambient = '0px 4px 20px rgba(50,50,50,0.04), 0px 10px 40px rgba(50,50,50,0.06)';
@@ -155,7 +155,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
           </h1>
 
           <p style={{ fontFamily: dmSans, fontSize: '16px', lineHeight: 1.6, color: '#5A5A58', maxWidth: '480px' }}>
-            Bronze through Diamond — your Crescendo status level determines every reward, opportunity, and benefit you can access.
+            Earn in Bounty Hunter. Build status in Crescendo. Unlock rewards that grow with your commitment.
           </p>
 
           <div className="flex flex-col gap-3 max-w-md">
@@ -194,7 +194,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
           </div>
 
           <a
-            href="https://thegarden.nctr.live"
+            href="https://bountyhunter.nctr.live"
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -203,7 +203,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
               display: 'inline-flex', alignItems: 'center', gap: '4px',
             }}
           >
-            Don't have NCTR yet? Earn it in The Garden →
+            Start earning NCTR →
           </a>
         </div>
 

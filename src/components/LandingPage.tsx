@@ -8,7 +8,7 @@ import { FiveWaysToEarn } from "./landing/FiveWaysToEarn";
 import { TheMathSection } from "./landing/TheMathSection";
 import { FinalCTA } from "./landing/FinalCTA";
 import { LandingFooter } from "./landing/LandingFooter";
-import { LandingBetaBanner } from "./landing/LandingBetaBanner";
+
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 
@@ -68,8 +68,7 @@ export function LandingPage() {
         description="Shop at 6,000+ brands, create content, and earn real rewards that grow the more you commit. Join Crescendo — it's free."
       />
 
-      {/* Beta Banner */}
-      <LandingBetaBanner />
+      {/* Beta Banner removed — single banner lives in AppLayout/BetaBanner */}
 
       {/* Navigation */}
       <nav
@@ -206,7 +205,7 @@ export function LandingPage() {
               color: '#FFFFFF',
             }}
           >
-            Commitment is rewarded. 360LOCK is how members participate — one commitment, 360 days, amplified rewards. The longer you commit, the stronger your position.
+            Commitment is rewarded. 360LOCK is how members participate — one commitment, 360 days, amplified rewards. The longer you commit, the stronger your position. Earn NCTR through Bounty Hunter. Build your status here in Crescendo.
           </p>
         </div>
       </div>
