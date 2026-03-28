@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { SEO } from "./SEO";
 import { MobileNav } from "./MobileNav";
 import { HeroSection } from "./landing/HeroSection";
+import { EntryPathsSection } from "./landing/EntryPathsSection";
 import { HowItWorksLanding } from "./landing/HowItWorksLanding";
 import { RewardsPreview } from "./landing/RewardsPreview";
 import { FiveWaysToEarn } from "./landing/FiveWaysToEarn";
