@@ -22,7 +22,7 @@ export function FiveWaysToEarn() {
   };
 
   return (
-    <section className="pt-10 md:pt-14 pb-5 md:pb-7 px-4 md:px-6 bg-page-bg">
+    <section className="pt-10 md:pt-14 pb-3 md:pb-4 px-4 md:px-6 bg-page-bg">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-2xl md:text-4xl font-bold text-center mb-3 text-text-heading">
           Six Ways to Earn
@@ -36,12 +36,13 @@ export function FiveWaysToEarn() {
             <button
               key={way.title}
               onClick={() => handleClick(way.href)}
-              className="text-left relative group bg-card-bg border pt-8 px-6 pb-6 transition-all duration-200 hover:border-accent-lime/40 hover:-translate-y-0.5"
+              className="text-left relative group bg-card-bg border transition-all duration-200 hover:border-accent-lime/40 hover:-translate-y-0.5"
               style={{
                 borderRadius: 0,
-                borderColor: way.accent ? 'hsl(var(--accent-lime) / 0.3)' : undefined,
                 cursor: 'pointer',
                 boxSizing: 'border-box',
+                outline: way.accent ? '1px solid hsl(var(--accent-lime) / 0.3)' : undefined,
+                outlineOffset: way.accent ? '-1px' : undefined,
               }}
             >
               {way.isLearnCard && (
@@ -58,46 +59,49 @@ export function FiveWaysToEarn() {
                   Spring 2026
                 </span>
               )}
-              <div className="h-12 flex items-center mb-4">
-                <div className="w-12 h-12 bg-elevated-bg flex items-center justify-center" style={{ borderRadius: 0 }}>
-                  <way.icon className="w-6 h-6 text-accent-lime" />
+
+              <div className="pt-8 px-6 pb-6">
+                <div className="h-12 flex items-center mb-4">
+                  <div className="w-12 h-12 bg-elevated-bg flex items-center justify-center" style={{ borderRadius: 0 }}>
+                    <way.icon className="w-6 h-6 text-accent-lime" />
+                  </div>
                 </div>
-              </div>
-              <h3 className="font-semibold text-sm text-text-heading mb-2 flex items-center gap-2">
-                {way.title}
-                {way.showArrow && (
-                  <ArrowRight className="w-3.5 h-3.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-accent-lime" />
+                <h3 className="font-semibold text-sm text-text-heading mb-2 flex items-center gap-2">
+                  {way.title}
+                  {way.showArrow && (
+                    <ArrowRight className="w-3.5 h-3.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-accent-lime" />
+                  )}
+                </h3>
+                <p className="text-xs text-text-body leading-relaxed">{way.description}</p>
+                {way.isLearnCard && (
+                  <div className="flex items-center gap-3 mt-3">
+                    <a
+                      href="https://x.com/NCTRAlliance"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="transition-colors"
+                      style={{ color: '#5A5A58' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = '#FFFFFF')}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = '#5A5A58')}
+                    >
+                      <span className="text-base font-bold" style={{ fontSize: '16px' }}>𝕏</span>
+                    </a>
+                    <a
+                      href="https://instagram.com/nctralliance"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="transition-colors"
+                      style={{ color: '#5A5A58' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = '#FFFFFF')}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = '#5A5A58')}
+                    >
+                      <Instagram className="w-4 h-4" />
+                    </a>
+                  </div>
                 )}
-              </h3>
-              <p className="text-xs text-text-body leading-relaxed">{way.description}</p>
-              {way.isLearnCard && (
-                <div className="flex items-center gap-3 mt-3">
-                  <a
-                    href="https://x.com/NCTRAlliance"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="transition-colors"
-                    style={{ color: '#5A5A58' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = '#FFFFFF')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = '#5A5A58')}
-                  >
-                    <span className="text-base font-bold" style={{ fontSize: '16px' }}>𝕏</span>
-                  </a>
-                  <a
-                    href="https://instagram.com/nctralliance"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="transition-colors"
-                    style={{ color: '#5A5A58' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = '#FFFFFF')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = '#5A5A58')}
-                  >
-                    <Instagram className="w-4 h-4" />
-                  </a>
-                </div>
-              )}
+              </div>
             </button>
           ))}
         </div>
