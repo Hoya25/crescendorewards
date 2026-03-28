@@ -1,13 +1,13 @@
-import { ShoppingBag, Shirt, Camera, Users, Gift, Building2, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Shirt, GraduationCap, Users, Gift, Building2, ArrowRight, Instagram } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const ways = [
-  { icon: ShoppingBag, title: 'Shop Through Bounty Hunter', description: 'Thousands of brands. Earn NCTR on every purchase.', href: 'https://bountyhunter.nctr.live/shop', accent: false },
-  { icon: Shirt, title: 'Rep NCTR Merch', description: '3x 360LOCK bonus. Plus exclusive bounties.', href: 'https://merch.nctr.live', accent: false },
-  { icon: Camera, title: 'Complete Bounties', description: 'Content challenges that pay NCTR.', href: 'https://bountyhunter.nctr.live', accent: false },
-  { icon: Users, title: 'Invite Friends', description: 'They join, you both earn.', href: 'https://bountyhunter.nctr.live/network', accent: false },
-  { icon: Gift, title: 'Contribute Rewards', description: 'List rewards on Crescendo. Earn when others claim.', href: '/rewards', accent: false },
-  { icon: Building2, title: 'Brands Earn Too', description: 'Alliance Brands earn NCTR through Beacon. Every platform fee returns 50% as 360LOCK. Brands are stakeholders, not just sponsors.', href: 'https://beacon.nctr.live', accent: true },
+  { icon: ShoppingBag, title: 'Shop & Earn', description: "Buy what you already buy. Brands fund your rewards instead of funding ads. Every purchase earns NCTR — not points that expire, not discounts that disappear. Real value that's yours to keep.", href: 'https://bountyhunter.nctr.live/shop', accent: false, showArrow: true },
+  { icon: Shirt, title: 'Rep the Brand', description: "Wear it. Own it. NCTR merch earns 3x with 360LOCK because repping the Alliance isn't just shopping — it's ownership. Plus exclusive bounties only merch holders unlock.", href: 'https://merch.nctr.live', accent: false, showArrow: true },
+  { icon: GraduationCap, title: 'Learn & Earn', description: "NCTR University launches Spring 2026. Complete courses on participation, ownership, and the Alliance economy — and earn NCTR for every milestone. In the meantime, get a head start on your knowledge advantage by following on X and Instagram.", href: 'https://x.com/NCTRAlliance', accent: false, showArrow: false, isLearnCard: true },
+  { icon: Users, title: 'Build Your Crew', description: "Bring your people. You all earn NCTR — when they sign up, when they buy, and when they hit milestones. Your crew compounds your status. The Alliance grows one real relationship at a time.", href: 'https://bountyhunter.nctr.live/network', accent: false, showArrow: true },
+  { icon: Gift, title: 'Contribute Rewards', description: "Have something to offer? A product, a skill, an experience — list it as a Crescendo reward. When members claim it, you earn NCTR. The rewards marketplace is built by the people in it.", href: '/rewards', accent: false, showArrow: true },
+  { icon: Building2, title: 'Brands Sponsor Life', description: "Brands redirect advertising budgets into participation. Instead of buying attention that disappears, they fund the rewards you earn just by living your life. And 50% comes back to them as 360LOCK — because in this Alliance, brands don't pay tolls. They build alongside you.", href: 'https://beacon.nctr.live', accent: true, showArrow: true },
 ];
 
 export function FiveWaysToEarn() {
@@ -28,7 +28,7 @@ export function FiveWaysToEarn() {
           Six Ways to Earn
         </h2>
         <p className="text-center max-w-2xl mx-auto mb-10 text-sm md:text-base text-text-body">
-          People earn in Bounty Hunter. Brands earn through Beacon. Your NCTR flows here to build status and unlock rewards.
+          People earn by participating. Brands earn by sponsoring life. The Alliance grows because everyone has a stake in it.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -36,24 +36,71 @@ export function FiveWaysToEarn() {
             <button
               key={way.title}
               onClick={() => handleClick(way.href)}
-              className="text-left p-5 bg-card-bg border transition-all duration-200 hover:border-accent-lime/40 hover:-translate-y-0.5"
+              className="text-left p-5 bg-card-bg border transition-all duration-200 hover:border-accent-lime/40 hover:-translate-y-0.5 relative group"
               style={{
                 borderRadius: 0,
                 borderColor: way.accent ? 'hsl(var(--accent-lime) / 0.3)' : undefined,
                 cursor: 'pointer',
               }}
             >
+              {way.isLearnCard && (
+                <span
+                  className="absolute top-3 right-3 text-xs uppercase font-semibold px-2 py-0.5"
+                  style={{
+                    border: '1px solid #5A5A58',
+                    color: '#5A5A58',
+                    background: 'transparent',
+                    borderRadius: 0,
+                    letterSpacing: '0.08em',
+                  }}
+                >
+                  Spring 2026
+                </span>
+              )}
               <div className="w-10 h-10 bg-elevated-bg flex items-center justify-center mb-4" style={{ borderRadius: 0 }}>
                 <way.icon className="w-5 h-5 text-accent-lime" />
               </div>
-              <h3 className="font-semibold text-sm text-text-heading mb-1">{way.title}</h3>
+              <h3 className="font-semibold text-sm text-text-heading mb-1 flex items-center gap-2">
+                {way.title}
+                {way.showArrow && (
+                  <ArrowRight className="w-3.5 h-3.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-accent-lime" />
+                )}
+              </h3>
               <p className="text-xs text-text-body leading-relaxed">{way.description}</p>
+              {way.isLearnCard && (
+                <div className="flex items-center gap-3 mt-3">
+                  <a
+                    href="https://x.com/NCTRAlliance"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="transition-colors"
+                    style={{ color: '#5A5A58' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = '#FFFFFF')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = '#5A5A58')}
+                  >
+                    <span className="text-base font-bold" style={{ fontSize: '16px' }}>𝕏</span>
+                  </a>
+                  <a
+                    href="https://instagram.com/nctralliance"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="transition-colors"
+                    style={{ color: '#5A5A58' }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = '#FFFFFF')}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = '#5A5A58')}
+                  >
+                    <Instagram className="w-4 h-4" />
+                  </a>
+                </div>
+              )}
             </button>
           ))}
         </div>
 
         <p className="text-center text-sm text-text-body-muted mt-8 max-w-2xl mx-auto">
-          Your Crescendo status multiplier applies to all six. The higher your status, the more you earn.
+          Your Crescendo status multiplies everything. Bronze to Diamond — the more you commit, the more every action is worth.
         </p>
 
         <div className="flex items-center justify-center gap-6 mt-6">
