@@ -7,21 +7,21 @@ const barlow = "'Barlow Condensed', sans-serif";
 const steps = [
   {
     emoji: '🛍️',
-    title: 'Earn NCTR',
+    title: 'Earn in Bounty Hunter',
     description:
-      'Shop at 6,000+ brands through The Garden. Complete content bounties. Buy and rep NCTR merch. Refer friends. Every action earns NCTR.',
+      'Shop at thousands of brands, complete bounties, buy NCTR merch, and refer friends — all inside Bounty Hunter. Brands power the rewards through Beacon. Every action earns NCTR automatically.',
   },
   {
     emoji: '🔒',
     title: 'Commit with 360LOCK',
     description:
-      'Lock your earned NCTR to build your Crescendo status. Higher status = higher earning multiplier on everything you earn. Plus, NCTR merch purchases and bounties get an automatic 3x bonus with 360LOCK. Your NCTR stays yours — locking is commitment, not spending.',
+      'Lock your earned NCTR for 360 days to build Crescendo status. 360LOCK gives you a 3x multiplier on everything you earn. Your NCTR stays yours — locking is commitment, not spending.',
   },
   {
     emoji: '🏆',
     title: 'Unlock Rewards & Status',
     description:
-      'Your locked NCTR determines your Crescendo status: Bronze → Silver → Gold → Platinum → Diamond. Higher status gives you a higher earning multiplier on everything — 1.0x at Bronze up to 2.5x at Diamond. Plus exclusive bounties, better rewards, and premium experiences.',
+      'Your locked NCTR determines your Crescendo status: Bronze through Diamond. Higher status means higher earning multipliers, exclusive rewards, and premium experiences. The more you commit, the more you unlock.',
   },
 ];
 
