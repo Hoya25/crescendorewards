@@ -41,13 +41,12 @@ export function FiveWaysToEarn() {
                 borderRadius: 0,
                 cursor: 'pointer',
                 boxSizing: 'border-box',
-                outline: way.accent ? '1px solid hsl(var(--accent-lime) / 0.3)' : undefined,
-                outlineOffset: way.accent ? '-1px' : undefined,
+                boxShadow: way.accent ? 'inset 0 0 0 1px hsl(var(--accent-lime) / 0.3)' : undefined,
               }}
             >
               {way.isLearnCard && (
                 <span
-                  className="absolute top-4 right-4 text-xs uppercase font-semibold px-2 py-0.5"
+                  className="absolute top-3 right-3 text-xs uppercase font-semibold px-2 py-0.5"
                   style={{
                     border: '1px solid #5A5A58',
                     color: '#5A5A58',
