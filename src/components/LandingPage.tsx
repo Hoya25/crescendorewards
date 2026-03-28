@@ -8,7 +8,7 @@ import { FiveWaysToEarn } from "./landing/FiveWaysToEarn";
 import { TheMathSection } from "./landing/TheMathSection";
 import { FinalCTA } from "./landing/FinalCTA";
 import { LandingFooter } from "./landing/LandingFooter";
-import { LandingBetaBanner } from "./landing/LandingBetaBanner";
+
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 
