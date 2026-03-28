@@ -36,7 +36,7 @@ export function FiveWaysToEarn() {
             <button
               key={way.title}
               onClick={() => handleClick(way.href)}
-              className="text-left p-5 bg-card-bg border transition-all duration-200 hover:border-accent-lime/40 hover:-translate-y-0.5 relative group"
+              className="text-left pt-8 px-5 pb-5 bg-card-bg border transition-all duration-200 hover:border-accent-lime/40 hover:-translate-y-0.5 relative group"
               style={{
                 borderRadius: 0,
                 borderColor: way.accent ? 'hsl(var(--accent-lime) / 0.3)' : undefined,
