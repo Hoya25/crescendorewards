@@ -643,6 +643,21 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         </nav>
       )}
 
+      {/* Back to Home link for unauthenticated users */}
+      {!isAuthenticated && (
+        <div className="container mx-auto px-4 max-w-full" style={{ paddingTop: 8 }}>
+          <button
+            onClick={() => navigate('/')}
+            className="text-sm transition-colors"
+            style={{ color: '#5A5A58', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = '#FFFFFF'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = '#5A5A58'; }}
+          >
+            ← Back to Home
+          </button>
+        </div>
+      )}
+
       {/* Zero Claims Banner */}
       {isAuthenticated && claimBalance === 0 && !localStorage.getItem('dismiss-zero-claims-banner') && (
         <div className="container mx-auto px-4 max-w-full">
