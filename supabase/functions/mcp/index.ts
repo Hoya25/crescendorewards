@@ -14,7 +14,8 @@
  *   3. check_tier_requirements — Check requirements for each tier
  *   4. get_active_promotions  — Get current promotions and limited offers
  *   5. get_onboarding_link    — Generate a member onboarding link
- *   6. get_impact_engines     — Discover NCTR Impact Engine communities
+ *   6. get_ecosystem_funding  — Discover how the rewards pool is funded (Torus, DeFi, etc.)
+ *   7. get_impact_engines     — Discover NCTR Impact Engine communities
  *
  * NCTR Alliance — https://nctr.live
  * The Garden — https://thegarden.nctr.live
