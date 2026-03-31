@@ -14,7 +14,7 @@ const TIER_INFO = [
     key: "bronze",
     emoji: "🥉",
     range: "0–99 NCTR locked",
-    mult: "1.0x",
+    mult: "1.1x",
     perks: "All Tier 1 bounties + Merch Monday",
     color: "#CD7F32",
   },
