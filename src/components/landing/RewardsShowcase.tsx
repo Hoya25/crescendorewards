@@ -73,7 +73,7 @@ export function RewardsShowcase() {
 
   const handleSignup = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setAuthMode('signup');
+    setAuthMode('signin');
     setShowAuthModal(true);
   };
 

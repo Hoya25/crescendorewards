@@ -57,7 +57,7 @@ export default function HowItWorksPage() {
     if (isAuthenticated) {
       navigate('/dashboard');
     } else {
-      setAuthMode('signup');
+      setAuthMode('signin');
       setShowAuthModal(true);
     }
   };

@@ -22,7 +22,7 @@ export function BrandLogosSection() {
     if (isAuthenticated) {
       navigate('/brands');
     } else {
-      setAuthMode('signup');
+      setAuthMode('signin');
       setShowAuthModal(true);
     }
   };
