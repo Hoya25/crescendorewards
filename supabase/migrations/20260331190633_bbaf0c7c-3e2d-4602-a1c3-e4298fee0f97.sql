@@ -1,0 +1,1 @@
+ALTER TABLE public.unified_profiles ADD COLUMN bh_user_id text UNIQUE;
