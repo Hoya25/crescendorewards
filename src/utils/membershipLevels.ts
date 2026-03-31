@@ -9,9 +9,9 @@ export const membershipTiers: MembershipTier[] = [
     level: 0,
     name: 'Bronze',
     requirement: 100,
-    // Status multiplier: 1.0x
+    // Status multiplier: 1.1x
     description: 'Entry tier with enhanced earning potential (100-999 NCTR)',
-    multiplier: 1.0,
+    multiplier: 1.1,
     claims: '1 annual claim',
     discount: 0,
     benefits: [
