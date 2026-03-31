@@ -9,9 +9,9 @@ export const membershipTiers: MembershipTier[] = [
     level: 0,
     name: 'Bronze',
     requirement: 100,
-    // Status multiplier: 1.0x
+    // Status multiplier: 1.1x
     description: 'Entry tier with enhanced earning potential (100-999 NCTR)',
-    multiplier: 1.0,
+    multiplier: 1.1,
     claims: '1 annual claim',
     discount: 0,
     benefits: [
@@ -68,7 +68,7 @@ export const membershipTiers: MembershipTier[] = [
     name: 'Platinum',
     requirement: 15000,
     description: 'Premium status with bi-monthly claims and concierge service (15,000-49,999 NCTR)',
-    multiplier: 1.75,
+    multiplier: 2.0,
     claims: '2 monthly claims',
     discount: 20,
     benefits: [
