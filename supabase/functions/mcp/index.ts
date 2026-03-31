@@ -916,6 +916,7 @@ app.get('/mcp', (c) => {
       'check_tier_requirements',
       'get_active_promotions',
       'get_onboarding_link',
+      'get_ecosystem_funding',
       'get_impact_engines',
     ],
     links: {
