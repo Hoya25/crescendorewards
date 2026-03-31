@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [showProfileCompletion, setShowProfileCompletion] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [needsProfileCompletion, setNeedsProfileCompletion] = useState(false);
