@@ -1,18 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from './ui/button';
 import { track } from '@/lib/track';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
-import { Sparkles, Wallet, Gift, Loader2, AlertCircle, HelpCircle } from 'lucide-react';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { Dialog, DialogContent } from './ui/dialog';
+import { Loader2, AlertCircle, ExternalLink } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useWalletAuth } from '@/hooks/useWalletAuth';
-import { NCTRLogo } from './NCTRLogo';
-import { Separator } from './ui/separator';
-import { CrescendoLogo } from '@/components/brand/CrescendoLogo';
 
 interface AuthModalProps {
   mode: 'signin' | 'signup';
@@ -21,356 +15,377 @@ interface AuthModalProps {
   onToggleMode: () => void;
 }
 
-export function AuthModal({ mode, onClose, onSuccess, onToggleMode }: AuthModalProps) {
+export function AuthModal({ mode: _mode, onClose, onSuccess, onToggleMode: _onToggleMode }: AuthModalProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  // track('signup_started') when sign-up flow first loads
-  useEffect(() => {
-    if (mode === 'signup') {
-      track('signup_started');
-    }
-  }, [mode]);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { authenticateWallet, isConnected } = useWalletAuth();
-  const [walletLoading, setWalletLoading] = useState(false);
+  const [bhFound, setBhFound] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePassword = (password: string) => {
-    return password.length >= 6;
-  };
-
-  const validateName = (name: string) => {
-    return name.trim().length >= 1 && name.trim().length <= 50;
-  };
+  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validatePassword = (password: string) => password.length >= 6;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setStatusMessage('');
 
-    // Validation
     if (!validateEmail(email)) {
       setError('Please enter a valid email address');
       return;
     }
-
     if (!validatePassword(password)) {
-      setError('Password must be at least 6 characters long');
+      setError('Password must be at least 6 characters');
       return;
-    }
-
-    if (mode === 'signup') {
-      if (!validateName(firstName)) {
-        setError('Please enter your first name');
-        return;
-      }
-      if (!validateName(lastName)) {
-        setError('Please enter your last name');
-        return;
-      }
     }
 
     setLoading(true);
 
     try {
-      if (mode === 'signup') {
-        const fullName = `${firstName.trim()} ${lastName.trim()}`;
-        
-        // Get referral code from sessionStorage (set by InviteLandingPage) or URL params
-        const storedReferralCode = sessionStorage.getItem('referral_code');
-        const storedLinkType = sessionStorage.getItem('referral_link_type') || 'standard';
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlReferralCode = urlParams.get('ref');
-        const referralCode = storedReferralCode || urlReferralCode;
-        
-        const { data, error: signUpError } = await supabase.auth.signUp({
-          email: email.trim(),
-          password,
-          options: {
-            data: {
-              full_name: fullName,
-              first_name: firstName.trim(),
-              last_name: lastName.trim(),
-              referred_by_code: referralCode || undefined,
-              referral_link_type: referralCode ? storedLinkType : undefined,
-            },
-            emailRedirectTo: `${window.location.origin}/`,
-          },
-        });
+      // Step 1: Try signing in with existing Crescendo auth account
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
 
-        if (signUpError) {
-          if (signUpError.message.includes('already registered')) {
-            setError('This email is already registered. Try signing in instead, or use "Forgot Password" to reset it.');
-          } else if (signUpError.message.includes('rate limit') || signUpError.message.includes('too many')) {
-            setError('Too many attempts. Please wait a minute and try again.');
+      if (!signInError && data.user) {
+        track('login_completed');
+        toast.success('Welcome back! 👋');
+        onSuccess();
+        return;
+      }
+
+      // Step 2: Sign-in failed — check if they have a BH profile via verify-universal-auth
+      if (signInError) {
+        setStatusMessage('Checking your NCTR account...');
+
+        try {
+          const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+          const response = await fetch(
+            `https://${projectId}.supabase.co/functions/v1/verify-universal-auth`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-sync-secret': 'pending-client-check',
+              },
+              body: JSON.stringify({
+                email: email.trim(),
+                bh_user_id: 'pending',
+                display_name: 'pending',
+              }),
+            }
+          );
+
+          // If the edge function rejects (401 for wrong secret), fall back to 
+          // checking unified_profiles directly via the anon client
+          let profileExists = false;
+
+          if (response.ok) {
+            const result = await response.json();
+            profileExists = result.exists === true;
           } else {
-            setError('Something went wrong creating your account. Please try again, or use a different email address.');
+            // Fallback: check unified_profiles directly (anon read)
+            const { data: directCheck } = await supabase
+              .from('unified_profiles')
+              .select('id, display_name')
+              .eq('email', email.trim().toLowerCase())
+              .maybeSingle();
+            profileExists = !!directCheck;
           }
-          return;
-        }
 
-        if (data.user) {
-          // Clear referral data from session storage after successful signup
-          sessionStorage.removeItem('referral_code');
-          sessionStorage.removeItem('referral_link_type');
-          
-          toast.success('Account created successfully! Welcome to Crescendo! 🎉');
-          onSuccess();
-        }
-      } else {
-        const { data, error: signInError } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
+          if (profileExists) {
+            // BH account found — create Crescendo auth account with their password
+            setBhFound(true);
+            setStatusMessage('Your NCTR account was found! Creating your Crescendo access...');
 
-        if (signInError) {
+            const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+              email: email.trim(),
+              password,
+              options: {
+                emailRedirectTo: `${window.location.origin}/`,
+              },
+            });
+
+            if (signUpError) {
+              if (signUpError.message.includes('already registered')) {
+                setError('This email is already registered on Crescendo. Try a different password, or use password reset.');
+              } else {
+                setError(signUpError.message);
+              }
+              setStatusMessage('');
+              return;
+            }
+
+            if (signUpData.user) {
+              track('universal_auth_signup');
+              toast.success('Welcome to Crescendo! Your NCTR account is linked. 🎉');
+              onSuccess();
+            }
+          } else {
+            // No account found anywhere
+            setError('');
+            setStatusMessage('');
+            setBhFound(false);
+            setError('No NCTR account found with this email. Join the Alliance on Bounty Hunter first!');
+          }
+        } catch (fetchErr) {
+          console.error('Universal auth check failed:', fetchErr);
+          // If fetch fails entirely, show the original sign-in error
           if (signInError.message.includes('Invalid login credentials')) {
-            setError('Incorrect email or password. Double-check your info and try again.');
+            setError('Incorrect email or password. If you signed up on Bounty Hunter, make sure you\'re using the same email.');
           } else if (signInError.message.includes('Email not confirmed')) {
             setError('Please verify your email first. Check your inbox for a confirmation link.');
           } else {
-            setError('Something went wrong signing in. Please try again or reset your password.');
+            setError('Something went wrong. Please try again.');
           }
-          return;
-        }
-
-        if (data.user) {
-          toast.success('Welcome back! 👋');
-          onSuccess();
         }
       }
     } catch (err) {
-      setError('Something unexpected happened. Try refreshing the page and signing in again.');
+      setError('Something unexpected happened. Please try again.');
       console.error('Auth error:', err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleWalletAuth = async () => {
-    if (!isConnected) {
-      toast.error('Please select a wallet using the button below');
-      return;
-    }
-
-    setWalletLoading(true);
-    try {
-      const result = await authenticateWallet();
-      if (result.success) {
-        onSuccess();
-      }
-    } finally {
-      setWalletLoading(false);
+      setStatusMessage('');
     }
   };
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <div className="flex items-center justify-center mb-4">
-            <CrescendoLogo variant="orbital" size={120} showWordmark={true} />
+      <DialogContent
+        className="sm:max-w-[420px] p-0 border-0 overflow-hidden"
+        style={{
+          backgroundColor: '#1A1A1A',
+          borderRadius: '0px',
+        }}
+      >
+        <div className="px-8 pt-10 pb-8 flex flex-col items-center">
+          {/* NCTR Logo */}
+          <div className="mb-6 flex flex-col items-center gap-3">
+            <div
+              style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 900,
+                fontSize: '36px',
+                letterSpacing: '0.08em',
+                color: '#E2FF6D',
+                lineHeight: 1,
+              }}
+            >
+              CRESCENDO
+            </div>
+            <p
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '14px',
+                color: '#8A8A88',
+                letterSpacing: '0.02em',
+              }}
+            >
+              Your status. Your rewards.
+            </p>
           </div>
-          <DialogTitle className="text-center text-2xl">
-            {mode === 'signin' ? 'Welcome Back' : 'Join Crescendo'}
-          </DialogTitle>
-          <DialogDescription className="text-center">
-            {mode === 'signin' ? 'Sign in to your account' : 'Create an account to unlock exclusive rewards'}
-          </DialogDescription>
-        </DialogHeader>
 
-        <div className="space-y-4">
-          {/* Signup Bonus Banner */}
-          {mode === 'signup' && (
-            <div className="bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-900/30 dark:to-yellow-900/30 rounded-lg p-4 border border-amber-200 dark:border-amber-800">
-              <div className="flex items-center gap-3">
-                <Gift className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                <div>
-                  <p className="font-semibold text-amber-900 dark:text-amber-100 flex items-center gap-1">
-                    Welcome Bonus: 625 <NCTRLogo size="sm" />
-                  </p>
-                  <p className="text-sm text-amber-800 dark:text-amber-200">Plus earn rewards on signup!</p>
-                </div>
-              </div>
+          {/* Status Message */}
+          {statusMessage && (
+            <div
+              className="w-full mb-4 p-3 flex items-center gap-2"
+              style={{
+                backgroundColor: 'rgba(226, 255, 109, 0.08)',
+                border: '1px solid rgba(226, 255, 109, 0.2)',
+              }}
+            >
+              <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#E2FF6D' }} />
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#E2FF6D' }}>
+                {statusMessage}
+              </p>
+            </div>
+          )}
+
+          {/* BH Found Banner */}
+          {bhFound && !statusMessage && (
+            <div
+              className="w-full mb-4 p-3"
+              style={{
+                backgroundColor: 'rgba(226, 255, 109, 0.08)',
+                border: '1px solid rgba(226, 255, 109, 0.2)',
+              }}
+            >
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#E2FF6D' }}>
+                ✓ NCTR account linked successfully
+              </p>
             </div>
           )}
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-3 flex items-start gap-2">
-              <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+            <div
+              className="w-full mb-4 p-3 flex items-start gap-2"
+              style={{
+                backgroundColor: 'rgba(220, 38, 38, 0.08)',
+                border: '1px solid rgba(220, 38, 38, 0.3)',
+              }}
+            >
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#EF4444' }} />
+              <div>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#EF4444' }}>
+                  {error}
+                </p>
+                {error.includes('Bounty Hunter') && (
+                  <a
+                    href="https://bountyhunter.nctr.live/auth"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 mt-2"
+                    style={{
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: '13px',
+                      color: '#E2FF6D',
+                      textDecoration: 'underline',
+                      textUnderlineOffset: '2px',
+                    }}
+                  >
+                    Go to Bounty Hunter <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
             </div>
           )}
 
-          {/* Email & Password Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {mode === 'signup' && (
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    type="text"
-                    placeholder="First name"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    disabled={loading}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    type="text"
-                    placeholder="Last name"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    disabled={loading}
-                    required
-                  />
-                </div>
-              </div>
-            )}
-
+          {/* Sign In Form */}
+          <form onSubmit={handleSubmit} className="w-full space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label
+                htmlFor="email"
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#8A8A88', fontWeight: 500 }}
+              >
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter your email"
+                placeholder="Enter your NCTR email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
                 required
+                style={{
+                  backgroundColor: '#252525',
+                  border: '1px solid #3A3A3A',
+                  borderRadius: '0px',
+                  color: '#FFFFFF',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '14px',
+                }}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label
+                htmlFor="password"
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#8A8A88', fontWeight: 500 }}
+              >
+                Password
+              </Label>
               <Input
                 id="password"
                 type="password"
-                placeholder={mode === 'signup' ? 'Create a password (min 6 characters)' : 'Enter your password'}
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
                 required
+                style={{
+                  backgroundColor: '#252525',
+                  border: '1px solid #3A3A3A',
+                  borderRadius: '0px',
+                  color: '#FFFFFF',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '14px',
+                }}
               />
             </div>
 
-            <Button type="submit" className="w-full bg-violet-600 hover:bg-violet-700 text-white" disabled={loading}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={loading}
+              style={{
+                backgroundColor: '#E2FF6D',
+                color: '#131313',
+                borderRadius: '0px',
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontWeight: 700,
+                fontSize: '14px',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase' as const,
+                height: '44px',
+              }}
+            >
               {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {mode === 'signin' ? 'Signing in...' : 'Creating account...'}
-                </>
+                <span className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Signing in...
+                </span>
               ) : (
-                <>{mode === 'signin' ? 'Sign In' : 'Create Account'}</>
+                'Sign in with your NCTR account'
               )}
             </Button>
           </form>
 
-          {/* Toggle Mode */}
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={onToggleMode}
-              className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
-              disabled={loading}
-            >
-              {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
-            </button>
+          {/* Divider */}
+          <div className="w-full my-6 flex items-center gap-3">
+            <div className="flex-1 h-px" style={{ backgroundColor: '#3A3A3A' }} />
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#5A5A58' }}>
+              NEW TO NCTR?
+            </span>
+            <div className="flex-1 h-px" style={{ backgroundColor: '#3A3A3A' }} />
           </div>
 
-          {/* Wallet Connect Section */}
-          <div className="space-y-4">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <Separator />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
-                </span>
-              </div>
-            </div>
+          {/* Join on BH Link */}
+          <a
+            href="https://bountyhunter.nctr.live/auth"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center gap-2 py-3 transition-colors"
+            style={{
+              border: '1px solid #3A3A3A',
+              borderRadius: '0px',
+              fontFamily: "'Barlow Condensed', sans-serif",
+              fontWeight: 700,
+              fontSize: '13px',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase' as const,
+              color: '#CCCCCC',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = '#E2FF6D';
+              e.currentTarget.style.color = '#E2FF6D';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = '#3A3A3A';
+              e.currentTarget.style.color = '#CCCCCC';
+            }}
+          >
+            Don't have an account? Join on Bounty Hunter
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
 
-            <div className="flex flex-col gap-2">
-              <ConnectButton.Custom>
-                {({
-                  account,
-                  chain,
-                  openConnectModal,
-                  mounted,
-                }) => {
-                  const ready = mounted;
-                  const connected = ready && account && chain;
-
-                  return (
-                    <div
-                      {...(!ready && {
-                        'aria-hidden': true,
-                        style: {
-                          opacity: 0,
-                          pointerEvents: 'none',
-                          userSelect: 'none',
-                        },
-                      })}
-                    >
-                      {!connected ? (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-full"
-                          onClick={openConnectModal}
-                        >
-                          <Wallet className="mr-2 h-4 w-4" />
-                          Continue with Wallet
-                        </Button>
-                      ) : (
-                        <Button
-                          type="button"
-                          variant="default"
-                          className="w-full"
-                          onClick={handleWalletAuth}
-                          disabled={walletLoading}
-                        >
-                          {walletLoading ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          ) : (
-                            <Wallet className="mr-2 h-4 w-4" />
-                          )}
-                          {mode === 'signin' ? 'Sign in' : 'Sign up'} with Wallet
-                        </Button>
-                      )}
-                    </div>
-                  );
-                }}
-              </ConnectButton.Custom>
-              <TooltipProvider delayDuration={200}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button type="button" className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mx-auto mt-1">
-                      <HelpCircle className="w-3.5 h-3.5" />
-                      <span>What's a wallet?</span>
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-[260px] text-center">
-                    <p className="text-xs">Your account is secured by a digital wallet — think of it like a username and password, but more secure. We'll walk you through it.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </div>
+          {/* Footer */}
+          <p
+            className="mt-6 text-center"
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '11px',
+              color: '#5A5A58',
+              lineHeight: 1.5,
+            }}
+          >
+            Crescendo is part of the NCTR Alliance.
+            <br />
+            One account across all NCTR apps.
+          </p>
         </div>
       </DialogContent>
     </Dialog>
