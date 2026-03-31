@@ -27,3 +27,7 @@ verify_jwt = false
 # Cross-project sync endpoint - authenticated via SYNC_SECRET header
 [functions.receive-lock-request]
 verify_jwt = false
+
+# Universal auth verification - authenticated via SYNC_SECRET header
+[functions.verify-universal-auth]
+verify_jwt = false
