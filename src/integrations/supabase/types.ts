@@ -3719,6 +3719,7 @@ export type Database = {
         Row: {
           auth_user_id: string | null
           avatar_url: string | null
+          bh_user_id: string | null
           created_at: string | null
           crescendo_data: Json | null
           current_tier_id: string | null
@@ -3761,6 +3762,7 @@ export type Database = {
         Insert: {
           auth_user_id?: string | null
           avatar_url?: string | null
+          bh_user_id?: string | null
           created_at?: string | null
           crescendo_data?: Json | null
           current_tier_id?: string | null
@@ -3803,6 +3805,7 @@ export type Database = {
         Update: {
           auth_user_id?: string | null
           avatar_url?: string | null
+          bh_user_id?: string | null
           created_at?: string | null
           crescendo_data?: Json | null
           current_tier_id?: string | null
