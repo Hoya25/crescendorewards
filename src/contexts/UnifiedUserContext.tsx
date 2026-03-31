@@ -57,6 +57,8 @@ export interface UnifiedProfile {
   updated_at: string;
   last_active_garden: string | null;
   last_active_crescendo: string | null;
+  nctr_balance_points: number | null;
+  nctr_locked_points: number | null;
 }
 
 export interface UnifiedUser {

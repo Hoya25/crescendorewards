@@ -24,6 +24,7 @@ import { MilestoneProgress } from "@/components/referral/MilestoneProgress";
 import { CreatorReferrals } from "./dashboard/CreatorReferrals";
 import { DashboardReferralCard } from "./dashboard/DashboardReferralCard";
 import { useReferralSuccessToast } from "@/hooks/useReferralSuccessToast";
+import { BountyHunterCard } from "./dashboard/BountyHunterCard";
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -164,6 +165,9 @@ export function Dashboard() {
 
           {/* 2. QUICK ACTIONS — "Your Next Move" */}
           <QuickActions />
+
+          {/* 2.5b BOUNTY HUNTER CARD */}
+          <BountyHunterCard />
 
           {/* 3. ACTIVITY FEED + NCTR EARNINGS */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
