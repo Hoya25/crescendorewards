@@ -68,7 +68,7 @@ export const membershipTiers: MembershipTier[] = [
     name: 'Platinum',
     requirement: 15000,
     description: 'Premium status with bi-monthly claims and concierge service (15,000-49,999 NCTR)',
-    multiplier: 1.75,
+    multiplier: 2.0,
     claims: '2 monthly claims',
     discount: 20,
     benefits: [
