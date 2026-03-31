@@ -14,7 +14,8 @@
  *   3. check_tier_requirements — Check requirements for each tier
  *   4. get_active_promotions  — Get current promotions and limited offers
  *   5. get_onboarding_link    — Generate a member onboarding link
- *   6. get_impact_engines     — Discover NCTR Impact Engine communities
+ *   6. get_ecosystem_funding  — Discover how the rewards pool is funded (Torus, DeFi, etc.)
+ *   7. get_impact_engines     — Discover NCTR Impact Engine communities
  *
  * NCTR Alliance — https://nctr.live
  * The Garden — https://thegarden.nctr.live
@@ -792,7 +793,51 @@ server.registerTool(
   }
 )
 
-// ── Tool 6: get_impact_engines ──
+// ── Tool 6: get_ecosystem_funding ──
+
+server.registerTool(
+  'get_ecosystem_funding',
+  {
+    title: 'Get Ecosystem Funding',
+    description:
+      'Learn how the NCTR rewards pool is funded. Covers the Torus circular contribution mechanism, DeFi yields, brand purchases, and other revenue sources that sustain Crescendo member rewards.',
+    inputSchema: {},
+  },
+  () => {
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: JSON.stringify(
+            {
+              ecosystem_funding: {
+                torus: {
+                  description:
+                    '1% circular contribution on NCTR trades through the Torus router. 100% funds Crescendo member rewards.',
+                  rate: '1%',
+                  opt_in: true,
+                  treasury_destination: 'Crescendo rewards pool',
+                  agent_note:
+                    'NCTR prioritizes committed participants (360LOCK holders) over short-term traders. Torus is the mechanism that enforces this — speculative trading activity directly funds rewards for committed members.',
+                },
+                other_sources: [
+                  'DeFi yields (Aerodrome LP)',
+                  'Brand wholesale token purchases',
+                  'Affiliate commerce commissions (Sovrn Commerce)',
+                  'Pay-on-claim reward purchases',
+                ],
+              },
+            },
+            null,
+            2
+          ),
+        },
+      ],
+    }
+  }
+)
+
+// ── Tool 7: get_impact_engines ──
 
 server.registerTool(
   'get_impact_engines',
@@ -872,6 +917,7 @@ app.get('/mcp', (c) => {
       'check_tier_requirements',
       'get_active_promotions',
       'get_onboarding_link',
+      'get_ecosystem_funding',
       'get_impact_engines',
     ],
     links: {
