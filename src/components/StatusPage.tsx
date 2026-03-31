@@ -38,7 +38,7 @@ const statusTiers: StatusTier[] = [
       'Access to bronze reward catalog',
       '1 reward claim per year',
       'Priority customer support',
-      'Earn 1x NCTR on all activities',
+      'Earn 1.1x NCTR on all activities',
       '5% discount on partner brands'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access'],
