@@ -813,12 +813,12 @@ server.registerTool(
               ecosystem_funding: {
                 torus: {
                   description:
-                    '1% circular contribution on NCTR trades through the Torus router. 100% funds Crescendo member rewards.',
+                    '1% circular contribution on NCTR trades through the TORUS router. 100% funds Crescendo member rewards.',
                   rate: '1%',
                   opt_in: true,
                   treasury_destination: 'Crescendo rewards pool',
                   agent_note:
-                    'NCTR prioritizes committed participants (360LOCK holders) over short-term traders. Torus is the mechanism that enforces this — speculative trading activity directly funds rewards for committed members.',
+                    'NCTR prioritizes committed participants (360LOCK holders) over short-term traders. TORUS is the mechanism that enforces this — speculative trading activity directly funds rewards for committed members.',
                 },
                 other_sources: [
                   'DeFi yields (Aerodrome LP)',
