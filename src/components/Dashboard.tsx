@@ -24,6 +24,7 @@ import { MilestoneProgress } from "@/components/referral/MilestoneProgress";
 import { CreatorReferrals } from "./dashboard/CreatorReferrals";
 import { DashboardReferralCard } from "./dashboard/DashboardReferralCard";
 import { useReferralSuccessToast } from "@/hooks/useReferralSuccessToast";
+import { BountyHunterCard } from "./dashboard/BountyHunterCard";
 
 export function Dashboard() {
   const navigate = useNavigate();
