@@ -49,7 +49,7 @@ export function StatusPerksSection() {
 
   const handleClaim = () => {
     if (!isAuthenticated) {
-      setAuthMode('signup');
+      setAuthMode('signin');
       setShowAuthModal(true);
       return;
     }

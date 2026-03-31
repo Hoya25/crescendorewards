@@ -29,7 +29,7 @@ export function HowItWorksLanding() {
   const { setShowAuthModal, setAuthMode } = useAuthContext();
 
   const handleJoin = () => {
-    setAuthMode('signup');
+    setAuthMode('signin');
     setShowAuthModal(true);
   };
 

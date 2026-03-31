@@ -150,7 +150,7 @@ export function VisualRewardCard({
   const handleCtaClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!isAuthenticated) {
-      setAuthMode('signup');
+      setAuthMode('signin');
       setShowAuthModal(true);
       return;
     }

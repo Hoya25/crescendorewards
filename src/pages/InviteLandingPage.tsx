@@ -129,7 +129,7 @@ export default function InviteLandingPage() {
     if (referralCode) {
       sessionStorage.setItem('referral_code', referralCode);
     }
-    setAuthMode('signup');
+    setAuthMode('signin');
     setShowAuthModal(true);
   };
 
