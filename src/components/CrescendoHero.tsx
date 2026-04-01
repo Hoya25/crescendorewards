@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { NctrMarketReference } from './NctrMarketReference';
 
 const TIERS = [
   { id: 'bronze', name: 'Bronze', min: 1000, color: '#CD7F32', rgb: '205,127,50', glowRgba: 'rgba(205,127,50,0.45)', tagline: 'Every alliance begins here.', perks: ['Bronze rewards catalog','NCTR earning on all purchases','Alliance member newsletter'] },
@@ -43,7 +44,7 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '1240px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '3rem', alignItems: 'center' }}>
         {/* LEFT — copy */}
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '5px 14px', border: '1px solid rgba(226,255,109,0.22)', borderRadius: '999px', background: 'rgba(226,255,109,0.055)', marginBottom: '1.75rem' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '5px 14px', border: '1px solid rgba(226,255,109,0.22)', borderRadius: '0px', background: 'rgba(226,255,109,0.055)', marginBottom: '1.75rem' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#4ADE80' }} />
             <span style={{ fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: 'rgba(226,255,109,0.88)' }}>Crescendo by NCTR Alliance</span>
           </div>
@@ -51,18 +52,18 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
           <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'clamp(40px,5.8vw,80px)', lineHeight: 0.92, letterSpacing: '-0.024em', textTransform: 'uppercase' as const, marginBottom: '1.5rem' }}>
             <span style={{ display: 'block', color: '#fff' }}>Your Status.</span>
             <span style={{ display: 'block', color: 'var(--color-accent)', filter: 'drop-shadow(0 0 22px rgba(226,255,109,0.4))' }}>Your Rewards.</span>
-            <span style={{ display: 'block', color: '#fff' }}>Your Life.</span>
+            <span style={{ display: 'block', color: '#fff' }}>Your World.</span>
           </h1>
 
           <p style={{ fontFamily: 'var(--font-body)', fontSize: 'clamp(15px,1.7vw,18px)', lineHeight: 1.72, color: 'rgba(217,217,217,0.68)', maxWidth: '440px', marginBottom: '2.5rem' }}>
-            Unlock exclusive rewards by leveling up your status across the NCTR Alliance ecosystem.
+            Browse and claim exclusive rewards. Your status tier unlocks better perks — earn on Bounty Hunter, level up here.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '0.875rem', marginBottom: '2rem' }}>
-            <button onClick={onViewRewards} style={{ height: '48px', padding: '0 28px', background: 'var(--color-accent)', color: 'var(--color-text-on-accent)', fontFamily: 'var(--font-body)', fontSize: '13px', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' as const, border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}>
+            <button onClick={onViewRewards} style={{ height: '48px', padding: '0 28px', background: 'var(--color-accent)', color: 'var(--color-text-on-accent)', fontFamily: 'var(--font-body)', fontSize: '13px', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' as const, border: 'none', borderRadius: '0px', cursor: 'pointer' }}>
               View My Rewards →
             </button>
-            <button onClick={onLevelUp} style={{ height: '48px', padding: '0 28px', background: 'transparent', color: '#fff', fontFamily: 'var(--font-body)', fontSize: '13px', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' as const, border: '1px solid rgba(255,255,255,0.22)', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}>
+            <button onClick={onLevelUp} style={{ height: '48px', padding: '0 28px', background: 'transparent', color: '#fff', fontFamily: 'var(--font-body)', fontSize: '13px', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' as const, border: '1px solid rgba(255,255,255,0.22)', borderRadius: '0px', cursor: 'pointer' }}>
               ↑ Level Up Now
             </button>
           </div>
@@ -79,7 +80,7 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
 
         {/* RIGHT — tier card */}
         <div style={{ maxWidth: '420px', justifySelf: 'end' as const }}>
-          <div style={{ background: 'rgba(26,26,24,0.92)', border: `1px solid rgba(${activeTier.rgb},0.24)`, borderRadius: '18px', padding: '1.75rem', backdropFilter: 'blur(28px)', boxShadow: `0 0 60px rgba(${activeTier.rgb},0.12), 0 28px 60px rgba(0,0,0,0.58)`, transition: 'border-color 0.4s ease, box-shadow 0.4s ease' }}>
+          <div style={{ background: 'rgba(26,26,24,0.92)', border: `1px solid rgba(${activeTier.rgb},0.24)`, borderRadius: '0px', padding: '1.75rem', backdropFilter: 'blur(28px)', boxShadow: `0 0 60px rgba(${activeTier.rgb},0.12), 0 28px 60px rgba(0,0,0,0.58)`, transition: 'border-color 0.4s ease, box-shadow 0.4s ease' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
               <div>
                 <p style={{ fontFamily: 'var(--font-body)', fontSize: '9.5px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase' as const, color: 'rgba(217,217,217,0.35)', marginBottom: '4px' }}>Your Status Tier</p>
@@ -92,12 +93,13 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
             </div>
 
             {/* Balance */}
-            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '0.875rem 1rem', marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '0px', padding: '0.875rem 1rem', marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <p style={{ fontFamily: 'var(--font-body)', fontSize: '9px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: 'rgba(217,217,217,0.3)', marginBottom: '4px' }}>Committed Balance</p>
                 <p style={{ fontFamily: 'var(--font-mono)', fontSize: '22px', fontWeight: 500, color: 'var(--color-accent)' }}>
                   {currentBalance.toLocaleString()} <span style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'rgba(217,217,217,0.36)' }}>NCTR</span>
                 </p>
+                <NctrMarketReference nctrAmount={currentBalance} />
               </div>
               <div style={{ textAlign: 'right' as const }}>
                 <p style={{ fontFamily: 'var(--font-body)', fontSize: '9px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: 'rgba(217,217,217,0.3)', marginBottom: '4px' }}>Lock Period</p>
@@ -112,13 +114,13 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
                   <span style={{ fontFamily: 'var(--font-body)', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase' as const, color: tier.color }}>{tier.name}</span>
                   <span style={{ fontFamily: 'var(--font-body)', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase' as const, color: nextTier.color }}>{nextTier.name}</span>
                 </div>
-                <div style={{ height: '5px', background: 'rgba(255,255,255,0.07)', borderRadius: '999px', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${progress}%`, background: `linear-gradient(to right, ${tier.color}, ${nextTier.color})`, borderRadius: '999px', transition: 'width 1.2s ease' }} />
+                <div style={{ height: '5px', background: 'rgba(255,255,255,0.07)', borderRadius: '0px', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${progress}%`, background: `linear-gradient(to right, ${tier.color}, ${nextTier.color})`, borderRadius: '0px', transition: 'width 1.2s ease' }} />
                 </div>
                 <p style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'rgba(217,217,217,0.28)', marginTop: '5px', textAlign: 'right' as const }}>{(nextTier.min - Math.max(currentBalance, tier.min)).toLocaleString()} NCTR to {nextTier.name}</p>
               </div>
             ) : (
-              <div style={{ marginBottom: '1.5rem', padding: '8px 14px', background: `rgba(${activeTier.rgb},0.1)`, border: `1px solid rgba(${activeTier.rgb},0.28)`, borderRadius: '8px', textAlign: 'center' as const }}>
+              <div style={{ marginBottom: '1.5rem', padding: '8px 14px', background: `rgba(${activeTier.rgb},0.1)`, border: `1px solid rgba(${activeTier.rgb},0.28)`, borderRadius: '0px', textAlign: 'center' as const }}>
                 <span style={{ fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase' as const, color: activeTier.color }}>✦ Maximum Tier Reached</span>
               </div>
             )}
@@ -129,7 +131,7 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
               <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
                 {TIERS.map((t, i) => (
                   <button key={t.id} onClick={() => setActiveIdx(i)} aria-pressed={i === activeIdx}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 11px', background: i === activeIdx ? `rgba(${t.rgb},0.18)` : 'rgba(255,255,255,0.04)', border: `1px solid ${i === activeIdx ? t.color : `rgba(${t.rgb},0.16)`}`, borderRadius: '999px', cursor: 'pointer', transition: 'all 160ms ease' }}>
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 11px', background: i === activeIdx ? `rgba(${t.rgb},0.18)` : 'rgba(255,255,255,0.04)', border: `1px solid ${i === activeIdx ? t.color : `rgba(${t.rgb},0.16)`}`, borderRadius: '0px', cursor: 'pointer', transition: 'all 160ms ease' }}>
                     <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: t.color }} />
                     <span style={{ fontFamily: 'var(--font-body)', fontSize: '10px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: i === activeIdx ? t.color : `rgba(${t.rgb},0.55)` }}>{t.name}</span>
                   </button>
@@ -138,7 +140,7 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
             </div>
 
             {/* Perks */}
-            <div style={{ background: `rgba(${activeTier.rgb},0.07)`, border: `1px solid rgba(${activeTier.rgb},0.15)`, borderRadius: '10px', padding: '0.875rem', transition: 'background 0.4s ease' }}>
+            <div style={{ background: `rgba(${activeTier.rgb},0.07)`, border: `1px solid rgba(${activeTier.rgb},0.15)`, borderRadius: '0px', padding: '0.875rem', transition: 'background 0.4s ease' }}>
               <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 500, fontStyle: 'italic', color: activeTier.color, marginBottom: '8px' }}>{activeTier.tagline}</p>
               {activeTier.perks.map((perk, pi) => (
                 <div key={pi} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '4px 0', borderTop: pi > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>

@@ -8,22 +8,24 @@ export function BountyHunterCard() {
   return (
     <div
       style={{
-        backgroundColor: 'rgba(50, 50, 50, 0.6)',
-        border: '1px solid rgba(226, 255, 109, 0.15)',
+        backgroundColor: '#1E1E1C',
+        borderLeft: '3px solid #E2FF6D',
         borderRadius: '0px',
-        padding: '16px 20px',
+        padding: '20px 24px',
       }}
     >
       <p
         style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: '14px',
-          fontWeight: 600,
-          color: '#FFFFFF',
-          marginBottom: '8px',
+          fontFamily: "'DM Mono', monospace",
+          fontSize: '11px',
+          fontWeight: 500,
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase' as const,
+          color: '#5A5A58',
+          marginBottom: '10px',
         }}
       >
-        Bounty Hunter
+        Ready to earn more?
       </p>
 
       {nctrBalance > 0 ? (
@@ -38,63 +40,55 @@ export function BountyHunterCard() {
             }}
           >
             {nctrBalance.toLocaleString()}
+            <span style={{ fontSize: '12px', color: '#5A5A58', marginLeft: '6px' }}>NCTR earned</span>
           </p>
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontSize: '12px',
-              color: '#8A8A88',
-              marginTop: '2px',
-              marginBottom: '12px',
+              fontSize: '14px',
+              color: '#D9D9D9',
+              lineHeight: 1.6,
+              marginTop: '8px',
+              marginBottom: '16px',
             }}
           >
-            NCTR earned
+            Shop, learn, and refer on Bounty Hunter to earn NCTR and level up your Crescendo status.
           </p>
-          <a
-            href="https://bountyhunter.nctr.live/dashboard"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1"
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '13px',
-              fontWeight: 500,
-              color: '#E2FF6D',
-              textDecoration: 'none',
-            }}
-          >
-            Continue Earning →
-          </a>
         </>
       ) : (
-        <>
-          <p
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '13px',
-              color: '#8A8A88',
-              marginBottom: '12px',
-            }}
-          >
-            Start earning NCTR on Bounty Hunter
-          </p>
-          <a
-            href="https://bountyhunter.nctr.live/dashboard"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1"
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '13px',
-              fontWeight: 500,
-              color: '#E2FF6D',
-              textDecoration: 'none',
-            }}
-          >
-            Go to Bounty Hunter <ExternalLink className="w-3 h-3" />
-          </a>
-        </>
+        <p
+          style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '14px',
+            color: '#D9D9D9',
+            lineHeight: 1.6,
+            marginBottom: '16px',
+          }}
+        >
+          Shop, learn, and refer on Bounty Hunter to earn NCTR and level up your Crescendo status.
+        </p>
       )}
+
+      <a
+        href="https://bountyhunter.nctr.live"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 transition-opacity hover:opacity-90"
+        style={{
+          fontFamily: "'Barlow Condensed', sans-serif",
+          fontSize: '13px',
+          fontWeight: 700,
+          letterSpacing: '0.06em',
+          textTransform: 'uppercase' as const,
+          color: '#131313',
+          backgroundColor: '#E2FF6D',
+          padding: '10px 24px',
+          borderRadius: '0px',
+          textDecoration: 'none',
+        }}
+      >
+        Open Bounty Hunter →
+      </a>
     </div>
   );
 }

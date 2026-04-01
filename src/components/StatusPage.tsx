@@ -48,7 +48,7 @@ const statusTiers: StatusTier[] = [
   {
     level: 2,
     name: 'Silver',
-    requirement: 2500,
+    requirement: 5000,
     description: 'Unlock enhanced benefits with quarterly claim privileges',
     multiplier: 1.25,
     claims: '4 annual claims',
@@ -67,7 +67,7 @@ const statusTiers: StatusTier[] = [
   {
     level: 3,
     name: 'Gold',
-    requirement: 5000,
+    requirement: 15000,
     description: 'Experience elite status with monthly claims and exclusive perks',
     multiplier: 1.5,
     claims: '1 monthly claim',
@@ -88,7 +88,7 @@ const statusTiers: StatusTier[] = [
   {
     level: 4,
     name: 'Platinum',
-    requirement: 10000,
+    requirement: 50000,
     description: 'Reach platinum status with bi-monthly claims and premium benefits',
     multiplier: 2.0,
     claims: '2 monthly claims',
@@ -110,7 +110,7 @@ const statusTiers: StatusTier[] = [
   {
     level: 5,
     name: 'Diamond',
-    requirement: 25000,
+    requirement: 150000,
     description: 'Ultimate status with unlimited benefits and white-glove service',
     multiplier: 2.5,
     claims: 'Unlimited',
