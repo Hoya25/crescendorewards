@@ -52,7 +52,7 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
           <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 'clamp(40px,5.8vw,80px)', lineHeight: 0.92, letterSpacing: '-0.024em', textTransform: 'uppercase' as const, marginBottom: '1.5rem' }}>
             <span style={{ display: 'block', color: '#fff' }}>Your Status.</span>
             <span style={{ display: 'block', color: 'var(--color-accent)', filter: 'drop-shadow(0 0 22px rgba(226,255,109,0.4))' }}>Your Rewards.</span>
-            <span style={{ display: 'block', color: '#fff' }}>Your Life.</span>
+            <span style={{ display: 'block', color: '#fff' }}>Your World.</span>
           </h1>
 
           <p style={{ fontFamily: 'var(--font-body)', fontSize: 'clamp(15px,1.7vw,18px)', lineHeight: 1.72, color: 'rgba(217,217,217,0.68)', maxWidth: '440px', marginBottom: '2.5rem' }}>
