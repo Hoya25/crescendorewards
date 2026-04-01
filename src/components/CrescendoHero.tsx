@@ -60,10 +60,10 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '0.875rem', marginBottom: '2rem' }}>
-            <button onClick={onViewRewards} style={{ height: '48px', padding: '0 28px', background: 'var(--color-accent)', color: 'var(--color-text-on-accent)', fontFamily: 'var(--font-body)', fontSize: '13px', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' as const, border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}>
+            <button onClick={onViewRewards} style={{ height: '48px', padding: '0 28px', background: 'var(--color-accent)', color: 'var(--color-text-on-accent)', fontFamily: 'var(--font-body)', fontSize: '13px', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' as const, border: 'none', borderRadius: '0px', cursor: 'pointer' }}>
               View My Rewards →
             </button>
-            <button onClick={onLevelUp} style={{ height: '48px', padding: '0 28px', background: 'transparent', color: '#fff', fontFamily: 'var(--font-body)', fontSize: '13px', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' as const, border: '1px solid rgba(255,255,255,0.22)', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}>
+            <button onClick={onLevelUp} style={{ height: '48px', padding: '0 28px', background: 'transparent', color: '#fff', fontFamily: 'var(--font-body)', fontSize: '13px', fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase' as const, border: '1px solid rgba(255,255,255,0.22)', borderRadius: '0px', cursor: 'pointer' }}>
               ↑ Level Up Now
             </button>
           </div>
