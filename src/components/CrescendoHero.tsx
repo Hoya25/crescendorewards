@@ -44,7 +44,7 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '1240px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '3rem', alignItems: 'center' }}>
         {/* LEFT — copy */}
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '5px 14px', border: '1px solid rgba(226,255,109,0.22)', borderRadius: '999px', background: 'rgba(226,255,109,0.055)', marginBottom: '1.75rem' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', padding: '5px 14px', border: '1px solid rgba(226,255,109,0.22)', borderRadius: '0px', background: 'rgba(226,255,109,0.055)', marginBottom: '1.75rem' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#4ADE80' }} />
             <span style={{ fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: 'rgba(226,255,109,0.88)' }}>Crescendo by NCTR Alliance</span>
           </div>
