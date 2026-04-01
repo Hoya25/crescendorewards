@@ -80,7 +80,7 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
 
         {/* RIGHT — tier card */}
         <div style={{ maxWidth: '420px', justifySelf: 'end' as const }}>
-          <div style={{ background: 'rgba(26,26,24,0.92)', border: `1px solid rgba(${activeTier.rgb},0.24)`, borderRadius: '18px', padding: '1.75rem', backdropFilter: 'blur(28px)', boxShadow: `0 0 60px rgba(${activeTier.rgb},0.12), 0 28px 60px rgba(0,0,0,0.58)`, transition: 'border-color 0.4s ease, box-shadow 0.4s ease' }}>
+          <div style={{ background: 'rgba(26,26,24,0.92)', border: `1px solid rgba(${activeTier.rgb},0.24)`, borderRadius: '0px', padding: '1.75rem', backdropFilter: 'blur(28px)', boxShadow: `0 0 60px rgba(${activeTier.rgb},0.12), 0 28px 60px rgba(0,0,0,0.58)`, transition: 'border-color 0.4s ease, box-shadow 0.4s ease' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
               <div>
                 <p style={{ fontFamily: 'var(--font-body)', fontSize: '9.5px', fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase' as const, color: 'rgba(217,217,217,0.35)', marginBottom: '4px' }}>Your Status Tier</p>
