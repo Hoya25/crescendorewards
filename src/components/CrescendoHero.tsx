@@ -120,7 +120,7 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
                 <p style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'rgba(217,217,217,0.28)', marginTop: '5px', textAlign: 'right' as const }}>{(nextTier.min - Math.max(currentBalance, tier.min)).toLocaleString()} NCTR to {nextTier.name}</p>
               </div>
             ) : (
-              <div style={{ marginBottom: '1.5rem', padding: '8px 14px', background: `rgba(${activeTier.rgb},0.1)`, border: `1px solid rgba(${activeTier.rgb},0.28)`, borderRadius: '8px', textAlign: 'center' as const }}>
+              <div style={{ marginBottom: '1.5rem', padding: '8px 14px', background: `rgba(${activeTier.rgb},0.1)`, border: `1px solid rgba(${activeTier.rgb},0.28)`, borderRadius: '0px', textAlign: 'center' as const }}>
                 <span style={{ fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase' as const, color: activeTier.color }}>✦ Maximum Tier Reached</span>
               </div>
             )}
