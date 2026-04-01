@@ -140,7 +140,7 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
             </div>
 
             {/* Perks */}
-            <div style={{ background: `rgba(${activeTier.rgb},0.07)`, border: `1px solid rgba(${activeTier.rgb},0.15)`, borderRadius: '10px', padding: '0.875rem', transition: 'background 0.4s ease' }}>
+            <div style={{ background: `rgba(${activeTier.rgb},0.07)`, border: `1px solid rgba(${activeTier.rgb},0.15)`, borderRadius: '0px', padding: '0.875rem', transition: 'background 0.4s ease' }}>
               <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 500, fontStyle: 'italic', color: activeTier.color, marginBottom: '8px' }}>{activeTier.tagline}</p>
               {activeTier.perks.map((perk, pi) => (
                 <div key={pi} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '4px 0', borderTop: pi > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
