@@ -33,11 +33,11 @@ export function useStatusTiers() {
 // Fallback tiers if DB query fails (matches database values)
 function getDefaultTiers(): StatusTier[] {
   return [
-    { id: '1', display_name: 'Bronze', min_nctr_360_locked: 100, badge_emoji: '🥉', badge_color: '#CD7F32' },
-    { id: '2', display_name: 'Silver', min_nctr_360_locked: 1000, badge_emoji: '🥈', badge_color: '#C0C0C0' },
-    { id: '3', display_name: 'Gold', min_nctr_360_locked: 5000, badge_emoji: '🥇', badge_color: '#FFD700' },
-    { id: '4', display_name: 'Platinum', min_nctr_360_locked: 15000, badge_emoji: '💎', badge_color: '#E5E4E2' },
-    { id: '5', display_name: 'Diamond', min_nctr_360_locked: 50000, badge_emoji: '👑', badge_color: '#00BFFF' },
+    { id: '1', display_name: 'Bronze', min_nctr_360_locked: 1000, badge_emoji: '🥉', badge_color: '#CD7F32' },
+    { id: '2', display_name: 'Silver', min_nctr_360_locked: 5000, badge_emoji: '🥈', badge_color: '#C0C0C0' },
+    { id: '3', display_name: 'Gold', min_nctr_360_locked: 15000, badge_emoji: '🥇', badge_color: '#FFD700' },
+    { id: '4', display_name: 'Platinum', min_nctr_360_locked: 50000, badge_emoji: '💎', badge_color: '#E5E4E2' },
+    { id: '5', display_name: 'Diamond', min_nctr_360_locked: 150000, badge_emoji: '👑', badge_color: '#00BFFF' },
   ];
 }
 
