@@ -48,7 +48,7 @@ const statusTiers: StatusTier[] = [
   {
     level: 2,
     name: 'Silver',
-    requirement: 2500,
+    requirement: 5000,
     description: 'Unlock enhanced benefits with quarterly claim privileges',
     multiplier: 1.25,
     claims: '4 annual claims',
