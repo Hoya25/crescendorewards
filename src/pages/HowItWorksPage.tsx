@@ -122,9 +122,9 @@ export default function HowItWorksPage() {
       <section className="py-16 md:py-24 px-4 md:px-6" style={{ background: '#1F2020' }}>
         <div className="max-w-5xl mx-auto">
           <motion.div {...fadeIn} className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl text-white mb-3" style={{ fontFamily: barlow, fontWeight: 700, letterSpacing: '-0.02em' }}>What Fuels the Treasury</h2>
+            <h2 className="text-2xl md:text-3xl text-white mb-3" style={{ fontFamily: barlow, fontWeight: 700, letterSpacing: '-0.02em' }}>Why Your Rewards Keep Growing</h2>
             <p className="text-sm max-w-xl mx-auto" style={{ color: '#5A5A58', fontFamily: dmSans }}>
-              The treasury doesn't rely on a single source. Multiple revenue streams keep it funded — so the rewards never stop.
+              The Alliance is built on real revenue — not hype. Every source below funds the rewards you unlock.
             </p>
           </motion.div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
