@@ -28,11 +28,11 @@ const FLYWHEEL_STEPS = [
 ];
 
 const TREASURY_SOURCES = [
-  { emoji: "🏢", title: "Brand Partnerships", desc: "Brands purchase NCTR at wholesale through Butterfly Studios to fund campaigns and reach engaged communities." },
-  { emoji: "🛍️", title: "Shopping Commissions", desc: "Every purchase through The Garden and Crescendo generates affiliate commissions that flow straight to the treasury." },
-  { emoji: "🎟️", title: "Claim Purchases", desc: "Members purchase claims to unlock rewards — direct cash fueling the treasury." },
-  { emoji: "🔁", title: "Transaction Fees", desc: "A small fee on every NCTR trade flows automatically to the treasury. Always on, always growing." },
-  { emoji: "📈", title: "DeFi & Liquidity", desc: "Returns from staking and liquidity pools add another revenue layer." },
+  { emoji: "🏢", title: "Brand Partnerships", desc: "Brands invest in the Alliance to reach engaged communities. Their participation budget funds your rewards." },
+  { emoji: "🛍️", title: "Shopping Commissions", desc: "Every purchase you make through the ecosystem generates revenue that flows directly into the rewards pool." },
+  { emoji: "🎟️", title: "Reward Claims", desc: "When members claim rewards, the ecosystem grows. More activity means more brands, more rewards, more value." },
+  { emoji: "🔁", title: "Circular Commerce", desc: "A portion of every trade circulates back into the rewards pool — designed to grow stronger over time, not weaker." },
+  { emoji: "🌱", title: "Ecosystem Growth", desc: "As the Alliance expands — more brands, more members, more activity — the rewards pool compounds naturally." },
 ];
 
 const REWARD_CHANNELS = [
@@ -122,9 +122,9 @@ export default function HowItWorksPage() {
       <section className="py-16 md:py-24 px-4 md:px-6" style={{ background: '#1F2020' }}>
         <div className="max-w-5xl mx-auto">
           <motion.div {...fadeIn} className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl text-white mb-3" style={{ fontFamily: barlow, fontWeight: 700, letterSpacing: '-0.02em' }}>What Fuels the Treasury</h2>
+            <h2 className="text-2xl md:text-3xl text-white mb-3" style={{ fontFamily: barlow, fontWeight: 700, letterSpacing: '-0.02em' }}>Why Your Rewards Keep Growing</h2>
             <p className="text-sm max-w-xl mx-auto" style={{ color: '#5A5A58', fontFamily: dmSans }}>
-              The treasury doesn't rely on a single source. Multiple revenue streams keep it funded — so the rewards never stop.
+              The Alliance is built on real revenue — not hype. Every source below funds the rewards you unlock.
             </p>
           </motion.div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -133,8 +133,8 @@ export default function HowItWorksPage() {
                 key={i}
                 {...fadeIn}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
-                className="p-5"
-                style={{ background: '#393939', borderRadius: '0px' }}
+                className="p-5 border border-transparent hover:border-[rgba(226,255,109,0.15)] transition-colors duration-200"
+                style={{ background: '#1E1E1C', borderRadius: '0px' }}
               >
                 <div className="text-2xl mb-3">{src.emoji}</div>
                 <h3 className="text-white text-sm mb-1.5" style={{ fontFamily: barlow, fontWeight: 700 }}>{src.title}</h3>
