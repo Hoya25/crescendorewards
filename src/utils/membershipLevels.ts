@@ -8,9 +8,8 @@ export const membershipTiers: MembershipTier[] = [
   {
     level: 0,
     name: 'Bronze',
-    requirement: 100,
-    // Status multiplier: 1.1x
-    description: 'Entry tier with enhanced earning potential (100-999 NCTR)',
+    requirement: 1000,
+    description: 'Entry tier with enhanced earning potential (1,000-4,999 NCTR)',
     multiplier: 1.1,
     claims: '1 annual claim',
     discount: 0,
@@ -18,7 +17,7 @@ export const membershipTiers: MembershipTier[] = [
       'Access to bronze reward catalog',
       '1 reward claim per year',
       'Priority customer support',
-      'Earn 1x NCTR on all activities'
+      'Earn 1.1x NCTR on all activities'
     ],
     nftBadges: ['Digital Rewards Access'],
     color: 'hsl(14 100% 57%)',
@@ -27,8 +26,8 @@ export const membershipTiers: MembershipTier[] = [
   {
     level: 1,
     name: 'Silver',
-    requirement: 1000,
-    description: 'Enhanced benefits with quarterly claim privileges (1,000-4,999 NCTR)',
+    requirement: 5000,
+    description: 'Enhanced benefits with quarterly claim privileges (5,000-14,999 NCTR)',
     multiplier: 1.25,
     claims: '4 annual claims',
     discount: 10,
@@ -46,8 +45,8 @@ export const membershipTiers: MembershipTier[] = [
   {
     level: 2,
     name: 'Gold',
-    requirement: 5000,
-    description: 'Elite status with monthly claims and exclusive perks (5,000-14,999 NCTR)',
+    requirement: 15000,
+    description: 'Elite status with monthly claims and exclusive perks (15,000-49,999 NCTR)',
     multiplier: 1.5,
     claims: '1 monthly claim',
     discount: 15,
@@ -66,8 +65,8 @@ export const membershipTiers: MembershipTier[] = [
   {
     level: 3,
     name: 'Platinum',
-    requirement: 15000,
-    description: 'Premium status with bi-monthly claims and concierge service (15,000-49,999 NCTR)',
+    requirement: 50000,
+    description: 'Premium status with bi-monthly claims and concierge service (50,000-149,999 NCTR)',
     multiplier: 2.0,
     claims: '2 monthly claims',
     discount: 20,
@@ -75,7 +74,7 @@ export const membershipTiers: MembershipTier[] = [
       'Access to platinum reward catalog',
       '2 reward claims per month',
       'Exclusive platinum events',
-      'Earn 1.75x NCTR on all activities',
+      'Earn 2.0x NCTR on all activities',
       '20% discount on partner brands',
       'Personal concierge service',
       'Priority shipping'
@@ -87,16 +86,16 @@ export const membershipTiers: MembershipTier[] = [
   {
     level: 4,
     name: 'Diamond',
-    requirement: 50000,
-    description: 'Ultimate status with unlimited benefits and white-glove service (50,000+ NCTR)',
-    multiplier: 2.0,
+    requirement: 150000,
+    description: 'Ultimate status with unlimited benefits and white-glove service (150,000+ NCTR)',
+    multiplier: 2.5,
     claims: 'Unlimited',
     discount: 25,
     benefits: [
       'Access to diamond reward catalog',
       'Unlimited reward claims',
       'Exclusive diamond experiences',
-      'Earn 2x NCTR on all activities',
+      'Earn 2.5x NCTR on all activities',
       '25% discount on partner brands',
       'White-glove concierge service',
       'Free expedited shipping',
