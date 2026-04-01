@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { NctrMarketReference } from './NctrMarketReference';
 
 const TIERS = [
   { id: 'bronze', name: 'Bronze', min: 1000, color: '#CD7F32', rgb: '205,127,50', glowRgba: 'rgba(205,127,50,0.45)', tagline: 'Every alliance begins here.', perks: ['Bronze rewards catalog','NCTR earning on all purchases','Alliance member newsletter'] },
