@@ -67,7 +67,7 @@ const statusTiers: StatusTier[] = [
   {
     level: 3,
     name: 'Gold',
-    requirement: 5000,
+    requirement: 15000,
     description: 'Experience elite status with monthly claims and exclusive perks',
     multiplier: 1.5,
     claims: '1 monthly claim',
