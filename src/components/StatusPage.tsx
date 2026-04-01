@@ -110,7 +110,7 @@ const statusTiers: StatusTier[] = [
   {
     level: 5,
     name: 'Diamond',
-    requirement: 25000,
+    requirement: 150000,
     description: 'Ultimate status with unlimited benefits and white-glove service',
     multiplier: 2.5,
     claims: 'Unlimited',

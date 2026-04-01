@@ -56,7 +56,7 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
           </h1>
 
           <p style={{ fontFamily: 'var(--font-body)', fontSize: 'clamp(15px,1.7vw,18px)', lineHeight: 1.72, color: 'rgba(217,217,217,0.68)', maxWidth: '440px', marginBottom: '2.5rem' }}>
-            Unlock exclusive rewards by leveling up your status across the NCTR Alliance ecosystem.
+            Browse and claim exclusive rewards. Your status tier unlocks better perks — earn on Bounty Hunter, level up here.
           </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '0.875rem', marginBottom: '2rem' }}>
