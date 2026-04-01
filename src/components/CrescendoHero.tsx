@@ -93,12 +93,13 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
             </div>
 
             {/* Balance */}
-            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px', padding: '0.875rem 1rem', marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '0px', padding: '0.875rem 1rem', marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <p style={{ fontFamily: 'var(--font-body)', fontSize: '9px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: 'rgba(217,217,217,0.3)', marginBottom: '4px' }}>Committed Balance</p>
                 <p style={{ fontFamily: 'var(--font-mono)', fontSize: '22px', fontWeight: 500, color: 'var(--color-accent)' }}>
                   {currentBalance.toLocaleString()} <span style={{ fontFamily: 'var(--font-body)', fontSize: '11px', color: 'rgba(217,217,217,0.36)' }}>NCTR</span>
                 </p>
+                <NctrMarketReference nctrAmount={currentBalance} />
               </div>
               <div style={{ textAlign: 'right' as const }}>
                 <p style={{ fontFamily: 'var(--font-body)', fontSize: '9px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: 'rgba(217,217,217,0.3)', marginBottom: '4px' }}>Lock Period</p>
