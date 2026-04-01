@@ -131,7 +131,7 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
               <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '6px' }}>
                 {TIERS.map((t, i) => (
                   <button key={t.id} onClick={() => setActiveIdx(i)} aria-pressed={i === activeIdx}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 11px', background: i === activeIdx ? `rgba(${t.rgb},0.18)` : 'rgba(255,255,255,0.04)', border: `1px solid ${i === activeIdx ? t.color : `rgba(${t.rgb},0.16)`}`, borderRadius: '999px', cursor: 'pointer', transition: 'all 160ms ease' }}>
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 11px', background: i === activeIdx ? `rgba(${t.rgb},0.18)` : 'rgba(255,255,255,0.04)', border: `1px solid ${i === activeIdx ? t.color : `rgba(${t.rgb},0.16)`}`, borderRadius: '0px', cursor: 'pointer', transition: 'all 160ms ease' }}>
                     <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: t.color }} />
                     <span style={{ fontFamily: 'var(--font-body)', fontSize: '10px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: i === activeIdx ? t.color : `rgba(${t.rgb},0.55)` }}>{t.name}</span>
                   </button>
