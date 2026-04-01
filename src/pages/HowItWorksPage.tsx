@@ -28,11 +28,11 @@ const FLYWHEEL_STEPS = [
 ];
 
 const TREASURY_SOURCES = [
-  { emoji: "🏢", title: "Brand Partnerships", desc: "Brands purchase NCTR at wholesale through Butterfly Studios to fund campaigns and reach engaged communities." },
-  { emoji: "🛍️", title: "Shopping Commissions", desc: "Every purchase through The Garden and Crescendo generates affiliate commissions that flow straight to the treasury." },
-  { emoji: "🎟️", title: "Claim Purchases", desc: "Members purchase claims to unlock rewards — direct cash fueling the treasury." },
-  { emoji: "🔁", title: "Transaction Fees", desc: "A small fee on every NCTR trade flows automatically to the treasury. Always on, always growing." },
-  { emoji: "📈", title: "DeFi & Liquidity", desc: "Returns from staking and liquidity pools add another revenue layer." },
+  { emoji: "🏢", title: "Brand Partnerships", desc: "Brands invest in the Alliance to reach engaged communities. Their participation budget funds your rewards." },
+  { emoji: "🛍️", title: "Shopping Commissions", desc: "Every purchase you make through the ecosystem generates revenue that flows directly into the rewards pool." },
+  { emoji: "🎟️", title: "Reward Claims", desc: "When members claim rewards, the ecosystem grows. More activity means more brands, more rewards, more value." },
+  { emoji: "🔁", title: "Circular Commerce", desc: "A portion of every trade circulates back into the rewards pool — designed to grow stronger over time, not weaker." },
+  { emoji: "🌱", title: "Ecosystem Growth", desc: "As the Alliance expands — more brands, more members, more activity — the rewards pool compounds naturally." },
 ];
 
 const REWARD_CHANNELS = [
