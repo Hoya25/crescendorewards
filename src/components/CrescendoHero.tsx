@@ -114,8 +114,8 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
                   <span style={{ fontFamily: 'var(--font-body)', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase' as const, color: tier.color }}>{tier.name}</span>
                   <span style={{ fontFamily: 'var(--font-body)', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase' as const, color: nextTier.color }}>{nextTier.name}</span>
                 </div>
-                <div style={{ height: '5px', background: 'rgba(255,255,255,0.07)', borderRadius: '999px', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${progress}%`, background: `linear-gradient(to right, ${tier.color}, ${nextTier.color})`, borderRadius: '999px', transition: 'width 1.2s ease' }} />
+                <div style={{ height: '5px', background: 'rgba(255,255,255,0.07)', borderRadius: '0px', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${progress}%`, background: `linear-gradient(to right, ${tier.color}, ${nextTier.color})`, borderRadius: '0px', transition: 'width 1.2s ease' }} />
                 </div>
                 <p style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: 'rgba(217,217,217,0.28)', marginTop: '5px', textAlign: 'right' as const }}>{(nextTier.min - Math.max(currentBalance, tier.min)).toLocaleString()} NCTR to {nextTier.name}</p>
               </div>
