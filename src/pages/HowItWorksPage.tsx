@@ -133,8 +133,8 @@ export default function HowItWorksPage() {
                 key={i}
                 {...fadeIn}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
-                className="p-5"
-                style={{ background: '#393939', borderRadius: '0px' }}
+                className="p-5 border border-transparent hover:border-[rgba(226,255,109,0.15)] transition-colors duration-200"
+                style={{ background: '#1E1E1C', borderRadius: '0px' }}
               >
                 <div className="text-2xl mb-3">{src.emoji}</div>
                 <h3 className="text-white text-sm mb-1.5" style={{ fontFamily: barlow, fontWeight: 700 }}>{src.title}</h3>
