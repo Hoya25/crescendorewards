@@ -349,39 +349,47 @@ export function VisualRewardCard({
       {/* CTA BUTTON */}
       {isTierLocked ? (
         <div className="px-3.5 pb-3.5 pt-2" style={{ backgroundColor: '#1F2020' }}>
-          <div className="text-center py-3">
-            <p style={{ fontFamily: barlow, fontWeight: 700, fontSize: '14px', color: '#FFFFFF', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-              REACH {(requiredTier || '').toUpperCase()} TO UNLOCK
-            </p>
-            <p style={{ fontFamily: dmMono, fontSize: '12px', color: '#5A5A58', marginTop: '4px' }}>
-              You're {Math.max(0, pricing.price - claimBalance)} NCTR from {requiredTier}
-            </p>
-          </div>
+          <button
+            className="w-full"
+            style={{
+              fontFamily: dmMono,
+              fontSize: '12px',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase' as const,
+              backgroundColor: 'transparent',
+              color: '#6B6B68',
+              border: '1px solid #D4D3CF',
+              borderRadius: '0px',
+              height: '44px',
+              cursor: 'pointer',
+            }}
+            onClick={handleCtaClick}
+          >
+            Unlocks at {requiredTier}
+          </button>
         </div>
       ) : (
         <div style={{ backgroundColor: '#1F2020' }}>
           <button
             className="w-full"
             style={{
-              fontFamily: barlow,
-              fontWeight: 700,
-              fontSize: '13px',
+              fontFamily: dmMono,
+              fontSize: '12px',
               letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              backgroundColor: '#E2FF6D',
-              color: '#131313',
+              textTransform: 'uppercase' as const,
+              backgroundColor: '#131313',
+              color: '#F5F4F0',
               border: 'none',
               borderRadius: '0px',
               height: '48px',
               cursor: 'pointer',
-              boxShadow: '0 10px 30px rgba(226,255,109,0.08)',
-              transition: 'opacity 300ms cubic-bezier(0.4,0,0.2,1)',
+              transition: 'opacity 200ms ease',
             }}
             onClick={handleCtaClick}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
           >
-            {!isAuthenticated ? 'SIGN UP TO CLAIM' : 'CLAIM NOW'}
+            {!isAuthenticated ? 'SIGN IN TO CLAIM' : 'CLAIM NOW'}
           </button>
         </div>
       )}
