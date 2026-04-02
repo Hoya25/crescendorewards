@@ -46,6 +46,7 @@ import { useTracking } from '@/contexts/ActivityTrackerContext';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { useFavorites } from '@/hooks/useFavorites';
 import { cn } from '@/lib/utils';
+import { OpportunitiesTab } from '@/components/rewards/OpportunitiesTab';
 
 interface Reward {
   id: string;
