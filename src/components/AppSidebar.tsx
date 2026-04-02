@@ -1,4 +1,4 @@
-import { Home, Gift, ShoppingBag, UserPlus, User, HelpCircle, Shield, Heart, Coins, Leaf, Target, Trophy, BookOpen, Zap, Lock, Wallet } from 'lucide-react';
+import { Home, Gift, Shield, Zap, Trophy, UserPlus, HelpCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import nctrIconDark from '@/assets/nctr-grey.png';
 import nctrIconLight from '@/assets/nctr-yellow.png';
@@ -23,11 +23,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -43,30 +38,19 @@ interface NavItem {
   title: string;
   url: string;
   icon: any;
-  emoji?: string;
-  subtext?: string;
   external?: string;
-  highlight?: boolean;
 }
 
-const coreNavItems: NavItem[] = [
+const membershipNavItems: NavItem[] = [
   { title: 'Home', url: '/dashboard', icon: Home },
-  { title: 'My Rewards', url: '/rewards', icon: Gift, emoji: '🎁', subtext: 'Redeem with your locked NCTR' },
-  { title: 'My Status', url: '/membership', icon: Lock, emoji: '💎', subtext: 'Your status level unlocks your rewards' },
-  { title: 'Deposit NCTR', url: '/deposit', icon: Wallet, emoji: '🔒', subtext: 'Lock NCTR to level up your status' },
-  { title: 'Shop & Earn', url: '#', icon: ShoppingBag, emoji: '🛒', subtext: 'Earn NCTR on every purchase', external: 'https://thegarden.nctr.live/' },
-  { title: 'Merch', url: '/merch', icon: ShoppingBag, emoji: '👕', subtext: 'Shop merch & earn NCTR' },
-  { title: 'Earn Progress', url: '/bounties', icon: Zap, emoji: '⚡', subtext: 'Track your earning activity' },
+  { title: 'Rewards', url: '/rewards', icon: Gift },
+  { title: 'My Status', url: '/membership', icon: Shield },
+  { title: 'Earn Progress', url: '/bounties', icon: Zap },
 ];
 
-const secondaryNavItems: NavItem[] = [
-  { title: 'How It Works', url: '/how-it-works', icon: BookOpen },
-  { title: 'Get Claims', url: '/buy-claims', icon: Coins, highlight: true },
+const exploreNavItems: NavItem[] = [
   { title: 'Leaderboard', url: '/leaderboard', icon: Trophy },
   { title: 'Invite Friends', url: '/invite', icon: UserPlus },
-  { title: 'Shop Merch', url: '/merch', icon: ShoppingBag },
-  { title: 'Contribute', url: '/contribute', icon: Heart },
-  { title: 'My Account', url: '/profile', icon: User },
   { title: 'Help', url: '/help', icon: HelpCircle },
 ];
 
