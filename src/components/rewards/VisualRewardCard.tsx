@@ -372,7 +372,7 @@ export function VisualRewardCard({
           </button>
         </div>
       ) : (
-        <div style={{ backgroundColor: '#1F2020' }}>
+        <div style={{ backgroundColor: '#FFFFFF' }}>
           <button
             className="w-full"
             style={{
