@@ -711,7 +711,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       )}
 
       {/* Rewards Tab - existing content */}
-      {activeTab === 'rewards' && <>
+      {activeTab === 'rewards' && <div style={{ backgroundColor: '#F5F4F0', color: '#131313' }}>
       {/* Zero Claims Banner */}
       {isAuthenticated && claimBalance === 0 && !localStorage.getItem('dismiss-zero-claims-banner') && (
         <div className="container mx-auto px-4 max-w-full">
