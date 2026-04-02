@@ -378,6 +378,7 @@ export function VisualRewardCard({
             rewardId={reward.id}
             rewardName={reward.title}
             claimable={false}
+            tierRequired={effectiveMinTier || 'Bronze'}
             distance={requiredTier ? `${requiredTier} required` : undefined}
             isWanted={isWanted}
             onToggle={toggleAmbition}
