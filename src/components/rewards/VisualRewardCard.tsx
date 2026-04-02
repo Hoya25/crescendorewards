@@ -172,14 +172,21 @@ export function VisualRewardCard({
   return (
     <div
       className={cn(
-        "group cursor-pointer overflow-hidden transition-all duration-300",
-        "hover:translate-y-[-2px]",
+        "group cursor-pointer overflow-hidden transition-all duration-200",
         isTierLocked && "opacity-50",
       )}
       style={{
         backgroundColor: '#1F2020',
         borderRadius: '0px',
-        transition: 'transform 300ms cubic-bezier(0.4,0,0.2,1), box-shadow 300ms cubic-bezier(0.4,0,0.2,1)',
+        transition: 'transform 200ms ease, box-shadow 200ms ease',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-3px)';
+        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = 'none';
       }}
       onClick={handleCardClick}
     >
