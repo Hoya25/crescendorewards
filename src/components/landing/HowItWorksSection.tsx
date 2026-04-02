@@ -22,7 +22,7 @@ export function HowItWorksSection() {
             </div>
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider" style={{ fontFamily: dmSans }}>Step 1</span>
             <h3 className="text-xl mt-1 mb-2" style={{ fontFamily: barlow, fontWeight: 700 }}>Earn Claims</h3>
-            <p className="text-sm text-muted-foreground" style={{ fontFamily: dmSans }}>Shop at 6,000+ brands. Invite friends. Add value to the community.</p>
+            <p className="text-sm text-muted-foreground" style={{ fontFamily: dmSans }}>Shop at thousands of brands. Invite friends. Add value to the community.</p>
           </div>
 
           <div className="bg-background p-6 text-center border" style={{ borderRadius: '0px' }}>

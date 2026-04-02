@@ -34,7 +34,7 @@ import { FavoritesIndicator } from '@/components/FavoritesIndicator';
 import { ClaimsBalanceIndicator } from '@/components/claims/ClaimsBalanceIndicator';
 import { NotificationsDropdown } from '@/components/NotificationsDropdown';
 import { SEO } from '@/components/SEO';
-import { Footer } from '@/components/Footer';
+
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { RewardsGridSkeleton } from '@/components/skeletons/RewardCardSkeleton';
@@ -658,8 +658,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             </button>
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="sm" onClick={() => navigate('/how-it-works')} style={{ color: '#5A5A58', borderRadius: '0px' }}>How It Works</Button>
-              <button onClick={handleSignIn} style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#FFFFFF', background: 'none', border: 'none', cursor: 'pointer' }}>Sign In</button>
-              <button onClick={() => { setAuthMode('signin'); setShowAuthModal(true); }} style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '13px', letterSpacing: '0.06em', textTransform: 'uppercase' as const, backgroundColor: '#FFFFFF', color: '#131313', border: 'none', borderRadius: '0px', padding: '8px 20px', cursor: 'pointer' }}>SIGN IN</button>
+              <button onClick={handleSignIn} style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '13px', letterSpacing: '0.06em', textTransform: 'uppercase' as const, backgroundColor: '#FFFFFF', color: '#131313', border: 'none', borderRadius: '0px', padding: '8px 20px', cursor: 'pointer' }}>SIGN IN</button>
+              
             </div>
           </div>
         </nav>
@@ -813,7 +813,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       )}
 
       {/* Sticky category + filters bar */}
-      <div style={{ position: 'sticky', top: isAuthenticated ? '97px' : '49px', zIndex: 9, backgroundColor: '#F5F4F0', borderBottom: '1px solid #E0DFDB', paddingTop: '4px', paddingBottom: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+      <div style={{ position: 'sticky', top: isAuthenticated ? '145px' : '97px', zIndex: 9, backgroundColor: '#F5F4F0', borderBottom: '1px solid #E0DFDB', paddingTop: '4px', paddingBottom: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
 
 
         {/* Category pills row */}
@@ -980,11 +980,6 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             )}
 
             {/* Results Count */}
-            <div className="ml-auto">
-              <Badge variant="secondary" className="gap-1 text-xs">
-                {filteredRewards.length} {filteredRewards.length === 1 ? 'reward' : 'rewards'}
-              </Badge>
-            </div>
           </div>
 
           {/* Expanded Advanced Filters */}
@@ -1470,7 +1465,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       <div className="h-20 md:hidden" />
       </div>}
       
-      <Footer />
+      
     </div>
   );
 }

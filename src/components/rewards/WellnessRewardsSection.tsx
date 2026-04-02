@@ -256,7 +256,7 @@ export function WellnessRewardsSection() {
           >
             <span className="text-base">🛒</span>
             <span>
-              <span className="font-semibold block text-foreground">Shop Kroma &amp; 6,000+ brands</span>
+              <span className="font-semibold block text-foreground">Shop Kroma &amp; thousands of brands</span>
               <span className="text-muted-foreground text-xs">on The Garden to earn toward these rewards →</span>
             </span>
           </a>

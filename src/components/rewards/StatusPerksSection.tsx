@@ -164,16 +164,14 @@ export function StatusPerksSection() {
                 'w-full font-semibold text-sm h-9',
                 isSoldOut
                   ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                  : !isAuthenticated
-                    ? 'text-[#0D0D0D] hover:opacity-90'
-                    : isLocked
-                      ? 'bg-muted text-muted-foreground'
-                      : 'text-[#0D0D0D] hover:opacity-90',
+                  : isLocked
+                    ? 'bg-muted text-muted-foreground'
+                    : '',
               )}
               style={
                 !isSoldOut && (isEligible || !isAuthenticated)
-                  ? { backgroundColor: '#E2FF6D' }
-                  : undefined
+                  ? { backgroundColor: '#131313', color: '#F5F4F0', fontFamily: "'DM Mono', monospace", fontSize: '12px', textTransform: 'uppercase', borderRadius: '0px' }
+                  : { borderRadius: '0px' }
               }
               disabled={isSoldOut}
               onClick={(e) => {

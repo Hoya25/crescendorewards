@@ -66,7 +66,7 @@ export function LandingPage() {
     <div className="min-h-screen w-full overflow-x-hidden" style={{ backgroundColor: '#F9F9F7' }}>
       <SEO 
         title="Get Rewarded for the Things You Already Do"
-        description="Shop at 6,000+ brands, create content, and earn real rewards that grow the more you commit. Join Crescendo — it's free."
+        description="Shop at thousands of brands, create content, and earn real rewards that grow the more you commit. Join Crescendo — it's free."
       />
 
       {/* Beta Banner removed — single banner lives in AppLayout/BetaBanner */}
