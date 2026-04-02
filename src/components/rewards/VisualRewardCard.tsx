@@ -116,6 +116,8 @@ export function VisualRewardCard({
 }: VisualRewardCardProps) {
   const navigate = useNavigate();
   const { isAuthenticated, setShowAuthModal, setAuthMode } = useAuthContext();
+  const { toggleAmbition, isAmbition } = useAmbitions();
+  const isWanted = isAmbition(reward.id);
   const Icon = categoryIcons[reward.category] || Gift;
   
   const showcaseMode = reward.showcase_mode || 'default';
