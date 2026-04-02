@@ -1078,7 +1078,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           />
         ) : filteredRewards.length === 0 ? (
           <div className="text-center" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#5A5A58' }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B6B68' }}>
               No {activeCategory !== 'all' ? (categoryLabels[activeCategory] || activeCategory).toLowerCase() : ''} rewards right now.
               <br />
               Check back soon — the community adds new rewards every week.
