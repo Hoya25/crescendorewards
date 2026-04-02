@@ -164,11 +164,11 @@ export function AppLayout({ children }: AppLayoutProps) {
                     <DropdownMenuContent align="end" className="w-48">
                       <DropdownMenuItem onClick={() => navigate('/profile')}>
                         <User className="w-4 h-4 mr-2" />
-                        Profile
+                        My Account
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate('/membership')}>
+                      <DropdownMenuItem onClick={() => navigate('/profile')}>
                         <Crown className="w-4 h-4 mr-2" />
-                        My Level
+                        Settings
                       </DropdownMenuItem>
                       {isAdmin && (
                         <DropdownMenuItem onClick={() => navigate('/admin')}>

@@ -116,23 +116,23 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
         </div>
         <SidebarSeparator />
 
-        {/* Core Navigation — Earn & Redeem */}
+        {/* Membership */}
         <SidebarGroup>
-          {open && <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">Earn & Redeem</SidebarGroupLabel>}
+          {open && <SidebarGroupLabel style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Membership</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
-              {coreNavItems.map(renderNavItem)}
+              {membershipNavItems.map(renderNavItem)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Secondary Navigation */}
+        {/* Explore */}
         <SidebarSeparator />
         <SidebarGroup>
-          {open && <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">More</SidebarGroupLabel>}
+          {open && <SidebarGroupLabel style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Explore</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
-              {secondaryNavItems.map(renderNavItem)}
+              {exploreNavItems.map(renderNavItem)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
