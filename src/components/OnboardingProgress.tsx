@@ -4,6 +4,7 @@ import { Check, X, Gift, Coins, Users, Store, ChevronUp, ChevronDown } from "luc
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 
 const ONBOARDING_KEY = "crescendo_onboarding_progress";
 
