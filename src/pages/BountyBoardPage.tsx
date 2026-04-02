@@ -90,15 +90,9 @@ function useTokens() {
     claimBg: dark ? '#E2FF6D' : '#323232',
     claimText: dark ? '#323232' : '#FFFFFF',
     claimShadow: dark ? '0 0 12px rgba(226,255,109,0.3)' : '0 1px 4px rgba(0,0,0,0.12)',
-    diffEasy: dark
-      ? { bg: 'rgba(226, 255, 109, 0.2)', color: '#E2FF6D' }
-      : { bg: 'rgba(50, 50, 50, 0.1)', color: '#323232' },
-    diffMedium: dark
-      ? { bg: 'rgba(250, 204, 21, 0.2)', color: '#FACC15' }
-      : { bg: 'rgba(180, 130, 0, 0.12)', color: '#8B6914' },
-    diffHard: dark
-      ? { bg: 'rgba(255, 68, 68, 0.2)', color: '#FF4444' }
-      : { bg: 'rgba(200, 0, 0, 0.1)', color: '#CC0000' },
+    diffEasy: { bg: 'transparent', color: '#E2FF6D' },
+    diffMedium: { bg: 'transparent', color: '#E2FF6D' },
+    diffHard: { bg: 'transparent', color: '#E2FF6D' },
     progressTrack: dark ? 'rgba(255,255,255,0.07)' : '#D9D9D9',
     progressFill: dark ? 'linear-gradient(90deg, #E2FF6D, #C8FF3C)' : 'linear-gradient(90deg, #323232, #5A5A58)',
     progressGlow: dark ? '0 0 8px rgba(226,255,109,0.5)' : 'none',
