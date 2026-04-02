@@ -625,118 +625,39 @@ export default function BountyBoardPage() {
             ))}
           </div>
 
-          <div ref={tabsRef} className="flex items-center gap-1 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
-            {CATEGORIES.map(cat => {
-              const isActive = activeTab === cat.key;
-              return (
-                <button key={cat.key}
-                  onClick={() => { setActiveTab(cat.key); setExpandedId(null); }}
-                  className="relative flex items-center gap-1.5 px-3 py-2 text-sm font-semibold shrink-0 transition-colors group"
-                  style={{
-                    color: isActive ? tokens.tabActiveColor : (tokens.dark ? '#D9D9D9' : tokens.textMuted),
-                    background: isActive ? tokens.tabActiveBg : 'transparent',
-                    borderRadius: '8px 8px 0 0',
-                  }}
-                  onMouseEnter={e => { if (!isActive && tokens.dark) (e.currentTarget as HTMLElement).style.color = '#FFFFFF'; }}
-                  onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLElement).style.color = tokens.dark ? '#D9D9D9' : tokens.textMuted; }}>
-                  {cat.label}
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold"
-                    style={{ background: isActive ? tokens.tabCountBg : (tokens.dark ? 'rgba(255,255,255,0.08)' : tokens.tabCountInactiveBg), color: isActive ? tokens.tabActiveColor : (tokens.dark ? '#D9D9D9' : tokens.textMuted) }}>
-                    {categoryCounts[cat.key]}
-                  </span>
-                  {isActive && (
-                    <div className="absolute bottom-0 left-[15%] right-[15%] h-[2.5px] rounded-full"
-                      style={{ background: tokens.tabUnderline, boxShadow: tokens.tabUnderlineShadow }} />
-                  )}
-                </button>
-              );
-            })}
-          </div>
         </div>
       </div>
 
-      {/* ── BOUNTY CARDS ──────────────────────────────── */}
+      {/* ── HOW EARNING WORKS ─────────────────────────── */}
       <div className="max-w-3xl mx-auto px-4 mt-4">
-        {/* CTA Banner */}
-        <div style={{ background: '#1E1E1C', borderLeft: '3px solid #E2FF6D', padding: '16px 20px', marginBottom: '16px', borderRadius: '0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' as const }}>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#D9D9D9', margin: 0 }}>
-            Bounties are earned on Bounty Hunter. Your activity there fuels your status here.
-          </p>
+        <div style={{ background: '#1A1A1A', padding: '24px', borderRadius: '0px' }}>
+          <h3 style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', textTransform: 'uppercase', color: '#E2FF6D', letterSpacing: '0.08em', fontWeight: 500, marginBottom: '16px' }}>
+            How Earning Works
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {[
+              'Shop through The Garden and complete bounties on Bounty Hunter to earn NCTR.',
+              'Lock your NCTR to build status. Higher tiers unlock more rewards here on Crescendo.',
+              'Your Wingman connects the dots — open it anytime to see where you stand.',
+            ].map((text, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#E2FF6D', marginTop: '6px', flexShrink: 0 }} />
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#D9D9D9', lineHeight: 1.5, margin: 0 }}>{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: '24px' }}>
           <a
             href="https://bountyhunter.nctr.live"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ fontFamily: "'DM Mono', monospace", fontSize: '12px', textTransform: 'uppercase', color: '#E2FF6D', border: '1px solid #E2FF6D', padding: '8px 16px', background: 'transparent', textDecoration: 'none', borderRadius: '0px', whiteSpace: 'nowrap' as const }}
+            style={{ fontFamily: "'DM Mono', monospace", fontSize: '12px', textTransform: 'uppercase', color: '#E2FF6D', border: '1px solid #E2FF6D', padding: '10px 24px', background: 'transparent', textDecoration: 'none', borderRadius: '0px', display: 'inline-block' }}
           >
             Open Bounty Hunter →
           </a>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {bounties.map((b, i) => (
-            <div key={b.id} className={`${b.isWide ? 'col-span-full' : ''} animate-fade-in`}
-              style={{ animationDelay: `${i * 0.06}s`, animationFillMode: 'both' }}>
-              <BountyCard bounty={b} expanded={expandedId === b.id} onToggle={() => handleToggle(b.id)} onClaim={claimBounty} tokens={tokens} />
-            </div>
-          ))}
-          {bounties.length === 0 && (
-            <div className="col-span-full text-center py-12">
-              <p className="text-sm" style={{ color: tokens.textMuted }}>No bounties in this category yet.</p>
-            </div>
-          )}
-        </div>
-
-        {/* ── STREAK BANNER ─────────────────────────────── */}
-        {MOCK_STATS.streak > 0 && (
-          <div className="mt-4 rounded-xl p-4 flex items-center gap-4 transition-colors duration-300"
-            style={{ background: tokens.streakBannerBg, border: tokens.streakBannerBorder, boxShadow: tokens.dark ? '0 0 30px rgba(226,255,109,0.06)' : tokens.cardShadow }}>
-            <span className="text-[28px] shrink-0">🔥</span>
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-sm" style={{ color: tokens.streakTextColor }}>{MOCK_STATS.streak}-day streak!</p>
-              <p className="text-[11px] mt-0.5" style={{ color: tokens.textMuted }}>Come back tomorrow to keep it alive and unlock bonus multipliers.</p>
-            </div>
-            <div className="text-right shrink-0">
-              <span className="text-[28px] font-bold leading-none" style={{ color: tokens.streakNumberColor, fontFamily: "'DM Mono', monospace" }}>{MOCK_STATS.streak}</span>
-              <p className="text-[9px] uppercase" style={{ color: tokens.textMuted }}>Days</p>
-            </div>
-          </div>
-        )}
-
-        {/* ── BOUNTY HISTORY ──────────────────────────── */}
-        <Collapsible open={historyOpen} onOpenChange={setHistoryOpen} className="mt-6">
-          <CollapsibleTrigger className="w-full">
-            <div className="rounded-xl p-4 flex items-center justify-between cursor-pointer transition-colors"
-              style={{ background: tokens.cardBg, border: tokens.cardBorder, boxShadow: tokens.cardShadow }}>
-              <div>
-                <h3 className="text-sm font-bold" style={{ color: tokens.textPrimary }}>Your Earn History</h3>
-                <p className="text-[11px]" style={{ color: tokens.textMuted }}>{history.length} completed</p>
-              </div>
-              <div className="transition-transform duration-200" style={{ transform: historyOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
-                <ChevronDown className="w-5 h-5" style={{ color: tokens.textMuted }} />
-              </div>
-            </div>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <div className="mt-2 rounded-xl overflow-hidden" style={{ background: tokens.cardBg, border: tokens.cardBorder, boxShadow: tokens.cardShadow }}>
-              {history.length === 0 ? (
-                <div className="px-4 py-6 text-center">
-                  <p className="text-xs" style={{ color: tokens.textMuted }}>No completed bounties yet. Start earning!</p>
-                </div>
-              ) : history.map((item, i) => (
-                <div key={i} className="flex items-center gap-3 px-4 py-3 animate-fade-in"
-                  style={{ borderBottom: i < history.length - 1 ? tokens.historyRowBorder : 'none', animationDelay: `${i * 0.08}s` }}>
-                  <span className="text-base">{item.emoji}</span>
-                  <div className="flex-1 min-w-0">
-                    <span className="text-xs font-semibold" style={{ color: tokens.textPrimary }}>{item.title}</span>
-                    <span className="text-[10px] ml-2" style={{ color: tokens.textMuted }}>{item.date}</span>
-                  </div>
-                  <span className="text-xs font-bold shrink-0" style={{ color: tokens.historyAmountColor, fontFamily: "'DM Mono', monospace" }}>
-                    +{item.amount.toLocaleString()} NCTR
-                  </span>
-                </div>
-              ))}
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
 
         {/* ── FOOTER ──────────────────────────────────── */}
         <div className="mt-10 mb-4 text-center">
