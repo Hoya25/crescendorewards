@@ -711,7 +711,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       )}
 
       {/* Rewards Tab - existing content */}
-      {activeTab === 'rewards' && <>
+      {activeTab === 'rewards' && <div style={{ backgroundColor: '#F5F4F0', color: '#131313' }}>
       {/* Zero Claims Banner */}
       {isAuthenticated && claimBalance === 0 && !localStorage.getItem('dismiss-zero-claims-banner') && (
         <div className="container mx-auto px-4 max-w-full">
@@ -730,7 +730,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       )}
 
       {/* Combined fixed bar: tier + categories + filters */}
-      <div style={{ position: 'fixed', top: '48px', left: 0, right: 0, width: '100%', zIndex: 100, backgroundColor: '#131313', borderBottom: '1px solid #1F2020', paddingTop: '4px', paddingBottom: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>
+      <div style={{ position: 'fixed', top: '48px', left: 0, right: 0, width: '100%', zIndex: 100, backgroundColor: '#F5F4F0', borderBottom: '1px solid #E0DFDB', paddingTop: '4px', paddingBottom: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
         {/* Tier info row (auth only) */}
         {isAuthenticated && (
           <div className="container mx-auto px-4 max-w-full border-b">
@@ -774,8 +774,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                   className="flex-shrink-0 gap-1.5 h-7 text-xs px-3"
                   style={{
                     borderRadius: '0px',
-                    backgroundColor: isActive ? '#FFFFFF' : 'transparent',
-                    color: isActive ? '#131313' : '#5A5A58',
+                    backgroundColor: isActive ? '#131313' : '#FFFFFF',
+                    color: isActive ? '#F5F4F0' : '#6B6B68',
+                    border: isActive ? 'none' : '1px solid #E0DFDB',
                     fontFamily: isActive ? "'Barlow Condensed', sans-serif" : "'DM Sans', sans-serif",
                     fontWeight: isActive ? 700 : 400,
                   }}
@@ -810,7 +811,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               );
             })}
             </div>
-            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none md:hidden" />
+            <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none md:hidden" style={{ background: 'linear-gradient(to left, #F5F4F0, transparent)' }} />
           </div>
         </div>
 
@@ -819,14 +820,14 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           <div className="flex flex-wrap items-center gap-3">
             {/* Search Input */}
             <div className="relative flex-1 min-w-[180px] max-w-sm">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: '#5A5A58' }} />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" style={{ color: '#6B6B68' }} />
               <Input
                 type="text"
                 placeholder="Search rewards..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-9 border-0"
-                style={{ backgroundColor: '#1F2020', color: '#FFFFFF', borderRadius: '0px' }}
+                className="pl-10 h-9"
+                style={{ backgroundColor: '#FFFFFF', color: '#131313', borderRadius: '0px', border: '1px solid #E0DFDB' }}
               />
               {searchQuery && (
                 <Button
@@ -1057,7 +1058,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         {/* Section Header — compact */}
         {!loading && (
           <div className="flex items-center gap-2 mb-3">
-          <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '20px', color: '#FFFFFF', letterSpacing: '-0.02em' }}>
+          <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '20px', color: '#131313', letterSpacing: '-0.02em' }}>
               {activeCategory === 'all' ? 'All Rewards' : categoryLabels[activeCategory] || 'Rewards'}
             </h2>
             <Badge variant="secondary" className="text-xs">
@@ -1077,7 +1078,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           />
         ) : filteredRewards.length === 0 ? (
           <div className="text-center" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#5A5A58' }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '16px', color: '#6B6B68' }}>
               No {activeCategory !== 'all' ? (categoryLabels[activeCategory] || activeCategory).toLowerCase() : ''} rewards right now.
               <br />
               Check back soon — the community adds new rewards every week.
@@ -1400,7 +1401,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
       {/* Bottom padding for mobile nav */}
       <div className="h-20 md:hidden" />
-      </>}
+      </div>}
       
       <Footer />
     </div>

@@ -176,7 +176,8 @@ export function VisualRewardCard({
         isTierLocked && "opacity-50",
       )}
       style={{
-        backgroundColor: '#1F2020',
+        backgroundColor: '#FFFFFF',
+        border: '1px solid #E0DFDB',
         borderRadius: '0px',
         transition: 'transform 200ms ease, box-shadow 200ms ease',
       }}
@@ -207,8 +208,8 @@ export function VisualRewardCard({
             decoding="async"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#393939' }}>
-            <Icon className="w-16 h-16" style={{ color: '#5A5A58' }} />
+          <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#E0DFDB' }}>
+            <Icon className="w-16 h-16" style={{ color: '#8A8A88' }} />
           </div>
         )}
 
@@ -223,12 +224,14 @@ export function VisualRewardCard({
           <div
             className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1"
             style={{
-              backgroundColor: tierStyle.bg,
-              color: tierStyle.text,
+              backgroundColor: 'rgba(226,255,109,0.12)',
+              color: '#131313',
+              border: '1px solid rgba(226,255,109,0.3)',
               fontFamily: dmMono,
-              fontSize: '11px',
+              fontSize: '10px',
               fontWeight: 400,
               borderRadius: '0px',
+              textTransform: 'uppercase' as const,
             }}
           >
             {!isEligible && <Lock className="w-3 h-3" />}
@@ -304,7 +307,7 @@ export function VisualRewardCard({
       </div>
 
       {/* CONTENT: Creator + Price */}
-      <div className="p-3.5 space-y-2.5" style={{ backgroundColor: '#1F2020' }}>
+      <div className="p-3.5 space-y-2.5" style={{ backgroundColor: '#FFFFFF' }}>
         {hasCreatorShowcase && showcaseMode === 'collage' && (
           <CreatorShowcase creators={rewardCreators} mode="collage" size="sm" />
         )}
@@ -317,13 +320,13 @@ export function VisualRewardCard({
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5">
               {pricing.isFree ? (
-                <span style={{ fontFamily: dmMono, fontSize: '14px', color: '#E2FF6D', fontWeight: 400 }}>FREE</span>
+                <span style={{ fontFamily: dmMono, fontSize: '14px', color: '#131313', fontWeight: 500 }}>FREE</span>
               ) : (
                 <>
-                  <span style={{ fontFamily: dmMono, fontSize: '18px', color: '#FFFFFF', fontWeight: 400 }}>
+                  <span style={{ fontFamily: dmMono, fontSize: '18px', color: '#131313', fontWeight: 400 }}>
                     {calculateClaimsForUser(pricing.price, userTier.tierName)}
                   </span>
-                  <span style={{ fontFamily: dmMono, fontSize: '12px', color: '#5A5A58' }}>claims</span>
+                  <span style={{ fontFamily: dmMono, fontSize: '12px', color: '#6B6B68' }}>claims</span>
                 </>
               )}
             </div>
@@ -339,16 +342,16 @@ export function VisualRewardCard({
       {/* BOTTOM BAR: recessed */}
       <div
         className="flex items-center justify-between px-3.5 py-2"
-        style={{ backgroundColor: '#0E0E0E' }}
+        style={{ backgroundColor: '#F5F4F0', borderTop: '1px solid #E0DFDB' }}
       >
-        <span style={{ fontFamily: dmMono, fontSize: '11px', color: '#5A5A58' }}>
+        <span style={{ fontFamily: dmMono, fontSize: '11px', color: '#6B6B68' }}>
           {reward.stock_quantity !== null ? `${reward.stock_quantity} remaining` : 'Unlimited'}
         </span>
       </div>
 
       {/* CTA BUTTON */}
       {isTierLocked ? (
-        <div className="px-3.5 pb-3.5 pt-2" style={{ backgroundColor: '#1F2020' }}>
+        <div className="px-3.5 pb-3.5 pt-2" style={{ backgroundColor: '#FFFFFF' }}>
           <button
             className="w-full"
             style={{
@@ -369,7 +372,7 @@ export function VisualRewardCard({
           </button>
         </div>
       ) : (
-        <div style={{ backgroundColor: '#1F2020' }}>
+        <div style={{ backgroundColor: '#FFFFFF' }}>
           <button
             className="w-full"
             style={{
