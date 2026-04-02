@@ -346,10 +346,15 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
               </span>
             )}
             {isClaimReady && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto animate-pulse"
-                style={{ background: tokens.claimReadyBadgeBg, color: tokens.claimReadyBadgeColor }}>
-                Claim Ready!
-              </span>
+              <a href="https://bountyhunter.nctr.live" target="_blank" rel="noopener noreferrer"
+                className="ml-auto"
+                style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#E2FF6D', textDecoration: 'none' }}
+                onClick={e => e.stopPropagation()}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.textDecoration = 'underline'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.textDecoration = 'none'; }}
+              >
+                Track on Bounty Hunter →
+              </a>
             )}
           </div>
 
