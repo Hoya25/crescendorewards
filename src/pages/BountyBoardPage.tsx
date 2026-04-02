@@ -596,7 +596,7 @@ export default function BountyBoardPage() {
                 <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '20px', color: '#FFFFFF', textTransform: 'uppercase', letterSpacing: '-0.01em' }}>
                   Your Earn Progress
                 </h1>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#8A8A88' }}>Track your earning activity across the ecosystem</p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#8A8A88' }}>Your activity on Bounty Hunter fuels your status here.</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
