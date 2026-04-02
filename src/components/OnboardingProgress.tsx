@@ -4,6 +4,7 @@ import { Check, X, Gift, Coins, Users, Store, ChevronUp, ChevronDown } from "luc
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 
 const ONBOARDING_KEY = "crescendo_onboarding_progress";
 
@@ -58,6 +59,11 @@ export const OnboardingProgress = () => {
   const [isDismissed, setIsDismissed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { tier } = useUnifiedUser();
+
+  const tierSortOrder = tier?.sort_order ?? 0;
+  // Hide for Silver (sort_order 2) and above
+  const hiddenByTier = tierSortOrder >= 2;
 
   // Load progress from localStorage
   useEffect(() => {
@@ -113,8 +119,8 @@ export const OnboardingProgress = () => {
     navigate(route);
   };
 
-  // Don't show if dismissed or all completed
-  if (isDismissed || allCompleted) return null;
+  // Don't show if dismissed, all completed, or Silver+ tier
+  if (isDismissed || allCompleted || hiddenByTier) return null;
 
   return (
     <AnimatePresence>
@@ -122,7 +128,8 @@ export const OnboardingProgress = () => {
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20, scale: 0.95 }}
-        className="fixed bottom-4 right-4 z-50 w-72 sm:w-80"
+        className="fixed right-4 z-50 w-72 sm:w-80"
+        style={{ bottom: '100px' }}
       >
         <div className="bg-card border border-border rounded-xl shadow-xl overflow-hidden">
           {/* Header */}
