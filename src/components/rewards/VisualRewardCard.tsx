@@ -342,9 +342,9 @@ export function VisualRewardCard({
       {/* BOTTOM BAR: recessed */}
       <div
         className="flex items-center justify-between px-3.5 py-2"
-        style={{ backgroundColor: '#0E0E0E' }}
+        style={{ backgroundColor: '#F5F4F0', borderTop: '1px solid #E0DFDB' }}
       >
-        <span style={{ fontFamily: dmMono, fontSize: '11px', color: '#5A5A58' }}>
+        <span style={{ fontFamily: dmMono, fontSize: '11px', color: '#6B6B68' }}>
           {reward.stock_quantity !== null ? `${reward.stock_quantity} remaining` : 'Unlimited'}
         </span>
       </div>
