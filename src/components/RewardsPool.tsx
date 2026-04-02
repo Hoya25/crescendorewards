@@ -658,7 +658,60 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           </button>
         </div>
       )}
+      {/* Tab Navigation */}
+      <div style={{
+        position: 'sticky',
+        top: isAuthenticated ? '48px' : '0px',
+        zIndex: 101,
+        backgroundColor: '#131313',
+        borderBottom: '1px solid rgba(90,90,88,0.3)',
+      }}>
+        <div className="container mx-auto px-4 max-w-full flex">
+          {(['opportunities', 'rewards', 'standings'] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: '13px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                color: activeTab === tab ? '#E2FF6D' : '#8A8A88',
+                borderBottom: activeTab === tab ? '2px solid #E2FF6D' : '2px solid transparent',
+                padding: '12px 16px',
+                background: 'none',
+                border: 'none',
+                borderBottomWidth: '2px',
+                borderBottomStyle: 'solid',
+                borderBottomColor: activeTab === tab ? '#E2FF6D' : 'transparent',
+                cursor: 'pointer',
+                transition: 'color 200ms ease, border-color 200ms ease',
+              }}
+              onMouseEnter={(e) => { if (activeTab !== tab) (e.currentTarget).style.color = '#D9D9D9'; }}
+              onMouseLeave={(e) => { if (activeTab !== tab) (e.currentTarget).style.color = '#8A8A88'; }}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+      </div>
 
+      {/* Opportunities Tab */}
+      {activeTab === 'opportunities' && (
+        <div className="flex items-center justify-center" style={{ minHeight: '400px' }}>
+          <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '13px', color: '#8A8A88' }}>Coming in next update</p>
+        </div>
+      )}
+
+      {/* Standings Tab */}
+      {activeTab === 'standings' && (
+        <div className="flex items-center justify-center" style={{ minHeight: '400px' }}>
+          <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '13px', color: '#8A8A88' }}>Coming in next update</p>
+        </div>
+      )}
+
+      {/* Rewards Tab - existing content */}
+      {activeTab === 'rewards' && <>
       {/* Zero Claims Banner */}
       {isAuthenticated && claimBalance === 0 && !localStorage.getItem('dismiss-zero-claims-banner') && (
         <div className="container mx-auto px-4 max-w-full">
