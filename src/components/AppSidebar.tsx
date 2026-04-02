@@ -1,7 +1,5 @@
 import { Home, Gift, Shield, Zap, Trophy, UserPlus, HelpCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import nctrIconDark from '@/assets/nctr-grey.png';
-import nctrIconLight from '@/assets/nctr-yellow.png';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
