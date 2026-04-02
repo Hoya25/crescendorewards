@@ -633,7 +633,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       />
 
       {/* Ticker Bar */}
-      <div style={{ background: '#E2FF6D', padding: '9px 24px', overflow: 'hidden', whiteSpace: 'nowrap' as const }}>
+      <div style={{ position: 'relative', zIndex: 1, background: '#E2FF6D', padding: '9px 24px', overflow: 'hidden', whiteSpace: 'nowrap' as const }}>
         <div style={{ display: 'inline-block', animation: 'ticker-scroll 38s linear infinite' }}>
           {[0, 1].map((dup) => (
             <span key={dup}>
@@ -753,7 +753,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       <div style={{
         position: 'sticky',
         top: isAuthenticated ? '48px' : '0px',
-        zIndex: 101,
+        zIndex: 10,
         backgroundColor: '#131313',
         borderBottom: '1px solid rgba(90,90,88,0.3)',
       }}>
@@ -813,7 +813,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       )}
 
       {/* Combined fixed bar: tier + categories + filters */}
-      <div style={{ position: 'fixed', top: '48px', left: 0, right: 0, width: '100%', zIndex: 100, backgroundColor: '#F5F4F0', borderBottom: '1px solid #E0DFDB', paddingTop: '4px', paddingBottom: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+      <div style={{ position: 'fixed', top: '48px', left: 0, right: 0, width: '100%', zIndex: 9, backgroundColor: '#F5F4F0', borderBottom: '1px solid #E0DFDB', paddingTop: '4px', paddingBottom: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
 
 
         {/* Category pills row */}
