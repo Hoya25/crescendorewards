@@ -707,8 +707,8 @@ export default function BountyBoardPage() {
             <div className="rounded-xl p-4 flex items-center justify-between cursor-pointer transition-colors"
               style={{ background: tokens.cardBg, border: tokens.cardBorder, boxShadow: tokens.cardShadow }}>
               <div>
-                <h3 className="text-sm font-bold" style={{ color: tokens.textPrimary }}>Your Bounty History</h3>
-                <p className="text-[11px]" style={{ color: tokens.textMuted }}>{history.length} completed bounties</p>
+                <h3 className="text-sm font-bold" style={{ color: tokens.textPrimary }}>Your Earn History</h3>
+                <p className="text-[11px]" style={{ color: tokens.textMuted }}>{history.length} completed</p>
               </div>
               <div className="transition-transform duration-200" style={{ transform: historyOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                 <ChevronDown className="w-5 h-5" style={{ color: tokens.textMuted }} />
