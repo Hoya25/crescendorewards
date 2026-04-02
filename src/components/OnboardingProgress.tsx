@@ -59,6 +59,11 @@ export const OnboardingProgress = () => {
   const [isDismissed, setIsDismissed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { tier } = useUnifiedUser();
+
+  const tierLevel = tier?.level ?? 0;
+  // Hide for Silver (level 2) and above
+  const hiddenByTier = tierLevel >= 2;
 
   // Load progress from localStorage
   useEffect(() => {
