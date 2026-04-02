@@ -176,7 +176,8 @@ export function VisualRewardCard({
         isTierLocked && "opacity-50",
       )}
       style={{
-        backgroundColor: '#1F2020',
+        backgroundColor: '#FFFFFF',
+        border: '1px solid #E0DFDB',
         borderRadius: '0px',
         transition: 'transform 200ms ease, box-shadow 200ms ease',
       }}
