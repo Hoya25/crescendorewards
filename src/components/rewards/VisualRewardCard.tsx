@@ -307,7 +307,7 @@ export function VisualRewardCard({
       </div>
 
       {/* CONTENT: Creator + Price */}
-      <div className="p-3.5 space-y-2.5" style={{ backgroundColor: '#1F2020' }}>
+      <div className="p-3.5 space-y-2.5" style={{ backgroundColor: '#FFFFFF' }}>
         {hasCreatorShowcase && showcaseMode === 'collage' && (
           <CreatorShowcase creators={rewardCreators} mode="collage" size="sm" />
         )}
