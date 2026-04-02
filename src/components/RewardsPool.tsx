@@ -813,7 +813,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       )}
 
       {/* Combined fixed bar: tier + categories + filters */}
-      <div style={{ position: 'fixed', top: '48px', left: 0, right: 0, width: '100%', zIndex: 100, backgroundColor: '#F5F4F0', borderBottom: '1px solid #E0DFDB', paddingTop: '4px', paddingBottom: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+      <div style={{ position: 'fixed', top: '48px', left: 0, right: 0, width: '100%', zIndex: 9, backgroundColor: '#F5F4F0', borderBottom: '1px solid #E0DFDB', paddingTop: '4px', paddingBottom: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
 
 
         {/* Category pills row */}
