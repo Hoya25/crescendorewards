@@ -753,7 +753,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       <div style={{
         position: 'sticky',
         top: isAuthenticated ? '48px' : '0px',
-        zIndex: 101,
+        zIndex: 10,
         backgroundColor: '#131313',
         borderBottom: '1px solid rgba(90,90,88,0.3)',
       }}>
