@@ -569,7 +569,7 @@ export default function BountyBoardPage() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: tokens.pageBg }}>
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin mx-auto mb-3" style={{ borderColor: tokens.amountColor, borderTopColor: 'transparent' }} />
-          <p className="text-sm" style={{ color: tokens.textMuted }}>Loading bounties…</p>
+          <p className="text-sm" style={{ color: tokens.textMuted }}>Loading earn progress…</p>
         </div>
       </div>
     );

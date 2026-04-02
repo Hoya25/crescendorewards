@@ -194,7 +194,7 @@ export default function LeaderboardPage() {
         onClick={() => navigate('/bounties')}
       >
         <ArrowRight className="h-4 w-4" />
-        Back to Bounty Board
+        Back to Earn Progress
       </Button>
     </div>
   );
