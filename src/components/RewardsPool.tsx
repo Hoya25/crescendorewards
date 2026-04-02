@@ -1465,7 +1465,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       <div className="h-20 md:hidden" />
       </div>}
       
-      <Footer />
+      
     </div>
   );
 }
