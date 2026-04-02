@@ -774,8 +774,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                   className="flex-shrink-0 gap-1.5 h-7 text-xs px-3"
                   style={{
                     borderRadius: '0px',
-                    backgroundColor: isActive ? '#FFFFFF' : 'transparent',
-                    color: isActive ? '#131313' : '#5A5A58',
+                    backgroundColor: isActive ? '#131313' : '#FFFFFF',
+                    color: isActive ? '#F5F4F0' : '#6B6B68',
+                    border: isActive ? 'none' : '1px solid #E0DFDB',
                     fontFamily: isActive ? "'Barlow Condensed', sans-serif" : "'DM Sans', sans-serif",
                     fontWeight: isActive ? 700 : 400,
                   }}
