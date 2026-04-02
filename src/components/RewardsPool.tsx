@@ -633,7 +633,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       />
 
       {/* Ticker Bar */}
-      <div style={{ position: 'relative', zIndex: 1, background: '#E2FF6D', padding: '9px 24px', overflow: 'hidden', whiteSpace: 'nowrap' as const }}>
+      <div style={{ position: 'relative', zIndex: 0, background: '#E2FF6D', padding: '9px 24px', overflow: 'hidden', whiteSpace: 'nowrap' as const }}>
         <div style={{ display: 'inline-block', animation: 'ticker-scroll 38s linear infinite' }}>
           {[0, 1].map((dup) => (
             <span key={dup}>
