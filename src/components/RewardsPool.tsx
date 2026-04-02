@@ -48,6 +48,7 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { cn } from '@/lib/utils';
 import { OpportunitiesTab } from '@/components/rewards/OpportunitiesTab';
 import { StandingsTab } from '@/components/rewards/StandingsTab';
+import { useAmbitions } from '@/contexts/AmbitionsContext';
 
 interface Reward {
   id: string;
@@ -104,7 +105,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { isAuthenticated, signOut, setShowAuthModal, setAuthMode } = useAuthContext();
-  const { profile, tier } = useUnifiedUser();
+  const { profile, tier, total360Locked, nextTier, progressToNextTier } = useUnifiedUser();
+  const { ambitions } = useAmbitions();
   const { isAdmin } = useAdminRole();
   const { trackAction } = useTracking();
   const { isWatching, toggleWatch, isAnimating: isWatchAnimating, getWatchCount, fetchWatchCounts } = useWatchlist();
@@ -660,7 +662,77 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           </button>
         </div>
       )}
-      {/* Tab Navigation */}
+      {/* Hero Section */}
+      <div style={{ backgroundColor: '#131313', padding: '40px 24px 24px' }}>
+        <div className="container mx-auto max-w-full">
+          <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#E2FF6D', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '12px' }}>
+            CRESCENDO MEMBERSHIP
+          </p>
+          <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 'clamp(36px, 8vw, 68px)', color: '#FFFFFF', textTransform: 'uppercase', lineHeight: 1.05, margin: '0 0 16px 0' }}>
+            Your Rewards. Your <span style={{ color: '#E2FF6D' }}>Opportunities</span>.
+          </h1>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#D9D9D9', maxWidth: '480px', lineHeight: 1.7, margin: 0 }}>
+            Your Wingman is always working — watching your six, learning what matters to you, and spotting paths you haven't seen yet. The more you engage, the smarter it gets.
+          </p>
+        </div>
+      </div>
+
+      {/* Status Strip */}
+      {isAuthenticated && (
+        <div style={{
+          backgroundColor: '#1E1E1C',
+          borderTop: '1px solid rgba(226,255,109,0.1)',
+          borderBottom: '1px solid rgba(226,255,109,0.1)',
+          padding: '12px 24px',
+        }}>
+          <div className="container mx-auto max-w-full">
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+              {/* Tier badge */}
+              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#E2FF6D', border: '1px solid #E2FF6D', padding: '4px 12px', textTransform: 'uppercase' }}>
+                {tier?.display_name || 'Member'}
+              </span>
+              {/* 360LOCK */}
+              <div>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88', textTransform: 'uppercase', display: 'block' }}>360LOCK</span>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '14px', color: '#E2FF6D' }}>{(total360Locked || 0).toLocaleString()}</span>
+              </div>
+              {/* Multiplier */}
+              <div>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88', textTransform: 'uppercase', display: 'block' }}>Multiplier</span>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '14px', color: '#FFFFFF' }}>{tier?.earning_multiplier || 1.0}x</span>
+              </div>
+              {/* Claims */}
+              <div>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88', textTransform: 'uppercase', display: 'block' }}>Claims</span>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '14px', color: '#E2FF6D' }}>{claimBalance} this month</span>
+              </div>
+              {/* Ambitions */}
+              <div>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88', textTransform: 'uppercase', display: 'block' }}>Ambitions</span>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '14px', color: '#E2FF6D' }}>{ambitions.length}</span>
+              </div>
+            </div>
+            {/* Progress bar to next tier */}
+            {nextTier && (
+              <div style={{ marginTop: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88' }}>
+                    Next: {nextTier.display_name || nextTier.tier_name}
+                  </span>
+                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88' }}>
+                    {(nextTier.min_nctr_360_locked || 0).toLocaleString()} NCTR
+                  </span>
+                </div>
+                <div style={{ height: '2px', backgroundColor: '#5A5A58', width: '100%' }}>
+                  <div style={{ height: '2px', backgroundColor: '#E2FF6D', width: `${Math.min(progressToNextTier || 0, 100)}%`, transition: 'width 500ms ease' }} />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+
       <div style={{
         position: 'sticky',
         top: isAuthenticated ? '48px' : '0px',
@@ -725,23 +797,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
       {/* Combined fixed bar: tier + categories + filters */}
       <div style={{ position: 'fixed', top: '48px', left: 0, right: 0, width: '100%', zIndex: 100, backgroundColor: '#F5F4F0', borderBottom: '1px solid #E0DFDB', paddingTop: '4px', paddingBottom: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-        {/* Tier info row (auth only) */}
-        {isAuthenticated && (
-          <div className="container mx-auto px-4 max-w-full border-b">
-            <div className="flex items-center justify-between h-8">
-              <div className="flex items-center gap-2 text-sm">
-                <span>{tier?.badge_emoji || '💧'}</span>
-                <span className="font-semibold" style={{ color: tier?.badge_color }}>{tier?.display_name || 'Member'}</span>
-                <span className="text-muted-foreground">|</span>
-                <span className="font-medium">{claimBalance}</span>
-                <span className="text-muted-foreground text-xs">claims</span>
-              </div>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/membership')} className="text-xs gap-1 h-7">
-                Level Up <ChevronRight className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        )}
+
 
         {/* Category pills row */}
         <div className="container mx-auto px-4 max-w-full">
