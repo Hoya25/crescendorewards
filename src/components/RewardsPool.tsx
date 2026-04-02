@@ -107,6 +107,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const { trackAction } = useTracking();
   const { isWatching, toggleWatch, isAnimating: isWatchAnimating, getWatchCount, fetchWatchCounts } = useWatchlist();
   const { favorites, toggleFavorite, animatingIds: favAnimatingIds } = useFavorites();
+  const [activeTab, setActiveTab] = useState<'opportunities' | 'rewards' | 'standings'>('rewards');
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [sponsoredRewards, setSponsoredRewards] = useState<Reward[]>([]);
   const [featuredRewards, setFeaturedRewards] = useState<Reward[]>([]);
