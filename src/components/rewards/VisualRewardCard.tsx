@@ -224,12 +224,14 @@ export function VisualRewardCard({
           <div
             className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1"
             style={{
-              backgroundColor: tierStyle.bg,
-              color: tierStyle.text,
+              backgroundColor: 'rgba(226,255,109,0.12)',
+              color: '#131313',
+              border: '1px solid rgba(226,255,109,0.3)',
               fontFamily: dmMono,
-              fontSize: '11px',
+              fontSize: '10px',
               fontWeight: 400,
               borderRadius: '0px',
+              textTransform: 'uppercase' as const,
             }}
           >
             {!isEligible && <Lock className="w-3 h-3" />}
