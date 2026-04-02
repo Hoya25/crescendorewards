@@ -732,6 +732,22 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         </div>
       )}
 
+      {/* Ticker Bar */}
+      <div style={{ background: '#E2FF6D', padding: '9px 24px', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'inline-block', animation: 'ticker-scroll 38s linear infinite' }}>
+          {[0, 1].map((dup) => (
+            <span key={dup}>
+              {['Crescendo rewards + opportunities', 'Your Wingman is learning', 'New rewards this month'].map((msg, i) => (
+                <span key={`${dup}-${i}`}>
+                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#131313', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{msg}</span>
+                  <span style={{ display: 'inline-block', width: '4px', height: '4px', borderRadius: '50%', backgroundColor: 'rgba(19,19,19,0.35)', margin: '0 16px', verticalAlign: 'middle' }} />
+                </span>
+              ))}
+            </span>
+          ))}
+        </div>
+        <style>{`@keyframes ticker-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }`}</style>
+      </div>
 
       <div style={{
         position: 'sticky',
