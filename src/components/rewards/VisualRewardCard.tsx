@@ -378,6 +378,7 @@ export function VisualRewardCard({
             rewardId={reward.id}
             rewardName={reward.title}
             claimable={false}
+            tierRequired={effectiveMinTier || 'Bronze'}
             distance={requiredTier ? `${requiredTier} required` : undefined}
             isWanted={isWanted}
             onToggle={toggleAmbition}
@@ -410,6 +411,7 @@ export function VisualRewardCard({
             rewardId={reward.id}
             rewardName={reward.title}
             claimable={true}
+            tierRequired={effectiveMinTier || 'Bronze'}
             isWanted={isWanted}
             onToggle={toggleAmbition}
           />
@@ -424,6 +426,7 @@ function WantThisButton({
   rewardId,
   rewardName,
   claimable,
+  tierRequired,
   distance,
   isWanted,
   onToggle,
@@ -431,28 +434,14 @@ function WantThisButton({
   rewardId: string;
   rewardName: string;
   claimable: boolean;
+  tierRequired: string;
   distance?: string;
   isWanted: boolean;
-  onToggle: (ambition: { rewardId: string; rewardName: string; claimable: boolean; distance?: string }) => void;
+  onToggle: (ambition: { rewardId: string; rewardName: string; claimable: boolean; tierRequired: string; distance?: string }) => void;
 }) {
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const wasWanted = isWanted;
-    onToggle({ rewardId, rewardName, claimable, distance });
-    if (!wasWanted) {
-      toast(`Wingman: ${rewardName} — on my radar.`, {
-        duration: 2500,
-        style: {
-          background: '#1E1E1C',
-          border: '1px solid #E2FF6D',
-          color: '#E2FF6D',
-          fontFamily: "'DM Mono', monospace",
-          fontSize: '11px',
-          borderRadius: '0px',
-          bottom: '92px',
-        },
-      });
-    }
+    onToggle({ rewardId, rewardName, claimable, tierRequired, distance });
   };
 
   return (
@@ -460,11 +449,11 @@ function WantThisButton({
       onClick={handleClick}
       style={{
         padding: '11px 12px',
-        background: isWanted ? 'rgba(226,255,109,0.12)' : 'transparent',
-        border: isWanted ? '1px solid rgba(226,255,109,0.35)' : '1px solid #E0DFDB',
-        color: isWanted ? '#131313' : '#6B6B68',
-        fontFamily: "'DM Mono', monospace",
-        fontSize: '10px',
+        background: isWanted ? 'transparent' : 'transparent',
+        border: isWanted ? '1px solid #E2FF6D' : '1px solid #E0DFDB',
+        color: isWanted ? '#E2FF6D' : '#6B6B68',
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '12px',
         textTransform: 'uppercase' as const,
         borderRadius: '0px',
         cursor: 'pointer',
