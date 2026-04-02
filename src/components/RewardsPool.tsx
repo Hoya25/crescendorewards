@@ -659,7 +659,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="sm" onClick={() => navigate('/how-it-works')} style={{ color: '#5A5A58', borderRadius: '0px' }}>How It Works</Button>
               <button onClick={handleSignIn} style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '13px', letterSpacing: '0.06em', textTransform: 'uppercase' as const, backgroundColor: '#FFFFFF', color: '#131313', border: 'none', borderRadius: '0px', padding: '8px 20px', cursor: 'pointer' }}>SIGN IN</button>
-              <button onClick={() => { setAuthMode('signin'); setShowAuthModal(true); }} style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '13px', letterSpacing: '0.06em', textTransform: 'uppercase' as const, backgroundColor: '#FFFFFF', color: '#131313', border: 'none', borderRadius: '0px', padding: '8px 20px', cursor: 'pointer' }}>SIGN IN</button>
+              
             </div>
           </div>
         </nav>
