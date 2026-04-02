@@ -47,6 +47,7 @@ import { useWatchlist } from '@/hooks/useWatchlist';
 import { useFavorites } from '@/hooks/useFavorites';
 import { cn } from '@/lib/utils';
 import { OpportunitiesTab } from '@/components/rewards/OpportunitiesTab';
+import { StandingsTab } from '@/components/rewards/StandingsTab';
 
 interface Reward {
   id: string;
