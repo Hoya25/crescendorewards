@@ -172,14 +172,21 @@ export function VisualRewardCard({
   return (
     <div
       className={cn(
-        "group cursor-pointer overflow-hidden transition-all duration-300",
-        "hover:translate-y-[-2px]",
+        "group cursor-pointer overflow-hidden transition-all duration-200",
         isTierLocked && "opacity-50",
       )}
       style={{
         backgroundColor: '#1F2020',
         borderRadius: '0px',
-        transition: 'transform 300ms cubic-bezier(0.4,0,0.2,1), box-shadow 300ms cubic-bezier(0.4,0,0.2,1)',
+        transition: 'transform 200ms ease, box-shadow 200ms ease',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-3px)';
+        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = 'none';
       }}
       onClick={handleCardClick}
     >
@@ -195,7 +202,7 @@ export function VisualRewardCard({
           <ImageWithFallback
             src={reward.image_url}
             alt={reward.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-400 group-hover:scale-[1.03]"
             loading="lazy"
             decoding="async"
           />
@@ -307,7 +314,7 @@ export function VisualRewardCard({
 
         {/* Price row */}
         <div className="space-y-1">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5">
               {pricing.isFree ? (
                 <span style={{ fontFamily: dmMono, fontSize: '14px', color: '#E2FF6D', fontWeight: 400 }}>FREE</span>
@@ -317,33 +324,15 @@ export function VisualRewardCard({
                     {calculateClaimsForUser(pricing.price, userTier.tierName)}
                   </span>
                   <span style={{ fontFamily: dmMono, fontSize: '12px', color: '#5A5A58' }}>claims</span>
-                  {calculateClaimsForUser(pricing.price, userTier.tierName) < pricing.price && (
-                    <span style={{ fontFamily: dmMono, fontSize: '12px', color: '#5A5A58', textDecoration: 'line-through', marginLeft: '4px' }}>
-                      {pricing.price}
-                    </span>
-                  )}
                 </>
               )}
             </div>
-            {remainingStock !== null && remainingStock <= 20 && remainingStock > 0 && (
-              <span
-                className="flex items-center gap-1"
-                style={{
-                  fontFamily: dmMono,
-                  fontSize: '11px',
-                  color: remainingStock <= 5 ? '#E2FF6D' : '#FFFFFF',
-                }}
-              >
-                <Package className="w-3 h-3" />
-                {remainingStock} left
+            {remainingStock !== null && remainingStock > 0 && (
+              <span style={{ fontFamily: dmMono, fontSize: '11px', color: '#6B6B68' }}>
+                · {remainingStock} left
               </span>
             )}
           </div>
-          {!pricing.isFree && pricing.price > 0 && (
-            <p style={{ fontFamily: dmSans, fontSize: '11px', color: '#5A5A58', lineHeight: 1.4 }}>
-              {getClaimDiscountUpsell(pricing.price, userTier.tierName)}
-            </p>
-          )}
         </div>
       </div>
 
@@ -360,39 +349,47 @@ export function VisualRewardCard({
       {/* CTA BUTTON */}
       {isTierLocked ? (
         <div className="px-3.5 pb-3.5 pt-2" style={{ backgroundColor: '#1F2020' }}>
-          <div className="text-center py-3">
-            <p style={{ fontFamily: barlow, fontWeight: 700, fontSize: '14px', color: '#FFFFFF', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-              REACH {(requiredTier || '').toUpperCase()} TO UNLOCK
-            </p>
-            <p style={{ fontFamily: dmMono, fontSize: '12px', color: '#5A5A58', marginTop: '4px' }}>
-              You're {Math.max(0, pricing.price - claimBalance)} NCTR from {requiredTier}
-            </p>
-          </div>
+          <button
+            className="w-full"
+            style={{
+              fontFamily: dmMono,
+              fontSize: '12px',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase' as const,
+              backgroundColor: 'transparent',
+              color: '#6B6B68',
+              border: '1px solid #D4D3CF',
+              borderRadius: '0px',
+              height: '44px',
+              cursor: 'pointer',
+            }}
+            onClick={handleCtaClick}
+          >
+            Unlocks at {requiredTier}
+          </button>
         </div>
       ) : (
         <div style={{ backgroundColor: '#1F2020' }}>
           <button
             className="w-full"
             style={{
-              fontFamily: barlow,
-              fontWeight: 700,
-              fontSize: '13px',
+              fontFamily: dmMono,
+              fontSize: '12px',
               letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              backgroundColor: '#E2FF6D',
-              color: '#131313',
+              textTransform: 'uppercase' as const,
+              backgroundColor: '#131313',
+              color: '#F5F4F0',
               border: 'none',
               borderRadius: '0px',
               height: '48px',
               cursor: 'pointer',
-              boxShadow: '0 10px 30px rgba(226,255,109,0.08)',
-              transition: 'opacity 300ms cubic-bezier(0.4,0,0.2,1)',
+              transition: 'opacity 200ms ease',
             }}
             onClick={handleCtaClick}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
           >
-            {!isAuthenticated ? 'SIGN UP TO CLAIM' : 'CLAIM NOW'}
+            {!isAuthenticated ? 'SIGN IN TO CLAIM' : 'CLAIM NOW'}
           </button>
         </div>
       )}

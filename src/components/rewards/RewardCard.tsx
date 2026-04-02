@@ -127,15 +127,27 @@ export function RewardCard({
 
   return (
     <Card
-      className={`group cursor-pointer transition-all hover:scale-[1.02] hover:shadow-xl overflow-hidden ${isTierLocked ? 'opacity-60' : ''}`}
+      className={`group cursor-pointer overflow-hidden ${isTierLocked ? 'opacity-60' : ''}`}
       onClick={handleCardClick}
+      style={{
+        borderRadius: '0px',
+        transition: 'transform 200ms ease, box-shadow 200ms ease',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-3px)';
+        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = 'none';
+      }}
     >
-      <div className="relative w-full h-56 bg-gradient-to-br from-muted/50 to-muted/20">
+      <div className="relative w-full h-56 bg-gradient-to-br from-muted/50 to-muted/20 overflow-hidden">
         {reward.image_url ? (
           <ImageWithFallback
             src={reward.image_url}
             alt={reward.title}
-            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-[400ms] group-hover:scale-[1.03]"
             loading="lazy"
             decoding="async"
           />
@@ -244,20 +256,9 @@ export function RewardCard({
 
         {/* Cost Badge - Bottom Left */}
         <div className="absolute bottom-3 left-3 flex flex-col gap-1 items-start">
-          {tierPricing.discount > 0 && (
-            <Badge className="bg-emerald-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
-              <Percent className="w-3 h-3 mr-1" />
-              {tierPricing.discount}% Off
-            </Badge>
-          )}
-          <Badge className="bg-background/90 backdrop-blur-sm border border-primary/20 text-primary font-bold shadow-lg">
+          <Badge className="bg-background/90 backdrop-blur-sm border border-primary/20 text-primary font-bold shadow-lg" style={{ fontFamily: "'DM Mono', monospace", borderRadius: '0px' }}>
             <Coins className="w-3 h-3 mr-1" />
-            {tierPricing.isFree ? 'FREE' : tierPricing.price}
-            {tierPricing.discount > 0 && (
-              <span className="ml-1 line-through text-muted-foreground text-xs font-normal">
-                {tierPricing.originalPrice}
-              </span>
-            )}
+            {tierPricing.isFree ? 'FREE' : `${tierPricing.price} claims`}
           </Badge>
         </div>
 
@@ -286,15 +287,9 @@ export function RewardCard({
 
         {/* Stock Info */}
         {reward.stock_quantity !== null && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <Package className="w-3 h-3" />
-                {reward.stock_quantity}/100 left
-              </span>
-              <span>{Math.round(stockPercentage)}%</span>
-            </div>
-            <Progress value={stockPercentage} className="h-1.5" />
+          <div className="flex items-center gap-1 text-xs" style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#6B6B68' }}>
+            <Package className="w-3 h-3" />
+            <span>{reward.stock_quantity} remaining</span>
           </div>
         )}
 
@@ -308,21 +303,32 @@ export function RewardCard({
 
         {/* Action Button */}
         {isTierLocked ? (
-          <Button
+          <button
             className="w-full"
-            variant="secondary"
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: '12px',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase' as const,
+              backgroundColor: 'transparent',
+              color: '#6B6B68',
+              border: '1px solid #D4D3CF',
+              borderRadius: '0px',
+              height: '44px',
+              cursor: 'pointer',
+            }}
             onClick={(e) => {
               e.stopPropagation();
               navigate(`/crescendo?unlock=${encodeURIComponent(requiredTierDisplay)}`);
             }}
           >
-            <Lock className="w-4 h-4 mr-2" />
-            {requiredTierDisplay}+ Required
-          </Button>
+            Unlocks at {requiredTierDisplay}
+          </button>
         ) : outOfStock ? (
           <Button
             className={`w-full transition-all ${isAnimatingWatch ? 'scale-95' : ''}`}
             variant={isWatching ? "secondary" : "outline"}
+            style={{ borderRadius: '0px' }}
             onClick={(e) => {
               e.stopPropagation();
               onToggleWatch?.(reward.id, e);
@@ -341,22 +347,32 @@ export function RewardCard({
             )}
           </Button>
         ) : (
-          <Button
+          <button
             className="w-full"
-            variant={affordable ? "default" : "secondary"}
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: '12px',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase' as const,
+              backgroundColor: '#131313',
+              color: '#F5F4F0',
+              border: 'none',
+              borderRadius: '0px',
+              height: '44px',
+              cursor: 'pointer',
+              transition: 'opacity 200ms ease',
+              opacity: affordable ? 1 : 0.5,
+            }}
             disabled={!affordable}
             onClick={(e) => {
               e.stopPropagation();
               onClick();
             }}
+            onMouseEnter={(e) => { if (affordable) e.currentTarget.style.opacity = '0.85'; }}
+            onMouseLeave={(e) => { if (affordable) e.currentTarget.style.opacity = '1'; }}
           >
-            {affordable ? (
-              <>
-                <Gift className="w-4 h-4 mr-2" />
-                Claim Reward
-              </>
-            ) : 'Insufficient Balance'}
-          </Button>
+            {affordable ? 'CLAIM REWARD' : 'INSUFFICIENT BALANCE'}
+          </button>
         )}
 
         {/* Delivery Info */}
