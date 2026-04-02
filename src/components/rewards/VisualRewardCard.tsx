@@ -208,8 +208,8 @@ export function VisualRewardCard({
             decoding="async"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#393939' }}>
-            <Icon className="w-16 h-16" style={{ color: '#5A5A58' }} />
+          <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#E0DFDB' }}>
+            <Icon className="w-16 h-16" style={{ color: '#8A8A88' }} />
           </div>
         )}
 
