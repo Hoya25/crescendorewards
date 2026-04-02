@@ -702,11 +702,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       {activeTab === 'opportunities' && <OpportunitiesTab />}
 
       {/* Standings Tab */}
-      {activeTab === 'standings' && (
-        <div className="flex items-center justify-center" style={{ minHeight: '400px' }}>
-          <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '13px', color: '#8A8A88' }}>Coming in next update</p>
-        </div>
-      )}
+      {activeTab === 'standings' && <StandingsTab />}
 
       {/* Rewards Tab - existing content */}
       {activeTab === 'rewards' && <div style={{ backgroundColor: '#F5F4F0', color: '#131313' }}>
