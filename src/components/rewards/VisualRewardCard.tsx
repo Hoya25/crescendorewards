@@ -411,6 +411,7 @@ export function VisualRewardCard({
             rewardId={reward.id}
             rewardName={reward.title}
             claimable={true}
+            tierRequired={effectiveMinTier || 'Bronze'}
             isWanted={isWanted}
             onToggle={toggleAmbition}
           />
