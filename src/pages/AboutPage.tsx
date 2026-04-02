@@ -54,7 +54,7 @@ export default function AboutPage() {
     <div className="min-h-screen" style={{ backgroundColor: '#0D0D0D', color: '#D9D9D9' }}>
       <SEO
         title="About NCTR Alliance — Participation Token Economy on Base"
-        description="NCTR Alliance is a participation token economy on the Base blockchain where people earn NCTR (pronounced Nectar) tokens by shopping at 6,000+ brands and commit them via 360LOCK to unlock rewards and status on Crescendo."
+        description="NCTR Alliance is a participation token economy on the Base blockchain where people earn NCTR (pronounced Nectar) tokens by shopping at thousands of brands and commit them via 360LOCK to unlock rewards and status on Crescendo."
         canonical="https://crescendo.nctr.live/about"
       />
 
