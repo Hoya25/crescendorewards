@@ -308,8 +308,8 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
           )}
 
           <div className="flex flex-wrap items-center gap-1.5 mt-2">
-            <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full"
-              style={{ background: diffStyles[bounty.difficulty].bg, color: diffStyles[bounty.difficulty].color }}>
+            <span className="text-[10px] uppercase font-bold px-2 py-0.5"
+              style={{ background: 'transparent', border: '1px solid #E2FF6D', color: '#E2FF6D', fontFamily: "'DM Mono', monospace", borderRadius: '0px', padding: '2px 8px' }}>
               {bounty.difficulty}
             </span>
             {bounty.isViral && (
