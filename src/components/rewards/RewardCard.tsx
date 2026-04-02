@@ -303,21 +303,32 @@ export function RewardCard({
 
         {/* Action Button */}
         {isTierLocked ? (
-          <Button
+          <button
             className="w-full"
-            variant="secondary"
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: '12px',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase' as const,
+              backgroundColor: 'transparent',
+              color: '#6B6B68',
+              border: '1px solid #D4D3CF',
+              borderRadius: '0px',
+              height: '44px',
+              cursor: 'pointer',
+            }}
             onClick={(e) => {
               e.stopPropagation();
               navigate(`/crescendo?unlock=${encodeURIComponent(requiredTierDisplay)}`);
             }}
           >
-            <Lock className="w-4 h-4 mr-2" />
-            {requiredTierDisplay}+ Required
-          </Button>
+            Unlocks at {requiredTierDisplay}
+          </button>
         ) : outOfStock ? (
           <Button
             className={`w-full transition-all ${isAnimatingWatch ? 'scale-95' : ''}`}
             variant={isWatching ? "secondary" : "outline"}
+            style={{ borderRadius: '0px' }}
             onClick={(e) => {
               e.stopPropagation();
               onToggleWatch?.(reward.id, e);
@@ -336,22 +347,32 @@ export function RewardCard({
             )}
           </Button>
         ) : (
-          <Button
+          <button
             className="w-full"
-            variant={affordable ? "default" : "secondary"}
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: '12px',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase' as const,
+              backgroundColor: '#131313',
+              color: '#F5F4F0',
+              border: 'none',
+              borderRadius: '0px',
+              height: '44px',
+              cursor: 'pointer',
+              transition: 'opacity 200ms ease',
+              opacity: affordable ? 1 : 0.5,
+            }}
             disabled={!affordable}
             onClick={(e) => {
               e.stopPropagation();
               onClick();
             }}
+            onMouseEnter={(e) => { if (affordable) e.currentTarget.style.opacity = '0.85'; }}
+            onMouseLeave={(e) => { if (affordable) e.currentTarget.style.opacity = '1'; }}
           >
-            {affordable ? (
-              <>
-                <Gift className="w-4 h-4 mr-2" />
-                Claim Reward
-              </>
-            ) : 'Insufficient Balance'}
-          </Button>
+            {affordable ? 'CLAIM REWARD' : 'INSUFFICIENT BALANCE'}
+          </button>
         )}
 
         {/* Delivery Info */}
