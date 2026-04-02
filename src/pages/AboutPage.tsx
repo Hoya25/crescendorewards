@@ -65,7 +65,7 @@ export default function AboutPage() {
             About NCTR Alliance
           </h1>
           <p className="text-base sm:text-lg leading-relaxed">
-            NCTR Alliance (pronounced Nectar Alliance) is a participation token economy built on Base. Members earn NCTR tokens through everyday shopping at thousands of brands on The Garden, then commit those tokens via 360LOCK — a 360-day commitment — to rise through status tiers on Crescendo, our member rewards marketplace. You never spend your tokens. You always keep ownership.
+            NCTR Alliance (pronounced Nectar Alliance) is a participation token economy. Members earn NCTR tokens through everyday shopping at thousands of brands on The Garden, then commit those tokens via 360LOCK — a 360-day commitment — to rise through status tiers on Crescendo, our member rewards marketplace. You never spend your tokens. You always keep ownership. Members earn NCTR tokens through everyday shopping at thousands of brands on The Garden, then commit those tokens via 360LOCK — a 360-day commitment — to rise through status tiers on Crescendo, our member rewards marketplace. You never spend your tokens. You always keep ownership.
           </p>
         </section>
 
