@@ -12,7 +12,7 @@ const PLATFORMS = [
   {
     name: 'The Garden',
     url: 'https://thegarden.nctr.live',
-    description: 'Commerce gateway where members shop at 6,000+ brands and earn NCTR automatically on every purchase.',
+    description: 'Commerce gateway where members shop at thousands of brands and earn NCTR automatically on every purchase.',
   },
   {
     name: 'Crescendo',
