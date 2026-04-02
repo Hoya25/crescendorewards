@@ -599,10 +599,7 @@ export default function BountyBoardPage() {
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#8A8A88' }}>Your activity on Bounty Hunter fuels your status here.</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <ProgressRing percent={completionPercent} tokens={tokens} />
-              <BountyThemeToggle />
-            </div>
+            <BountyThemeToggle />
           </div>
 
           <div className="flex items-center gap-0 overflow-x-auto no-scrollbar py-2 -mx-4 px-4">
