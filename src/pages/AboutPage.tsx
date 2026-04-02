@@ -37,7 +37,7 @@ const FAQS = [
   },
   {
     q: 'How do I earn NCTR through shopping?',
-    a: 'Shop at 6,000+ partner brands through The Garden at thegarden.nctr.live and earn NCTR automatically on every purchase.',
+    a: 'Shop at thousands of partner brands through The Garden at thegarden.nctr.live and earn NCTR automatically on every purchase.',
   },
   {
     q: 'What is 360LOCK?',
