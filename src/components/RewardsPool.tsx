@@ -699,7 +699,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               {/* Multiplier */}
               <div>
                 <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88', textTransform: 'uppercase', display: 'block' }}>Multiplier</span>
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '14px', color: '#FFFFFF' }}>{tier?.multiplier || '1.0'}x</span>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '14px', color: '#FFFFFF' }}>{tier?.earning_multiplier || 1.0}x</span>
               </div>
               {/* Claims */}
               <div>
