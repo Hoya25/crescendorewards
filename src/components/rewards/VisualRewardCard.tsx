@@ -17,6 +17,8 @@ import {
 import { calculateClaimsForUser, getClaimDiscountUpsell } from '@/utils/calculateClaimsForUser';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { CreatorShowcase, CreatorHandles } from '@/components/creators/CreatorShowcase';
+import { useAmbitions } from '@/contexts/AmbitionsContext';
+import { toast } from 'sonner';
 import { useRewardCreators } from '@/hooks/useFeaturedCreators';
 
 export interface VisualRewardCardData {

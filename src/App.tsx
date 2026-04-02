@@ -643,10 +643,12 @@ const App = () => (
             <UnifiedUserProvider>
               <LockDecisionProvider>
               <ActivityTrackerProvider>
+                <AmbitionsProvider>
                 <DemoModeProvider>
                   <UserbackProvider />
                   <AppRoutes />
                 </DemoModeProvider>
+                </AmbitionsProvider>
               </ActivityTrackerProvider>
               </LockDecisionProvider>
             </UnifiedUserProvider>
