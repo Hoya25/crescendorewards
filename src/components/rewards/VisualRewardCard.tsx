@@ -351,7 +351,7 @@ export function VisualRewardCard({
 
       {/* CTA BUTTON */}
       {isTierLocked ? (
-        <div className="px-3.5 pb-3.5 pt-2" style={{ backgroundColor: '#1F2020' }}>
+        <div className="px-3.5 pb-3.5 pt-2" style={{ backgroundColor: '#FFFFFF' }}>
           <button
             className="w-full"
             style={{
