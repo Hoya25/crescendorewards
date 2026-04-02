@@ -980,11 +980,6 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             )}
 
             {/* Results Count */}
-            <div className="ml-auto">
-              <Badge variant="secondary" className="gap-1 text-xs">
-                {filteredRewards.length} {filteredRewards.length === 1 ? 'reward' : 'rewards'}
-              </Badge>
-            </div>
           </div>
 
           {/* Expanded Advanced Filters */}
