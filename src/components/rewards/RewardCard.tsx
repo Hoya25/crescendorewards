@@ -287,15 +287,9 @@ export function RewardCard({
 
         {/* Stock Info */}
         {reward.stock_quantity !== null && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <Package className="w-3 h-3" />
-                {reward.stock_quantity}/100 left
-              </span>
-              <span>{Math.round(stockPercentage)}%</span>
-            </div>
-            <Progress value={stockPercentage} className="h-1.5" />
+          <div className="flex items-center gap-1 text-xs" style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#6B6B68' }}>
+            <Package className="w-3 h-3" />
+            <span>{reward.stock_quantity} remaining</span>
           </div>
         )}
 
