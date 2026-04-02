@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { LogOut, User, Crown, ChevronDown } from 'lucide-react';
 import { MobileStatusBadge, MobileStatusContent } from '@/components/status/StatusBadgeWidget';
+import { WingmanFAB } from '@/components/WingmanFAB';
 import {
   Popover,
   PopoverContent,
@@ -205,6 +206,8 @@ export function AppLayout({ children }: AppLayoutProps) {
         {showOnboarding && (
           <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
         )}
+
+        <WingmanFAB />
       </div>
     </SidebarProvider>
   );
