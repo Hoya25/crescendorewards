@@ -753,15 +753,14 @@ export default function BountyBoardPage() {
               <p className="text-[9px] uppercase" style={{ color: tokens.textMuted }}>Your Balance</p>
             </div>
           </div>
-          <div className="text-center hidden sm:block">
-            <p className="text-[9px] uppercase" style={{ color: tokens.textMuted }}>Next reward</p>
-            <p className="text-xs font-bold" style={{ color: tokens.textPrimary }}>{nextClaimAmount > 0 ? `${nextClaimAmount.toLocaleString()} NCTR ready` : 'Keep earning!'}</p>
-          </div>
-          <button ref={claimBtnRef} onClick={claimAll}
-            className="px-5 py-2.5 rounded-[14px] text-sm font-extrabold transition-all hover:scale-[1.03]"
-            style={{ background: tokens.claimBg, color: tokens.claimText, boxShadow: tokens.claimShadow }}>
-            Claim Now
-          </button>
+          <a
+            href="https://bountyhunter.nctr.live"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontFamily: "'DM Mono', monospace", fontSize: '12px', textTransform: 'uppercase', color: '#E2FF6D', border: '1px solid #E2FF6D', padding: '8px 16px', background: 'transparent', textDecoration: 'none', borderRadius: '0px' }}
+          >
+            Open Bounty Hunter →
+          </a>
         </div>
       </div>
 
