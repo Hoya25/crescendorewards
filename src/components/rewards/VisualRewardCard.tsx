@@ -449,11 +449,11 @@ function WantThisButton({
       onClick={handleClick}
       style={{
         padding: '11px 12px',
-        background: isWanted ? 'rgba(226,255,109,0.12)' : 'transparent',
-        border: isWanted ? '1px solid rgba(226,255,109,0.35)' : '1px solid #E0DFDB',
-        color: isWanted ? '#131313' : '#6B6B68',
-        fontFamily: "'DM Mono', monospace",
-        fontSize: '10px',
+        background: isWanted ? 'transparent' : 'transparent',
+        border: isWanted ? '1px solid #E2FF6D' : '1px solid #E0DFDB',
+        color: isWanted ? '#E2FF6D' : '#6B6B68',
+        fontFamily: "'DM Sans', sans-serif",
+        fontSize: '12px',
         textTransform: 'uppercase' as const,
         borderRadius: '0px',
         cursor: 'pointer',
