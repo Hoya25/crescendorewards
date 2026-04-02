@@ -1400,6 +1400,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
       {/* Bottom padding for mobile nav */}
       <div className="h-20 md:hidden" />
+      </>}
       
       <Footer />
     </div>
