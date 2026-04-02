@@ -652,6 +652,20 @@ export default function BountyBoardPage() {
 
       {/* ── BOUNTY CARDS ──────────────────────────────── */}
       <div className="max-w-3xl mx-auto px-4 mt-4">
+        {/* CTA Banner */}
+        <div style={{ background: '#1E1E1C', borderLeft: '3px solid #E2FF6D', padding: '16px 20px', marginBottom: '16px', borderRadius: '0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' as const }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#D9D9D9', margin: 0 }}>
+            Bounties are earned on Bounty Hunter. Your activity there fuels your status here.
+          </p>
+          <a
+            href="https://bountyhunter.nctr.live"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontFamily: "'DM Mono', monospace", fontSize: '12px', textTransform: 'uppercase', color: '#E2FF6D', border: '1px solid #E2FF6D', padding: '8px 16px', background: 'transparent', textDecoration: 'none', borderRadius: '0px', whiteSpace: 'nowrap' as const }}
+          >
+            Open Bounty Hunter →
+          </a>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {bounties.map((b, i) => (
             <div key={b.id} className={`${b.isWide ? 'col-span-full' : ''} animate-fade-in`}
