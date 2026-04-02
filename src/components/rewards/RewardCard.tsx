@@ -256,20 +256,9 @@ export function RewardCard({
 
         {/* Cost Badge - Bottom Left */}
         <div className="absolute bottom-3 left-3 flex flex-col gap-1 items-start">
-          {tierPricing.discount > 0 && (
-            <Badge className="bg-emerald-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
-              <Percent className="w-3 h-3 mr-1" />
-              {tierPricing.discount}% Off
-            </Badge>
-          )}
-          <Badge className="bg-background/90 backdrop-blur-sm border border-primary/20 text-primary font-bold shadow-lg">
+          <Badge className="bg-background/90 backdrop-blur-sm border border-primary/20 text-primary font-bold shadow-lg" style={{ fontFamily: "'DM Mono', monospace", borderRadius: '0px' }}>
             <Coins className="w-3 h-3 mr-1" />
-            {tierPricing.isFree ? 'FREE' : tierPricing.price}
-            {tierPricing.discount > 0 && (
-              <span className="ml-1 line-through text-muted-foreground text-xs font-normal">
-                {tierPricing.originalPrice}
-              </span>
-            )}
+            {tierPricing.isFree ? 'FREE' : `${tierPricing.price} claims`}
           </Badge>
         </div>
 
