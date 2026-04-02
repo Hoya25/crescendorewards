@@ -1,16 +1,19 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAmbitions, type Ambition } from '@/contexts/AmbitionsContext';
+import { useAmbitions } from '@/contexts/AmbitionsContext';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { NCTRCircleN } from '@/components/brand/NCTRLogos';
 
-// ─── Breathing keyframes ────────────────────────────────────────────────────
-const breathingCSS = `
+// ─── Keyframes ──────────────────────────────────────────────────────────────
+const wingmanCSS = `
 @keyframes nctr-breathe {
   0%, 100% { opacity: 0.7; stroke-width: 12; }
   50% { opacity: 1; stroke-width: 16; }
 }
-@keyframes wingman-drawer-open {
-  from { max-height: 0; opacity: 0; }
-  to   { max-height: 65vh; opacity: 1; }
+@keyframes wingman-slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
 }
 `;
 
@@ -18,103 +21,105 @@ const barlow = "'Barlow Condensed', sans-serif";
 const dmSans = "'DM Sans', sans-serif";
 const dmMono = "'DM Mono', monospace";
 
-// ─── Highlight bold values ──────────────────────────────────────────────────
-function renderBold(text: string, boldValues?: string[]) {
-  if (!boldValues?.length) return text;
-  const regex = new RegExp(`(${boldValues.map(v => v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'g');
-  const parts = text.split(regex);
-  return parts.map((part, i) =>
-    boldValues.includes(part)
-      ? <span key={i} style={{ color: '#E2FF6D', fontWeight: 500 }}>{part}</span>
-      : part
-  );
+const CACHE_KEY = 'nctr_crescendo_wingman_briefing';
+const CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+
+interface BriefingData {
+  watching_your_6: string[];
+  opportunities_spotted: string[];
+  ambitions_enriched: string[];
 }
 
-// ─── Build dynamic opportunities section based on ambitions ─────────────────
-function buildOpportunitiesInsights(ambitions: Ambition[], onBrowseRewards: () => void) {
-  const claimable = ambitions.filter(a => a.claimable);
-  const locked = ambitions.filter(a => !a.claimable);
+const FALLBACK: BriefingData = {
+  watching_your_6: ['Syncing with the ecosystem...'],
+  opportunities_spotted: ["I'm still learning your patterns. Tap 'Want This' on any reward and I'll start connecting the dots."],
+  ambitions_enriched: [],
+};
 
-  if (ambitions.length === 0) {
-    return {
-      insights: [{
-        text: "Still learning your patterns. Tap Want This on any reward and I'll start connecting dots.",
-        meta: 'Getting to know you',
-        variant: 'opportunity' as const,
-        boldValues: [] as string[],
-      }],
-      link: { text: 'Browse rewards →', onClick: onBrowseRewards },
-    };
-  }
-
-  const insights: { text: string; meta: string; variant: 'opportunity'; boldValues: string[] }[] = [];
-
-  if (claimable.length > 0) {
-    const name = claimable[0].rewardName;
-    insights.push({
-      text: `${name} is ready. This aligns with how you've been engaging.`,
-      meta: 'Opportunity detected',
-      variant: 'opportunity',
-      boldValues: [name],
-    });
-  }
-
-  if (locked.length > 0) {
-    const l = locked[0];
-    insights.push({
-      text: `You want ${l.rewardName} — that's ${l.distance || 'locked'}. The 5th purchase milestone on Bounty Hunter is 5,000 NCTR in one shot. That changes the timeline.`,
-      meta: 'Path analysis',
-      variant: 'opportunity',
-      boldValues: [l.rewardName, l.distance || 'locked', '5,000 NCTR'],
-    });
-  }
-
-  if (claimable.length > 0 && locked.length > 0) {
-    const lockedName = locked[0].rewardName;
-    insights.push({
-      text: `Compounding path: claim now → stay active → earn bounties → reach Gold → unlock ${lockedName}. I'm watching.`,
-      meta: 'Compounding strategy',
-      variant: 'opportunity',
-      boldValues: [lockedName],
-    });
-  }
-
-  return {
-    insights,
-    link: claimable.length > 0
-      ? { text: 'Claim it →', onClick: onBrowseRewards }
-      : { text: 'Browse rewards →', onClick: onBrowseRewards },
-  };
-}
-
-// ─── Section label with line ────────────────────────────────────────────────
-function SectionLabel({ text }: { text: string }) {
+// ─── Skeleton ───────────────────────────────────────────────────────────────
+function SkeletonLines() {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-      <span style={{ fontFamily: dmMono, fontSize: '9px', color: '#E2FF6D', textTransform: 'uppercase', letterSpacing: '0.1em', whiteSpace: 'nowrap', flexShrink: 0 }}>
-        {text}
-      </span>
-      <div style={{ flex: 1, height: '1px', background: 'rgba(226,255,109,0.15)' }} />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="animate-pulse"
+          style={{
+            height: '13px',
+            background: 'rgba(90,90,88,0.2)',
+            borderRadius: '0px',
+            width: i === 3 ? '60%' : '100%',
+          }}
+        />
+      ))}
     </div>
   );
 }
 
-// ─── Insight card ───────────────────────────────────────────────────────────
-function InsightCard({ text, meta, boldValues, variant }: { text: string; meta: string; boldValues?: string[]; variant?: string }) {
-  const isOpp = variant === 'opportunity';
+// ─── Section ────────────────────────────────────────────────────────────────
+function Section({
+  title,
+  items,
+  emptyText,
+  isLoading,
+  showDivider,
+}: {
+  title: string;
+  items: string[];
+  emptyText: string;
+  isLoading: boolean;
+  showDivider: boolean;
+}) {
   return (
-    <div style={{
-      background: isOpp ? 'rgba(226,255,109,0.02)' : 'rgba(19,19,19,0.35)',
-      borderLeft: isOpp ? '2px solid rgba(226,255,109,0.5)' : '2px solid #E2FF6D',
-      padding: '10px 14px',
-      marginBottom: '8px',
-    }}>
-      <p style={{ fontFamily: dmSans, fontSize: '13px', color: '#D9D9D9', lineHeight: 1.6, margin: '0 0 6px 0' }}>
-        {renderBold(text, boldValues)}
-      </p>
-      <span style={{ fontFamily: dmMono, fontSize: '9px', color: '#5A5A58', textTransform: 'uppercase' }}>
-        {meta}
-      </span>
+    <div
+      style={{
+        paddingTop: showDivider ? '24px' : 0,
+        borderTop: showDivider ? '1px solid #2A2A2A' : 'none',
+        marginTop: showDivider ? '24px' : 0,
+      }}
+    >
+      {/* Header */}
+      <div
+        style={{
+          fontFamily: dmMono,
+          fontSize: '11px',
+          color: '#E2FF6D',
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          fontWeight: 500,
+          marginBottom: '12px',
+        }}
+      >
+        {title}
+      </div>
+
+      {isLoading ? (
+        <SkeletonLines />
+      ) : items.length === 0 ? (
+        <p style={{ fontFamily: dmSans, fontSize: '13px', color: '#8A8A88', fontStyle: 'italic', margin: 0, lineHeight: 1.5 }}>
+          {emptyText}
+        </p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {items.map((item, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+              <div
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: '#E2FF6D',
+                  marginTop: '6px',
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ fontFamily: dmSans, fontSize: '13px', color: '#D9D9D9', lineHeight: 1.5 }}>
+                {item}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -122,168 +127,258 @@ function InsightCard({ text, meta, boldValues, variant }: { text: string; meta: 
 // ─── Component ──────────────────────────────────────────────────────────────
 export function WingmanFAB() {
   const [isOpen, setIsOpen] = useState(false);
+  const [briefing, setBriefing] = useState<BriefingData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { ambitions, removeAmbition } = useAmbitions();
+  const { user } = useAuthContext();
+
+  const fetchBriefing = useCallback(async () => {
+    // Check cache first
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Date.now() - parsed.cached_at < CACHE_TTL && parsed.data) {
+          setBriefing(parsed.data);
+          return;
+        }
+      }
+    } catch { /* ignore */ }
+
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('wingman-crescendo-briefing', {
+        body: { user_id: user?.id },
+      });
+
+      if (error) {
+        console.error('Wingman briefing error:', error);
+        setBriefing(FALLBACK);
+      } else {
+        const structured = data as BriefingData;
+        setBriefing(structured);
+        // Cache result
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ data: structured, cached_at: Date.now() }));
+      }
+    } catch (e) {
+      console.error('Wingman fetch failed:', e);
+      setBriefing(FALLBACK);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user?.id]);
+
+  // Fetch on drawer open
+  useEffect(() => {
+    if (isOpen) {
+      fetchBriefing();
+    }
+  }, [isOpen, fetchBriefing]);
 
   const handleBrowseRewards = useCallback(() => {
     setIsOpen(false);
     navigate('/rewards');
   }, [navigate]);
 
-  const opps = buildOpportunitiesInsights(ambitions, handleBrowseRewards);
-
   return (
     <>
-      <style>{breathingCSS}</style>
+      <style>{wingmanCSS}</style>
+
+      {/* Backdrop */}
+      {isOpen && (
+        <div
+          onClick={() => setIsOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 99,
+            background: 'rgba(0,0,0,0.5)',
+          }}
+        />
+      )}
 
       {/* Drawer */}
       {isOpen && (
         <div
           style={{
             position: 'fixed',
-            bottom: '88px',
-            right: '24px',
-            width: 'min(380px, calc(100vw - 48px))',
-            background: '#1E1E1C',
-            border: '1px solid rgba(226,255,109,0.12)',
-            borderRadius: '0px',
-            maxHeight: '65vh',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            background: '#1A1A1A',
+            maxHeight: '70vh',
             overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
             zIndex: 100,
-            animation: 'wingman-drawer-open 350ms cubic-bezier(0.4, 0, 0.2, 1) forwards',
+            padding: '24px',
+            borderRadius: '16px 16px 0 0',
+            animation: 'wingman-slide-up 350ms cubic-bezier(0.4, 0, 0.2, 1) forwards',
           }}
         >
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderBottom: '1px solid rgba(90,90,88,0.15)' }}>
-            <span style={{ fontFamily: barlow, fontWeight: 700, fontSize: '16px', color: '#FFFFFF', textTransform: 'uppercase' }}>
-              YOUR WINGMAN
-            </span>
-            <span style={{ fontFamily: dmMono, fontSize: '9px', color: '#E2FF6D', border: '1px solid rgba(226,255,109,0.25)', padding: '2px 7px', textTransform: 'uppercase' }}>
-              CRESCENDO
-            </span>
-          </div>
-
-          {/* Body */}
-          <div style={{ padding: '16px 18px 20px' }}>
-            {/* Section 1: Watching Your 6 */}
-            <div style={{ marginBottom: '20px' }}>
-              <SectionLabel text="WATCHING YOUR 6" />
-              <InsightCard
-                text="Your 1.25x has earned you an extra 2,105 NCTR since Silver. Every bounty compounds."
-                meta="Earn amplifier · always on"
-                boldValues={['1.25x', '2,105 NCTR']}
-              />
-              <InsightCard
-                text="6,580 NCTR to Gold. About 3 weeks at your pace. Gold opens creator tools, merch, and 72-hour early access."
-                meta="Tier trajectory"
-                boldValues={['6,580 NCTR', 'Gold']}
-              />
-            </div>
-
-            {/* Section 2: Opportunities Spotted */}
-            <div style={{ marginBottom: '20px' }}>
-              <SectionLabel text="OPPORTUNITIES SPOTTED" />
-              {opps.insights.map((ins, i) => (
-                <InsightCard key={i} text={ins.text} meta={ins.meta} boldValues={ins.boldValues} variant={ins.variant} />
-              ))}
-              {opps.link && (
-                <button
-                  onClick={opps.link.onClick}
-                  style={{ fontFamily: dmMono, fontSize: '10px', color: '#E2FF6D', background: 'none', border: 'none', borderBottom: '1px solid rgba(226,255,109,0.25)', padding: '2px 0', cursor: 'pointer', marginTop: '4px' }}
-                >
-                  {opps.link.text}
-                </button>
-              )}
-            </div>
-
-            {/* Section 3: Your Ambitions */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '24px' }}>
             <div>
-              <SectionLabel text={`YOUR AMBITIONS${ambitions.length > 0 ? ` (${ambitions.length})` : ''}`} />
-              {ambitions.length === 0 ? (
-                <p style={{ fontFamily: dmSans, fontSize: '12px', color: '#8A8A88', textAlign: 'center', margin: '12px 0 0 0' }}>
-                  Tell me what you're working toward.
-                </p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  {ambitions.map((a) => (
-                    <div
-                      key={a.rewardId}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        padding: '8px 12px',
-                        background: 'rgba(19,19,19,0.35)',
-                      }}
-                    >
-                      {/* Icon */}
-                      <div style={{
-                        width: '20px',
-                        height: '20px',
-                        background: 'rgba(226,255,109,0.08)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontFamily: dmMono,
-                        fontSize: '9px',
-                        color: '#E2FF6D',
-                        flexShrink: 0,
-                      }}>
-                        {a.claimable ? '→' : '◇'}
-                      </div>
-                      {/* Name */}
-                      <span style={{
-                        fontFamily: barlow,
-                        fontWeight: 700,
-                        fontSize: '11px',
-                        color: '#FFFFFF',
-                        textTransform: 'uppercase',
-                        flex: 1,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}>
-                        {a.rewardName}
-                      </span>
-                      {/* Status */}
-                      <span style={{
-                        fontFamily: dmMono,
-                        fontSize: '9px',
-                        color: a.claimable ? '#E2FF6D' : '#8A8A88',
-                        whiteSpace: 'nowrap',
-                        flexShrink: 0,
-                      }}>
-                        {a.claimable ? 'Claimable now' : (a.distance || 'Locked')}
-                      </span>
-                      {/* Remove */}
-                      <button
-                        onClick={() => removeAmbition(a.rewardId)}
-                        style={{
-                          fontFamily: dmMono,
-                          fontSize: '10px',
-                          color: '#5A5A58',
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          padding: '0 2px',
-                          flexShrink: 0,
-                          transition: 'color 200ms',
-                        }}
-                        onMouseEnter={(e) => { e.currentTarget.style.color = '#D9D9D9'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.color = '#5A5A58'; }}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div
+                style={{
+                  fontFamily: dmMono,
+                  fontSize: '11px',
+                  color: '#E2FF6D',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  fontWeight: 500,
+                  marginBottom: '4px',
+                }}
+              >
+                WINGMAN
+              </div>
+              <div
+                style={{
+                  fontFamily: barlow,
+                  fontWeight: 700,
+                  fontSize: '16px',
+                  color: '#FFFFFF',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}
+              >
+                YOUR WINGMAN
+              </div>
+              <div style={{ fontFamily: dmMono, fontSize: '12px', color: '#8A8A88', marginTop: '2px' }}>
+                @{user?.email?.split('@')[0] || 'member'}
+              </div>
             </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              style={{
+                fontFamily: dmSans,
+                fontSize: '24px',
+                color: '#8A8A88',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '0 4px',
+                lineHeight: 1,
+                transition: 'color 200ms',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = '#8A8A88'; }}
+            >
+              ×
+            </button>
           </div>
+
+          {/* Section 1: Watching Your 6 */}
+          <Section
+            title="WATCHING YOUR 6"
+            items={briefing?.watching_your_6 ?? []}
+            emptyText="Syncing with the ecosystem..."
+            isLoading={isLoading}
+            showDivider={false}
+          />
+
+          {/* Section 2: Opportunities Spotted */}
+          <Section
+            title="OPPORTUNITIES SPOTTED"
+            items={briefing?.opportunities_spotted ?? []}
+            emptyText="I'm still learning your patterns. Tap 'Want This' on any reward and I'll start connecting the dots."
+            isLoading={isLoading}
+            showDivider={true}
+          />
+
+          {/* Section 3: Your Ambitions */}
+          <Section
+            title={`YOUR AMBITIONS${ambitions.length > 0 ? ` (${ambitions.length})` : ''}`}
+            items={briefing?.ambitions_enriched ?? []}
+            emptyText="Tap 'Want This' on any reward to set your first ambition."
+            isLoading={isLoading}
+            showDivider={true}
+          />
+
+          {/* Ambitions list with remove */}
+          {ambitions.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '12px' }}>
+              {ambitions.map((a) => (
+                <div
+                  key={a.rewardId}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '8px 12px',
+                    background: 'rgba(19,19,19,0.35)',
+                  }}
+                >
+                  <div style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: a.claimable ? '#E2FF6D' : '#5A5A58',
+                    flexShrink: 0,
+                  }} />
+                  <span style={{
+                    fontFamily: dmSans,
+                    fontSize: '13px',
+                    color: '#D9D9D9',
+                    flex: 1,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}>
+                    {a.rewardName}
+                  </span>
+                  <span style={{
+                    fontFamily: dmMono,
+                    fontSize: '10px',
+                    color: a.claimable ? '#E2FF6D' : '#8A8A88',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                  }}>
+                    {a.claimable ? 'Claimable' : (a.distance || 'Locked')}
+                  </span>
+                  <button
+                    onClick={() => removeAmbition(a.rewardId)}
+                    style={{
+                      fontFamily: dmMono,
+                      fontSize: '14px',
+                      color: '#5A5A58',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '0 2px',
+                      flexShrink: 0,
+                      transition: 'color 200ms',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = '#D9D9D9'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = '#5A5A58'; }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Browse rewards link */}
+          <button
+            onClick={handleBrowseRewards}
+            style={{
+              fontFamily: dmMono,
+              fontSize: '11px',
+              color: '#E2FF6D',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              marginTop: '16px',
+              padding: 0,
+            }}
+          >
+            Browse rewards →
+          </button>
         </div>
       )}
 
-      {/* FAB */}
+      {/* FAB Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? 'Close Wingman' : 'Open Wingman'}
@@ -302,24 +397,18 @@ export function WingmanFAB() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          transition: 'transform 200ms, background 200ms',
+          transition: 'transform 200ms ease, background 200ms ease',
           padding: 0,
         }}
         onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.06)'; }}
         onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
       >
-        <svg width="38" height="38" viewBox="0 0 434 434" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle
-            cx="216.855" cy="216.855" r="209.355"
-            stroke={isOpen ? '#131313' : '#E2FF6D'}
-            strokeWidth="15"
-            style={isOpen ? {} : { animation: 'nctr-breathe 4s ease-in-out infinite' }}
-          />
-          <path
-            d="M130.444 309.52C128.745 309.52 127.279 308.902 126.044 307.667C124.809 306.432 124.191 304.965 124.191 303.267V209.485C124.191 207.787 124.809 206.32 126.044 205.085C127.279 203.85 128.745 203.233 130.444 203.233H161.473C163.325 203.233 164.483 202.461 164.946 200.917C165.101 200.609 165.178 200.145 165.178 199.528C165.178 198.447 164.869 197.598 164.252 196.981C159.62 192.504 154.603 187.564 149.2 182.161C143.797 176.603 138.548 171.355 133.454 166.415L126.044 158.773C124.809 157.538 124.191 156.072 124.191 154.373V130.523C124.191 128.825 124.809 127.358 126.044 126.123C127.279 124.888 128.745 124.271 130.444 124.271H154.294C155.992 124.271 157.459 124.888 158.694 126.123L256.876 224.073C257.648 224.845 258.497 225.231 259.423 225.231C260.504 225.231 261.353 224.845 261.97 224.073C262.742 223.302 263.128 222.452 263.128 221.526V187.254C263.128 185.556 263.039 177.682 263.039 177.682C263.039 177.682 262.719 174.55 264.676 172.629C266.455 170.778 268.468 170.565 269.373 170.565H301.897V170.565C306.063 170.565 309.44 173.942 309.44 178.109V185.332V224.305C309.44 226.003 308.823 227.47 307.588 228.705C306.353 229.94 304.886 230.557 303.188 230.557H272.159C270.307 230.557 269.149 231.329 268.686 232.873C268.531 233.181 268.454 233.645 268.454 234.262C268.454 235.343 268.763 236.192 269.38 236.809C274.012 241.286 279.029 246.303 284.432 251.861C289.835 257.264 295.084 262.435 300.178 267.375L307.588 275.017C308.823 276.252 309.44 277.718 309.44 279.417V303.267C309.44 304.965 308.823 306.432 307.588 307.667C306.353 308.902 304.886 309.52 303.188 309.52H279.337C277.639 309.52 276.173 308.902 274.938 307.667L176.756 209.717C175.984 208.945 175.135 208.559 174.209 208.559C173.128 208.559 172.202 208.945 171.43 209.717C170.812 210.488 170.504 211.338 170.504 212.264V303.267C170.504 304.965 169.886 306.432 168.651 307.667C167.416 308.902 165.95 309.52 164.252 309.52H130.444Z"
-            fill={isOpen ? '#131313' : '#E2FF6D'}
-          />
-        </svg>
+        <NCTRCircleN
+          size={38}
+          strokeColor={isOpen ? '#131313' : '#E2FF6D'}
+          fillColor={isOpen ? '#131313' : '#E2FF6D'}
+          style={isOpen ? {} : { animation: 'nctr-breathe 4s ease-in-out infinite' }}
+        />
         {/* Ambition count badge */}
         {ambitions.length > 0 && !isOpen && (
           <div style={{
@@ -342,14 +431,6 @@ export function WingmanFAB() {
           </div>
         )}
       </button>
-
-      {/* Backdrop to close */}
-      {isOpen && (
-        <div
-          onClick={() => setIsOpen(false)}
-          style={{ position: 'fixed', inset: 0, zIndex: 99, background: 'transparent' }}
-        />
-      )}
     </>
   );
 }
