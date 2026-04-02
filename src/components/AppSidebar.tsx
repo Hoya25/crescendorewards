@@ -1,4 +1,4 @@
-import { Home, Gift, ShoppingBag, UserPlus, User, HelpCircle, Shield, Heart, Coins, Leaf, Target, Trophy, BookOpen, Zap, Lock, Wallet } from 'lucide-react';
+import { Home, Gift, Shield, Zap, Trophy, UserPlus, HelpCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import nctrIconDark from '@/assets/nctr-grey.png';
 import nctrIconLight from '@/assets/nctr-yellow.png';
@@ -23,11 +23,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -43,30 +38,19 @@ interface NavItem {
   title: string;
   url: string;
   icon: any;
-  emoji?: string;
-  subtext?: string;
   external?: string;
-  highlight?: boolean;
 }
 
-const coreNavItems: NavItem[] = [
+const membershipNavItems: NavItem[] = [
   { title: 'Home', url: '/dashboard', icon: Home },
-  { title: 'My Rewards', url: '/rewards', icon: Gift, emoji: '🎁', subtext: 'Redeem with your locked NCTR' },
-  { title: 'My Status', url: '/membership', icon: Lock, emoji: '💎', subtext: 'Your status level unlocks your rewards' },
-  { title: 'Deposit NCTR', url: '/deposit', icon: Wallet, emoji: '🔒', subtext: 'Lock NCTR to level up your status' },
-  { title: 'Shop & Earn', url: '#', icon: ShoppingBag, emoji: '🛒', subtext: 'Earn NCTR on every purchase', external: 'https://thegarden.nctr.live/' },
-  { title: 'Merch', url: '/merch', icon: ShoppingBag, emoji: '👕', subtext: 'Shop merch & earn NCTR' },
-  { title: 'Earn Progress', url: '/bounties', icon: Zap, emoji: '⚡', subtext: 'Track your earning activity' },
+  { title: 'Rewards', url: '/rewards', icon: Gift },
+  { title: 'My Status', url: '/membership', icon: Shield },
+  { title: 'Earn Progress', url: '/bounties', icon: Zap },
 ];
 
-const secondaryNavItems: NavItem[] = [
-  { title: 'How It Works', url: '/how-it-works', icon: BookOpen },
-  { title: 'Get Claims', url: '/buy-claims', icon: Coins, highlight: true },
+const exploreNavItems: NavItem[] = [
   { title: 'Leaderboard', url: '/leaderboard', icon: Trophy },
   { title: 'Invite Friends', url: '/invite', icon: UserPlus },
-  { title: 'Shop Merch', url: '/merch', icon: ShoppingBag },
-  { title: 'Contribute', url: '/contribute', icon: Heart },
-  { title: 'My Account', url: '/profile', icon: User },
   { title: 'Help', url: '/help', icon: HelpCircle },
 ];
 
@@ -111,45 +95,12 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
             : "hover:bg-accent hover:text-accent-foreground"
         )}
       >
-        {item.emoji && open ? (
-          <span className="text-base leading-none w-4 flex items-center justify-center">{item.emoji}</span>
-        ) : (
-          <item.icon className={cn("h-4 w-4", item.highlight && "dark:text-[#E2FF6D] text-[#323232]")} />
-        )}
+        <item.icon className="h-4 w-4" />
         {open && (
-          <div className="flex flex-col min-w-0">
-            <span className={cn(
-              "text-sm leading-tight truncate",
-              item.highlight && "dark:text-[#E2FF6D] text-[#323232] font-semibold"
-            )}>
-              {item.title}
-            </span>
-            {item.subtext && (
-              <span className="text-[10px] text-muted-foreground truncate leading-tight">
-                {item.subtext}
-              </span>
-            )}
-          </div>
+          <span className="text-sm leading-tight truncate">{item.title}</span>
         )}
       </SidebarMenuButton>
     );
-
-    // Show tooltip with subtext when sidebar is collapsed
-    if (!open && item.subtext) {
-      return (
-        <TooltipProvider key={item.title} delayDuration={0}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <SidebarMenuItem>{button}</SidebarMenuItem>
-            </TooltipTrigger>
-            <TooltipContent side="right" className="max-w-[200px]">
-              <p className="font-semibold text-sm">{item.title}</p>
-              <p className="text-xs text-muted-foreground">{item.subtext}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      );
-    }
 
     return <SidebarMenuItem key={item.title}>{button}</SidebarMenuItem>;
   };
@@ -165,23 +116,23 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
         </div>
         <SidebarSeparator />
 
-        {/* Core Navigation — Earn & Redeem */}
+        {/* Membership */}
         <SidebarGroup>
-          {open && <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">Earn & Redeem</SidebarGroupLabel>}
+          {open && <SidebarGroupLabel style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Membership</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
-              {coreNavItems.map(renderNavItem)}
+              {membershipNavItems.map(renderNavItem)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Secondary Navigation */}
+        {/* Explore */}
         <SidebarSeparator />
         <SidebarGroup>
-          {open && <SidebarGroupLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">More</SidebarGroupLabel>}
+          {open && <SidebarGroupLabel style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Explore</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
-              {secondaryNavItems.map(renderNavItem)}
+              {exploreNavItems.map(renderNavItem)}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
