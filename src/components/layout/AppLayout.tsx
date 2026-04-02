@@ -206,6 +206,8 @@ export function AppLayout({ children }: AppLayoutProps) {
         {showOnboarding && (
           <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
         )}
+
+        <WingmanFAB />
       </div>
     </SidebarProvider>
   );
