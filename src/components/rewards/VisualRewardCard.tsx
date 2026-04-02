@@ -426,6 +426,7 @@ function WantThisButton({
   rewardId,
   rewardName,
   claimable,
+  tierRequired,
   distance,
   isWanted,
   onToggle,
@@ -433,28 +434,14 @@ function WantThisButton({
   rewardId: string;
   rewardName: string;
   claimable: boolean;
+  tierRequired: string;
   distance?: string;
   isWanted: boolean;
-  onToggle: (ambition: { rewardId: string; rewardName: string; claimable: boolean; distance?: string }) => void;
+  onToggle: (ambition: { rewardId: string; rewardName: string; claimable: boolean; tierRequired: string; distance?: string }) => void;
 }) {
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const wasWanted = isWanted;
-    onToggle({ rewardId, rewardName, claimable, distance });
-    if (!wasWanted) {
-      toast(`Wingman: ${rewardName} — on my radar.`, {
-        duration: 2500,
-        style: {
-          background: '#1E1E1C',
-          border: '1px solid #E2FF6D',
-          color: '#E2FF6D',
-          fontFamily: "'DM Mono', monospace",
-          fontSize: '11px',
-          borderRadius: '0px',
-          bottom: '92px',
-        },
-      });
-    }
+    onToggle({ rewardId, rewardName, claimable, tierRequired, distance });
   };
 
   return (
