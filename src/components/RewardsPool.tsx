@@ -633,7 +633,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       />
 
       {/* Ticker Bar */}
-      <div style={{ position: 'relative', zIndex: 1, background: '#E2FF6D', padding: '9px 24px', overflow: 'hidden', whiteSpace: 'nowrap' as const }}>
+      <div style={{ position: 'relative', zIndex: 0, background: '#E2FF6D', padding: '9px 24px', overflow: 'hidden', whiteSpace: 'nowrap' as const }}>
         <div style={{ display: 'inline-block', animation: 'ticker-scroll 38s linear infinite' }}>
           {[0, 1].map((dup) => (
             <span key={dup}>
@@ -812,8 +812,8 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         </div>
       )}
 
-      {/* Combined fixed bar: tier + categories + filters */}
-      <div style={{ position: 'fixed', top: '48px', left: 0, right: 0, width: '100%', zIndex: 9, backgroundColor: '#F5F4F0', borderBottom: '1px solid #E0DFDB', paddingTop: '4px', paddingBottom: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+      {/* Sticky category + filters bar */}
+      <div style={{ position: 'sticky', top: isAuthenticated ? '97px' : '49px', zIndex: 9, backgroundColor: '#F5F4F0', borderBottom: '1px solid #E0DFDB', paddingTop: '4px', paddingBottom: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
 
 
         {/* Category pills row */}
@@ -1121,7 +1121,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       {!loading && <StatusPerksSection />}
 
       {/* Main Rewards Grid — starts immediately */}
-      <div id="rewards-grid" className="container mx-auto px-4 pb-8 max-w-full" style={{ scrollMarginTop: '180px', paddingTop: '140px' }}>
+      <div id="rewards-grid" className="container mx-auto px-4 pb-8 max-w-full" style={{ scrollMarginTop: '180px', paddingTop: '24px' }}>
         {/* Section Header — compact */}
         {!loading && (
           <div className="flex items-center gap-2 mb-3">
