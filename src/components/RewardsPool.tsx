@@ -34,7 +34,7 @@ import { FavoritesIndicator } from '@/components/FavoritesIndicator';
 import { ClaimsBalanceIndicator } from '@/components/claims/ClaimsBalanceIndicator';
 import { NotificationsDropdown } from '@/components/NotificationsDropdown';
 import { SEO } from '@/components/SEO';
-import { Footer } from '@/components/Footer';
+
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { RewardsGridSkeleton } from '@/components/skeletons/RewardCardSkeleton';
