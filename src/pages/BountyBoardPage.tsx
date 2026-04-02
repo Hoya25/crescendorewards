@@ -427,18 +427,13 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
                 <p className="text-[11px]" style={{ color: tokens.textMuted }}>{bounty.specialNote}</p>
               </div>
             )}
-            {isClaimReady && (
-              <button className="w-full py-2.5 rounded-xl text-sm font-extrabold transition-transform active:scale-[0.97]"
-                onClick={(e) => { e.stopPropagation(); onClaim(bounty); }}
-                style={{ background: tokens.ctaBg, color: tokens.ctaText, boxShadow: tokens.dark ? '0 0 16px rgba(226,255,109,0.3)' : '0 1px 4px rgba(0,0,0,0.12)' }}>
-                Claim {bounty.nctrAmount.toLocaleString()} NCTR
-              </button>
-            )}
-            {bounty.status === 'not_started' && bounty.category === 'shopping' && (
-              <a href="https://thegarden.nctr.live/garden" target="_blank" rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl text-sm font-extrabold transition-transform hover:scale-[1.03]"
-                style={{ background: tokens.ctaBg, color: tokens.ctaText }}>
-                Start Shopping <ExternalLink className="w-3.5 h-3.5" />
+            {(isClaimReady || (bounty.status === 'not_started' && bounty.category === 'shopping')) && (
+              <a href="https://bountyhunter.nctr.live" target="_blank" rel="noopener noreferrer"
+                style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#E2FF6D', textDecoration: 'none' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.textDecoration = 'underline'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.textDecoration = 'none'; }}
+              >
+                Track on Bounty Hunter →
               </a>
             )}
             {isInProgress && (
