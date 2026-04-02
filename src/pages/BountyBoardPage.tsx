@@ -588,46 +588,11 @@ export default function BountyBoardPage() {
                 <ArrowLeft className="w-5 h-5" style={{ color: tokens.textPrimary }} />
               </button>
               <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold flex items-center gap-2" style={{ color: tokens.textPrimary }}>
-                  <img src="/nctr-n-lime.svg" alt="NCTR" className="w-6 h-6" style={{ filter: tokens.dark ? 'none' : 'brightness(0) saturate(100%)' }} />
-                  Bounty Board
+                <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '20px', color: '#FFFFFF', textTransform: 'uppercase', letterSpacing: '-0.01em' }}>
+                  Your Earn Progress
                 </h1>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <a
-                        href="https://thegarden.nctr.live/garden"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 no-min-touch transition-opacity hover:opacity-80"
-                        style={{
-                          background: '#1E1E1E',
-                          border: '1px solid #E2FF6D',
-                          borderRadius: '9999px',
-                          padding: '4px 12px',
-                        }}
-                      >
-                        <span
-                          className="inline-block w-2 h-2 rounded-full"
-                          style={{
-                            background: '#4ADE80',
-                            animation: 'mcpPulse 2s ease-in-out infinite',
-                          }}
-                        />
-                        <span style={{ color: '#E2FF6D', fontSize: '12px', fontFamily: "'DM Mono', monospace", fontWeight: 500 }}>
-                          MCP Live
-                        </span>
-                      </a>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">
-                      AI agents can discover these bounties via our MCP server
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#8A8A88' }}>Track your earning activity across the ecosystem</p>
               </div>
-              <p className="text-[11px] uppercase tracking-widest" style={{ color: tokens.textMuted }}>Crescendo Rewards</p>
-            </div>
             </div>
             <div className="flex items-center gap-2">
               <ProgressRing percent={completionPercent} tokens={tokens} />
