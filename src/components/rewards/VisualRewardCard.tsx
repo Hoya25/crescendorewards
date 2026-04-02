@@ -314,7 +314,7 @@ export function VisualRewardCard({
 
         {/* Price row */}
         <div className="space-y-1">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5">
               {pricing.isFree ? (
                 <span style={{ fontFamily: dmMono, fontSize: '14px', color: '#E2FF6D', fontWeight: 400 }}>FREE</span>
@@ -324,33 +324,15 @@ export function VisualRewardCard({
                     {calculateClaimsForUser(pricing.price, userTier.tierName)}
                   </span>
                   <span style={{ fontFamily: dmMono, fontSize: '12px', color: '#5A5A58' }}>claims</span>
-                  {calculateClaimsForUser(pricing.price, userTier.tierName) < pricing.price && (
-                    <span style={{ fontFamily: dmMono, fontSize: '12px', color: '#5A5A58', textDecoration: 'line-through', marginLeft: '4px' }}>
-                      {pricing.price}
-                    </span>
-                  )}
                 </>
               )}
             </div>
-            {remainingStock !== null && remainingStock <= 20 && remainingStock > 0 && (
-              <span
-                className="flex items-center gap-1"
-                style={{
-                  fontFamily: dmMono,
-                  fontSize: '11px',
-                  color: remainingStock <= 5 ? '#E2FF6D' : '#FFFFFF',
-                }}
-              >
-                <Package className="w-3 h-3" />
-                {remainingStock} left
+            {remainingStock !== null && remainingStock > 0 && (
+              <span style={{ fontFamily: dmMono, fontSize: '11px', color: '#6B6B68' }}>
+                · {remainingStock} left
               </span>
             )}
           </div>
-          {!pricing.isFree && pricing.price > 0 && (
-            <p style={{ fontFamily: dmSans, fontSize: '11px', color: '#5A5A58', lineHeight: 1.4 }}>
-              {getClaimDiscountUpsell(pricing.price, userTier.tierName)}
-            </p>
-          )}
         </div>
       </div>
 
