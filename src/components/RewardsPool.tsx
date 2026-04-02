@@ -720,7 +720,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                     Next: {nextTier.display_name || nextTier.tier_name}
                   </span>
                   <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88' }}>
-                    {(nextTier.min_nctr || 0).toLocaleString()} NCTR
+                    {(nextTier.min_nctr_360_locked || 0).toLocaleString()} NCTR
                   </span>
                 </div>
                 <div style={{ height: '2px', backgroundColor: '#5A5A58', width: '100%' }}>
