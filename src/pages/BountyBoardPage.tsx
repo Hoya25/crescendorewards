@@ -90,15 +90,9 @@ function useTokens() {
     claimBg: dark ? '#E2FF6D' : '#323232',
     claimText: dark ? '#323232' : '#FFFFFF',
     claimShadow: dark ? '0 0 12px rgba(226,255,109,0.3)' : '0 1px 4px rgba(0,0,0,0.12)',
-    diffEasy: dark
-      ? { bg: 'rgba(226, 255, 109, 0.2)', color: '#E2FF6D' }
-      : { bg: 'rgba(50, 50, 50, 0.1)', color: '#323232' },
-    diffMedium: dark
-      ? { bg: 'rgba(250, 204, 21, 0.2)', color: '#FACC15' }
-      : { bg: 'rgba(180, 130, 0, 0.12)', color: '#8B6914' },
-    diffHard: dark
-      ? { bg: 'rgba(255, 68, 68, 0.2)', color: '#FF4444' }
-      : { bg: 'rgba(200, 0, 0, 0.1)', color: '#CC0000' },
+    diffEasy: { bg: 'transparent', color: '#E2FF6D' },
+    diffMedium: { bg: 'transparent', color: '#E2FF6D' },
+    diffHard: { bg: 'transparent', color: '#E2FF6D' },
     progressTrack: dark ? 'rgba(255,255,255,0.07)' : '#D9D9D9',
     progressFill: dark ? 'linear-gradient(90deg, #E2FF6D, #C8FF3C)' : 'linear-gradient(90deg, #323232, #5A5A58)',
     progressGlow: dark ? '0 0 8px rgba(226,255,109,0.5)' : 'none',
@@ -314,8 +308,8 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
           )}
 
           <div className="flex flex-wrap items-center gap-1.5 mt-2">
-            <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full"
-              style={{ background: diffStyles[bounty.difficulty].bg, color: diffStyles[bounty.difficulty].color }}>
+            <span className="text-[10px] uppercase font-bold px-2 py-0.5"
+              style={{ background: 'transparent', border: '1px solid #E2FF6D', color: '#E2FF6D', fontFamily: "'DM Mono', monospace", borderRadius: '0px', padding: '2px 8px' }}>
               {bounty.difficulty}
             </span>
             {bounty.isViral && (
@@ -352,10 +346,15 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
               </span>
             )}
             {isClaimReady && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto animate-pulse"
-                style={{ background: tokens.claimReadyBadgeBg, color: tokens.claimReadyBadgeColor }}>
-                Claim Ready!
-              </span>
+              <a href="https://bountyhunter.nctr.live" target="_blank" rel="noopener noreferrer"
+                className="ml-auto"
+                style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#E2FF6D', textDecoration: 'none' }}
+                onClick={e => e.stopPropagation()}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.textDecoration = 'underline'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.textDecoration = 'none'; }}
+              >
+                Track on Bounty Hunter →
+              </a>
             )}
           </div>
 
@@ -433,18 +432,13 @@ function BountyCard({ bounty, expanded, onToggle, onClaim, tokens }: {
                 <p className="text-[11px]" style={{ color: tokens.textMuted }}>{bounty.specialNote}</p>
               </div>
             )}
-            {isClaimReady && (
-              <button className="w-full py-2.5 rounded-xl text-sm font-extrabold transition-transform active:scale-[0.97]"
-                onClick={(e) => { e.stopPropagation(); onClaim(bounty); }}
-                style={{ background: tokens.ctaBg, color: tokens.ctaText, boxShadow: tokens.dark ? '0 0 16px rgba(226,255,109,0.3)' : '0 1px 4px rgba(0,0,0,0.12)' }}>
-                Claim {bounty.nctrAmount.toLocaleString()} NCTR
-              </button>
-            )}
-            {bounty.status === 'not_started' && bounty.category === 'shopping' && (
-              <a href="https://thegarden.nctr.live/garden" target="_blank" rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl text-sm font-extrabold transition-transform hover:scale-[1.03]"
-                style={{ background: tokens.ctaBg, color: tokens.ctaText }}>
-                Start Shopping <ExternalLink className="w-3.5 h-3.5" />
+            {(isClaimReady || (bounty.status === 'not_started' && bounty.category === 'shopping')) && (
+              <a href="https://bountyhunter.nctr.live" target="_blank" rel="noopener noreferrer"
+                style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#E2FF6D', textDecoration: 'none' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.textDecoration = 'underline'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.textDecoration = 'none'; }}
+              >
+                Track on Bounty Hunter →
               </a>
             )}
             {isInProgress && (
@@ -575,7 +569,7 @@ export default function BountyBoardPage() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: tokens.pageBg }}>
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin mx-auto mb-3" style={{ borderColor: tokens.amountColor, borderTopColor: 'transparent' }} />
-          <p className="text-sm" style={{ color: tokens.textMuted }}>Loading bounties…</p>
+          <p className="text-sm" style={{ color: tokens.textMuted }}>Loading earn progress…</p>
         </div>
       </div>
     );
@@ -599,46 +593,11 @@ export default function BountyBoardPage() {
                 <ArrowLeft className="w-5 h-5" style={{ color: tokens.textPrimary }} />
               </button>
               <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold flex items-center gap-2" style={{ color: tokens.textPrimary }}>
-                  <img src="/nctr-n-lime.svg" alt="NCTR" className="w-6 h-6" style={{ filter: tokens.dark ? 'none' : 'brightness(0) saturate(100%)' }} />
-                  Bounty Board
+                <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 700, fontSize: '20px', color: '#FFFFFF', textTransform: 'uppercase', letterSpacing: '-0.01em' }}>
+                  Your Earn Progress
                 </h1>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <a
-                        href="https://thegarden.nctr.live/garden"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 no-min-touch transition-opacity hover:opacity-80"
-                        style={{
-                          background: '#1E1E1E',
-                          border: '1px solid #E2FF6D',
-                          borderRadius: '9999px',
-                          padding: '4px 12px',
-                        }}
-                      >
-                        <span
-                          className="inline-block w-2 h-2 rounded-full"
-                          style={{
-                            background: '#4ADE80',
-                            animation: 'mcpPulse 2s ease-in-out infinite',
-                          }}
-                        />
-                        <span style={{ color: '#E2FF6D', fontSize: '12px', fontFamily: "'DM Mono', monospace", fontWeight: 500 }}>
-                          MCP Live
-                        </span>
-                      </a>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">
-                      AI agents can discover these bounties via our MCP server
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#8A8A88' }}>Track your earning activity across the ecosystem</p>
               </div>
-              <p className="text-[11px] uppercase tracking-widest" style={{ color: tokens.textMuted }}>Crescendo Rewards</p>
-            </div>
             </div>
             <div className="flex items-center gap-2">
               <ProgressRing percent={completionPercent} tokens={tokens} />
@@ -698,6 +657,20 @@ export default function BountyBoardPage() {
 
       {/* ── BOUNTY CARDS ──────────────────────────────── */}
       <div className="max-w-3xl mx-auto px-4 mt-4">
+        {/* CTA Banner */}
+        <div style={{ background: '#1E1E1C', borderLeft: '3px solid #E2FF6D', padding: '16px 20px', marginBottom: '16px', borderRadius: '0px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' as const }}>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '14px', color: '#D9D9D9', margin: 0 }}>
+            Bounties are earned on Bounty Hunter. Your activity there fuels your status here.
+          </p>
+          <a
+            href="https://bountyhunter.nctr.live"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontFamily: "'DM Mono', monospace", fontSize: '12px', textTransform: 'uppercase', color: '#E2FF6D', border: '1px solid #E2FF6D', padding: '8px 16px', background: 'transparent', textDecoration: 'none', borderRadius: '0px', whiteSpace: 'nowrap' as const }}
+          >
+            Open Bounty Hunter →
+          </a>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {bounties.map((b, i) => (
             <div key={b.id} className={`${b.isWide ? 'col-span-full' : ''} animate-fade-in`}
@@ -734,8 +707,8 @@ export default function BountyBoardPage() {
             <div className="rounded-xl p-4 flex items-center justify-between cursor-pointer transition-colors"
               style={{ background: tokens.cardBg, border: tokens.cardBorder, boxShadow: tokens.cardShadow }}>
               <div>
-                <h3 className="text-sm font-bold" style={{ color: tokens.textPrimary }}>Your Bounty History</h3>
-                <p className="text-[11px]" style={{ color: tokens.textMuted }}>{history.length} completed bounties</p>
+                <h3 className="text-sm font-bold" style={{ color: tokens.textPrimary }}>Your Earn History</h3>
+                <p className="text-[11px]" style={{ color: tokens.textMuted }}>{history.length} completed</p>
               </div>
               <div className="transition-transform duration-200" style={{ transform: historyOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                 <ChevronDown className="w-5 h-5" style={{ color: tokens.textMuted }} />
@@ -785,15 +758,14 @@ export default function BountyBoardPage() {
               <p className="text-[9px] uppercase" style={{ color: tokens.textMuted }}>Your Balance</p>
             </div>
           </div>
-          <div className="text-center hidden sm:block">
-            <p className="text-[9px] uppercase" style={{ color: tokens.textMuted }}>Next reward</p>
-            <p className="text-xs font-bold" style={{ color: tokens.textPrimary }}>{nextClaimAmount > 0 ? `${nextClaimAmount.toLocaleString()} NCTR ready` : 'Keep earning!'}</p>
-          </div>
-          <button ref={claimBtnRef} onClick={claimAll}
-            className="px-5 py-2.5 rounded-[14px] text-sm font-extrabold transition-all hover:scale-[1.03]"
-            style={{ background: tokens.claimBg, color: tokens.claimText, boxShadow: tokens.claimShadow }}>
-            Claim Now
-          </button>
+          <a
+            href="https://bountyhunter.nctr.live"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontFamily: "'DM Mono', monospace", fontSize: '12px', textTransform: 'uppercase', color: '#E2FF6D', border: '1px solid #E2FF6D', padding: '8px 16px', background: 'transparent', textDecoration: 'none', borderRadius: '0px' }}
+          >
+            Open Bounty Hunter →
+          </a>
         </div>
       </div>
 

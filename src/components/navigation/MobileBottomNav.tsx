@@ -7,7 +7,7 @@ const navItems = [
   { icon: Gift, label: "Rewards", route: "/rewards", emoji: "🎁" },
   { icon: Lock, label: "Status", route: "/membership", emoji: "💎" },
   { icon: ShoppingBag, label: "Shop", route: undefined, emoji: "🛒", external: "https://thegarden.nctr.live/" },
-  { icon: Zap, label: "Bounties", route: "/bounties", emoji: "⚡" },
+  { icon: Zap, label: "Earn", route: "/bounties", emoji: "⚡" },
 ];
 
 export function MobileBottomNav() {
