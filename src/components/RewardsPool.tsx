@@ -730,7 +730,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       )}
 
       {/* Combined fixed bar: tier + categories + filters */}
-      <div style={{ position: 'fixed', top: '48px', left: 0, right: 0, width: '100%', zIndex: 100, backgroundColor: '#131313', borderBottom: '1px solid #1F2020', paddingTop: '4px', paddingBottom: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>
+      <div style={{ position: 'fixed', top: '48px', left: 0, right: 0, width: '100%', zIndex: 100, backgroundColor: '#F5F4F0', borderBottom: '1px solid #E0DFDB', paddingTop: '4px', paddingBottom: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
         {/* Tier info row (auth only) */}
         {isAuthenticated && (
           <div className="container mx-auto px-4 max-w-full border-b">
