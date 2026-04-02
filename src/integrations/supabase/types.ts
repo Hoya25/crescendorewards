@@ -1669,6 +1669,39 @@ export type Database = {
           },
         ]
       }
+      member_ambitions: {
+        Row: {
+          created_at: string
+          id: string
+          is_claimable: boolean
+          removed_at: string | null
+          reward_id: string
+          reward_name: string
+          reward_tier_required: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_claimable?: boolean
+          removed_at?: string | null
+          reward_id: string
+          reward_name: string
+          reward_tier_required: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_claimable?: boolean
+          removed_at?: string | null
+          reward_id?: string
+          reward_name?: string
+          reward_tier_required?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       member_groundball_status: {
         Row: {
           bonus_selections: number | null
