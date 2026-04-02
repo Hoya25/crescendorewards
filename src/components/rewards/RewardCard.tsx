@@ -127,15 +127,27 @@ export function RewardCard({
 
   return (
     <Card
-      className={`group cursor-pointer transition-all hover:scale-[1.02] hover:shadow-xl overflow-hidden ${isTierLocked ? 'opacity-60' : ''}`}
+      className={`group cursor-pointer overflow-hidden ${isTierLocked ? 'opacity-60' : ''}`}
       onClick={handleCardClick}
+      style={{
+        borderRadius: '0px',
+        transition: 'transform 200ms ease, box-shadow 200ms ease',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-3px)';
+        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.06)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = 'none';
+      }}
     >
-      <div className="relative w-full h-56 bg-gradient-to-br from-muted/50 to-muted/20">
+      <div className="relative w-full h-56 bg-gradient-to-br from-muted/50 to-muted/20 overflow-hidden">
         {reward.image_url ? (
           <ImageWithFallback
             src={reward.image_url}
             alt={reward.title}
-            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-[400ms] group-hover:scale-[1.03]"
             loading="lazy"
             decoding="async"
           />
