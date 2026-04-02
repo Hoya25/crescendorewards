@@ -797,23 +797,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
       {/* Combined fixed bar: tier + categories + filters */}
       <div style={{ position: 'fixed', top: '48px', left: 0, right: 0, width: '100%', zIndex: 100, backgroundColor: '#F5F4F0', borderBottom: '1px solid #E0DFDB', paddingTop: '4px', paddingBottom: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-        {/* Tier info row (auth only) */}
-        {isAuthenticated && (
-          <div className="container mx-auto px-4 max-w-full border-b">
-            <div className="flex items-center justify-between h-8">
-              <div className="flex items-center gap-2 text-sm">
-                <span>{tier?.badge_emoji || '💧'}</span>
-                <span className="font-semibold" style={{ color: tier?.badge_color }}>{tier?.display_name || 'Member'}</span>
-                <span className="text-muted-foreground">|</span>
-                <span className="font-medium">{claimBalance}</span>
-                <span className="text-muted-foreground text-xs">claims</span>
-              </div>
-              <Button variant="ghost" size="sm" onClick={() => navigate('/membership')} className="text-xs gap-1 h-7">
-                Level Up <ChevronRight className="w-3 h-3" />
-              </Button>
-            </div>
-          </div>
-        )}
+
 
         {/* Category pills row */}
         <div className="container mx-auto px-4 max-w-full">
