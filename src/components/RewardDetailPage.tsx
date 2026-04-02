@@ -174,11 +174,6 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
       }
       fetchWatchCounts([rewardId]);
     }
-
-    // TEMP VERIFICATION — remove after confirming
-    supabase.from('member_ambitions').select('*').limit(1).then(({ data, error }) => {
-      console.log('member_ambitions check:', { data, error });
-    });
   }, [rewardId, profile, fetchWatchCounts]);
 
   useEffect(() => {
