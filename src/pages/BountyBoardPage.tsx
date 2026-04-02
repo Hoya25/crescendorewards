@@ -670,7 +670,7 @@ export default function BountyBoardPage() {
           {bounties.map((b, i) => (
             <div key={b.id} className={`${b.isWide ? 'col-span-full' : ''} animate-fade-in`}
               style={{ animationDelay: `${i * 0.06}s`, animationFillMode: 'both' }}>
-              <BountyCard bounty={b} expanded={expandedId === b.id} onToggle={() => handleToggle(b.id)} onClaim={claimBounty} tokens={tokens} />
+              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#E2FF6D', cursor: 'default' }}>Track on Bounty Hunter →</span>
             </div>
           ))}
           {bounties.length === 0 && (
