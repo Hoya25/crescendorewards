@@ -81,7 +81,7 @@ const getEmailTemplate = (type: string, data: Record<string, unknown>) => {
               
               ${data.total_balance ? `<p><strong>Current NCTR Balance:</strong> ${formatNumber(data.total_balance as number)} NCTR</p>` : ''}
               
-              <p style="margin-top: 20px;">Keep earning at The Garden — shop 6,000+ brands and earn NCTR with every purchase.</p>
+              <p style="margin-top: 20px;">Keep earning at The Garden — shop thousands of brands and earn NCTR with every purchase.</p>
               
               <div style="text-align: center;">
                 <a href="${baseUrl}/rewards" style="${buttonStyle}">View My Rewards</a>

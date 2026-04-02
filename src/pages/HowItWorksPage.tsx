@@ -1,14 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { ArrowRight } from "lucide-react";
 
 const barlow = "'Barlow Condensed', sans-serif";
 const dmSans = "'DM Sans', sans-serif";
+const dmMono = "'DM Mono', monospace";
 
-// ── Animation helper ──
 const fadeIn = {
   initial: { opacity: 0, y: 30 },
   whileInView: { opacity: 1, y: 0 },
@@ -16,36 +15,80 @@ const fadeIn = {
   transition: { duration: 0.5 },
 };
 
+const sectionPad = { padding: '100px 0' };
+
 // ── Data ──
 
 const FLYWHEEL_STEPS = [
-  { emoji: "🛒", title: "You Shop & Participate", desc: "Browse The Garden's thousands of brand partners or Crescendo's marketplace. Every purchase, every action counts." },
-  { emoji: "💰", title: "Revenue Flows In", desc: "Shopping commissions, brand wholesale purchases through Butterfly Studios, transaction fees. Multiple streams, one treasury." },
-  { emoji: "🏦", title: "The Treasury Fuels Everything", desc: "The treasury exists for one purpose: to fund rewards, opportunities, benefits, and experiences for the community. It's constantly being replenished by commerce." },
-  { emoji: "🎁", title: "Rewards Keep Flowing", desc: "Brands contribute directly. Community members list their own. The treasury purchases gift cards and experiences. Three channels keep the marketplace full." },
-  { emoji: "🔒", title: "You Commit & Level Up", desc: "Earn NCTR and commit through 360LOCK for 360 days. Your commitment builds status. Higher status unlocks better rewards." },
-  { emoji: "🔄", title: "The Community Compounds", desc: "More members means more commerce, more revenue, better rewards, more members. The cycle strengthens itself." },
+  { num: "01", title: "You Shop & Participate", desc: "Browse thousands of brands through The Garden or Crescendo's marketplace. Every purchase, every action counts." },
+  { num: "02", title: "Revenue Flows In", desc: "Shopping commissions, brand partnerships, and ecosystem activity generate revenue. Multiple streams, one treasury." },
+  { num: "03", title: "The Treasury Fuels Everything", desc: "The treasury exists for one purpose: to fund rewards, opportunities, and experiences for the community." },
+  { num: "04", title: "Rewards Keep Flowing", desc: "Brands contribute directly. Community members list their own. The treasury purchases the rest. Three channels keep the marketplace full." },
+  { num: "05", title: "You Commit & Level Up", desc: "Earn NCTR and commit through 360LOCK for 360 days. Your commitment builds status. Higher status unlocks better rewards." },
+  { num: "06", title: "The Community Compounds", desc: "More members means more commerce, more revenue, better rewards, more members. The cycle strengthens itself." },
 ];
 
 const TREASURY_SOURCES = [
-  { emoji: "🏢", title: "Brand Partnerships", desc: "Brands invest in the Alliance to reach engaged communities. Their participation budget funds your rewards." },
-  { emoji: "🛍️", title: "Shopping Commissions", desc: "Every purchase you make through the ecosystem generates revenue that flows directly into the rewards pool." },
-  { emoji: "🎟️", title: "Reward Claims", desc: "When members claim rewards, the ecosystem grows. More activity means more brands, more rewards, more value." },
-  { emoji: "🔁", title: "Circular Commerce", desc: "A portion of every trade circulates back into the rewards pool — designed to grow stronger over time, not weaker." },
-  { emoji: "🌱", title: "Ecosystem Growth", desc: "As the Alliance expands — more brands, more members, more activity — the rewards pool compounds naturally." },
+  { title: "Brand Partnerships", desc: "Brands invest in the Alliance to reach engaged communities. Their participation budget funds your rewards." },
+  { title: "Shopping Commissions", desc: "Every purchase you make through the ecosystem generates revenue that flows directly into the rewards pool." },
+  { title: "Reward Claims", desc: "When members claim rewards, the ecosystem grows. More activity means more brands, more rewards, more value." },
+  { title: "Circular Commerce", desc: "A portion of every trade circulates back into the rewards pool — designed to grow stronger over time, not weaker." },
+  { title: "Ecosystem Growth", desc: "As the Alliance expands — more brands, more members, more activity — the rewards pool compounds naturally." },
 ];
 
 const REWARD_CHANNELS = [
-  { emoji: "🏷️", title: "Brand-Funded", subtitle: "BRANDS INVEST IN YOU", desc: "Brands supply rewards, experiences, and access directly to the marketplace as a way to build loyalty with the community." },
-  { emoji: "👥", title: "Community-Sourced", subtitle: "MEMBERS HELPING MEMBERS", desc: "Community members list their own rewards and opportunities. When someone claims them, the contributor earns NCTR." },
-  { emoji: "🎁", title: "Treasury-Purchased", subtitle: "FUNDED BY COMMERCE", desc: "The treasury uses its revenue to purchase gift cards, experiences, and exclusive opportunities at scale." },
+  { title: "Brand-Funded", subtitle: "BRANDS INVEST IN YOU", desc: "Brands supply rewards, experiences, and access directly to the marketplace as a way to build loyalty with the community." },
+  { title: "Community-Sourced", subtitle: "MEMBERS HELPING MEMBERS", desc: "Community members list their own rewards and opportunities. When someone claims them, the contributor earns NCTR." },
+  { title: "Treasury-Purchased", subtitle: "FUNDED BY COMMERCE", desc: "The treasury uses its revenue to purchase gift cards, experiences, and exclusive opportunities at scale." },
 ];
 
 const BUILT_TO_LAST = [
-  { emoji: "🔄", title: "Always Fueled", desc: "The treasury is constantly replenished by multiple revenue streams. As the community grows, revenue grows with it — creating a self-reinforcing cycle." },
-  { emoji: "🛡️", title: "Cash Firewall", desc: "A hard constraint ensures cash outflows never exceed cash contributions. Not a policy — a structural rule built into the design." },
-  { emoji: "📦", title: "Pay on Claim", desc: "Nothing is purchased until someone claims it. The treasury only spends when there's real demand — zero wasted inventory, ever." },
+  { title: "Always Fueled", desc: "The treasury is constantly replenished by multiple revenue streams. As the community grows, revenue grows with it — creating a self-reinforcing cycle." },
+  { title: "Cash Firewall", desc: "A hard constraint ensures cash outflows never exceed cash contributions. Not a policy — a structural rule built into the design." },
+  { title: "Pay on Claim", desc: "Nothing is purchased until someone claims it. The treasury only spends when there's real demand — zero wasted inventory, ever." },
 ];
+
+// ── Helpers ──
+
+const headlineStyle = (light: boolean): React.CSSProperties => ({
+  fontFamily: barlow,
+  fontWeight: 900,
+  fontSize: 'clamp(36px, 6vw, 56px)',
+  textTransform: 'uppercase',
+  letterSpacing: '-0.02em',
+  lineHeight: 1.1,
+  color: light ? '#131313' : '#FFFFFF',
+});
+
+const descStyle = (light: boolean): React.CSSProperties => ({
+  fontFamily: dmSans,
+  fontSize: '16px',
+  lineHeight: 1.7,
+  maxWidth: '640px',
+  margin: '0 auto',
+  color: light ? '#6B6B68' : '#8A8A88',
+});
+
+const cardBg = (light: boolean): React.CSSProperties => ({
+  background: light ? '#FFFFFF' : '#1E1E1C',
+  border: light ? '1px solid #E0DFDB' : 'none',
+  borderRadius: '0px',
+  padding: '28px',
+});
+
+const cardTitle: React.CSSProperties = {
+  fontFamily: barlow,
+  fontWeight: 700,
+  fontSize: '18px',
+  textTransform: 'uppercase',
+};
+
+const cardBody = (light: boolean): React.CSSProperties => ({
+  fontFamily: dmSans,
+  fontSize: '14px',
+  lineHeight: 1.7,
+  color: light ? '#6B6B68' : '#8A8A88',
+});
 
 // ── Component ──
 
@@ -63,54 +106,58 @@ export default function HowItWorksPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: '#131313' }}>
+    <div className="min-h-screen">
       <SEO
         title="How It Works"
-        description="Learn how Crescendo turns everyday actions into real rewards. Brands fund it. You earn it."
+        description="Learn how Crescendo turns everyday actions into real rewards. Brands participate. You earn."
       />
 
-      {/* ── HERO ── */}
-      <section className="relative py-24 md:py-32 px-4 md:px-6 overflow-hidden">
-        <div className="max-w-4xl mx-auto text-center relative z-10">
+      {/* ── HERO (dark) ── */}
+      <section style={{ ...sectionPad, background: '#131313' }} className="px-4 md:px-6">
+        <div className="max-w-4xl mx-auto text-center">
           <motion.div {...fadeIn}>
             <p className="text-xs uppercase tracking-[0.25em] mb-5 font-semibold" style={{ color: '#E2FF6D', fontFamily: barlow }}>
               HOW CRESCENDO WORKS
             </p>
-            <h1 style={{ fontFamily: barlow, fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.1 }} className="text-4xl md:text-5xl lg:text-6xl mb-6">
-              <span className="text-white">Brands fund it.</span>
+            <h1 style={headlineStyle(false)} className="mb-6">
+              <span className="text-white">Brands participate.</span>
               <br />
-              <span style={{ color: '#E2FF6D' }}>You earn it.</span>
+              <span style={{ color: '#E2FF6D' }}>You earn.</span>
             </h1>
-            <p className="text-base md:text-lg max-w-2xl mx-auto leading-relaxed" style={{ color: '#5A5A58', fontFamily: dmSans }}>
-              Crescendo is a rewards marketplace fueled by real commerce. Multiple revenue streams keep the treasury funded so rewards, opportunities, benefits, and experiences keep flowing to you.
+            <p style={descStyle(false)}>
+              Crescendo is a rewards marketplace powered by real commerce. The more active the community, the more rewards, opportunities, and experiences flow to members.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* ── THE FLYWHEEL ── */}
-      <section className="py-16 md:py-24 px-4 md:px-6">
-        <div className="max-w-3xl mx-auto">
-          <motion.h2 {...fadeIn} className="text-2xl md:text-3xl text-white mb-12 text-center" style={{ fontFamily: barlow, fontWeight: 700, letterSpacing: '-0.02em' }}>
-            The Flywheel
-          </motion.h2>
-          <div className="space-y-6">
+      {/* ── THE FLYWHEEL (light) — card grid ── */}
+      <section style={{ ...sectionPad, background: '#F5F4F0' }} className="px-4 md:px-6">
+        <div className="max-w-5xl mx-auto">
+          <motion.div {...fadeIn} className="text-center mb-12">
+            <h2 style={headlineStyle(true)} className="mb-4">The Flywheel</h2>
+          </motion.div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {FLYWHEEL_STEPS.map((step, i) => (
               <motion.div
                 key={i}
                 {...fadeIn}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
-                className="flex gap-4 items-start"
+                style={cardBg(true)}
+                className="relative overflow-hidden"
               >
-                <div
-                  className="w-12 h-12 flex items-center justify-center shrink-0 text-xl"
-                  style={{ backgroundColor: 'rgba(226,255,109,0.1)', borderRadius: '0px' }}
+                {/* Lime left border */}
+                <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#E2FF6D' }} />
+                {/* Large background step number */}
+                <span
+                  className="absolute top-2 right-3 select-none pointer-events-none"
+                  style={{ fontFamily: dmMono, fontSize: '48px', fontWeight: 400, color: 'rgba(0,0,0,0.04)', lineHeight: 1 }}
                 >
-                  {step.emoji}
-                </div>
-                <div>
-                  <h3 className="text-white text-base mb-1" style={{ fontFamily: barlow, fontWeight: 700 }}>{step.title}</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: '#5A5A58', fontFamily: dmSans }}>{step.desc}</p>
+                  {step.num}
+                </span>
+                <div className="relative z-10 pl-3">
+                  <h3 style={{ ...cardTitle, color: '#131313' }} className="mb-2">{step.title}</h3>
+                  <p style={cardBody(true)}>{step.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -118,95 +165,96 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      {/* ── WHAT FUELS THE TREASURY ── */}
-      <section className="py-16 md:py-24 px-4 md:px-6" style={{ background: '#1F2020' }}>
+      {/* ── WHY REWARDS KEEP GROWING (dark) ── */}
+      <section style={{ ...sectionPad, background: '#131313' }} className="px-4 md:px-6">
         <div className="max-w-5xl mx-auto">
           <motion.div {...fadeIn} className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl text-white mb-3" style={{ fontFamily: barlow, fontWeight: 700, letterSpacing: '-0.02em' }}>Why Your Rewards Keep Growing</h2>
-            <p className="text-sm max-w-xl mx-auto" style={{ color: '#5A5A58', fontFamily: dmSans }}>
+            <h2 style={headlineStyle(false)} className="mb-4">Why Your Rewards Keep Growing</h2>
+            <p style={descStyle(false)}>
               The Alliance is built on real revenue — not hype. Every source below funds the rewards you unlock.
             </p>
           </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {TREASURY_SOURCES.map((src, i) => (
               <motion.div
                 key={i}
                 {...fadeIn}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
-                className="p-5 border border-transparent hover:border-[rgba(226,255,109,0.15)] transition-colors duration-200"
-                style={{ background: '#1E1E1C', borderRadius: '0px' }}
+                style={cardBg(false)}
+                className="relative overflow-hidden"
               >
-                <div className="text-2xl mb-3">{src.emoji}</div>
-                <h3 className="text-white text-sm mb-1.5" style={{ fontFamily: barlow, fontWeight: 700 }}>{src.title}</h3>
-                <p className="text-xs leading-relaxed" style={{ color: '#5A5A58', fontFamily: dmSans }}>{src.desc}</p>
+                <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#E2FF6D' }} />
+                <div className="pl-3">
+                  <h3 style={{ ...cardTitle, color: '#FFFFFF' }} className="mb-2">{src.title}</h3>
+                  <p style={cardBody(false)}>{src.desc}</p>
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── HOW REWARDS REACH YOU ── */}
-      <section className="py-16 md:py-24 px-4 md:px-6" style={{ background: '#131313' }}>
+      {/* ── HOW REWARDS REACH YOU (light) ── */}
+      <section style={{ ...sectionPad, background: '#F5F4F0' }} className="px-4 md:px-6">
         <div className="max-w-5xl mx-auto">
           <motion.div {...fadeIn} className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl text-white mb-3" style={{ fontFamily: barlow, fontWeight: 700, letterSpacing: '-0.02em' }}>How Rewards Reach You</h2>
-            <p className="text-sm max-w-xl mx-auto" style={{ color: '#5A5A58', fontFamily: dmSans }}>
+            <h2 style={headlineStyle(true)} className="mb-4">How Rewards Reach You</h2>
+            <p style={descStyle(true)}>
               Three channels keep the marketplace stocked with rewards, opportunities, and experiences.
             </p>
           </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {REWARD_CHANNELS.map((ch, i) => (
               <motion.div
                 key={i}
                 {...fadeIn}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="p-6"
-                style={{ background: '#1F2020', borderRadius: '0px' }}
+                style={cardBg(true)}
+                className="relative overflow-hidden"
               >
-                <div className="text-3xl mb-3">{ch.emoji}</div>
-                <h3 className="text-white text-base mb-0.5" style={{ fontFamily: barlow, fontWeight: 700 }}>{ch.title}</h3>
-                <p className="text-[10px] uppercase tracking-widest font-semibold mb-3" style={{ color: '#E2FF6D', fontFamily: barlow }}>{ch.subtitle}</p>
-                <p className="text-xs leading-relaxed" style={{ color: '#5A5A58', fontFamily: dmSans }}>{ch.desc}</p>
+                <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#E2FF6D' }} />
+                <div className="pl-3">
+                  <h3 style={{ ...cardTitle, color: '#131313' }} className="mb-0.5">{ch.title}</h3>
+                  <p className="text-[10px] uppercase tracking-widest font-semibold mb-3" style={{ color: '#E2FF6D', fontFamily: barlow }}>{ch.subtitle}</p>
+                  <p style={cardBody(true)}>{ch.desc}</p>
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── WHAT IS 360LOCK ── */}
-      <section id="360lock" className="py-16 md:py-24 px-4 md:px-6" style={{ background: '#1F2020' }}>
+      {/* ── WHAT IS 360LOCK (dark) ── */}
+      <section id="360lock" style={{ ...sectionPad, background: '#131313' }} className="px-4 md:px-6">
         <div className="max-w-4xl mx-auto">
           <motion.div {...fadeIn} className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl text-white mb-4" style={{ fontFamily: barlow, fontWeight: 700, letterSpacing: '-0.02em' }}>What is 360LOCK?</h2>
-            <p className="text-sm max-w-2xl mx-auto leading-relaxed" style={{ color: '#5A5A58', fontFamily: dmSans }}>
+            <h2 style={headlineStyle(false)} className="mb-4">What is 360LOCK?</h2>
+            <p style={descStyle(false)}>
               360LOCK is how you show you're in it for real. Commit your NCTR for 360 days — you still own every token, they just can't be sold during that period.
             </p>
           </motion.div>
-          <div className="grid md:grid-cols-2 gap-4 mb-6">
-            <motion.div
-              {...fadeIn}
-              className="p-6"
-              style={{ background: '#393939', borderRadius: '0px' }}
-            >
-              <h3 className="text-white mb-3" style={{ fontFamily: barlow, fontWeight: 700 }}>You get:</h3>
-              <ul className="space-y-2 text-sm" style={{ color: '#5A5A58', fontFamily: dmSans }}>
-                <li>✓ Higher status</li>
-                <li>✓ Better rewards</li>
-                <li>✓ More claims</li>
-              </ul>
+          <div className="grid md:grid-cols-2 gap-5 mb-6">
+            <motion.div {...fadeIn} style={cardBg(false)} className="relative overflow-hidden">
+              <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#E2FF6D' }} />
+              <div className="pl-3">
+                <h3 style={{ ...cardTitle, color: '#FFFFFF' }} className="mb-3">You get:</h3>
+                <ul className="space-y-2 text-sm" style={{ color: '#8A8A88', fontFamily: dmSans }}>
+                  <li>✓ Higher status</li>
+                  <li>✓ Better rewards</li>
+                  <li>✓ More claims</li>
+                </ul>
+              </div>
             </motion.div>
-            <motion.div
-              {...fadeIn}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="p-6"
-              style={{ background: '#393939', borderRadius: '0px' }}
-            >
-              <h3 className="text-white mb-3" style={{ fontFamily: barlow, fontWeight: 700 }}>The ecosystem gets:</h3>
-              <ul className="space-y-2 text-sm" style={{ color: '#5A5A58', fontFamily: dmSans }}>
-                <li>✓ Stability</li>
-                <li>✓ Less volatility</li>
-                <li>✓ Stronger community</li>
-              </ul>
+            <motion.div {...fadeIn} transition={{ duration: 0.5, delay: 0.1 }} style={cardBg(false)} className="relative overflow-hidden">
+              <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#E2FF6D' }} />
+              <div className="pl-3">
+                <h3 style={{ ...cardTitle, color: '#FFFFFF' }} className="mb-3">The ecosystem gets:</h3>
+                <ul className="space-y-2 text-sm" style={{ color: '#8A8A88', fontFamily: dmSans }}>
+                  <li>✓ Stability</li>
+                  <li>✓ Less volatility</li>
+                  <li>✓ Stronger community</li>
+                </ul>
+              </div>
             </motion.div>
           </div>
           <motion.div
@@ -219,53 +267,67 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      {/* COMMUNITY CATEGORIES SECTION REMOVED — Impact Engine names not displayed publicly */}
-
-      {/* ── BUILT TO LAST ── */}
-      <section className="py-16 md:py-24 px-4 md:px-6" style={{ background: '#1F2020' }}>
+      {/* ── BUILT TO LAST (light) ── */}
+      <section style={{ ...sectionPad, background: '#F5F4F0' }} className="px-4 md:px-6">
         <div className="max-w-5xl mx-auto">
           <motion.div {...fadeIn} className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl text-white mb-3" style={{ fontFamily: barlow, fontWeight: 700, letterSpacing: '-0.02em' }}>Built to Last</h2>
+            <h2 style={headlineStyle(true)} className="mb-3">Built to Last</h2>
           </motion.div>
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-3 gap-5">
             {BUILT_TO_LAST.map((item, i) => (
               <motion.div
                 key={i}
                 {...fadeIn}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="p-6"
-                style={{ background: '#393939', borderRadius: '0px' }}
+                style={cardBg(true)}
+                className="relative overflow-hidden"
               >
-                <div className="text-2xl mb-3">{item.emoji}</div>
-                <h3 className="text-white text-sm mb-2" style={{ fontFamily: barlow, fontWeight: 700 }}>{item.title}</h3>
-                <p className="text-xs leading-relaxed" style={{ color: '#5A5A58', fontFamily: dmSans }}>{item.desc}</p>
+                <div className="absolute left-0 top-0 bottom-0 w-[2px]" style={{ background: '#E2FF6D' }} />
+                <div className="pl-3">
+                  <h3 style={{ ...cardTitle, color: '#131313' }} className="mb-2">{item.title}</h3>
+                  <p style={cardBody(true)}>{item.desc}</p>
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── CLOSING ── */}
-      <section className="py-20 md:py-28 px-4 md:px-6 text-center" style={{ background: '#131313' }}>
+      {/* ── BOTTOM CTA (dark) ── */}
+      <section style={{ ...sectionPad, background: '#131313' }} className="px-4 md:px-6 text-center">
         <div className="max-w-2xl mx-auto">
           <motion.div {...fadeIn}>
-            <p className="italic text-sm mb-8" style={{ color: '#5A5A58', fontFamily: dmSans }}>
+            <p className="italic text-sm mb-8" style={{ color: '#8A8A88', fontFamily: dmSans }}>
               "This isn't built on hype. It's built on commerce, commitment, and community."
             </p>
-            <h2 className="text-3xl md:text-4xl text-white mb-3" style={{ fontFamily: barlow, fontWeight: 900, letterSpacing: '-0.02em' }}>Ready to earn?</h2>
-            <p className="text-sm mb-8" style={{ color: '#5A5A58', fontFamily: dmSans }}>
-              Join Crescendo. Shop. Participate. Build your stake.
+            <h2 style={{ fontFamily: barlow, fontWeight: 900, fontSize: '48px', color: '#FFFFFF', lineHeight: 1.1, textTransform: 'uppercase' }} className="mb-3">
+              Ready to participate?
+            </h2>
+            <p className="text-sm mb-8" style={{ color: '#8A8A88', fontFamily: dmSans }}>
+              Join Crescendo. Shop. Participate. Build your status.
             </p>
-            <Button
-              size="lg"
+            <button
               onClick={handleCTA}
-              className="font-bold text-base px-8 border-0"
-              style={{ backgroundColor: '#E2FF6D', color: '#323232', borderRadius: '0px', fontFamily: barlow, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
+              style={{
+                fontFamily: dmMono,
+                fontSize: '14px',
+                textTransform: 'uppercase',
+                background: '#E2FF6D',
+                color: '#131313',
+                border: 'none',
+                borderRadius: '0px',
+                padding: '16px 40px',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontWeight: 500,
+              }}
             >
-              Get Started <ArrowRight className="ml-2 w-4 h-4" />
-            </Button>
-            <p className="text-[11px] mt-10" style={{ color: '#5A5A58', fontFamily: dmSans }}>
-              NCTR Alliance · Built on Base · Live and Earn
+              Get Started <ArrowRight className="w-4 h-4" />
+            </button>
+            <p className="text-[11px] mt-10" style={{ color: '#8A8A88', fontFamily: dmSans }}>
+              NCTR Alliance · Live and Earn
             </p>
           </motion.div>
         </div>

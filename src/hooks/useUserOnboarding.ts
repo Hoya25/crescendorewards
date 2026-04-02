@@ -235,7 +235,7 @@ export function useUserOnboarding() {
     {
       id: 'garden_visited',
       title: 'Browse The Garden',
-      description: 'Discover 6,000+ earning brands',
+      description: 'Discover thousands of earning brands',
       nctrReward: NCTR_REWARDS.garden_visited,
       externalUrl: 'https://thegarden.nctr.live/',
       completed: progress.garden_visited,
