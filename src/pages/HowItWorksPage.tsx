@@ -19,7 +19,7 @@ const fadeIn = {
 // ── Data ──
 
 const FLYWHEEL_STEPS = [
-  { emoji: "🛒", title: "You Shop & Participate", desc: "Browse The Garden's 6,000+ brand partners or Crescendo's marketplace. Every purchase, every action counts." },
+  { emoji: "🛒", title: "You Shop & Participate", desc: "Browse The Garden's thousands of brand partners or Crescendo's marketplace. Every purchase, every action counts." },
   { emoji: "💰", title: "Revenue Flows In", desc: "Shopping commissions, brand wholesale purchases through Butterfly Studios, transaction fees. Multiple streams, one treasury." },
   { emoji: "🏦", title: "The Treasury Fuels Everything", desc: "The treasury exists for one purpose: to fund rewards, opportunities, benefits, and experiences for the community. It's constantly being replenished by commerce." },
   { emoji: "🎁", title: "Rewards Keep Flowing", desc: "Brands contribute directly. Community members list their own. The treasury purchases gift cards and experiences. Three channels keep the marketplace full." },

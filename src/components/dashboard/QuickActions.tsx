@@ -79,7 +79,7 @@ export function QuickActions() {
     {
       emoji: "🛍️",
       title: "Shop The Garden",
-      subtitle: "6,000+ brands. Earn NCTR on every purchase.",
+      subtitle: "Thousands of brands. Earn NCTR on every purchase.",
       cta: "Start Shopping",
       onClick: () => navigate("/brands"),
     },

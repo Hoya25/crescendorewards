@@ -31,7 +31,7 @@ export function BrandLogosSection() {
     <section className="py-16 md:py-24 px-4 md:px-6 bg-muted/20">
       <div className="max-w-5xl mx-auto">
         <h2 className="text-2xl md:text-4xl font-bold text-center mb-4 text-foreground">
-          Shop 6,000+ Brands. Earn Every Time.
+          Shop Thousands of Brands. Earn Every Time.
         </h2>
         <p className="text-center text-muted-foreground max-w-xl mx-auto mb-10">
           Same prices you'd pay anywhere. But when you shop through The Garden, every dollar earns NCTR.

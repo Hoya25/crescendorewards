@@ -18,7 +18,7 @@ interface WelcomeFlowProps {
 const ONBOARDED_KEY = "crescendo_onboarding_complete";
 
 const earningWays = [
-  { icon: ShoppingBag, emoji: "🛍️", title: "Shop The Garden", desc: "6,000+ brands. Same prices. You earn NCTR." },
+  { icon: ShoppingBag, emoji: "🛍️", title: "Shop The Garden", desc: "Thousands of brands. Same prices. You earn NCTR." },
   { icon: Shirt, emoji: "👕", title: "Rep the Brand", desc: "Buy NCTR merch. Unlock content bounties. Earn 3x." },
   { icon: Camera, emoji: "📸", title: "Complete Bounties", desc: "Create content, refer friends, hit milestones. Get paid in NCTR." },
   { icon: Users, emoji: "🤝", title: "Invite Friends", desc: "They join, you both earn." },
