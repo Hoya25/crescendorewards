@@ -1,7 +1,5 @@
 import { Home, Gift, Shield, Zap, Trophy, UserPlus, HelpCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import nctrIconDark from '@/assets/nctr-grey.png';
-import nctrIconLight from '@/assets/nctr-yellow.png';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
@@ -108,14 +106,6 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
   return (
     <Sidebar className={open ? 'w-60' : 'w-14'} collapsible="icon">
       <SidebarContent>
-        {/* Brand Mark */}
-        <div className={cn("flex items-center gap-2 px-3 py-3", !open && "justify-center")}>
-          <img src={nctrIconDark} alt="NCTR" className="block dark:hidden w-6 h-6 flex-shrink-0" />
-          <img src={nctrIconLight} alt="NCTR" className="hidden dark:block w-6 h-6 flex-shrink-0" />
-          {open && <span className="text-base font-bold tracking-wide text-foreground">Crescendo</span>}
-        </div>
-        <SidebarSeparator />
-
         {/* Membership */}
         <SidebarGroup>
           {open && <SidebarGroupLabel style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Membership</SidebarGroupLabel>}
