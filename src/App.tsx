@@ -11,6 +11,7 @@ import { UnifiedUserProvider, useUnifiedUser } from "./contexts/UnifiedUserConte
 import { ActivityTrackerProvider } from "./contexts/ActivityTrackerContext";
 import { DemoModeProvider } from "./contexts/DemoModeContext";
 import { LockDecisionProvider } from "./contexts/LockDecisionContext";
+import { AmbitionsProvider } from "./contexts/AmbitionsContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AdminRoute } from "./components/AdminRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
