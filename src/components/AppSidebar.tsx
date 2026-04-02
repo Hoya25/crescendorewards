@@ -95,45 +95,12 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
             : "hover:bg-accent hover:text-accent-foreground"
         )}
       >
-        {item.emoji && open ? (
-          <span className="text-base leading-none w-4 flex items-center justify-center">{item.emoji}</span>
-        ) : (
-          <item.icon className={cn("h-4 w-4", item.highlight && "dark:text-[#E2FF6D] text-[#323232]")} />
-        )}
+        <item.icon className="h-4 w-4" />
         {open && (
-          <div className="flex flex-col min-w-0">
-            <span className={cn(
-              "text-sm leading-tight truncate",
-              item.highlight && "dark:text-[#E2FF6D] text-[#323232] font-semibold"
-            )}>
-              {item.title}
-            </span>
-            {item.subtext && (
-              <span className="text-[10px] text-muted-foreground truncate leading-tight">
-                {item.subtext}
-              </span>
-            )}
-          </div>
+          <span className="text-sm leading-tight truncate">{item.title}</span>
         )}
       </SidebarMenuButton>
     );
-
-    // Show tooltip with subtext when sidebar is collapsed
-    if (!open && item.subtext) {
-      return (
-        <TooltipProvider key={item.title} delayDuration={0}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <SidebarMenuItem>{button}</SidebarMenuItem>
-            </TooltipTrigger>
-            <TooltipContent side="right" className="max-w-[200px]">
-              <p className="font-semibold text-sm">{item.title}</p>
-              <p className="text-xs text-muted-foreground">{item.subtext}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      );
-    }
 
     return <SidebarMenuItem key={item.title}>{button}</SidebarMenuItem>;
   };
