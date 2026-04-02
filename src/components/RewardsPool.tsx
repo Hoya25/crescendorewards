@@ -48,6 +48,7 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { cn } from '@/lib/utils';
 import { OpportunitiesTab } from '@/components/rewards/OpportunitiesTab';
 import { StandingsTab } from '@/components/rewards/StandingsTab';
+import { useAmbitions } from '@/contexts/AmbitionsContext';
 
 interface Reward {
   id: string;
