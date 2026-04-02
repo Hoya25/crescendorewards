@@ -320,13 +320,13 @@ export function VisualRewardCard({
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5">
               {pricing.isFree ? (
-                <span style={{ fontFamily: dmMono, fontSize: '14px', color: '#E2FF6D', fontWeight: 400 }}>FREE</span>
+                <span style={{ fontFamily: dmMono, fontSize: '14px', color: '#131313', fontWeight: 500 }}>FREE</span>
               ) : (
                 <>
-                  <span style={{ fontFamily: dmMono, fontSize: '18px', color: '#FFFFFF', fontWeight: 400 }}>
+                  <span style={{ fontFamily: dmMono, fontSize: '18px', color: '#131313', fontWeight: 400 }}>
                     {calculateClaimsForUser(pricing.price, userTier.tierName)}
                   </span>
-                  <span style={{ fontFamily: dmMono, fontSize: '12px', color: '#5A5A58' }}>claims</span>
+                  <span style={{ fontFamily: dmMono, fontSize: '12px', color: '#6B6B68' }}>claims</span>
                 </>
               )}
             </div>
