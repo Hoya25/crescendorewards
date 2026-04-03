@@ -90,7 +90,7 @@ const statusTiers: StatusTier[] = [
     name: 'Platinum',
     requirement: 50000,
     description: 'Reach platinum status with bi-monthly claims and premium benefits',
-    multiplier: 2.0,
+    multiplier: 1.8,
     claims: '2 monthly claims',
     discount: 20,
     benefits: [
