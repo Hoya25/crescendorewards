@@ -66,12 +66,13 @@ Deno.serve(async (req: Request) => {
     // Also check by bh_user_id in case email differs
     const { data: existingByBh } = await supabase
       .from("unified_profiles")
-      .select("*")
+      .select("*, status_tiers(tier_name)")
       .eq("bh_user_id", bh_user_id)
       .maybeSingle();
 
     if (existingByBh) {
-      return new Response(JSON.stringify({ exists: true, profile: existingByBh }), { status: 200, headers });
+      const tierName = existingByBh.status_tiers?.tier_name || "bronze";
+      return new Response(JSON.stringify({ exists: true, profile: { ...existingByBh, crescendo_tier: tierName } }), { status: 200, headers });
     }
 
     // Look up Bronze tier
