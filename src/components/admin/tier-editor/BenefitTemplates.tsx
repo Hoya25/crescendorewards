@@ -84,7 +84,7 @@ const templates: BenefitTemplate[] = [
       silver: { earning_multiplier: 1.1, claims_per_year: 2, claims_per_month: 0, unlimited_claims: false, discount_percent: 5, priority_support: false, early_access: false, vip_events: false, concierge_service: false, free_shipping: false },
       gold: { earning_multiplier: 1.2, claims_per_year: 4, claims_per_month: 0, unlimited_claims: false, discount_percent: 10, priority_support: true, early_access: false, vip_events: false, concierge_service: false, free_shipping: false },
       platinum: { earning_multiplier: 1.75, claims_per_year: 0, claims_per_month: 3, unlimited_claims: false, discount_percent: 25, priority_support: true, early_access: true, vip_events: true, concierge_service: true, free_shipping: true },
-      diamond: { earning_multiplier: 2.0, claims_per_year: 0, claims_per_month: 0, unlimited_claims: true, discount_percent: 40, priority_support: true, early_access: true, vip_events: true, concierge_service: true, free_shipping: true },
+      diamond: { earning_multiplier: 2.5, claims_per_year: 0, claims_per_month: 0, unlimited_claims: true, discount_percent: 40, priority_support: true, early_access: true, vip_events: true, concierge_service: true, free_shipping: true },
     }
   },
 ];
