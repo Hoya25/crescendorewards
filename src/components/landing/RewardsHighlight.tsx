@@ -7,17 +7,17 @@ const dmSans = "'DM Sans', sans-serif";
 const cards = [
   {
     title: 'Thousands of brands',
-    subtitle: 'Shop and earn across wellness, outdoor, fashion, tech, food, and more',
+    subtitle: 'Shop and earn across wellness, outdoor, fashion, tech, food, and more — all through the Alliance ecosystem.',
     tier: 'All members',
   },
   {
-    title: 'Curated rewards',
-    subtitle: 'Products, gift cards, and experiences from brands that share your values',
+    title: 'Subscriptions you love',
+    subtitle: 'Your favorite streaming, wellness, and content subscriptions — sponsored by the ecosystem as you grow your status.',
     tier: 'Bronze+',
   },
   {
-    title: 'VIP access',
-    subtitle: 'Exclusive drops, events, and opportunities that grow with your status',
+    title: "The life you're building",
+    subtitle: 'Products, experiences, and opportunities that match what matters to you. The higher your status, the more the ecosystem invests in your life.',
     tier: 'Gold+',
   },
 ];
@@ -31,11 +31,18 @@ export function RewardsHighlight({ onJoin }: RewardsHighlightProps) {
     <section className="py-20 md:py-28 px-4 md:px-6 bg-page-bg">
       <div className="max-w-5xl mx-auto">
         <h2
-          className="text-2xl md:text-4xl font-bold text-center mb-12 text-text-heading"
+          className="text-2xl md:text-4xl font-bold text-center mb-4 text-text-heading"
           style={{ fontFamily: barlow, letterSpacing: '-0.02em' }}
         >
           Unlock Real Rewards
         </h2>
+
+        <p
+          className="text-center mb-12 max-w-2xl mx-auto text-text-body"
+          style={{ fontFamily: dmSans, fontSize: '14px', lineHeight: 1.7 }}
+        >
+          The Alliance exists to sponsor the things that matter to you. As you participate and grow your status, the ecosystem invests more in your life — from everyday subscriptions to once-in-a-lifetime experiences.
+        </p>
 
         <div className="grid md:grid-cols-3 gap-5 mb-12">
           {cards.map((card) => (
