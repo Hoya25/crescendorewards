@@ -10,14 +10,14 @@ export const membershipTiers: MembershipTier[] = [
     name: 'Bronze',
     requirement: 1000,
     description: 'Entry tier with enhanced earning potential (1,000-4,999 NCTR)',
-    multiplier: 1.1,
+    multiplier: 1.0,
     claims: '1 annual claim',
     discount: 0,
     benefits: [
       'Access to bronze reward catalog',
       '1 reward claim per year',
       'Priority customer support',
-      'Earn 1.1x NCTR on all activities'
+      'Earn 1.0x NCTR on all activities'
     ],
     nftBadges: ['Digital Rewards Access'],
     color: 'hsl(14 100% 57%)',
@@ -67,14 +67,14 @@ export const membershipTiers: MembershipTier[] = [
     name: 'Platinum',
     requirement: 50000,
     description: 'Premium status with bi-monthly claims and concierge service (50,000-149,999 NCTR)',
-    multiplier: 2.0,
+    multiplier: 1.8,
     claims: '2 monthly claims',
     discount: 20,
     benefits: [
       'Access to platinum reward catalog',
       '2 reward claims per month',
       'Exclusive platinum events',
-      'Earn 2.0x NCTR on all activities',
+      'Earn 1.8x NCTR on all activities',
       '20% discount on partner brands',
       'Personal concierge service',
       'Priority shipping'

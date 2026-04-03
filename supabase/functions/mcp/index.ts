@@ -324,9 +324,9 @@ const TIERS: Tier[] = [
   {
     name: 'Silver',
     threshold: 1000,
-    multiplier: 1.2,
-    description: 'Committed members with 1,000+ NCTR locked. 1.2x earning multiplier.',
-    perks: ['1.2x earning multiplier', 'Early access to new bounties', 'Silver badge']
+    multiplier: 1.25,
+    description: 'Committed members with 1,000+ NCTR locked. 1.25x earning multiplier.',
+    perks: ['1.25x earning multiplier', 'Early access to new bounties', 'Silver badge']
   },
   {
     name: 'Gold',
@@ -345,9 +345,9 @@ const TIERS: Tier[] = [
   {
     name: 'Diamond',
     threshold: 100000,
-    multiplier: 2.0,
-    description: 'Top-tier members with 100,000+ NCTR locked. 2.0x earning multiplier.',
-    perks: ['2.0x earning multiplier', 'Founding member recognition', 'Diamond-exclusive events', 'Diamond badge', 'Direct team access']
+    multiplier: 2.5,
+    description: 'Top-tier members with 100,000+ NCTR locked. 2.5x earning multiplier.',
+    perks: ['2.5x earning multiplier', 'Founding member recognition', 'Diamond-exclusive events', 'Diamond badge', 'Direct team access']
   }
 ]
 

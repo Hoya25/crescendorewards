@@ -4,7 +4,7 @@ import { MobileNav } from "./MobileNav";
 import { HeroSection } from "./landing/HeroSection";
 import { EntryPathsSection } from "./landing/EntryPathsSection";
 import { HowItWorksLanding } from "./landing/HowItWorksLanding";
-import { RewardsPreview } from "./landing/RewardsPreview";
+import { RewardsHighlight } from "./landing/RewardsHighlight";
 import { FiveWaysToEarn } from "./landing/FiveWaysToEarn";
 import { TheMathSection } from "./landing/TheMathSection";
 import { FinalCTA } from "./landing/FinalCTA";
@@ -224,7 +224,7 @@ export function LandingPage() {
       </ScrollReveal>
 
       <ScrollReveal>
-        <RewardsPreview onJoin={handleJoin} />
+        <RewardsHighlight onJoin={handleJoin} />
       </ScrollReveal>
 
       <ScrollReveal>
