@@ -190,7 +190,21 @@ export function AuthModal({ mode: _mode, onClose, onSuccess, onToggleMode: _onTo
             </p>
           </div>
 
-          {/* Status Message */}
+          {/* BH Welcome Banner */}
+          {isFromBH && !statusMessage && !bhFound && (
+            <div
+              className="w-full mb-4 p-3"
+              style={{
+                backgroundColor: 'rgba(226, 255, 109, 0.1)',
+                border: '1px solid rgba(226, 255, 109, 0.25)',
+              }}
+            >
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#E2FF6D' }}>
+                Welcome from Bounty Hunter — sign in with your BH password
+              </p>
+            </div>
+          )}
+
           {statusMessage && (
             <div
               className="w-full mb-4 p-3 flex items-center gap-2"
