@@ -42,7 +42,7 @@ Deno.serve(async (req: Request) => {
     // Check if profile already exists by email
     const { data: existing, error: selectError } = await supabase
       .from("unified_profiles")
-      .select("*")
+      .select("*, status_tiers(tier_name)")
       .eq("email", email.toLowerCase().trim())
       .maybeSingle();
 
@@ -59,18 +59,20 @@ Deno.serve(async (req: Request) => {
           .eq("id", existing.id);
         existing.bh_user_id = bh_user_id;
       }
-      return new Response(JSON.stringify({ exists: true, profile: existing }), { status: 200, headers });
+      const tierName = existing.status_tiers?.tier_name || "bronze";
+      return new Response(JSON.stringify({ exists: true, profile: { ...existing, crescendo_tier: tierName } }), { status: 200, headers });
     }
 
     // Also check by bh_user_id in case email differs
     const { data: existingByBh } = await supabase
       .from("unified_profiles")
-      .select("*")
+      .select("*, status_tiers(tier_name)")
       .eq("bh_user_id", bh_user_id)
       .maybeSingle();
 
     if (existingByBh) {
-      return new Response(JSON.stringify({ exists: true, profile: existingByBh }), { status: 200, headers });
+      const tierName = existingByBh.status_tiers?.tier_name || "bronze";
+      return new Response(JSON.stringify({ exists: true, profile: { ...existingByBh, crescendo_tier: tierName } }), { status: 200, headers });
     }
 
     // Look up Bronze tier
@@ -99,7 +101,7 @@ Deno.serve(async (req: Request) => {
       return new Response(JSON.stringify({ error: insertError.message }), { status: 500, headers });
     }
 
-    return new Response(JSON.stringify({ exists: false, profile: newProfile }), { status: 201, headers });
+    return new Response(JSON.stringify({ exists: false, profile: { ...newProfile, crescendo_tier: "bronze" } }), { status: 201, headers });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     return new Response(JSON.stringify({ error: message }), { status: 500, headers });
