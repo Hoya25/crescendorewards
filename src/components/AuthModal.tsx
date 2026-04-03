@@ -25,11 +25,6 @@ export function AuthModal({ mode: _mode, onClose, onSuccess, onToggleMode: _onTo
   const [statusMessage, setStatusMessage] = useState('');
 
   const isFromBH = !!prefilledEmail;
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [bhFound, setBhFound] = useState(false);
-  const [statusMessage, setStatusMessage] = useState('');
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePassword = (password: string) => password.length >= 6;
