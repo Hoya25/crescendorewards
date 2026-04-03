@@ -20,6 +20,9 @@ interface AuthContextType {
   setShowProfileCompletion: (show: boolean) => void;
   walletAddress: string | null;
   needsProfileCompletion: boolean;
+  // BH email pre-fill
+  bhEmail: string | null;
+  setBhEmail: (email: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
