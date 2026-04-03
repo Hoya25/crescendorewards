@@ -284,16 +284,18 @@ export function AuthModal({ mode: _mode, onClose, onSuccess, onToggleMode: _onTo
                 type="email"
                 placeholder="Enter your NCTR email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => !isFromBH && setEmail(e.target.value)}
+                readOnly={isFromBH}
                 disabled={loading}
                 required
                 style={{
-                  backgroundColor: '#252525',
+                  backgroundColor: isFromBH ? '#1E1E1E' : '#252525',
                   border: '1px solid #3A3A3A',
                   borderRadius: '0px',
-                  color: '#FFFFFF',
+                  color: isFromBH ? '#A0A0A0' : '#FFFFFF',
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: '14px',
+                  cursor: isFromBH ? 'not-allowed' : undefined,
                 }}
               />
             </div>
