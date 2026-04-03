@@ -42,7 +42,7 @@ Deno.serve(async (req: Request) => {
     // Check if profile already exists by email
     const { data: existing, error: selectError } = await supabase
       .from("unified_profiles")
-      .select("*")
+      .select("*, status_tiers(tier_name)")
       .eq("email", email.toLowerCase().trim())
       .maybeSingle();
 
