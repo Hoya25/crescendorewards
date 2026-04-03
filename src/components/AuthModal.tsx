@@ -13,10 +13,18 @@ interface AuthModalProps {
   onClose: () => void;
   onSuccess: () => void;
   onToggleMode: () => void;
+  prefilledEmail?: string | null;
 }
 
-export function AuthModal({ mode: _mode, onClose, onSuccess, onToggleMode: _onToggleMode }: AuthModalProps) {
-  const [email, setEmail] = useState('');
+export function AuthModal({ mode: _mode, onClose, onSuccess, onToggleMode: _onToggleMode, prefilledEmail }: AuthModalProps) {
+  const [email, setEmail] = useState(prefilledEmail || '');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [bhFound, setBhFound] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+
+  const isFromBH = !!prefilledEmail;
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
