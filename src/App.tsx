@@ -616,9 +616,10 @@ function AppRoutes() {
       {showAuthModal && (
         <AuthModal
           mode={authMode}
-          onClose={() => setShowAuthModal(false)}
+          onClose={() => { setShowAuthModal(false); setBhEmail(null); }}
           onSuccess={handleAuthSuccess}
           onToggleMode={handleToggleMode}
+          prefilledEmail={bhEmail}
         />
       )}
 
