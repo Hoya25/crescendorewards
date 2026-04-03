@@ -13,15 +13,18 @@ interface AuthModalProps {
   onClose: () => void;
   onSuccess: () => void;
   onToggleMode: () => void;
+  prefilledEmail?: string | null;
 }
 
-export function AuthModal({ mode: _mode, onClose, onSuccess, onToggleMode: _onToggleMode }: AuthModalProps) {
-  const [email, setEmail] = useState('');
+export function AuthModal({ mode: _mode, onClose, onSuccess, onToggleMode: _onToggleMode, prefilledEmail }: AuthModalProps) {
+  const [email, setEmail] = useState(prefilledEmail || '');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [bhFound, setBhFound] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+
+  const isFromBH = !!prefilledEmail;
 
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePassword = (password: string) => password.length >= 6;
@@ -187,7 +190,21 @@ export function AuthModal({ mode: _mode, onClose, onSuccess, onToggleMode: _onTo
             </p>
           </div>
 
-          {/* Status Message */}
+          {/* BH Welcome Banner */}
+          {isFromBH && !statusMessage && !bhFound && (
+            <div
+              className="w-full mb-4 p-3"
+              style={{
+                backgroundColor: 'rgba(226, 255, 109, 0.1)',
+                border: '1px solid rgba(226, 255, 109, 0.25)',
+              }}
+            >
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#E2FF6D' }}>
+                Welcome from Bounty Hunter — sign in with your BH password
+              </p>
+            </div>
+          )}
+
           {statusMessage && (
             <div
               className="w-full mb-4 p-3 flex items-center gap-2"
@@ -267,16 +284,18 @@ export function AuthModal({ mode: _mode, onClose, onSuccess, onToggleMode: _onTo
                 type="email"
                 placeholder="Enter your NCTR email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => !isFromBH && setEmail(e.target.value)}
+                readOnly={isFromBH}
                 disabled={loading}
                 required
                 style={{
-                  backgroundColor: '#252525',
+                  backgroundColor: isFromBH ? '#1E1E1E' : '#252525',
                   border: '1px solid #3A3A3A',
                   borderRadius: '0px',
-                  color: '#FFFFFF',
+                  color: isFromBH ? '#A0A0A0' : '#FFFFFF',
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: '14px',
+                  cursor: isFromBH ? 'not-allowed' : undefined,
                 }}
               />
             </div>

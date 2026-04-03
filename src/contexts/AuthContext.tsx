@@ -20,6 +20,9 @@ interface AuthContextType {
   setShowProfileCompletion: (show: boolean) => void;
   walletAddress: string | null;
   needsProfileCompletion: boolean;
+  // BH email pre-fill
+  bhEmail: string | null;
+  setBhEmail: (email: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [showProfileCompletion, setShowProfileCompletion] = useState(false);
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [needsProfileCompletion, setNeedsProfileCompletion] = useState(false);
+  const [bhEmail, setBhEmail] = useState<string | null>(null);
   const pendingSignupRedirect = useRef(false);
 
   // Check if user needs to complete their profile (wallet users without real email/name)
@@ -240,6 +244,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setShowProfileCompletion,
         walletAddress,
         needsProfileCompletion,
+        bhEmail,
+        setBhEmail,
       }}
     >
       {children}
