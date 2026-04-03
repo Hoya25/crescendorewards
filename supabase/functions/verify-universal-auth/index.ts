@@ -59,7 +59,8 @@ Deno.serve(async (req: Request) => {
           .eq("id", existing.id);
         existing.bh_user_id = bh_user_id;
       }
-      return new Response(JSON.stringify({ exists: true, profile: existing }), { status: 200, headers });
+      const tierName = existing.status_tiers?.tier_name || "bronze";
+      return new Response(JSON.stringify({ exists: true, profile: { ...existing, crescendo_tier: tierName } }), { status: 200, headers });
     }
 
     // Also check by bh_user_id in case email differs
