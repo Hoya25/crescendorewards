@@ -16,7 +16,7 @@ const cards = [
     tier: 'Bronze+',
   },
   {
-    title: 'The life you're building',
+    title: "The life you're building",
     subtitle: 'Products, experiences, and opportunities that match what matters to you. The higher your status, the more the ecosystem invests in your life.',
     tier: 'Gold+',
   },
