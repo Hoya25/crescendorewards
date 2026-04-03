@@ -41,7 +41,7 @@ const TIER_INFO = [
     key: "platinum",
     emoji: "💎",
     range: "10,000–49,999 NCTR locked",
-    mult: "2.0x",
+    mult: "1.8x",
     perks: "Premium rewards + exclusive experiences",
     color: "#E5E4E2",
   },

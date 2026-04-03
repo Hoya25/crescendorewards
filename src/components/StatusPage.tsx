@@ -97,7 +97,7 @@ const statusTiers: StatusTier[] = [
       'Access to platinum reward catalog',
       '2 reward claims per month',
       'Exclusive platinum events',
-      'Earn 2.0x NCTR on all activities',
+      'Earn 1.8x NCTR on all activities',
       '20% discount on partner brands',
       'Personal concierge service',
       'Priority shipping',

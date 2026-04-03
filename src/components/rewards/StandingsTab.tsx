@@ -10,7 +10,7 @@ interface TierRow {
 
 const hardcodedTiers: TierRow[] = [
   { rank: '05', name: 'Diamond', nctrRequirement: '150,000 NCTR', multiplier: '2.5x', perks: '50 claims · governance · vault', color: 'rgba(185,242,255,0.9)' },
-  { rank: '04', name: 'Platinum', nctrRequirement: '50,000 NCTR', multiplier: '2.0x', perks: '25 claims · brand priority', color: 'rgba(200,200,210,0.9)' },
+  { rank: '04', name: 'Platinum', nctrRequirement: '50,000 NCTR', multiplier: '1.8x', perks: '25 claims · brand priority', color: 'rgba(200,200,210,0.9)' },
   { rank: '03', name: 'Gold', nctrRequirement: '15,000 NCTR', multiplier: '1.5x', perks: '10 claims · creator tools · merch', color: 'rgba(255,215,100,0.9)' },
   { rank: '02', name: 'Silver', nctrRequirement: '5,000 NCTR', multiplier: '1.25x', perks: '5 claims · 48hr early · streams', color: 'rgba(192,192,200,0.8)', isCurrent: true },
   { rank: '01', name: 'Bronze', nctrRequirement: '1,000 NCTR', multiplier: '1.0x', perks: '2 claims · wellness', color: 'rgba(180,130,80,0.9)' },
