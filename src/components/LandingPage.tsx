@@ -224,7 +224,7 @@ export function LandingPage() {
       </ScrollReveal>
 
       <ScrollReveal>
-        <RewardsPreview onJoin={handleJoin} />
+        <RewardsHighlight onJoin={handleJoin} />
       </ScrollReveal>
 
       <ScrollReveal>
