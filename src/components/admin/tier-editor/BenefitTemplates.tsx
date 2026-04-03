@@ -54,11 +54,11 @@ const templates: BenefitTemplate[] = [
     description: 'Higher claim limits with moderate multipliers',
     icon: <Target className="h-5 w-5" />,
     tiers: {
-      bronze: { earning_multiplier: 1.05, claims_per_year: 2, claims_per_month: 0, unlimited_claims: false, discount_percent: 5, priority_support: false, early_access: false, vip_events: false, concierge_service: false, free_shipping: false },
-      silver: { earning_multiplier: 1.15, claims_per_year: 6, claims_per_month: 0, unlimited_claims: false, discount_percent: 10, priority_support: true, early_access: false, vip_events: false, concierge_service: false, free_shipping: false },
-      gold: { earning_multiplier: 1.25, claims_per_year: 0, claims_per_month: 2, unlimited_claims: false, discount_percent: 15, priority_support: true, early_access: true, vip_events: false, concierge_service: false, free_shipping: true },
-      platinum: { earning_multiplier: 1.35, claims_per_year: 0, claims_per_month: 4, unlimited_claims: false, discount_percent: 20, priority_support: true, early_access: true, vip_events: true, concierge_service: false, free_shipping: true },
-      diamond: { earning_multiplier: 1.5, claims_per_year: 0, claims_per_month: 0, unlimited_claims: true, discount_percent: 30, priority_support: true, early_access: true, vip_events: true, concierge_service: true, free_shipping: true },
+      bronze: { earning_multiplier: 1.0, claims_per_year: 2, claims_per_month: 0, unlimited_claims: false, discount_percent: 5, priority_support: false, early_access: false, vip_events: false, concierge_service: false, free_shipping: false },
+      silver: { earning_multiplier: 1.25, claims_per_year: 6, claims_per_month: 0, unlimited_claims: false, discount_percent: 10, priority_support: true, early_access: false, vip_events: false, concierge_service: false, free_shipping: false },
+      gold: { earning_multiplier: 1.5, claims_per_year: 0, claims_per_month: 2, unlimited_claims: false, discount_percent: 15, priority_support: true, early_access: true, vip_events: false, concierge_service: false, free_shipping: true },
+      platinum: { earning_multiplier: 1.8, claims_per_year: 0, claims_per_month: 4, unlimited_claims: false, discount_percent: 20, priority_support: true, early_access: true, vip_events: true, concierge_service: false, free_shipping: true },
+      diamond: { earning_multiplier: 2.5, claims_per_year: 0, claims_per_month: 0, unlimited_claims: true, discount_percent: 30, priority_support: true, early_access: true, vip_events: true, concierge_service: true, free_shipping: true },
     }
   },
   {
