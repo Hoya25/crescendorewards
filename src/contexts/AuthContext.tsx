@@ -244,6 +244,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setShowProfileCompletion,
         walletAddress,
         needsProfileCompletion,
+        bhEmail,
+        setBhEmail,
       }}
     >
       {children}
