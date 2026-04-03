@@ -116,6 +116,8 @@ function AppRoutes() {
     setShowProfileCompletion,
     walletAddress,
     user,
+    bhEmail,
+    setBhEmail,
   } = useAuthContext();
   const { profile, refreshUnifiedProfile } = useUnifiedUser();
 
@@ -123,10 +125,24 @@ function AppRoutes() {
   useClaimDeliveryNotifications();
   useReferralSuccessNotification();
 
+  // Detect bh_email param from Bounty Hunter deep links
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = params.get('bh_email');
+    if (emailParam && !isAuthenticated && !loading) {
+      setBhEmail(decodeURIComponent(emailParam));
+      setAuthMode('signin');
+      setShowAuthModal(true);
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [isAuthenticated, loading]);
+
   // NCTR earning detection now handled by AppLayout + LockDecisionContext
 
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
+    setBhEmail(null);
   };
 
   const handleToggleMode = () => {
