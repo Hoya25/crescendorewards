@@ -17,7 +17,7 @@ export const membershipTiers: MembershipTier[] = [
       'Access to bronze reward catalog',
       '1 reward claim per year',
       'Priority customer support',
-      'Earn 1.1x NCTR on all activities'
+      'Earn 1.0x NCTR on all activities'
     ],
     nftBadges: ['Digital Rewards Access'],
     color: 'hsl(14 100% 57%)',
