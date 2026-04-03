@@ -1,4 +1,71 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+// MEM0 UNIFIED MEMORY LAYER
+const MEM0_API_URL = "https://api.mem0.ai/v1";
+const MEM0_API_KEY = Deno.env.get("MEM0_API_KEY");
+
+interface Mem0Memory {
+  id: string;
+  memory: string;
+  created_at: string;
+  updated_at: string;
+}
+
+async function searchMemories(
+  userId: string,
+  query: string
+): Promise<Mem0Memory[]> {
+  try {
+    const response = await fetch(
+      `${MEM0_API_URL}/memories/search/`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Token ${MEM0_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: query,
+        user_id: userId,
+        limit: 10,
+      }),
+    });
+    if (!response.ok) return [];
+    const data = await response.json();
+    return data.results || data || [];
+  } catch (error) {
+    console.error("Mem0 search error:", error);
+    return [];
+  }
+}
+
+async function addMemory(
+  userId: string,
+  content: string,
+  metadata?: Record<string, string>
+): Promise<void> {
+  try {
+    await fetch(`${MEM0_API_URL}/memories/`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Token ${MEM0_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        messages: [
+          { role: "user", content: content }
+        ],
+        user_id: userId,
+        metadata: {
+          source: metadata?.source || "wingman",
+          app: metadata?.app || "crescendo",
+          ...metadata,
+        },
+      }),
+    });
+  } catch (error) {
+    console.error("Mem0 add error:", error);
+  }
+}
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
