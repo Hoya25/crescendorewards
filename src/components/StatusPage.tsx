@@ -31,7 +31,7 @@ const statusTiers: StatusTier[] = [
     name: 'Bronze',
     requirement: 1000,
     description: 'Unlock your first tier with enhanced earning potential',
-    multiplier: 1.1,
+    multiplier: 1.0,
     claims: '1 annual claim',
     discount: 5,
     benefits: [

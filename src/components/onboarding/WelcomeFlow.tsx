@@ -26,7 +26,7 @@ const earningWays = [
 ];
 
 const tiers = [
-  { emoji: "🥉", name: "Bronze", mult: "1.1x", desc: "Just getting started" },
+  { emoji: "🥉", name: "Bronze", mult: "1.0x", desc: "Just getting started" },
   { emoji: "🥈", name: "Silver", mult: "1.25x", desc: "Unlocks Tier 2 bounties + better rewards" },
   { emoji: "🥇", name: "Gold", mult: "1.5x", desc: "Unlocks campaign bounties worth up to 3,000 NCTR" },
   { emoji: "💎", name: "Platinum", mult: "2.0x", desc: "Premium access + exclusive experiences" },
