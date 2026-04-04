@@ -270,19 +270,19 @@ export function WingmanFAB() {
             </button>
           </div>
 
-          {/* Section 1: Watching Your 6 */}
+          {/* Section 1: Your Brief */}
           <Section
-            title="WATCHING YOUR 6"
-            items={briefing?.watching_your_6 ?? []}
+            title="YOUR BRIEF"
+            items={briefing?.your_brief || briefing?.watching_your_6 || []}
             emptyText="Syncing with the ecosystem..."
             isLoading={isLoading}
             showDivider={false}
           />
 
-          {/* Section 2: Opportunities Spotted */}
+          {/* Section 2: Spotted */}
           <Section
-            title="OPPORTUNITIES SPOTTED"
-            items={briefing?.opportunities_spotted ?? []}
+            title="SPOTTED"
+            items={briefing?.spotted || briefing?.opportunities_spotted || []}
             emptyText="I'm still learning your patterns. Tap 'Want This' on any reward and I'll start connecting the dots."
             isLoading={isLoading}
             showDivider={true}
