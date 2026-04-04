@@ -112,6 +112,8 @@ export function AdminPanel() {
         return <AdminHandleManagement />;
       case 'deposits':
         return <AdminDeposits />;
+      case 'wingman-audit':
+        return <AdminWingmanAudit />;
       default:
         return <AdminDashboard onNavigate={setCurrentView} />;
     }
