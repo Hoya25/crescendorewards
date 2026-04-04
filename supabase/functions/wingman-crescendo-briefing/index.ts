@@ -1,37 +1,30 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-// MEM0 UNIFIED MEMORY LAYER
+// ── Mem0 Unified Memory Layer ──────────────────────────────────────────
 const MEM0_API_URL = "https://api.mem0.ai/v1";
 const MEM0_API_KEY = Deno.env.get("MEM0_API_KEY");
 
-interface Mem0Memory {
-  id: string;
-  memory: string;
-  created_at: string;
-  updated_at: string;
-}
-
 async function searchMemories(
-  userId: string,
-  query: string
-): Promise<Mem0Memory[]> {
+  memUserId: string,
+  query: string,
+  limit = 10
+): Promise<string[]> {
+  if (!MEM0_API_KEY || !memUserId) return [];
   try {
-    const response = await fetch(
-      `${MEM0_API_URL}/memories/search/`, {
+    const response = await fetch(`${MEM0_API_URL}/memories/search/`, {
       method: "POST",
       headers: {
-        "Authorization": `Token ${MEM0_API_KEY}`,
+        Authorization: `Token ${MEM0_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        query: query,
-        user_id: userId,
-        limit: 10,
-      }),
+      body: JSON.stringify({ query, user_id: memUserId, limit }),
     });
     if (!response.ok) return [];
     const data = await response.json();
-    return data.results || data || [];
+    return (data.results || data || [])
+      .map((m: any) => m.memory || m.text || "")
+      .filter(Boolean);
   } catch (error) {
     console.error("Mem0 search error:", error);
     return [];
@@ -39,22 +32,21 @@ async function searchMemories(
 }
 
 async function addMemory(
-  userId: string,
+  memUserId: string,
   content: string,
   metadata?: Record<string, string>
 ): Promise<void> {
+  if (!MEM0_API_KEY || !memUserId) return;
   try {
     await fetch(`${MEM0_API_URL}/memories/`, {
       method: "POST",
       headers: {
-        "Authorization": `Token ${MEM0_API_KEY}`,
+        Authorization: `Token ${MEM0_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        messages: [
-          { role: "user", content: content }
-        ],
-        user_id: userId,
+        messages: [{ role: "user", content }],
+        user_id: memUserId,
         metadata: {
           source: metadata?.source || "wingman",
           app: metadata?.app || "crescendo",
@@ -66,14 +58,15 @@ async function addMemory(
     console.error("Mem0 add error:", error);
   }
 }
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// ── CORS ───────────────────────────────────────────────────────────────
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// ── System Prompt ──────────────────────────────────────────────────────
 const SYSTEM_PROMPT = `You are the NCTR Wingman — a co-pilot embedded in the Crescendo membership app. You help members navigate their rewards, status progression, and ambitions.
 
 PERSONALITY:
@@ -115,6 +108,7 @@ const FALLBACK_RESPONSE = {
   ambitions_enriched: [],
 };
 
+// ── Handler ────────────────────────────────────────────────────────────
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -138,17 +132,18 @@ serve(async (req) => {
     let multiplier = 1;
     let ambitions: { reward_name: string; reward_tier_required: string; is_claimable: boolean }[] = [];
     let availableRewardsCount = 0;
+    let userEmail = "";
 
     if (user_id) {
       const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
       const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
       const sb = createClient(supabaseUrl, supabaseKey);
 
-      // Run queries in parallel
+      // Run queries in parallel — include email for Mem0 cross-app identity
       const [profileRes, ambitionsRes, rewardsCountRes] = await Promise.all([
         sb
           .from("unified_profiles")
-          .select("current_tier_id, total_nctr_earned, earn_rate, status_multiplier")
+          .select("current_tier_id, total_nctr_earned, earn_rate, status_multiplier, email")
           .eq("auth_user_id", user_id)
           .maybeSingle(),
         sb
@@ -164,6 +159,7 @@ serve(async (req) => {
         balance = p.total_nctr_earned ?? 0;
         earnRate = p.earn_rate ?? 0;
         multiplier = p.status_multiplier ?? 1;
+        userEmail = p.email ?? "";
 
         // Resolve tier name
         if (p.current_tier_id) {
@@ -185,6 +181,12 @@ serve(async (req) => {
       availableRewardsCount = rewardsCountRes.count ?? 0;
     }
 
+    // ── Mem0 cross-app identity: use EMAIL as namespace ─────────────────
+    // Both BH and Crescendo share the same Mem0 user_id (email) so
+    // memories written by either app are visible to both.
+    // NOTE: BH wingman-briefing needs matching update to use email as Mem0 user_id.
+    const mem0UserId = userEmail || user_id || "anonymous";
+
     // ── Build user message ─────────────────────────────────────────────
     const ambitionsList =
       ambitions.length > 0
@@ -197,36 +199,25 @@ serve(async (req) => {
       userMessage += ` Member question: ${question}`;
     }
 
-    // ── Retrieve cross-session memories ─────────────────────────────────
-    const memoryQuery = [
-      tierName || "",
-      "crescendo ambitions tier rewards"
-    ].filter(Boolean).join(" — ");
-
-    const memories = await searchMemories(
-      user_id || "anonymous", memoryQuery
+    // ── Retrieve cross-app memories from Mem0 ──────────────────────────
+    const mem0Memories = await searchMemories(
+      mem0UserId,
+      "What do I know about this member? Interests, ambitions, tier, shopping, Bounty Hunter activity, Crescendo progress"
     );
 
-    const memoryContext = memories.length > 0
-      ? "\n\nCROSS-SESSION MEMORY:\n" +
-        "You remember things about this member " +
-        "from prior conversations across all " +
-        "NCTR apps. Here is what you know:\n" +
-        memories.map((m: any) => 
-          "- " + m.memory
-        ).join("\n") +
+    const memoryContext = mem0Memories.length > 0
+      ? "\n\nCROSS-APP MEMORY (from Bounty Hunter and Crescendo):\n" +
+        mem0Memories.join(". ") +
         "\n\nMEMORY RULES:\n" +
-        "- Use this knowledge naturally. Never " +
-        "reference a memory system.\n" +
-        "- If BH memories mention shopping " +
-        "interests, connect those to Crescendo " +
-        "progress.\n" +
-        "- If you briefed them in BH recently, " +
-        "build on it instead of repeating.\n" +
-        "- If they set ambitions previously, " +
-        "reference them by name.\n" +
+        "- Use this knowledge naturally. Never reference a memory system.\n" +
+        "- If memories mention shopping interests or Bounty Hunter activity, connect those to Crescendo progress.\n" +
+        "- If you briefed them recently, build on it instead of repeating.\n" +
+        "- If they set ambitions previously, reference them by name.\n" +
+        "- Never say 'based on your Bounty Hunter activity' — just know it, like a good advisor would.\n" +
         "- If memory is sparse, behave normally."
-      : "";
+      : "\n\nCROSS-APP MEMORY (from Bounty Hunter and Crescendo):\n" +
+        "No prior memory yet — this may be a new member.\n" +
+        "Use this naturally. Never reference a memory system.";
 
     // ── Call Claude API ───────────────────────────────────────────────
     const finalSystemPrompt = SYSTEM_PROMPT + memoryContext;
@@ -242,9 +233,7 @@ serve(async (req) => {
         model: "claude-sonnet-4-20250514",
         max_tokens: 1000,
         system: finalSystemPrompt,
-        messages: [
-          { role: "user", content: userMessage },
-        ],
+        messages: [{ role: "user", content: userMessage }],
         temperature: 0.7,
       }),
     });
@@ -278,7 +267,6 @@ serve(async (req) => {
     // ── Parse structured response ──────────────────────────────────────
     let structured;
     try {
-      // Strip markdown fences if present
       const cleaned = raw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
       structured = JSON.parse(cleaned);
       if (!structured.your_brief || !structured.spotted) {
@@ -294,19 +282,31 @@ serve(async (req) => {
       };
     }
 
-    // ── Store briefing to memory (fire and forget) ───────────────────
-    if (user_id) {
-      addMemory(user_id,
+    // ── Write to Mem0 (fire and forget) ────────────────────────────────
+    // Stores briefing summary + any member question as cross-app memory.
+    if (mem0UserId && mem0UserId !== "anonymous") {
+      const newFacts: string[] = [];
+
+      // Briefing summary
+      newFacts.push(
         "Crescendo Wingman briefed member. " +
         "Tier: " + (tierName || "unknown") + ". " +
         "Headline: " + (structured?.your_brief?.[0] || "unknown") + ". " +
-        "Ambitions: " + (ambitions?.map((a: any) => a.reward_name).join(", ") || "none") + ".",
-        {
-          source: "wingman-crescendo-briefing",
-          app: "crescendo",
-          type: "briefing",
-        }
+        "Ambitions: " + (ambitions?.map((a: any) => a.reward_name).join(", ") || "none") + "."
       );
+
+      // If user asked a question, that reveals interest
+      if (question) {
+        newFacts.push("On Crescendo, asked: " + question.slice(0, 200));
+      }
+
+      // Fire and forget — don't await
+      addMemory(mem0UserId, newFacts.join(". "), {
+        source: "wingman-crescendo-briefing",
+        app: "crescendo",
+        type: "briefing",
+        extracted_at: new Date().toISOString(),
+      });
     }
 
     return new Response(JSON.stringify(structured), {
