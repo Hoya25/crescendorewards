@@ -593,6 +593,9 @@ function AppRoutes() {
               } 
             />
 
+            {/* Standalone Wingman Audit — no auth wrapper */}
+            <Route path="/wingman-audit" element={<Suspense fallback={<RouteLoading />}><WingmanAuditPage /></Suspense>} />
+
             {/* Admin Routes - Separate code chunk */}
             <Route 
               path="/admin/*" 
