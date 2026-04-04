@@ -228,22 +228,23 @@ serve(async (req) => {
         "- If memory is sparse, behave normally."
       : "";
 
-    // ── Call Lovable AI Gateway ─────────────────────────────────────────
+    // ── Call Claude API ───────────────────────────────────────────────
     const finalSystemPrompt = SYSTEM_PROMPT + memoryContext;
 
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const aiResponse = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        system: finalSystemPrompt,
         messages: [
-          { role: "system", content: finalSystemPrompt },
           { role: "user", content: userMessage },
         ],
-        max_tokens: 1000,
         temperature: 0.7,
       }),
     });
@@ -251,7 +252,7 @@ serve(async (req) => {
     if (!aiResponse.ok) {
       const status = aiResponse.status;
       const errText = await aiResponse.text();
-      console.error(`AI gateway error ${status}:`, errText);
+      console.error(`Claude API error ${status}:`, errText);
 
       if (status === 429) {
         return new Response(JSON.stringify({ error: "Rate limited. Try again shortly." }), {
@@ -272,7 +273,7 @@ serve(async (req) => {
     }
 
     const aiData = await aiResponse.json();
-    const raw = aiData.choices?.[0]?.message?.content ?? "";
+    const raw = aiData.content?.[0]?.text ?? "";
 
     // ── Parse structured response ──────────────────────────────────────
     let structured;
