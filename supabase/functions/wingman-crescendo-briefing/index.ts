@@ -108,8 +108,8 @@ Rules:
 - Return ONLY the JSON object, no markdown fences, no extra text.`;
 
 const FALLBACK_RESPONSE = {
-  watching_your_6: ["Syncing with the ecosystem..."],
-  opportunities_spotted: [
+  your_brief: ["Syncing with the ecosystem..."],
+  spotted: [
     "I'm still learning your patterns. Tap 'Want This' on any reward and I'll start connecting the dots.",
   ],
   ambitions_enriched: [],
