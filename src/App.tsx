@@ -83,6 +83,7 @@ const Crescendo = lazy(() => import('./pages/Crescendo'));
 const DepositPage = lazy(() => import('./pages/DepositPage'));
 const MerchPage = lazy(() => import('./pages/MerchPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
+const WingmanAuditPage = lazy(() => import('./pages/WingmanAuditPage'));
 
 // Admin panel - separate chunk for code splitting
 const AdminPanel = lazy(() => import('./components/admin/AdminPanel').then(m => ({ default: m.AdminPanel })));
@@ -592,6 +593,9 @@ function AppRoutes() {
                 </ProtectedRoute>
               } 
             />
+
+            {/* Standalone Wingman Audit — no auth wrapper */}
+            <Route path="/wingman-audit" element={<Suspense fallback={<RouteLoading />}><WingmanAuditPage /></Suspense>} />
 
             {/* Admin Routes - Separate code chunk */}
             <Route 
