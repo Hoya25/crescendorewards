@@ -293,6 +293,21 @@ serve(async (req) => {
       };
     }
 
+    // ── Store briefing to memory (fire and forget) ───────────────────
+    if (user_id) {
+      addMemory(user_id,
+        "Crescendo Wingman briefed member. " +
+        "Tier: " + (tierName || "unknown") + ". " +
+        "Headline: " + (structured?.watching_your_6?.[0] || "unknown") + ". " +
+        "Ambitions: " + (ambitions?.map((a: any) => a.reward_name).join(", ") || "none") + ".",
+        {
+          source: "wingman-crescendo-briefing",
+          app: "crescendo",
+          type: "briefing",
+        }
+      );
+    }
+
     return new Response(JSON.stringify(structured), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
