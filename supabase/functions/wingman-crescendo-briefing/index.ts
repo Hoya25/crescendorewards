@@ -197,7 +197,40 @@ serve(async (req) => {
       userMessage += ` Member question: ${question}`;
     }
 
+    // ── Retrieve cross-session memories ─────────────────────────────────
+    const memoryQuery = [
+      tierName || "",
+      "crescendo ambitions tier rewards"
+    ].filter(Boolean).join(" — ");
+
+    const memories = await searchMemories(
+      user_id || "anonymous", memoryQuery
+    );
+
+    const memoryContext = memories.length > 0
+      ? "\n\nCROSS-SESSION MEMORY:\n" +
+        "You remember things about this member " +
+        "from prior conversations across all " +
+        "NCTR apps. Here is what you know:\n" +
+        memories.map((m: any) => 
+          "- " + m.memory
+        ).join("\n") +
+        "\n\nMEMORY RULES:\n" +
+        "- Use this knowledge naturally. Never " +
+        "reference a memory system.\n" +
+        "- If BH memories mention shopping " +
+        "interests, connect those to Crescendo " +
+        "progress.\n" +
+        "- If you briefed them in BH recently, " +
+        "build on it instead of repeating.\n" +
+        "- If they set ambitions previously, " +
+        "reference them by name.\n" +
+        "- If memory is sparse, behave normally."
+      : "";
+
     // ── Call Lovable AI Gateway ─────────────────────────────────────────
+    const finalSystemPrompt = SYSTEM_PROMPT + memoryContext;
+
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -207,7 +240,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: finalSystemPrompt },
           { role: "user", content: userMessage },
         ],
         max_tokens: 1000,
@@ -258,6 +291,21 @@ serve(async (req) => {
         ],
         ambitions_enriched: [],
       };
+    }
+
+    // ── Store briefing to memory (fire and forget) ───────────────────
+    if (user_id) {
+      addMemory(user_id,
+        "Crescendo Wingman briefed member. " +
+        "Tier: " + (tierName || "unknown") + ". " +
+        "Headline: " + (structured?.watching_your_6?.[0] || "unknown") + ". " +
+        "Ambitions: " + (ambitions?.map((a: any) => a.reward_name).join(", ") || "none") + ".",
+        {
+          source: "wingman-crescendo-briefing",
+          app: "crescendo",
+          type: "briefing",
+        }
+      );
     }
 
     return new Response(JSON.stringify(structured), {
