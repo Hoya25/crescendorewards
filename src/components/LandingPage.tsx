@@ -90,6 +90,22 @@ export function LandingPage() {
         >
           CRESCENDO
         </span>
+        <span
+          style={{
+            fontSize: '9px',
+            letterSpacing: '1px',
+            color: '#5A5A58',
+            border: '1px solid rgba(90,90,88,0.3)',
+            backgroundColor: 'transparent',
+            padding: '2px 8px',
+            borderRadius: '0px',
+            fontFamily: barlow,
+            fontWeight: 600,
+            marginLeft: '8px',
+          }}
+        >
+          BETA
+        </span>
 
         <div className="hidden md:flex items-center gap-5">
           <button
