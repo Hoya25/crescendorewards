@@ -123,9 +123,9 @@ serve(async (req) => {
   try {
     const { user_id, question } = await req.json().catch(() => ({} as any));
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      console.error("LOVABLE_API_KEY not configured");
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) {
+      console.error("ANTHROPIC_API_KEY not configured");
       return new Response(JSON.stringify(FALLBACK_RESPONSE), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
