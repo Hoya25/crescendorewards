@@ -281,13 +281,13 @@ serve(async (req) => {
       // Strip markdown fences if present
       const cleaned = raw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
       structured = JSON.parse(cleaned);
-      if (!structured.watching_your_6 || !structured.opportunities_spotted) {
+      if (!structured.your_brief || !structured.spotted) {
         throw new Error("Missing required sections");
       }
     } catch {
       structured = {
-        watching_your_6: [raw || "Syncing with the ecosystem..."],
-        opportunities_spotted: [
+        your_brief: [raw || "Syncing with the ecosystem..."],
+        spotted: [
           "I'm still learning your patterns. Tap 'Want This' on any reward and I'll start connecting the dots.",
         ],
         ambitions_enriched: [],
