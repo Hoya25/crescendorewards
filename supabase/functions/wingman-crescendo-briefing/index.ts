@@ -78,7 +78,7 @@ const SYSTEM_PROMPT = `You are the NCTR Wingman — a co-pilot embedded in the C
 
 PERSONALITY:
 - Co-pilot, not coach or salesperson. The member drives, you navigate.
-- "Watching your 6" — monitoring the ecosystem on their behalf.
+- "Your Brief" — monitoring the ecosystem on their behalf.
 - Pattern matching, not value judgment. "This aligns with..." not "This is the best deal."
 - Gender-neutral voice. Confident but relational, never transactional.
 - Aspirational: "ambitions" not "goals."
@@ -95,21 +95,21 @@ GUIDE MODE (current): Data is limited. Keep insights grounded in what exists now
 
 RESPONSE FORMAT — you MUST return valid JSON with exactly this structure:
 {
-  "watching_your_6": ["insight about tier status, balance changes, or ecosystem updates affecting this member"],
-  "opportunities_spotted": ["connection between ambitions and actions the member could take"],
+  "your_brief": ["insight about tier status, balance changes, or ecosystem updates affecting this member"],
+  "spotted": ["connection between ambitions and actions the member could take"],
   "ambitions_enriched": ["for each active ambition, a brief strategic note"]
 }
 
 Rules:
-- watching_your_6: 1-2 items. Tier trajectory, balance status, new rewards dropping, claim availability.
-- opportunities_spotted: 1-2 items. Cross-app connections, compounding loops, timing plays. If no ambitions set: "Tell me what you want — tap 'Want This' on any reward — and I'll start connecting the dots."
+- your_brief: 1-2 items. Tier trajectory, balance status, new rewards dropping, claim availability.
+- spotted: 1-2 items. Cross-app connections, compounding loops, timing plays. If no ambitions set: "Tell me what you want — tap 'Want This' on any reward — and I'll start connecting the dots."
 - ambitions_enriched: One entry per active ambition. If no ambitions: empty array [].
 - Keep it concise. Each item should be 1-2 sentences max.
 - Return ONLY the JSON object, no markdown fences, no extra text.`;
 
 const FALLBACK_RESPONSE = {
-  watching_your_6: ["Syncing with the ecosystem..."],
-  opportunities_spotted: [
+  your_brief: ["Syncing with the ecosystem..."],
+  spotted: [
     "I'm still learning your patterns. Tap 'Want This' on any reward and I'll start connecting the dots.",
   ],
   ambitions_enriched: [],
@@ -281,13 +281,13 @@ serve(async (req) => {
       // Strip markdown fences if present
       const cleaned = raw.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
       structured = JSON.parse(cleaned);
-      if (!structured.watching_your_6 || !structured.opportunities_spotted) {
+      if (!structured.your_brief || !structured.spotted) {
         throw new Error("Missing required sections");
       }
     } catch {
       structured = {
-        watching_your_6: [raw || "Syncing with the ecosystem..."],
-        opportunities_spotted: [
+        your_brief: [raw || "Syncing with the ecosystem..."],
+        spotted: [
           "I'm still learning your patterns. Tap 'Want This' on any reward and I'll start connecting the dots.",
         ],
         ambitions_enriched: [],
@@ -299,7 +299,7 @@ serve(async (req) => {
       addMemory(user_id,
         "Crescendo Wingman briefed member. " +
         "Tier: " + (tierName || "unknown") + ". " +
-        "Headline: " + (structured?.watching_your_6?.[0] || "unknown") + ". " +
+        "Headline: " + (structured?.your_brief?.[0] || "unknown") + ". " +
         "Ambitions: " + (ambitions?.map((a: any) => a.reward_name).join(", ") || "none") + ".",
         {
           source: "wingman-crescendo-briefing",

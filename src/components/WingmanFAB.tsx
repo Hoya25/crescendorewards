@@ -25,14 +25,16 @@ const CACHE_KEY = 'nctr_crescendo_wingman_briefing';
 const CACHE_TTL = 15 * 60 * 1000; // 15 minutes
 
 interface BriefingData {
-  watching_your_6: string[];
-  opportunities_spotted: string[];
+  your_brief: string[];
+  spotted: string[];
   ambitions_enriched: string[];
+  watching_your_6?: string[];
+  opportunities_spotted?: string[];
 }
 
 const FALLBACK: BriefingData = {
-  watching_your_6: ['Syncing with the ecosystem...'],
-  opportunities_spotted: ["I'm still learning your patterns. Tap 'Want This' on any reward and I'll start connecting the dots."],
+  your_brief: ['Syncing with the ecosystem...'],
+  spotted: ["I'm still learning your patterns. Tap 'Want This' on any reward and I'll start connecting the dots."],
   ambitions_enriched: [],
 };
 
@@ -268,19 +270,19 @@ export function WingmanFAB() {
             </button>
           </div>
 
-          {/* Section 1: Watching Your 6 */}
+          {/* Section 1: Your Brief */}
           <Section
-            title="WATCHING YOUR 6"
-            items={briefing?.watching_your_6 ?? []}
+            title="YOUR BRIEF"
+            items={briefing?.your_brief || briefing?.watching_your_6 || []}
             emptyText="Syncing with the ecosystem..."
             isLoading={isLoading}
             showDivider={false}
           />
 
-          {/* Section 2: Opportunities Spotted */}
+          {/* Section 2: Spotted */}
           <Section
-            title="OPPORTUNITIES SPOTTED"
-            items={briefing?.opportunities_spotted ?? []}
+            title="SPOTTED"
+            items={briefing?.spotted || briefing?.opportunities_spotted || []}
             emptyText="I'm still learning your patterns. Tap 'Want This' on any reward and I'll start connecting the dots."
             isLoading={isLoading}
             showDivider={true}
