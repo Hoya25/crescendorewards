@@ -24,6 +24,10 @@ verify_jwt = false
 [functions.mcp]
 verify_jwt = false
 
+# Wingman audit - admin-only, validated via x-admin-key header
+[functions.wingman-crescendo-audit]
+verify_jwt = false
+
 # Cross-project sync endpoint - authenticated via SYNC_SECRET header
 [functions.receive-lock-request]
 verify_jwt = false

@@ -32,6 +32,7 @@ import { AdminBounties } from './AdminBounties';
 import { AdminUserActivity } from './AdminUserActivity';
 import { AdminHandleManagement } from './AdminHandleManagement';
 import { AdminDeposits } from './AdminDeposits';
+import { AdminWingmanAudit } from './AdminWingmanAudit';
 
 import { WishlistAnalytics } from '@/components/WishlistAnalytics';
 import AdminGifts from './AdminGifts';
@@ -111,6 +112,8 @@ export function AdminPanel() {
         return <AdminHandleManagement />;
       case 'deposits':
         return <AdminDeposits />;
+      case 'wingman-audit':
+        return <AdminWingmanAudit />;
       default:
         return <AdminDashboard onNavigate={setCurrentView} />;
     }
