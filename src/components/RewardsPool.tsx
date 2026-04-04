@@ -655,6 +655,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           <div className="container mx-auto px-4 py-2 flex items-center justify-between max-w-full">
             <button onClick={() => navigate('/')} className="hover:opacity-80 transition-opacity">
               <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: '26px', color: '#FFFFFF', letterSpacing: '-0.02em', textTransform: 'uppercase' as const }}>CRESCENDO</span>
+              <span style={{ fontSize: '9px', letterSpacing: '1px', color: '#5A5A58', border: '1px solid rgba(90,90,88,0.3)', backgroundColor: 'transparent', padding: '2px 8px', borderRadius: '0px', fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 600, marginLeft: '8px' }}>BETA</span>
             </button>
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="sm" onClick={() => navigate('/how-it-works')} style={{ color: '#5A5A58', borderRadius: '0px' }}>How It Works</Button>

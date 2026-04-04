@@ -76,20 +76,39 @@ export function LandingPage() {
         className="sticky top-0 z-20 flex items-center justify-between px-6 md:px-12 py-4 md:py-5 w-full max-w-7xl mx-auto"
         style={{ backgroundColor: '#F9F9F7' }}
       >
-        <span
-          style={{
-            fontFamily: barlow,
-            fontWeight: 900,
-            fontSize: '26px',
-            color: '#323232',
-            letterSpacing: '-0.02em',
-            textTransform: 'uppercase',
-            cursor: 'pointer',
-          }}
+        <div
+          className="flex items-center cursor-pointer"
           onClick={() => navigate('/')}
         >
-          CRESCENDO
-        </span>
+          <span
+            style={{
+              fontFamily: barlow,
+              fontWeight: 900,
+              fontSize: '26px',
+              color: '#323232',
+              letterSpacing: '-0.02em',
+              textTransform: 'uppercase',
+            }}
+          >
+            CRESCENDO
+          </span>
+          <span
+            style={{
+              fontSize: '9px',
+              letterSpacing: '1px',
+              color: '#5A5A58',
+              border: '1px solid rgba(90,90,88,0.3)',
+              backgroundColor: 'transparent',
+              padding: '2px 8px',
+              borderRadius: '0px',
+              fontFamily: barlow,
+              fontWeight: 600,
+              marginLeft: '8px',
+            }}
+          >
+            BETA
+          </span>
+        </div>
 
         <div className="hidden md:flex items-center gap-5">
           <button
