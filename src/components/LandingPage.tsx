@@ -109,7 +109,6 @@ export function LandingPage() {
             BETA
           </span>
         </div>
-        </span>
 
         <div className="hidden md:flex items-center gap-5">
           <button
