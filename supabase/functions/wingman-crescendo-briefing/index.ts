@@ -299,7 +299,7 @@ serve(async (req) => {
       addMemory(user_id,
         "Crescendo Wingman briefed member. " +
         "Tier: " + (tierName || "unknown") + ". " +
-        "Headline: " + (structured?.watching_your_6?.[0] || "unknown") + ". " +
+        "Headline: " + (structured?.your_brief?.[0] || "unknown") + ". " +
         "Ambitions: " + (ambitions?.map((a: any) => a.reward_name).join(", ") || "none") + ".",
         {
           source: "wingman-crescendo-briefing",
