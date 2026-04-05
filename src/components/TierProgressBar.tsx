@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-const TIERS = [
-  { id: 'bronze', name: 'Bronze', min: 0, color: '#CD7F32', rgb: '205,127,50', glow: 'rgba(205,127,50,0.55)', perks: ['Bronze rewards catalog access','NCTR earning on every purchase','Alliance member newsletter','Partner brand early notifications'] },
-  { id: 'silver', name: 'Silver', min: 1000, color: '#C8C8D4', rgb: '200,200,212', glow: 'rgba(200,200,212,0.45)', perks: ['Everything in Bronze','Early access to new partner brands','2× NCTR on select partners','Silver-exclusive reward drops'] },
-  { id: 'gold', name: 'Gold', min: 5000, color: '#FFD700', rgb: '255,215,0', glow: 'rgba(255,215,0,0.6)', perks: ['Everything in Silver','Exclusive Gold reward drops','Priority member support','Quarterly Gold member event access'] },
-  { id: 'platinum', name: 'Platinum', min: 15000, color: '#E2E2EE', rgb: '226,226,238', glow: 'rgba(226,226,238,0.42)', perks: ['Everything in Gold','VIP brand partner experiences','Dedicated account access','Platinum-only product drops'] },
-  { id: 'diamond', name: 'Diamond', min: 50000, color: '#B9F2FF', rgb: '185,242,255', glow: 'rgba(185,242,255,0.62)', perks: ['Everything in Platinum','Diamond member status','Exclusive Diamond drops','Direct access & input'] },
-];
+import { TIER_VISUALS } from '@/constants/tiers';
+
+const TIERS = TIER_VISUALS.map(t => ({
+  id: t.id,
+  name: t.name,
+  min: t.threshold,
+  color: t.color,
+  rgb: t.rgb,
+  glow: t.glow,
+  perks: t.perks,
+}));
 
 interface TierProgressBarProps {
   balance?: number;

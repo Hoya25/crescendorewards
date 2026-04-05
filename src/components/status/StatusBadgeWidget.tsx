@@ -2,14 +2,13 @@ import { useNavigate } from 'react-router-dom';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { cn } from '@/lib/utils';
 
-// Tier thresholds matching the memory
-const TIER_THRESHOLDS = [
-  { name: 'Bronze', min: 100, color: '#CD7F32' },
-  { name: 'Silver', min: 500, color: '#C0C0C0' },
-  { name: 'Gold', min: 2000, color: '#FFD700' },
-  { name: 'Platinum', min: 10000, color: '#E5E4E2' },
-  { name: 'Diamond', min: 50000, color: '#B9F2FF' },
-];
+import { TIERS as CANONICAL_TIERS } from '@/constants/tiers';
+
+const TIER_THRESHOLDS = CANONICAL_TIERS.map(t => ({
+  name: t.name,
+  min: t.threshold,
+  color: t.color,
+}));
 
 function getTierInfo(locked: number) {
   let current: { name: string; color: string; min: number } | null = null;
