@@ -7,21 +7,16 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { ShoppingBag, Target, ArrowRight, Lock, TrendingUp, Crown } from "lucide-react";
 
-const TIER_COLORS: Record<string, string> = {
-  bronze: "#CD7F32",
-  silver: "#C0C0C0",
-  gold: "#FFD700",
-  platinum: "#E5E4E2",
-  diamond: "#B9F2FF",
-};
+import { TIERS as CANONICAL_TIERS } from '@/constants/tiers';
 
-const TIER_THRESHOLDS = [
-  { name: "Bronze", min: 100 },
-  { name: "Silver", min: 500 },
-  { name: "Gold", min: 2000 },
-  { name: "Platinum", min: 10000 },
-  { name: "Diamond", min: 50000 },
-];
+const TIER_COLORS: Record<string, string> = Object.fromEntries(
+  CANONICAL_TIERS.map(t => [t.id, t.color]),
+);
+
+const TIER_THRESHOLDS = CANONICAL_TIERS.map(t => ({
+  name: t.name,
+  min: t.threshold,
+}));
 
 function getTierForAmount(amount: number) {
   for (let i = TIER_THRESHOLDS.length - 1; i >= 0; i--) {
