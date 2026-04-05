@@ -359,32 +359,46 @@ export function RewardCard({
             )}
           </Button>
         ) : (
-          <button
-            className="w-full"
-            style={{
-              fontFamily: "'DM Mono', monospace",
-              fontSize: '12px',
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase' as const,
-              backgroundColor: '#131313',
-              color: '#F5F4F0',
-              border: 'none',
-              borderRadius: '0px',
-              height: '44px',
-              cursor: 'pointer',
-              transition: 'opacity 200ms ease',
-              opacity: affordable ? 1 : 0.5,
-            }}
-            disabled={!affordable}
-            onClick={(e) => {
-              e.stopPropagation();
-              onClick();
-            }}
-            onMouseEnter={(e) => { if (affordable) e.currentTarget.style.opacity = '0.85'; }}
-            onMouseLeave={(e) => { if (affordable) e.currentTarget.style.opacity = '1'; }}
-          >
-            {affordable ? 'CLAIM REWARD' : 'INSUFFICIENT BALANCE'}
-          </button>
+          <div className="space-y-1.5">
+            <button
+              className="w-full"
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: '12px',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase' as const,
+                backgroundColor: '#131313',
+                color: '#F5F4F0',
+                border: 'none',
+                borderRadius: '0px',
+                height: '44px',
+                cursor: 'pointer',
+                transition: 'opacity 200ms ease',
+                opacity: affordable ? 1 : 0.5,
+              }}
+              disabled={!affordable}
+              onClick={(e) => {
+                e.stopPropagation();
+                onClick();
+              }}
+              onMouseEnter={(e) => { if (affordable) e.currentTarget.style.opacity = '0.85'; }}
+              onMouseLeave={(e) => { if (affordable) e.currentTarget.style.opacity = '1'; }}
+            >
+              {affordable ? 'CLAIM REWARD' : 'NOT ENOUGH CLAIMS'}
+            </button>
+            {!affordable && !outOfStock && (
+              <a
+                href="https://bountyhunter.nctr.live/lock#deposit"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-center hover:underline"
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#E2FF6D' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                Deposit NCTR to level up →
+              </a>
+            )}
+          </div>
         )}
 
         {/* Delivery Info */}

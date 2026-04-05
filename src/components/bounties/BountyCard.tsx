@@ -182,10 +182,21 @@ export function BountyCard({ bounty, userTier, total360Locked, nextTier, claims,
 
           {/* CTA */}
           {isLocked ? (
-            <Button variant="outline" size="sm" className="w-full text-muted-foreground"
-                    onClick={() => navigate('/membership')}>
-              🔒 Reach {bounty.min_status_required?.charAt(0).toUpperCase()}{bounty.min_status_required?.slice(1)} to Unlock
-            </Button>
+            <div className="space-y-1.5">
+              <Button variant="outline" size="sm" className="w-full text-muted-foreground"
+                      onClick={() => navigate('/membership')}>
+                🔒 Requires {bounty.min_status_required?.charAt(0).toUpperCase()}{bounty.min_status_required?.slice(1)} Status
+              </Button>
+              <a
+                href="https://bountyhunter.nctr.live/lock#deposit"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-center hover:underline"
+                style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#E2FF6D' }}
+              >
+                Deposit NCTR to level up →
+              </a>
+            </div>
           ) : isRecurringCompleted ? (
             <Button variant="outline" size="sm" className="w-full" disabled>
               Completed — {getPeriodResetLabel(bounty.recurrence_period)}

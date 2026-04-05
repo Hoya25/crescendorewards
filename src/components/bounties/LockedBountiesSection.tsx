@@ -53,6 +53,15 @@ export function LockedBountiesSection({ bounties, tierName }: LockedBountiesSect
                          }}>
                     {bounty.min_status_required?.charAt(0).toUpperCase()}{bounty.min_status_required?.slice(1)}+ Required
                   </Badge>
+                  <a
+                    href="https://bountyhunter.nctr.live/lock#deposit"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                    style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#E2FF6D' }}
+                  >
+                    Deposit NCTR to level up →
+                  </a>
                   <span className="text-sm font-bold" style={{ color: 'hsl(var(--accent-lime))' }}>
                     {(bounty.nctr_reward * 3).toLocaleString()} NCTR
                   </span>

@@ -106,7 +106,14 @@ export function ClaimsBalanceIndicator({ compact = false }: ClaimsBalanceIndicat
               <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
               <span>
                 {isEmpty 
-                  ? "You need claims to unlock rewards. Get some now!" 
+                  ? (
+                    <>
+                      Need more claims? Level up your status to unlock more.{' '}
+                      <a href="https://bountyhunter.nctr.live/lock#deposit" target="_blank" rel="noopener noreferrer" style={{ color: '#E2FF6D', fontFamily: "'DM Sans', sans-serif", fontSize: '13px' }} className="hover:underline">
+                        Deposit NCTR →
+                      </a>
+                    </>
+                  )
                   : "Running low on claims. Top up to keep claiming rewards."}
               </span>
             </div>
