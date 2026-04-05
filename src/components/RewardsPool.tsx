@@ -548,8 +548,15 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     
     if (claimBalance < selectedReward.cost) {
       toast({
-        title: 'Insufficient Balance',
-        description: `You need ${selectedReward.cost - claimBalance} more tokens to claim this reward`,
+        title: 'Not enough claims',
+        description: (
+          <span>
+            Earn more by leveling up your status.{' '}
+            <a href="https://bountyhunter.nctr.live/lock#deposit" target="_blank" rel="noopener noreferrer" style={{ color: '#E2FF6D', textDecoration: 'underline' }}>
+              Deposit NCTR to level up →
+            </a>
+          </span>
+        ),
         variant: 'destructive',
       });
       return;

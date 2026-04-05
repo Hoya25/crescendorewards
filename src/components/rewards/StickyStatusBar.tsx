@@ -57,6 +57,18 @@ export function StickyStatusBar() {
               Max Level ✨
             </Badge>
           )}
+          {/* Level up faster link — hide for Diamond */}
+          {tier?.tier_name?.toLowerCase() !== 'diamond' && (
+            <a
+              href="https://bountyhunter.nctr.live/lock#deposit"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline shrink-0"
+              style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#666' }}
+            >
+              Level up faster →
+            </a>
+          )}
         </div>
       </div>
     </div>
