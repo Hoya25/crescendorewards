@@ -1,3 +1,10 @@
+// TODO: CRITICAL — Crescendo reads tier from its own status_tiers DB.
+// BH is the source of truth for nctr_locked_points and tier calculation.
+// This data goes stale when BH updates without syncing to Crescendo.
+// PHASE 1 FIX: Replace this local query with a call to BH's
+// user-status-export edge function so Crescendo always reads live data from BH.
+// See: NCTR-Backend-Consolidation-Gameplan.md
+
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from './AuthContext';
