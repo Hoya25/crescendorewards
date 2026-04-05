@@ -1,13 +1,18 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { NctrMarketReference } from './NctrMarketReference';
 
-const TIERS = [
-  { id: 'bronze', name: 'Bronze', min: 1000, color: '#CD7F32', rgb: '205,127,50', glowRgba: 'rgba(205,127,50,0.45)', tagline: 'Every alliance begins here.', perks: ['Bronze rewards catalog','NCTR earning on all purchases','Alliance member newsletter'] },
-  { id: 'silver', name: 'Silver', min: 5000, color: '#C8C8D4', rgb: '200,200,212', glowRgba: 'rgba(200,200,212,0.38)', tagline: 'Early access. More earning.', perks: ['Everything in Bronze','Early access to new brands','2× NCTR on select partners'] },
-  { id: 'gold', name: 'Gold', min: 15000, color: '#FFD700', rgb: '255,215,0', glowRgba: 'rgba(255,215,0,0.5)', tagline: 'Exclusive drops. Priority support.', perks: ['Everything in Silver','Exclusive Gold reward drops','Priority member support'] },
-  { id: 'platinum', name: 'Platinum', min: 50000, color: '#E2E2EE', rgb: '226,226,238', glowRgba: 'rgba(226,226,238,0.35)', tagline: 'VIP experiences. Dedicated access.', perks: ['Everything in Gold','VIP brand partner experiences','Dedicated account access'] },
-  { id: 'diamond', name: 'Diamond', min: 150000, color: '#B9F2FF', rgb: '185,242,255', glowRgba: 'rgba(185,242,255,0.55)', tagline: 'Elite status. Diamond drops.', perks: ['Everything in Platinum','Diamond member status','Exclusive Diamond drops'] },
-];
+import { TIER_VISUALS } from '@/constants/tiers';
+
+const TIERS = TIER_VISUALS.map(t => ({
+  id: t.id,
+  name: t.name,
+  min: t.threshold,
+  color: t.color,
+  rgb: t.rgb,
+  glowRgba: t.glow,
+  tagline: t.tagline,
+  perks: t.perks,
+}));
 
 interface CrescendoHeroProps {
   currentBalance?: number;

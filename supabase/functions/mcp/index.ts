@@ -316,30 +316,30 @@ interface Tier {
 const TIERS: Tier[] = [
   {
     name: 'Bronze',
-    threshold: 0,
+    threshold: 1000,
     multiplier: 1.0,
-    description: 'Starting tier — all members begin here. Base earning rate on all bounties.',
+    description: 'Starting tier — members with 1,000+ NCTR locked. Base earning rate on all bounties.',
     perks: ['Access to all standard bounties', 'The Garden shopping', 'Community access']
   },
   {
     name: 'Silver',
-    threshold: 1000,
+    threshold: 5000,
     multiplier: 1.25,
-    description: 'Committed members with 1,000+ NCTR locked. 1.25x earning multiplier.',
+    description: 'Committed members with 5,000+ NCTR locked. 1.25x earning multiplier.',
     perks: ['1.25x earning multiplier', 'Early access to new bounties', 'Silver badge']
   },
   {
     name: 'Gold',
-    threshold: 5000,
+    threshold: 15000,
     multiplier: 1.5,
-    description: 'Active members with 5,000+ NCTR locked. 1.5x earning multiplier.',
+    description: 'Active members with 15,000+ NCTR locked. 1.5x earning multiplier.',
     perks: ['1.5x earning multiplier', 'Exclusive Gold bounties', 'Priority support', 'Gold badge']
   },
   {
     name: 'Platinum',
-    threshold: 25000,
+    threshold: 40000,
     multiplier: 1.8,
-    description: 'Power members with 25,000+ NCTR locked. 1.8x earning multiplier.',
+    description: 'Power members with 40,000+ NCTR locked. 1.8x earning multiplier.',
     perks: ['1.8x earning multiplier', 'VIP experiences', 'Platinum-only drops', 'Platinum badge']
   },
   {

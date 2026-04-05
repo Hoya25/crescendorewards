@@ -42,10 +42,10 @@ export default function DepositPage() {
   const [totalLockedNctr, setTotalLockedNctr] = useState(0);
 
   const TIER_THRESHOLDS = [
-    { name: 'Bronze', min: 100 },
-    { name: 'Silver', min: 1000 },
-    { name: 'Gold', min: 5000 },
-    { name: 'Platinum', min: 25000 },
+    { name: 'Bronze', min: 1000 },
+    { name: 'Silver', min: 5000 },
+    { name: 'Gold', min: 15000 },
+    { name: 'Platinum', min: 40000 },
     { name: 'Diamond', min: 100000 },
   ];
 
