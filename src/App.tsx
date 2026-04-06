@@ -22,6 +22,7 @@ import { BetaBanner } from "./components/BetaBanner";
 import { DemoModeToggle } from "./components/groundball/DemoModeToggle";
 import { UserbackProvider } from "./components/UserbackProvider";
 import { useClaimDeliveryNotifications } from "./hooks/useClaimDeliveryNotifications";
+import { useBHTokenAutoLogin } from "./hooks/useBHTokenAutoLogin";
 import { useReferralSuccessNotification } from "./hooks/useReferralSuccessNotification";
 import { AppLayout } from "./components/layout/AppLayout";
 import { NavigationSafetyNet } from "./components/layout/NavigationSafetyNet";
@@ -126,6 +127,9 @@ function AppRoutes() {
   useClaimDeliveryNotifications();
   useReferralSuccessNotification();
 
+  // Auto-login via BH token (?token=xxx)
+  const { processing: bhTokenProcessing } = useBHTokenAutoLogin(isAuthenticated, loading);
+
   // Detect bh_email param from Bounty Hunter deep links
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -150,7 +154,7 @@ function AppRoutes() {
     setAuthMode(authMode === 'signin' ? 'signup' : 'signin');
   };
 
-  if (loading) {
+  if (loading || bhTokenProcessing) {
     return <PageLoading />;
   }
 
