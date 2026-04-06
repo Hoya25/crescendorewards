@@ -48,7 +48,23 @@ Deno.serve(async (req: Request) => {
       (u: any) => u.email?.toLowerCase() === normalizedEmail
     );
 
-    if (!authUserExists) {
+    const existingAuthUser = allAuthSearch?.users?.find(
+      (u: any) => u.email?.toLowerCase() === normalizedEmail
+    );
+
+    if (existingAuthUser) {
+      // Update existing user's password to beta password so they can log in
+      const { error: updateErr } = await supabase.auth.admin.updateUserById(
+        existingAuthUser.id,
+        { password: "nctr-beta-2026" }
+      );
+      if (updateErr) {
+        console.error("Failed to update auth user password:", updateErr.message);
+      } else {
+        console.log("Updated password for existing auth user:", normalizedEmail);
+      }
+    } else {
+      // Create new auth user
       const { error: createAuthErr } = await supabase.auth.admin.createUser({
         email: normalizedEmail,
         email_confirm: true,
@@ -61,7 +77,6 @@ Deno.serve(async (req: Request) => {
       });
       if (createAuthErr) {
         console.error("Auto-provision auth user failed:", createAuthErr.message);
-        // Non-fatal: continue with profile logic even if auth creation fails
       } else {
         console.log("Auto-provisioned auth user for:", normalizedEmail);
       }
