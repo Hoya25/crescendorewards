@@ -270,6 +270,7 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
         bestLockedNctr = walletNctr;
       }
       
+      const crescendoData = unifiedData?.crescendo_data as Record<string, any> | null;
       const crescendoLevel = crescendoData?.level != null ? Number(crescendoData.level) : null;
       const bestLevel = crescendoLevel ?? profileData?.level ?? 1;
       

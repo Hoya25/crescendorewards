@@ -317,7 +317,7 @@ Deno.serve(async (req) => {
     if (status === 'credited' && userId) {
       const { data: profileData } = await supabase
         .from('unified_profiles')
-        .select('auth_user_id, crescendo_data')
+        .select('auth_user_id, nctr_locked_points')
         .eq('id', userId)
         .single();
 
@@ -339,16 +339,12 @@ Deno.serve(async (req) => {
             .eq('id', profileData.auth_user_id);
         }
 
-        // Update crescendo_data in unified_profiles
-        const currentData = profileData.crescendo_data || {};
-        const currentLocked = Number((currentData as any)?.locked_nctr) || 0;
+        // Update canonical nctr_locked_points column
+        const currentLocked = Number(profileData.nctr_locked_points) || 0;
         await supabase
           .from('unified_profiles')
           .update({
-            crescendo_data: {
-              ...currentData,
-              locked_nctr: currentLocked + finalNctr,
-            },
+            nctr_locked_points: currentLocked + finalNctr,
             updated_at: new Date().toISOString(),
           })
           .eq('id', userId);
