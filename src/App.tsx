@@ -154,7 +154,7 @@ function AppRoutes() {
     setAuthMode(authMode === 'signin' ? 'signup' : 'signin');
   };
 
-  if (loading) {
+  if (loading || bhTokenProcessing) {
     return <PageLoading />;
   }
 
