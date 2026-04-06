@@ -40,7 +40,7 @@ export function getCorsHeaders(req: Request): Record<string, string> {
     'Access-Control-Allow-Origin': allowOrigin,
     'Vary': 'Origin',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-garden-webhook-secret',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-garden-webhook-secret, x-sync-secret',
     'Access-Control-Allow-Credentials': 'true',
   };
 }
