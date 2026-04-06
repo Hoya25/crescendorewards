@@ -130,24 +130,7 @@ export function BuyClaimsPage() {
     }
   }, [refreshUnifiedProfile]);
 
-  useEffect(() => {
-    const fetchLockedNCTR = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('locked_nctr')
-        .eq('id', user.id)
-        .single();
-
-      if (profileData) {
-        setLockedNCTR(profileData.locked_nctr);
-      }
-    };
-
-    fetchLockedNCTR();
-  }, []);
+  // lockedNCTR now comes from UnifiedUserContext.total360Locked (nctr_locked_points)
 
   const handlePurchase = async () => {
     if (!selectedPackage) return;

@@ -207,18 +207,11 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
         
         setPortfolio(parsedPortfolio as WalletPortfolio[]);
 
-        // Fetch deposit-locked NCTR from profiles table
-        const { data: profilesData } = await supabase
-          .from('profiles')
-          .select('total_locked_nctr')
-          .eq('id', user.id)
-          .single();
-        setDepositLocked(Number(profilesData?.total_locked_nctr) || 0);
+        // nctr_locked_points is already on unified_profiles — no extra query needed
       } else {
         setProfile(null);
         setTier(null);
         setPortfolio(null);
-        setDepositLocked(0);
       }
     } catch (err) {
       console.error('Error fetching unified profile:', err);
