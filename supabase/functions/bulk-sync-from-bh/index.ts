@@ -1,138 +1,188 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
 
-const BH_URL = "https://auibudfactqhisvmiotw.supabase.co";
-const CRESCENDO_FUNCTIONS_URL = Deno.env.get("SUPABASE_URL") + "/functions/v1";
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+};
 
-serve(async (req) => {
-  const corsResponse = handleCorsPreflightRequest(req);
-  if (corsResponse) return corsResponse;
+// BH's secured export endpoint — data never leaves BH's own edge functions
+const BH_EXPORT_URL =
+  "https://auibudfactqhisvmiotw.supabase.co/functions/v1/user-profiles-export";
 
-  const headers = { ...getCorsHeaders(req), "Content-Type": "application/json" };
-  const json = (body: unknown, status = 200) =>
-    new Response(JSON.stringify(body), { status, headers });
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
 
   try {
-    if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
-
-    // Auth: require SYNC_SECRET
     const syncSecret = Deno.env.get("SYNC_SECRET");
-    const provided = req.headers.get("x-sync-secret");
-    if (!syncSecret || provided !== syncSecret) {
-      return json({ error: "Unauthorized" }, 401);
+
+    if (!syncSecret) {
+      console.error("bulk-sync-from-bh: SYNC_SECRET is not set");
+      return new Response(
+        JSON.stringify({ success: false, error: "Sync secret not configured" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
-    // Optional: limit batch size via request body
-    const body = await req.json().catch(() => ({}));
-    const limit = body.limit || 1000;
-    const offset = body.offset || 0;
+    // ── Step 1: Fetch user profiles from BH via proxy endpoint ──────────────
+    let users: Array<{
+      id: string;
+      email: string;
+      display_name: string | null;
+      avatar_url: string | null;
+      nctr_locked_points: number;
+      nctr_earned_total: number;
+      nctr_balance_points: number;
+    }> = [];
 
-    // Connect to BH with service key to read user_profiles
-    const bhServiceKey = Deno.env.get("BOUNTY_HUNTER_SERVICE_KEY");
-    if (!bhServiceKey) return json({ error: "BOUNTY_HUNTER_SERVICE_KEY not set" }, 500);
+    try {
+      const bhResponse = await fetch(BH_EXPORT_URL, {
+        method: "GET",
+        headers: {
+          "x-sync-secret": syncSecret,
+          "Content-Type": "application/json",
+        },
+      });
 
-    const bhClient = createClient(BH_URL, bhServiceKey);
-
-    // Fetch BH user_profiles
-    const { data: bhUsers, error: bhError } = await bhClient
-      .from("user_profiles")
-      .select("id, email, display_name, avatar_url, nctr_locked_points, nctr_earned_total, nctr_balance_points")
-      .order("created_at", { ascending: true })
-      .range(offset, offset + limit - 1);
-
-    if (bhError) {
-      console.error("Failed to fetch BH user_profiles:", bhError.message);
-      return json({ error: "Failed to read BH profiles: " + bhError.message }, 500);
-    }
-
-    if (!bhUsers || bhUsers.length === 0) {
-      return json({ message: "No users found in range", synced: 0, offset, limit });
-    }
-
-    console.log(`Found ${bhUsers.length} BH users (offset=${offset}, limit=${limit})`);
-
-    const results: Array<{ email: string; step1: string; step2: string }> = [];
-
-    for (const user of bhUsers) {
-      const email = (user.email || "").trim().toLowerCase();
-      if (!email) {
-        results.push({ email: "(empty)", step1: "skipped", step2: "skipped" });
-        continue;
-      }
-
-      const entry: { email: string; step1: string; step2: string } = {
-        email,
-        step1: "pending",
-        step2: "pending",
-      };
-
-      // Step 1: verify-universal-auth (ensure Crescendo profile exists)
-      try {
-        const res1 = await fetch(`${CRESCENDO_FUNCTIONS_URL}/verify-universal-auth`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-sync-secret": syncSecret,
-          },
-          body: JSON.stringify({
-            email,
-            bh_user_id: user.id,
-            display_name: user.display_name || "User",
-            avatar_url: user.avatar_url || null,
+      if (!bhResponse.ok) {
+        const errText = await bhResponse.text();
+        console.error(
+          `bulk-sync-from-bh: BH export returned ${bhResponse.status}:`,
+          errText
+        );
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: `BH export failed with status ${bhResponse.status}`,
           }),
-        });
-        const r1 = await res1.json();
-        entry.step1 = res1.ok ? (r1.exists ? "exists" : "created") : `error: ${r1.error}`;
-      } catch (e) {
-        entry.step1 = `error: ${e instanceof Error ? e.message : String(e)}`;
+          {
+            status: 502,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
       }
 
-      // Step 2: receive-lock-request (sync points)
-      try {
-        const lockedPoints = Number(user.nctr_locked_points) || 0;
-        const balancePoints = Number(user.nctr_balance_points) || 0;
-        const earnedTotal = Number(user.nctr_earned_total) || 0;
-
-        const res2 = await fetch(`${CRESCENDO_FUNCTIONS_URL}/receive-lock-request`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-sync-secret": syncSecret,
-          },
-          body: JSON.stringify({
-            email,
-            nctr_amount: lockedPoints,
-            nctr_locked_points: lockedPoints,
-            nctr_balance_points: balancePoints + earnedTotal,
-          }),
-        });
-        const r2 = await res2.json();
-        entry.step2 = r2.received ? `ok, tier=${r2.tier_assigned}` : `error: ${r2.error}`;
-      } catch (e) {
-        entry.step2 = `error: ${e instanceof Error ? e.message : String(e)}`;
-      }
-
-      results.push(entry);
-      console.log(`[${results.length}/${bhUsers.length}] ${email}: auth=${entry.step1}, sync=${entry.step2}`);
+      const payload = await bhResponse.json();
+      users = payload.users ?? [];
+    } catch (fetchErr) {
+      console.error("bulk-sync-from-bh: fetch to BH export failed:", fetchErr);
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Could not reach BH export endpoint",
+        }),
+        {
+          status: 502,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
-    const succeeded = results.filter(r => !r.step1.startsWith("error") && !r.step2.startsWith("error")).length;
-    const failed = results.length - succeeded;
+    if (users.length === 0) {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          processed: 0,
+          message: "BH returned zero users — nothing to sync",
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    console.log(`Bulk sync complete: ${succeeded} succeeded, ${failed} failed out of ${results.length}`);
+    // ── Step 2: Process each user against Crescendo functions ───────────────
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
 
-    return json({
-      total: results.length,
-      succeeded,
-      failed,
-      offset,
-      limit,
-      results,
-    });
+    const results = {
+      processed: 0,
+      verified: 0,
+      locked: 0,
+      skipped: 0,
+      errors: [] as string[],
+    };
+
+    for (const user of users) {
+      try {
+        // verify-universal-auth
+        const { error: authError } = await supabase.functions.invoke(
+          "verify-universal-auth",
+          {
+            body: {
+              user_id: user.id,
+              email: user.email,
+            },
+          }
+        );
+
+        if (authError) {
+          console.error(
+            `verify-universal-auth failed for user ${user.id}:`,
+            authError
+          );
+          results.errors.push(`auth:${user.id}`);
+        } else {
+          results.verified++;
+        }
+
+        // receive-lock-request
+        const { error: lockError } = await supabase.functions.invoke(
+          "receive-lock-request",
+          {
+            body: {
+              user_id: user.id,
+              nctr_locked_points: user.nctr_locked_points,
+              nctr_earned_total: user.nctr_earned_total,
+              nctr_balance_points: user.nctr_balance_points,
+            },
+          }
+        );
+
+        if (lockError) {
+          console.error(
+            `receive-lock-request failed for user ${user.id}:`,
+            lockError
+          );
+          results.errors.push(`lock:${user.id}`);
+        } else {
+          results.locked++;
+        }
+
+        results.processed++;
+      } catch (userErr) {
+        console.error(`bulk-sync-from-bh: error on user ${user.id}:`, userErr);
+        results.errors.push(`processing:${user.id}`);
+        results.skipped++;
+      }
+    }
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        total_bh_users: users.length,
+        processed: results.processed,
+        verified: results.verified,
+        locked: results.locked,
+        skipped: results.skipped,
+        error_count: results.errors.length,
+        errors: results.errors,
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error("bulk-sync-from-bh error:", msg);
-    return json({ error: msg }, 500);
+    console.error("bulk-sync-from-bh unexpected error:", err);
+    return new Response(
+      JSON.stringify({ success: false, error: "Internal error" }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
   }
 });
