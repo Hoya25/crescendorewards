@@ -66,7 +66,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     }
 
     // Safety net: if user has any transaction history or signup bonus, treat as returning user
-    const hasActivity = profile.signup_bonus_awarded || (profile.crescendo_data as any)?.available_nctr > 0;
+    const hasActivity = profile.signup_bonus_awarded || Number((profile as any)?.nctr_balance_points) > 0;
     if (hasActivity) {
       localStorage.setItem('crescendo_onboarded', 'true');
       return;

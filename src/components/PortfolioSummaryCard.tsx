@@ -100,8 +100,8 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
   const portfolioUnlocked = portfolio?.reduce((sum, w) => sum + (w.nctr_unlocked || 0), 0) || 0;
   
   // Fallback to crescendo_data if wallet_portfolio is empty
-  const crescendoLocked = (profile?.crescendo_data?.locked_nctr as number) || 0;
-  const crescendoAvailable = (profile?.crescendo_data?.available_nctr as number) || 0;
+  const crescendoLocked = Number((profile as any)?.nctr_locked_points) || 0;
+  const crescendoAvailable = Number((profile as any)?.nctr_balance_points) || 0;
   const hasWalletData = portfolio && portfolio.length > 0 && (portfolioTotal90 > 0 || portfolioBalance > 0 || portfolioUnlocked > 0);
   
   // Use wallet data if available, otherwise use crescendo_data

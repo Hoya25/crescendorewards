@@ -50,7 +50,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           .single();
 
         if (!(profileCheck as any)?.signup_bonus_awarded) {
-          const currentAvailable = (profile.crescendo_data?.available_nctr as number) || 0;
+          const currentAvailable = Number((profile as any)?.nctr_balance_points) || 0;
           await supabase
             .from('unified_profiles')
             .update({

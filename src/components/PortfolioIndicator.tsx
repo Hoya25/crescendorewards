@@ -26,7 +26,7 @@ export function PortfolioIndicator({ className }: PortfolioIndicatorProps) {
   // Calculate totals with fallback to crescendo_data
   const portfolioTotal90 = portfolio?.reduce((sum, w) => sum + (w.nctr_90_locked || 0), 0) || 0;
   const portfolioBalance = portfolio?.reduce((sum, w) => sum + (w.nctr_balance || 0), 0) || 0;
-  const crescendoAvailable = (profile?.crescendo_data?.available_nctr as number) || 0;
+  const crescendoAvailable = Number((profile as any)?.nctr_balance_points) || 0;
   const hasWalletData = portfolio && portfolio.length > 0;
   
   const total90Locked = hasWalletData ? portfolioTotal90 : 0;

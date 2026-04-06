@@ -72,7 +72,7 @@ export function MembershipLevelPage() {
   
   // Calculate available NCTR from portfolio or fallback to crescendo_data
   const portfolioAvailable = portfolioData?.nctr_unlocked || portfolioData?.nctr_balance || 0;
-  const crescendoAvailable = (profile.crescendo_data?.available_nctr as number) || 0;
+  const crescendoAvailable = Number((profile as any)?.nctr_balance_points) || 0;
   const availableNCTR = portfolioData ? portfolioAvailable : crescendoAvailable;
   
   // Get current tier info - use database tier if available, fallback to calculated
