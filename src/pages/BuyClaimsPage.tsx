@@ -62,10 +62,10 @@ const getMultiplierBadge = (name: string): string | null => {
 
 export function BuyClaimsPage() {
   const navigate = useNavigate();
-  const { profile, refreshUnifiedProfile } = useUnifiedUser();
+  const { profile, refreshUnifiedProfile, total360Locked } = useUnifiedUser();
   const [selectedPackage, setSelectedPackage] = useState<ClaimPackage | null>(null);
   const [processing, setProcessing] = useState(false);
-  const [lockedNCTR, setLockedNCTR] = useState(0);
+  const lockedNCTR = total360Locked;
   const [showSuccess, setShowSuccess] = useState(false);
   const [claimPackages, setClaimPackages] = useState<ClaimPackage[]>([]);
   const [loading, setLoading] = useState(true);
