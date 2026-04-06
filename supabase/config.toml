@@ -32,6 +32,10 @@ verify_jwt = false
 [functions.receive-lock-request]
 verify_jwt = false
 
+# User status export - authenticated via SYNC_SECRET header
+[functions.user-status-export]
+verify_jwt = false
+
 # Universal auth verification - authenticated via SYNC_SECRET header
 [functions.verify-universal-auth]
 verify_jwt = false
