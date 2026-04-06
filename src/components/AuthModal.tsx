@@ -4,7 +4,7 @@ import { track } from '@/lib/track';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Dialog, DialogContent } from './ui/dialog';
-import { Loader2, AlertCircle, ExternalLink } from 'lucide-react';
+import { Loader2, AlertCircle, ExternalLink, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
