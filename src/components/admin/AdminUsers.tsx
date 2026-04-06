@@ -320,7 +320,7 @@ export function AdminUsers() {
         
         // Determine best NCTR value with clear priority:
         // 1. wallet_portfolio.nctr_360_locked (on-chain synced data)
-        // 2. unified_profiles.crescendo_data.locked_nctr (app data)
+        // 2. unified_profiles.nctr_locked_points (canonical column)
         // 3. profiles.locked_nctr (legacy data)
         let bestLockedNctr = user.locked_nctr ?? 0;
         
