@@ -238,7 +238,7 @@ export function AdminUsers() {
         // 1. Fetch unified_profiles with crescendo_data and current tier
         const { data: unifiedData } = await supabase
           .from('unified_profiles')
-          .select('id, auth_user_id, last_active_crescendo, current_tier_id, crescendo_data')
+          .select('id, auth_user_id, last_active_crescendo, current_tier_id, crescendo_data, nctr_locked_points, nctr_balance_points')
           .in('auth_user_id', userIds);
         
         if (unifiedData) {
