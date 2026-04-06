@@ -235,14 +235,12 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
       
       if (profileError) console.error('Profile fetch error:', profileError);
       
-      // 2. Fetch from unified_profiles (crescendo_data)
+      // 2. Fetch from unified_profiles (canonical columns)
       const { data: unifiedData } = await supabase
         .from('unified_profiles')
-        .select('id, crescendo_data')
+        .select('id, nctr_locked_points, nctr_balance_points, crescendo_data')
         .eq('auth_user_id', user.id)
         .maybeSingle();
-      
-      const crescendoData = unifiedData?.crescendo_data as Record<string, any> | null;
       
       // 3. Fetch from wallet_portfolio if unified exists
       let walletNctr: number | null = null;
