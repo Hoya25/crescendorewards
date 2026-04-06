@@ -1,5 +1,3 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -17,11 +15,23 @@ Deno.serve(async (req) => {
 
   try {
     const syncSecret = Deno.env.get("SYNC_SECRET");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
 
     if (!syncSecret) {
       console.error("bulk-sync-from-bh: SYNC_SECRET is not set");
       return new Response(
         JSON.stringify({ success: false, error: "Sync secret not configured" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    if (!supabaseUrl) {
+      console.error("bulk-sync-from-bh: SUPABASE_URL is not set");
+      return new Response(
+        JSON.stringify({ success: false, error: "Project URL not configured" }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -95,11 +105,6 @@ Deno.serve(async (req) => {
     }
 
     // ── Step 2: Process each user against Crescendo functions ───────────────
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
-
     const results = {
       processed: 0,
       verified: 0,
@@ -110,18 +115,24 @@ Deno.serve(async (req) => {
 
     for (const user of users) {
       try {
-        // verify-universal-auth
-        const { error: authError } = await supabase.functions.invoke(
-          "verify-universal-auth",
+        const res1 = await fetch(
+          `${supabaseUrl}/functions/v1/verify-universal-auth`,
           {
-            body: {
-              user_id: user.id,
-              email: user.email,
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-sync-secret": syncSecret,
             },
+            body: JSON.stringify({
+              email: user.email,
+              bh_user_id: user.id,
+              display_name: user.display_name || "User",
+            }),
           }
         );
 
-        if (authError) {
+        if (!res1.ok) {
+          const authError = await res1.text();
           console.error(
             `verify-universal-auth failed for user ${user.id}:`,
             authError
@@ -131,20 +142,25 @@ Deno.serve(async (req) => {
           results.verified++;
         }
 
-        // receive-lock-request
-        const { error: lockError } = await supabase.functions.invoke(
-          "receive-lock-request",
+        const res2 = await fetch(
+          `${supabaseUrl}/functions/v1/receive-lock-request`,
           {
-            body: {
-              user_id: user.id,
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-sync-secret": syncSecret,
+            },
+            body: JSON.stringify({
+              email: user.email,
+              nctr_amount: user.nctr_locked_points,
               nctr_locked_points: user.nctr_locked_points,
               nctr_earned_total: user.nctr_earned_total,
-              nctr_balance_points: user.nctr_balance_points,
-            },
+            }),
           }
         );
 
-        if (lockError) {
+        if (!res2.ok) {
+          const lockError = await res2.text();
           console.error(
             `receive-lock-request failed for user ${user.id}:`,
             lockError
