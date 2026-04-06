@@ -256,11 +256,11 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
       
       // Determine best NCTR value with priority:
       // 1. wallet_portfolio.nctr_360_locked (on-chain data)
-      // 2. unified_profiles.crescendo_data.locked_nctr (app data)
+      // 2. unified_profiles.nctr_locked_points (canonical column)
       // 3. profiles.locked_nctr (legacy data)
       const profileRecord = profileData as Record<string, any> | null;
       const profileNctr = profileRecord?.locked_nctr ?? profileRecord?.nctr_locked ?? profileRecord?.nctr_balance ?? 0;
-      const crescendoNctr = crescendoData?.locked_nctr != null ? Number(crescendoData.locked_nctr) : null;
+      const crescendoNctr = unifiedData?.nctr_locked_points != null ? Number(unifiedData.nctr_locked_points) : null;
       
       let bestLockedNctr = profileNctr;
       if (crescendoNctr != null && crescendoNctr > 0) {
