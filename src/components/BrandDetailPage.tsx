@@ -54,7 +54,7 @@ export function BrandDetailPage() {
   const lockedNctr = Number((profile as any)?.nctr_locked_points) || 0;
   const membershipTier = getMembershipTierByNCTR(lockedNctr);
   const multiplier = membershipTier.multiplier;
-  const claimBalance = crescendoData.claims_balance || 0;
+  const claimBalance = (profile?.crescendo_data as any)?.claims_balance || 0;
 
   const calculateMultipliedRate = (baseRate: number) => {
     return (baseRate * multiplier).toFixed(2);
