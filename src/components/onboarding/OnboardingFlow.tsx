@@ -50,15 +50,12 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           .single();
 
         if (!(profileCheck as any)?.signup_bonus_awarded) {
-          const currentAvailable = Number((profile as any)?.nctr_balance_points) || 0;
+          const currentAvailable = Number(profile?.nctr_balance_points) || 0;
           await supabase
             .from('unified_profiles')
             .update({
               signup_bonus_awarded: true,
-              crescendo_data: {
-                ...profile.crescendo_data,
-                available_nctr: currentAvailable + 25,
-              },
+              nctr_balance_points: currentAvailable + 25,
             } as any)
             .eq('id', profile.id);
 

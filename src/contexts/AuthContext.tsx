@@ -111,9 +111,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             email: authUser.email,
             display_name: authUser.user_metadata?.full_name || null,
             current_tier_id: defaultTier?.id || null,
+            nctr_balance_points: 100,
             crescendo_data: {
               claims_balance: 0,
-              available_nctr: 100,
               role: 'member'
             },
             garden_data: {},

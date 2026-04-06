@@ -235,14 +235,12 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
       
       if (profileError) console.error('Profile fetch error:', profileError);
       
-      // 2. Fetch from unified_profiles (crescendo_data)
+      // 2. Fetch from unified_profiles (canonical columns)
       const { data: unifiedData } = await supabase
         .from('unified_profiles')
-        .select('id, crescendo_data')
+        .select('id, nctr_locked_points, nctr_balance_points, crescendo_data')
         .eq('auth_user_id', user.id)
         .maybeSingle();
-      
-      const crescendoData = unifiedData?.crescendo_data as Record<string, any> | null;
       
       // 3. Fetch from wallet_portfolio if unified exists
       let walletNctr: number | null = null;
@@ -258,11 +256,11 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
       
       // Determine best NCTR value with priority:
       // 1. wallet_portfolio.nctr_360_locked (on-chain data)
-      // 2. unified_profiles.crescendo_data.locked_nctr (app data)
+      // 2. unified_profiles.nctr_locked_points (canonical column)
       // 3. profiles.locked_nctr (legacy data)
       const profileRecord = profileData as Record<string, any> | null;
       const profileNctr = profileRecord?.locked_nctr ?? profileRecord?.nctr_locked ?? profileRecord?.nctr_balance ?? 0;
-      const crescendoNctr = crescendoData?.locked_nctr != null ? Number(crescendoData.locked_nctr) : null;
+      const crescendoNctr = unifiedData?.nctr_locked_points != null ? Number(unifiedData.nctr_locked_points) : null;
       
       let bestLockedNctr = profileNctr;
       if (crescendoNctr != null && crescendoNctr > 0) {
@@ -272,6 +270,7 @@ export function AdminAdjustNCTRModal({ open, onOpenChange, user, onSuccess }: Ad
         bestLockedNctr = walletNctr;
       }
       
+      const crescendoData = unifiedData?.crescendo_data as Record<string, any> | null;
       const crescendoLevel = crescendoData?.level != null ? Number(crescendoData.level) : null;
       const bestLevel = crescendoLevel ?? profileData?.level ?? 1;
       

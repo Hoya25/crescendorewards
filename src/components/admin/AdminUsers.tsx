@@ -238,7 +238,7 @@ export function AdminUsers() {
         // 1. Fetch unified_profiles with crescendo_data and current tier
         const { data: unifiedData } = await supabase
           .from('unified_profiles')
-          .select('id, auth_user_id, last_active_crescendo, current_tier_id, crescendo_data')
+          .select('id, auth_user_id, last_active_crescendo, current_tier_id, crescendo_data, nctr_locked_points, nctr_balance_points')
           .in('auth_user_id', userIds);
         
         if (unifiedData) {
@@ -268,8 +268,8 @@ export function AdminUsers() {
                 last_active: up.last_active_crescendo,
                 unified_id: up.id,
                 current_tier: up.current_tier_id ? tierMap[up.current_tier_id] || null : null,
-                crescendo_locked_nctr: crescendoData?.locked_nctr != null ? Number(crescendoData.locked_nctr) : null,
-                crescendo_available_nctr: crescendoData?.available_nctr != null ? Number(crescendoData.available_nctr) : null,
+                crescendo_locked_nctr: up.nctr_locked_points != null ? Number(up.nctr_locked_points) : null,
+                crescendo_available_nctr: up.nctr_balance_points != null ? Number(up.nctr_balance_points) : null,
                 crescendo_level: crescendoData?.level != null ? Number(crescendoData.level) : null,
                 crescendo_claim_balance: crescendoData?.claim_balance ?? crescendoData?.claims_balance != null 
                   ? Number(crescendoData?.claim_balance ?? crescendoData?.claims_balance) : null,
@@ -320,7 +320,7 @@ export function AdminUsers() {
         
         // Determine best NCTR value with clear priority:
         // 1. wallet_portfolio.nctr_360_locked (on-chain synced data)
-        // 2. unified_profiles.crescendo_data.locked_nctr (app data)
+        // 2. unified_profiles.nctr_locked_points (canonical column)
         // 3. profiles.locked_nctr (legacy data)
         let bestLockedNctr = user.locked_nctr ?? 0;
         
