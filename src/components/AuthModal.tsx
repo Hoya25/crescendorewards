@@ -4,7 +4,7 @@ import { track } from '@/lib/track';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Dialog, DialogContent } from './ui/dialog';
-import { Loader2, AlertCircle, ExternalLink } from 'lucide-react';
+import { Loader2, AlertCircle, ExternalLink, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
@@ -19,6 +19,7 @@ interface AuthModalProps {
 export function AuthModal({ mode: _mode, onClose, onSuccess, onToggleMode: _onToggleMode, prefilledEmail }: AuthModalProps) {
   const [email, setEmail] = useState(prefilledEmail || '');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [bhFound, setBhFound] = useState(false);
@@ -307,23 +308,34 @@ export function AuthModal({ mode: _mode, onClose, onSuccess, onToggleMode: _onTo
               >
                 Password
               </Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-                required
-                style={{
-                  backgroundColor: '#252525',
-                  border: '1px solid #3A3A3A',
-                  borderRadius: '0px',
-                  color: '#FFFFFF',
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '14px',
-                }}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
+                  required
+                  style={{
+                    backgroundColor: '#252525',
+                    border: '1px solid #3A3A3A',
+                    borderRadius: '0px',
+                    color: '#FFFFFF',
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: '14px',
+                    paddingRight: '40px',
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8A8A88] hover:text-white transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
 
             <Button
