@@ -95,14 +95,64 @@ serve(async (req) => {
 
     if (updateError) {
       console.error("Failed to update unified_profiles:", updateError);
+      // Log failed sync attempt
+      await supabaseAdmin.from("cross_platform_activity_log").insert({
+        user_id: profile.id,
+        platform: "bounty_hunter",
+        action_type: "bh_lock_sync_failed",
+        action_data: { nctr_locked_points, nctr_balance_points, nctr_amount, error: updateError.message },
+      });
       return json({ received: false, error: updateError.message });
     }
 
+    // --- CHANGE 1: Recalculate tier from locked points ---
+    const effectiveLockedPoints = nctr_locked_points ?? 0;
+    let assignedTierName = "none";
+
+    if (effectiveLockedPoints >= 1000) {
+      const { data: matchedTier } = await supabaseAdmin
+        .from("status_tiers")
+        .select("id, tier_name")
+        .lte("min_nctr_360_locked", effectiveLockedPoints)
+        .order("min_nctr_360_locked", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (matchedTier) {
+        await supabaseAdmin
+          .from("unified_profiles")
+          .update({ current_tier_id: matchedTier.id })
+          .eq("id", profile.id);
+        assignedTierName = matchedTier.tier_name;
+      }
+    } else {
+      // Below Bronze threshold — clear tier
+      await supabaseAdmin
+        .from("unified_profiles")
+        .update({ current_tier_id: null })
+        .eq("id", profile.id);
+    }
+
+    // --- CHANGE 2: Log successful sync ---
+    await supabaseAdmin.from("cross_platform_activity_log").insert({
+      user_id: profile.id,
+      platform: "bounty_hunter",
+      action_type: "bh_lock_sync",
+      action_data: {
+        nctr_locked_points,
+        nctr_balance_points,
+        nctr_amount,
+        target_tier,
+        tier_assigned: assignedTierName,
+        synced_at: new Date().toISOString(),
+      },
+    });
+
     console.log(
-      `Lock request received: ${nctr_amount} NCTR for ${email}, tier=${target_tier ?? "none"}, locked_pts=${nctr_locked_points ?? "n/a"}, balance_pts=${nctr_balance_points ?? "n/a"}`
+      `Lock request received: ${nctr_amount} NCTR for ${email}, tier_assigned=${assignedTierName}, locked_pts=${nctr_locked_points ?? "n/a"}, balance_pts=${nctr_balance_points ?? "n/a"}`
     );
 
-    return json({ received: true });
+    return json({ received: true, tier_assigned: assignedTierName });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("receive-lock-request error:", msg);
