@@ -268,8 +268,8 @@ export function AdminUsers() {
                 last_active: up.last_active_crescendo,
                 unified_id: up.id,
                 current_tier: up.current_tier_id ? tierMap[up.current_tier_id] || null : null,
-                crescendo_locked_nctr: crescendoData?.locked_nctr != null ? Number(crescendoData.locked_nctr) : null,
-                crescendo_available_nctr: crescendoData?.available_nctr != null ? Number(crescendoData.available_nctr) : null,
+                crescendo_locked_nctr: up.nctr_locked_points != null ? Number(up.nctr_locked_points) : null,
+                crescendo_available_nctr: up.nctr_balance_points != null ? Number(up.nctr_balance_points) : null,
                 crescendo_level: crescendoData?.level != null ? Number(crescendoData.level) : null,
                 crescendo_claim_balance: crescendoData?.claim_balance ?? crescendoData?.claims_balance != null 
                   ? Number(crescendoData?.claim_balance ?? crescendoData?.claims_balance) : null,
