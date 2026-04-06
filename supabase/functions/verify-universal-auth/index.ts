@@ -22,16 +22,10 @@ Deno.serve(async (req: Request) => {
 
     // Parse & validate body
     const body = await req.json();
-    const { email, bh_user_id, display_name, avatar_url, referral_code, nctr_balance } = body;
+    const { email, action, bh_user_id, display_name, avatar_url, referral_code, nctr_balance, redirect_to } = body;
 
     if (!email || typeof email !== "string") {
       return new Response(JSON.stringify({ error: "email is required" }), { status: 400, headers });
-    }
-    if (!bh_user_id || typeof bh_user_id !== "string") {
-      return new Response(JSON.stringify({ error: "bh_user_id is required" }), { status: 400, headers });
-    }
-    if (!display_name || typeof display_name !== "string") {
-      return new Response(JSON.stringify({ error: "display_name is required" }), { status: 400, headers });
     }
 
     // Create service-role client
@@ -39,48 +33,74 @@ Deno.serve(async (req: Request) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // --- Auto-provision auth user if missing ---
     const normalizedEmail = email.toLowerCase().trim();
-    const { data: authList } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1 });
-    // listUsers doesn't support email filter directly; search manually
-    const { data: allAuthSearch } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
-    const authUserExists = allAuthSearch?.users?.some(
-      (u: any) => u.email?.toLowerCase() === normalizedEmail
-    );
 
-    const existingAuthUser = allAuthSearch?.users?.find(
-      (u: any) => u.email?.toLowerCase() === normalizedEmail
-    );
-
-    if (existingAuthUser) {
-      // Update existing user's password to beta password so they can log in
-      const { error: updateErr } = await supabase.auth.admin.updateUserById(
-        existingAuthUser.id,
-        { password: "nctr-beta-2026" }
+    // --- Helper: ensure auth user exists ---
+    async function ensureAuthUser(emailAddr: string, displayName?: string, bhUserId?: string) {
+      const { data: allAuthSearch } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
+      const existingAuthUser = allAuthSearch?.users?.find(
+        (u: any) => u.email?.toLowerCase() === emailAddr
       );
-      if (updateErr) {
-        console.error("Failed to update auth user password:", updateErr.message);
+
+      if (existingAuthUser) {
+        const { error: updateErr } = await supabase.auth.admin.updateUserById(
+          existingAuthUser.id,
+          { password: "nctr-beta-2026" }
+        );
+        if (updateErr) console.error("Failed to update auth user password:", updateErr.message);
+        else console.log("Updated password for existing auth user:", emailAddr);
+        return existingAuthUser;
       } else {
-        console.log("Updated password for existing auth user:", normalizedEmail);
-      }
-    } else {
-      // Create new auth user
-      const { error: createAuthErr } = await supabase.auth.admin.createUser({
-        email: normalizedEmail,
-        email_confirm: true,
-        password: "nctr-beta-2026",
-        user_metadata: {
-          display_name,
-          source: "bounty_hunter",
-          bh_user_id,
-        },
-      });
-      if (createAuthErr) {
-        console.error("Auto-provision auth user failed:", createAuthErr.message);
-      } else {
-        console.log("Auto-provisioned auth user for:", normalizedEmail);
+        const { data: newUser, error: createAuthErr } = await supabase.auth.admin.createUser({
+          email: emailAddr,
+          email_confirm: true,
+          password: "nctr-beta-2026",
+          user_metadata: {
+            display_name: displayName || "User",
+            source: "bounty_hunter",
+            bh_user_id: bhUserId || undefined,
+          },
+        });
+        if (createAuthErr) {
+          console.error("Auto-provision auth user failed:", createAuthErr.message);
+          return null;
+        }
+        console.log("Auto-provisioned auth user for:", emailAddr);
+        return newUser?.user || null;
       }
     }
+
+    // --- Magic link action ---
+    if (action === "generate_magic_link") {
+      await ensureAuthUser(normalizedEmail, display_name, bh_user_id);
+
+      const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+        type: "magiclink",
+        email: normalizedEmail,
+        options: {
+          redirectTo: redirect_to || "https://crescendo.nctr.live/dashboard",
+        },
+      });
+
+      if (linkError) {
+        return new Response(JSON.stringify({ error: linkError.message }), { status: 500, headers });
+      }
+
+      return new Response(
+        JSON.stringify({ magic_link: linkData?.properties?.action_link }),
+        { status: 200, headers }
+      );
+    }
+
+    // --- Default action: profile provisioning ---
+    if (!bh_user_id || typeof bh_user_id !== "string") {
+      return new Response(JSON.stringify({ error: "bh_user_id is required" }), { status: 400, headers });
+    }
+    if (!display_name || typeof display_name !== "string") {
+      return new Response(JSON.stringify({ error: "display_name is required" }), { status: 400, headers });
+    }
+
+    await ensureAuthUser(normalizedEmail, display_name, bh_user_id);
 
     // --- Profile logic (unchanged) ---
     // Check if profile already exists by email
