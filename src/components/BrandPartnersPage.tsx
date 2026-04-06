@@ -78,8 +78,8 @@ export function BrandPartnersPage() {
   const [loading, setLoading] = useState(true);
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   
-  const crescendoData = profile?.crescendo_data || {};
-  const membershipTier = getMembershipTierByNCTR(crescendoData.locked_nctr || 0);
+  const lockedNctr = Number((profile as any)?.nctr_locked_points) || 0;
+  const membershipTier = getMembershipTierByNCTR(lockedNctr);
   const multiplier = membershipTier.multiplier;
 
   useEffect(() => {

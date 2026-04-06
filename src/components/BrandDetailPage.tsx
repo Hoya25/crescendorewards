@@ -51,10 +51,10 @@ export function BrandDetailPage() {
   const [wishlist, setWishlist] = useState<Set<string>>(new Set());
   const [animatingHeartId, setAnimatingHeartId] = useState<string | null>(null);
 
-  const crescendoData = profile?.crescendo_data || {};
-  const membershipTier = getMembershipTierByNCTR(crescendoData.locked_nctr || 0);
+  const lockedNctr = Number((profile as any)?.nctr_locked_points) || 0;
+  const membershipTier = getMembershipTierByNCTR(lockedNctr);
   const multiplier = membershipTier.multiplier;
-  const claimBalance = crescendoData.claims_balance || 0;
+  const claimBalance = (profile?.crescendo_data as any)?.claims_balance || 0;
 
   const calculateMultipliedRate = (baseRate: number) => {
     return (baseRate * multiplier).toFixed(2);

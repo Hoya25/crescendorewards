@@ -17,7 +17,7 @@ export function StatusHero() {
   const nctrLockedPoints = Number((profile as any)?.nctr_locked_points) || 0;
   const nctrBalancePoints = Number((profile as any)?.nctr_balance_points) || 0;
 
-  const availableNCTR = (profile?.crescendo_data as any)?.available_nctr || 0;
+  const availableNCTR = Number((profile as any)?.nctr_balance_points) || 0;
 
   const nctrRemaining = nextTier
     ? Math.max(0, nextTier.min_nctr_360_locked - total360Locked)
