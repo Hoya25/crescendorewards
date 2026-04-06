@@ -127,6 +127,9 @@ function AppRoutes() {
   useClaimDeliveryNotifications();
   useReferralSuccessNotification();
 
+  // Auto-login via BH token (?token=xxx)
+  const { processing: bhTokenProcessing } = useBHTokenAutoLogin(isAuthenticated, loading);
+
   // Detect bh_email param from Bounty Hunter deep links
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
