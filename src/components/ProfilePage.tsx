@@ -39,9 +39,12 @@ import { GroundballStatusBadge } from '@/components/groundball/GroundballStatusB
 import { ClaimHandleCard } from '@/components/profile/ClaimHandleCard';
 const getCrescendoData = (profile: any) => {
   const crescendoData = profile?.crescendo_data || {};
+  // Use canonical columns from unified_profiles as single source of truth
+  const lockedNctr = Number(profile?.nctr_locked_points) || 0;
+  const availableNctr = Number(profile?.nctr_balance_points) || 0;
   return {
-    locked_nctr: crescendoData.locked_nctr || 0,
-    available_nctr: crescendoData.available_nctr || 0,
+    locked_nctr: lockedNctr,
+    available_nctr: availableNctr,
     claim_balance: crescendoData.claims_balance || crescendoData.claim_balance || 0,
     referral_code: crescendoData.referral_code || null,
     has_claimed_signup_bonus: crescendoData.has_claimed_signup_bonus || false,

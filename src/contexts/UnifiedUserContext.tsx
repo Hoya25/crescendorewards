@@ -97,18 +97,9 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
   const [allTiers, setAllTiers] = useState<StatusTier[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [depositLocked, setDepositLocked] = useState(0);
-
-  // Calculate total 360LOCK from all wallets, with fallback to crescendo_data
-  const portfolioTotal360 = portfolio?.reduce((sum, w) => sum + (w.nctr_360_locked || 0), 0) || 0;
-  const crescendoLocked = Number((profile as any)?.nctr_locked_points) || 0;
-  const crescendoAvailable = Number((profile as any)?.nctr_balance_points) || 0;
-  
-  // Use wallet_portfolio if available, otherwise fall back to crescendo_data
-  const walletLocked = portfolioTotal360 > 0 ? portfolioTotal360 : crescendoLocked;
-  
-  // Combine wallet locks + deposit locks for total
-  const total360Locked = walletLocked + depositLocked;
+  // nctr_locked_points from unified_profiles is the single source of truth
+  // It is synced from Bounty Hunter and already includes all lock sources
+  const total360Locked = Number((profile as any)?.nctr_locked_points) || 0;
 
   // Calculate next tier and progress
   const nextTier = allTiers.find(t => 
@@ -216,18 +207,11 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
         
         setPortfolio(parsedPortfolio as WalletPortfolio[]);
 
-        // Fetch deposit-locked NCTR from profiles table
-        const { data: profilesData } = await supabase
-          .from('profiles')
-          .select('total_locked_nctr')
-          .eq('id', user.id)
-          .single();
-        setDepositLocked(Number(profilesData?.total_locked_nctr) || 0);
+        // nctr_locked_points is already on unified_profiles — no extra query needed
       } else {
         setProfile(null);
         setTier(null);
         setPortfolio(null);
-        setDepositLocked(0);
       }
     } catch (err) {
       console.error('Error fetching unified profile:', err);

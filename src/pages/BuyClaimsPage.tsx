@@ -62,10 +62,10 @@ const getMultiplierBadge = (name: string): string | null => {
 
 export function BuyClaimsPage() {
   const navigate = useNavigate();
-  const { profile, refreshUnifiedProfile } = useUnifiedUser();
+  const { profile, refreshUnifiedProfile, total360Locked } = useUnifiedUser();
   const [selectedPackage, setSelectedPackage] = useState<ClaimPackage | null>(null);
   const [processing, setProcessing] = useState(false);
-  const [lockedNCTR, setLockedNCTR] = useState(0);
+  const lockedNCTR = total360Locked;
   const [showSuccess, setShowSuccess] = useState(false);
   const [claimPackages, setClaimPackages] = useState<ClaimPackage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -130,24 +130,7 @@ export function BuyClaimsPage() {
     }
   }, [refreshUnifiedProfile]);
 
-  useEffect(() => {
-    const fetchLockedNCTR = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('locked_nctr')
-        .eq('id', user.id)
-        .single();
-
-      if (profileData) {
-        setLockedNCTR(profileData.locked_nctr);
-      }
-    };
-
-    fetchLockedNCTR();
-  }, []);
+  // lockedNCTR now comes from UnifiedUserContext.total360Locked (nctr_locked_points)
 
   const handlePurchase = async () => {
     if (!selectedPackage) return;
