@@ -22,6 +22,7 @@ import { BetaBanner } from "./components/BetaBanner";
 import { DemoModeToggle } from "./components/groundball/DemoModeToggle";
 import { UserbackProvider } from "./components/UserbackProvider";
 import { useClaimDeliveryNotifications } from "./hooks/useClaimDeliveryNotifications";
+import { useBHTokenAutoLogin } from "./hooks/useBHTokenAutoLogin";
 import { useReferralSuccessNotification } from "./hooks/useReferralSuccessNotification";
 import { AppLayout } from "./components/layout/AppLayout";
 import { NavigationSafetyNet } from "./components/layout/NavigationSafetyNet";
