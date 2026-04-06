@@ -39,11 +39,40 @@ Deno.serve(async (req: Request) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // --- Auto-provision auth user if missing ---
+    const normalizedEmail = email.toLowerCase().trim();
+    const { data: authList } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1 });
+    // listUsers doesn't support email filter directly; search manually
+    const { data: allAuthSearch } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    const authUserExists = allAuthSearch?.users?.some(
+      (u: any) => u.email?.toLowerCase() === normalizedEmail
+    );
+
+    if (!authUserExists) {
+      const { error: createAuthErr } = await supabase.auth.admin.createUser({
+        email: normalizedEmail,
+        email_confirm: true,
+        password: "nctr-beta-2026",
+        user_metadata: {
+          display_name,
+          source: "bounty_hunter",
+          bh_user_id,
+        },
+      });
+      if (createAuthErr) {
+        console.error("Auto-provision auth user failed:", createAuthErr.message);
+        // Non-fatal: continue with profile logic even if auth creation fails
+      } else {
+        console.log("Auto-provisioned auth user for:", normalizedEmail);
+      }
+    }
+
+    // --- Profile logic (unchanged) ---
     // Check if profile already exists by email
     const { data: existing, error: selectError } = await supabase
       .from("unified_profiles")
       .select("*, status_tiers(tier_name)")
-      .eq("email", email.toLowerCase().trim())
+      .eq("email", normalizedEmail)
       .maybeSingle();
 
     if (selectError) {
@@ -51,7 +80,6 @@ Deno.serve(async (req: Request) => {
     }
 
     if (existing) {
-      // If bh_user_id not yet linked, update it
       if (!existing.bh_user_id && bh_user_id) {
         await supabase
           .from("unified_profiles")
@@ -63,7 +91,7 @@ Deno.serve(async (req: Request) => {
       return new Response(JSON.stringify({ exists: true, profile: { ...existing, crescendo_tier: tierName } }), { status: 200, headers });
     }
 
-    // Also check by bh_user_id in case email differs
+    // Also check by bh_user_id
     const { data: existingByBh } = await supabase
       .from("unified_profiles")
       .select("*, status_tiers(tier_name)")
@@ -86,7 +114,7 @@ Deno.serve(async (req: Request) => {
     const { data: newProfile, error: insertError } = await supabase
       .from("unified_profiles")
       .insert({
-        email: email.toLowerCase().trim(),
+        email: normalizedEmail,
         display_name,
         avatar_url: avatar_url || null,
         bh_user_id,
@@ -101,6 +129,7 @@ Deno.serve(async (req: Request) => {
       return new Response(JSON.stringify({ error: insertError.message }), { status: 500, headers });
     }
 
+    return new Response(JSON.stringify({ exists: false, profile: { ...newProfile, crescendo_tier: "bronze" } }), { status: 201, headers });
     return new Response(JSON.stringify({ exists: false, profile: { ...newProfile, crescendo_tier: "bronze" } }), { status: 201, headers });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
