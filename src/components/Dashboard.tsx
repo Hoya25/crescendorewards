@@ -14,12 +14,8 @@ import { StatusHero } from "./dashboard/StatusHero";
 import { QuickActions } from "./dashboard/QuickActions";
 import { NextUnlocks } from "./dashboard/NextUnlocks";
 import { StatusExplainer } from "./dashboard/StatusExplainer";
-import { MerchBountiesWidget } from "./dashboard/MerchBountiesWidget";
 import { YourNextStep } from "./dashboard/YourNextStep";
-import { MerchBountyReminderCard } from "./dashboard/MerchBountyReminderCard";
 import { EarningsHistory } from "./dashboard/EarningsHistory";
-import { MerchCelebrationModal } from "./merch/MerchCelebrationModal";
-import { useUncelebratedPurchases } from "@/hooks/useMerchCelebration";
 import { MilestoneProgress } from "@/components/referral/MilestoneProgress";
 import { CreatorReferrals } from "./dashboard/CreatorReferrals";
 import { DashboardReferralCard } from "./dashboard/DashboardReferralCard";
@@ -33,20 +29,10 @@ export function Dashboard() {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [showReferredModal, setShowReferredModal] = useState(false);
   const [referrerName, setReferrerName] = useState<string | undefined>();
-  const [showMerchCelebration, setShowMerchCelebration] = useState(false);
-
-  const { data: uncelebratedPurchases = [] } = useUncelebratedPurchases();
 
   const crescendoData = profile?.crescendo_data || {};
   const claimBalance = (crescendoData as any).claims_balance || 0;
   const userName = profile?.display_name || profile?.email?.split("@")[0] || "User";
-
-  // Show merch celebration when uncelebrated purchases are detected
-  useEffect(() => {
-    if (uncelebratedPurchases.length > 0 && !showWelcomeModal && !showReferredModal) {
-      setShowMerchCelebration(true);
-    }
-  }, [uncelebratedPurchases.length, showWelcomeModal, showReferredModal]);
 
   // Check if user was referred and show welcome modal
   useEffect(() => {
@@ -151,8 +137,8 @@ export function Dashboard() {
           {/* 0. YOUR NEXT STEP — dynamic contextual CTA */}
           <YourNextStep />
 
-          {/* 0.5 MERCH BOUNTY REMINDER — persistent until bounties completed */}
-          <MerchBountyReminderCard />
+
+
 
           {/* Onboarding checklist (conditional) */}
           <OnboardingChecklist />
@@ -180,8 +166,8 @@ export function Dashboard() {
             <NextUnlocks />
           </div>
 
-          {/* 5. MERCH BOUNTIES (conditional) */}
-          <MerchBountiesWidget />
+
+
 
           {/* 5.5 REFERRAL MILESTONE PROGRESS */}
           <MilestoneProgress currentReferrals={profile?.crescendo_data?.referral_count as number ?? 0} />
@@ -210,13 +196,8 @@ export function Dashboard() {
       />
       <OnboardingProgress />
 
-      {/* Merch Purchase Celebration Modal */}
-      {showMerchCelebration && uncelebratedPurchases.length > 0 && (
-        <MerchCelebrationModal
-          purchases={uncelebratedPurchases}
-          onDismiss={() => setShowMerchCelebration(false)}
-        />
-      )}
+
+
     </>
   );
 }
