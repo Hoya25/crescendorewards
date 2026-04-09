@@ -145,6 +145,7 @@ serve(async (req) => {
       action_data: {
         nctr_locked_points,
         nctr_balance_points,
+        nctr_earned_total,
         nctr_amount,
         target_tier,
         tier_assigned: assignedTierName,
@@ -153,7 +154,7 @@ serve(async (req) => {
     });
 
     console.log(
-      `Lock request received: ${nctr_amount} NCTR for ${email}, tier_assigned=${assignedTierName}, locked_pts=${nctr_locked_points ?? "n/a"}, balance_pts=${nctr_balance_points ?? "n/a"}`
+      `Lock request received: ${nctr_amount} NCTR for ${email}, tier_assigned=${assignedTierName}, locked_pts=${nctr_locked_points ?? "n/a"}, balance_pts=${nctr_balance_points ?? "n/a"}, earned_total=${nctr_earned_total ?? "n/a"}`
     );
 
     return json({ received: true, tier_assigned: assignedTierName });
