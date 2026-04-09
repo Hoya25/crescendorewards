@@ -184,7 +184,7 @@ function AppRoutes() {
             <Route path="/help" element={<HelpPage />} />
             <Route path="/faq" element={<HelpPage />} />
             <Route path="/claim" element={<ClaimGiftPage />} />
-            <Route path="/how-it-works" element={<HowItWorksPage />} />
+            
             <Route path="/about" element={<AboutPage />} />
             
             {/* Public referral landing pages */}
@@ -610,8 +610,6 @@ function AppRoutes() {
       {isAuthenticated && <MobileBottomNav />}
       {/* Developer tools panel - only in development */}
       {import.meta.env.DEV && <DevToolsPanel />}
-      {/* Demo mode toggle - visible in dev/preview */}
-      <DemoModeToggle />
     </div>
   );
 }
