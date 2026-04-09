@@ -9,6 +9,7 @@ const CRESCENDO_GATE_ACTIVE = true;
 const ALLOWED_EMAILS = [
   'anderson@projectbutterfly.io',
   'bellanderson@gmail.com',
+  'kevincearle@gmail.com',
 ];
 
 export function ComingSoonGate({ children }: { children: ReactNode }) {
