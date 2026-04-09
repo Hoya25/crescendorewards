@@ -34,6 +34,7 @@ serve(async (req) => {
       status,
       nctr_locked_points,
       nctr_balance_points,
+      nctr_earned_total,
     } = await req.json();
 
     if (!email || nctr_amount == null) {
@@ -86,6 +87,9 @@ serve(async (req) => {
     }
     if (nctr_balance_points !== undefined) {
       updatePayload.nctr_balance_points = nctr_balance_points;
+    }
+    if (nctr_earned_total !== undefined) {
+      updatePayload.nctr_earned_total = nctr_earned_total;
     }
 
     const { error: updateError } = await supabaseAdmin

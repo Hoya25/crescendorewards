@@ -29,8 +29,8 @@ export function YourNextStep() {
   const navigate = useNavigate();
   const { profile, tier, nextTier, total360Locked } = useUnifiedUser();
 
-  const crescendoData = profile?.crescendo_data || {};
-  const totalEarned = (crescendoData as any)?.total_nctr_earned || (crescendoData as any)?.available_nctr || 0;
+  // Use BH-synced nctr_earned_total as source of truth
+  const totalEarned = Number((profile as any)?.nctr_earned_total) || 0;
   const tierName = (tier?.tier_name || "").toLowerCase();
   const locked = total360Locked || 0;
 

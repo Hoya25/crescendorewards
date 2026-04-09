@@ -27,20 +27,14 @@ export function StatusHero() {
   const nextTierName = nextTier?.tier_name?.toLowerCase() || "";
   const nextMultiplier = (nextTier as any)?.earning_multiplier ?? DEFAULT_EARNING_MULTIPLIERS[nextTierName] ?? currentMultiplier;
 
-  // Aggregate lock breakdown from portfolio
+  // Lock breakdown: use canonical nctr_locked_points as the single source of truth
+  // Do NOT read from wallet_portfolio — it contains stale Crescendo-local data
   const lockBreakdown = useMemo(() => {
-    if (!portfolio || portfolio.length === 0) return null;
-    let total360 = 0;
-    let total90 = 0;
-    for (const w of portfolio) {
-      total360 += w.nctr_360_locked || 0;
-      total90 += w.nctr_90_locked || 0;
-    }
-    if (total360 === 0 && total90 === 0) return null;
-    return { total360, total90 };
-  }, [portfolio]);
+    if (total360Locked <= 0) return null;
+    return { total360: total360Locked, total90: 0 };
+  }, [total360Locked]);
 
-  const showLockCards = lockBreakdown && (lockBreakdown.total360 > 0 || lockBreakdown.total90 > 0);
+  const showLockCards = lockBreakdown && lockBreakdown.total360 > 0;
 
   return (
     <Card className="border border-border-card bg-card-bg overflow-hidden" style={{ borderRadius: 0 }}>
