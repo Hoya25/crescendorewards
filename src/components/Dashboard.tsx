@@ -29,20 +29,8 @@ export function Dashboard() {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [showReferredModal, setShowReferredModal] = useState(false);
   const [referrerName, setReferrerName] = useState<string | undefined>();
-  const [showMerchCelebration, setShowMerchCelebration] = useState(false);
 
-  const { data: uncelebratedPurchases = [] } = useUncelebratedPurchases();
 
-  const crescendoData = profile?.crescendo_data || {};
-  const claimBalance = (crescendoData as any).claims_balance || 0;
-  const userName = profile?.display_name || profile?.email?.split("@")[0] || "User";
-
-  // Show merch celebration when uncelebrated purchases are detected
-  useEffect(() => {
-    if (uncelebratedPurchases.length > 0 && !showWelcomeModal && !showReferredModal) {
-      setShowMerchCelebration(true);
-    }
-  }, [uncelebratedPurchases.length, showWelcomeModal, showReferredModal]);
 
   // Check if user was referred and show welcome modal
   useEffect(() => {
