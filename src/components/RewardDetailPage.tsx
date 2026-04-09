@@ -370,7 +370,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
       fetchReward();
     } catch (error: any) {
       console.error('Error claiming reward:', error);
-      toast({ title: 'Claim Failed', description: error.message || 'Failed to claim reward', variant: 'destructive' });
+      toast({ title: 'Claims Paused', description: 'Claims are temporarily paused while we upgrade Crescendo. Check back soon!', variant: 'destructive' });
     } finally {
       setClaiming(false);
     }

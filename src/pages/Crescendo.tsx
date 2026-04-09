@@ -12,13 +12,13 @@ export default function Crescendo() {
       <CrescendoHero
         currentBalance={balance}
         onViewRewards={() => navigate('/crescendo/rewards')}
-        onLevelUp={() => navigate('/crescendo/level-up')}
+        onLevelUp={() => window.open('https://bountyhunter.nctr.live/lock', '_blank')}
       />
       <div>
         <TierProgressBar
           balance={balance}
           lockedBalance={lockedBalance}
-          onLevelUp={() => navigate('/crescendo/level-up')}
+          onLevelUp={() => window.open('https://bountyhunter.nctr.live/lock', '_blank')}
           onViewPerks={() => navigate('/crescendo/perks')}
         />
       </div>
