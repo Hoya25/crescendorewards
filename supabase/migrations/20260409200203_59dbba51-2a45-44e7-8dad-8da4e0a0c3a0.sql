@@ -1,0 +1,1 @@
+ALTER TABLE public.unified_profiles ADD COLUMN IF NOT EXISTS nctr_earned_total numeric DEFAULT 0;

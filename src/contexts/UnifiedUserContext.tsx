@@ -66,6 +66,7 @@ export interface UnifiedProfile {
   last_active_crescendo: string | null;
   nctr_balance_points: number | null;
   nctr_locked_points: number | null;
+  nctr_earned_total: number | null;
 }
 
 export interface UnifiedUser {

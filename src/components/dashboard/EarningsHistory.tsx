@@ -51,7 +51,10 @@ export function EarningsHistory({ className = '' }: { className?: string }) {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
-  const [totalEarned, setTotalEarned] = useState(0);
+  const [totalEarnedLocal, setTotalEarnedLocal] = useState(0);
+  // Use BH-synced nctr_earned_total as source of truth, fall back to local sum
+  const bhEarnedTotal = Number((profile as any)?.nctr_earned_total) || 0;
+  const totalEarned = bhEarnedTotal > 0 ? bhEarnedTotal : totalEarnedLocal;
 
   const fetchTransactions = useCallback(async (offset = 0, append = false) => {
     if (!profile?.id) return;
@@ -75,14 +78,17 @@ export function EarningsHistory({ className = '' }: { className?: string }) {
 
       // Fetch total earned (only on first load)
       if (offset === 0) {
-        const { data: sumData } = await supabase
-          .from('nctr_transactions')
-          .select('final_amount')
-          .eq('user_id', profile.id);
+        // Only compute local sum as fallback if BH total isn't available
+        if (!bhEarnedTotal) {
+          const { data: sumData } = await supabase
+            .from('nctr_transactions')
+            .select('final_amount')
+            .eq('user_id', profile.id);
 
-        if (sumData) {
-          const sum = sumData.reduce((acc: number, r: any) => acc + (r.final_amount ?? 0), 0);
-          setTotalEarned(sum);
+          if (sumData) {
+            const sum = sumData.reduce((acc: number, r: any) => acc + (r.final_amount ?? 0), 0);
+            setTotalEarnedLocal(sum);
+          }
         }
       }
     } catch (err) {

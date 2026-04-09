@@ -34,6 +34,7 @@ serve(async (req) => {
       status,
       nctr_locked_points,
       nctr_balance_points,
+      nctr_earned_total,
     } = await req.json();
 
     if (!email || nctr_amount == null) {
@@ -86,6 +87,9 @@ serve(async (req) => {
     }
     if (nctr_balance_points !== undefined) {
       updatePayload.nctr_balance_points = nctr_balance_points;
+    }
+    if (nctr_earned_total !== undefined) {
+      updatePayload.nctr_earned_total = nctr_earned_total;
     }
 
     const { error: updateError } = await supabaseAdmin
@@ -141,6 +145,7 @@ serve(async (req) => {
       action_data: {
         nctr_locked_points,
         nctr_balance_points,
+        nctr_earned_total,
         nctr_amount,
         target_tier,
         tier_assigned: assignedTierName,
@@ -149,7 +154,7 @@ serve(async (req) => {
     });
 
     console.log(
-      `Lock request received: ${nctr_amount} NCTR for ${email}, tier_assigned=${assignedTierName}, locked_pts=${nctr_locked_points ?? "n/a"}, balance_pts=${nctr_balance_points ?? "n/a"}`
+      `Lock request received: ${nctr_amount} NCTR for ${email}, tier_assigned=${assignedTierName}, locked_pts=${nctr_locked_points ?? "n/a"}, balance_pts=${nctr_balance_points ?? "n/a"}, earned_total=${nctr_earned_total ?? "n/a"}`
     );
 
     return json({ received: true, tier_assigned: assignedTierName });
