@@ -311,9 +311,9 @@ export function ActivityFeed({ className = '', maxItems = 10 }: ActivityFeedProp
               variant="outline"
               size="sm"
               className="mt-3 gap-1"
-              onClick={() => navigate('/bounties')}
+              onClick={() => navigate('/rewards')}
             >
-              Browse Bounties <ChevronRight className="w-3 h-3" />
+              Browse Rewards <ChevronRight className="w-3 h-3" />
             </Button>
           </div>
         </CardContent>
