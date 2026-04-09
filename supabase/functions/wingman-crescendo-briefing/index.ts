@@ -302,8 +302,8 @@ serve(async (req) => {
 
       // Fire and forget — don't await
       addMemory(mem0UserId, newFacts.join(". "), {
-        source: "wingman-crescendo-briefing",
         app: "crescendo",
+        source: "wingman",
         type: "briefing",
         extracted_at: new Date().toISOString(),
       });

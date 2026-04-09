@@ -84,6 +84,15 @@ Deno.serve(async (req) => {
       userIds = (profiles || []).map((p: any) => p.id);
     }
 
+    // Build a map of user_id -> email for Mem0 lookups
+    const { data: authUsers } = await supabase.auth.admin.listUsers();
+    const emailMap: Record<string, string> = {};
+    if (authUsers?.users) {
+      for (const u of authUsers.users) {
+        if (u.email) emailMap[u.id] = u.email;
+      }
+    }
+
     const results: any[] = [];
 
     for (const userId of userIds) {
@@ -96,11 +105,13 @@ Deno.serve(async (req) => {
         crescendo_profile: null,
       };
 
-      // 1. Fetch Mem0 memories (shared brain, keyed by member_ prefix)
-      if (mem0Configured) {
+      // 1. Fetch Mem0 memories (shared brain, keyed by email)
+      const userEmail = emailMap[userId];
+      userResult.mem0_user_id = userEmail || null;
+      if (mem0Configured && userEmail) {
         try {
           const memRes = await fetch(
-            `https://api.mem0.ai/v1/memories/?user_id=member_${userId}`,
+            `https://api.mem0.ai/v1/memories/?user_id=${encodeURIComponent(userEmail)}`,
             {
               headers: { Authorization: `Token ${MEM0_KEY}` },
             }
@@ -139,9 +150,12 @@ Deno.serve(async (req) => {
         } catch (e) {
           userResult.mem0_error = `Mem0 fetch failed: ${(e as Error).message}`;
         }
-      } else {
+      } else if (!mem0Configured) {
         userResult.mem0_error =
           "MEM0_API_KEY not configured in this project";
+      } else if (!userEmail) {
+        userResult.mem0_error =
+          "No email found for this user — cannot query Mem0";
       }
 
       // 2. Fetch Crescendo profile with tier name
