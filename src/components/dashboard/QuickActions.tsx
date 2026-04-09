@@ -84,11 +84,11 @@ export function QuickActions() {
       onClick: () => navigate("/brands"),
     },
     {
-      emoji: "📸",
-      title: "Browse Bounties",
-      subtitle: `${bountyCount} content challenges that pay NCTR.`,
-      cta: "See Bounties",
-      onClick: () => navigate("/bounties"),
+      emoji: "🎁",
+      title: "Browse Rewards",
+      subtitle: "Explore rewards you can claim with your status.",
+      cta: "See Rewards",
+      onClick: () => navigate("/rewards"),
     },
     {
       emoji: "👕",
