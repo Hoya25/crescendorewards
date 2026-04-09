@@ -260,12 +260,12 @@ function Condition5({
         </div>
       )}
       <Button
-        onClick={() => navigate("/bounties")}
+        onClick={() => navigate("/rewards")}
         className="gap-2 font-semibold"
         style={{ backgroundColor: "#C8FF00", color: "#1A1A2E" }}
       >
         <Crown className="w-4 h-4" />
-        Browse Bounties
+        Browse Rewards
       </Button>
     </div>
   );

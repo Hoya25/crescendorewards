@@ -1,4 +1,4 @@
-import { Home, Gift, Shield, Zap, Trophy, UserPlus, HelpCircle } from 'lucide-react';
+import { Home, Gift, Shield, HelpCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAdminRole } from '@/hooks/useAdminRole';
@@ -40,15 +40,12 @@ interface NavItem {
 }
 
 const membershipNavItems: NavItem[] = [
-  { title: 'Home', url: '/dashboard', icon: Home },
+  { title: 'Dashboard', url: '/dashboard', icon: Home },
   { title: 'Rewards', url: '/rewards', icon: Gift },
   { title: 'My Status', url: '/membership', icon: Shield },
-  { title: 'Earn Progress', url: '/bounties', icon: Zap },
 ];
 
 const exploreNavItems: NavItem[] = [
-  { title: 'Leaderboard', url: '/leaderboard', icon: Trophy },
-  { title: 'Invite Friends', url: '/invite', icon: UserPlus },
   { title: 'Help', url: '/help', icon: HelpCircle },
 ];
 
