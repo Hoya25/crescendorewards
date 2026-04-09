@@ -19,7 +19,7 @@ import { RouteLoading, PageLoading } from "./components/RouteLoading";
 import { DevToolsPanel } from "./components/DevToolsPanel";
 import { MobileBottomNav } from "./components/navigation/MobileBottomNav";
 import { BetaBanner } from "./components/BetaBanner";
-import { DemoModeToggle } from "./components/groundball/DemoModeToggle";
+
 import { UserbackProvider } from "./components/UserbackProvider";
 import { useClaimDeliveryNotifications } from "./hooks/useClaimDeliveryNotifications";
 import { useBHTokenAutoLogin } from "./hooks/useBHTokenAutoLogin";
@@ -68,11 +68,6 @@ const InviteLandingPage = lazy(() => import('./pages/InviteLandingPage'));
 const JoinRedirectPage = lazy(() => import('./pages/JoinRedirectPage'));
 const RefCodeRedirectPage = lazy(() => import('./pages/RefCodeRedirectPage'));
 const BenefitsPage = lazy(() => import('./components/benefits/BenefitsPage').then(m => ({ default: m.BenefitsPage })));
-const GroundballOverviewPage = lazy(() => import('./pages/GroundballOverviewPage'));
-const GroundballRewardsPage = lazy(() => import('./pages/GroundballRewardsPage'));
-const MyGroundballRewardsPage = lazy(() => import('./pages/MyGroundballRewardsPage'));
-const GearVaultPage = lazy(() => import('./pages/GearVaultPage'));
-const HowItWorksPage = lazy(() => import('./pages/HowItWorksPage'));
 const SubmitContentPage = lazy(() => import('./pages/SubmitContentPage'));
 const MyContentPage = lazy(() => import('./pages/MyContentPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
@@ -189,7 +184,7 @@ function AppRoutes() {
             <Route path="/help" element={<HelpPage />} />
             <Route path="/faq" element={<HelpPage />} />
             <Route path="/claim" element={<ClaimGiftPage />} />
-            <Route path="/how-it-works" element={<HowItWorksPage />} />
+            
             <Route path="/about" element={<AboutPage />} />
             
             {/* Public referral landing pages */}
@@ -283,37 +278,9 @@ function AppRoutes() {
               } 
             />
 
-            {/* GROUNDBALL Impact Engine - semi-public */}
-            <Route 
-              path="/groundball" 
-              element={
-                isAuthenticated ? (
-                  <AppLayout><GroundballOverviewPage /></AppLayout>
-                ) : (
-                  <GroundballOverviewPage />
-                )
-              } 
-            />
-            <Route 
-              path="/groundball/rewards" 
-              element={
-                isAuthenticated ? (
-                  <AppLayout><GroundballRewardsPage /></AppLayout>
-                ) : (
-                  <GroundballRewardsPage />
-                )
-              } 
-            />
-            <Route 
-              path="/groundball/gear-vault" 
-              element={
-                isAuthenticated ? (
-                  <AppLayout><GearVaultPage /></AppLayout>
-                ) : (
-                  <GearVaultPage />
-                )
-              } 
-            />
+            {/* GROUNDBALL routes → redirect to /rewards */}
+            <Route path="/groundball" element={<Navigate to="/rewards" replace />} />
+            <Route path="/groundball/*" element={<Navigate to="/rewards" replace />} />
 
             {/* BOUNTY BOARD - semi-public */}
             <Route 
@@ -367,14 +334,6 @@ function AppRoutes() {
             {/* ========================================= */}
             {/* AUTHENTICATED ROUTES (require login + have layout) */}
             {/* ========================================= */}
-            <Route 
-              path="/groundball/my-rewards"
-              element={
-                <ProtectedRoute>
-                  <AppLayout><MyGroundballRewardsPage /></AppLayout>
-                </ProtectedRoute>
-              } 
-            />
 
             {/* Sponsor Portal Routes */}
             <Route 
@@ -651,8 +610,6 @@ function AppRoutes() {
       {isAuthenticated && <MobileBottomNav />}
       {/* Developer tools panel - only in development */}
       {import.meta.env.DEV && <DevToolsPanel />}
-      {/* Demo mode toggle - visible in dev/preview */}
-      <DemoModeToggle />
     </div>
   );
 }
