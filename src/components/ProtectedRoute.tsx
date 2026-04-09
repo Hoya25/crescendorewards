@@ -34,5 +34,5 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
-  return <>{children}</>;
+  return <ComingSoonGate>{children}</ComingSoonGate>;
 }
