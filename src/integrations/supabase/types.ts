@@ -3773,6 +3773,7 @@ export type Database = {
           last_active_garden: string | null
           leaderboard_opt_in: boolean
           nctr_balance_points: number | null
+          nctr_earned_total: number | null
           nctr_lock_duration_days: number | null
           nctr_lock_expires_at: string | null
           nctr_locked_points: number | null
@@ -3816,6 +3817,7 @@ export type Database = {
           last_active_garden?: string | null
           leaderboard_opt_in?: boolean
           nctr_balance_points?: number | null
+          nctr_earned_total?: number | null
           nctr_lock_duration_days?: number | null
           nctr_lock_expires_at?: string | null
           nctr_locked_points?: number | null
@@ -3859,6 +3861,7 @@ export type Database = {
           last_active_garden?: string | null
           leaderboard_opt_in?: boolean
           nctr_balance_points?: number | null
+          nctr_earned_total?: number | null
           nctr_lock_duration_days?: number | null
           nctr_lock_expires_at?: string | null
           nctr_locked_points?: number | null
