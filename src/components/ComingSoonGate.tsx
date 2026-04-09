@@ -20,9 +20,8 @@ export function ComingSoonGate({ children }: { children: ReactNode }) {
   if (email && ALLOWED_EMAILS.includes(email)) return <>{children}</>;
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center px-6 text-center"
-      style={{ backgroundColor: '#0D0D0D' }}>
-      <NCTRWordmark variant="wordmark-lime" className="h-10 mb-12" />
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center px-6 text-center bg-[#0D0D0D]">
+      <NCTRWordmark fill="#E2FF6D" height={32} className="mb-12" />
 
       <h1 className="text-2xl md:text-4xl font-bold text-white tracking-tight mb-4">
         CRESCENDO IS GETTING AN UPGRADE
@@ -40,8 +39,7 @@ export function ComingSoonGate({ children }: { children: ReactNode }) {
         href="https://bountyhunter.nctr.live"
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 px-8 py-3 rounded-lg font-semibold text-sm tracking-wide transition-opacity hover:opacity-90"
-        style={{ backgroundColor: '#E2FF6D', color: '#0D0D0D' }}
+        className="inline-flex items-center gap-2 px-8 py-3 rounded-lg font-semibold text-sm tracking-wide transition-opacity hover:opacity-90 bg-[#E2FF6D] text-[#0D0D0D]"
       >
         Keep Earning on Bounty Hunter
         <ExternalLink className="w-4 h-4" />

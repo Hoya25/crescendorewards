@@ -1,6 +1,7 @@
 import { ReactNode, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { ComingSoonGate } from '@/components/ComingSoonGate';
 
 interface ProtectedRouteProps {
   children: ReactNode;
