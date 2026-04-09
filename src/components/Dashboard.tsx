@@ -30,7 +30,9 @@ export function Dashboard() {
   const [showReferredModal, setShowReferredModal] = useState(false);
   const [referrerName, setReferrerName] = useState<string | undefined>();
 
-
+  const crescendoData = profile?.crescendo_data || {};
+  const claimBalance = (crescendoData as any).claims_balance || 0;
+  const userName = profile?.display_name || profile?.email?.split("@")[0] || "User";
 
   // Check if user was referred and show welcome modal
   useEffect(() => {
@@ -135,8 +137,8 @@ export function Dashboard() {
           {/* 0. YOUR NEXT STEP — dynamic contextual CTA */}
           <YourNextStep />
 
-          {/* 0.5 MERCH BOUNTY REMINDER — persistent until bounties completed */}
-          <MerchBountyReminderCard />
+
+
 
           {/* Onboarding checklist (conditional) */}
           <OnboardingChecklist />
@@ -164,8 +166,8 @@ export function Dashboard() {
             <NextUnlocks />
           </div>
 
-          {/* 5. MERCH BOUNTIES (conditional) */}
-          <MerchBountiesWidget />
+
+
 
           {/* 5.5 REFERRAL MILESTONE PROGRESS */}
           <MilestoneProgress currentReferrals={profile?.crescendo_data?.referral_count as number ?? 0} />
@@ -194,13 +196,8 @@ export function Dashboard() {
       />
       <OnboardingProgress />
 
-      {/* Merch Purchase Celebration Modal */}
-      {showMerchCelebration && uncelebratedPurchases.length > 0 && (
-        <MerchCelebrationModal
-          purchases={uncelebratedPurchases}
-          onDismiss={() => setShowMerchCelebration(false)}
-        />
-      )}
+
+
     </>
   );
 }
