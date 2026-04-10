@@ -20,7 +20,7 @@ import { DevToolsPanel } from "./components/DevToolsPanel";
 import { MobileBottomNav } from "./components/navigation/MobileBottomNav";
 import { BetaBanner } from "./components/BetaBanner";
 
-import { UserbackProvider } from "./components/UserbackProvider";
+
 import { useClaimDeliveryNotifications } from "./hooks/useClaimDeliveryNotifications";
 import { useBHTokenAutoLogin } from "./hooks/useBHTokenAutoLogin";
 import { useReferralSuccessNotification } from "./hooks/useReferralSuccessNotification";
@@ -627,7 +627,7 @@ const App = () => (
               <ActivityTrackerProvider>
                 <AmbitionsProvider>
                 <DemoModeProvider>
-                  <UserbackProvider />
+                  
                   <AppRoutes />
                 </DemoModeProvider>
                 </AmbitionsProvider>
