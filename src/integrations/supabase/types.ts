@@ -2507,6 +2507,47 @@ export type Database = {
           },
         ]
       }
+      reward_requests: {
+        Row: {
+          created_at: string
+          id: string
+          request_details: string | null
+          request_title: string
+          status: string
+          tier_at_time: string | null
+          user_email: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          request_details?: string | null
+          request_title: string
+          status?: string
+          tier_at_time?: string | null
+          user_email?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          request_details?: string | null
+          request_title?: string
+          status?: string
+          tier_at_time?: string | null
+          user_email?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reward_shares: {
         Row: {
           bonus_earned: number
