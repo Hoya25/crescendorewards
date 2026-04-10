@@ -226,6 +226,31 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
+  // Fetch first_name / last_name from BH sync bridge
+  const fetchBhName = useCallback(async () => {
+    if (!profile?.email) return;
+    try {
+      const res = await fetch(
+        'https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-sync-secret': 'nctr-bh-crescendo-sync-2026' },
+          body: JSON.stringify({ action: 'get_user_status', email: profile.email }),
+        }
+      );
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data?.first_name) setBhFirstName(data.first_name);
+      if (data?.last_name) setBhLastName(data.last_name);
+    } catch {
+      // silent — fall back to handle/email
+    }
+  }, [profile?.email]);
+
+  useEffect(() => {
+    fetchBhName();
+  }, [fetchBhName]);
+
   // Create unified profile if it doesn't exist
   const createUnifiedProfile = useCallback(async () => {
     if (!user) return;
