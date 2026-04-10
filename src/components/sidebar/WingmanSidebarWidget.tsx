@@ -37,12 +37,41 @@ export function WingmanSidebarExpanded() {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('wingman-crescendo-briefing', {
-        body: { user_id: user?.id },
-      });
-      if (!error && data) {
-        setBriefing(data as BriefingData);
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ data, cached_at: Date.now() }));
+      const BH_BASE = 'https://auibudfactqhisvmiotw.supabase.co/functions/v1';
+      const SYNC_SECRET = 'nctr-bh-crescendo-sync-2026';
+      let result: BriefingData | null = null;
+
+      // Try admin-api first
+      try {
+        const res = await fetch(`${BH_BASE}/admin-api`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-sync-secret': SYNC_SECRET },
+          body: JSON.stringify({ action: 'wingman_briefing', user_id: user?.id }),
+        });
+        if (res.ok) {
+          const d = await res.json();
+          if (d.your_brief || d.watching_your_6) result = d;
+        }
+      } catch { /* fall through */ }
+
+      // Fallback to wingman-briefing
+      if (!result) {
+        try {
+          const res = await fetch(`${BH_BASE}/wingman-briefing`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-sync-secret': SYNC_SECRET },
+            body: JSON.stringify({ user_id: user?.id }),
+          });
+          if (res.ok) {
+            const d = await res.json();
+            if (d.your_brief || d.watching_your_6) result = d;
+          }
+        } catch { /* ignore */ }
+      }
+
+      if (result) {
+        setBriefing(result);
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ data: result, cached_at: Date.now() }));
       }
     } catch { /* ignore */ }
     finally { setIsLoading(false); }
