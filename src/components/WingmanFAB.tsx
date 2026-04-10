@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { NCTRCircleN } from '@/components/brand/NCTRLogos';
 
 const dmSans = "'DM Sans', sans-serif";
 const dmMono = "'DM Mono', monospace";
@@ -35,6 +36,10 @@ const wingmanCSS = `
 @keyframes wingman-slide-up {
   from { transform: translateY(100%); opacity: 0; }
   to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes wingman-dot-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 }
 `;
 
@@ -85,15 +90,30 @@ export function WingmanFAB() {
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const scrollYRef = useRef(0);
+
   // Lock body scroll when open
   useEffect(() => {
     if (isOpen) {
+      scrollYRef.current = window.scrollY;
       document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.top = `-${scrollYRef.current}px`;
       setTimeout(() => inputRef.current?.focus(), 100);
     } else {
       document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+      window.scrollTo(0, scrollYRef.current);
     }
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+      document.body.style.top = '';
+    };
   }, [isOpen]);
 
   // Auto-scroll messages
@@ -180,6 +200,7 @@ export function WingmanFAB() {
             left: 0,
             right: 0,
             background: '#131313',
+            borderTop: '1px solid #323232',
             maxHeight: '70vh',
             zIndex: 100,
             display: 'flex',
@@ -187,6 +208,14 @@ export function WingmanFAB() {
             animation: 'wingman-slide-up 350ms cubic-bezier(0.4, 0, 0.2, 1) forwards',
           }}
         >
+          {/* WINGMAN label + green dot + handle */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '14px 20px 0' }}>
+            <span style={{ fontFamily: dmMono, fontSize: '10px', color: '#E2FF6D', textTransform: 'uppercase' as const, letterSpacing: '0.08em', fontWeight: 500 }}>WINGMAN</span>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#E2FF6D', animation: 'wingman-dot-pulse 2s ease-in-out infinite' }} />
+            {user?.email && (
+              <span style={{ fontFamily: dmMono, fontSize: '10px', color: '#5A5A58', marginLeft: '4px' }}>@{user.email.split('@')[0]}</span>
+            )}
+          </div>
           {/* Top bar: tabs + controls */}
           <div style={{
             display: 'flex',
@@ -263,6 +292,7 @@ export function WingmanFAB() {
             style={{
               flex: 1,
               overflowY: 'auto',
+              overscrollBehavior: 'contain' as const,
               WebkitOverflowScrolling: 'touch',
               padding: '16px 20px',
             }}
@@ -422,9 +452,7 @@ export function WingmanFAB() {
           padding: 0,
         }}
       >
-        <span style={{ fontFamily: dmMono, fontSize: '22px', fontWeight: 700, color: '#0D0D0D', lineHeight: 1 }}>
-          N
-        </span>
+        <NCTRCircleN size={30} strokeColor="#0D0D0D" fillColor="#0D0D0D" />
       </button>
     </>
   );
