@@ -37,6 +37,8 @@ export function LevelUpModal({
   const [submitting, setSubmitting] = useState(false);
   const [copiedContract, setCopiedContract] = useState(false);
   const [copiedTreasury, setCopiedTreasury] = useState(false);
+  const [resultMsg, setResultMsg] = useState<{ text: string; color: string } | null>(null);
+  const [buttonText, setButtonText] = useState('Verify & Deposit →');
 
   const amountNeeded = Math.max(0, targetTierRequirement - currentLocked);
   const tierColor = TIER_COLORS[targetTierName] || '#E2FF6D';
@@ -59,6 +61,7 @@ export function LevelUpModal({
       return;
     }
     setSubmitting(true);
+    setResultMsg(null);
     try {
       const res = await fetch(
         'https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api',
@@ -75,12 +78,30 @@ export function LevelUpModal({
       if (!res.ok) throw new Error('Endpoint error');
       const data = await res.json();
       if (data?.error) throw new Error(data.error);
-      toast.success('Deposit verified! Your NCTR will be credited shortly.');
-      onOpenChange(false);
-    } catch {
-      console.log('Deposit submitted for verification', { tx_hash: txHash, email: userEmail });
-      toast.success('Deposit submitted for verification. Your NCTR will be credited within 24 hours.');
-      onOpenChange(false);
+
+      const status = data?.status || data?.result?.status;
+
+      if (status === 'confirmed') {
+        const amount = data?.amount || data?.result?.amount || '';
+        setResultMsg({ text: `Deposit confirmed! +${amount ? Number(amount).toLocaleString() + ' ' : ''}NCTR credited to your account.`, color: '#E2FF6D' });
+        setTxHash('');
+        // Trigger a page-level refresh by dispatching a custom event
+        window.dispatchEvent(new Event('nctr-balance-refresh'));
+      } else if (status === 'pending') {
+        setResultMsg({ text: 'Transaction is still confirming on Base. Try again in a few minutes.', color: '#FFD700' });
+        setButtonText('TRY AGAIN');
+        setTimeout(() => setButtonText('Verify & Deposit →'), 30000);
+      } else if (status === 'failed') {
+        setResultMsg({ text: 'Transaction failed on-chain. No NCTR was transferred. Double-check the hash and make sure you sent on Base network.', color: '#FF6B6B' });
+      } else if (status === 'already_credited') {
+        setResultMsg({ text: 'This transaction was already credited to your account.', color: '#D9D9D9' });
+      } else {
+        // Unknown status — treat as processing
+        setResultMsg({ text: 'Verification is processing. Your NCTR will be credited shortly.', color: '#D9D9D9' });
+      }
+    } catch (err) {
+      console.error('Deposit verification error:', err, { tx_hash: txHash, email: userEmail });
+      setResultMsg({ text: 'Verification is processing. Your NCTR will be credited shortly.', color: '#D9D9D9' });
     } finally {
       setSubmitting(false);
     }
