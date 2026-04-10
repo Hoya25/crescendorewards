@@ -270,18 +270,53 @@ export function MembershipLevelPage() {
                 </Button>
               )}
               {nextTierDisplay && availableNCTR === 0 && (
-                <div className="text-right" style={{ maxWidth: '220px' }}>
-                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#D9D9D9', marginBottom: '6px' }}>
-                    No available NCTR to lock.{' '}
-                    <a href="https://bountyhunter.nctr.live" target="_blank" rel="noopener noreferrer" style={{ color: '#E2FF6D', textDecoration: 'underline' }}>
-                      Earn more on Bounty Hunter
-                    </a>{' '}
-                    or send NCTR to level up.
-                  </p>
-                  <Button variant="outline" size="sm" onClick={() => handleUpgrade(nextTierDisplay)} className="gap-2">
-                    <ArrowUpRight className="w-4 h-4" />
-                    Send NCTR
-                  </Button>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                  <div>
+                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#8A8A88', marginBottom: '6px' }}>
+                      Shop and earn on Bounty Hunter
+                    </p>
+                    <a
+                      href="https://bountyhunter.nctr.live"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-block',
+                        fontFamily: "'DM Mono', monospace",
+                        fontSize: '11px',
+                        textTransform: 'uppercase',
+                        color: '#E2FF6D',
+                        background: 'transparent',
+                        border: '1px solid #E2FF6D',
+                        borderRadius: 0,
+                        padding: '8px 16px',
+                        textDecoration: 'none',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      EARN MORE →
+                    </a>
+                  </div>
+                  <div>
+                    <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#8A8A88', marginBottom: '6px' }}>
+                      Send NCTR directly to level up
+                    </p>
+                    <button
+                      onClick={() => handleUpgrade(nextTierDisplay)}
+                      style={{
+                        fontFamily: "'DM Mono', monospace",
+                        fontSize: '11px',
+                        textTransform: 'uppercase',
+                        color: '#E2FF6D',
+                        background: 'transparent',
+                        border: '1px solid #E2FF6D',
+                        borderRadius: 0,
+                        padding: '8px 16px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      SEND NCTR →
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -462,16 +497,58 @@ export function MembershipLevelPage() {
                       </ul>
                     </div>
 
-                    {isLocked && (
+                    {isLocked && canUpgrade && (
                       <Button 
                         onClick={() => handleUpgrade(tier)} 
-                        disabled={!canUpgrade}
                         className="w-full gap-2"
-                        variant={canUpgrade ? "default" : "outline"}
                       >
                         <Lock className="w-4 h-4" />
-                        {canUpgrade ? `Lock ${(tier.requirement - currentLockedNCTR).toLocaleString()} NCTR` : 'Upgrade'}
+                        Lock {(tier.requirement - currentLockedNCTR).toLocaleString()} NCTR
                       </Button>
+                    )}
+                    {isLocked && !canUpgrade && (
+                      <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                        <a
+                          href="https://bountyhunter.nctr.live"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            flex: 1,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontFamily: "'DM Mono', monospace",
+                            fontSize: '11px',
+                            textTransform: 'uppercase',
+                            color: '#E2FF6D',
+                            background: 'transparent',
+                            border: '1px solid #E2FF6D',
+                            borderRadius: 0,
+                            padding: '8px 12px',
+                            textDecoration: 'none',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          EARN MORE →
+                        </a>
+                        <button
+                          onClick={() => handleUpgrade(tier)}
+                          style={{
+                            flex: 1,
+                            fontFamily: "'DM Mono', monospace",
+                            fontSize: '11px',
+                            textTransform: 'uppercase',
+                            color: '#E2FF6D',
+                            background: 'transparent',
+                            border: '1px solid #E2FF6D',
+                            borderRadius: 0,
+                            padding: '8px 12px',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          SEND NCTR →
+                        </button>
+                      </div>
                     )}
                   </CardContent>
                 </Card>
