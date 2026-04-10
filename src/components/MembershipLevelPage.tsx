@@ -401,82 +401,15 @@ export function MembershipLevelPage() {
         </div>
       </div>
 
-      {/* Lock NCTR Dialog */}
-      <Dialog open={showLockDialog} onOpenChange={setShowLockDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Commit NCTR to Raise Your Status</DialogTitle>
-            <DialogDescription>
-              Commit your NCTR via 360LOCK to reach {selectedTier?.name} status.
-              Your NCTR will be committed for 360 days and power your status level and rewards.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="lockAmount">Amount to Lock</Label>
-              <Input
-                id="lockAmount"
-                type="number"
-                value={lockAmount}
-                onChange={(e) => setLockAmount(e.target.value)}
-                placeholder="Enter NCTR amount"
-              />
-              <p className="text-xs text-muted-foreground">
-                Available: {availableNCTR.toLocaleString()} NCTR | 
-                Minimum needed: {selectedTier ? (selectedTier.requirement - currentLockedNCTR).toLocaleString() : 0} NCTR
-              </p>
-            </div>
-
-            {selectedTier && (
-              <Card className="bg-muted/50">
-                <CardContent className="pt-6 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Current Level:</span>
-                    <span className="font-medium">{currentTier.name}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">New Level:</span>
-                    <span className="font-medium">{selectedTier.name}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">New Multiplier:</span>
-                    <span className="font-medium">{selectedTier.multiplier}x</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Lock Duration:</span>
-                    <span className="font-medium">360 days</span>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowLockDialog(false)} disabled={processing}>
-              Cancel
-            </Button>
-            <Button onClick={() => setShowConfirmLock(true)} disabled={processing || !lockAmount}>
-              Continue
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Confirm Lock Dialog */}
-      <ConfirmationDialog
-        isOpen={showConfirmLock}
-        onClose={() => setShowConfirmLock(false)}
-        onConfirm={() => {
-          setShowConfirmLock(false);
-          handleLockNCTR();
-        }}
-        title="Confirm 360LOCK"
-        description={`You are about to lock ${lockAmount || '0'} NCTR for 360 days. During this period, your tokens will contribute to your membership level but cannot be withdrawn or transferred. This action cannot be undone.`}
-        confirmText={`Lock ${lockAmount || '0'} NCTR`}
-        cancelText="Go Back"
-        icon={<Lock className="w-5 h-5 text-primary" />}
-        isLoading={processing}
+      {/* Level Up Modal */}
+      <LevelUpModal
+        open={showLevelUp}
+        onOpenChange={setShowLevelUp}
+        targetTierName={selectedTier?.name || ''}
+        targetTierRequirement={selectedTier?.requirement || 0}
+        currentLocked={currentLockedNCTR}
+        availableNCTR={availableNCTR}
+        userEmail={profile?.email || ''}
       />
       {/* Celebration Modal */}
       {upgradedTier && (
