@@ -127,7 +127,7 @@ export function RewardCard({
 
   return (
     <Card
-      className={`group cursor-pointer overflow-hidden ${isTierLocked ? 'opacity-60' : ''}`}
+      className="group cursor-pointer overflow-hidden"
       onClick={handleCardClick}
       style={{
         borderRadius: '0px',
@@ -165,32 +165,21 @@ export function RewardCard({
             </Badge>
           )}
           {/* Status Access Badge — uses effectiveMinTier */}
-          {effectiveMinTier && (() => {
-            const tierHexColors: Record<string, string> = {
-              bronze: '#CD7F32', silver: '#C0C0C0', gold: '#FFD700', platinum: '#E5E4E2', diamond: '#B9F2FF'
-            };
-            const tierTextClass: Record<string, string> = {
-              bronze: 'text-white', silver: 'text-gray-800', gold: 'text-gray-900', platinum: 'text-gray-800', diamond: 'text-gray-900'
-            };
-            const tierEmojis: Record<string, string> = {
-              bronze: '🥉', silver: '🥈', gold: '🥇', platinum: '💎', diamond: '👑'
-            };
-            const bgColor = tierHexColors[effectiveMinTier] || '#CD7F32';
-            const textClass = tierTextClass[effectiveMinTier] || 'text-white';
-            const emoji = tierEmojis[effectiveMinTier] || '🥉';
-            return (
-              <Badge 
-                className={`backdrop-blur-sm border-0 shadow-lg text-xs ${textClass}`}
-                style={{ backgroundColor: bgColor }}
-              >
-                {isTierLocked && <Lock className="w-3 h-3 mr-1" />}
-                {emoji}
-                <span className="ml-1 capitalize">
-                  {effectiveMinTier}+ {isTierLocked ? 'required' : ''}
-                </span>
-              </Badge>
-            );
-          })()}
+          {effectiveMinTier && (
+            <span
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: '10px',
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                color: '#FFFFFF',
+                padding: '4px 8px',
+                borderRadius: '0px',
+                textTransform: 'uppercase' as const,
+              }}
+            >
+              {effectiveMinTier}+
+            </span>
+          )}
           {reward.token_gated && reward.token_symbol && (
             <Badge className="bg-purple-500/90 text-white backdrop-blur-sm border-0 shadow-lg text-xs">
               <Lock className="w-3 h-3 mr-1" />
@@ -305,15 +294,20 @@ export function RewardCard({
         {isTierLocked ? (
           <div className="space-y-1.5">
             <button
-              className="w-full"
+              className="w-full flex items-center justify-center gap-2"
               style={{
                 fontFamily: "'DM Mono', monospace",
                 fontSize: '12px',
                 letterSpacing: '0.06em',
                 textTransform: 'uppercase' as const,
                 backgroundColor: 'transparent',
-                color: '#6B6B68',
-                border: '1px solid #D4D3CF',
+                color: (() => {
+                  const tierColors: Record<string, string> = {
+                    bronze: '#CD7F32', silver: '#C0C0C0', gold: '#FFD700', platinum: '#8A8A88', diamond: '#131313'
+                  };
+                  return tierColors[effectiveMinTier?.toLowerCase() || ''] || '#8A8A88';
+                })(),
+                border: '1px solid #5A5A58',
                 borderRadius: '0px',
                 height: '44px',
                 cursor: 'pointer',
@@ -323,18 +317,9 @@ export function RewardCard({
                 navigate(`/crescendo?unlock=${encodeURIComponent(requiredTierDisplay)}`);
               }}
             >
-              Requires {requiredTierDisplay} Status
+              <Lock style={{ width: '14px', height: '14px' }} />
+              Unlocks at {requiredTierDisplay}
             </button>
-            <a
-              href="https://bountyhunter.nctr.live/lock#deposit"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block text-center hover:underline"
-              style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#E2FF6D' }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              Deposit NCTR to level up →
-            </a>
           </div>
         ) : outOfStock ? (
           <Button
