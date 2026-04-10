@@ -18,7 +18,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { RouteLoading, PageLoading } from "./components/RouteLoading";
 import { DevToolsPanel } from "./components/DevToolsPanel";
 import { MobileBottomNav } from "./components/navigation/MobileBottomNav";
-import { BetaBanner } from "./components/BetaBanner";
+
 
 
 import { useClaimDeliveryNotifications } from "./hooks/useClaimDeliveryNotifications";
