@@ -43,7 +43,7 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const navigate = useNavigate();
   const { signOut, user } = useAuthContext();
-  const { profile, tier, nextTier, progressToNextTier, total360Locked } = useUnifiedUser();
+  const { profile, tier, nextTier, progressToNextTier, total360Locked, bhFirstName, bhLastName } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   const { pendingEarning, clearEarning } = useNCTREarningDetection(user?.id);
   const { showLockDecision, isOpen: isLockOpen } = useLockDecision();
