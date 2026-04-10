@@ -370,6 +370,19 @@ export function LevelUpModal({
               />
             </div>
 
+            {/* Result Message */}
+            {resultMsg && (
+              <p style={{
+                fontFamily: sans,
+                fontSize: '13px',
+                color: resultMsg.color,
+                marginBottom: '12px',
+                animation: 'fadeIn 300ms ease-in',
+              }}>
+                {resultMsg.text}
+              </p>
+            )}
+
             {/* Submit Button */}
             <button
               onClick={handleDeposit}
@@ -389,7 +402,7 @@ export function LevelUpModal({
                 fontWeight: 600,
               }}
             >
-              {submitting ? 'Verifying...' : 'Verify & Deposit →'}
+              {submitting ? 'Verifying...' : buttonText}
             </button>
           </div>
         </div>
