@@ -392,6 +392,8 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
         total360Locked,
         loading,
         error,
+        bhFirstName,
+        bhLastName,
         refreshUnifiedProfile: fetchUnifiedProfile,
         createUnifiedProfile,
         updateUnifiedProfile,
