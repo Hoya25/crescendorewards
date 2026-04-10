@@ -351,7 +351,7 @@ export function ProfilePage() {
             </Button>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold">My Account</h1>
+                <h1 className="text-2xl font-bold">{bhFullName || 'My Account'}</h1>
                 {unifiedProfile?.handle && (
                   <span className="text-lg font-bold" style={{ color: '#E2FF6D' }}>@{unifiedProfile.handle}</span>
                 )}
