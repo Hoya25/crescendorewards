@@ -41,6 +41,14 @@ const wingmanCSS = `
   0%, 100% { opacity: 0.6; }
   50% { opacity: 1; }
 }
+.wingman-fab-button {
+  border-radius: 0px !important;
+  border-top-left-radius: 0px !important;
+  border-top-right-radius: 0px !important;
+  border-bottom-left-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
+  box-shadow: none !important;
+}
 `;
 
 async function fetchBhWingman(userId: string, question?: string): Promise<BriefingData> {
@@ -430,30 +438,32 @@ export function WingmanFAB() {
         </div>
       )}
 
+      {/* DESIGN RULE: border-radius: 0 everywhere */}
       {/* FAB Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? 'Close Wingman' : 'Open Wingman'}
+        className="wingman-fab-button"
         style={{
-           appearance: 'none',
-           WebkitAppearance: 'none',
+          appearance: 'none',
+          WebkitAppearance: 'none',
           position: 'fixed',
           bottom: '16px',
           right: '16px',
           zIndex: 100,
           width: '48px',
           height: '48px',
-           minWidth: '48px',
-           minHeight: '48px',
-           maxWidth: '48px',
-           maxHeight: '48px',
-           background: '#E2FF6D',
+          minWidth: '48px',
+          minHeight: '48px',
+          maxWidth: '48px',
+          maxHeight: '48px',
+          background: '#E2FF6D',
           border: 'none',
-           borderRadius: 0,
-           borderTopLeftRadius: 0,
-           borderTopRightRadius: 0,
-           borderBottomLeftRadius: 0,
-           borderBottomRightRadius: 0,
+          borderRadius: '0px !important',
+          borderTopLeftRadius: '0px',
+          borderTopRightRadius: '0px',
+          borderBottomLeftRadius: '0px',
+          borderBottomRightRadius: '0px',
           boxShadow: 'none',
           cursor: 'pointer',
           display: 'flex',
