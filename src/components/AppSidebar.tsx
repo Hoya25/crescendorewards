@@ -5,6 +5,7 @@ import { useAdminRole } from '@/hooks/useAdminRole';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { useUserOnboarding } from '@/hooks/useUserOnboarding';
 import { StatusBadgeSidebar, StatusBadgeCollapsed } from '@/components/status/StatusBadgeWidget';
+import { WingmanSidebarExpanded, WingmanSidebarCollapsed } from '@/components/sidebar/WingmanSidebarWidget';
 
 import {
   Sidebar,
@@ -162,6 +163,13 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
         <SidebarGroup>
           <SidebarGroupContent>
             {open ? <StatusBadgeSidebar /> : <StatusBadgeCollapsed />}
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Wingman */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            {open ? <WingmanSidebarExpanded /> : <WingmanSidebarCollapsed />}
           </SidebarGroupContent>
         </SidebarGroup>
 
