@@ -435,15 +435,25 @@ export function WingmanFAB() {
         onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? 'Close Wingman' : 'Open Wingman'}
         style={{
+           appearance: 'none',
+           WebkitAppearance: 'none',
           position: 'fixed',
           bottom: '16px',
           right: '16px',
           zIndex: 100,
           width: '48px',
           height: '48px',
-          background: '#E2FF6D',
+           minWidth: '48px',
+           minHeight: '48px',
+           maxWidth: '48px',
+           maxHeight: '48px',
+           background: '#E2FF6D',
           border: 'none',
-          borderRadius: '0px',
+           borderRadius: 0,
+           borderTopLeftRadius: 0,
+           borderTopRightRadius: 0,
+           borderBottomLeftRadius: 0,
+           borderBottomRightRadius: 0,
           boxShadow: 'none',
           cursor: 'pointer',
           display: 'flex',
@@ -452,7 +462,7 @@ export function WingmanFAB() {
           padding: 0,
         }}
       >
-        <NCTRSquareN size={30} fillColor="#0D0D0D" />
+         <NCTRSquareN size={24} fillColor="#0D0D0D" />
       </button>
     </>
   );
