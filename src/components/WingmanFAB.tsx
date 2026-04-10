@@ -37,6 +37,10 @@ const wingmanCSS = `
   from { transform: translateY(100%); opacity: 0; }
   to   { transform: translateY(0); opacity: 1; }
 }
+@keyframes wingman-dot-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
 `;
 
 async function fetchBhWingman(userId: string, question?: string): Promise<BriefingData> {
@@ -288,6 +292,7 @@ export function WingmanFAB() {
             style={{
               flex: 1,
               overflowY: 'auto',
+              overscrollBehavior: 'contain' as const,
               WebkitOverflowScrolling: 'touch',
               padding: '16px 20px',
             }}
@@ -447,10 +452,7 @@ export function WingmanFAB() {
           padding: 0,
         }}
       >
-        <span style={{ fontFamily: dmMono, fontSize: '22px', fontWeight: 700, color: '#0D0D0D', lineHeight: 1 }}>
-          N
-        </span>
-      </button>
+        <NCTRCircleN size={30} strokeColor="#0D0D0D" fillColor="#0D0D0D" />
     </>
   );
 }
