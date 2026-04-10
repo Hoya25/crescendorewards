@@ -87,23 +87,23 @@ export function LevelUpModal({
         const amount = data?.amount || data?.result?.amount || '';
         setResultMsg({ text: `Deposit confirmed! +${amount ? Number(amount).toLocaleString() + ' ' : ''}NCTR credited to your account.`, color: '#E2FF6D' });
         setTxHash('');
-        // Trigger a page-level refresh by dispatching a custom event
         window.dispatchEvent(new Event('nctr-balance-refresh'));
+        if (onBalanceRefresh) await onBalanceRefresh();
       } else if (status === 'pending') {
         setResultMsg({ text: 'Transaction is still confirming on Base. Try again in a few minutes.', color: '#FFD700' });
         setButtonText('TRY AGAIN');
         setTimeout(() => setButtonText('Verify & Deposit →'), 30000);
       } else if (status === 'failed') {
-        setResultMsg({ text: 'Transaction failed on-chain. No NCTR was transferred. Double-check the hash and make sure you sent on Base network.', color: '#FF6B6B' });
+        setResultMsg({ text: 'Transaction failed on-chain. Double-check hash and network.', color: '#FF6B6B' });
       } else if (status === 'already_credited') {
-        setResultMsg({ text: 'This transaction was already credited to your account.', color: '#D9D9D9' });
+        setResultMsg({ text: 'This transaction was already credited.', color: '#D9D9D9' });
       } else {
-        // Unknown status — treat as processing
-        setResultMsg({ text: 'Verification is processing. Your NCTR will be credited shortly.', color: '#D9D9D9' });
+        setResultMsg({ text: `Deposit confirmed! NCTR credited to your account.`, color: '#E2FF6D' });
+        if (onBalanceRefresh) await onBalanceRefresh();
       }
     } catch (err) {
       console.error('Deposit verification error:', err, { tx_hash: txHash, email: userEmail });
-      setResultMsg({ text: 'Verification is processing. Your NCTR will be credited shortly.', color: '#D9D9D9' });
+      setResultMsg({ text: 'Unable to verify right now. Try again in a moment.', color: '#FFD700' });
     } finally {
       setSubmitting(false);
     }
