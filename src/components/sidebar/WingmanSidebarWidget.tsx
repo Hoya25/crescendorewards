@@ -69,15 +69,16 @@ export function WingmanSidebarExpanded() {
           WINGMAN
         </span>
         <span
-          className="animate-pulse"
           style={{
             width: '8px',
             height: '8px',
             borderRadius: '50%',
             backgroundColor: '#E2FF6D',
             display: 'inline-block',
+            animation: 'wingman-dot-pulse 2s ease-in-out infinite',
           }}
         />
+        <style>{`@keyframes wingman-dot-pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }`}</style>
       </div>
 
       {/* Brief snippet */}
@@ -122,15 +123,16 @@ export function WingmanSidebarCollapsed() {
   return (
     <div className="flex justify-center py-2" title="Wingman active">
       <span
-        className="animate-pulse"
         style={{
           width: '8px',
           height: '8px',
           borderRadius: '50%',
           backgroundColor: '#E2FF6D',
           display: 'inline-block',
+          animation: 'wingman-dot-pulse 2s ease-in-out infinite',
         }}
       />
+      <style>{`@keyframes wingman-dot-pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }`}</style>
     </div>
   );
 }
