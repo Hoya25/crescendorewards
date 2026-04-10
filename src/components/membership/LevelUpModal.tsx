@@ -180,7 +180,7 @@ export function LevelUpModal({
           </p>
 
           {/* PATH 0: Lock Available */}
-          {availableNCTR > 0 && (
+          {availableNCTR > 0 && !lockResult && (
             <>
               <div style={{ borderBottom: '1px solid #323232', paddingBottom: '20px', marginBottom: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
@@ -194,6 +194,7 @@ export function LevelUpModal({
                 </p>
                 <button
                   onClick={handleLockAvailable}
+                  disabled={locking}
                   style={{
                     fontFamily: mono,
                     fontSize: '12px',
@@ -203,7 +204,8 @@ export function LevelUpModal({
                     border: '1px solid #E2FF6D',
                     borderRadius: 0,
                     padding: '10px 20px',
-                    cursor: 'pointer',
+                    cursor: locking ? 'wait' : 'pointer',
+                    opacity: locking ? 0.7 : 1,
                     transition: 'all 200ms',
                   }}
                   onMouseEnter={(e) => {
@@ -215,10 +217,17 @@ export function LevelUpModal({
                     e.currentTarget.style.color = '#E2FF6D';
                   }}
                 >
-                  Lock {availableNCTR.toLocaleString()} NCTR →
+                  {locking ? 'Locking...' : `Lock ${availableNCTR.toLocaleString()} NCTR →`}
                 </button>
               </div>
             </>
+          )}
+          {lockResult && (
+            <div style={{ borderBottom: '1px solid #323232', paddingBottom: '20px', marginBottom: '20px' }}>
+              <p style={{ fontFamily: sans, fontSize: '13px', color: lockResult.color, animation: 'fadeIn 300ms ease-in' }}>
+                {lockResult.text}
+              </p>
+            </div>
           )}
 
           {/* PATH 1: Earn It */}
