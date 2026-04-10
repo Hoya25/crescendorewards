@@ -110,7 +110,7 @@ export function EarningsHistory({ className = '' }: { className?: string }) {
   // Loading skeleton
   if (loading) {
     return (
-      <Card className={`bg-[#323232] border-[#5A5A58] ${className}`}>
+      <Card className={className} style={{ background: '#131313', border: '1px solid #323232', borderRadius: '0px' }}>
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-semibold flex items-center gap-2 text-white">
             <TrendingUp className="w-4 h-4" />
@@ -135,7 +135,7 @@ export function EarningsHistory({ className = '' }: { className?: string }) {
   // Empty state
   if (transactions.length === 0) {
     return (
-      <Card className={`bg-[#323232] border-[#5A5A58] ${className}`}>
+      <Card className={className} style={{ background: '#131313', border: '1px solid #323232', borderRadius: '0px' }}>
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-semibold flex items-center gap-2 text-white">
             <TrendingUp className="w-4 h-4" />
@@ -161,7 +161,7 @@ export function EarningsHistory({ className = '' }: { className?: string }) {
   }
 
   return (
-    <Card className={`bg-[#323232] border-[#5A5A58] ${className}`}>
+    <Card className={className} style={{ background: '#131313', border: '1px solid #323232', borderRadius: '0px' }}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div>

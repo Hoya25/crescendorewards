@@ -28,46 +28,33 @@ export function BountyHunterCard() {
         Ready to earn more?
       </p>
 
-      {nctrBalance > 0 ? (
-        <>
-          <p
-            style={{
-              fontFamily: "'DM Mono', monospace",
-              fontSize: '24px',
-              fontWeight: 500,
-              color: '#E2FF6D',
-              lineHeight: 1.2,
-            }}
-          >
-            {nctrBalance.toLocaleString()}
-            <span style={{ fontSize: '12px', color: '#5A5A58', marginLeft: '6px' }}>NCTR earned</span>
-          </p>
-          <p
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '14px',
-              color: '#D9D9D9',
-              lineHeight: 1.6,
-              marginTop: '8px',
-              marginBottom: '16px',
-            }}
-          >
-            Shop, learn, and refer on Bounty Hunter to earn NCTR and level up your Crescendo status.
-          </p>
-        </>
-      ) : (
+      {nctrBalance > 0 && (
         <p
           style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontSize: '14px',
-            color: '#D9D9D9',
-            lineHeight: 1.6,
-            marginBottom: '16px',
+            fontFamily: "'DM Mono', monospace",
+            fontSize: '24px',
+            fontWeight: 500,
+            color: '#E2FF6D',
+            lineHeight: 1.2,
           }}
         >
-          Shop, learn, and refer on Bounty Hunter to earn NCTR and level up your Crescendo status.
+          {nctrBalance.toLocaleString()}
+          <span style={{ fontSize: '12px', color: '#5A5A58', marginLeft: '6px' }}>NCTR earned</span>
         </p>
       )}
+
+      <p
+        style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: '14px',
+          color: '#D9D9D9',
+          lineHeight: 1.6,
+          marginTop: nctrBalance > 0 ? '8px' : '0px',
+          marginBottom: '16px',
+        }}
+      >
+        Earn NCTR and build your status on Bounty Hunter. Your Wingman is ready.
+      </p>
 
       <a
         href="https://bountyhunter.nctr.live"
@@ -75,13 +62,14 @@ export function BountyHunterCard() {
         rel="noopener noreferrer"
         className="inline-flex items-center gap-2 transition-opacity hover:opacity-90"
         style={{
-          fontFamily: "'Barlow Condensed', sans-serif",
+          fontFamily: "'DM Mono', monospace",
           fontSize: '13px',
-          fontWeight: 700,
+          fontWeight: 500,
           letterSpacing: '0.06em',
           textTransform: 'uppercase' as const,
-          color: '#131313',
-          backgroundColor: '#E2FF6D',
+          color: '#E2FF6D',
+          backgroundColor: 'transparent',
+          border: '1px solid #E2FF6D',
           padding: '10px 24px',
           borderRadius: '0px',
           textDecoration: 'none',

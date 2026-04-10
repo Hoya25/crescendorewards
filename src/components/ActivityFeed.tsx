@@ -271,7 +271,7 @@ export function ActivityFeed({ className = '', maxItems = 10 }: ActivityFeedProp
 
   if (loading) {
     return (
-      <Card className={className}>
+      <Card className={className} style={{ background: '#131313', border: '1px solid #323232', borderRadius: '0px' }}>
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <Bell className="w-4 h-4" />
@@ -295,7 +295,7 @@ export function ActivityFeed({ className = '', maxItems = 10 }: ActivityFeedProp
 
   if (activities.length === 0) {
     return (
-      <Card className={className}>
+      <Card className={className} style={{ background: '#131313', border: '1px solid #323232', borderRadius: '0px' }}>
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <Bell className="w-4 h-4" />
@@ -322,7 +322,7 @@ export function ActivityFeed({ className = '', maxItems = 10 }: ActivityFeedProp
   }
 
   return (
-    <Card className={className}>
+    <Card className={className} style={{ background: '#131313', border: '1px solid #323232', borderRadius: '0px' }}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
