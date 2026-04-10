@@ -380,7 +380,7 @@ export function WingmanFAB() {
         </div>
       )}
 
-      {/* FAB Button */}
+      {/* FAB Button — matches BH Wingman */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-label={isOpen ? 'Close Wingman' : 'Open Wingman'}
@@ -389,24 +389,24 @@ export function WingmanFAB() {
           bottom: '24px',
           right: '24px',
           zIndex: 100,
-          width: '56px',
-          height: '56px',
+          width: '52px',
+          height: '52px',
           background: isOpen ? '#E2FF6D' : '#131313',
-          border: 'none',
+          border: `2px solid ${isOpen ? '#E2FF6D' : '#E2FF6D'}`,
           borderRadius: '50%',
-          boxShadow: '0 3px 16px rgba(0,0,0,0.5)',
+          boxShadow: '0 4px 20px rgba(226,255,109,0.25)',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          transition: 'transform 200ms ease, background 200ms ease',
+          transition: 'transform 200ms ease, background 200ms ease, border-color 200ms ease',
           padding: 0,
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.06)'; }}
+        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.08)'; }}
         onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
       >
         <NCTRCircleN
-          size={38}
+          size={34}
           strokeColor={isOpen ? '#131313' : '#E2FF6D'}
           fillColor={isOpen ? '#131313' : '#E2FF6D'}
           style={isOpen ? {} : { animation: 'nctr-breathe 4s ease-in-out infinite' }}
