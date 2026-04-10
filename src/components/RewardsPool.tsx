@@ -1124,6 +1124,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       {/* Status Perks Section */}
       {!loading && <StatusPerksSection />}
 
+      {/* What Do You Want? Request Section */}
+      {!loading && <RewardRequestSection />}
+
       {/* Main Rewards Grid — starts immediately */}
       <div id="rewards-grid" className="container mx-auto px-4 pb-8 max-w-full" style={{ scrollMarginTop: '180px', paddingTop: '24px' }}>
         {/* Section Header — compact */}
