@@ -115,12 +115,12 @@ export function MembershipLevelPage() {
 
   // Use wallet_portfolio data for 360LOCK (primary source of truth)
   const portfolioData = portfolio?.[0];
-  const currentLockedNCTR = total360Locked;
+  const currentLockedNCTR = liveLocked !== null ? liveLocked : total360Locked;
   
-  // Calculate available NCTR from portfolio or fallback to canonical column
+  // Calculate available NCTR — prefer live BH data, then portfolio, then local
   const portfolioAvailable = portfolioData?.nctr_unlocked || portfolioData?.nctr_balance || 0;
   const crescendoAvailable = Number(profile?.nctr_balance_points) || 0;
-  const availableNCTR = portfolioData ? portfolioAvailable : crescendoAvailable;
+  const availableNCTR = liveAvailable !== null ? liveAvailable : (portfolioData ? portfolioAvailable : crescendoAvailable);
   
   // Get current tier info - use database tier if available, fallback to calculated
   const currentTier = tier 
