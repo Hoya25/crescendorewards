@@ -47,7 +47,7 @@ export function MembershipLevelPage() {
         'https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api',
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'x-sync-secret': 'nctr-bh-crescendo-sync-2026' },
           body: JSON.stringify({ action: 'get_user_status', email: profile.email }),
         }
       );
