@@ -41,15 +41,6 @@ const wingmanCSS = `
   0%, 100% { opacity: 0.6; }
   50% { opacity: 1; }
 }
-.wingman-fab-button {
-  border-radius: 0px !important;
-  border-top-left-radius: 0px !important;
-  border-top-right-radius: 0px !important;
-  border-bottom-left-radius: 0px !important;
-  border-bottom-right-radius: 0px !important;
-  box-shadow: none !important;
-}
-button[style] { border-radius: 0 !important; }
 `;
 
 async function fetchBhWingman(userId: string, question?: string): Promise<BriefingData> {
@@ -439,7 +430,6 @@ export function WingmanFAB() {
         </div>
       )}
 
-      {/* DESIGN RULE: border-radius: 0 everywhere */}
       {/* FAB Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -452,15 +442,13 @@ export function WingmanFAB() {
           height: 48,
           background: '#E2FF6D',
           border: 'none',
-          borderRadius: 0,
+          borderRadius: '50%',
           boxShadow: 'none',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           padding: 0,
-          WebkitBorderRadius: 0,
-          MozBorderRadius: 0,
           outline: 'none',
         }}
       >
