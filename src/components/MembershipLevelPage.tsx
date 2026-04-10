@@ -250,12 +250,32 @@ export function MembershipLevelPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Available NCTR</p>
                 <p className="text-2xl font-bold">{availableNCTR.toLocaleString()}</p>
+                {bhSyncFailed && (
+                  <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#5A5A58', marginTop: '4px' }}>
+                    Balance syncs on next login to Bounty Hunter
+                  </p>
+                )}
               </div>
-              {nextTierDisplay && (
+              {nextTierDisplay && availableNCTR > 0 && (
                 <Button onClick={() => handleUpgrade(nextTierDisplay)} className="gap-2">
                   <Lock className="w-4 h-4" />
                   Upgrade to {nextTierDisplay.name}
                 </Button>
+              )}
+              {nextTierDisplay && availableNCTR === 0 && (
+                <div className="text-right" style={{ maxWidth: '220px' }}>
+                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#D9D9D9', marginBottom: '6px' }}>
+                    No available NCTR to lock.{' '}
+                    <a href="https://bountyhunter.nctr.live" target="_blank" rel="noopener noreferrer" style={{ color: '#E2FF6D', textDecoration: 'underline' }}>
+                      Earn more on Bounty Hunter
+                    </a>{' '}
+                    or send NCTR to level up.
+                  </p>
+                  <Button variant="outline" size="sm" onClick={() => handleUpgrade(nextTierDisplay)} className="gap-2">
+                    <ArrowUpRight className="w-4 h-4" />
+                    Send NCTR
+                  </Button>
+                </div>
               )}
             </div>
           </CardContent>
