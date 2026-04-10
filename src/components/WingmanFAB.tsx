@@ -196,6 +196,7 @@ export function WingmanFAB() {
             left: 0,
             right: 0,
             background: '#131313',
+            borderTop: '1px solid #323232',
             maxHeight: '70vh',
             zIndex: 100,
             display: 'flex',
@@ -203,6 +204,14 @@ export function WingmanFAB() {
             animation: 'wingman-slide-up 350ms cubic-bezier(0.4, 0, 0.2, 1) forwards',
           }}
         >
+          {/* WINGMAN label + green dot + handle */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '14px 20px 0' }}>
+            <span style={{ fontFamily: dmMono, fontSize: '10px', color: '#E2FF6D', textTransform: 'uppercase' as const, letterSpacing: '0.08em', fontWeight: 500 }}>WINGMAN</span>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#E2FF6D', animation: 'wingman-dot-pulse 2s ease-in-out infinite' }} />
+            {user?.email && (
+              <span style={{ fontFamily: dmMono, fontSize: '10px', color: '#5A5A58', marginLeft: '4px' }}>@{user.email.split('@')[0]}</span>
+            )}
+          </div>
           {/* Top bar: tabs + controls */}
           <div style={{
             display: 'flex',
