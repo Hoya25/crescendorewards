@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { useTracking } from '@/contexts/ActivityTrackerContext';
 import { track } from '@/lib/track';
@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Trophy, Zap, Gift, Tag, Check, Lock, Sparkles, Crown, TrendingUp, BarChart3, History, AlertCircle, Wallet } from 'lucide-react';
+import { ArrowLeft, Trophy, Zap, Gift, Tag, Check, Lock, Sparkles, Crown, TrendingUp, BarChart3, History, AlertCircle, Wallet, ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { 
   membershipTiers, 
@@ -24,13 +24,66 @@ import { LevelUpModal } from './membership/LevelUpModal';
 
 export function MembershipLevelPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { trackAction } = useTracking();
-  const { profile, tier, portfolio, nextTier, progressToNextTier, total360Locked, allTiers } = useUnifiedUser();
+  const { profile, tier, portfolio, nextTier, progressToNextTier, total360Locked, allTiers, refreshUnifiedProfile } = useUnifiedUser();
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [selectedTier, setSelectedTier] = useState<typeof membershipTiers[0] | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const [upgradedTier, setUpgradedTier] = useState<{ old: MembershipTier; new: MembershipTier; newLockedAmount: number } | null>(null);
   const [depositInfo, setDepositInfo] = useState<{ total: number; earliestUnlock: string | null }>({ total: 0, earliestUnlock: null });
+  const [bhSyncing, setBhSyncing] = useState(false);
+  const [bhSyncFailed, setBhSyncFailed] = useState(false);
+  const [liveAvailable, setLiveAvailable] = useState<number | null>(null);
+  const [liveLocked, setLiveLocked] = useState<number | null>(null);
+
+  // FIX 1 & 3: Fetch fresh balance from BH on mount and when ?from=bh or ?locked=true
+  const syncFromBH = useCallback(async () => {
+    if (!profile?.email) return;
+    setBhSyncing(true);
+    setBhSyncFailed(false);
+    try {
+      const res = await fetch(
+        'https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_user_status', email: profile.email }),
+        }
+      );
+      if (!res.ok) throw new Error('BH sync failed');
+      const data = await res.json();
+      if (data?.error) throw new Error(data.error);
+      
+      const locked = data?.nctr_locked_points ?? data?.locked ?? null;
+      const available = data?.nctr_balance_points ?? data?.available ?? null;
+      
+      if (locked !== null) setLiveLocked(Number(locked));
+      if (available !== null) setLiveAvailable(Number(available));
+      
+      // Also refresh unified profile to pick up any DB-side updates
+      await refreshUnifiedProfile();
+    } catch (err) {
+      console.warn('BH balance sync failed, using local data:', err);
+      setBhSyncFailed(true);
+    } finally {
+      setBhSyncing(false);
+    }
+  }, [profile?.email, refreshUnifiedProfile]);
+
+  useEffect(() => {
+    if (profile?.email) {
+      syncFromBH();
+    }
+  }, [profile?.email, syncFromBH]);
+
+  // FIX 3: Force refresh when arriving from BH
+  useEffect(() => {
+    const fromBH = searchParams.get('from') === 'bh' || searchParams.get('locked') === 'true';
+    if (fromBH && profile?.email) {
+      syncFromBH();
+    }
+  }, [searchParams, profile?.email, syncFromBH]);
 
   // Fetch deposit locked info from profiles
   useEffect(() => {
@@ -62,12 +115,12 @@ export function MembershipLevelPage() {
 
   // Use wallet_portfolio data for 360LOCK (primary source of truth)
   const portfolioData = portfolio?.[0];
-  const currentLockedNCTR = total360Locked;
+  const currentLockedNCTR = liveLocked !== null ? liveLocked : total360Locked;
   
-  // Calculate available NCTR from portfolio or fallback to canonical column
+  // Calculate available NCTR — prefer live BH data, then portfolio, then local
   const portfolioAvailable = portfolioData?.nctr_unlocked || portfolioData?.nctr_balance || 0;
   const crescendoAvailable = Number(profile?.nctr_balance_points) || 0;
-  const availableNCTR = portfolioData ? portfolioAvailable : crescendoAvailable;
+  const availableNCTR = liveAvailable !== null ? liveAvailable : (portfolioData ? portfolioAvailable : crescendoAvailable);
   
   // Get current tier info - use database tier if available, fallback to calculated
   const currentTier = tier 
@@ -197,12 +250,32 @@ export function MembershipLevelPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Available NCTR</p>
                 <p className="text-2xl font-bold">{availableNCTR.toLocaleString()}</p>
+                {bhSyncFailed && (
+                  <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#5A5A58', marginTop: '4px' }}>
+                    Balance syncs on next login to Bounty Hunter
+                  </p>
+                )}
               </div>
-              {nextTierDisplay && (
+              {nextTierDisplay && availableNCTR > 0 && (
                 <Button onClick={() => handleUpgrade(nextTierDisplay)} className="gap-2">
                   <Lock className="w-4 h-4" />
                   Upgrade to {nextTierDisplay.name}
                 </Button>
+              )}
+              {nextTierDisplay && availableNCTR === 0 && (
+                <div className="text-right" style={{ maxWidth: '220px' }}>
+                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '13px', color: '#D9D9D9', marginBottom: '6px' }}>
+                    No available NCTR to lock.{' '}
+                    <a href="https://bountyhunter.nctr.live" target="_blank" rel="noopener noreferrer" style={{ color: '#E2FF6D', textDecoration: 'underline' }}>
+                      Earn more on Bounty Hunter
+                    </a>{' '}
+                    or send NCTR to level up.
+                  </p>
+                  <Button variant="outline" size="sm" onClick={() => handleUpgrade(nextTierDisplay)} className="gap-2">
+                    <ArrowUpRight className="w-4 h-4" />
+                    Send NCTR
+                  </Button>
+                </div>
               )}
             </div>
           </CardContent>
