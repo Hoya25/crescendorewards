@@ -33,6 +33,7 @@ export function LevelUpModal({
   currentLocked,
   availableNCTR,
   userEmail,
+  onBalanceRefresh,
 }: LevelUpModalProps) {
   const [txHash, setTxHash] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -108,7 +109,12 @@ export function LevelUpModal({
     }
   };
 
+  const [lockResult, setLockResult] = useState<{ text: string; color: string } | null>(null);
+  const [locking, setLocking] = useState(false);
+
   const handleLockAvailable = async () => {
+    setLocking(true);
+    setLockResult(null);
     try {
       const res = await fetch(
         'https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api',
@@ -122,11 +128,16 @@ export function LevelUpModal({
           }),
         }
       );
-      if (!res.ok) throw new Error('not supported');
-      toast.success(`Locked ${availableNCTR} NCTR!`);
-      onOpenChange(false);
-    } catch {
-      window.open('https://bountyhunter.nctr.live/lock', '_blank');
+      if (!res.ok) throw new Error('Lock failed');
+      const data = await res.json();
+      if (data?.error) throw new Error(data.error);
+      setLockResult({ text: `Locked! +${availableNCTR.toLocaleString()} NCTR committed to 360LOCK`, color: '#E2FF6D' });
+      if (onBalanceRefresh) await onBalanceRefresh();
+    } catch (err) {
+      console.error('Lock error:', err);
+      setLockResult({ text: 'Unable to lock right now. Try again in a moment.', color: '#FFD700' });
+    } finally {
+      setLocking(false);
     }
   };
 
