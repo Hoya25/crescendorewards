@@ -386,47 +386,52 @@ export function WingmanFAB() {
         aria-label={isOpen ? 'Close Wingman' : 'Open Wingman'}
         style={{
           position: 'fixed',
-          bottom: '24px',
-          right: '24px',
+          bottom: '16px',
+          right: '16px',
           zIndex: 100,
-          width: '52px',
-          height: '52px',
-          background: isOpen ? '#E2FF6D' : '#131313',
-          border: `2px solid ${isOpen ? '#E2FF6D' : '#E2FF6D'}`,
-          borderRadius: '50%',
-          boxShadow: '0 4px 20px rgba(226,255,109,0.25)',
+          width: '48px',
+          height: '48px',
+          background: '#E2FF6D',
+          border: 'none',
+          borderRadius: '0px',
+          boxShadow: 'none',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          transition: 'transform 200ms ease, background 200ms ease, border-color 200ms ease',
+          transition: 'opacity 200ms ease',
           padding: 0,
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.08)'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+        onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
       >
-        <NCTRCircleN
-          size={34}
-          strokeColor={isOpen ? '#131313' : '#E2FF6D'}
-          fillColor={isOpen ? '#131313' : '#E2FF6D'}
-          style={isOpen ? {} : { animation: 'nctr-breathe 4s ease-in-out infinite' }}
-        />
+        <span
+          style={{
+            fontFamily: dmMono,
+            fontSize: '22px',
+            fontWeight: 700,
+            color: '#0D0D0D',
+            lineHeight: 1,
+          }}
+        >
+          N
+        </span>
         {/* Ambition count badge */}
         {ambitions.length > 0 && !isOpen && (
           <div style={{
             position: 'absolute',
-            top: '-2px',
-            right: '-2px',
+            top: '-4px',
+            right: '-4px',
             width: '18px',
             height: '18px',
-            background: '#E2FF6D',
-            borderRadius: '50%',
+            background: '#0D0D0D',
+            borderRadius: '0px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontFamily: dmMono,
             fontSize: '9px',
-            color: '#131313',
+            color: '#E2FF6D',
             fontWeight: 700,
           }}>
             {ambitions.length}
