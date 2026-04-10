@@ -100,6 +100,8 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
   const [allTiers, setAllTiers] = useState<StatusTier[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [bhFirstName, setBhFirstName] = useState<string | null>(null);
+  const [bhLastName, setBhLastName] = useState<string | null>(null);
   // nctr_locked_points from unified_profiles is the single source of truth
   // It is synced from Bounty Hunter and already includes all lock sources
   const total360Locked = Number((profile as any)?.nctr_locked_points) || 0;
