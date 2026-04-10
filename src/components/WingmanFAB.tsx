@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { NCTRCircleN } from '@/components/brand/NCTRLogos';
+import { NCTRSquareN } from '@/components/brand/NCTRLogos';
 
 const dmSans = "'DM Sans', sans-serif";
 const dmMono = "'DM Mono', monospace";
@@ -452,7 +452,7 @@ export function WingmanFAB() {
           padding: 0,
         }}
       >
-        <NCTRCircleN size={30} strokeColor="#0D0D0D" fillColor="#0D0D0D" />
+        <NCTRSquareN size={30} fillColor="#0D0D0D" />
       </button>
     </>
   );
