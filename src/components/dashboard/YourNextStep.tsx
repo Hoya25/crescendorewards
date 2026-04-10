@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import { ShoppingBag, Target, ArrowRight, Lock, TrendingUp, Crown } from "lucide-react";
+import { Target, ArrowRight, Lock, TrendingUp, Crown } from "lucide-react";
 
 import { TIERS as CANONICAL_TIERS } from '@/constants/tiers';
 
