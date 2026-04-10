@@ -453,6 +453,7 @@ export function WingmanFAB() {
         }}
       >
         <NCTRCircleN size={30} strokeColor="#0D0D0D" fillColor="#0D0D0D" />
+      </button>
     </>
   );
 }
