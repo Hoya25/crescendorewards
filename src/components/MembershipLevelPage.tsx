@@ -26,11 +26,8 @@ export function MembershipLevelPage() {
   const navigate = useNavigate();
   const { trackAction } = useTracking();
   const { profile, tier, portfolio, nextTier, progressToNextTier, total360Locked, allTiers } = useUnifiedUser();
-  const [showLockDialog, setShowLockDialog] = useState(false);
-  const [showConfirmLock, setShowConfirmLock] = useState(false);
+  const [showLevelUp, setShowLevelUp] = useState(false);
   const [selectedTier, setSelectedTier] = useState<typeof membershipTiers[0] | null>(null);
-  const [lockAmount, setLockAmount] = useState('');
-  const [processing, setProcessing] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [upgradedTier, setUpgradedTier] = useState<{ old: MembershipTier; new: MembershipTier; newLockedAmount: number } | null>(null);
   const [depositInfo, setDepositInfo] = useState<{ total: number; earliestUnlock: string | null }>({ total: 0, earliestUnlock: null });
@@ -110,69 +107,7 @@ export function MembershipLevelPage() {
 
   const handleUpgrade = (targetTier: MembershipTier) => {
     setSelectedTier(targetTier);
-    const needed = Math.max(0, targetTier.requirement - currentLockedNCTR);
-    setLockAmount(needed.toString());
-    setShowLockDialog(true);
-  };
-
-  const handleLockNCTR = async () => {
-    if (!lockAmount || parseFloat(lockAmount) <= 0) {
-      toast.error('Please enter a valid amount');
-      return;
-    }
-
-    const amount = parseFloat(lockAmount);
-    if (amount > availableNCTR) {
-      toast.error('Insufficient available NCTR');
-      return;
-    }
-
-    setProcessing(true);
-    trackAction('commit_360lock', { amount });
-    try {
-      const oldTier = getMembershipTierByNCTR(currentLockedNCTR);
-      const newLockedAmount = currentLockedNCTR + amount;
-      const newTier = getMembershipTierByNCTR(newLockedAmount);
-
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          locked_nctr: newLockedAmount,
-          available_nctr: availableNCTR - amount,
-        })
-        .eq('id', profile.id);
-
-      if (error) throw error;
-
-      // Record membership history if tier changed
-      if (newTier.level > oldTier.level) {
-        await supabase.from('membership_history').insert({
-          user_id: profile.id,
-          tier_level: newTier.level,
-          tier_name: newTier.name,
-          locked_nctr: newLockedAmount,
-          previous_tier_level: oldTier.level,
-          previous_tier_name: oldTier.name,
-        });
-      }
-
-      toast.success(`Successfully locked ${amount} NCTR for 360 days!`);
-      setShowLockDialog(false);
-
-      // Check if tier upgraded
-      if (newTier.level > oldTier.level) {
-        track('status_upgraded', { from_tier: oldTier.name.toLowerCase(), to_tier: newTier.name.toLowerCase() });
-        setUpgradedTier({ old: oldTier, new: newTier, newLockedAmount: newLockedAmount });
-        setShowCelebration(true);
-      } else {
-        window.location.reload(); // Refresh to show new progress
-      }
-    } catch (error: any) {
-      console.error('Error locking NCTR:', error);
-      toast.error('Failed to lock NCTR. Please try again.');
-    } finally {
-      setProcessing(false);
-    }
+    setShowLevelUp(true);
   };
 
   return (
