@@ -157,8 +157,6 @@ function AppRoutes() {
 
   return (
     <div className="w-full max-w-[100vw] overflow-x-hidden">
-      {/* Beta Banner - Top of page */}
-      <BetaBanner />
       
       {/* Navigation Safety Net - Fallback if nav isn't visible */}
       {isAuthenticated && <NavigationSafetyNet />}
