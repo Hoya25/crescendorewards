@@ -483,6 +483,7 @@ export function MembershipLevelPage() {
         currentLocked={currentLockedNCTR}
         availableNCTR={availableNCTR}
         userEmail={profile?.email || ''}
+        onBalanceRefresh={syncFromBH}
       />
       {/* Celebration Modal */}
       {upgradedTier && (
