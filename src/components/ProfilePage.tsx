@@ -78,12 +78,13 @@ const toProfileFormat = (unifiedProfile: any): Profile | null => {
 export function ProfilePage() {
   const navigate = useNavigate();
   const { signOut } = useAuthContext();
-  const { profile: unifiedProfile, refreshUnifiedProfile, updateUnifiedProfile, tier, nextTier, progressToNextTier, total360Locked } = useUnifiedUser();
+  const { profile: unifiedProfile, refreshUnifiedProfile, updateUnifiedProfile, tier, nextTier, progressToNextTier, total360Locked, bhFirstName, bhLastName } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   
   // Convert to Profile format for compatibility
   const profile = toProfileFormat(unifiedProfile);
   const crescendoData = getCrescendoData(unifiedProfile);
+  const bhFullName = [bhFirstName, bhLastName].filter(Boolean).join(' ');
   
   const [fullName, setFullName] = useState(unifiedProfile?.display_name || '');
   const [bio, setBio] = useState(unifiedProfile?.crescendo_data?.bio || '');
