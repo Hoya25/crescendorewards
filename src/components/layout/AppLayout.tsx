@@ -90,7 +90,8 @@ export function AppLayout({ children }: AppLayoutProps) {
     }
   }, [pendingEarning, isLockOpen]);
 
-  const userName = profile?.handle ? `@${profile.handle}` : profile?.display_name || profile?.email?.split('@')[0] || 'User';
+  const userName = bhFirstName || (profile?.handle ? `@${profile.handle}` : profile?.display_name || profile?.email?.split('@')[0] || 'User');
+  const userFullName = [bhFirstName, bhLastName].filter(Boolean).join(' ') || userName;
 
   const handleSignOut = async () => {
     await signOut();
