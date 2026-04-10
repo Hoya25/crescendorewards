@@ -82,6 +82,8 @@ export interface UnifiedUser {
 interface UnifiedUserContextType extends UnifiedUser {
   loading: boolean;
   error: Error | null;
+  bhFirstName: string | null;
+  bhLastName: string | null;
   refreshUnifiedProfile: () => Promise<void>;
   createUnifiedProfile: () => Promise<void>;
   updateUnifiedProfile: (updates: Partial<UnifiedProfile>) => Promise<void>;
