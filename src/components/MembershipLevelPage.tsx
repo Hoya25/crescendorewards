@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Trophy, Zap, Gift, Tag, Check, Lock, Sparkles, Crown, TrendingUp, BarChart3, History, AlertCircle, Wallet } from 'lucide-react';
-import { ConfirmationDialog } from '@/components/ConfirmationDialog';
 import { cn } from '@/lib/utils';
 import { 
   membershipTiers, 
@@ -18,12 +17,10 @@ import {
   getNCTRNeededForNextLevel,
   MembershipTier
 } from '@/utils/membershipLevels';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { TierUpgradeCelebration } from './TierUpgradeCelebration';
+import { LevelUpModal } from './membership/LevelUpModal';
 
 export function MembershipLevelPage() {
   const navigate = useNavigate();
