@@ -43,7 +43,7 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const navigate = useNavigate();
   const { signOut, user } = useAuthContext();
-  const { profile, tier, nextTier, progressToNextTier, total360Locked } = useUnifiedUser();
+  const { profile, tier, nextTier, progressToNextTier, total360Locked, bhFirstName, bhLastName } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   const { pendingEarning, clearEarning } = useNCTREarningDetection(user?.id);
   const { showLockDecision, isOpen: isLockOpen } = useLockDecision();
@@ -90,7 +90,8 @@ export function AppLayout({ children }: AppLayoutProps) {
     }
   }, [pendingEarning, isLockOpen]);
 
-  const userName = profile?.handle ? `@${profile.handle}` : profile?.display_name || profile?.email?.split('@')[0] || 'User';
+  const userName = bhFirstName || (profile?.handle ? `@${profile.handle}` : profile?.display_name || profile?.email?.split('@')[0] || 'User');
+  const userFullName = [bhFirstName, bhLastName].filter(Boolean).join(' ') || userName;
 
   const handleSignOut = async () => {
     await signOut();

@@ -78,12 +78,13 @@ const toProfileFormat = (unifiedProfile: any): Profile | null => {
 export function ProfilePage() {
   const navigate = useNavigate();
   const { signOut } = useAuthContext();
-  const { profile: unifiedProfile, refreshUnifiedProfile, updateUnifiedProfile, tier, nextTier, progressToNextTier, total360Locked } = useUnifiedUser();
+  const { profile: unifiedProfile, refreshUnifiedProfile, updateUnifiedProfile, tier, nextTier, progressToNextTier, total360Locked, bhFirstName, bhLastName } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
   
   // Convert to Profile format for compatibility
   const profile = toProfileFormat(unifiedProfile);
   const crescendoData = getCrescendoData(unifiedProfile);
+  const bhFullName = [bhFirstName, bhLastName].filter(Boolean).join(' ');
   
   const [fullName, setFullName] = useState(unifiedProfile?.display_name || '');
   const [bio, setBio] = useState(unifiedProfile?.crescendo_data?.bio || '');
@@ -350,7 +351,7 @@ export function ProfilePage() {
             </Button>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold">My Account</h1>
+                <h1 className="text-2xl font-bold">{bhFullName || 'My Account'}</h1>
                 {unifiedProfile?.handle && (
                   <span className="text-lg font-bold" style={{ color: '#E2FF6D' }}>@{unifiedProfile.handle}</span>
                 )}

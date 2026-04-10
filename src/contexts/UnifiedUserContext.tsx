@@ -82,6 +82,8 @@ export interface UnifiedUser {
 interface UnifiedUserContextType extends UnifiedUser {
   loading: boolean;
   error: Error | null;
+  bhFirstName: string | null;
+  bhLastName: string | null;
   refreshUnifiedProfile: () => Promise<void>;
   createUnifiedProfile: () => Promise<void>;
   updateUnifiedProfile: (updates: Partial<UnifiedProfile>) => Promise<void>;
@@ -98,6 +100,8 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
   const [allTiers, setAllTiers] = useState<StatusTier[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [bhFirstName, setBhFirstName] = useState<string | null>(null);
+  const [bhLastName, setBhLastName] = useState<string | null>(null);
   // nctr_locked_points from unified_profiles is the single source of truth
   // It is synced from Bounty Hunter and already includes all lock sources
   const total360Locked = Number((profile as any)?.nctr_locked_points) || 0;
@@ -221,6 +225,31 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
   }, [user]);
+
+  // Fetch first_name / last_name from BH sync bridge
+  const fetchBhName = useCallback(async () => {
+    if (!profile?.email) return;
+    try {
+      const res = await fetch(
+        'https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-sync-secret': 'nctr-bh-crescendo-sync-2026' },
+          body: JSON.stringify({ action: 'get_user_status', email: profile.email }),
+        }
+      );
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data?.first_name) setBhFirstName(data.first_name);
+      if (data?.last_name) setBhLastName(data.last_name);
+    } catch {
+      // silent — fall back to handle/email
+    }
+  }, [profile?.email]);
+
+  useEffect(() => {
+    fetchBhName();
+  }, [fetchBhName]);
 
   // Create unified profile if it doesn't exist
   const createUnifiedProfile = useCallback(async () => {
@@ -363,6 +392,8 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
         total360Locked,
         loading,
         error,
+        bhFirstName,
+        bhLastName,
         refreshUnifiedProfile: fetchUnifiedProfile,
         createUnifiedProfile,
         updateUnifiedProfile,
