@@ -276,6 +276,75 @@ export function MembershipLevelPage() {
           </CardContent>
         </Card>
 
+        {/* STATUS LEVELS — compact tier table */}
+        {(() => {
+          const tierData = [
+            { name: 'Diamond', nctr: 100000, multiplier: '2.5x', color: '#E2FF6D' },
+            { name: 'Platinum', nctr: 40000, multiplier: '1.8x', color: '#E5E4E2' },
+            { name: 'Gold', nctr: 15000, multiplier: '1.5x', color: '#FFD700' },
+            { name: 'Silver', nctr: 5000, multiplier: '1.25x', color: '#C0C0C0' },
+            { name: 'Bronze', nctr: 1000, multiplier: '1.0x', color: '#CD7F32' },
+          ];
+          const currentTierName = currentTier.name;
+          const currentTierIdx = tierData.findIndex(t => t.name === currentTierName);
+          const nextTierForProgress = currentTierIdx > 0 ? tierData[currentTierIdx - 1] : null;
+
+          return (
+            <div className="space-y-4">
+              <h2 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: '20px', textTransform: 'uppercase' as const, letterSpacing: '0.05em', color: '#FFFFFF' }}>
+                STATUS LEVELS
+              </h2>
+              <div>
+                {tierData.map((t, idx) => {
+                  const isCurrent = t.name === currentTierName;
+                  const isAboveCurrent = currentTierIdx === -1 ? true : idx < currentTierIdx;
+
+                  return (
+                    <div key={t.name}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          background: '#131313',
+                          padding: '16px 20px',
+                          borderBottom: '1px solid #323232',
+                          borderLeft: isCurrent ? `3px solid ${t.color}` : '3px solid transparent',
+                          opacity: isAboveCurrent && !isCurrent ? 0.6 : 1,
+                        }}
+                      >
+                        <span style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: '16px', textTransform: 'uppercase' as const, color: t.color, letterSpacing: '0.04em', minWidth: '100px' }}>
+                          {t.name}
+                        </span>
+                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '14px', color: '#D9D9D9' }}>
+                          {t.nctr.toLocaleString()} NCTR
+                        </span>
+                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '14px', color: '#D9D9D9' }}>
+                          {t.multiplier}
+                        </span>
+                      </div>
+                      {isCurrent && nextTierForProgress && (
+                        <div style={{ background: '#131313', padding: '4px 20px 12px 26px', borderLeft: `3px solid ${t.color}`, borderBottom: '1px solid #323232' }}>
+                          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '12px', color: '#D9D9D9' }}>
+                            {currentLockedNCTR.toLocaleString()} / {nextTierForProgress.nctr.toLocaleString()}
+                          </span>
+                        </div>
+                      )}
+                      {isCurrent && !nextTierForProgress && (
+                        <div style={{ background: '#131313', padding: '4px 20px 12px 26px', borderLeft: `3px solid ${t.color}`, borderBottom: '1px solid #323232' }}>
+                          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '12px', color: '#D9D9D9' }}>
+                            {currentLockedNCTR.toLocaleString()} — MAX TIER
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
+
         {/* How It Works */}
         <Card className="bg-primary/5">
           <CardHeader>
