@@ -49,6 +49,7 @@ const wingmanCSS = `
   border-bottom-right-radius: 0px !important;
   box-shadow: none !important;
 }
+button[style] { border-radius: 0 !important; }
 `;
 
 async function fetchBhWingman(userId: string, question?: string): Promise<BriefingData> {
@@ -442,37 +443,28 @@ export function WingmanFAB() {
       {/* FAB Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        aria-label={isOpen ? 'Close Wingman' : 'Open Wingman'}
-        className="wingman-fab-button"
         style={{
-          appearance: 'none',
-          WebkitAppearance: 'none',
           position: 'fixed',
-          bottom: '16px',
-          right: '16px',
+          bottom: 16,
+          right: 16,
           zIndex: 100,
-          width: '48px',
-          height: '48px',
-          minWidth: '48px',
-          minHeight: '48px',
-          maxWidth: '48px',
-          maxHeight: '48px',
+          width: 48,
+          height: 48,
           background: '#E2FF6D',
           border: 'none',
-          borderRadius: '0px !important',
-          borderTopLeftRadius: '0px',
-          borderTopRightRadius: '0px',
-          borderBottomLeftRadius: '0px',
-          borderBottomRightRadius: '0px',
+          borderRadius: 0,
           boxShadow: 'none',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           padding: 0,
+          WebkitBorderRadius: 0,
+          MozBorderRadius: 0,
+          outline: 'none',
         }}
       >
-         <NCTRSquareN size={24} fillColor="#0D0D0D" />
+        <NCTRSquareN size={24} fillColor="#0D0D0D" />
       </button>
     </>
   );
