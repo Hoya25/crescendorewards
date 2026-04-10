@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import { ShoppingBag, Target, ArrowRight, Lock, TrendingUp, Crown } from "lucide-react";
+import { Target, ArrowRight, Lock, TrendingUp, Crown } from "lucide-react";
 
 import { TIERS as CANONICAL_TIERS } from '@/constants/tiers';
 
@@ -96,17 +96,9 @@ function Condition1({ navigate }: { navigate: (path: string) => void }) {
       <StepLabel />
       <h3 className="text-xl font-bold text-white mb-2">Earn Your First NCTR</h3>
       <p className="text-sm text-white/70 mb-4">
-        Start earning NCTR by shopping with The Garden or completing a bounty.
+        Start earning NCTR by completing bounties or earning on Bounty Hunter.
       </p>
       <div className="flex flex-col sm:flex-row gap-3">
-        <Button
-          onClick={() => navigate("/brands")}
-          className="gap-2 font-semibold"
-          style={{ backgroundColor: "#C8FF00", color: "#1A1A2E" }}
-        >
-          <ShoppingBag className="w-4 h-4" />
-          Shop The Garden
-        </Button>
         <Button
           variant="outline"
           onClick={() => navigate("/bounties")}
