@@ -1,3 +1,7 @@
+import { CommitmentArc } from '@/components/CommitmentArc';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
+import { TIERS, getTierForBalance, getProgressToNextTier } from '@/constants/tiers';
+
 interface TierRow {
   rank: string;
   name: string;
@@ -5,15 +9,25 @@ interface TierRow {
   multiplier: string;
   perks: string;
   color: string;
+  arcColor: string;
+  threshold: number;
   isCurrent?: boolean;
 }
 
+const TIER_ARC_COLORS: Record<string, string> = {
+  bronze: '#CD7F32',
+  silver: '#C0C0C0',
+  gold: '#FFD700',
+  platinum: '#E5E4E2',
+  diamond: '#B9F2FF',
+};
+
 const hardcodedTiers: TierRow[] = [
-  { rank: '05', name: 'Diamond', nctrRequirement: '150,000 NCTR', multiplier: '2.5x', perks: '50 claims · governance · vault', color: 'rgba(185,242,255,0.9)' },
-  { rank: '04', name: 'Platinum', nctrRequirement: '50,000 NCTR', multiplier: '1.8x', perks: '25 claims · brand priority', color: 'rgba(200,200,210,0.9)' },
-  { rank: '03', name: 'Gold', nctrRequirement: '15,000 NCTR', multiplier: '1.5x', perks: '10 claims · creator tools · merch', color: 'rgba(255,215,100,0.9)' },
-  { rank: '02', name: 'Silver', nctrRequirement: '5,000 NCTR', multiplier: '1.25x', perks: '5 claims · 48hr early · streams', color: 'rgba(192,192,200,0.8)', isCurrent: true },
-  { rank: '01', name: 'Bronze', nctrRequirement: '1,000 NCTR', multiplier: '1.0x', perks: '2 claims · wellness', color: 'rgba(180,130,80,0.9)' },
+  { rank: '05', name: 'Diamond', nctrRequirement: '100,000 NCTR', multiplier: '2.5x', perks: '50 claims · governance · vault', color: 'rgba(185,242,255,0.9)', arcColor: '#B9F2FF', threshold: 100000 },
+  { rank: '04', name: 'Platinum', nctrRequirement: '40,000 NCTR', multiplier: '1.8x', perks: '25 claims · brand priority', color: 'rgba(200,200,210,0.9)', arcColor: '#E5E4E2', threshold: 40000 },
+  { rank: '03', name: 'Gold', nctrRequirement: '15,000 NCTR', multiplier: '1.5x', perks: '12 claims · creator tools · merch', color: 'rgba(255,215,100,0.9)', arcColor: '#FFD700', threshold: 15000 },
+  { rank: '02', name: 'Silver', nctrRequirement: '5,000 NCTR', multiplier: '1.25x', perks: '5 claims · 48hr early · streams', color: 'rgba(192,192,200,0.8)', arcColor: '#C0C0C0', threshold: 5000 },
+  { rank: '01', name: 'Bronze', nctrRequirement: '1,000 NCTR', multiplier: '1.0x', perks: '1 claim · wellness', color: 'rgba(180,130,80,0.9)', arcColor: '#CD7F32', threshold: 1000 },
 ];
 
 interface StandingsTabProps {
@@ -21,7 +35,22 @@ interface StandingsTabProps {
 }
 
 export function StandingsTab({ tiers }: StandingsTabProps) {
-  const rows = tiers ?? hardcodedTiers;
+  const { total360Locked } = useUnifiedUser();
+  const currentPoints = Number(total360Locked) || 0;
+  const currentTier = getTierForBalance(currentPoints);
+  const progressPct = getProgressToNextTier(currentPoints);
+
+  const rows = (tiers ?? hardcodedTiers).map(row => ({
+    ...row,
+    isCurrent: row.name.toLowerCase() === currentTier.id,
+  }));
+
+  function getArcProgress(row: TierRow): number {
+    const tierKey = row.name.toLowerCase();
+    if (tierKey === currentTier.id) return progressPct;
+    if (row.threshold < currentTier.threshold || (row.threshold === currentTier.threshold && currentPoints >= row.threshold)) return 100;
+    return 0;
+  }
 
   return (
     <div style={{ backgroundColor: '#131313', padding: '32px 24px', minHeight: '400px' }}>

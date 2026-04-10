@@ -50,7 +50,7 @@ const hardcodedOpportunities: OpportunityCard[] = [
     status: 'locked',
     lockTier: 'Platinum',
     details: [
-      { label: 'Requires', value: '50,000 NCTR' },
+      { label: 'Requires', value: '40,000 NCTR' },
     ],
   },
   {
@@ -60,7 +60,7 @@ const hardcodedOpportunities: OpportunityCard[] = [
     status: 'locked',
     lockTier: 'Diamond',
     details: [
-      { label: 'Requires', value: '150,000 NCTR' },
+      { label: 'Requires', value: '100,000 NCTR' },
     ],
   },
   {
