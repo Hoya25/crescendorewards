@@ -22,6 +22,7 @@ interface LevelUpModalProps {
   currentLocked: number;
   availableNCTR: number;
   userEmail: string;
+  onBalanceRefresh?: () => Promise<void>;
 }
 
 export function LevelUpModal({
@@ -32,6 +33,7 @@ export function LevelUpModal({
   currentLocked,
   availableNCTR,
   userEmail,
+  onBalanceRefresh,
 }: LevelUpModalProps) {
   const [txHash, setTxHash] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -85,29 +87,34 @@ export function LevelUpModal({
         const amount = data?.amount || data?.result?.amount || '';
         setResultMsg({ text: `Deposit confirmed! +${amount ? Number(amount).toLocaleString() + ' ' : ''}NCTR credited to your account.`, color: '#E2FF6D' });
         setTxHash('');
-        // Trigger a page-level refresh by dispatching a custom event
         window.dispatchEvent(new Event('nctr-balance-refresh'));
+        if (onBalanceRefresh) await onBalanceRefresh();
       } else if (status === 'pending') {
         setResultMsg({ text: 'Transaction is still confirming on Base. Try again in a few minutes.', color: '#FFD700' });
         setButtonText('TRY AGAIN');
         setTimeout(() => setButtonText('Verify & Deposit →'), 30000);
       } else if (status === 'failed') {
-        setResultMsg({ text: 'Transaction failed on-chain. No NCTR was transferred. Double-check the hash and make sure you sent on Base network.', color: '#FF6B6B' });
+        setResultMsg({ text: 'Transaction failed on-chain. Double-check hash and network.', color: '#FF6B6B' });
       } else if (status === 'already_credited') {
-        setResultMsg({ text: 'This transaction was already credited to your account.', color: '#D9D9D9' });
+        setResultMsg({ text: 'This transaction was already credited.', color: '#D9D9D9' });
       } else {
-        // Unknown status — treat as processing
-        setResultMsg({ text: 'Verification is processing. Your NCTR will be credited shortly.', color: '#D9D9D9' });
+        setResultMsg({ text: `Deposit confirmed! NCTR credited to your account.`, color: '#E2FF6D' });
+        if (onBalanceRefresh) await onBalanceRefresh();
       }
     } catch (err) {
       console.error('Deposit verification error:', err, { tx_hash: txHash, email: userEmail });
-      setResultMsg({ text: 'Verification is processing. Your NCTR will be credited shortly.', color: '#D9D9D9' });
+      setResultMsg({ text: 'Unable to verify right now. Try again in a moment.', color: '#FFD700' });
     } finally {
       setSubmitting(false);
     }
   };
 
+  const [lockResult, setLockResult] = useState<{ text: string; color: string } | null>(null);
+  const [locking, setLocking] = useState(false);
+
   const handleLockAvailable = async () => {
+    setLocking(true);
+    setLockResult(null);
     try {
       const res = await fetch(
         'https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api',
@@ -121,11 +128,16 @@ export function LevelUpModal({
           }),
         }
       );
-      if (!res.ok) throw new Error('not supported');
-      toast.success(`Locked ${availableNCTR} NCTR!`);
-      onOpenChange(false);
-    } catch {
-      window.open('https://bountyhunter.nctr.live/lock', '_blank');
+      if (!res.ok) throw new Error('Lock failed');
+      const data = await res.json();
+      if (data?.error) throw new Error(data.error);
+      setLockResult({ text: `Locked! +${availableNCTR.toLocaleString()} NCTR committed to 360LOCK`, color: '#E2FF6D' });
+      if (onBalanceRefresh) await onBalanceRefresh();
+    } catch (err) {
+      console.error('Lock error:', err);
+      setLockResult({ text: 'Unable to lock right now. Try again in a moment.', color: '#FFD700' });
+    } finally {
+      setLocking(false);
     }
   };
 
@@ -168,7 +180,7 @@ export function LevelUpModal({
           </p>
 
           {/* PATH 0: Lock Available */}
-          {availableNCTR > 0 && (
+          {availableNCTR > 0 && !lockResult && (
             <>
               <div style={{ borderBottom: '1px solid #323232', paddingBottom: '20px', marginBottom: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
@@ -182,6 +194,7 @@ export function LevelUpModal({
                 </p>
                 <button
                   onClick={handleLockAvailable}
+                  disabled={locking}
                   style={{
                     fontFamily: mono,
                     fontSize: '12px',
@@ -191,7 +204,8 @@ export function LevelUpModal({
                     border: '1px solid #E2FF6D',
                     borderRadius: 0,
                     padding: '10px 20px',
-                    cursor: 'pointer',
+                    cursor: locking ? 'wait' : 'pointer',
+                    opacity: locking ? 0.7 : 1,
                     transition: 'all 200ms',
                   }}
                   onMouseEnter={(e) => {
@@ -203,10 +217,17 @@ export function LevelUpModal({
                     e.currentTarget.style.color = '#E2FF6D';
                   }}
                 >
-                  Lock {availableNCTR.toLocaleString()} NCTR →
+                  {locking ? 'Locking...' : `Lock ${availableNCTR.toLocaleString()} NCTR →`}
                 </button>
               </div>
             </>
+          )}
+          {lockResult && (
+            <div style={{ borderBottom: '1px solid #323232', paddingBottom: '20px', marginBottom: '20px' }}>
+              <p style={{ fontFamily: sans, fontSize: '13px', color: lockResult.color, animation: 'fadeIn 300ms ease-in' }}>
+                {lockResult.text}
+              </p>
+            </div>
           )}
 
           {/* PATH 1: Earn It */}

@@ -85,6 +85,13 @@ export function MembershipLevelPage() {
     }
   }, [searchParams, profile?.email, syncFromBH]);
 
+  // Listen for balance refresh events from modal
+  useEffect(() => {
+    const handler = () => { syncFromBH(); };
+    window.addEventListener('nctr-balance-refresh', handler);
+    return () => window.removeEventListener('nctr-balance-refresh', handler);
+  }, [syncFromBH]);
+
   // Fetch deposit locked info from profiles
   useEffect(() => {
     if (!profile) return;
@@ -483,6 +490,7 @@ export function MembershipLevelPage() {
         currentLocked={currentLockedNCTR}
         availableNCTR={availableNCTR}
         userEmail={profile?.email || ''}
+        onBalanceRefresh={syncFromBH}
       />
       {/* Celebration Modal */}
       {upgradedTier && (
