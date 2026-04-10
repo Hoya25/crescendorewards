@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Trophy, Zap, Gift, Tag, Check, Lock, Sparkles, Crown, TrendingUp, BarChart3, History, AlertCircle, Wallet } from 'lucide-react';
-import { ConfirmationDialog } from '@/components/ConfirmationDialog';
 import { cn } from '@/lib/utils';
 import { 
   membershipTiers, 
@@ -18,22 +17,17 @@ import {
   getNCTRNeededForNextLevel,
   MembershipTier
 } from '@/utils/membershipLevels';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { TierUpgradeCelebration } from './TierUpgradeCelebration';
+import { LevelUpModal } from './membership/LevelUpModal';
 
 export function MembershipLevelPage() {
   const navigate = useNavigate();
   const { trackAction } = useTracking();
   const { profile, tier, portfolio, nextTier, progressToNextTier, total360Locked, allTiers } = useUnifiedUser();
-  const [showLockDialog, setShowLockDialog] = useState(false);
-  const [showConfirmLock, setShowConfirmLock] = useState(false);
+  const [showLevelUp, setShowLevelUp] = useState(false);
   const [selectedTier, setSelectedTier] = useState<typeof membershipTiers[0] | null>(null);
-  const [lockAmount, setLockAmount] = useState('');
-  const [processing, setProcessing] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [upgradedTier, setUpgradedTier] = useState<{ old: MembershipTier; new: MembershipTier; newLockedAmount: number } | null>(null);
   const [depositInfo, setDepositInfo] = useState<{ total: number; earliestUnlock: string | null }>({ total: 0, earliestUnlock: null });
@@ -113,69 +107,7 @@ export function MembershipLevelPage() {
 
   const handleUpgrade = (targetTier: MembershipTier) => {
     setSelectedTier(targetTier);
-    const needed = Math.max(0, targetTier.requirement - currentLockedNCTR);
-    setLockAmount(needed.toString());
-    setShowLockDialog(true);
-  };
-
-  const handleLockNCTR = async () => {
-    if (!lockAmount || parseFloat(lockAmount) <= 0) {
-      toast.error('Please enter a valid amount');
-      return;
-    }
-
-    const amount = parseFloat(lockAmount);
-    if (amount > availableNCTR) {
-      toast.error('Insufficient available NCTR');
-      return;
-    }
-
-    setProcessing(true);
-    trackAction('commit_360lock', { amount });
-    try {
-      const oldTier = getMembershipTierByNCTR(currentLockedNCTR);
-      const newLockedAmount = currentLockedNCTR + amount;
-      const newTier = getMembershipTierByNCTR(newLockedAmount);
-
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          locked_nctr: newLockedAmount,
-          available_nctr: availableNCTR - amount,
-        })
-        .eq('id', profile.id);
-
-      if (error) throw error;
-
-      // Record membership history if tier changed
-      if (newTier.level > oldTier.level) {
-        await supabase.from('membership_history').insert({
-          user_id: profile.id,
-          tier_level: newTier.level,
-          tier_name: newTier.name,
-          locked_nctr: newLockedAmount,
-          previous_tier_level: oldTier.level,
-          previous_tier_name: oldTier.name,
-        });
-      }
-
-      toast.success(`Successfully locked ${amount} NCTR for 360 days!`);
-      setShowLockDialog(false);
-
-      // Check if tier upgraded
-      if (newTier.level > oldTier.level) {
-        track('status_upgraded', { from_tier: oldTier.name.toLowerCase(), to_tier: newTier.name.toLowerCase() });
-        setUpgradedTier({ old: oldTier, new: newTier, newLockedAmount: newLockedAmount });
-        setShowCelebration(true);
-      } else {
-        window.location.reload(); // Refresh to show new progress
-      }
-    } catch (error: any) {
-      console.error('Error locking NCTR:', error);
-      toast.error('Failed to lock NCTR. Please try again.');
-    } finally {
-      setProcessing(false);
-    }
+    setShowLevelUp(true);
   };
 
   return (
@@ -469,82 +401,15 @@ export function MembershipLevelPage() {
         </div>
       </div>
 
-      {/* Lock NCTR Dialog */}
-      <Dialog open={showLockDialog} onOpenChange={setShowLockDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Commit NCTR to Raise Your Status</DialogTitle>
-            <DialogDescription>
-              Commit your NCTR via 360LOCK to reach {selectedTier?.name} status.
-              Your NCTR will be committed for 360 days and power your status level and rewards.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="lockAmount">Amount to Lock</Label>
-              <Input
-                id="lockAmount"
-                type="number"
-                value={lockAmount}
-                onChange={(e) => setLockAmount(e.target.value)}
-                placeholder="Enter NCTR amount"
-              />
-              <p className="text-xs text-muted-foreground">
-                Available: {availableNCTR.toLocaleString()} NCTR | 
-                Minimum needed: {selectedTier ? (selectedTier.requirement - currentLockedNCTR).toLocaleString() : 0} NCTR
-              </p>
-            </div>
-
-            {selectedTier && (
-              <Card className="bg-muted/50">
-                <CardContent className="pt-6 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Current Level:</span>
-                    <span className="font-medium">{currentTier.name}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">New Level:</span>
-                    <span className="font-medium">{selectedTier.name}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">New Multiplier:</span>
-                    <span className="font-medium">{selectedTier.multiplier}x</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Lock Duration:</span>
-                    <span className="font-medium">360 days</span>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowLockDialog(false)} disabled={processing}>
-              Cancel
-            </Button>
-            <Button onClick={() => setShowConfirmLock(true)} disabled={processing || !lockAmount}>
-              Continue
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Confirm Lock Dialog */}
-      <ConfirmationDialog
-        isOpen={showConfirmLock}
-        onClose={() => setShowConfirmLock(false)}
-        onConfirm={() => {
-          setShowConfirmLock(false);
-          handleLockNCTR();
-        }}
-        title="Confirm 360LOCK"
-        description={`You are about to lock ${lockAmount || '0'} NCTR for 360 days. During this period, your tokens will contribute to your membership level but cannot be withdrawn or transferred. This action cannot be undone.`}
-        confirmText={`Lock ${lockAmount || '0'} NCTR`}
-        cancelText="Go Back"
-        icon={<Lock className="w-5 h-5 text-primary" />}
-        isLoading={processing}
+      {/* Level Up Modal */}
+      <LevelUpModal
+        open={showLevelUp}
+        onOpenChange={setShowLevelUp}
+        targetTierName={selectedTier?.name || ''}
+        targetTierRequirement={selectedTier?.requirement || 0}
+        currentLocked={currentLockedNCTR}
+        availableNCTR={availableNCTR}
+        userEmail={profile?.email || ''}
       />
       {/* Celebration Modal */}
       {upgradedTier && (
