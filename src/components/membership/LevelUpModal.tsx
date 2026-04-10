@@ -22,6 +22,7 @@ interface LevelUpModalProps {
   currentLocked: number;
   availableNCTR: number;
   userEmail: string;
+  onBalanceRefresh?: () => Promise<void>;
 }
 
 export function LevelUpModal({
