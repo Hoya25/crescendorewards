@@ -108,6 +108,14 @@ export function StandingsTab({ tiers }: StandingsTabProps) {
               {tier.rank}
             </span>
 
+            {/* Commitment Arc */}
+            <CommitmentArc
+              progress={getArcProgress(tier)}
+              size={32}
+              strokeWidth={2}
+              tierColor={tier.arcColor}
+            />
+
             {/* Tier name */}
             <span
               style={{
