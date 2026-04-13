@@ -44,6 +44,7 @@ function mapReward(r: any) {
     category: r.category ?? null,
     contributor_name: r.sponsor_name ?? null,
     powered_by: r.show_powered_by ? r.powered_by_name : null,
+    showcase_order: r.showcase_order ?? null,
   };
 }
 
