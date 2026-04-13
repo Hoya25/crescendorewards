@@ -43,6 +43,7 @@ function mapReward(r: any) {
     remaining: r.stock_quantity ?? null,
     category: r.category ?? null,
     contributor_name: r.sponsor_name ?? null,
+    powered_by: r.show_powered_by ? r.powered_by_name : null,
   };
 }
 

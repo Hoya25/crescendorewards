@@ -1985,6 +1985,33 @@ export function AdminRewards() {
               </p>
             </div>
 
+            {/* Powered By */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="powered-by"
+                  checked={(formData as any).show_powered_by || false}
+                  onCheckedChange={(checked) => setFormData({ ...formData, show_powered_by: checked } as any)}
+                />
+                <Label htmlFor="powered-by" className="flex items-center gap-1">
+                  <Sparkles className="w-4 h-4" /> Show Powered By
+                </Label>
+              </div>
+              {(formData as any).show_powered_by && (
+                <div className="space-y-1 pl-8">
+                  <Label className="text-xs">Powered By Name</Label>
+                  <Input
+                    value={(formData as any).powered_by_name || ''}
+                    placeholder="e.g. Feals"
+                    onChange={(e) => setFormData({ ...formData, powered_by_name: e.target.value || null } as any)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Display "Powered by [name]" on this reward. Use only when a specific brand directly funds or contributes this reward.
+                  </p>
+                </div>
+              )}
+            </div>
+
             {/* Token Gating */}
             <div className="space-y-4 pt-4 border-t">
               <div className="flex items-center justify-between">
