@@ -71,8 +71,8 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   const tier = url.searchParams.get("tier")?.toLowerCase() || null;
   const showcase = url.searchParams.get("showcase") === "true";
-  const limitParam = parseInt(url.searchParams.get("limit") || "3", 10);
-  const limit = Math.max(1, Math.min(6, isNaN(limitParam) ? 3 : limitParam));
+  const limitParam = parseInt(url.searchParams.get("limit") || "50", 10);
+  const limit = Math.max(1, Math.min(50, isNaN(limitParam) ? 50 : limitParam));
 
   if (tier && !VALID_TIERS.includes(tier)) {
     return new Response(JSON.stringify({ error: "Invalid tier. Must be: " + VALID_TIERS.join(", ") }), {
