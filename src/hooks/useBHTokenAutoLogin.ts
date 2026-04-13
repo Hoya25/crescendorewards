@@ -2,14 +2,12 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
 
-const BH_VERIFY_URL = 'https://auibudfactqhisvmiotw.supabase.co/functions/v1/verify-crescendo-token';
 const DEFAULT_PASSWORD = 'nctr-beta-2026';
 
 /**
  * Auto-login via Bounty Hunter token.
- * When ?token=xxx is present, verifies it with BH, then signs the user in.
- * Returns { processing: true } while the flow is in progress so the app
- * can hold off rendering the login page.
+ * When ?token=xxx&email=abc is present, validates with BH via our edge function proxy,
+ * provisions/signs in the user, and redirects to /dashboard.
  */
 export function useBHTokenAutoLogin(isAuthenticated: boolean, authLoading: boolean) {
   const [processing, setProcessing] = useState(false);
@@ -20,6 +18,7 @@ export function useBHTokenAutoLogin(isAuthenticated: boolean, authLoading: boole
 
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
+    const email = params.get('email');
     if (!token) return;
 
     // Clean the URL immediately so we don't re-trigger
@@ -30,73 +29,53 @@ export function useBHTokenAutoLogin(isAuthenticated: boolean, authLoading: boole
 
     (async () => {
       try {
-        // 1. Verify token with BH
-        const res = await fetch(BH_VERIFY_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token }),
+        // 1. Validate token with BH via verify-universal-auth edge function
+        const { data, error: fnError } = await supabase.functions.invoke('verify-universal-auth', {
+          body: {
+            email: email?.trim().toLowerCase() || '',
+            token,
+            action: 'token_login',
+          },
         });
 
-        if (!res.ok) {
-          console.warn('[BH Token] Verification endpoint returned', res.status);
+        if (fnError || !data?.success) {
+          console.warn('[BH Token] Verification failed:', fnError?.message || data?.error);
           if (!cancelled) setProcessing(false);
           return;
         }
 
-        const result = await res.json();
-        if (!result.valid || !result.email) {
-          console.warn('[BH Token] Token invalid or no email returned');
+        const userEmail = (data.email || email || '').toLowerCase().trim();
+        if (!userEmail) {
+          console.warn('[BH Token] No email returned');
           if (!cancelled) setProcessing(false);
           return;
         }
 
-        const email = result.email as string;
-
-        // 2. Try signing in
+        // 2. Try signing in (account may already exist)
         const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
+          email: userEmail,
           password: DEFAULT_PASSWORD,
         });
 
         if (!signInError) {
-          // Success — redirect to dashboard
           if (!cancelled) navigate('/dashboard', { replace: true });
           return;
         }
 
-        // 3. Account doesn't exist yet — create via verify-universal-auth then retry
-        console.log('[BH Token] Sign-in failed, attempting account creation for', email);
+        // 3. Account doesn't exist — sign up with standard password
+        console.log('[BH Token] Sign-in failed, attempting signup for', userEmail);
 
-        const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-        await fetch(
-          `https://${projectId}.supabase.co/functions/v1/verify-universal-auth`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-sync-secret': 'pending-client-check',
-            },
-            body: JSON.stringify({
-              email,
-              bh_user_id: 'pending',
-              display_name: result.display_name || 'pending',
-            }),
-          }
-        );
-
-        // Now sign up with the standard password
         const { error: signUpError } = await supabase.auth.signUp({
-          email,
+          email: userEmail,
           password: DEFAULT_PASSWORD,
           options: { emailRedirectTo: window.location.origin },
         });
 
         if (signUpError) {
-          console.error('[BH Token] Sign-up error:', signUpError.message);
-          // If already registered, try sign-in again (may have been created by edge fn)
           if (signUpError.message.includes('already registered')) {
+            // May have been created by edge fn — retry sign-in
             const { error: retryError } = await supabase.auth.signInWithPassword({
-              email,
+              email: userEmail,
               password: DEFAULT_PASSWORD,
             });
             if (!retryError && !cancelled) {
@@ -104,13 +83,14 @@ export function useBHTokenAutoLogin(isAuthenticated: boolean, authLoading: boole
               return;
             }
           }
+          console.error('[BH Token] Sign-up error:', signUpError.message);
           if (!cancelled) setProcessing(false);
           return;
         }
 
-        // Retry sign-in after signup
+        // 4. Retry sign-in after signup
         const { error: finalError } = await supabase.auth.signInWithPassword({
-          email,
+          email: userEmail,
           password: DEFAULT_PASSWORD,
         });
 
