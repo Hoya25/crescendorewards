@@ -1609,6 +1609,13 @@ export function AdminRewards() {
                       />
                     </TableCell>
                     <TableCell className="text-center">
+                      <EditableCell
+                        type="toggle"
+                        value={reward.show_in_showcase}
+                        onSave={(val) => updateRewardField(reward.id, 'show_in_showcase', val)}
+                      />
+                    </TableCell>
+                    <TableCell className="text-center">
                       <div className="flex items-center justify-center gap-2">
                         <Switch
                           checked={reward.sponsor_enabled}
