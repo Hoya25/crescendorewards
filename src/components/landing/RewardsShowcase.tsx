@@ -19,6 +19,7 @@ interface ShowcaseReward {
   image_url: string | null;
   category: string;
   cost: number;
+  min_tier_required: string | null;
 }
 
 const categoryIcons: Record<string, React.ElementType> = {
@@ -49,11 +50,20 @@ export function RewardsShowcase() {
       try {
         const { data, error } = await supabase
           .from('rewards')
-          .select('id, title, image_url, category, cost')
+          .select('id, title, image_url, category, cost, min_tier_required')
           .eq('is_active', true)
-          .order('is_featured', { ascending: false })
-          .order('created_at', { ascending: false })
-          .limit(8);
+          .eq('show_in_showcase', true)
+          .limit(20);
+
+        if (error) throw error;
+
+        // Sort by tier: bronze → silver → gold → platinum → diamond
+        const tierOrder: Record<string, number> = { bronze: 1, silver: 2, gold: 3, platinum: 4, diamond: 5 };
+        const sorted = (data || []).sort((a, b) => {
+          const aOrder = tierOrder[(a.min_tier_required || 'bronze').toLowerCase()] || 0;
+          const bOrder = tierOrder[(b.min_tier_required || 'bronze').toLowerCase()] || 0;
+          return aOrder - bOrder;
+        });
 
         if (error) throw error;
         setRewards(data || []);
