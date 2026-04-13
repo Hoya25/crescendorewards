@@ -4435,6 +4435,7 @@ export type Database = {
           user_count: number
         }[]
       }
+      get_unified_profile_id: { Args: { _auth_id: string }; Returns: string }
       get_unified_user_profile: {
         Args: { p_auth_user_id: string }
         Returns: Json
