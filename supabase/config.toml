@@ -39,3 +39,7 @@ verify_jwt = false
 # Universal auth verification - authenticated via SYNC_SECRET header
 [functions.verify-universal-auth]
 verify_jwt = false
+
+# Public rewards preview API for cross-platform use
+[functions.crescendo-rewards-preview]
+verify_jwt = false
