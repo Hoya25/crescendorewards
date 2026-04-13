@@ -97,7 +97,7 @@ Deno.serve(async (req) => {
     // Showcase mode: return all rewards marked for showcase, ordered by showcase_order
     const { data, error: scError } = await supabase
       .from("rewards")
-      .select("id, title, image_url, min_tier_required, reward_tier, cost, stock_quantity, category, sponsor_name, show_powered_by, powered_by_name, showcase_order")
+      .select("id, title, image_url, min_tier_required, reward_tier, cost, stock_quantity, show_powered_by, powered_by_name, showcase_order")
       .eq("is_active", true)
       .eq("show_in_showcase", true)
       .order("showcase_order", { ascending: true })
@@ -124,7 +124,7 @@ Deno.serve(async (req) => {
 
   const { data, error } = await supabase
     .from("rewards")
-    .select("id, title, image_url, min_tier_required, reward_tier, cost, stock_quantity, category, sponsor_name, show_powered_by, powered_by_name, showcase_order")
+    .select("id, title, image_url, min_tier_required, reward_tier, cost, stock_quantity, show_powered_by, powered_by_name, showcase_order")
     .eq("is_active", true)
     .in("min_tier_required", accessibleTiers)
     .order("showcase_order", { ascending: true })
