@@ -228,24 +228,21 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
 
   // Fetch first_name / last_name from BH sync bridge
   const fetchBhName = useCallback(async () => {
-    if (!profile?.email) return;
+    if (!profile?.email || !user) return;
     try {
-      const res = await fetch(
-        'https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-sync-secret': 'nctr-bh-crescendo-sync-2026' },
-          body: JSON.stringify({ action: 'get_user_status', email: profile.email }),
-        }
-      );
-      if (!res.ok) return;
-      const data = await res.json();
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) return;
+      const res = await supabase.functions.invoke('bh-status-proxy', {
+        body: { action: 'get_user_status', email: profile.email },
+      });
+      const data = res.data;
       if (data?.first_name) setBhFirstName(data.first_name);
       if (data?.last_name) setBhLastName(data.last_name);
     } catch {
       // silent — fall back to handle/email
     }
-  }, [profile?.email]);
+  }, [profile?.email, user]);
 
   useEffect(() => {
     fetchBhName();
