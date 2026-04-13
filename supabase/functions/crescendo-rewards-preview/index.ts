@@ -95,12 +95,13 @@ Deno.serve(async (req) => {
 
   if (showcase) {
     // Showcase mode: 1 from bronze, 1 from mid-tier, 1 from top-tier
-    const pick = async (tiers: string[]) => {
+  const pick = async (tiers: string[]) => {
       const { data } = await supabase
         .from("rewards")
         .select("id, title, image_url, min_tier_required, reward_tier, cost, stock_quantity, category, sponsor_name")
         .eq("is_active", true)
         .in("min_tier_required", tiers)
+        .order("show_in_showcase", { ascending: false })
         .order("is_featured", { ascending: false })
         .order("created_at", { ascending: false })
         .limit(1);
@@ -132,6 +133,7 @@ Deno.serve(async (req) => {
     .select("id, title, image_url, min_tier_required, reward_tier, cost, stock_quantity, category, sponsor_name")
     .eq("is_active", true)
     .in("min_tier_required", accessibleTiers)
+    .order("show_in_showcase", { ascending: false })
     .order("is_featured", { ascending: false })
     .order("created_at", { ascending: false })
     .limit(limit);
