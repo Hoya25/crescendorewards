@@ -209,7 +209,7 @@ export function VisualRewardCard({
           <ImageWithFallback
             src={reward.image_url}
             alt={reward.title}
-            className="w-full h-full object-cover object-top transition-transform duration-400 group-hover:scale-[1.03]"
+            className="w-full h-full object-cover object-center transition-transform duration-400 group-hover:scale-[1.03]"
             loading="lazy"
             decoding="async"
           />
