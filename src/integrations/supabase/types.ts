@@ -2904,12 +2904,14 @@ export type Database = {
           min_status_tier: string | null
           min_tier_required: string | null
           minimum_token_balance: number | null
+          powered_by_name: string | null
           publish_at: string | null
           rejection_reason: string | null
           required_user_data: Json | null
           revenue_share_percent: number | null
           reward_tier: string | null
           show_in_showcase: boolean | null
+          show_powered_by: boolean | null
           showcase_mode: string | null
           sponsor_cta_text: string | null
           sponsor_cta_url: string | null
@@ -2965,12 +2967,14 @@ export type Database = {
           min_status_tier?: string | null
           min_tier_required?: string | null
           minimum_token_balance?: number | null
+          powered_by_name?: string | null
           publish_at?: string | null
           rejection_reason?: string | null
           required_user_data?: Json | null
           revenue_share_percent?: number | null
           reward_tier?: string | null
           show_in_showcase?: boolean | null
+          show_powered_by?: boolean | null
           showcase_mode?: string | null
           sponsor_cta_text?: string | null
           sponsor_cta_url?: string | null
@@ -3026,12 +3030,14 @@ export type Database = {
           min_status_tier?: string | null
           min_tier_required?: string | null
           minimum_token_balance?: number | null
+          powered_by_name?: string | null
           publish_at?: string | null
           rejection_reason?: string | null
           required_user_data?: Json | null
           revenue_share_percent?: number | null
           reward_tier?: string | null
           show_in_showcase?: boolean | null
+          show_powered_by?: boolean | null
           showcase_mode?: string | null
           sponsor_cta_text?: string | null
           sponsor_cta_url?: string | null
