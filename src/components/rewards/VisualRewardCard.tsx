@@ -198,7 +198,7 @@ export function VisualRewardCard({
       onClick={handleCardClick}
     >
       {/* HERO IMAGE */}
-      <div className="relative w-full overflow-hidden" style={{ aspectRatio: '16/9' }}>
+      <div className="relative w-full overflow-hidden" style={{ aspectRatio: '16/9', backgroundColor: '#131313' }}>
         {hasCreatorShowcase && (showcaseMode === 'single' || showcaseMode === 'carousel') ? (
           <CreatorShowcase
             creators={rewardCreators}
