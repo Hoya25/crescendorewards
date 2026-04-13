@@ -251,6 +251,9 @@ export function AdminRewards() {
     // Monthly Drop scheduling
     publish_at: null as string | null,
     unpublish_at: null as string | null,
+    // Powered By
+    show_powered_by: false,
+    powered_by_name: null as string | null,
   });
 
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -294,8 +297,10 @@ export function AdminRewards() {
           required_user_data: rewardToEdit.required_user_data || ['email'],
           delivery_instructions: rewardToEdit.delivery_instructions,
           min_status_tier: rewardToEdit.min_status_tier || null,
-          publish_at: rewardToEdit.publish_at || null,
-          unpublish_at: rewardToEdit.unpublish_at || null,
+           publish_at: rewardToEdit.publish_at || null,
+           unpublish_at: rewardToEdit.unpublish_at || null,
+           show_powered_by: (rewardToEdit as any).show_powered_by || false,
+           powered_by_name: (rewardToEdit as any).powered_by_name || null,
         });
         // Load gallery images async
         loadGalleryImages(rewardToEdit.id, rewardToEdit.image_url).then(setGalleryImages);
@@ -633,6 +638,8 @@ export function AdminRewards() {
         min_status_tier: reward.min_status_tier || null,
         publish_at: reward.publish_at || null,
         unpublish_at: reward.unpublish_at || null,
+        show_powered_by: (reward as any).show_powered_by || false,
+        powered_by_name: (reward as any).powered_by_name || null,
       });
       // Set tier pricing state from existing reward
       const hasPricing = reward.status_tier_claims_cost && 
@@ -680,6 +687,8 @@ export function AdminRewards() {
         min_status_tier: null,
         publish_at: null,
         unpublish_at: null,
+        show_powered_by: false,
+        powered_by_name: null,
       });
       setTierPricingEnabled(false);
       setTierPricing(null);
@@ -716,8 +725,10 @@ export function AdminRewards() {
       required_user_data: reward.required_user_data || ['email'],
       delivery_instructions: reward.delivery_instructions,
       min_status_tier: reward.min_status_tier || null,
-      publish_at: null, // Don't duplicate scheduling
+      publish_at: null,
       unpublish_at: null,
+      show_powered_by: false,
+      powered_by_name: null,
     });
     loadGalleryImages(reward.id, reward.image_url).then(setGalleryImages);
     setShowModal(true);
@@ -1983,6 +1994,33 @@ export function AdminRewards() {
               <p className="text-xs text-muted-foreground pl-8">
                 This reward will appear on the Bounty Hunter dashboard to show members what they're building toward. Choose rewards that tell a compelling story — subscriptions, experiences, premium products.
               </p>
+            </div>
+
+            {/* Powered By */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="powered-by"
+                  checked={(formData as any).show_powered_by || false}
+                  onCheckedChange={(checked) => setFormData({ ...formData, show_powered_by: checked } as any)}
+                />
+                <Label htmlFor="powered-by" className="flex items-center gap-1">
+                  <Sparkles className="w-4 h-4" /> Show Powered By
+                </Label>
+              </div>
+              {(formData as any).show_powered_by && (
+                <div className="space-y-1 pl-8">
+                  <Label className="text-xs">Powered By Name</Label>
+                  <Input
+                    value={(formData as any).powered_by_name || ''}
+                    placeholder="e.g. Feals"
+                    onChange={(e) => setFormData({ ...formData, powered_by_name: e.target.value || null } as any)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Display "Powered by [name]" on this reward. Use only when a specific brand directly funds or contributes this reward.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Token Gating */}
