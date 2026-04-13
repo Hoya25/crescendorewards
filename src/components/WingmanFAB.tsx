@@ -43,15 +43,19 @@ const wingmanCSS = `
 `;
 
 async function fetchBhWingman(userId: string, question?: string): Promise<BriefingData> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000);
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('TIMEOUT')), 10000)
+  );
 
   try {
-    const { data, error } = await supabase.functions.invoke('bh-status-proxy', {
-      body: { action: 'wingman_briefing', user_id: userId, question },
-    });
+    const result = await Promise.race([
+      supabase.functions.invoke('bh-status-proxy', {
+        body: { action: 'wingman_briefing', user_id: userId, question },
+      }),
+      timeout,
+    ]);
 
-    clearTimeout(timeoutId);
+    const { data, error } = result as { data: any; error: any };
 
     if (error) {
       console.warn('Wingman briefing error:', error);
@@ -61,12 +65,8 @@ async function fetchBhWingman(userId: string, question?: string): Promise<Briefi
     if (data?.your_brief || data?.watching_your_6) return data as BriefingData;
     return FALLBACK;
   } catch (e) {
-    clearTimeout(timeoutId);
-    if (e instanceof Error && e.name === 'AbortError') {
-      console.warn('Wingman briefing timed out after 10s');
-    } else {
-      console.warn('Wingman briefing fetch error:', e);
-    }
+    const msg = e instanceof Error ? e.message : String(e);
+    console.warn('Wingman briefing failed:', msg);
     return FALLBACK;
   }
 }
