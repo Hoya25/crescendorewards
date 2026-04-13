@@ -17,7 +17,7 @@ import {
   getNCTRNeededForNextLevel,
   MembershipTier
 } from '@/utils/membershipLevels';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { TierUpgradeCelebration } from './TierUpgradeCelebration';
 import { LevelUpModal } from './membership/LevelUpModal';
@@ -43,16 +43,11 @@ export function MembershipLevelPage() {
     setBhSyncing(true);
     setBhSyncFailed(false);
     try {
-      const res = await fetch(
-        'https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-sync-secret': 'nctr-bh-crescendo-sync-2026' },
-          body: JSON.stringify({ action: 'get_user_status', email: profile.email }),
-        }
-      );
-      if (!res.ok) throw new Error('BH sync failed');
-      const data = await res.json();
+      const res = await supabase.functions.invoke('bh-status-proxy', {
+        body: { action: 'get_user_status', email: profile.email },
+      });
+      if (res.error) throw new Error('BH sync failed');
+      const data = res.data;
       if (data?.error) throw new Error(data.error);
       
       const locked = data?.nctr_locked_points ?? data?.locked ?? null;

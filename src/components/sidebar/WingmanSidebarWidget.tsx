@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const dmMono = "'DM Mono', monospace";
 const dmSans = "'DM Sans', sans-serif";
@@ -35,37 +36,15 @@ export function WingmanSidebarExpanded() {
 
     setIsLoading(true);
     try {
-      const BH_BASE = 'https://auibudfactqhisvmiotw.supabase.co/functions/v1';
-      const SYNC_SECRET = 'nctr-bh-crescendo-sync-2026';
       let result: BriefingData | null = null;
 
-      // Try admin-api first
       try {
-        const res = await fetch(`${BH_BASE}/admin-api`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-sync-secret': SYNC_SECRET },
-          body: JSON.stringify({ action: 'wingman_briefing', user_id: user?.id }),
+        const res = await supabase.functions.invoke('bh-status-proxy', {
+          body: { action: 'wingman_briefing', user_id: user?.id },
         });
-        if (res.ok) {
-          const d = await res.json();
-          if (d.your_brief || d.watching_your_6) result = d;
-        }
-      } catch { /* fall through */ }
-
-      // Fallback to wingman-briefing
-      if (!result) {
-        try {
-          const res = await fetch(`${BH_BASE}/wingman-briefing`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'x-sync-secret': SYNC_SECRET },
-            body: JSON.stringify({ user_id: user?.id }),
-          });
-          if (res.ok) {
-            const d = await res.json();
-            if (d.your_brief || d.watching_your_6) result = d;
-          }
-        } catch { /* ignore */ }
-      }
+        const d = res.data;
+        if (d?.your_brief || d?.watching_your_6) result = d;
+      } catch { /* ignore */ }
 
       if (result) {
         setBriefing(result);

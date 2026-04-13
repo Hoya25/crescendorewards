@@ -5,8 +5,7 @@ import { NCTRSquareN } from '@/components/brand/NCTRLogos';
 const dmSans = "'DM Sans', sans-serif";
 const dmMono = "'DM Mono', monospace";
 
-const BH_FUNCTIONS_BASE = 'https://auibudfactqhisvmiotw.supabase.co/functions/v1';
-const SYNC_SECRET = 'nctr-bh-crescendo-sync-2026';
+import { supabase } from '@/integrations/supabase/client';
 
 const CACHE_KEY = 'nctr_crescendo_wingman_briefing';
 const CACHE_TTL = 15 * 60 * 1000;
@@ -44,36 +43,12 @@ const wingmanCSS = `
 `;
 
 async function fetchBhWingman(userId: string, question?: string): Promise<BriefingData> {
-  // Try admin-api with wingman_briefing action first
   try {
-    const res = await fetch(`${BH_FUNCTIONS_BASE}/admin-api`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-sync-secret': SYNC_SECRET,
-      },
-      body: JSON.stringify({ action: 'wingman_briefing', user_id: userId, question }),
+    const res = await supabase.functions.invoke('bh-status-proxy', {
+      body: { action: 'wingman_briefing', user_id: userId, question },
     });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.your_brief || data.watching_your_6) return data as BriefingData;
-    }
-  } catch { /* fall through */ }
-
-  // Fallback: call BH wingman-briefing directly
-  try {
-    const res = await fetch(`${BH_FUNCTIONS_BASE}/wingman-briefing`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-sync-secret': SYNC_SECRET,
-      },
-      body: JSON.stringify({ user_id: userId, question }),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.your_brief || data.watching_your_6) return data as BriefingData;
-    }
+    const data = res.data;
+    if (data?.your_brief || data?.watching_your_6) return data as BriefingData;
   } catch { /* ignore */ }
 
   return FALLBACK;
