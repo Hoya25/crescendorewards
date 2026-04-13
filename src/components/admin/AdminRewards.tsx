@@ -297,8 +297,10 @@ export function AdminRewards() {
           required_user_data: rewardToEdit.required_user_data || ['email'],
           delivery_instructions: rewardToEdit.delivery_instructions,
           min_status_tier: rewardToEdit.min_status_tier || null,
-          publish_at: rewardToEdit.publish_at || null,
-          unpublish_at: rewardToEdit.unpublish_at || null,
+           publish_at: rewardToEdit.publish_at || null,
+           unpublish_at: rewardToEdit.unpublish_at || null,
+           show_powered_by: (rewardToEdit as any).show_powered_by || false,
+           powered_by_name: (rewardToEdit as any).powered_by_name || null,
         });
         // Load gallery images async
         loadGalleryImages(rewardToEdit.id, rewardToEdit.image_url).then(setGalleryImages);
