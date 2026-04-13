@@ -41,8 +41,6 @@ function mapReward(r: any) {
     tier_required: r.min_tier_required ?? r.reward_tier ?? "bronze",
     claims_cost: r.cost ?? 0,
     remaining: r.stock_quantity ?? null,
-    category: r.category ?? null,
-    contributor_name: r.sponsor_name ?? null,
     powered_by: r.show_powered_by ? r.powered_by_name : null,
     showcase_order: r.showcase_order ?? null,
   };
