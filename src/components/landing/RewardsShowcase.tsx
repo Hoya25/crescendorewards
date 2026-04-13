@@ -154,7 +154,7 @@ function ShowcaseCard({ reward, onClick, onSignup }: { reward: ShowcaseReward; o
           <ImageWithFallback
             src={reward.image_url}
             alt={reward.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
         ) : (
@@ -162,7 +162,7 @@ function ShowcaseCard({ reward, onClick, onSignup }: { reward: ShowcaseReward; o
             <Icon className="w-14 h-14 text-muted-foreground/30" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,0.98) 100%)' }} />
         
         {reward.cost === 0 && (
           <Badge className="absolute top-3 left-3 bg-emerald-500 text-white border-0 shadow-lg text-xs">
