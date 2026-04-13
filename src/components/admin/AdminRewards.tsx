@@ -1423,6 +1423,7 @@ export function AdminRewards() {
                   Wishlist <SortIcon field="wishlist_count" />
                 </TableHead>
                 <TableHead className="text-center">Featured</TableHead>
+                <TableHead className="text-center">BH Showcase</TableHead>
                 <TableHead className="text-center">Sponsor</TableHead>
                 <TableHead className="text-center">Active</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
