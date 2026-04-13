@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { CommitmentArc } from '@/components/CommitmentArc';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { useTracking } from '@/contexts/ActivityTrackerContext';
 import { track } from '@/lib/track';
@@ -191,6 +192,46 @@ export function MembershipLevelPage() {
       </div>
 
       <div className="container mx-auto px-4 py-8 space-y-8">
+        {/* Commitment Arc Hero */}
+        {(() => {
+          const isDiamond = !nextTier;
+          const arcProgress = isDiamond ? 100 : progressToNextTier;
+          const tierColor = tier?.badge_color || currentTier.color || '#E2FF6D';
+          const tierDisplayName = tier?.display_name || currentTier.name || 'Bronze';
+          const nextTierName = nextTier?.display_name || null;
+          const nctrToNext = nextTier ? Math.max(0, nextTier.min_nctr_360_locked - currentLockedNCTR) : 0;
+
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', padding: '32px 0 16px' }}>
+              <CommitmentArc
+                progress={arcProgress}
+                size={160}
+                strokeWidth={8}
+                tierColor={tierColor}
+              />
+              <span style={{
+                fontFamily: "'Barlow Condensed', sans-serif",
+                fontSize: '28px',
+                fontWeight: 700,
+                textTransform: 'uppercase' as const,
+                letterSpacing: '0.06em',
+                color: tierColor,
+              }}>
+                {tierDisplayName}
+              </span>
+              <span style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '14px',
+                color: '#8A8A88',
+              }}>
+                {isDiamond
+                  ? 'Diamond — Maximum Status'
+                  : `${nctrToNext.toLocaleString()} NCTR to ${nextTierName}`}
+              </span>
+            </div>
+          );
+        })()}
+
         {/* Hero Section */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-2 mb-2">
