@@ -99,11 +99,10 @@ Deno.serve(async (req) => {
   const pick = async (tiers: string[]) => {
       const { data } = await supabase
         .from("rewards")
-        .select("id, title, image_url, min_tier_required, reward_tier, cost, stock_quantity, category, sponsor_name, show_powered_by, powered_by_name")
+        .select("id, title, image_url, min_tier_required, reward_tier, cost, stock_quantity, category, sponsor_name, show_powered_by, powered_by_name, showcase_order")
         .eq("is_active", true)
         .in("min_tier_required", tiers)
-        .order("show_in_showcase", { ascending: false })
-        .order("is_featured", { ascending: false })
+        .order("showcase_order", { ascending: true })
         .order("created_at", { ascending: false })
         .limit(1);
       return data?.[0] ?? null;
@@ -131,11 +130,10 @@ Deno.serve(async (req) => {
 
   const { data, error } = await supabase
     .from("rewards")
-    .select("id, title, image_url, min_tier_required, reward_tier, cost, stock_quantity, category, sponsor_name, show_powered_by, powered_by_name")
+    .select("id, title, image_url, min_tier_required, reward_tier, cost, stock_quantity, category, sponsor_name, show_powered_by, powered_by_name, showcase_order")
     .eq("is_active", true)
     .in("min_tier_required", accessibleTiers)
-    .order("show_in_showcase", { ascending: false })
-    .order("is_featured", { ascending: false })
+    .order("showcase_order", { ascending: true })
     .order("created_at", { ascending: false })
     .limit(limit);
 
