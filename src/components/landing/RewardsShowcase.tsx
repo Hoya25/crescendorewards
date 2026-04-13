@@ -66,7 +66,7 @@ export function RewardsShowcase() {
         });
 
         if (error) throw error;
-        setRewards(data || []);
+        setRewards(sorted);
       } catch (error) {
         console.error('Error fetching showcase rewards:', error);
       } finally {
