@@ -36,6 +36,7 @@ import { EditableCell } from './EditableCell';
 import { cn } from '@/lib/utils';
 import type { DeliveryMethod, RequiredDataField } from '@/types/delivery';
 import { RewardImageGallery, type GalleryImage, saveGalleryImages, loadGalleryImages } from '@/components/RewardImageGallery';
+import { RewardImageUpload } from '@/components/admin/RewardImageUpload';
 import { DELIVERY_METHOD_LABELS, DELIVERY_METHOD_REQUIRED_FIELDS } from '@/types/delivery';
 import { validateTierPricing, type ValidationResult } from '@/utils/tierPricingValidation';
 
