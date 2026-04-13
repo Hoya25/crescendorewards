@@ -71,8 +71,8 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   const tier = url.searchParams.get("tier")?.toLowerCase() || null;
   const showcase = url.searchParams.get("showcase") === "true";
-  const limitParam = parseInt(url.searchParams.get("limit") || "3", 10);
-  const limit = Math.max(1, Math.min(6, isNaN(limitParam) ? 3 : limitParam));
+  const limitParam = parseInt(url.searchParams.get("limit") || "50", 10);
+  const limit = Math.max(1, Math.min(50, isNaN(limitParam) ? 50 : limitParam));
 
   if (tier && !VALID_TIERS.includes(tier)) {
     return new Response(JSON.stringify({ error: "Invalid tier. Must be: " + VALID_TIERS.join(", ") }), {
@@ -95,26 +95,21 @@ Deno.serve(async (req) => {
   const headers = { ...corsHeaders(req), "Content-Type": "application/json" };
 
   if (showcase) {
-    // Showcase mode: 1 from bronze, 1 from mid-tier, 1 from top-tier
-  const pick = async (tiers: string[]) => {
-      const { data } = await supabase
-        .from("rewards")
-        .select("id, title, image_url, min_tier_required, reward_tier, cost, stock_quantity, category, sponsor_name, show_powered_by, powered_by_name, showcase_order")
-        .eq("is_active", true)
-        .in("min_tier_required", tiers)
-        .order("showcase_order", { ascending: true })
-        .order("created_at", { ascending: false })
-        .limit(1);
-      return data?.[0] ?? null;
-    };
+    // Showcase mode: return all rewards marked for showcase, ordered by showcase_order
+    const { data, error: scError } = await supabase
+      .from("rewards")
+      .select("id, title, image_url, min_tier_required, reward_tier, cost, stock_quantity, category, sponsor_name, show_powered_by, powered_by_name, showcase_order")
+      .eq("is_active", true)
+      .eq("show_in_showcase", true)
+      .order("showcase_order", { ascending: true })
+      .order("created_at", { ascending: false })
+      .limit(50);
 
-    const [bronze, mid, top] = await Promise.all([
-      pick(["bronze"]),
-      pick(["silver", "gold"]),
-      pick(["platinum", "diamond"]),
-    ]);
+    if (scError) {
+      return new Response(JSON.stringify({ error: "Database error" }), { status: 500, headers });
+    }
 
-    const rewards = [bronze, mid, top].filter(Boolean).map(mapReward);
+    const rewards = (data ?? []).map(mapReward);
 
     return new Response(JSON.stringify({
       mode: "showcase",
