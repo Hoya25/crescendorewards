@@ -26,6 +26,7 @@ Deno.serve(async (req: Request) => {
 
     // --- Helper: call BH admin-api ---
     async function callBH(bhAction: string, payload: Record<string, unknown>) {
+      console.log("[callBH] action:", bhAction, "key length:", bhServiceKey.length);
       const res = await fetch(BH_ADMIN_API, {
         method: "POST",
         headers: {
@@ -34,7 +35,12 @@ Deno.serve(async (req: Request) => {
         },
         body: JSON.stringify({ action: bhAction, ...payload }),
       });
-      if (!res.ok) return null;
+      console.log("[callBH] BH responded:", res.status);
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("[callBH] BH error body:", errText);
+        return null;
+      }
       return await res.json();
     }
 
