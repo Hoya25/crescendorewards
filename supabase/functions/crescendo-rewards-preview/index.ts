@@ -99,7 +99,7 @@ Deno.serve(async (req) => {
   const pick = async (tiers: string[]) => {
       const { data } = await supabase
         .from("rewards")
-        .select("id, title, image_url, min_tier_required, reward_tier, cost, stock_quantity, category, sponsor_name")
+        .select("id, title, image_url, min_tier_required, reward_tier, cost, stock_quantity, category, sponsor_name, show_powered_by, powered_by_name")
         .eq("is_active", true)
         .in("min_tier_required", tiers)
         .order("show_in_showcase", { ascending: false })
@@ -131,7 +131,7 @@ Deno.serve(async (req) => {
 
   const { data, error } = await supabase
     .from("rewards")
-    .select("id, title, image_url, min_tier_required, reward_tier, cost, stock_quantity, category, sponsor_name")
+    .select("id, title, image_url, min_tier_required, reward_tier, cost, stock_quantity, category, sponsor_name, show_powered_by, powered_by_name")
     .eq("is_active", true)
     .in("min_tier_required", accessibleTiers)
     .order("show_in_showcase", { ascending: false })
