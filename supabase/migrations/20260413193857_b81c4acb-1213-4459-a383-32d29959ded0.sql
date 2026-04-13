@@ -1,0 +1,1 @@
+ALTER TABLE public.rewards ADD COLUMN IF NOT EXISTS showcase_order integer DEFAULT 99;

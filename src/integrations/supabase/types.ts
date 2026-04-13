@@ -2913,6 +2913,7 @@ export type Database = {
           show_in_showcase: boolean | null
           show_powered_by: boolean | null
           showcase_mode: string | null
+          showcase_order: number | null
           sponsor_cta_text: string | null
           sponsor_cta_url: string | null
           sponsor_enabled: boolean
@@ -2976,6 +2977,7 @@ export type Database = {
           show_in_showcase?: boolean | null
           show_powered_by?: boolean | null
           showcase_mode?: string | null
+          showcase_order?: number | null
           sponsor_cta_text?: string | null
           sponsor_cta_url?: string | null
           sponsor_enabled?: boolean
@@ -3039,6 +3041,7 @@ export type Database = {
           show_in_showcase?: boolean | null
           show_powered_by?: boolean | null
           showcase_mode?: string | null
+          showcase_order?: number | null
           sponsor_cta_text?: string | null
           sponsor_cta_url?: string | null
           sponsor_enabled?: boolean
