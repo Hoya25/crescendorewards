@@ -43,6 +43,8 @@ export interface VisualRewardCardData {
   sponsor_enabled?: boolean;
   sponsor_link?: string | null;
   showcase_mode?: string | null;
+  show_powered_by?: boolean | null;
+  powered_by_name?: string | null;
 }
 
 interface UserTierInfo {
@@ -207,7 +209,7 @@ export function VisualRewardCard({
           <ImageWithFallback
             src={reward.image_url}
             alt={reward.title}
-            className="w-full h-full object-cover transition-transform duration-400 group-hover:scale-[1.03]"
+            className="w-full h-full object-cover object-top transition-transform duration-400 group-hover:scale-[1.03]"
             loading="lazy"
             decoding="async"
           />
@@ -217,10 +219,12 @@ export function VisualRewardCard({
           </div>
         )}
 
-        {/* Bottom 40% gradient overlay */}
+        {/* Bottom gradient overlay — heavy for text legibility */}
         <div
-          className="absolute inset-x-0 bottom-0 pointer-events-none"
-          style={{ height: '40%', background: 'linear-gradient(transparent, #131313)' }}
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,0.98) 100%)',
+          }}
         />
 
         {/* TOP-LEFT: Tier badge */}
@@ -277,20 +281,12 @@ export function VisualRewardCard({
           </button>
         )}
 
-        {/* BOTTOM of image: Title + Sponsor */}
+        {/* BOTTOM of image: Powered By + Title only */}
         <div className="absolute left-0 right-0 bottom-0 p-4 z-10">
-          {isSponsored && sponsorName && (
+          {reward.show_powered_by && reward.powered_by_name && (
             <div className="flex items-center gap-1.5 mb-1">
-              {sponsorLogo && (
-                <img
-                  src={sponsorLogo}
-                  alt={sponsorName}
-                  className="h-3.5 w-auto max-w-[36px] object-contain"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                />
-              )}
               <span style={{ fontFamily: dmSans, fontSize: '12px', color: '#E2FF6D' }}>
-                {sponsorName}
+                Powered by {reward.powered_by_name}
               </span>
             </div>
           )}
