@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { CommitmentArc } from '@/components/CommitmentArc';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { useTracking } from '@/contexts/ActivityTrackerContext';
 import { track } from '@/lib/track';
