@@ -1437,6 +1437,7 @@ export function AdminRewards() {
                 </TableHead>
                 <TableHead className="text-center">Featured</TableHead>
                 <TableHead className="text-center">BH Showcase</TableHead>
+                <TableHead className="text-center w-[60px]">Order</TableHead>
                 <TableHead className="text-center">Sponsor</TableHead>
                 <TableHead className="text-center">Active</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -1623,6 +1624,16 @@ export function AdminRewards() {
                         type="toggle"
                         value={reward.show_in_showcase}
                         onSave={(val) => updateRewardField(reward.id, 'show_in_showcase', val)}
+                      />
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <EditableCell
+                        type="number"
+                        value={reward.showcase_order ?? 99}
+                        onSave={(val) => updateRewardField(reward.id, 'showcase_order', val)}
+                        min={1}
+                        max={99}
+                        className="w-[40px] text-center text-xs"
                       />
                     </TableCell>
                     <TableCell className="text-center">
