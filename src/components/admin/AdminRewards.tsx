@@ -1423,6 +1423,7 @@ export function AdminRewards() {
                   Wishlist <SortIcon field="wishlist_count" />
                 </TableHead>
                 <TableHead className="text-center">Featured</TableHead>
+                <TableHead className="text-center">BH Showcase</TableHead>
                 <TableHead className="text-center">Sponsor</TableHead>
                 <TableHead className="text-center">Active</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -1605,6 +1606,13 @@ export function AdminRewards() {
                         type="toggle"
                         value={reward.is_featured}
                         onSave={(val) => updateRewardField(reward.id, 'is_featured', val)}
+                      />
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <EditableCell
+                        type="toggle"
+                        value={reward.show_in_showcase}
+                        onSave={(val) => updateRewardField(reward.id, 'show_in_showcase', val)}
                       />
                     </TableCell>
                     <TableCell className="text-center">
