@@ -638,6 +638,8 @@ export function AdminRewards() {
         min_status_tier: reward.min_status_tier || null,
         publish_at: reward.publish_at || null,
         unpublish_at: reward.unpublish_at || null,
+        show_powered_by: (reward as any).show_powered_by || false,
+        powered_by_name: (reward as any).powered_by_name || null,
       });
       // Set tier pricing state from existing reward
       const hasPricing = reward.status_tier_claims_cost && 
@@ -685,6 +687,8 @@ export function AdminRewards() {
         min_status_tier: null,
         publish_at: null,
         unpublish_at: null,
+        show_powered_by: false,
+        powered_by_name: null,
       });
       setTierPricingEnabled(false);
       setTierPricing(null);
@@ -721,8 +725,10 @@ export function AdminRewards() {
       required_user_data: reward.required_user_data || ['email'],
       delivery_instructions: reward.delivery_instructions,
       min_status_tier: reward.min_status_tier || null,
-      publish_at: null, // Don't duplicate scheduling
+      publish_at: null,
       unpublish_at: null,
+      show_powered_by: false,
+      powered_by_name: null,
     });
     loadGalleryImages(reward.id, reward.image_url).then(setGalleryImages);
     setShowModal(true);
