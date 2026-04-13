@@ -36,6 +36,7 @@ import { EditableCell } from './EditableCell';
 import { cn } from '@/lib/utils';
 import type { DeliveryMethod, RequiredDataField } from '@/types/delivery';
 import { RewardImageGallery, type GalleryImage, saveGalleryImages, loadGalleryImages } from '@/components/RewardImageGallery';
+import { RewardImageUpload } from '@/components/admin/RewardImageUpload';
 import { DELIVERY_METHOD_LABELS, DELIVERY_METHOD_REQUIRED_FIELDS } from '@/types/delivery';
 import { validateTierPricing, type ValidationResult } from '@/utils/tierPricingValidation';
 
@@ -1481,17 +1482,14 @@ export function AdminRewards() {
                       />
                     </TableCell>
                     <TableCell>
-                      {reward.image_url ? (
-                        <img 
-                          src={reward.image_url} 
-                          alt={reward.title}
-                          className="w-10 h-10 object-cover rounded-lg border"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 bg-muted rounded-lg border flex items-center justify-center">
-                          <ImageIcon className="w-4 h-4 text-muted-foreground" />
-                        </div>
-                      )}
+                      <RewardImageUpload
+                        rewardId={reward.id}
+                        currentImageUrl={reward.image_url}
+                        onUploaded={(url) => {
+                          setRewards(prev => prev.map(r => r.id === reward.id ? { ...r, image_url: url } : r));
+                        }}
+                        compact
+                      />
                     </TableCell>
                     <TableCell className="max-w-[200px]">
                       <div className="flex items-center gap-2">
