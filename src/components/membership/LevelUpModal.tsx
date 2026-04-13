@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { TrendingUp, ArrowUpRight, Lock, Copy, Check, AlertTriangle, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const NCTR_CONTRACT = '0x973104fAa7F2B11787557e85953ECA6B4e262328';
 const TREASURY_ADDRESS = '0x921D9D535DE02618BaB75B309e46207C735c17BC';
@@ -65,20 +66,15 @@ export function LevelUpModal({
     setSubmitting(true);
     setResultMsg(null);
     try {
-      const res = await fetch(
-        'https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-sync-secret': 'nctr-bh-crescendo-sync-2026' },
-          body: JSON.stringify({
-            action: 'verify_deposit',
-            email: userEmail,
-            tx_hash: txHash.trim(),
-          }),
-        }
-      );
-      if (!res.ok) throw new Error('Endpoint error');
-      const data = await res.json();
+      const res = await supabase.functions.invoke('bh-status-proxy', {
+        body: {
+          action: 'verify_deposit',
+          email: userEmail,
+          tx_hash: txHash.trim(),
+        },
+      });
+      if (res.error) throw new Error('Endpoint error');
+      const data = res.data;
       if (data?.error) throw new Error(data.error);
 
       const status = data?.status || data?.result?.status;
