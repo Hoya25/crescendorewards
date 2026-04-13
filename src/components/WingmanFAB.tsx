@@ -43,15 +43,32 @@ const wingmanCSS = `
 `;
 
 async function fetchBhWingman(userId: string, question?: string): Promise<BriefingData> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+
   try {
-    const res = await supabase.functions.invoke('bh-status-proxy', {
+    const { data, error } = await supabase.functions.invoke('bh-status-proxy', {
       body: { action: 'wingman_briefing', user_id: userId, question },
     });
-    const data = res.data;
-    if (data?.your_brief || data?.watching_your_6) return data as BriefingData;
-  } catch { /* ignore */ }
 
-  return FALLBACK;
+    clearTimeout(timeoutId);
+
+    if (error) {
+      console.warn('Wingman briefing error:', error);
+      return FALLBACK;
+    }
+
+    if (data?.your_brief || data?.watching_your_6) return data as BriefingData;
+    return FALLBACK;
+  } catch (e) {
+    clearTimeout(timeoutId);
+    if (e instanceof Error && e.name === 'AbortError') {
+      console.warn('Wingman briefing timed out after 10s');
+    } else {
+      console.warn('Wingman briefing fetch error:', e);
+    }
+    return FALLBACK;
+  }
 }
 
 export function WingmanFAB() {
