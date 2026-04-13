@@ -132,13 +132,13 @@ export function MembershipLevelPage() {
         name: tier.display_name,
         requirement: tier.min_nctr_360_locked,
         description: '',
-        multiplier: 1 + (allTiers.findIndex(t => t.id === tier.id) * 0.1),
+        multiplier: tier.earning_multiplier ?? 1.0,
         claims: tier.benefits?.[0] || 'Access to rewards',
         discount: allTiers.findIndex(t => t.id === tier.id) * 5,
         benefits: tier.benefits || [],
         nftBadges: [],
-        color: tier.badge_color || 'hsl(43 96% 56%)',
-        bgColor: tier.badge_color ? `${tier.badge_color}20` : 'hsl(43 96% 96%)'
+        color: tier.badge_color || '#CD7F32',
+        bgColor: tier.badge_color ? `${tier.badge_color}20` : '#CD7F3220'
       }
     : getMembershipTierByNCTR(currentLockedNCTR);
   
@@ -148,13 +148,13 @@ export function MembershipLevelPage() {
     name: nextTier.display_name,
     requirement: nextTier.min_nctr_360_locked,
     description: '',
-    multiplier: 1 + (allTiers.findIndex(t => t.id === nextTier.id) * 0.2),
+    multiplier: nextTier.earning_multiplier ?? 1.0,
     claims: nextTier.benefits?.[0] || 'Access to rewards',
     discount: allTiers.findIndex(t => t.id === nextTier.id) * 5,
     benefits: nextTier.benefits || [],
     nftBadges: [],
-    color: nextTier.badge_color || 'hsl(180 100% 50%)',
-    bgColor: nextTier.badge_color ? `${nextTier.badge_color}20` : 'hsl(180 100% 96%)'
+    color: nextTier.badge_color || '#C0C0C0',
+    bgColor: nextTier.badge_color ? `${nextTier.badge_color}20` : '#C0C0C020'
   } : null;
   
   // Calculate progress to next tier
@@ -196,7 +196,7 @@ export function MembershipLevelPage() {
         {(() => {
           const isDiamond = !nextTier;
           const arcProgress = isDiamond ? 100 : progressToNextTier;
-          const tierColor = tier?.badge_color || currentTier.color || '#E2FF6D';
+          const tierColor = currentTier.color || '#CD7F32';
           const tierDisplayName = tier?.display_name || currentTier.name || 'Bronze';
           const nextTierName = nextTier?.display_name || null;
           const nctrToNext = nextTier ? Math.max(0, nextTier.min_nctr_360_locked - currentLockedNCTR) : 0;
@@ -285,7 +285,16 @@ export function MembershipLevelPage() {
                   <span className="text-muted-foreground">Progress to {nextTierDisplay.name}</span>
                   <span className="font-medium">{nctrNeeded.toLocaleString()} NCTR needed</span>
                 </div>
-                <Progress value={progress} className="h-3" />
+                <div className="h-3 w-full rounded-none overflow-hidden" style={{ background: '#323232' }}>
+                  <div
+                    className="h-full transition-all"
+                    style={{
+                      width: `${Math.min(progress, 100)}%`,
+                      background: nextTierDisplay.color,
+                      borderRadius: 0,
+                    }}
+                  />
+                </div>
               </div>
             )}
             
@@ -362,7 +371,7 @@ export function MembershipLevelPage() {
         {/* STATUS LEVELS — compact tier table */}
         {(() => {
           const tierData = [
-            { name: 'Diamond', nctr: 100000, multiplier: '2.5x', color: '#E2FF6D' },
+            { name: 'Diamond', nctr: 100000, multiplier: '2.5x', color: '#B9F2FF' },
             { name: 'Platinum', nctr: 40000, multiplier: '1.8x', color: '#E5E4E2' },
             { name: 'Gold', nctr: 15000, multiplier: '1.5x', color: '#FFD700' },
             { name: 'Silver', nctr: 5000, multiplier: '1.25x', color: '#C0C0C0' },
