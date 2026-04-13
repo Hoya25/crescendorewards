@@ -112,20 +112,15 @@ export function LevelUpModal({
     setLocking(true);
     setLockResult(null);
     try {
-      const res = await fetch(
-        'https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-sync-secret': 'nctr-bh-crescendo-sync-2026' },
-          body: JSON.stringify({
-            action: 'upgrade_to_360lock',
-            email: userEmail,
-            amount: availableNCTR,
-          }),
-        }
-      );
-      if (!res.ok) throw new Error('Lock failed');
-      const data = await res.json();
+      const res = await supabase.functions.invoke('bh-status-proxy', {
+        body: {
+          action: 'upgrade_to_360lock',
+          email: userEmail,
+          amount: availableNCTR,
+        },
+      });
+      if (res.error) throw new Error('Lock failed');
+      const data = res.data;
       if (data?.error) throw new Error(data.error);
       setLockResult({ text: `Locked! +${availableNCTR.toLocaleString()} NCTR committed to 360LOCK`, color: '#E2FF6D' });
       if (onBalanceRefresh) await onBalanceRefresh();
