@@ -1,0 +1,1 @@
+ALTER TABLE public.rewards ADD COLUMN IF NOT EXISTS show_in_showcase boolean DEFAULT false;
