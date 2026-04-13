@@ -177,10 +177,7 @@ export function VisualRewardCard({
 
   return (
     <div
-      className={cn(
-        "group cursor-pointer overflow-hidden transition-all duration-200",
-        isTierLocked && "opacity-50",
-      )}
+      className="group cursor-pointer overflow-hidden transition-all duration-200"
       style={{
         backgroundColor: '#FFFFFF',
         border: '1px solid #E0DFDB',
