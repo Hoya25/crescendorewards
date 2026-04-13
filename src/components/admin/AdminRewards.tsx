@@ -69,6 +69,7 @@ interface Reward {
   sponsor_end_date: string | null;
   // Showcase
   show_in_showcase: boolean;
+  showcase_order: number;
   // Delivery fields
   delivery_method: DeliveryMethod | null;
   required_user_data: RequiredDataField[] | null;
