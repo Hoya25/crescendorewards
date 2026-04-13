@@ -60,50 +60,46 @@ export function AuthModal({ mode: _mode, onClose, onSuccess, onToggleMode: _onTo
         return;
       }
 
-      // Step 2: Sign-in failed — check if they have a BH profile via verify-universal-auth
+      // Step 2: Sign-in failed — check BH via verify-universal-auth (server-side)
       if (signInError) {
         setStatusMessage('Checking your NCTR account...');
 
         try {
-          const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-          const response = await fetch(
-            `https://${projectId}.supabase.co/functions/v1/verify-universal-auth`,
+          const { data: verifyData, error: verifyError } = await supabase.functions.invoke(
+            'verify-universal-auth',
             {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'x-sync-secret': 'pending-client-check',
-              },
-              body: JSON.stringify({
+              body: {
                 email: email.trim(),
-                bh_user_id: 'pending',
-                display_name: 'pending',
-              }),
+                action: 'check_bh_account',
+              },
             }
           );
 
-          // If the edge function rejects (401 for wrong secret), fall back to 
-          // checking unified_profiles directly via the anon client
-          let profileExists = false;
-
-          if (response.ok) {
-            const result = await response.json();
-            profileExists = result.exists === true;
-          } else {
-            // Fallback: check unified_profiles directly (anon read)
-            const { data: directCheck } = await supabase
-              .from('unified_profiles')
-              .select('id, display_name')
-              .eq('email', email.trim().toLowerCase())
-              .maybeSingle();
-            profileExists = !!directCheck;
+          if (verifyError) {
+            console.error('verify-universal-auth error:', verifyError.message);
           }
 
-          if (profileExists) {
-            // BH account found — create Crescendo auth account with their password
-            setBhFound(true);
-            setStatusMessage('Your NCTR account was found! Creating your Crescendo access...');
+          const profileExists = verifyData?.success === true;
 
+          if (profileExists) {
+            // BH account found — edge function provisioned the auth account
+            setBhFound(true);
+            setStatusMessage('Your NCTR account was found! Signing you in...');
+
+            // Try signing in with the standard password (set by edge function)
+            const { error: autoSignInError } = await supabase.auth.signInWithPassword({
+              email: email.trim(),
+              password: 'nctr-beta-2026',
+            });
+
+            if (!autoSignInError) {
+              track('universal_auth_login');
+              toast.success('Welcome to Crescendo! Your NCTR account is linked. 🎉');
+              onSuccess();
+              return;
+            }
+
+            // If that fails, try with user-provided password (they may have set a custom one)
             const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
               email: email.trim(),
               password,
@@ -114,7 +110,7 @@ export function AuthModal({ mode: _mode, onClose, onSuccess, onToggleMode: _onTo
 
             if (signUpError) {
               if (signUpError.message.includes('already registered')) {
-                setError('This email is already registered on Crescendo. Try a different password, or use password reset.');
+                setError('This email is already registered on Crescendo. Try the password: nctr-beta-2026');
               } else {
                 setError(signUpError.message);
               }
@@ -128,15 +124,14 @@ export function AuthModal({ mode: _mode, onClose, onSuccess, onToggleMode: _onTo
               onSuccess();
             }
           } else {
-            // No account found anywhere
+            // No account found on BH
             setError('');
             setStatusMessage('');
             setBhFound(false);
-            setError('No NCTR account found with this email. Join the Alliance on Bounty Hunter first!');
+            setError(verifyData?.error || 'No NCTR account found with this email. Join the Alliance on Bounty Hunter first!');
           }
         } catch (fetchErr) {
           console.error('Universal auth check failed:', fetchErr);
-          // If fetch fails entirely, show the original sign-in error
           if (signInError.message.includes('Invalid login credentials')) {
             setError('Incorrect email or password. If you signed up on Bounty Hunter, make sure you\'re using the same email.');
           } else if (signInError.message.includes('Email not confirmed')) {
