@@ -66,6 +66,8 @@ interface Reward {
   sponsor_link: string | null;
   sponsor_start_date: string | null;
   sponsor_end_date: string | null;
+  // Showcase
+  show_in_showcase: boolean;
   // Delivery fields
   delivery_method: DeliveryMethod | null;
   required_user_data: RequiredDataField[] | null;
@@ -110,6 +112,7 @@ const QUICK_FILTER_TABS = [
   { value: 'active', label: 'Active', icon: null },
   { value: 'sponsored', label: 'Sponsored', icon: Sparkles },
   { value: 'featured', label: 'Featured', icon: Star },
+  { value: 'showcase', label: 'BH Showcase', icon: Eye },
   { value: 'inactive', label: 'Inactive', icon: null },
 ];
 
@@ -224,6 +227,7 @@ export function AdminRewards() {
     is_active: true,
     image_url: null as string | null,
     is_featured: false,
+    show_in_showcase: false,
     token_gated: false,
     token_contract_address: null as string | null,
     minimum_token_balance: 1,
@@ -272,6 +276,7 @@ export function AdminRewards() {
           is_active: rewardToEdit.is_active,
           image_url: rewardToEdit.image_url,
           is_featured: rewardToEdit.is_featured,
+          show_in_showcase: rewardToEdit.show_in_showcase || false,
           token_gated: rewardToEdit.token_gated || false,
           token_contract_address: rewardToEdit.token_contract_address,
           minimum_token_balance: rewardToEdit.minimum_token_balance || 1,
@@ -523,6 +528,9 @@ export function AdminRewards() {
         case 'featured':
           if (!reward.is_featured) return false;
           break;
+        case 'showcase':
+          if (!reward.show_in_showcase) return false;
+          break;
       }
       
       // Status access filter
@@ -605,6 +613,7 @@ export function AdminRewards() {
         is_active: reward.is_active,
         image_url: reward.image_url,
         is_featured: reward.is_featured,
+        show_in_showcase: reward.show_in_showcase || false,
         token_gated: reward.token_gated || false,
         token_contract_address: reward.token_contract_address,
         minimum_token_balance: reward.minimum_token_balance || 1,
@@ -651,6 +660,7 @@ export function AdminRewards() {
         is_active: true,
         image_url: null,
         is_featured: false,
+        show_in_showcase: false,
         token_gated: false,
         token_contract_address: null,
         minimum_token_balance: 1,
@@ -688,6 +698,7 @@ export function AdminRewards() {
       is_active: false, // Start as inactive
       image_url: reward.image_url,
       is_featured: false,
+      show_in_showcase: false,
       token_gated: reward.token_gated || false,
       token_contract_address: reward.token_contract_address,
       minimum_token_balance: reward.minimum_token_balance || 1,
@@ -1247,6 +1258,11 @@ export function AdminRewards() {
               {tab.value === 'featured' && (
                 <Badge variant="secondary" className="ml-1 text-xs">
                   {rewards.filter(r => r.is_featured).length}
+                </Badge>
+              )}
+              {tab.value === 'showcase' && (
+                <Badge variant="secondary" className="ml-1 text-xs">
+                  {rewards.filter(r => r.show_in_showcase).length}
                 </Badge>
               )}
             </TabsTrigger>
@@ -1948,6 +1964,19 @@ export function AdminRewards() {
                   <Star className="w-4 h-4" /> Featured
                 </Label>
               </div>
+            </div>
+
+            {/* BH Showcase Toggle */}
+            <div className="space-y-1 pt-2">
+              <div className="flex items-center space-x-2">
+                <Switch id="showcase" checked={formData.show_in_showcase} onCheckedChange={(checked) => setFormData({ ...formData, show_in_showcase: checked })} />
+                <Label htmlFor="showcase" className="flex items-center gap-1">
+                  <Eye className="w-4 h-4" /> Feature in BH Showcase
+                </Label>
+              </div>
+              <p className="text-xs text-muted-foreground pl-8">
+                This reward will appear on the Bounty Hunter dashboard to show members what they're building toward. Choose rewards that tell a compelling story — subscriptions, experiences, premium products.
+              </p>
             </div>
 
             {/* Token Gating */}
