@@ -251,6 +251,9 @@ export function AdminRewards() {
     // Monthly Drop scheduling
     publish_at: null as string | null,
     unpublish_at: null as string | null,
+    // Powered By
+    show_powered_by: false,
+    powered_by_name: null as string | null,
   });
 
   const [brands, setBrands] = useState<Brand[]>([]);
