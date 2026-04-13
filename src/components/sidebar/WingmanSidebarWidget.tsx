@@ -38,13 +38,20 @@ export function WingmanSidebarExpanded() {
     try {
       let result: BriefingData | null = null;
 
+      const timeout = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('TIMEOUT')), 10000)
+      );
+
       try {
-        const res = await supabase.functions.invoke('bh-status-proxy', {
-          body: { action: 'wingman_briefing', user_id: user?.id },
-        });
+        const res = await Promise.race([
+          supabase.functions.invoke('bh-status-proxy', {
+            body: { action: 'wingman_briefing', user_id: user?.id },
+          }),
+          timeout,
+        ]) as { data: any; error: any };
         const d = res.data;
         if (d?.your_brief || d?.watching_your_6) result = d;
-      } catch { /* ignore */ }
+      } catch { /* timeout or network error — use fallback */ }
 
       if (result) {
         setBriefing(result);
