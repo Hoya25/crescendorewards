@@ -36,6 +36,7 @@ import { useDeliveryProfile } from '@/hooks/useDeliveryProfile';
 import { PortfolioSummaryCard } from '@/components/PortfolioSummaryCard';
 import { ProfileActivityStats } from '@/components/profile/ProfileActivityStats';
 import { GroundballStatusBadge } from '@/components/groundball/GroundballStatusBadge';
+import { Auto360LockToggle } from '@/components/profile/Auto360LockToggle';
 import { ClaimHandleCard } from '@/components/profile/ClaimHandleCard';
 const getCrescendoData = (profile: any) => {
   const crescendoData = profile?.crescendo_data || {};
@@ -878,6 +879,9 @@ export function ProfilePage() {
                 </Button>
               </CardContent>
             </Card>
+
+            {/* Auto 360LOCK Preference */}
+            <Auto360LockToggle />
 
             {/* Notification Preferences */}
             <NotificationPreferences />
