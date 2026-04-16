@@ -35,7 +35,6 @@ import type { Profile } from '@/types';
 import { useDeliveryProfile } from '@/hooks/useDeliveryProfile';
 import { PortfolioSummaryCard } from '@/components/PortfolioSummaryCard';
 import { ProfileActivityStats } from '@/components/profile/ProfileActivityStats';
-import { GroundballStatusBadge } from '@/components/groundball/GroundballStatusBadge';
 import { Auto360LockToggle } from '@/components/profile/Auto360LockToggle';
 import { ClaimHandleCard } from '@/components/profile/ClaimHandleCard';
 const getCrescendoData = (profile: any) => {
@@ -428,9 +427,6 @@ export function ProfilePage() {
                 </p>
               </CardContent>
             </Card>
-
-            {/* GROUNDBALL Status Badge */}
-            <GroundballStatusBadge size="lg" showProgress showSelections />
 
             {/* Your Status Benefits Card */}
             <Card 
@@ -854,6 +850,10 @@ export function ProfilePage() {
 
             {/* NCTR Overview */}
             <PortfolioSummaryCard showLink={true} />
+
+            {/* Auto 360LOCK Preference - placed directly under Your NCTR */}
+            <Auto360LockToggle />
+
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -879,9 +879,6 @@ export function ProfilePage() {
                 </Button>
               </CardContent>
             </Card>
-
-            {/* Auto 360LOCK Preference */}
-            <Auto360LockToggle />
 
             {/* Notification Preferences */}
             <NotificationPreferences />
