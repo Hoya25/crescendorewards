@@ -2,6 +2,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
 
+const BH_ADMIN_API = "https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api";
+
 serve(async (req) => {
   const corsResponse = handleCorsPreflightRequest(req);
   if (corsResponse) return corsResponse;
@@ -48,42 +50,47 @@ serve(async (req) => {
       return json({ success: false, error: "unauthorized" }, 401);
     }
 
-    // --- Build BH PATCH payload ---
-    const patchBody: Record<string, unknown> = enabled
+    // --- Build updates payload ---
+    const updates: Record<string, unknown> = enabled
       ? { auto_360lock: true, auto_360lock_enabled_at: new Date().toISOString() }
       : { auto_360lock: false, auto_360lock_enabled_at: null };
 
-    // --- Send PATCH to Bounty Hunter ---
-    const bhServiceKey = Deno.env.get("BOUNTY_HUNTER_SERVICE_KEY");
-    if (!bhServiceKey) {
-      console.error("BOUNTY_HUNTER_SERVICE_KEY not configured");
+    // --- Call BH admin-api (same pattern as bh-status-proxy) ---
+    const syncSecret = Deno.env.get("SYNC_SECRET");
+    if (!syncSecret) {
+      console.error("SYNC_SECRET not configured");
       return json({ success: false, error: "Server configuration error" }, 500);
     }
 
-    const bhUrl = `https://auibudfactqhisvmiotw.supabase.co/rest/v1/user_profiles?id=eq.${encodeURIComponent(user_id)}`;
+    console.log(`[Auto360Lock] Setting auto_360lock=${enabled} for user ${user_id} via admin-api`);
 
-    console.log(`[Auto360Lock] Setting auto_360lock=${enabled} for user ${user_id}`);
-
-    const patchRes = await fetch(bhUrl, {
-      method: "PATCH",
+    const bhRes = await fetch(BH_ADMIN_API, {
+      method: "POST",
       headers: {
-        apikey: bhServiceKey,
-        Authorization: `Bearer ${bhServiceKey}`,
         "Content-Type": "application/json",
-        Prefer: "return=representation",
+        "x-sync-secret": syncSecret,
       },
-      body: JSON.stringify(patchBody),
+      body: JSON.stringify({
+        action: "update_user_profile",
+        user_id,
+        updates,
+      }),
     });
 
-    if (!patchRes.ok) {
-      const errText = await patchRes.text();
-      console.error(`[Auto360Lock] BH PATCH failed: ${patchRes.status} ${errText}`);
-      return json({ success: false, error: `BH PATCH ${patchRes.status}: ${errText}` }, 500);
+    const bhText = await bhRes.text();
+    if (!bhRes.ok) {
+      console.error(`[Auto360Lock] BH admin-api failed: ${bhRes.status} ${bhText}`);
+      return json({ success: false, error: `BH admin-api ${bhRes.status}: ${bhText}` }, 500);
     }
 
-    const bhData = await patchRes.json();
-    console.log(`[Auto360Lock] Success: auto_360lock=${enabled} for user ${user_id}`);
+    let bhData: unknown = null;
+    try {
+      bhData = JSON.parse(bhText);
+    } catch {
+      bhData = bhText;
+    }
 
+    console.log(`[Auto360Lock] Success: auto_360lock=${enabled} for user ${user_id}`);
     return json({ success: true, data: bhData });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
