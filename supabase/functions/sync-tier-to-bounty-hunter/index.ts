@@ -1,7 +1,9 @@
-// Redeployed 2026-04-06 — force CORS refresh
+// Refactored — routes through BH admin-api (no direct REST PATCH)
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
+
+const BH_ADMIN_API = "https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api";
 
 serve(async (req) => {
   const corsResponse = handleCorsPreflightRequest(req);
@@ -40,11 +42,9 @@ serve(async (req) => {
         .single();
 
       if (profile) {
-        // Read point balances
         nctrLockedPoints = profile.nctr_locked_points ?? null;
         nctrBalancePoints = profile.nctr_balance_points ?? null;
 
-        // Read referral code from crescendo_data
         if (profile.crescendo_data) {
           const cd = typeof profile.crescendo_data === "string"
             ? JSON.parse(profile.crescendo_data)
@@ -56,7 +56,6 @@ serve(async (req) => {
       console.warn("Could not read from unified_profiles:", e);
     }
 
-    // Also check legacy profiles table for referral_code
     if (!referralCode) {
       try {
         const { data: legacyProfile } = await supabaseAdmin
@@ -70,46 +69,38 @@ serve(async (req) => {
       }
     }
 
-    // --- PATCH Bounty Hunter's user_profiles table ---
-    const bhServiceKey = Deno.env.get("BOUNTY_HUNTER_SERVICE_KEY");
-    if (!bhServiceKey) {
-      return json({ synced: false, error: "BOUNTY_HUNTER_SERVICE_KEY not configured" }, 500);
-    }
-
-    const patchBody: Record<string, unknown> = {
+    // --- Build updates payload ---
+    const updates: Record<string, unknown> = {
       crescendo_tier: new_tier ?? null,
     };
-    if (referralCode) {
-      patchBody.referral_code = referralCode;
-    }
-    if (nctrLockedPoints !== null) {
-      patchBody.nctr_locked_points = nctrLockedPoints;
-    }
-    if (nctrBalancePoints !== null) {
-      patchBody.nctr_balance_points = nctrBalancePoints;
+    if (referralCode) updates.referral_code = referralCode;
+    if (nctrLockedPoints !== null) updates.nctr_locked_points = nctrLockedPoints;
+    if (nctrBalancePoints !== null) updates.nctr_balance_points = nctrBalancePoints;
+
+    // --- Route through BH admin-api ---
+    const syncSecret = Deno.env.get("SYNC_SECRET");
+    if (!syncSecret) {
+      return json({ synced: false, error: "SYNC_SECRET not configured" }, 500);
     }
 
-    const bhUrl = `https://auibudfactqhisvmiotw.supabase.co/rest/v1/user_profiles?email=eq.${encodeURIComponent(email)}`;
-
-    const patchRes = await fetch(bhUrl, {
-      method: "PATCH",
+    const bhRes = await fetch(BH_ADMIN_API, {
+      method: "POST",
       headers: {
-        apikey: bhServiceKey,
-        Authorization: `Bearer ${bhServiceKey}`,
         "Content-Type": "application/json",
-        Prefer: "return=minimal",
+        "x-sync-secret": syncSecret,
       },
-      body: JSON.stringify(patchBody),
+      body: JSON.stringify({
+        action: "update_user_profile",
+        email,
+        updates,
+      }),
     });
 
-    if (!patchRes.ok) {
-      const errText = await patchRes.text();
-      console.error("Bounty Hunter PATCH failed:", patchRes.status, errText);
-      return json({ synced: false, error: `BH PATCH ${patchRes.status}: ${errText}` });
+    const bhText = await bhRes.text();
+    if (!bhRes.ok) {
+      console.error("BH admin-api failed:", bhRes.status, bhText);
+      return json({ synced: false, error: `BH admin-api ${bhRes.status}: ${bhText}` });
     }
-
-    // Consume body
-    await patchRes.text();
 
     console.log(`Synced tier=${new_tier} referral=${referralCode ?? "none"} locked_pts=${nctrLockedPoints ?? 0} balance_pts=${nctrBalancePoints ?? 0} for ${email}`);
     return json({ synced: true });
