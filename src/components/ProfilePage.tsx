@@ -111,6 +111,29 @@ export function ProfilePage() {
     }
   }, [unifiedProfile?.id]);
 
+  // Trigger fresh sync from BH on profile page load so balances/timestamps are current
+  useEffect(() => {
+    const email = unifiedProfile?.email;
+    if (!email) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        await supabase.functions.invoke('bh-status-proxy', {
+          body: { action: 'get_user_status', email },
+        });
+        if (!cancelled) {
+          await refreshUnifiedProfile();
+        }
+      } catch (err) {
+        console.warn('[ProfilePage] BH sync on mount failed:', err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unifiedProfile?.email]);
+
   const loadWishlist = async () => {
     if (!unifiedProfile?.id) return;
     try {
