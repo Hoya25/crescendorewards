@@ -35,7 +35,6 @@ import type { Profile } from '@/types';
 import { useDeliveryProfile } from '@/hooks/useDeliveryProfile';
 import { PortfolioSummaryCard } from '@/components/PortfolioSummaryCard';
 import { ProfileActivityStats } from '@/components/profile/ProfileActivityStats';
-import { GroundballStatusBadge } from '@/components/groundball/GroundballStatusBadge';
 import { Auto360LockToggle } from '@/components/profile/Auto360LockToggle';
 import { ClaimHandleCard } from '@/components/profile/ClaimHandleCard';
 const getCrescendoData = (profile: any) => {
@@ -111,6 +110,29 @@ export function ProfilePage() {
       loadWishlist();
     }
   }, [unifiedProfile?.id]);
+
+  // Trigger fresh sync from BH on profile page load so balances/timestamps are current
+  useEffect(() => {
+    const email = unifiedProfile?.email;
+    if (!email) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        await supabase.functions.invoke('bh-status-proxy', {
+          body: { action: 'get_user_status', email },
+        });
+        if (!cancelled) {
+          await refreshUnifiedProfile();
+        }
+      } catch (err) {
+        console.warn('[ProfilePage] BH sync on mount failed:', err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unifiedProfile?.email]);
 
   const loadWishlist = async () => {
     if (!unifiedProfile?.id) return;
@@ -428,9 +450,6 @@ export function ProfilePage() {
                 </p>
               </CardContent>
             </Card>
-
-            {/* GROUNDBALL Status Badge */}
-            <GroundballStatusBadge size="lg" showProgress showSelections />
 
             {/* Your Status Benefits Card */}
             <Card 
@@ -854,6 +873,10 @@ export function ProfilePage() {
 
             {/* NCTR Overview */}
             <PortfolioSummaryCard showLink={true} />
+
+            {/* Auto 360LOCK Preference - placed directly under Your NCTR */}
+            <Auto360LockToggle />
+
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -879,9 +902,6 @@ export function ProfilePage() {
                 </Button>
               </CardContent>
             </Card>
-
-            {/* Auto 360LOCK Preference */}
-            <Auto360LockToggle />
 
             {/* Notification Preferences */}
             <NotificationPreferences />

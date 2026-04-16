@@ -284,17 +284,6 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
           </>
         )}
 
-        {/* Link to The Garden */}
-        {showLink && hasPortfolioData && (
-          <Button 
-            variant="outline" 
-            className="w-full gap-2"
-            onClick={() => window.open('https://thegarden.nctr.live', '_blank')}
-          >
-            Manage in The Garden
-            <ExternalLink className="w-4 h-4" />
-          </Button>
-        )}
       </CardContent>
     </Card>
   );

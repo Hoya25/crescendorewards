@@ -1165,18 +1165,18 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
           )}
         </div>
 
-        {/* Garden CTA for wellness/Kroma rewards */}
+        {/* Bounty Hunter CTA for wellness/Kroma rewards */}
         {(reward.category === 'wellness' || reward.sponsor_name === 'Kroma Wellness') && (
           <a
-            href="https://thegarden.nctr.live"
+            href="https://bountyhunter.nctr.live"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 p-4 bg-card hover:bg-accent transition-colors"
           >
             <span className="text-2xl">🛒</span>
             <div>
-              <p className="text-sm font-semibold text-foreground">Shop Kroma products on The Garden</p>
-              <p className="text-xs text-muted-foreground">Earn NCTR with every purchase → thegarden.nctr.live</p>
+              <p className="text-sm font-semibold text-foreground">Shop Kroma Wellness on Bounty Hunter</p>
+              <p className="text-xs text-muted-foreground">Earn NCTR with every purchase → bountyhunter.nctr.live</p>
             </div>
           </a>
         )}
