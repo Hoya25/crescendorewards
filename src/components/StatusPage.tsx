@@ -473,11 +473,12 @@ export function StatusPage({ onBack }: StatusPageProps) {
                   </Card>
                 </div>
 
-                {/* INSPIRATION Wellness Unlocks */}
+                {/* Wellness Unlocks (Impact Engine: INSPIRATION) — gated */}
+                {FEATURE_FLAGS.ENGINE_INSPIRATION && (
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
                     <Leaf className="w-4 h-4 text-emerald-600" />
-                    INSPIRATION Wellness Rewards
+                    {ENGINE_PUBLIC_LABELS.INSPIRATION}
                   </h4>
                   <Card className="border-emerald-200/60 dark:border-emerald-900/40" style={{ backgroundColor: '#FDFAF6' }}>
                     <CardContent className="p-4 space-y-2">
@@ -508,19 +509,20 @@ export function StatusPage({ onBack }: StatusPageProps) {
                       )}
                       {tier.level === 5 && (
                         <>
-                          <WellnessItem text="Everything + priority access to new INSPIRATION partner rewards" />
-                          <p className="text-xs text-muted-foreground pl-6">+ recognition in the INSPIRATION ecosystem</p>
+                          <WellnessItem text={`Everything + priority access to new ${ENGINE_PUBLIC_LABELS.INSPIRATION} partner rewards`} />
+                          <p className="text-xs text-muted-foreground pl-6">+ recognition in the {ENGINE_PUBLIC_LABELS.INSPIRATION} ecosystem</p>
                         </>
                       )}
                       <div
                         className="mt-3 rounded-lg px-3 py-2 text-xs"
                         style={{ backgroundColor: '#E2FF6D', color: '#323232' }}
                       >
-                        <span className="font-semibold">INSPIRATION</span> — Earned through shopping, unlocked through commitment.
+                        <span className="font-semibold">{ENGINE_PUBLIC_LABELS.INSPIRATION}</span> — Earned through shopping, unlocked through commitment.
                       </div>
                     </CardContent>
                   </Card>
                 </div>
+                )}
 
                 {/* Status NFT */}
                 <div 
