@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Calendar, Check, Gift, Loader2, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
+import { FEATURE_FLAGS } from '@/lib/featureFlags';
 import type { RewardSelection, GroundballReward } from '@/hooks/useGroundballStatus';
 
 interface RedemptionModalProps {
@@ -41,7 +42,12 @@ const CADENCE_DESCRIPTIONS: Record<string, string> = {
 export function RedemptionModal({ selection, onClose }: RedemptionModalProps) {
   const queryClient = useQueryClient();
   const [notes, setNotes] = useState('');
-  
+
+  // Compliance gate — Impact Engine redemption surfaces hidden from members.
+  if (!FEATURE_FLAGS.ENGINE_GROUNDBALL) {
+    return null;
+  }
+
   const reward = selection.reward;
   if (!reward) return null;
 
