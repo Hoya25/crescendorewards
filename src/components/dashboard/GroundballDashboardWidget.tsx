@@ -32,6 +32,11 @@ export function GroundballDashboardWidget() {
     usedSlots 
   } = useGroundballStatus();
 
+  // Compliance gate — Impact Engine widget hidden from members.
+  if (!FEATURE_FLAGS.ENGINE_GROUNDBALL) {
+    return null;
+  }
+
   const statusTier = status?.status_tier || 'none';
   const statusConfig = STATUS_CONFIG[statusTier as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.none;
 
