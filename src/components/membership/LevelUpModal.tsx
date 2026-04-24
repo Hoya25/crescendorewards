@@ -8,7 +8,7 @@ const NCTR_CONTRACT = '0x973104fAa7F2B11787557e85953ECA6B4e262328';
 const TREASURY_ADDRESS = '0x921D9D535DE02618BaB75B309e46207C735c17BC';
 
 const TIER_COLORS: Record<string, string> = {
-  Diamond: '#E2FF6D',
+  Diamond: '#B9F2FF',
   Platinum: '#E5E4E2',
   Gold: '#FFD700',
   Silver: '#C0C0C0',
