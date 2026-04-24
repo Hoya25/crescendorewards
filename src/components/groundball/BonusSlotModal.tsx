@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Coins, Loader2, AlertCircle } from 'lucide-react';
 import { BONUS_SLOT_COST } from '@/hooks/useGroundballStatus';
+import { FEATURE_FLAGS } from '@/lib/featureFlags';
 
 interface BonusSlotModalProps {
   open: boolean;
@@ -30,6 +31,11 @@ export function BonusSlotModal({
   onConfirm,
   isLoading,
 }: BonusSlotModalProps) {
+  // Compliance gate — Impact Engine modal hidden from members.
+  if (!FEATURE_FLAGS.ENGINE_GROUNDBALL) {
+    return null;
+  }
+
   const canAfford = claimsBalance >= BONUS_SLOT_COST;
   const newTotalSlots = currentSlots + 1;
 

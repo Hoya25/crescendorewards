@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { GroundballSecondaryNav } from './GroundballSecondaryNav';
 import { GroundballStatusBadge } from './GroundballStatusBadge';
 import { useGroundballStatus } from '@/hooks/useGroundballStatus';
+import { FEATURE_FLAGS, ENGINE_PUBLIC_LABELS } from '@/lib/featureFlags';
 
 interface GroundballPageLayoutProps {
   children: ReactNode;
@@ -20,7 +21,7 @@ interface GroundballPageLayoutProps {
 
 export function GroundballPageLayout({
   children,
-  title = 'GROUNDBALL',
+  title = ENGINE_PUBLIC_LABELS.GROUNDBALL,
   subtitle,
   showBackButton = false,
   showStatusBadge = false,
@@ -31,6 +32,11 @@ export function GroundballPageLayout({
   const navigate = useNavigate();
   const location = useLocation();
   const { claimsBalance } = useGroundballStatus();
+
+  // Compliance gate — Impact Engine page chrome hidden from members.
+  if (!FEATURE_FLAGS.ENGINE_GROUNDBALL) {
+    return null;
+  }
 
   // Determine parent route for back navigation
   const getBackRoute = () => {
@@ -44,7 +50,7 @@ export function GroundballPageLayout({
   const getBreadcrumbs = () => {
     const crumbs = [
       { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-      { label: 'GROUNDBALL', path: '/groundball', icon: null },
+      { label: ENGINE_PUBLIC_LABELS.GROUNDBALL, path: '/groundball', icon: null },
     ];
     
     const path = location.pathname;

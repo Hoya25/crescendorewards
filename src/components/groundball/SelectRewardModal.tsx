@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Heart, Check } from 'lucide-react';
 import type { GroundballReward } from '@/hooks/useGroundballStatus';
+import { FEATURE_FLAGS } from '@/lib/featureFlags';
 
 interface SelectRewardModalProps {
   open: boolean;
@@ -38,6 +39,11 @@ export function SelectRewardModal({
   onConfirm,
   isLoading,
 }: SelectRewardModalProps) {
+  // Compliance gate — Impact Engine modal hidden from members.
+  if (!FEATURE_FLAGS.ENGINE_GROUNDBALL) {
+    return null;
+  }
+
   if (!reward) return null;
 
   const isGiveback = reward.is_giveback;

@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Check, Lock, Plus, RefreshCw, Heart, Star, Wrench, Calendar, Gift, Coins, AlertCircle, Infinity } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { FEATURE_FLAGS } from '@/lib/featureFlags';
 import type { GroundballReward } from '@/hooks/useGroundballStatus';
 
 type SelectionState = 'available' | 'selected' | 'locked' | 'no-slots' | 'giveback' | 'redeemed';
@@ -118,6 +119,11 @@ export function GroundballRewardCard({
   onGetBonusSlot,
   redeemedDate,
 }: GroundballRewardCardProps) {
+  // Compliance gate — Impact Engine reward cards hidden from members.
+  if (!FEATURE_FLAGS.ENGINE_GROUNDBALL) {
+    return null;
+  }
+
   const requiredStatus = reward.required_status || 'any';
   const tierConfig = TIER_CONFIG[requiredStatus as keyof typeof TIER_CONFIG] || TIER_CONFIG.any;
   const category = reward.is_giveback ? 'give-back' : (reward.category?.toLowerCase() || 'gear');

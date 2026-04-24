@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { FEATURE_FLAGS, ENGINE_PUBLIC_LABELS } from '@/lib/featureFlags';
 import { 
   Popover, 
   PopoverContent, 
@@ -43,6 +44,11 @@ const TIER_OPTIONS: { tier: DemoTier; label: string; emoji: string; color: strin
 export function DemoModeToggle() {
   const { demoMode, isDemoMode, toggleDemoMode, setDemoTier, enableDemoMode } = useDemoMode();
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Compliance gate — Impact Engine codename must not surface to members.
+  if (!FEATURE_FLAGS.ENGINE_GROUNDBALL) {
+    return null;
+  }
 
   // Only show in development/preview
   if (import.meta.env.PROD) {
@@ -119,7 +125,7 @@ export function DemoModeToggle() {
             </div>
 
             <p className="text-xs text-slate-400">
-              Quickly switch between user states to showcase the full GROUNDBALL experience.
+              Quickly switch between user states to showcase the full {ENGINE_PUBLIC_LABELS.GROUNDBALL} experience.
             </p>
 
             {/* Tier Selection - Vertical Layout */}

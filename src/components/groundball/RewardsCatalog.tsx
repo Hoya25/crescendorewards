@@ -21,6 +21,7 @@ import {
   type RewardCadenceFilter,
   type RewardStatusFilter,
 } from '@/constants/impactEngines';
+import { FEATURE_FLAGS } from '@/lib/featureFlags';
 import type { GroundballReward } from '@/hooks/useGroundballStatus';
 
 export interface RewardFilters {
@@ -258,7 +259,12 @@ export function RewardsCatalog({
   emptyState,
 }: RewardsCatalogProps) {
   const { filters, setFilters, activeFilterCount, clearFilters } = useRewardFilters();
-  
+
+  // Compliance gate — Impact Engine catalogs hidden from members.
+  if (!FEATURE_FLAGS.ENGINE_GROUNDBALL) {
+    return null;
+  }
+
   const filteredRewards = useMemo(
     () => filterRewards(rewards, filters),
     [rewards, filters]

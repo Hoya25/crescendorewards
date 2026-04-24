@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronDown, ChevronRight, Hexagon, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { IMPACT_ENGINES, type ImpactEngine } from '@/constants/impactEngines';
+import { FEATURE_FLAGS } from '@/lib/featureFlags';
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -26,11 +27,25 @@ export function ImpactEnginesNav({ onNavigate }: ImpactEnginesNavProps) {
   const location = useLocation();
   const [isExpanded, setIsExpanded] = useState(true);
 
+  // Compliance gate — only render engines whose codename has been
+  // approved for public surfacing via env-driven feature flag.
+  const ENGINE_FLAG_MAP: Record<string, boolean> = {
+    groundball: FEATURE_FLAGS.ENGINE_GROUNDBALL,
+    stardust: FEATURE_FLAGS.ENGINE_STARDUST,
+    throttle: FEATURE_FLAGS.ENGINE_THROTTLE,
+    sweat: FEATURE_FLAGS.ENGINE_SWEAT,
+    sisu: FEATURE_FLAGS.ENGINE_SISU,
+  };
+  const visibleEngines = IMPACT_ENGINES.filter((e) => ENGINE_FLAG_MAP[e.slug]);
+  if (visibleEngines.length === 0) {
+    return null;
+  }
+
   const isEngineActive = (engine: ImpactEngine) => {
     return location.pathname.startsWith(engine.routes.root);
   };
 
-  const anyEngineActive = IMPACT_ENGINES.some(e => isEngineActive(e));
+  const anyEngineActive = visibleEngines.some(e => isEngineActive(e));
 
   const handleEngineClick = (engine: ImpactEngine) => {
     if (engine.isActive) {
@@ -95,7 +110,7 @@ export function ImpactEnginesNav({ onNavigate }: ImpactEnginesNavProps) {
         <CollapsibleContent>
           <SidebarGroupContent>
             <SidebarMenu>
-              {IMPACT_ENGINES.map((engine) => {
+              {visibleEngines.map((engine) => {
                 const isActive = isEngineActive(engine);
                 const isDisabled = !engine.isActive;
 

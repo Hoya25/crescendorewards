@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Coins } from 'lucide-react';
 import type { GroundballReward, RewardSelection } from '@/hooks/useGroundballStatus';
+import { FEATURE_FLAGS } from '@/lib/featureFlags';
 
 interface SwapRewardModalProps {
   open: boolean;
@@ -31,6 +32,11 @@ export function SwapRewardModal({
   onConfirm,
   isLoading,
 }: SwapRewardModalProps) {
+  // Compliance gate — Impact Engine modal hidden from members.
+  if (!FEATURE_FLAGS.ENGINE_GROUNDBALL) {
+    return null;
+  }
+
   if (!selection || !reward) return null;
 
   const hasFreeSwap = freeSwapsRemaining > 0;

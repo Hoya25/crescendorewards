@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronRight, Circle, Calendar, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGroundballStatus } from '@/hooks/useGroundballStatus';
+import { FEATURE_FLAGS } from '@/lib/featureFlags';
 
 const STATUS_CONFIG = {
   none: { emoji: '○', label: 'No Status', color: 'text-muted-foreground', borderColor: 'border-border' },
@@ -30,6 +31,11 @@ export function GroundballDashboardWidget() {
     totalSlots, 
     usedSlots 
   } = useGroundballStatus();
+
+  // Compliance gate — Impact Engine widget hidden from members.
+  if (!FEATURE_FLAGS.ENGINE_GROUNDBALL) {
+    return null;
+  }
 
   const statusTier = status?.status_tier || 'none';
   const statusConfig = STATUS_CONFIG[statusTier as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.none;
@@ -79,7 +85,7 @@ export function GroundballDashboardWidget() {
     <Card className={cn('border-2', statusConfig.borderColor, 'bg-gradient-to-br from-emerald-500/5 to-transparent')}>
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
-          🥍 Lacrosse Community
+          🥍 Sports Rewards
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
