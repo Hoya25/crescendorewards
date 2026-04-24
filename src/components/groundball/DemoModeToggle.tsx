@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { FEATURE_FLAGS, ENGINE_PUBLIC_LABELS } from '@/lib/featureFlags';
 import { 
   Popover, 
   PopoverContent, 
@@ -119,7 +120,7 @@ export function DemoModeToggle() {
             </div>
 
             <p className="text-xs text-slate-400">
-              Quickly switch between user states to showcase the full GROUNDBALL experience.
+              Quickly switch between user states to showcase the full {ENGINE_PUBLIC_LABELS.GROUNDBALL} experience.
             </p>
 
             {/* Tier Selection - Vertical Layout */}
