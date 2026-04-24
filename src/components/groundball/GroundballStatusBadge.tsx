@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Link } from 'react-router-dom';
 import { Lock, Coins, RefreshCw, ArrowRight, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { FEATURE_FLAGS } from '@/lib/featureFlags';
 
 interface GroundballStatusBadgeProps {
   memberId?: string;
@@ -168,7 +169,12 @@ export function GroundballStatusBadge({
     : (status?.selections_max || 0) + (status?.bonus_selections || 0);
   const freeSwaps = isDemoMode && demoMode ? demoMode.freeSwapsRemaining : (status?.free_swaps_remaining || 0);
   const claimsBalance = isDemoMode && demoMode ? demoMode.claimsBalance : (profile?.crescendo_data?.claims_balance || 0);
-  
+
+  // Compliance gate — Impact Engine status badge hidden from members.
+  if (!FEATURE_FLAGS.ENGINE_GROUNDBALL) {
+    return null;
+  }
+
   const config = TIER_CONFIG[tier as keyof typeof TIER_CONFIG] || TIER_CONFIG.none;
   const colors = TIER_COLORS[tier as keyof typeof TIER_COLORS] || TIER_COLORS.none;
   const progress = calculateProgress(locked, tier);
@@ -394,7 +400,7 @@ export function GroundballStatusBadge({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm font-medium text-slate-300">
             <span>🥍</span>
-            <span>GROUNDBALL</span>
+            <span>Sports</span>
           </div>
           <div className="flex items-center gap-1.5 text-amber-400 text-sm">
             <Coins className="w-3.5 h-3.5" />
