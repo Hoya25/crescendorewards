@@ -45,6 +45,11 @@ export function DemoModeToggle() {
   const { demoMode, isDemoMode, toggleDemoMode, setDemoTier, enableDemoMode } = useDemoMode();
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Compliance gate — Impact Engine codename must not surface to members.
+  if (!FEATURE_FLAGS.ENGINE_GROUNDBALL) {
+    return null;
+  }
+
   // Only show in development/preview
   if (import.meta.env.PROD) {
     return null;
