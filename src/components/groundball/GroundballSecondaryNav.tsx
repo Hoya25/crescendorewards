@@ -2,6 +2,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { GROUNDBALL_NAV_TABS } from '@/constants/impactEngines';
+import { FEATURE_FLAGS } from '@/lib/featureFlags';
 
 interface GroundballSecondaryNavProps {
   className?: string;
@@ -10,6 +11,11 @@ interface GroundballSecondaryNavProps {
 export function GroundballSecondaryNav({ className }: GroundballSecondaryNavProps) {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Compliance gate — Impact Engine secondary nav hidden from members.
+  if (!FEATURE_FLAGS.ENGINE_GROUNDBALL) {
+    return null;
+  }
 
   const isActive = (tab: typeof GROUNDBALL_NAV_TABS[0]) => {
     if (tab.exact) {
@@ -47,7 +53,12 @@ export function GroundballSecondaryNav({ className }: GroundballSecondaryNavProp
 // Wrapper component that renders the secondary nav only on /groundball/* routes
 export function GroundballSecondaryNavWrapper() {
   const location = useLocation();
-  
+
+  // Compliance gate — Impact Engine secondary nav hidden from members.
+  if (!FEATURE_FLAGS.ENGINE_GROUNDBALL) {
+    return null;
+  }
+
   // Only show on /groundball routes
   if (!location.pathname.startsWith('/groundball')) {
     return null;
