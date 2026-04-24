@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Trophy, Zap, Gift, Tag, Check, Lock, ShoppingCart, Sparkles, Ticket, Crown, Leaf } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { NCTRLogo } from './NCTRLogo';
+import { FEATURE_FLAGS, ENGINE_PUBLIC_LABELS } from '@/lib/featureFlags';
 
 interface StatusPageProps {
   onBack: () => void;
