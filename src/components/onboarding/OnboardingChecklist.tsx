@@ -32,18 +32,7 @@ export function OnboardingChecklist() {
 
   const handleItemClick = async (item: typeof checklistItems[0]) => {
     if (item.completed) return;
-
-    // For How It Works, mark complete immediately when clicking
-    if (item.id === 'how_it_works_viewed') {
-      await completeItem('how_it_works_viewed');
-    }
-
-    // Navigate or open external link
     if (item.externalUrl) {
-      // Mark garden as visited when they click
-      if (item.id === 'garden_visited') {
-        await completeItem('garden_visited');
-      }
       window.open(item.externalUrl, '_blank');
     } else if (item.route) {
       navigate(item.route);
