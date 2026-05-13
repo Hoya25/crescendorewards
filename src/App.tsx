@@ -128,6 +128,14 @@ function AppRoutes() {
     }
   }, [authRedirectPath]);
 
+  useEffect(() => {
+    if (!isAuthenticated || !pendingAuthRedirectRef.current) return;
+
+    const redirectTo = pendingAuthRedirectRef.current;
+    pendingAuthRedirectRef.current = null;
+    navigate(redirectTo, { replace: true });
+  }, [isAuthenticated, navigate]);
+
   // Enable real-time toast notifications for claim delivery status updates
   useClaimDeliveryNotifications();
   useReferralSuccessNotification();
@@ -155,8 +163,12 @@ function AppRoutes() {
     setBhEmail(null);
 
     const redirectTo = authRedirectPath || pendingAuthRedirectRef.current || '/bounties';
-    pendingAuthRedirectRef.current = null;
-    navigate(redirectTo, { replace: true });
+    pendingAuthRedirectRef.current = redirectTo;
+
+    if (isAuthenticated) {
+      pendingAuthRedirectRef.current = null;
+      navigate(redirectTo, { replace: true });
+    }
   };
 
   const handleToggleMode = () => {
