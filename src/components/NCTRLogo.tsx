@@ -1,40 +1,103 @@
-import { useTheme } from './ThemeProvider';
-import nctrGrey from '@/assets/nctr-grey.png';
-import nctrYellow from '@/assets/nctr-yellow.png';
+import React from 'react';
+import { NCTRWordmark, NCTRCircleN } from './brand/NCTRLogos';
+
+export type NCTRLogoVariant =
+  | 'wordmark-lime'
+  | 'wordmark-grey'
+  | 'wordmark-light'
+  | 'wordmark-white'
+  | 'wordmark-black'
+  | 'icon';
+
+// Old API kept for backward compatibility with existing call sites.
+type LegacySize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+type LegacyVariant = 'dark' | 'light' | 'auto';
 
 interface NCTRLogoProps {
+  variant?: NCTRLogoVariant | LegacyVariant;
+  height?: number;
+  /** Legacy prop — mapped to height. Prefer `height`. */
+  size?: LegacySize;
   className?: string;
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-  /** 
-   * Force a specific variant regardless of theme
-   * - 'dark': Use yellow/green logo (for dark backgrounds)
-   * - 'light': Use grey logo (for light backgrounds)
-   * - 'auto': Switch based on current theme (default)
-   */
-  variant?: 'dark' | 'light' | 'auto';
+  style?: React.CSSProperties;
+  'aria-label'?: string;
 }
 
-const sizeClasses = {
-  xs: "inline-block h-12 w-auto mx-0.5 align-middle",
-  sm: "inline-block h-[3.75rem] w-auto mx-1 align-middle",
-  md: "inline-block h-[4.5rem] w-auto mx-1 align-middle",
-  lg: "inline-block h-24 w-auto mx-1 align-middle",
-  xl: "inline-block h-36 w-auto mx-2 align-middle"
+const VARIANT_FILL: Record<NCTRLogoVariant, string> = {
+  'wordmark-lime': '#E2FF6D',
+  'wordmark-grey': '#5A5A58',
+  'wordmark-light': '#D9D9D9',
+  'wordmark-white': '#FFFFFF',
+  'wordmark-black': '#131313',
+  'icon': '#E2FF6D',
 };
 
-export function NCTRLogo({ className, size = 'md', variant = 'auto' }: NCTRLogoProps) {
-  const defaultClass = sizeClasses[size];
-  const { theme } = useTheme();
+const SIZE_TO_HEIGHT: Record<LegacySize, number> = {
+  xs: 12,
+  sm: 16,
+  md: 20,
+  lg: 24,
+  xl: 32,
+};
 
-  // Determine which logo to use based on variant or theme
-  const useDarkVariant = variant === 'dark' || (variant === 'auto' && theme === 'dark');
-  const logoSrc = useDarkVariant ? nctrYellow : nctrGrey;
+const LEGACY_VARIANT_MAP: Record<LegacyVariant, NCTRLogoVariant> = {
+  dark: 'wordmark-grey',   // was: dark logo on light backgrounds
+  light: 'wordmark-lime',  // was: light logo on dark backgrounds
+  auto: 'wordmark-grey',   // safe default for the light-mode landing
+};
+
+function isLegacyVariant(v: string): v is LegacyVariant {
+  return v === 'dark' || v === 'light' || v === 'auto';
+}
+
+export const NCTRLogo: React.FC<NCTRLogoProps> = ({
+  variant = 'wordmark-lime',
+  height,
+  size,
+  className = '',
+  style,
+  'aria-label': ariaLabel = 'NCTR',
+}) => {
+  const resolvedVariant: NCTRLogoVariant = isLegacyVariant(variant)
+    ? LEGACY_VARIANT_MAP[variant]
+    : variant;
+
+  const resolvedHeight =
+    height ?? (size ? SIZE_TO_HEIGHT[size] : 20);
+
+  const fill = VARIANT_FILL[resolvedVariant];
+
+  const inlineStyle: React.CSSProperties = {
+    display: 'inline-block',
+    verticalAlign: 'middle',
+    height: `${resolvedHeight}px`,
+    width: 'auto',
+    marginLeft: '4px',
+    marginRight: '4px',
+    ...style,
+  };
+
+  if (resolvedVariant === 'icon') {
+    return (
+      <NCTRCircleN
+        fillColor={fill}
+        size={resolvedHeight}
+        className={className}
+        style={inlineStyle}
+        aria-label={ariaLabel}
+      />
+    );
+  }
 
   return (
-    <img 
-      src={logoSrc}
-      alt="NCTR"
-      className={className || defaultClass}
+    <NCTRWordmark
+      fill={fill}
+      height={resolvedHeight}
+      className={className}
+      style={inlineStyle}
+      aria-label={ariaLabel}
     />
   );
-}
+};
+
+export default NCTRLogo;
