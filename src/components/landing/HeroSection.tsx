@@ -195,7 +195,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
               display: 'inline-flex', alignItems: 'center', gap: '4px',
             }}
           >
-            Start earning NCTR →
+            Start earning <NCTRLogo variant="wordmark-grey" height={14} /> →
           </a>
         </div>
 
