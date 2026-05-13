@@ -146,12 +146,8 @@ function AppRoutes() {
     setShowAuthModal(false);
     setBhEmail(null);
 
-    const fromPath = (location.state as { from?: { pathname?: string } })?.from?.pathname;
-    if (fromPath) {
-      navigate(fromPath, { replace: true });
-    } else {
-      navigate('/bounties', { replace: true });
-    }
+    const redirectTo = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/bounties';
+    navigate(redirectTo, { replace: true });
   };
 
   const handleToggleMode = () => {
