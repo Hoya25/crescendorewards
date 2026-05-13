@@ -121,7 +121,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
       className="relative flex items-center px-6 md:px-12 pt-28 md:pt-0 md:min-h-screen"
       style={{ backgroundColor: '#F9F9F7' }}
     >
-      <div className="relative z-10 max-w-6xl mx-auto w-full grid md:grid-cols-2 gap-10 md:gap-20 items-center py-16 md:py-0">
+      <div className="relative z-10 max-w-6xl mx-auto w-full grid md:grid-cols-2 gap-10 md:gap-20 items-center py-16 pb-20 md:py-0 md:pb-24">
         {/* Left: Copy */}
         <div className="space-y-8">
           <h1 style={{ lineHeight: 1.0, letterSpacing: '-0.03em' }}>
@@ -138,12 +138,14 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
               style={{
                 fontFamily: barlow, fontWeight: 900,
                 fontSize: 'clamp(3rem, 6vw, 5rem)',
-                color: '#E2FF6D', display: 'block',
+                color: '#323232', display: 'block',
               }}
             >
               Owned by everyone who participates.
             </span>
           </h1>
+
+          <div style={{ width: 120, height: 2, backgroundColor: '#E2FF6D', marginTop: 12 }} />
 
           <p style={{ fontFamily: dmSans, fontSize: '16px', lineHeight: 1.6, color: '#5A5A58', maxWidth: '480px' }}>
             Earn on <span style={{ color: '#E2FF6D' }}>Bounty Hunter</span>. Contribute on <span style={{ color: '#E2FF6D' }}>Crescendo</span>. NCTR belongs to the people and brands who build it.
@@ -207,7 +209,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
       </div>
 
       {/* Stat Cards */}
-      <div className="absolute bottom-0 left-0 right-0 px-6 md:px-12" style={{ transform: 'translateY(50%)' }}>
+      <div className="absolute bottom-0 left-0 right-0 px-6 md:px-12 z-[1]" style={{ transform: 'translateY(50%)' }}>
         <div className="max-w-4xl mx-auto grid grid-cols-3 gap-4">
           {STAT_TILES.map((tile) => (
             <div
