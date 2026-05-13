@@ -75,7 +75,7 @@ export function HowItWorksLanding() {
           style={{ background: 'hsl(var(--accent-lime-subtle))', borderColor: 'hsl(var(--accent-lime) / 0.15)', borderRadius: '0px' }}
         >
           <p className="text-sm md:text-base text-text-body">
-            Your NCTR doesn't expire. It's a real digital reward that builds real status — through 360LOCK, through participation, through showing up.
+            Your <NCTRLogo variant="wordmark-grey" height={14} /> doesn't expire. It's a real digital reward that builds real status — through 360LOCK, through participation, through showing up.
           </p>
         </div>
 
