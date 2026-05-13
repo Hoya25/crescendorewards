@@ -28,14 +28,14 @@ export function TheMathSection() {
             </p>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-text-body">Purchase reward</span>
-                <span className="text-text-heading font-medium">275 NCTR</span>
+                <span className="text-sm text-text-body">Purchase reward (1x)</span>
+                <span className="text-text-heading font-medium">1x</span>
               </div>
             </div>
             <div className="pt-3 border-t border-border-card">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-semibold text-text-heading">Total</span>
-                <span className="text-xl font-bold text-text-heading">275 NCTR</span>
+                <span className="text-xl font-bold text-text-heading">1x</span>
               </div>
               <p className="text-xs mt-2 text-text-body-muted">That's it.</p>
             </div>
@@ -54,13 +54,13 @@ export function TheMathSection() {
             </p>
             <div className="space-y-3">
               {[
-                { label: 'Purchase reward (3x merch)', amount: '825 NCTR' },
-                { label: 'First Merch Purchase bounty', amount: '5,000 NCTR' },
-                { label: 'Rep the Brand bounty', amount: '750 NCTR' },
+                { label: 'Purchase reward at your tier multiplier', amount: '' },
+                { label: 'Merch participation bonus', amount: '' },
+                { label: 'Brand representation bonus', amount: '' },
               ].map((item) => (
                 <div key={item.label} className="flex justify-between items-center">
                   <span className="text-sm text-text-body">{item.label}</span>
-                  <span className="font-medium text-text-accent">{item.amount}</span>
+                  {item.amount && <span className="font-medium text-text-accent">{item.amount}</span>}
                 </div>
               ))}
             </div>
@@ -68,7 +68,7 @@ export function TheMathSection() {
               <div className="flex justify-between items-center">
                 <span className="text-sm font-semibold text-text-heading">Total</span>
                 <span className="text-2xl font-black text-text-accent">
-                  6,575 NCTR
+                  meaningfully more
                 </span>
               </div>
             </div>
@@ -79,32 +79,19 @@ export function TheMathSection() {
           Same hoodie. Different commitment.
         </p>
         <p className="text-center text-sm max-w-2xl mx-auto mb-4 text-text-body">
-          And that's just at Bronze. Hit Gold (1.5x) and that 6,575 becomes{' '}
-          <span className="font-semibold text-text-heading">9,862 NCTR</span>.
-          At Diamond (2.5x)?{' '}
-          <span className="font-bold text-text-accent">16,437 NCTR</span>.{' '}
+          Bronze sets the floor. Gold (1.5x) compounds it. Diamond (2.5x) compounds it again.{' '}
           <span className="font-bold text-text-accent">Status multiplies everything.</span>
         </p>
 
         {/* Multiplier teaser */}
         <div
-          className="p-5 text-center mb-4 border"
+          className="p-5 text-center mb-10 border"
           style={{ background: 'hsl(var(--accent-lime-subtle))', borderColor: 'hsl(var(--accent-lime) / 0.15)', borderRadius: '0px' }}
         >
           <p className="text-sm text-text-body">
             And every NCTR you commit raises your Crescendo status. Which unlocks better bounties.
             Which earn more NCTR. Which raises your status more.{' '}
             <span className="font-bold text-text-heading">The flywheel never stops.</span>
-          </p>
-        </div>
-
-        <div className="p-4 text-center mb-10 border border-border-card bg-page-bg" style={{ borderRadius: '0px' }}>
-          <p className="text-sm text-text-body">
-            💡 <span className="font-semibold text-text-heading">At Gold status</span>, your earning multiplier jumps to{' '}
-            <span className="font-bold text-text-accent">1.5x on everything</span>.
-            That same 6,575 NCTR becomes{' '}
-            <span className="font-bold text-text-accent">9,862 NCTR</span>.
-            At Diamond? <span className="font-bold text-text-accent">16,437 NCTR</span>. The math keeps getting better.
           </p>
         </div>
 
