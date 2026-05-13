@@ -82,10 +82,10 @@ export function YourNextStep() {
   );
 }
 
-function StepLabel() {
+function StepLabel({ label = "Your Next Step" }: { label?: string } = {}) {
   return (
     <span className="text-xs font-medium tracking-wider uppercase mb-2 block" style={{ color: "#C8FF00" }}>
-      Your Next Step
+      {label}
     </span>
   );
 }
