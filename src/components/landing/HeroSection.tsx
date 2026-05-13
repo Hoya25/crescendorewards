@@ -129,33 +129,24 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
               style={{
                 fontFamily: barlow, fontWeight: 900,
                 fontSize: 'clamp(3rem, 6vw, 5rem)',
-                color: '#323232', display: 'block', textTransform: 'uppercase',
+                color: '#323232', display: 'block',
               }}
             >
-              Your Status.
+              The alliance powered by everyday commerce.
             </span>
             <span
               style={{
                 fontFamily: barlow, fontWeight: 900,
                 fontSize: 'clamp(3rem, 6vw, 5rem)',
-                color: '#3A4A00', display: 'block', textTransform: 'uppercase',
+                color: '#E2FF6D', display: 'block',
               }}
             >
-              Your Rewards.
-            </span>
-            <span
-              style={{
-                fontFamily: barlow, fontWeight: 900,
-                fontSize: 'clamp(3rem, 6vw, 5rem)',
-                color: '#323232', display: 'block', textTransform: 'uppercase',
-              }}
-            >
-              Your Life.
+              Owned by everyone who participates.
             </span>
           </h1>
 
           <p style={{ fontFamily: dmSans, fontSize: '16px', lineHeight: 1.6, color: '#5A5A58', maxWidth: '480px' }}>
-            Earn in Bounty Hunter. Build status in Crescendo. Unlock rewards that grow with your commitment.
+            Earn on <span style={{ color: '#E2FF6D' }}>Bounty Hunter</span>. Contribute on <span style={{ color: '#E2FF6D' }}>Crescendo</span>. NCTR belongs to the people and brands who build it.
           </p>
 
           <div className="flex flex-col gap-3 max-w-md">
