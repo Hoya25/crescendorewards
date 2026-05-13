@@ -162,7 +162,7 @@ function AppRoutes() {
     setShowAuthModal(false);
     setBhEmail('');
 
-    const redirectTo = authRedirectPath || pendingAuthRedirectRef.current || '/bounties';
+    const redirectTo = authRedirectPath || pendingAuthRedirectRef.current || '/dashboard';
     pendingAuthRedirectRef.current = redirectTo;
 
     if (isAuthenticated) {
