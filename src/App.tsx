@@ -117,6 +117,8 @@ function AppRoutes() {
     setBhEmail,
   } = useAuthContext();
   const { profile, refreshUnifiedProfile } = useUnifiedUser();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // Enable real-time toast notifications for claim delivery status updates
   useClaimDeliveryNotifications();
@@ -143,6 +145,13 @@ function AppRoutes() {
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
     setBhEmail(null);
+
+    const fromPath = (location.state as { from?: { pathname?: string } })?.from?.pathname;
+    if (fromPath) {
+      navigate(fromPath, { replace: true });
+    } else {
+      navigate('/bounties', { replace: true });
+    }
   };
 
   const handleToggleMode = () => {
