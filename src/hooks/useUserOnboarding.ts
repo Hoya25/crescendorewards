@@ -23,7 +23,7 @@ interface OnboardingProgress {
 }
 
 interface OnboardingItem {
-  id: keyof Pick<OnboardingProgress, 'profile_completed' | 'how_it_works_viewed' | 'garden_visited' | 'first_wishlist_item' | 'first_referral'>;
+  id: 'profile_completed' | 'first_wishlist_item' | 'first_referral';
   title: string;
   description: string;
   nctrReward: number;
@@ -34,11 +34,9 @@ interface OnboardingItem {
 
 const NCTR_REWARDS = {
   profile_completed: 10,
-  how_it_works_viewed: 5,
-  garden_visited: 5,
   first_wishlist_item: 10,
   first_referral: 50,
-};
+} as const;
 
 export function useUserOnboarding() {
   // Use unified profile ID (the one user_onboarding FK references)
@@ -47,9 +45,10 @@ export function useUserOnboarding() {
 
   const [progress, setProgress] = useState<OnboardingProgress | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isNewUser, setIsNewUser] = useState(false);
+  const [hasWishlistItem, setHasWishlistItem] = useState(false);
+  const [hasReferral, setHasReferral] = useState(false);
 
-  // Fetch or create onboarding progress
+  // Fetch or create onboarding progress + derived signals
   const fetchProgress = useCallback(async () => {
     if (!unifiedId) {
       setLoading(false);
@@ -57,12 +56,24 @@ export function useUserOnboarding() {
     }
 
     try {
-      // First try to get existing record
-      const { data, error } = await supabase
-        .from('user_onboarding')
-        .select('*')
-        .eq('user_id', unifiedId)
-        .maybeSingle();
+      const [{ data, error }, wishlistRes, referralRes] = await Promise.all([
+        supabase
+          .from('user_onboarding')
+          .select('*')
+          .eq('user_id', unifiedId)
+          .maybeSingle(),
+        supabase
+          .from('reward_wishlists')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', unifiedId),
+        supabase
+          .from('referrals')
+          .select('id', { count: 'exact', head: true })
+          .eq('referrer_id', unifiedId),
+      ]);
+
+      setHasWishlistItem((wishlistRes.count ?? 0) > 0);
+      setHasReferral((referralRes.count ?? 0) > 0);
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching onboarding:', error);
@@ -72,23 +83,7 @@ export function useUserOnboarding() {
 
       if (data) {
         setProgress(data);
-        
-        // Check if user is "new" (signed up within 7 days OR completed < 3 items)
-        const completedCount = [
-          data.profile_completed,
-          data.how_it_works_viewed,
-          data.garden_visited,
-          data.first_wishlist_item,
-          data.first_referral,
-        ].filter(Boolean).length;
-
-        const createdAt = new Date(data.created_at);
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        
-        setIsNewUser(createdAt > sevenDaysAgo || completedCount < 3);
       } else {
-        // Create new record - use upsert to handle race conditions
         const { data: newData, error: insertError } = await supabase
           .from('user_onboarding')
           .upsert({ user_id: unifiedId }, { onConflict: 'user_id' })
@@ -96,22 +91,15 @@ export function useUserOnboarding() {
           .single();
 
         if (insertError) {
-          // If upsert fails, try fetching again (might have been created by another request)
           const { data: retryData } = await supabase
             .from('user_onboarding')
             .select('*')
             .eq('user_id', unifiedId)
             .maybeSingle();
-          
-          if (retryData) {
-            setProgress(retryData);
-            setIsNewUser(true);
-          } else {
-            console.error('Error creating onboarding:', insertError);
-          }
+          if (retryData) setProgress(retryData);
+          else console.error('Error creating onboarding:', insertError);
         } else {
           setProgress(newData);
-          setIsNewUser(true);
         }
       }
     } catch (err) {
@@ -125,21 +113,19 @@ export function useUserOnboarding() {
     fetchProgress();
   }, [fetchProgress]);
 
-  // Complete an onboarding item
+  // Complete an onboarding item (kept for compatibility; only used now to award NCTR
+  // when a user clicks an item that we still surface and want to credit explicitly)
   const completeItem = useCallback(async (
     itemId: keyof typeof NCTR_REWARDS,
     skipToast = false
   ) => {
     if (!unifiedId || !profile?.auth_user_id || !progress) return;
-
-    // Check if already completed
-    if (progress[itemId]) return;
+    if ((progress as any)[itemId]) return;
 
     const timestampField = `${itemId}_at` as keyof OnboardingProgress;
     const nctrReward = NCTR_REWARDS[itemId];
 
     try {
-      // Update onboarding progress using unified profile ID
       const { error: updateError } = await supabase
         .from('user_onboarding')
         .update({
@@ -154,7 +140,6 @@ export function useUserOnboarding() {
         return;
       }
 
-      // Award NCTR to user's available balance (profiles uses auth user ID)
       const authUserId = profile.auth_user_id;
       const { data: profileData } = await supabase
         .from('profiles')
@@ -165,13 +150,10 @@ export function useUserOnboarding() {
       if (profileData) {
         await supabase
           .from('profiles')
-          .update({
-            available_nctr: (profileData.available_nctr || 0) + nctrReward,
-          })
+          .update({ available_nctr: (profileData.available_nctr || 0) + nctrReward })
           .eq('id', authUserId);
       }
 
-      // Update local state
       setProgress(prev => prev ? {
         ...prev,
         [itemId]: true,
@@ -179,66 +161,44 @@ export function useUserOnboarding() {
         onboarding_nctr_awarded: (prev.onboarding_nctr_awarded || 0) + nctrReward,
       } : null);
 
-      // Show toast
       if (!skipToast) {
         const itemTitles: Record<string, string> = {
           profile_completed: 'completing your profile',
-          how_it_works_viewed: 'learning How It Works',
-          garden_visited: 'visiting The Garden',
           first_wishlist_item: 'adding to your wishlist',
           first_referral: 'your first referral',
         };
-
-        toast.success(`🎉 You earned ${nctrReward} NCTR for ${itemTitles[itemId]}!`, {
-          duration: 4000,
-        });
+        toast.success(`🎉 You earned ${nctrReward} NCTR for ${itemTitles[itemId]}!`, { duration: 4000 });
       }
     } catch (err) {
       console.error('Error completing onboarding item:', err);
     }
   }, [unifiedId, profile?.auth_user_id, progress]);
 
-  // Dismiss the onboarding checklist
   const dismissOnboarding = useCallback(async () => {
     if (!unifiedId) return;
-
     try {
       await supabase
         .from('user_onboarding')
         .update({ is_dismissed: true })
         .eq('user_id', unifiedId);
-
       setProgress(prev => prev ? { ...prev, is_dismissed: true } : null);
     } catch (err) {
       console.error('Error dismissing onboarding:', err);
     }
   }, [unifiedId]);
 
-  // Get checklist items with completion status
-  const checklistItems: OnboardingItem[] = progress ? [
+  // Derive completion from REAL data, not just stored flags.
+  const profileName = (profile?.display_name || '').trim();
+  const profileComplete = !!profileName && !!profile?.avatar_url;
+
+  const checklistItems: OnboardingItem[] = profile ? [
     {
       id: 'profile_completed',
       title: 'Complete your profile',
       description: 'Add your name and avatar',
       nctrReward: NCTR_REWARDS.profile_completed,
       route: '/profile',
-      completed: progress.profile_completed,
-    },
-    {
-      id: 'how_it_works_viewed',
-      title: 'Learn How It Works',
-      description: 'Understand the Crescendo system',
-      nctrReward: NCTR_REWARDS.how_it_works_viewed,
-      route: '/how-it-works',
-      completed: progress.how_it_works_viewed,
-    },
-    {
-      id: 'garden_visited',
-      title: 'Browse The Garden',
-      description: 'Discover thousands of earning brands',
-      nctrReward: NCTR_REWARDS.garden_visited,
-      externalUrl: 'https://thegarden.nctr.live/',
-      completed: progress.garden_visited,
+      completed: profileComplete || !!progress?.profile_completed,
     },
     {
       id: 'first_wishlist_item',
@@ -246,7 +206,7 @@ export function useUserOnboarding() {
       description: 'Save a reward you want',
       nctrReward: NCTR_REWARDS.first_wishlist_item,
       route: '/rewards',
-      completed: progress.first_wishlist_item,
+      completed: hasWishlistItem || !!progress?.first_wishlist_item,
     },
     {
       id: 'first_referral',
@@ -254,7 +214,7 @@ export function useUserOnboarding() {
       description: 'Earn when they sign up',
       nctrReward: NCTR_REWARDS.first_referral,
       route: '/invite',
-      completed: progress.first_referral,
+      completed: hasReferral || !!progress?.first_referral,
     },
   ] : [];
 
@@ -262,10 +222,18 @@ export function useUserOnboarding() {
   const totalItems = checklistItems.length;
   const progressPercent = totalItems > 0 ? (completedCount / totalItems) * 100 : 0;
   const totalPotentialNCTR = Object.values(NCTR_REWARDS).reduce((a, b) => a + b, 0);
-  const earnedNCTR = progress?.onboarding_nctr_awarded || 0;
+  const remainingNCTR = checklistItems
+    .filter(i => !i.completed)
+    .reduce((sum, i) => sum + i.nctrReward, 0);
+  const earnedNCTR = totalPotentialNCTR - remainingNCTR;
 
-  // Should show the checklist
-  const shouldShowChecklist = isNewUser && !progress?.is_dismissed && completedCount < totalItems;
+  // Hide widget when everything is done OR user dismissed it.
+  const shouldShowChecklist =
+    !loading &&
+    !!progress &&
+    !progress.is_dismissed &&
+    totalItems > 0 &&
+    completedCount < totalItems;
 
   return {
     progress,
@@ -275,6 +243,7 @@ export function useUserOnboarding() {
     totalItems,
     progressPercent,
     totalPotentialNCTR,
+    remainingNCTR,
     earnedNCTR,
     shouldShowChecklist,
     completeItem,
