@@ -209,7 +209,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
       </div>
 
       {/* Stat Cards */}
-      <div className="absolute bottom-0 left-0 right-0 px-6 md:px-12" style={{ transform: 'translateY(50%)' }}>
+      <div className="absolute bottom-0 left-0 right-0 px-6 md:px-12 z-[1]" style={{ transform: 'translateY(50%)' }}>
         <div className="max-w-4xl mx-auto grid grid-cols-3 gap-4">
           {STAT_TILES.map((tile) => (
             <div
