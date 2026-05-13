@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy, useEffect, useRef } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -119,6 +119,22 @@ function AppRoutes() {
   const { profile, refreshUnifiedProfile } = useUnifiedUser();
   const location = useLocation();
   const navigate = useNavigate();
+  const pendingAuthRedirectRef = useRef<string | null>(null);
+  const authRedirectPath = (location.state as { from?: { pathname?: string } })?.from?.pathname;
+
+  useEffect(() => {
+    if (authRedirectPath) {
+      pendingAuthRedirectRef.current = authRedirectPath;
+    }
+  }, [authRedirectPath]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !pendingAuthRedirectRef.current) return;
+
+    const redirectTo = pendingAuthRedirectRef.current;
+    pendingAuthRedirectRef.current = null;
+    navigate(redirectTo, { replace: true });
+  }, [isAuthenticated, navigate]);
 
   // Enable real-time toast notifications for claim delivery status updates
   useClaimDeliveryNotifications();
@@ -144,13 +160,14 @@ function AppRoutes() {
 
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
-    setBhEmail(null);
+    setBhEmail('');
 
-    const fromPath = (location.state as { from?: { pathname?: string } })?.from?.pathname;
-    if (fromPath) {
-      navigate(fromPath, { replace: true });
-    } else {
-      navigate('/bounties', { replace: true });
+    const redirectTo = authRedirectPath || pendingAuthRedirectRef.current || '/bounties';
+    pendingAuthRedirectRef.current = redirectTo;
+
+    if (isAuthenticated) {
+      pendingAuthRedirectRef.current = null;
+      navigate(redirectTo, { replace: true });
     }
   };
 
@@ -180,7 +197,7 @@ function AppRoutes() {
               path="/" 
               element={
                 isAuthenticated ? (
-                  <Navigate to="/bounties" replace />
+                  <Navigate to={authRedirectPath || pendingAuthRedirectRef.current || "/bounties"} replace />
                 ) : (
                   <LandingPage />
                 )
