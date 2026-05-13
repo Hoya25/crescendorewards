@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { queryClient } from './lib/queryClient';
 import { ThemeProvider } from "./components/ThemeProvider";
 import { AuthProvider, useAuthContext } from "./contexts/AuthContext";
@@ -117,6 +117,8 @@ function AppRoutes() {
     setBhEmail,
   } = useAuthContext();
   const { profile, refreshUnifiedProfile } = useUnifiedUser();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // Enable real-time toast notifications for claim delivery status updates
   useClaimDeliveryNotifications();
@@ -143,6 +145,13 @@ function AppRoutes() {
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
     setBhEmail(null);
+
+    const fromPath = (location.state as { from?: { pathname?: string } })?.from?.pathname;
+    if (fromPath) {
+      navigate(fromPath, { replace: true });
+    } else {
+      navigate('/bounties', { replace: true });
+    }
   };
 
   const handleToggleMode = () => {
