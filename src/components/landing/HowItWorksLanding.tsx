@@ -15,7 +15,7 @@ const steps = [
     emoji: '🔒',
     title: 'Commit with 360LOCK',
     description:
-      'Lock your earned NCTR for 360 days to build Crescendo status. 360LOCK gives you a 3x multiplier on everything you earn. Your NCTR stays yours — locking is commitment, not spending.',
+      'Lock your earned NCTR for 360 days to build Crescendo status. Higher tiers multiply everything you earn — up to 2.5x at Diamond. Your NCTR stays yours — locking is commitment, not spending.',
   },
   {
     emoji: '🏆',
