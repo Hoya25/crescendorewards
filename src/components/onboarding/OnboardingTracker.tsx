@@ -14,11 +14,7 @@ export function OnboardingTracker() {
 
   useEffect(() => {
     if (!profile?.id || loading || !progress) return;
-
-    // Track How It Works page view
-    if (location.pathname === '/how-it-works' && !progress.how_it_works_viewed) {
-      completeItem('how_it_works_viewed');
-    }
+    // No route-tracked onboarding items currently active.
   }, [location.pathname, profile?.id, loading, progress, completeItem]);
 
   // This component doesn't render anything
