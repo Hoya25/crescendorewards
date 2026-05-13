@@ -147,7 +147,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
           </h1>
 
           <p style={{ fontFamily: dmSans, fontSize: '16px', lineHeight: 1.6, color: '#5A5A58', maxWidth: '480px' }}>
-            Members earn by shopping and inviting friends. Brands earn by contributing rewards. Everyone earns NCTR. NCTR belongs to the people and brands who build it.
+            Members earn by shopping and inviting friends. Brands earn by contributing rewards. Everyone earns <NCTRLogo variant="wordmark-grey" height={20} />. <NCTRLogo variant="wordmark-grey" height={20} /> belongs to the people and brands who build it.
           </p>
 
           <div className="flex flex-col gap-3 max-w-md">
