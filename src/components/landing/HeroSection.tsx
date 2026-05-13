@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { NCTRLogo } from '@/components/NCTRLogo';
 
 interface HeroSectionProps {
   onJoin: () => void;
