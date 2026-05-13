@@ -69,9 +69,7 @@ export function HowItWorksLanding() {
           style={{ background: 'hsl(var(--accent-lime-subtle))', borderColor: 'hsl(var(--accent-lime) / 0.15)', borderRadius: '0px' }}
         >
           <p className="text-sm md:text-base text-text-body">
-            This isn't a rewards program that expires. Your NCTR is a{' '}
-            <span className="font-semibold text-text-heading">real digital reward</span>.
-            Your status is <span className="font-semibold text-text-heading">earned, not bought</span>.
+            Your NCTR doesn't expire. It's a real digital reward that builds real status — through 360LOCK, through participation, through showing up.
           </p>
         </div>
 
