@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { NCTRLogo } from '../NCTRLogo';
 
 export function StatsSection() {
   const [stats, setStats] = useState<{ members: number; nctrEarned: number; rewardsClaimed: number } | null>(null);
@@ -31,9 +32,9 @@ export function StatsSection() {
   if (!stats) return null;
 
   const statCards = [
-    { label: 'Members', value: stats.members > 10 ? `${stats.members.toLocaleString()}+` : 'Growing Community' },
-    { label: 'NCTR Earned', value: stats.nctrEarned > 100 ? stats.nctrEarned.toLocaleString() : '—' },
-    { label: 'Rewards Claimed', value: stats.rewardsClaimed > 5 ? stats.rewardsClaimed.toLocaleString() : '—' },
+    { key: 'members', label: 'Members', value: stats.members > 10 ? `${stats.members.toLocaleString()}+` : 'Growing Community' },
+    { key: 'nctr-earned', label: <><NCTRLogo variant="wordmark-grey" height={12} /> Earned</>, value: stats.nctrEarned > 100 ? stats.nctrEarned.toLocaleString() : '—' },
+    { key: 'rewards-claimed', label: 'Rewards Claimed', value: stats.rewardsClaimed > 5 ? stats.rewardsClaimed.toLocaleString() : '—' },
   ].filter((s) => s.value !== '—');
 
   if (statCards.length < 2) return null;
@@ -47,14 +48,14 @@ export function StatsSection() {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {statCards.map((stat) => (
             <div
-              key={stat.label}
+              key={stat.key}
               className="bg-muted/40 p-6 border"
               style={{ borderRadius: '0px' }}
             >
               <p className="text-3xl md:text-4xl font-extrabold text-foreground mb-1">
                 {stat.value}
               </p>
-              <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
+              <p className="text-sm text-muted-foreground font-medium inline-flex items-center justify-center gap-1">{stat.label}</p>
             </div>
           ))}
         </div>
