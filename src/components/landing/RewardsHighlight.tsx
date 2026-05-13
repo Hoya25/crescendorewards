@@ -1,13 +1,16 @@
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import { NCTRLogo } from '@/components/NCTRLogo';
 
 const barlow = "'Barlow Condensed', sans-serif";
 const dmSans = "'DM Sans', sans-serif";
 
-const cards = [
+const cards: Array<{ title: string; subtitle: React.ReactNode; tier: string }> = [
   {
     title: 'Brands you already love',
-    subtitle: "Shop across wellness, outdoor, fashion, tech, food, and more — every purchase earns NCTR for the life you're already living.",
+    subtitle: (
+      <>Shop across wellness, outdoor, fashion, tech, food, and more — every purchase earns <NCTRLogo variant="wordmark-grey" height={14} /> for the life you're already living.</>
+    ),
     tier: 'All members',
   },
   {

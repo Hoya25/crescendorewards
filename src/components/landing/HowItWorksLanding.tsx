@@ -1,27 +1,33 @@
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { NCTRLogo } from '@/components/NCTRLogo';
 
 const barlow = "'Barlow Condensed', sans-serif";
 
-const steps = [
+const N = <NCTRLogo variant="wordmark-grey" height={14} />;
+
+const steps: Array<{ emoji: string; title: string; description: React.ReactNode }> = [
   {
     emoji: '🛍️',
     title: 'Earn in Bounty Hunter',
-    description:
-      'Shop at thousands of brands, complete bounties, buy NCTR merch, and invite friends — all inside Bounty Hunter. Brands power the rewards through Beacon. Every action earns NCTR automatically.',
+    description: (
+      <>Shop at thousands of brands, complete bounties, buy {N} merch, and invite friends — all inside Bounty Hunter. Brands power the rewards through Beacon. Every action earns {N} automatically.</>
+    ),
   },
   {
     emoji: '🔒',
     title: 'Commit with 360LOCK',
-    description:
-      'Lock your earned NCTR for 360 days to build Crescendo status. Higher tiers multiply everything you earn — up to 2.5x at Diamond. Your NCTR stays yours — locking is commitment, not spending.',
+    description: (
+      <>Lock your earned {N} for 360 days to build Crescendo status. Higher tiers multiply everything you earn — up to 2.5x at Diamond. Your {N} stays yours — locking is commitment, not spending.</>
+    ),
   },
   {
     emoji: '🏆',
     title: 'Unlock Rewards & Status',
-    description:
-      'Your locked NCTR determines your Crescendo status: Bronze through Diamond. Higher status means higher earning multipliers, exclusive rewards, and premium experiences. The more you commit, the more you unlock.',
+    description: (
+      <>Your locked {N} determines your Crescendo status: Bronze through Diamond. Higher status means higher earning multipliers, exclusive rewards, and premium experiences. The more you commit, the more you unlock.</>
+    ),
   },
 ];
 
@@ -69,7 +75,7 @@ export function HowItWorksLanding() {
           style={{ background: 'hsl(var(--accent-lime-subtle))', borderColor: 'hsl(var(--accent-lime) / 0.15)', borderRadius: '0px' }}
         >
           <p className="text-sm md:text-base text-text-body">
-            Your NCTR doesn't expire. It's a real digital reward that builds real status — through 360LOCK, through participation, through showing up.
+            Your <NCTRLogo variant="wordmark-grey" height={14} /> doesn't expire. It's a real digital reward that builds real status — through 360LOCK, through participation, through showing up.
           </p>
         </div>
 

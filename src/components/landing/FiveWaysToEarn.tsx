@@ -1,13 +1,24 @@
 import { ShoppingBag, Shirt, GraduationCap, Users, Gift, Building2, ArrowRight, Instagram } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { NCTRLogo } from '@/components/NCTRLogo';
 
-const ways = [
-  { icon: ShoppingBag, title: 'Shop & Earn', description: "Buy what you already buy. Brands fund your rewards instead of funding ads. Every purchase earns NCTR — not points that expire, not discounts that disappear. Real value that's yours to keep.", href: 'https://bountyhunter.nctr.live/shop', accent: false, showArrow: true },
-  { icon: Shirt, title: 'Rep the Brand', description: "Wear it. Own it. NCTR merch earns 3x with 360LOCK because repping the Alliance isn't just shopping — it's ownership. Plus exclusive bounties only merch holders unlock.", href: 'https://merch.nctr.live', accent: false, showArrow: true },
-  { icon: GraduationCap, title: 'Learn & Earn', description: "NCTR University launches Spring 2026. Complete courses on participation, ownership, and the Alliance economy — and earn NCTR for every milestone. In the meantime, get a head start on your knowledge advantage by following on X and Instagram.", href: 'https://x.com/NCTRAlliance', accent: false, showArrow: false, isLearnCard: true },
-  { icon: Users, title: 'Build Your Crew', description: "Bring your people. You all earn NCTR — when they sign up, when they buy, and when they hit milestones. Your crew compounds your status. The Alliance grows one real relationship at a time.", href: 'https://bountyhunter.nctr.live/network', accent: false, showArrow: true },
-  { icon: Gift, title: 'Contribute Rewards', description: "Have something to offer? A product, a skill, an experience — list it as a Crescendo reward. When members claim it, you earn NCTR. The rewards marketplace is built by the people in it.", href: '/rewards', accent: false, showArrow: true },
-  { icon: Building2, title: 'Brands Sponsor Life', description: "Brands fund the rewards you earn just by living your life. They earn NCTR for the rewards they bring — same economy as members. In this alliance, brands don't pay tolls. They build alongside you.", href: 'https://beacon.nctr.live', accent: true, showArrow: true },
+const N = <NCTRLogo variant="wordmark-grey" height={12} />;
+
+const ways: Array<{
+  icon: typeof ShoppingBag;
+  title: string;
+  description: React.ReactNode;
+  href: string;
+  accent: boolean;
+  showArrow: boolean;
+  isLearnCard?: boolean;
+}> = [
+  { icon: ShoppingBag, title: 'Shop & Earn', description: <>Buy what you already buy. Brands fund your rewards instead of funding ads. Every purchase earns {N} — not points that expire, not discounts that disappear. Real value that's yours to keep.</>, href: 'https://bountyhunter.nctr.live/shop', accent: false, showArrow: true },
+  { icon: Shirt, title: 'Rep the Brand', description: <>Wear it. Own it. {N} merch earns 3x with 360LOCK because repping the Alliance isn't just shopping — it's ownership. Plus exclusive bounties only merch holders unlock.</>, href: 'https://merch.nctr.live', accent: false, showArrow: true },
+  { icon: GraduationCap, title: 'Learn & Earn', description: <>{N} University launches Spring 2026. Complete courses on participation, ownership, and the Alliance economy — and earn {N} for every milestone. In the meantime, get a head start on your knowledge advantage by following on X and Instagram.</>, href: 'https://x.com/NCTRAlliance', accent: false, showArrow: false, isLearnCard: true },
+  { icon: Users, title: 'Build Your Crew', description: <>Bring your people. You all earn {N} — when they sign up, when they buy, and when they hit milestones. Your crew compounds your status. The Alliance grows one real relationship at a time.</>, href: 'https://bountyhunter.nctr.live/network', accent: false, showArrow: true },
+  { icon: Gift, title: 'Contribute Rewards', description: <>Have something to offer? A product, a skill, an experience — list it as a Crescendo reward. When members claim it, you earn {N}. The rewards marketplace is built by the people in it.</>, href: '/rewards', accent: false, showArrow: true },
+  { icon: Building2, title: 'Brands Sponsor Life', description: <>Brands fund the rewards you earn just by living your life. They earn {N} for the rewards they bring — same economy as members. In this alliance, brands don't pay tolls. They build alongside you.</>, href: 'https://beacon.nctr.live', accent: true, showArrow: true },
 ];
 
 export function FiveWaysToEarn() {

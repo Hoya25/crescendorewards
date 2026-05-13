@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { NCTRLogo } from '@/components/NCTRLogo';
 
 export function TheMathSection() {
   const { setShowAuthModal, setAuthMode } = useAuthContext();
@@ -17,7 +18,7 @@ export function TheMathSection() {
           Let's Do the Math
         </h2>
         <p className="text-center mb-12 text-sm md:text-base text-text-body">
-          Buy a $55 NCTR hoodie. Here's what happens.
+          Buy a $55 <NCTRLogo variant="wordmark-grey" height={14} /> hoodie. Here's what happens.
         </p>
 
         <div className="grid md:grid-cols-2 gap-5 mb-10">
@@ -89,8 +90,8 @@ export function TheMathSection() {
           style={{ background: 'hsl(var(--accent-lime-subtle))', borderColor: 'hsl(var(--accent-lime) / 0.15)', borderRadius: '0px' }}
         >
           <p className="text-sm text-text-body">
-            And every NCTR you commit raises your Crescendo status. Which unlocks better bounties.
-            Which earn more NCTR. Which raises your status more.{' '}
+            And every <NCTRLogo variant="wordmark-grey" height={14} /> you commit raises your Crescendo status. Which unlocks better bounties.
+            Which earn more <NCTRLogo variant="wordmark-grey" height={14} />. Which raises your status more.{' '}
             <span className="font-bold text-text-heading">The flywheel never stops.</span>
           </p>
         </div>
