@@ -10,7 +10,7 @@ interface HeroSectionProps {
 const STAT_TILES = [
   { headline: '5', label: 'STATUS TIERS', sub: 'Bronze to Diamond' },
   { headline: '360', label: 'DAYS', sub: 'One commitment, instant activation' },
-  { headline: '∞', label: 'EARN IN BOUNTY HUNTER', sub: 'Shop, complete bounties, refer friends' },
+  { headline: '∞', label: 'EARN IN BOUNTY HUNTER', sub: 'Shop, complete bounties, invite friends' },
 ];
 
 const ambient = '0px 4px 20px rgba(50,50,50,0.04), 0px 10px 40px rgba(50,50,50,0.06)';
@@ -22,7 +22,7 @@ const hoverCurve = 'cubic-bezier(0.4,0,0.2,1)';
 function FlywheelSVG() {
   const cx = 200, cy = 200, r = 130;
   const nodes = [
-    { label: 'EARN', sub: 'Shop, contribute, refer', angle: -90 },
+    { label: 'EARN', sub: 'Shop, contribute, invite', angle: -90 },
     { label: 'COMMIT', sub: 'Commit for 360 days', angle: 30 },
     { label: 'UNLOCK', sub: 'Level up your status', angle: 150 },
   ];
@@ -146,7 +146,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
           </h1>
 
           <p style={{ fontFamily: dmSans, fontSize: '16px', lineHeight: 1.6, color: '#5A5A58', maxWidth: '480px' }}>
-            Earn on <span style={{ fontStyle: 'italic' }}>Bounty Hunter</span>. Contribute on <span style={{ fontStyle: 'italic' }}>Crescendo</span>. NCTR belongs to the people and brands who build it.
+            Members earn by shopping and inviting friends. Brands earn by contributing rewards. Everyone earns NCTR. NCTR belongs to the people and brands who build it.
           </p>
 
           <div className="flex flex-col gap-3 max-w-md">
