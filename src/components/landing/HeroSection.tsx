@@ -127,7 +127,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
           <h1 style={{ lineHeight: 1.0, letterSpacing: '-0.03em' }}>
             <span
               style={{
-                fontFamily: barlow, fontWeight: 900,
+                fontFamily: barlow, fontWeight: 700,
                 fontSize: 'clamp(3rem, 6vw, 5rem)',
                 color: '#323232', display: 'block',
               }}
@@ -145,10 +145,8 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
             </span>
           </h1>
 
-          <div style={{ width: 120, height: 2, backgroundColor: '#E2FF6D', marginTop: 12 }} />
-
           <p style={{ fontFamily: dmSans, fontSize: '16px', lineHeight: 1.6, color: '#5A5A58', maxWidth: '480px' }}>
-            Earn on <span style={{ color: '#E2FF6D' }}>Bounty Hunter</span>. Contribute on <span style={{ color: '#E2FF6D' }}>Crescendo</span>. NCTR belongs to the people and brands who build it.
+            Earn on <span style={{ fontStyle: 'italic' }}>Bounty Hunter</span>. Contribute on <span style={{ fontStyle: 'italic' }}>Crescendo</span>. NCTR belongs to the people and brands who build it.
           </p>
 
           <div className="flex flex-col gap-3 max-w-md">
