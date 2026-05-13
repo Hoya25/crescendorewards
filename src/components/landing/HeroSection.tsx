@@ -138,12 +138,14 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
               style={{
                 fontFamily: barlow, fontWeight: 900,
                 fontSize: 'clamp(3rem, 6vw, 5rem)',
-                color: '#E2FF6D', display: 'block',
+                color: '#323232', display: 'block',
               }}
             >
               Owned by everyone who participates.
             </span>
           </h1>
+
+          <div style={{ width: 120, height: 2, backgroundColor: '#E2FF6D', marginTop: 12 }} />
 
           <p style={{ fontFamily: dmSans, fontSize: '16px', lineHeight: 1.6, color: '#5A5A58', maxWidth: '480px' }}>
             Earn on <span style={{ color: '#E2FF6D' }}>Bounty Hunter</span>. Contribute on <span style={{ color: '#E2FF6D' }}>Crescendo</span>. NCTR belongs to the people and brands who build it.
