@@ -22,7 +22,7 @@ const hoverCurve = 'cubic-bezier(0.4,0,0.2,1)';
 function FlywheelSVG() {
   const cx = 200, cy = 200, r = 130;
   const nodes = [
-    { label: 'EARN', sub: 'Shop, contribute, refer', angle: -90 },
+    { label: 'EARN', sub: 'Shop, contribute, invite', angle: -90 },
     { label: 'COMMIT', sub: 'Commit for 360 days', angle: 30 },
     { label: 'UNLOCK', sub: 'Level up your status', angle: 150 },
   ];
