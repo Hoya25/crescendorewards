@@ -9,7 +9,7 @@ const steps = [
     emoji: '🛍️',
     title: 'Earn in Bounty Hunter',
     description:
-      'Shop at thousands of brands, complete bounties, buy NCTR merch, and refer friends — all inside Bounty Hunter. Brands power the rewards through Beacon. Every action earns NCTR automatically.',
+      'Shop at thousands of brands, complete bounties, buy NCTR merch, and invite friends — all inside Bounty Hunter. Brands power the rewards through Beacon. Every action earns NCTR automatically.',
   },
   {
     emoji: '🔒',
