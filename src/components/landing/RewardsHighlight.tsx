@@ -6,8 +6,8 @@ const dmSans = "'DM Sans', sans-serif";
 
 const cards = [
   {
-    title: 'Thousands of brands',
-    subtitle: 'Shop and earn across wellness, outdoor, fashion, tech, food, and more — all through the Alliance ecosystem.',
+    title: 'Brands you already love',
+    subtitle: "Shop across wellness, outdoor, fashion, tech, food, and more — every purchase earns NCTR for the life you're already living.",
     tier: 'All members',
   },
   {
