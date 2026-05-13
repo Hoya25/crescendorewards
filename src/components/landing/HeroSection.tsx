@@ -121,7 +121,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
       className="relative flex items-center px-6 md:px-12 pt-28 md:pt-0 md:min-h-screen"
       style={{ backgroundColor: '#F9F9F7' }}
     >
-      <div className="relative z-10 max-w-6xl mx-auto w-full grid md:grid-cols-2 gap-10 md:gap-20 items-center py-16 md:py-0">
+      <div className="relative z-10 max-w-6xl mx-auto w-full grid md:grid-cols-2 gap-10 md:gap-20 items-center py-16 pb-20 md:py-0 md:pb-24">
         {/* Left: Copy */}
         <div className="space-y-8">
           <h1 style={{ lineHeight: 1.0, letterSpacing: '-0.03em' }}>
