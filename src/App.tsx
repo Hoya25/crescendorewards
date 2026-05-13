@@ -160,7 +160,7 @@ function AppRoutes() {
 
   const handleAuthSuccess = () => {
     setShowAuthModal(false);
-    setBhEmail(null);
+    setBhEmail('');
 
     const redirectTo = authRedirectPath || pendingAuthRedirectRef.current || '/bounties';
     pendingAuthRedirectRef.current = redirectTo;
