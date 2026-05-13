@@ -187,7 +187,7 @@ function Condition4({ navigate, locked }: { navigate: (path: string) => void; lo
   const remaining = 2000 - locked;
   return (
     <div>
-      <StepLabel />
+      <StepLabel label="Your Status" />
       <h3 className="text-xl font-bold text-white mb-2">
         Silver Member! <span style={{ color: "#FFD700" }}>Gold</span> is Next.
       </h3>
@@ -226,7 +226,7 @@ function Condition5({
 
   return (
     <div>
-      <StepLabel />
+      <StepLabel label="Your Status" />
       <h3 className="text-xl font-bold text-white mb-2">
         <span style={{ color: tierColor }}>{displayTier}</span> Member — You Have Full Access
       </h3>
