@@ -16,10 +16,10 @@ const cards = [
   {
     icon: Building2,
     eyebrow: 'BRAND PARTNER?',
-    headline: 'See what your customers unlock',
-    body: 'When your customers earn NCTR through Beacon, this is where they build status, claim rewards, and deepen their relationship with your brand.',
-    cta: 'Browse Rewards →',
-    to: '/rewards',
+    headline: 'Contribute the rewards that build the alliance',
+    body: 'When you list a reward on Crescendo, you earn NCTR every time a member claims. You\'re not buying impressions — you\'re building a relationship with a community that opted in.',
+    cta: 'Contribute a reward →',
+    to: '/contribute',
   },
   {
     icon: Rocket,
