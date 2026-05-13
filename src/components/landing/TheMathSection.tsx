@@ -90,8 +90,8 @@ export function TheMathSection() {
           style={{ background: 'hsl(var(--accent-lime-subtle))', borderColor: 'hsl(var(--accent-lime) / 0.15)', borderRadius: '0px' }}
         >
           <p className="text-sm text-text-body">
-            And every NCTR you commit raises your Crescendo status. Which unlocks better bounties.
-            Which earn more NCTR. Which raises your status more.{' '}
+            And every <NCTRLogo variant="wordmark-grey" height={14} /> you commit raises your Crescendo status. Which unlocks better bounties.
+            Which earn more <NCTRLogo variant="wordmark-grey" height={14} />. Which raises your status more.{' '}
             <span className="font-bold text-text-heading">The flywheel never stops.</span>
           </p>
         </div>
