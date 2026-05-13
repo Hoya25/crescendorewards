@@ -18,8 +18,8 @@ const cards = [
     eyebrow: 'BRAND PARTNER?',
     headline: 'Contribute the rewards that build the alliance',
     body: 'When you list a reward on Crescendo, you earn NCTR every time a member claims. You\'re not buying impressions — you\'re building a relationship with a community that opted in.',
-    cta: 'Contribute a reward →',
-    to: '/contribute',
+    cta: 'Apply to sponsor →',
+    to: '/become-sponsor',
   },
   {
     icon: Rocket,

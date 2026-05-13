@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { ComingSoonGate } from '@/components/ComingSoonGate';
@@ -11,6 +11,7 @@ interface AdminRouteProps {
 export function AdminRoute({ children }: AdminRouteProps) {
   const { isAuthenticated, loading } = useAuthContext();
   const { isAdmin, loading: adminLoading } = useAdminRole();
+  const location = useLocation();
 
   if (loading || adminLoading) {
     return (
@@ -24,7 +25,7 @@ export function AdminRoute({ children }: AdminRouteProps) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   if (!isAdmin) {

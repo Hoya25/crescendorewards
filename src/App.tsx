@@ -197,7 +197,7 @@ function AppRoutes() {
               path="/" 
               element={
                 isAuthenticated ? (
-                  <Navigate to={authRedirectPath || pendingAuthRedirectRef.current || "/bounties"} replace />
+                  <Navigate to={authRedirectPath || pendingAuthRedirectRef.current || "/dashboard"} replace />
                 ) : (
                   <LandingPage />
                 )
