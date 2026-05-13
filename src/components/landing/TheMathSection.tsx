@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { NCTRLogo } from '@/components/NCTRLogo';
 
 export function TheMathSection() {
   const { setShowAuthModal, setAuthMode } = useAuthContext();
