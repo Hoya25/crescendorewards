@@ -188,7 +188,7 @@ export function useUserOnboarding() {
   }, [unifiedId]);
 
   // Derive completion from REAL data, not just stored flags.
-  const profileName = (profile?.display_name || profile?.full_name || '').trim();
+  const profileName = (profile?.display_name || '').trim();
   const profileComplete = !!profileName && !!profile?.avatar_url;
 
   const checklistItems: OnboardingItem[] = profile ? [
