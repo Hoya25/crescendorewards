@@ -18,7 +18,7 @@ export function TheMathSection() {
           Let's Do the Math
         </h2>
         <p className="text-center mb-12 text-sm md:text-base text-text-body">
-          Buy a $55 NCTR hoodie. Here's what happens.
+          Buy a $55 <NCTRLogo variant="wordmark-grey" height={14} /> hoodie. Here's what happens.
         </p>
 
         <div className="grid md:grid-cols-2 gap-5 mb-10">
