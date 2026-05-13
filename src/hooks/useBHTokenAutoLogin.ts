@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const DEFAULT_PASSWORD = 'nctr-beta-2026';
 
 /**
  * Auto-login via Bounty Hunter token.
  * When ?token=xxx&email=abc is present, validates with BH via our edge function proxy,
- * provisions/signs in the user, and redirects to /dashboard.
+ * provisions/signs in the user, and redirects to the originally requested route
+ * (location.state.from) or /dashboard as a fallback.
  */
 export function useBHTokenAutoLogin(isAuthenticated: boolean, authLoading: boolean) {
   const [processing, setProcessing] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (authLoading || isAuthenticated) return;
@@ -26,6 +28,8 @@ export function useBHTokenAutoLogin(isAuthenticated: boolean, authLoading: boole
 
     let cancelled = false;
     setProcessing(true);
+
+    const target = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname || '/dashboard';
 
     (async () => {
       try {
@@ -58,7 +62,7 @@ export function useBHTokenAutoLogin(isAuthenticated: boolean, authLoading: boole
         });
 
         if (!signInError) {
-          if (!cancelled) navigate('/dashboard', { replace: true });
+          if (!cancelled) navigate(target, { replace: true });
           return;
         }
 
@@ -79,7 +83,7 @@ export function useBHTokenAutoLogin(isAuthenticated: boolean, authLoading: boole
               password: DEFAULT_PASSWORD,
             });
             if (!retryError && !cancelled) {
-              navigate('/dashboard', { replace: true });
+              navigate(target, { replace: true });
               return;
             }
           }
@@ -95,7 +99,7 @@ export function useBHTokenAutoLogin(isAuthenticated: boolean, authLoading: boole
         });
 
         if (!finalError && !cancelled) {
-          navigate('/dashboard', { replace: true });
+          navigate(target, { replace: true });
         } else {
           console.warn('[BH Token] Final sign-in failed:', finalError?.message);
           if (!cancelled) setProcessing(false);
