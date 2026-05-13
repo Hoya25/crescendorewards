@@ -34,6 +34,12 @@ export function WingmanSidebarExpanded() {
       }
     } catch { /* ignore */ }
 
+    if (!user?.id) return;
+
+    // Don't call protected edge functions before a real session exists.
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData?.session?.access_token) return;
+
     setIsLoading(true);
     try {
       let result: BriefingData | null = null;
@@ -45,7 +51,7 @@ export function WingmanSidebarExpanded() {
       try {
         const res = await Promise.race([
           supabase.functions.invoke('bh-status-proxy', {
-            body: { action: 'wingman_briefing', user_id: user?.id },
+            body: { action: 'wingman_briefing', user_id: user.id },
           }),
           timeout,
         ]) as { data: any; error: any };
