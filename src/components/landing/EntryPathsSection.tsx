@@ -1,15 +1,27 @@
 import { ShieldCheck, Building2, Rocket, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { NCTRLogo } from '@/components/NCTRLogo';
 
 const barlow = "'Barlow Condensed', sans-serif";
 const dmSans = "'DM Sans', sans-serif";
 
-const cards = [
+const NCTR = <NCTRLogo variant="wordmark-grey" height={14} />;
+
+const cards: Array<{
+  icon: typeof ShieldCheck;
+  eyebrow: string;
+  headline: string;
+  body: React.ReactNode;
+  cta: string;
+  to: string;
+}> = [
   {
     icon: ShieldCheck,
     eyebrow: 'COMING FROM BOUNTY HUNTER?',
     headline: 'Your NCTR is already working',
-    body: 'Every NCTR you earn in Bounty Hunter builds your Crescendo status. Check your tier and see what you\'ve unlocked.',
+    body: (
+      <>Every {NCTR} you earn in Bounty Hunter builds your Crescendo status. Check your tier and see what you've unlocked.</>
+    ),
     cta: 'Check My Status →',
     to: '/membership',
   },
@@ -17,7 +29,9 @@ const cards = [
     icon: Building2,
     eyebrow: 'BRAND PARTNER?',
     headline: 'Contribute the rewards that build the alliance',
-    body: 'When you list a reward on Crescendo, you earn NCTR every time a member claims. You\'re not buying impressions — you\'re building a relationship with a community that opted in.',
+    body: (
+      <>When you list a reward on Crescendo, you earn {NCTR} every time a member claims. You're not buying impressions — you're building a relationship with a community that opted in.</>
+    ),
     cta: 'Apply to sponsor →',
     to: '/become-sponsor',
   },
@@ -25,7 +39,9 @@ const cards = [
     icon: Rocket,
     eyebrow: 'NEW HERE?',
     headline: 'Start earning in 2 minutes',
-    body: 'Join Bounty Hunter, earn your first NCTR, and watch your Crescendo status grow. Free to join. Always.',
+    body: (
+      <>Join Bounty Hunter, earn your first {NCTR}, and watch your Crescendo status grow. Free to join. Always.</>
+    ),
     cta: 'Join Bounty Hunter →',
     to: 'https://bountyhunter.nctr.live',
   },
