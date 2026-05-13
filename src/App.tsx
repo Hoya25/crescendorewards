@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from 'react';
+import { Suspense, lazy, useEffect, useRef } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -119,6 +119,14 @@ function AppRoutes() {
   const { profile, refreshUnifiedProfile } = useUnifiedUser();
   const location = useLocation();
   const navigate = useNavigate();
+  const pendingAuthRedirectRef = useRef<string | null>(null);
+  const authRedirectPath = (location.state as { from?: { pathname?: string } })?.from?.pathname;
+
+  useEffect(() => {
+    if (authRedirectPath) {
+      pendingAuthRedirectRef.current = authRedirectPath;
+    }
+  }, [authRedirectPath]);
 
   // Enable real-time toast notifications for claim delivery status updates
   useClaimDeliveryNotifications();
@@ -146,7 +154,8 @@ function AppRoutes() {
     setShowAuthModal(false);
     setBhEmail(null);
 
-    const redirectTo = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/bounties';
+    const redirectTo = authRedirectPath || pendingAuthRedirectRef.current || '/bounties';
+    pendingAuthRedirectRef.current = null;
     navigate(redirectTo, { replace: true });
   };
 
@@ -176,7 +185,7 @@ function AppRoutes() {
               path="/" 
               element={
                 isAuthenticated ? (
-                  <Navigate to="/bounties" replace />
+                  <Navigate to={authRedirectPath || pendingAuthRedirectRef.current || "/bounties"} replace />
                 ) : (
                   <LandingPage />
                 )
