@@ -66,8 +66,8 @@ function capitalize(s: string): string {
  * Default earning multipliers per tier (used as fallback).
  */
 export const DEFAULT_EARNING_MULTIPLIERS: Record<string, number> = {
-  bronze: 1.0,
-  silver: 1.25,
+  bronze: 1.1,
+  silver: 1.3,
   gold: 1.5,
   platinum: 1.8,
   diamond: 2.5,

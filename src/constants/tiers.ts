@@ -29,8 +29,8 @@ export interface TierDefinition {
 }
 
 export const TIERS: TierDefinition[] = [
-  { id: 'bronze',   name: 'Bronze',   threshold: 1_000,   multiplier: 1.0,  color: '#CD7F32', emoji: '🥉' },
-  { id: 'silver',   name: 'Silver',   threshold: 5_000,   multiplier: 1.25, color: '#C0C0C8', emoji: '🥈' },
+  { id: 'bronze',   name: 'Bronze',   threshold: 1_000,   multiplier: 1.1,  color: '#CD7F32', emoji: '🥉' },
+  { id: 'silver',   name: 'Silver',   threshold: 5_000,   multiplier: 1.3,  color: '#C0C0C8', emoji: '🥈' },
   { id: 'gold',     name: 'Gold',     threshold: 15_000,  multiplier: 1.5,  color: '#FFD764', emoji: '🥇' },
   { id: 'platinum', name: 'Platinum', threshold: 40_000,  multiplier: 1.8,  color: '#C8C8D2', emoji: '💎' },
   { id: 'diamond',  name: 'Diamond',  threshold: 100_000, multiplier: 2.5,  color: '#B9F2FF', emoji: '👑' },
