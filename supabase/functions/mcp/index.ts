@@ -347,7 +347,7 @@ const TIERS: Tier[] = [
     threshold: 100000,
     multiplier: 2.5,
     description: 'Top-tier members with 100,000+ NCTR locked. 2.5x earning multiplier.',
-    perks: ['2.5x earning multiplier', 'Founding member recognition', 'Diamond-exclusive events', 'Diamond badge', 'Direct team access']
+    perks: ['2.5x earning multiplier', 'Charter member recognition', 'Diamond-exclusive events', 'Diamond badge', 'Direct team access']
   }
 ]
 
