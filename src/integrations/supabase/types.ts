@@ -3811,13 +3811,6 @@ export type Database = {
           current_tier_id: string | null
           display_name: string | null
           email: string | null
-          founding_111: boolean
-          founding_111_approved: boolean
-          founding_111_approved_at: string | null
-          founding_111_candidate: boolean
-          founding_111_number: number | null
-          founding_111_qualified: boolean
-          founding_111_qualified_at: string | null
           garden_data: Json | null
           handle: string | null
           has_completed_onboarding: boolean | null
@@ -3855,13 +3848,6 @@ export type Database = {
           current_tier_id?: string | null
           display_name?: string | null
           email?: string | null
-          founding_111?: boolean
-          founding_111_approved?: boolean
-          founding_111_approved_at?: string | null
-          founding_111_candidate?: boolean
-          founding_111_number?: number | null
-          founding_111_qualified?: boolean
-          founding_111_qualified_at?: string | null
           garden_data?: Json | null
           handle?: string | null
           has_completed_onboarding?: boolean | null
@@ -3899,13 +3885,6 @@ export type Database = {
           current_tier_id?: string | null
           display_name?: string | null
           email?: string | null
-          founding_111?: boolean
-          founding_111_approved?: boolean
-          founding_111_approved_at?: string | null
-          founding_111_candidate?: boolean
-          founding_111_number?: number | null
-          founding_111_qualified?: boolean
-          founding_111_qualified_at?: string | null
           garden_data?: Json | null
           handle?: string | null
           has_completed_onboarding?: boolean | null
@@ -4307,11 +4286,6 @@ export type Database = {
         Args: { p_admin_notes?: string; p_reward_id: string; p_user_id: string }
         Returns: Json
       }
-      approve_founding_111: { Args: { p_user_id: string }; Returns: Json }
-      assign_founding_111_candidate: {
-        Args: { p_user_id: string }
-        Returns: Json
-      }
       calculate_nctr_reward: {
         Args: {
           p_base_amount: number
@@ -4329,10 +4303,6 @@ export type Database = {
       calculate_user_tier: { Args: { p_user_id: string }; Returns: string }
       cancel_gift: {
         Args: { p_gift_id: string; p_user_id: string }
-        Returns: Json
-      }
-      check_founding_111_qualification: {
-        Args: { p_user_id: string }
         Returns: Json
       }
       check_handle_available: { Args: { p_handle: string }; Returns: Json }
@@ -4391,27 +4361,6 @@ export type Database = {
         }[]
       }
       get_checkin_streak: { Args: { p_user_id: string }; Returns: Json }
-      get_founding_111_candidates: {
-        Args: never
-        Returns: {
-          auth_user_id: string
-          created_at: string
-          display_name: string
-          email: string
-          founding_111_approved: boolean
-          founding_111_approved_at: string
-          founding_111_candidate: boolean
-          founding_111_number: number
-          founding_111_qualified: boolean
-          founding_111_qualified_at: string
-          id: string
-          purchase_count: number
-          referral_count: number
-          referral_purchases: number
-          total_spend: number
-        }[]
-      }
-      get_founding_111_count: { Args: never; Returns: number }
       get_gift_stats: { Args: never; Returns: Json }
       get_handle_by_email: { Args: { lookup_email: string }; Returns: string }
       get_member_reward_price: {
@@ -4419,7 +4368,6 @@ export type Database = {
         Returns: Json
       }
       get_merch_milestones: { Args: { p_user_id: string }; Returns: Json }
-      get_my_founding_111_status: { Args: { p_user_id: string }; Returns: Json }
       get_public_stats: { Args: never; Returns: Json }
       get_purchase_milestones: { Args: { p_user_id: string }; Returns: Json }
       get_recent_admin_activity: {
@@ -4547,7 +4495,6 @@ export type Database = {
         Args: { p_referred_id: string; p_referrer_code: string }
         Returns: Json
       }
-      reject_founding_111: { Args: { p_user_id: string }; Returns: Json }
       save_referral_slug: { Args: { p_slug: string }; Returns: Json }
       send_gift_from_balance: {
         Args: {
