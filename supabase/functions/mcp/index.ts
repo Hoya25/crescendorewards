@@ -317,16 +317,16 @@ const TIERS: Tier[] = [
   {
     name: 'Bronze',
     threshold: 1000,
-    multiplier: 1.0,
-    description: 'Starting tier — members with 1,000+ NCTR locked. Base earning rate on all bounties.',
-    perks: ['Access to all standard bounties', 'The Garden shopping', 'Community access']
+    multiplier: 1.1,
+    description: 'Starting tier — members with 1,000+ NCTR locked. 1.1x earning multiplier.',
+    perks: ['1.1x earning multiplier', 'Access to all standard bounties', 'The Garden shopping', 'Community access']
   },
   {
     name: 'Silver',
     threshold: 5000,
-    multiplier: 1.25,
-    description: 'Committed members with 5,000+ NCTR locked. 1.25x earning multiplier.',
-    perks: ['1.25x earning multiplier', 'Early access to new bounties', 'Silver badge']
+    multiplier: 1.3,
+    description: 'Committed members with 5,000+ NCTR locked. 1.3x earning multiplier.',
+    perks: ['1.3x earning multiplier', 'Early access to new bounties', 'Silver badge']
   },
   {
     name: 'Gold',

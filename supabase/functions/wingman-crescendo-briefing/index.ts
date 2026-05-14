@@ -181,11 +181,9 @@ serve(async (req) => {
       availableRewardsCount = rewardsCountRes.count ?? 0;
     }
 
-    // ── Mem0 cross-app identity: use EMAIL as namespace ─────────────────
-    // Both BH and Crescendo share the same Mem0 user_id (email) so
-    // memories written by either app are visible to both.
-    // NOTE: BH wingman-briefing needs matching update to use email as Mem0 user_id.
-    const mem0UserId = userEmail || user_id || "anonymous";
+    // Mem0 cross-app identity: UUID per April 2026 migration. BH and Crescendo
+    // must use the same key. DO NOT revert to email — that orphans cross-app memory.
+    const mem0UserId = user_id || "anonymous";
 
     // ── Build user message ─────────────────────────────────────────────
     const ambitionsList =

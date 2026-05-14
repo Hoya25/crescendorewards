@@ -6,8 +6,8 @@ const TIER_THRESHOLDS = [
   { name: "Diamond", min: 100000, multiplier: 2.5 },
   { name: "Platinum", min: 40000, multiplier: 1.8 },
   { name: "Gold", min: 15000, multiplier: 1.5 },
-  { name: "Silver", min: 5000, multiplier: 1.25 },
-  { name: "Bronze", min: 1000, multiplier: 1.0 },
+  { name: "Silver", min: 5000, multiplier: 1.3 },
+  { name: "Bronze", min: 1000, multiplier: 1.1 },
 ] as const;
 
 function getTier(locked: number): { name: string | null; multiplier: number } {
