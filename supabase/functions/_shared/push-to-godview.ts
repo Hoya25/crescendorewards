@@ -1,6 +1,9 @@
 // Fire-and-forget pusher to Godview's ingest-event endpoint.
-// Failures are logged but never thrown — calling functions must not await this
-// in a way that blocks their primary response.
+// Uses EdgeRuntime.waitUntil() so the Deno isolate stays alive until the
+// fetch completes, even after the parent function returns its Response.
+// Failures are logged but never thrown.
+
+declare const EdgeRuntime: { waitUntil: (p: Promise<unknown>) => void } | undefined;
 
 const GODVIEW_INGEST_URL =
   "https://pvjjpkmjbdoziladjtlt.supabase.co/functions/v1/ingest-event";
@@ -8,24 +11,23 @@ const GODVIEW_INGEST_URL =
 export function pushToGodview(
   eventType: string,
   payload: Record<string, unknown>
-): Promise<void> {
+): void {
   const key = Deno.env.get("GODVIEW_INGEST_KEY");
   if (!key) {
-    console.error("[godview] GODVIEW_INGEST_KEY not set — skipping push", { eventType });
-    return Promise.resolve();
+    console.error("[godview] GODVIEW_INGEST_KEY not set, skipping push");
+    return;
   }
 
   const envelope = {
     source: "crescendo",
     event_type: eventType,
-    user_id: (payload as { user_id?: string | null }).user_id ?? null,
+    user_id: (payload as { user_id?: string | null })?.user_id ?? null,
     timestamp: new Date().toISOString(),
     payload,
     env: Deno.env.get("ENVIRONMENT") || "production",
   };
 
-  // Fire-and-forget — return immediately; handle the promise in the background.
-  (async () => {
+  const pushPromise = (async () => {
     try {
       const res = await fetch(GODVIEW_INGEST_URL, {
         method: "POST",
@@ -36,15 +38,18 @@ export function pushToGodview(
         body: JSON.stringify(envelope),
       });
       if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        console.error(`[godview] non-2xx ${res.status} for ${eventType}:`, text);
+        const body = await res.text().catch(() => "");
+        console.error(`[godview] non-2xx ${res.status} for ${eventType}: ${body}`);
       } else {
-        await res.text().catch(() => "");
+        console.log(`[godview] ${eventType} pushed successfully`);
       }
     } catch (err) {
       console.error(`[godview] push failed for ${eventType}:`, err);
     }
   })();
 
-  return Promise.resolve();
+  // Critical: keep the edge isolate alive until the push completes
+  if (typeof EdgeRuntime !== "undefined" && EdgeRuntime?.waitUntil) {
+    EdgeRuntime.waitUntil(pushPromise);
+  }
 }
