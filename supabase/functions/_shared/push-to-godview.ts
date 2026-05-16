@@ -18,12 +18,16 @@ export function pushToGodview(
     return;
   }
 
+  const p = payload as Record<string, unknown>;
   const envelope = {
-    source: "crescendo",
+    source_app: "crescendo",
     event_type: eventType,
-    user_id: (payload as { user_id?: string | null })?.user_id ?? null,
-    timestamp: new Date().toISOString(),
-    payload,
+    actor_email: (p?.actor_email as string) || (p?.user_email as string) || null,
+    actor_name: (p?.actor_name as string) || (p?.display_name as string) || "Crescendo Member",
+    actor_role: "member",
+    user_id: (p?.user_id as string) || null,
+    occurred_at: new Date().toISOString(),
+    metadata: payload,
     env: Deno.env.get("ENVIRONMENT") || "production",
   };
 
