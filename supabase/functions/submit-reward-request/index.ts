@@ -1,4 +1,5 @@
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors.ts';
+import { pushToGodview } from '../_shared/push-to-godview.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!;
