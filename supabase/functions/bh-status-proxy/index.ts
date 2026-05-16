@@ -128,8 +128,29 @@ Deno.serve(async (req) => {
         (bhData as { crescendo_tier?: string; tier?: string })?.crescendo_tier ??
         (bhData as { tier?: string })?.tier ??
         null;
+
+      // Look up display_name from unified_profiles using a service role client
+      let actorName: string | null = null;
+      try {
+        const serviceClient = createClient(
+          Deno.env.get('SUPABASE_URL')!,
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+          { auth: { persistSession: false } }
+        );
+        const { data: actorProfile } = await serviceClient
+          .from('unified_profiles')
+          .select('display_name')
+          .eq('auth_user_id', userId)
+          .maybeSingle();
+        actorName = actorProfile?.display_name ?? null;
+      } catch (_e) {
+        // ignore lookup errors
+      }
+
       pushToGodview('crescendo_dashboard_loaded', {
         user_id: userId,
+        actor_email: userEmail,
+        actor_name: actorName || userEmail || 'Crescendo Member',
         tier_at_load: tierAtLoad,
       });
     }

@@ -59,9 +59,18 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Failed to save request' }), { status: 500, headers: corsHeaders });
     }
 
+    // Look up display_name for actor_name
+    const { data: actorProfile } = await serviceClient
+      .from('unified_profiles')
+      .select('display_name')
+      .eq('auth_user_id', user.id)
+      .maybeSingle();
+
     // Push to Godview (fire-and-forget)
     pushToGodview('listing_created', {
       user_id: user.id,
+      actor_email: user_email || user.email,
+      actor_name: actorProfile?.display_name || handle || user_email || user.email,
       listing_id: inserted?.id ?? null,
       listing_type: 'reward_request',
     });

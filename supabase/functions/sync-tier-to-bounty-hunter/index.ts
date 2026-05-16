@@ -34,17 +34,19 @@ serve(async (req) => {
     let referralCode: string | null = null;
     let nctrLockedPoints: number | null = null;
     let nctrBalancePoints: number | null = null;
+    let displayName: string | null = null;
 
     try {
       const { data: profile } = await supabaseAdmin
         .from("unified_profiles")
-        .select("crescendo_data, nctr_locked_points, nctr_balance_points")
+        .select("crescendo_data, nctr_locked_points, nctr_balance_points, display_name")
         .eq("auth_user_id", auth_user_id)
         .single();
 
       if (profile) {
         nctrLockedPoints = profile.nctr_locked_points ?? null;
         nctrBalancePoints = profile.nctr_balance_points ?? null;
+        displayName = profile.display_name ?? null;
 
         if (profile.crescendo_data) {
           const cd = typeof profile.crescendo_data === "string"
@@ -108,6 +110,8 @@ serve(async (req) => {
     // Push to Godview (fire-and-forget)
     pushToGodview("tier_upgrade", {
       user_id: auth_user_id,
+      actor_email: email,
+      actor_name: displayName || email || "Crescendo Member",
       new_tier: new_tier ?? null,
       prior_tier: null,
       nctr_locked: nctrLockedPoints ?? 0,
