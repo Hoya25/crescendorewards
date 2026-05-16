@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { pushToGodview } from '../_shared/push-to-godview.ts';
 
 const BH_FUNCTIONS_BASE = 'https://auibudfactqhisvmiotw.supabase.co/functions/v1';
 
