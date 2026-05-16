@@ -161,6 +161,8 @@ serve(async (req) => {
     // Push to Godview (fire-and-forget)
     pushToGodview("tier_upgrade", {
       user_id: profile.id,
+      actor_email: profile.email || email,
+      actor_name: profile.display_name || profile.email || email || "Crescendo Member",
       new_tier: assignedTierName,
       prior_tier: (existingData as { tier?: string })?.tier ?? null,
       nctr_locked: nctr_locked_points ?? nctr_amount,
