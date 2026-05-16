@@ -1,8 +1,5 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Gift, UserPlus } from "lucide-react";
+import { Gift } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
-import { toast } from "sonner";
 
 interface ActionCard {
   icon: React.ElementType;
@@ -15,14 +12,6 @@ interface ActionCard {
 
 export function QuickActions() {
   const navigate = useNavigate();
-  const { profile } = useUnifiedUser();
-
-  const handleCopyInvite = () => {
-    const code = (profile?.crescendo_data as any)?.referral_code || profile?.id?.slice(0, 8);
-    const link = `https://crescendo.nctr.live?ref=${code}`;
-    navigator.clipboard.writeText(link);
-    toast.success("Invite link copied!");
-  };
 
   const actions: ActionCard[] = [
     {
@@ -32,14 +21,6 @@ export function QuickActions() {
       subtitle: "Explore rewards you can claim with your status.",
       cta: "See Rewards",
       onClick: () => navigate("/rewards"),
-    },
-    {
-      icon: UserPlus,
-      iconColor: "#D9D9D9",
-      title: "Invite a Friend",
-      subtitle: "They join, you both earn 50 NCTR.",
-      cta: "Get Your Link",
-      onClick: handleCopyInvite,
     },
   ];
 
@@ -57,7 +38,7 @@ export function QuickActions() {
       >
         Your Next Move
       </h2>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         {actions.map((action) => {
           const Icon = action.icon;
           return (
