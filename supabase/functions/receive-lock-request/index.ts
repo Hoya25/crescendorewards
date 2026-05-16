@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
+import { pushToGodview } from "../_shared/push-to-godview.ts";
 
 serve(async (req) => {
   const corsResponse = handleCorsPreflightRequest(req);
