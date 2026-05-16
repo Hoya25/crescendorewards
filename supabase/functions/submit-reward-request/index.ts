@@ -1,4 +1,5 @@
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors.ts';
+import { pushToGodview } from '../_shared/push-to-godview.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!;
@@ -41,7 +42,7 @@ Deno.serve(async (req) => {
 
     // Insert into reward_requests
     const serviceClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
-    const { error: insertError } = await serviceClient
+    const { data: inserted, error: insertError } = await serviceClient
       .from('reward_requests')
       .insert({
         user_id: user.id,
@@ -49,12 +50,21 @@ Deno.serve(async (req) => {
         request_title: request_title.trim(),
         request_details: request_details?.trim() || null,
         tier_at_time: tier_at_time || null,
-      });
+      })
+      .select('id')
+      .single();
 
     if (insertError) {
       console.error('Insert error:', insertError);
       return new Response(JSON.stringify({ error: 'Failed to save request' }), { status: 500, headers: corsHeaders });
     }
+
+    // Push to Godview (fire-and-forget)
+    pushToGodview('listing_created', {
+      user_id: user.id,
+      listing_id: inserted?.id ?? null,
+      listing_type: 'reward_request',
+    });
 
     // Send notification email via Resend
     const displayHandle = handle || user_email || user.email || 'Unknown';

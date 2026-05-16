@@ -2,6 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
+import { pushToGodview } from "../_shared/push-to-godview.ts";
 
 const BH_ADMIN_API = "https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api";
 
@@ -103,6 +104,15 @@ serve(async (req) => {
     }
 
     console.log(`Synced tier=${new_tier} referral=${referralCode ?? "none"} locked_pts=${nctrLockedPoints ?? 0} balance_pts=${nctrBalancePoints ?? 0} for ${email}`);
+
+    // Push to Godview (fire-and-forget)
+    pushToGodview("tier_upgrade", {
+      user_id: auth_user_id,
+      new_tier: new_tier ?? null,
+      prior_tier: null,
+      nctr_locked: nctrLockedPoints ?? 0,
+    });
+
     return json({ synced: true });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
+import { pushToGodview } from "../_shared/push-to-godview.ts";
 
 serve(async (req) => {
   const corsResponse = handleCorsPreflightRequest(req);
@@ -156,6 +157,14 @@ serve(async (req) => {
     console.log(
       `Lock request received: ${nctr_amount} NCTR for ${email}, tier_assigned=${assignedTierName}, locked_pts=${nctr_locked_points ?? "n/a"}, balance_pts=${nctr_balance_points ?? "n/a"}, earned_total=${nctr_earned_total ?? "n/a"}`
     );
+
+    // Push to Godview (fire-and-forget)
+    pushToGodview("tier_upgrade", {
+      user_id: profile.id,
+      new_tier: assignedTierName,
+      prior_tier: (existingData as { tier?: string })?.tier ?? null,
+      nctr_locked: nctr_locked_points ?? nctr_amount,
+    });
 
     return json({ received: true, tier_assigned: assignedTierName });
   } catch (err) {
