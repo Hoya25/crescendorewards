@@ -52,7 +52,7 @@ serve(async (req) => {
     // Find unified profile by email
     const { data: profile, error: findError } = await supabaseAdmin
       .from("unified_profiles")
-      .select("id, crescendo_data")
+      .select("id, crescendo_data, display_name, email")
       .eq("email", email)
       .single();
 
