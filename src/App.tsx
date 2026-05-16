@@ -211,10 +211,10 @@ function AppRoutes() {
             
             <Route path="/about" element={<AboutPage />} />
             
-            {/* Public referral landing pages */}
-            <Route path="/join/:slug" element={<InviteLandingPage />} />
-            <Route path="/join" element={<InviteLandingPage />} />
-            <Route path="/ref/:code" element={<RefCodeRedirectPage />} />
+            {/* Public referral landing pages — hidden, redirect to dashboard */}
+            <Route path="/join/:slug" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/join" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/ref/:code" element={<Navigate to="/dashboard" replace />} />
 
             {/* ========================================= */}
             {/* SEMI-PUBLIC ROUTES (viewable by anyone but with layout) */}
@@ -343,17 +343,8 @@ function AppRoutes() {
               } 
             />
 
-            {/* REFERRAL LEADERBOARD - semi-public */}
-            <Route 
-              path="/leaderboard" 
-              element={
-                isAuthenticated ? (
-                  <AppLayout><LeaderboardPage /></AppLayout>
-                ) : (
-                  <LeaderboardPage />
-                )
-              } 
-            />
+            {/* REFERRAL LEADERBOARD — hidden, redirect to dashboard */}
+            <Route path="/leaderboard" element={<Navigate to="/dashboard" replace />} />
 
             {/* ========================================= */}
             {/* AUTHENTICATED ROUTES (require login + have layout) */}
@@ -514,14 +505,8 @@ function AppRoutes() {
                 </ProtectedRoute>
               } 
             />
-            <Route 
-              path="/invite" 
-              element={
-                <ProtectedRoute>
-                  <AppLayout><InvitePage /></AppLayout>
-                </ProtectedRoute>
-              } 
-            />
+            <Route path="/invite" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/invite/:code" element={<Navigate to="/dashboard" replace />} />
             <Route 
               path="/referrals" 
               element={

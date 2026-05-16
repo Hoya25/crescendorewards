@@ -15,7 +15,6 @@ import { toast } from '@/hooks/use-toast';
 import { ArrowLeft, Upload, Save, User, Mail, Wallet, Shield, LogOut, Link2, Unlink, RefreshCw, ExternalLink, Heart, Gift, X, Crown, ChevronRight, FileText, Check, Lock, TrendingUp, Sparkles, Truck, Package, HelpCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationPreferences } from '@/components/profile/NotificationPreferences';
-import { CompactReferralCard } from '@/components/referral/CompactReferralCard';
 import { Progress } from '@/components/ui/progress';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
@@ -1103,9 +1102,6 @@ export function ProfilePage() {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Referral Invite Card */}
-            <CompactReferralCard variant="featured" className="lg:col-span-1" />
 
             {/* Danger Zone */}
             <Card className="border-destructive/50">
