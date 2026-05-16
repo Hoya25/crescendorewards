@@ -44,6 +44,7 @@ Deno.serve(async (req) => {
 
     // Parse the request body
     const body = await req.json();
+    console.log(`[bh-status-proxy] invoked action=${body?.action} at ${new Date().toISOString()}`);
     const { action, email, tx_hash, amount, question, user_id } = body;
 
     // Validate action
