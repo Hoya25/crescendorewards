@@ -121,6 +121,18 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Push dashboard-load signal to Godview (fire-and-forget) for get_user_status
+    if (action === 'get_user_status' && bhRes.ok) {
+      const tierAtLoad =
+        (bhData as { crescendo_tier?: string; tier?: string })?.crescendo_tier ??
+        (bhData as { tier?: string })?.tier ??
+        null;
+      pushToGodview('crescendo_dashboard_loaded', {
+        user_id: userId,
+        tier_at_load: tierAtLoad,
+      });
+    }
+
     return new Response(JSON.stringify(bhData), {
       status: bhRes.status,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
