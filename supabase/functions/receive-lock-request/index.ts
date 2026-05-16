@@ -158,6 +158,14 @@ serve(async (req) => {
       `Lock request received: ${nctr_amount} NCTR for ${email}, tier_assigned=${assignedTierName}, locked_pts=${nctr_locked_points ?? "n/a"}, balance_pts=${nctr_balance_points ?? "n/a"}, earned_total=${nctr_earned_total ?? "n/a"}`
     );
 
+    // Push to Godview (fire-and-forget)
+    pushToGodview("tier_upgrade", {
+      user_id: profile.id,
+      new_tier: assignedTierName,
+      prior_tier: (existingData as { tier?: string })?.tier ?? null,
+      nctr_locked: nctr_locked_points ?? nctr_amount,
+    });
+
     return json({ received: true, tier_assigned: assignedTierName });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
