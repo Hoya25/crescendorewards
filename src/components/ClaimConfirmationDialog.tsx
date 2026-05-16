@@ -18,7 +18,6 @@ import {
 import { useState } from "react";
 import type { DeliveryMethod } from "@/types/delivery";
 import { DELIVERY_METHOD_LABELS } from "@/types/delivery";
-import { InvitePromptCard } from "@/components/referral/InvitePromptCard";
 import { CrescendoLogo } from "@/components/brand/CrescendoLogo";
 
 interface ClaimConfirmationDialogProps {
@@ -213,10 +212,6 @@ export function ClaimConfirmationDialog({
               </div>
             )}
 
-            {/* Invite Friends CTA */}
-            <div className="w-full mt-2">
-              <InvitePromptCard variant="after-claim" />
-            </div>
           </div>
 
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">

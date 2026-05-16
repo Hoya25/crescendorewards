@@ -3,7 +3,6 @@ import { SEO } from "./SEO";
 import { WelcomeFlow, hasBeenOnboarded } from "./onboarding/WelcomeFlow";
 import { OnboardingChecklist } from "./onboarding/OnboardingChecklist";
 import { OnboardingProgress } from "./OnboardingProgress";
-import { ReferredWelcomeModal } from "./referral/ReferredWelcomeModal";
 import { useNavigate } from "react-router-dom";
 import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 import { supabase } from "@/lib/supabase";
@@ -16,9 +15,6 @@ import { NextUnlocks } from "./dashboard/NextUnlocks";
 import { StatusExplainer } from "./dashboard/StatusExplainer";
 import { YourNextStep } from "./dashboard/YourNextStep";
 import { EarningsHistory } from "./dashboard/EarningsHistory";
-import { MilestoneProgress } from "@/components/referral/MilestoneProgress";
-import { CreatorReferrals } from "./dashboard/CreatorReferrals";
-import { DashboardReferralCard } from "./dashboard/DashboardReferralCard";
 import { useReferralSuccessToast } from "@/hooks/useReferralSuccessToast";
 import { BountyHunterCard } from "./dashboard/BountyHunterCard";
 
@@ -166,12 +162,6 @@ export function Dashboard() {
 
 
 
-          {/* 5.5 REFERRAL MILESTONE PROGRESS */}
-          <MilestoneProgress currentReferrals={profile?.crescendo_data?.referral_count as number ?? 0} />
-
-          {/* 5.6 CREATOR REFERRALS (conditional) */}
-          <CreatorReferrals />
-
           {/* 6. STATUS EXPLAINER (collapsible) */}
           <StatusExplainer />
 
@@ -184,12 +174,6 @@ export function Dashboard() {
         isOpen={showWelcomeModal}
         onClose={handleWelcomeClose}
         claimsBalance={claimBalance}
-      />
-      <ReferredWelcomeModal
-        isOpen={showReferredModal}
-        onClose={handleReferredModalClose}
-        userName={userName}
-        referrerName={referrerName}
       />
       <OnboardingProgress />
 
