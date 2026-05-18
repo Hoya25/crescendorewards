@@ -367,15 +367,6 @@ function AppRoutes() {
                 </ProtectedRoute>
               } 
             />
-            <Route 
-              path="/sponsor/rewards/new" 
-              element={
-                <ProtectedRoute>
-                  <AppLayout><SponsorSubmitReward /></AppLayout>
-                </ProtectedRoute>
-              } 
-            />
-
             {/* Main authenticated routes */}
             <Route
               path="/dashboard" 
