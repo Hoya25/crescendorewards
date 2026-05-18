@@ -164,6 +164,9 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
       setError(null);
 
       // Fetch unified profile
+      // Defensive: order by created_at and limit(1) to deterministically pick the
+      // earliest row when duplicate unified_profiles rows exist for the same
+      // auth_user_id (SYNC-C will dedupe + add UNIQUE constraint).
       const { data: profileData, error: profileError } = await supabase
         .from('unified_profiles')
         .select(`
@@ -171,6 +174,8 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
           status_tiers (*)
         `)
         .eq('auth_user_id', user.id)
+        .order('created_at', { ascending: true })
+        .limit(1)
         .maybeSingle();
 
       if (profileError) throw profileError;
