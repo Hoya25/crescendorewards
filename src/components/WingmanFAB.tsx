@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { NCTRSquareN } from '@/components/brand/NCTRLogos';
+import { NCTRCircleN } from '@/components/brand/NCTRLogos';
 
 const dmSans = "'DM Sans', sans-serif";
 const dmMono = "'DM Mono', monospace";
@@ -422,20 +422,23 @@ export function WingmanFAB() {
         </div>
       )}
 
-      {/* FAB Button */}
+      {/* FAB Button — mirrors BH NctrFAB design */}
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-label="Open Wingman"
+        data-wingman-fab
+        className="wingman-fab-btn wingman-fab-closed"
         style={{
           position: 'fixed',
-          bottom: 16,
-          right: 16,
+          right: 24,
+          bottom: 24,
           zIndex: 100,
-          width: 48,
-          height: 48,
-          background: '#E2FF6D',
-          border: 'none',
+          width: 56,
+          height: 56,
           borderRadius: '50%',
-          boxShadow: 'none',
+          background: '#131313',
+          border: 'none',
+          boxShadow: '0 3px 16px rgba(0,0,0,0.5)',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -444,8 +447,29 @@ export function WingmanFAB() {
           outline: 'none',
         }}
       >
-        <NCTRSquareN size={24} fillColor="#0D0D0D" />
+        <NCTRCircleN size={38} strokeColor="#E2FF6D" fillColor="#E2FF6D" />
       </button>
+      <style>{`
+        @keyframes nctr-breathe {
+          0%, 100% { opacity: 0.7; stroke-width: 12; }
+          50% { opacity: 1; stroke-width: 16; }
+        }
+        .wingman-fab-closed circle {
+          animation: nctr-breathe 4s ease-in-out infinite;
+        }
+        .wingman-fab-btn {
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .wingman-fab-btn:hover {
+          transform: scale(1.06);
+        }
+        .wingman-fab-btn:active {
+          transform: scale(0.95);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .wingman-fab-closed circle { animation: none !important; }
+        }
+      `}</style>
     </>
   );
 }
