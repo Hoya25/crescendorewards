@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { NCTRSquareN } from '@/components/brand/NCTRLogos';
+import { NCTRCircleN } from '@/components/brand/NCTRLogos';
 
 const dmSans = "'DM Sans', sans-serif";
 const dmMono = "'DM Mono', monospace";
