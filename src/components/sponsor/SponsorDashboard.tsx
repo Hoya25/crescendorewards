@@ -249,7 +249,7 @@ export function SponsorDashboard() {
 
         {/* Quick Actions */}
         <div className="flex flex-wrap gap-3">
-          <Button onClick={() => navigate('/sponsor/rewards/new')}>
+          <Button onClick={() => navigate('/submit-reward')}>
             <Plus className="w-4 h-4 mr-2" />
             Add New Reward
           </Button>
@@ -368,7 +368,7 @@ export function SponsorDashboard() {
                       Manage the rewards you've contributed to the community
                     </CardDescription>
                   </div>
-                  <Button size="sm" onClick={() => navigate('/sponsor/rewards/new')}>
+                  <Button size="sm" onClick={() => navigate('/submit-reward')}>
                     <Plus className="w-4 h-4 mr-2" />
                     Add Reward
                   </Button>
@@ -382,7 +382,7 @@ export function SponsorDashboard() {
                     <p className="text-muted-foreground mb-4">
                       Start contributing by adding your first reward
                     </p>
-                    <Button onClick={() => navigate('/sponsor/rewards/new')}>
+                    <Button onClick={() => navigate('/submit-reward')}>
                       <Plus className="w-4 h-4 mr-2" />
                       Add Your First Reward
                     </Button>
