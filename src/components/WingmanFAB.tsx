@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { NCTRCircleN } from '@/components/brand/NCTRLogos';
+import { NCTRNIcon } from '@/components/brand/NCTRLogos';
 
 const dmSans = "'DM Sans', sans-serif";
 const dmMono = "'DM Mono', monospace";
@@ -422,52 +422,52 @@ export function WingmanFAB() {
         </div>
       )}
 
-      {/* FAB Button — mirrors BH NctrFAB design */}
+      {/* FAB Button — mirrors BH NctrFAB design (src/components/dashboard/NctrFAB.tsx) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Open Wingman"
         data-wingman-fab
-        className="wingman-fab-btn wingman-fab-closed"
+        className="nctr-fab fixed right-5 bottom-[84px] lg:bottom-6"
         style={{
-          position: 'fixed',
-          right: 24,
-          bottom: 24,
-          zIndex: 100,
-          width: 56,
-          height: 56,
+          width: 48,
+          height: 48,
           borderRadius: '50%',
-          background: '#131313',
-          border: 'none',
-          boxShadow: '0 3px 16px rgba(0,0,0,0.5)',
-          cursor: 'pointer',
+          background: '#1a1a1a',
+          border: '1.5px solid #E2FF6D',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          cursor: 'pointer',
+          zIndex: 100,
           padding: 0,
-          outline: 'none',
         }}
       >
-        <NCTRCircleN size={38} strokeColor="#E2FF6D" fillColor="#E2FF6D" />
+        <NCTRNIcon size={22} fill="#E2FF6D" />
       </button>
       <style>{`
-        @keyframes nctr-breathe {
-          0%, 100% { opacity: 0.7; stroke-width: 12; }
-          50% { opacity: 1; stroke-width: 16; }
+        @keyframes nctr-fab-glow {
+          0%, 100% { box-shadow: 0 0 12px rgba(226,255,109,0.28); }
+          50%      { box-shadow: 0 0 24px rgba(226,255,109,0.55), 0 0 4px 4px rgba(226,255,109,0.10); }
         }
-        .wingman-fab-closed circle {
-          animation: nctr-breathe 4s ease-in-out infinite;
+        @keyframes nctr-fab-pulse-ring {
+          0%   { opacity: 0.6; transform: scale(1); }
+          100% { opacity: 0;   transform: scale(1.45); }
         }
-        .wingman-fab-btn {
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
+        .nctr-fab {
+          animation: nctr-fab-glow 3.2s ease-in-out infinite;
         }
-        .wingman-fab-btn:hover {
-          transform: scale(1.06);
-        }
-        .wingman-fab-btn:active {
-          transform: scale(0.95);
+        .nctr-fab::before {
+          content: "";
+          position: absolute;
+          inset: -1.5px;
+          border-radius: 50%;
+          border: 1.5px solid #E2FF6D;
+          animation: nctr-fab-pulse-ring 3.2s ease-in-out infinite;
+          pointer-events: none;
         }
         @media (prefers-reduced-motion: reduce) {
-          .wingman-fab-closed circle { animation: none !important; }
+          .nctr-fab { animation: none !important; }
+          .nctr-fab::before { animation: none !important; opacity: 0.3 !important; }
         }
       `}</style>
     </>
