@@ -164,6 +164,9 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
       setError(null);
 
       // Fetch unified profile
+      // Defensive: order by created_at and limit(1) to deterministically pick the
+      // earliest row when duplicate unified_profiles rows exist for the same
+      // auth_user_id (SYNC-C will dedupe + add UNIQUE constraint).
       const { data: profileData, error: profileError } = await supabase
         .from('unified_profiles')
         .select(`
@@ -171,6 +174,8 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
           status_tiers (*)
         `)
         .eq('auth_user_id', user.id)
+        .order('created_at', { ascending: true })
+        .limit(1)
         .maybeSingle();
 
       if (profileError) throw profileError;
@@ -226,7 +231,8 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
     }
   }, [user]);
 
-  // Fetch first_name / last_name from BH sync bridge
+  // Fetch first_name / last_name from BH sync bridge AND write-through cache
+  // BH balance + tier into unified_profiles so the row self-heals on every page load.
   const fetchBhName = useCallback(async () => {
     if (!profile?.email || !user) return;
     try {
@@ -239,10 +245,47 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
       const data = res.data;
       if (data?.first_name) setBhFirstName(data.first_name);
       if (data?.last_name) setBhLastName(data.last_name);
+
+      // ── Write-through cache: persist BH truth back into unified_profiles ──
+      if (data && !res.error) {
+        try {
+          // Resolve capitalized tier name → status_tiers.id (uses already-cached allTiers state)
+          const tierName: string | undefined =
+            data.current_tier ?? data.crescendo_tier ?? undefined;
+          const resolvedTierId = tierName
+            ? allTiers.find(
+                (t) => t.tier_name?.toLowerCase() === String(tierName).toLowerCase()
+              )?.id ?? null
+            : null;
+
+          const updatePayload: Record<string, unknown> = {
+            updated_at: new Date().toISOString(),
+          };
+          if (typeof data.nctr_locked_points === 'number')
+            updatePayload.nctr_locked_points = data.nctr_locked_points;
+          if (typeof data.nctr_balance_points === 'number')
+            updatePayload.nctr_balance_points = data.nctr_balance_points;
+          if (typeof data.nctr_earned_total === 'number')
+            updatePayload.nctr_earned_total = data.nctr_earned_total;
+          if (data.bh_user_id) updatePayload.bh_user_id = data.bh_user_id;
+          if (resolvedTierId) updatePayload.current_tier_id = resolvedTierId;
+
+          const { error: writeErr } = await supabase
+            .from('unified_profiles')
+            .update(updatePayload)
+            .eq('auth_user_id', user.id);
+
+          if (writeErr) {
+            console.error('[UnifiedUserContext] BH write-through cache failed:', writeErr);
+          }
+        } catch (cacheErr) {
+          console.error('[UnifiedUserContext] BH write-through cache exception:', cacheErr);
+        }
+      }
     } catch {
       // silent — fall back to handle/email
     }
-  }, [profile?.email, user]);
+  }, [profile?.email, user, allTiers]);
 
   useEffect(() => {
     fetchBhName();
