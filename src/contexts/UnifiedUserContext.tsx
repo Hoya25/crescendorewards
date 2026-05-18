@@ -239,10 +239,12 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData?.session?.access_token;
       if (!token) return;
+      console.log('[SYNC-A] About to fetch bh-status-proxy for', profile?.email);
       const res = await supabase.functions.invoke('bh-status-proxy', {
         body: { action: 'get_user_status', email: profile.email },
       });
       const data = res.data;
+      console.log('[SYNC-A] bh-status-proxy response:', data);
       if (data?.first_name) setBhFirstName(data.first_name);
       if (data?.last_name) setBhLastName(data.last_name);
 
@@ -270,13 +272,26 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
           if (data.bh_user_id) updatePayload.bh_user_id = data.bh_user_id;
           if (resolvedTierId) updatePayload.current_tier_id = resolvedTierId;
 
-          const { error: writeErr } = await supabase
+          console.log('[SYNC-A] About to write to unified_profiles:', {
+            auth_user_id: user.id,
+            nctr_locked_points: data.nctr_locked_points,
+            nctr_balance_points: data.nctr_balance_points,
+            nctr_earned_total: data.nctr_earned_total,
+            resolved_tier_id: resolvedTierId,
+          });
+
+          const { data: updateData, error } = await supabase
             .from('unified_profiles')
             .update(updatePayload)
             .eq('auth_user_id', user.id);
 
-          if (writeErr) {
-            console.error('[UnifiedUserContext] BH write-through cache failed:', writeErr);
+          console.log('[SYNC-A] unified_profiles update result:', {
+            error: error?.message,
+            data: updateData,
+          });
+
+          if (error) {
+            console.error('[UnifiedUserContext] BH write-through cache failed:', error);
           }
         } catch (cacheErr) {
           console.error('[UnifiedUserContext] BH write-through cache exception:', cacheErr);
