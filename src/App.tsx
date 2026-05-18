@@ -41,7 +41,7 @@ const BecomeASponsorPage = lazy(() => import('./components/BecomeASponsorPage').
 const SponsorProfilePage = lazy(() => import('./components/SponsorProfilePage').then(m => ({ default: m.SponsorProfilePage })));
 const SponsorDashboard = lazy(() => import('./components/sponsor/SponsorDashboard').then(m => ({ default: m.SponsorDashboard })));
 const SponsorProfileEditor = lazy(() => import('./components/sponsor/SponsorProfileEditor'));
-const SponsorSubmitReward = lazy(() => import('./components/sponsor/SponsorSubmitReward'));
+
 const WishlistPage = lazy(() => import('./components/WishlistPage').then(m => ({ default: m.WishlistPage })));
 const FavoritesPage = lazy(() => import('./components/FavoritesPage').then(m => ({ default: m.FavoritesPage })));
 const ProfilePage = lazy(() => import('./components/ProfilePage').then(m => ({ default: m.ProfilePage })));
@@ -73,7 +73,7 @@ const MyContentPage = lazy(() => import('./pages/MyContentPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
 const BountyBoardPage = lazy(() => import('./pages/BountyBoardPage'));
-const ContributePage = lazy(() => import('./pages/ContributePage'));
+
 const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
 const Crescendo = lazy(() => import('./pages/Crescendo'));
 const DepositPage = lazy(() => import('./pages/DepositPage'));
@@ -367,15 +367,6 @@ function AppRoutes() {
                 </ProtectedRoute>
               } 
             />
-            <Route 
-              path="/sponsor/rewards/new" 
-              element={
-                <ProtectedRoute>
-                  <AppLayout><SponsorSubmitReward /></AppLayout>
-                </ProtectedRoute>
-              } 
-            />
-
             {/* Main authenticated routes */}
             <Route
               path="/dashboard" 
@@ -561,7 +552,7 @@ function AppRoutes() {
               path="/contribute" 
               element={
                 <ProtectedRoute>
-                  <AppLayout><ContributePage /></AppLayout>
+                  <Navigate to="/submit-reward" replace />
                 </ProtectedRoute>
               } 
             />

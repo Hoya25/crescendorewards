@@ -2098,6 +2098,8 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           claim_balance: number
+          contributor_instant_override: boolean | null
+          contributor_trust_status: string | null
           created_at: string
           email: string | null
           full_name: string | null
@@ -2122,6 +2124,8 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           claim_balance?: number
+          contributor_instant_override?: boolean | null
+          contributor_trust_status?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -2146,6 +2150,8 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           claim_balance?: number
+          contributor_instant_override?: boolean | null
+          contributor_trust_status?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -2696,20 +2702,29 @@ export type Database = {
         Row: {
           admin_notes: string | null
           brand: string | null
+          browsing_tags: string | null
           category: string
           claim_passes_required: number
           claim_value_at_submission: number | null
           claims_required: number | null
           created_at: string
+          delivery_method: string | null
           description: string
           floor_usd_amount: number | null
+          fulfillment_date: string | null
+          fulfillment_days: number | null
+          fulfillment_timing: string | null
           id: string
           image_url: string | null
           image_urls: string[] | null
+          inventory_count: number | null
+          inventory_type: string | null
           is_latest_version: boolean
           lock_option: string | null
           lock_rate: string
           min_status_tier: string | null
+          multiplier_at_submission: number | null
+          nctr_amount_calculated: number | null
           nctr_rate_at_submission: number | null
           nctr_value: number
           parent_submission_id: string | null
@@ -2726,20 +2741,29 @@ export type Database = {
         Insert: {
           admin_notes?: string | null
           brand?: string | null
+          browsing_tags?: string | null
           category: string
           claim_passes_required?: number
           claim_value_at_submission?: number | null
           claims_required?: number | null
           created_at?: string
+          delivery_method?: string | null
           description: string
           floor_usd_amount?: number | null
+          fulfillment_date?: string | null
+          fulfillment_days?: number | null
+          fulfillment_timing?: string | null
           id?: string
           image_url?: string | null
           image_urls?: string[] | null
+          inventory_count?: number | null
+          inventory_type?: string | null
           is_latest_version?: boolean
           lock_option?: string | null
           lock_rate: string
           min_status_tier?: string | null
+          multiplier_at_submission?: number | null
+          nctr_amount_calculated?: number | null
           nctr_rate_at_submission?: number | null
           nctr_value: number
           parent_submission_id?: string | null
@@ -2756,20 +2780,29 @@ export type Database = {
         Update: {
           admin_notes?: string | null
           brand?: string | null
+          browsing_tags?: string | null
           category?: string
           claim_passes_required?: number
           claim_value_at_submission?: number | null
           claims_required?: number | null
           created_at?: string
+          delivery_method?: string | null
           description?: string
           floor_usd_amount?: number | null
+          fulfillment_date?: string | null
+          fulfillment_days?: number | null
+          fulfillment_timing?: string | null
           id?: string
           image_url?: string | null
           image_urls?: string[] | null
+          inventory_count?: number | null
+          inventory_type?: string | null
           is_latest_version?: boolean
           lock_option?: string | null
           lock_rate?: string
           min_status_tier?: string | null
+          multiplier_at_submission?: number | null
+          nctr_amount_calculated?: number | null
           nctr_rate_at_submission?: number | null
           nctr_value?: number
           parent_submission_id?: string | null
