@@ -109,12 +109,15 @@ export const TIER_EMOJIS: Record<string, string> = Object.fromEntries(
 // How rewards are fulfilled to users
 // ============================================================================
 
+// Values MUST match the rewards_delivery_method_check DB constraint:
+// ['instant_code','email','wallet_transfer','shipping','platform_delivery','scheduling','manual']
 export const DELIVERY_METHODS = [
   { value: 'email', label: 'Email Delivery', description: 'Send digital content via email' },
   { value: 'instant_code', label: 'Instant Code', description: 'User receives code immediately' },
   { value: 'shipping', label: 'Physical Shipping', description: 'Ship physical product' },
-  { value: 'wallet', label: 'Digital Wallet', description: 'Send to user wallet address' },
-  { value: 'discord', label: 'Discord Delivery', description: 'Send via Discord DM' },
+  { value: 'wallet_transfer', label: 'Wallet Transfer', description: 'Send to user wallet address' },
+  { value: 'platform_delivery', label: 'Platform Delivery', description: 'Send via social/gaming account (Discord, etc.)' },
+  { value: 'scheduling', label: 'Scheduling', description: 'User books a time slot' },
   { value: 'manual', label: 'Manual Fulfillment', description: 'Admin handles delivery' },
 ] as const;
 
