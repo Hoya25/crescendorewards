@@ -73,7 +73,7 @@ const MyContentPage = lazy(() => import('./pages/MyContentPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
 const BountyBoardPage = lazy(() => import('./pages/BountyBoardPage'));
-const ContributePage = lazy(() => import('./pages/ContributePage'));
+
 const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
 const Crescendo = lazy(() => import('./pages/Crescendo'));
 const DepositPage = lazy(() => import('./pages/DepositPage'));
