@@ -552,7 +552,7 @@ function AppRoutes() {
               path="/contribute" 
               element={
                 <ProtectedRoute>
-                  <AppLayout><ContributePage /></AppLayout>
+                  <Navigate to="/submit-reward" replace />
                 </ProtectedRoute>
               } 
             />
