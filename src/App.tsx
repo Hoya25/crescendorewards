@@ -41,7 +41,7 @@ const BecomeASponsorPage = lazy(() => import('./components/BecomeASponsorPage').
 const SponsorProfilePage = lazy(() => import('./components/SponsorProfilePage').then(m => ({ default: m.SponsorProfilePage })));
 const SponsorDashboard = lazy(() => import('./components/sponsor/SponsorDashboard').then(m => ({ default: m.SponsorDashboard })));
 const SponsorProfileEditor = lazy(() => import('./components/sponsor/SponsorProfileEditor'));
-const SponsorSubmitReward = lazy(() => import('./components/sponsor/SponsorSubmitReward'));
+
 const WishlistPage = lazy(() => import('./components/WishlistPage').then(m => ({ default: m.WishlistPage })));
 const FavoritesPage = lazy(() => import('./components/FavoritesPage').then(m => ({ default: m.FavoritesPage })));
 const ProfilePage = lazy(() => import('./components/ProfilePage').then(m => ({ default: m.ProfilePage })));
