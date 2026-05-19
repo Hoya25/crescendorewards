@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { X, Upload, Loader2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { X, Upload, Loader2, Star, CheckCircle2 } from 'lucide-react';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,9 +10,18 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { type LockOption } from '@/lib/contributor-economics';
+import {
+  LOCK_OPTIONS,
+  MIN_FLOOR_USD,
+  SOFT_WARN_FLOOR_USD,
+  DEFAULT_CLAIM_VALUE_USD,
+  computeClaimsRequired,
+  computeNctrPreview,
+  getLockMultiplier,
+  type LockOption,
+} from '@/lib/contributor-economics';
 
-type WizardStep = 'gate' | 1 | 2 | 3 | 4 | 5;
+type WizardStep = 'gate' | 1 | 2 | 3 | 4 | 5 | 'done';
 
 type WizardState = {
   is_brand_submission: boolean | null;
@@ -30,9 +39,12 @@ type WizardState = {
   // Step 4
   inventory_type: string | null;
   inventory_count: number | null;
-  // Step 5
+  // Step 5 — contributor path
   floor_usd_amount: number | null;
   lock_option: LockOption | null;
+  // Step 5 — brand path
+  claims_required: number | null;
+  required_status_tier: string | null;
 };
 
 const INITIAL_STATE: WizardState = {
@@ -49,6 +61,8 @@ const INITIAL_STATE: WizardState = {
   inventory_count: null,
   floor_usd_amount: null,
   lock_option: '360lock',
+  claims_required: null,
+  required_status_tier: null,
 };
 
 const TITLE_MAX = 100;
@@ -79,13 +93,26 @@ const INVENTORY_OPTIONS = [
   { value: 'unlimited', label: 'Unlimited', desc: 'No cap on how many members can claim' },
 ];
 
+const TIER_OPTIONS = [
+  { value: '', label: 'None — no restriction' },
+  { value: 'bronze', label: 'Bronze or higher' },
+  { value: 'silver', label: 'Silver or higher' },
+  { value: 'gold', label: 'Gold or higher' },
+  { value: 'platinum', label: 'Platinum or higher' },
+  { value: 'diamond', label: 'Diamond only' },
+];
+
 export function ContributeWizard() {
+  const navigate = useNavigate();
   const { user } = useAuthContext();
   const { profile: unifiedProfile } = useUnifiedUser();
   const [step, setStep] = useState<WizardStep>('gate');
   const [state, setState] = useState<WizardState>(INITIAL_STATE);
   const [trustStatus, setTrustStatus] = useState<string | null>(null);
   const [trustLoaded, setTrustLoaded] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  // last fetched NCTR price (informational snapshot for submission)
+  const lastNctrPrice = useRef<number | null>(null);
 
   const STORAGE_KEY = user?.id ? `contribute-wizard-${user.id}` : null;
 
@@ -114,7 +141,7 @@ export function ContributeWizard() {
       const saved = sessionStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.state) setState(parsed.state);
+        if (parsed.state) setState({ ...INITIAL_STATE, ...parsed.state });
         if (parsed.step !== undefined) setStep(parsed.step);
       }
     } catch { /* ignore */ }
@@ -155,14 +182,21 @@ export function ContributeWizard() {
 
   const update = (patch: Partial<WizardState>) => setState((s) => ({ ...s, ...patch }));
 
+  const resetWizard = () => {
+    setState(INITIAL_STATE);
+    setStep('gate');
+    if (STORAGE_KEY) sessionStorage.removeItem(STORAGE_KEY);
+    lastNctrPrice.current = null;
+  };
+
   const goBack = () => {
-    if (step === 'gate') return;
+    if (step === 'gate' || step === 'done') return;
     if (step === 1) setStep('gate');
     else setStep(((step as number) - 1) as WizardStep);
   };
 
   const goNext = () => {
-    if (step === 'gate') return;
+    if (step === 'gate' || step === 'done') return;
     if ((step as number) < 5) setStep(((step as number) + 1) as WizardStep);
   };
 
@@ -195,20 +229,188 @@ export function ContributeWizard() {
         }
         return true;
       }
-      case 5:
-        return false; // turn 7
+      case 5: {
+        if (state.is_brand_submission) {
+          const c = state.claims_required;
+          return Number.isInteger(c) && (c as number) >= 1 && (c as number) <= 1000;
+        }
+        return (
+          typeof state.floor_usd_amount === 'number' &&
+          state.floor_usd_amount >= MIN_FLOOR_USD &&
+          state.lock_option !== null
+        );
+      }
       default:
         return false;
     }
   };
 
-  const stepHeading: Record<Exclude<WizardStep, 'gate'>, string> = {
+  const handleSubmit = async () => {
+    if (!user?.id) {
+      toast.error('You must be signed in.');
+      return;
+    }
+    if (!canAdvance()) return;
+
+    // Soft warning for big values (individual path only)
+    if (
+      !state.is_brand_submission &&
+      typeof state.floor_usd_amount === 'number' &&
+      state.floor_usd_amount > SOFT_WARN_FLOOR_USD
+    ) {
+      const ok = window.confirm(
+        `You're listing this at $${state.floor_usd_amount}. That's a large amount — are you sure?`,
+      );
+      if (!ok) return;
+    }
+
+    setSubmitting(true);
+    try {
+      const baseRow = {
+        user_id: user.id,
+        title: state.title.trim(),
+        description: state.description.trim(),
+        image_url: state.image_urls[0] ?? null,
+        image_urls: state.image_urls,
+        category: 'experiences', // TEMPORARY default per spec
+        reward_type: 'other', // legacy required field
+        delivery_method: state.delivery_method,
+        scheduling_notes: state.scheduling_notes,
+        fulfillment_timing: state.fulfillment_timing,
+        fulfillment_days: state.fulfillment_days,
+        fulfillment_date: state.fulfillment_date,
+        inventory_type: state.inventory_type,
+        inventory_count: state.inventory_count,
+        claim_value_at_submission: DEFAULT_CLAIM_VALUE_USD,
+        status: 'pending' as const,
+      };
+
+      let insertRow: Record<string, unknown>;
+
+      if (state.is_brand_submission) {
+        const claims = state.claims_required as number;
+        insertRow = {
+          ...baseRow,
+          reward_origin: 'sponsor',
+          is_brand_submission: true,
+          required_status_tier: state.required_status_tier || null,
+          floor_usd_amount: null,
+          lock_option: null,
+          multiplier_at_submission: null,
+          nctr_rate_at_submission: null,
+          nctr_amount_preview_at_submission: null,
+          claims_required: claims,
+          nctr_value: 0,
+          lock_rate: '360',
+        };
+      } else {
+        const floor = state.floor_usd_amount as number;
+        const lock = state.lock_option as LockOption;
+        const multiplier = getLockMultiplier(lock) ?? LOCK_OPTIONS[lock].multiplier;
+        const nctrPrice = lastNctrPrice.current;
+        const nctrPreview =
+          nctrPrice && nctrPrice > 0 ? computeNctrPreview(floor, multiplier, nctrPrice) : null;
+        insertRow = {
+          ...baseRow,
+          reward_origin: 'contributor',
+          is_brand_submission: false,
+          floor_usd_amount: floor,
+          lock_option: lock,
+          multiplier_at_submission: multiplier,
+          nctr_rate_at_submission: nctrPrice,
+          nctr_amount_preview_at_submission: nctrPreview,
+          claims_required: computeClaimsRequired(floor, DEFAULT_CLAIM_VALUE_USD),
+          nctr_value: nctrPreview ?? 0,
+          lock_rate: lock === '90lock' ? '90' : '360',
+        };
+      }
+
+      const { data: inserted, error: insertErr } = await supabase
+        .from('reward_submissions')
+        .insert(insertRow as any)
+        .select('id')
+        .single();
+      if (insertErr) throw insertErr;
+
+      // Atomic-ish trust status bump (cosmetic — failure not fatal)
+      if (trustStatus === 'none' || trustStatus === null) {
+        const guarded = supabase
+          .from('profiles')
+          .update({ contributor_trust_status: 'requires_review' })
+          .eq('id', user.id);
+        const { error: trustErr } =
+          trustStatus === null
+            ? await guarded.is('contributor_trust_status', null)
+            : await guarded.eq('contributor_trust_status', trustStatus);
+        if (trustErr) console.warn('Trust status update failed (non-fatal):', trustErr);
+        else setTrustStatus('requires_review');
+      }
+
+      // Fire admin notification (non-blocking)
+      try {
+        const notifyPromise = supabase.functions.invoke('send-submission-notification', {
+          body: { submission_id: inserted.id },
+        });
+        await Promise.race([
+          notifyPromise,
+          new Promise((resolve) => setTimeout(resolve, 10_000)),
+        ]);
+      } catch (notifyErr) {
+        console.warn('send-submission-notification failed (non-fatal):', notifyErr);
+      }
+
+      if (STORAGE_KEY) sessionStorage.removeItem(STORAGE_KEY);
+      setStep('done');
+      toast.success('Reward submitted for review!');
+    } catch (err) {
+      console.error('Submission failed:', err);
+      const msg = err instanceof Error ? err.message : 'Submission failed. Please try again.';
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const stepHeading: Record<Exclude<WizardStep, 'gate' | 'done'>, string> = {
     1: 'What are you offering?',
     2: 'How will members receive it?',
     3: 'When will you deliver?',
     4: 'How many can you fulfill?',
-    5: 'Floor value and lock',
+    5: state.is_brand_submission ? 'Brand contribution' : 'Floor value and lock',
   };
+
+  if (step === 'done') {
+    return (
+      <div className="min-h-screen bg-[#0D0D0D] text-neutral-100">
+        <div className="max-w-2xl mx-auto px-6 py-20">
+          <Card className="rounded-none border border-neutral-800 bg-[#131313] p-10 text-center">
+            <CheckCircle2 className="mx-auto mb-4 text-[#E2FF6D]" size={48} />
+            <h1 className="font-['Barlow_Condensed'] uppercase text-3xl tracking-wide text-neutral-100 mb-3">
+              Submitted
+            </h1>
+            <p className="font-['DM_Sans'] text-neutral-400 mb-8">
+              We'll review your listing and let you know when it's live. You can track its status at My Submissions.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                onClick={() => navigate('/my-submissions')}
+                className="rounded-none bg-[#E2FF6D] text-black hover:bg-[#E2FF6D]/90"
+              >
+                View My Submissions
+              </Button>
+              <Button
+                variant="outline"
+                onClick={resetWizard}
+                className="rounded-none border-neutral-700 bg-transparent text-neutral-200 hover:bg-neutral-900"
+              >
+                List another
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   const renderStep = () => {
     switch (step) {
@@ -230,14 +432,10 @@ export function ContributeWizard() {
       case 4:
         return <Step4 state={state} update={update} />;
       case 5:
-        return (
-          <Card className="rounded-none border border-neutral-800 bg-[#131313] p-10">
-            <p className="font-['DM_Mono'] text-xs uppercase tracking-widest text-[#E2FF6D] mb-2">Step 5</p>
-            <h2 className="font-['Barlow_Condensed'] uppercase text-2xl tracking-wide text-neutral-100 mb-3">
-              Floor value and lock
-            </h2>
-            <p className="font-['DM_Sans'] text-neutral-500 text-sm">Coming in Turn 7.</p>
-          </Card>
+        return state.is_brand_submission ? (
+          <Step5Brand state={state} update={update} />
+        ) : (
+          <Step5Individual state={state} update={update} onPriceFetched={(p) => { lastNctrPrice.current = p; }} />
         );
     }
   };
@@ -266,7 +464,7 @@ export function ContributeWizard() {
               </div>
             </div>
             <h1 className="font-['Barlow_Condensed'] uppercase text-3xl md:text-4xl tracking-wide text-neutral-100">
-              {stepHeading[step as Exclude<WizardStep, 'gate'>]}
+              {stepHeading[step as Exclude<WizardStep, 'gate' | 'done'>]}
             </h1>
           </div>
         )}
@@ -278,6 +476,7 @@ export function ContributeWizard() {
             <Button
               variant="outline"
               onClick={goBack}
+              disabled={submitting}
               className="rounded-none border-neutral-700 bg-transparent text-neutral-200 hover:bg-neutral-900"
             >
               Back
@@ -291,8 +490,12 @@ export function ContributeWizard() {
                 Next
               </Button>
             ) : (
-              <Button disabled className="rounded-none bg-[#E2FF6D] text-black disabled:opacity-40">
-                List My Reward
+              <Button
+                onClick={handleSubmit}
+                disabled={!canAdvance() || submitting}
+                className="rounded-none bg-[#E2FF6D] text-black hover:bg-[#E2FF6D]/90 disabled:opacity-40"
+              >
+                {submitting ? <><Loader2 className="animate-spin" /> Submitting...</> : 'List My Reward'}
               </Button>
             )}
           </div>
@@ -354,10 +557,8 @@ function Step1({
       toast.error('Profile not loaded yet — please wait a moment.');
       return;
     }
-
     const remaining = MAX_IMAGES - state.image_urls.length;
     const list = Array.from(files).slice(0, remaining);
-
     setUploading(true);
     const newUrls: string[] = [];
     try {
@@ -369,9 +570,7 @@ function Step1({
         const { file: compressed, originalSize, compressedSize, compressionRatio } =
           await compressImageWithStats(file);
         if (compressionRatio > 0.1) {
-          toast.success(
-            `Compressed: ${formatBytes(originalSize)} → ${formatBytes(compressedSize)}`,
-          );
+          toast.success(`Compressed: ${formatBytes(originalSize)} → ${formatBytes(compressedSize)}`);
         }
         const ext = compressed.name.split('.').pop();
         const fileName = `${storagePrefix}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
@@ -392,18 +591,14 @@ function Step1({
     }
   };
 
-  const removeImage = (idx: number) => {
+  const removeImage = (idx: number) =>
     update({ image_urls: state.image_urls.filter((_, i) => i !== idx) });
-  };
 
   const uploadDisabled = uploading || state.image_urls.length >= MAX_IMAGES;
 
   return (
     <Card className="rounded-none border border-neutral-800 bg-[#131313] p-8 space-y-6">
-      <Field
-        label="Title"
-        counter={`${state.title.length}/${TITLE_MAX}`}
-      >
+      <Field label="Title" counter={`${state.title.length}/${TITLE_MAX}`}>
         <Input
           value={state.title}
           maxLength={TITLE_MAX}
@@ -413,10 +608,7 @@ function Step1({
         />
       </Field>
 
-      <Field
-        label="Description"
-        counter={`${state.description.length}/${DESC_MAX}`}
-      >
+      <Field label="Description" counter={`${state.description.length}/${DESC_MAX}`}>
         <Textarea
           value={state.description}
           maxLength={DESC_MAX}
@@ -529,7 +721,6 @@ function Step3({ state, update }: { state: WizardState; update: (patch: Partial<
             selected={state.fulfillment_timing === opt.value}
             onClick={() => {
               const patch: Partial<WizardState> = { fulfillment_timing: opt.value };
-              // clear sub-fields when switching
               if (opt.value !== 'within_days') patch.fulfillment_days = null;
               if (opt.value !== 'on_date') patch.fulfillment_date = null;
               update(patch);
@@ -588,7 +779,7 @@ function Step4({ state, update }: { state: WizardState; update: (patch: Partial<
               const patch: Partial<WizardState> = { inventory_type: opt.value };
               if (opt.value === 'one') patch.inventory_count = 1;
               else if (opt.value === 'unlimited') patch.inventory_count = null;
-              else patch.inventory_count = null; // 'fixed' — user enters
+              else patch.inventory_count = null;
               update(patch);
             }}
           />
@@ -616,6 +807,250 @@ function Step4({ state, update }: { state: WizardState; update: (patch: Partial<
   );
 }
 
+/* ─────────────────────────────  STEP 5 — INDIVIDUAL  ───────────────────────────── */
+
+function Step5Individual({
+  state,
+  update,
+  onPriceFetched,
+}: {
+  state: WizardState;
+  update: (patch: Partial<WizardState>) => void;
+  onPriceFetched: (price: number | null) => void;
+}) {
+  const [nctrPrice, setNctrPrice] = useState<number | null>(null);
+  const [priceLoading, setPriceLoading] = useState(false);
+  const [oracleFailed, setOracleFailed] = useState(false);
+
+  const floor = state.floor_usd_amount;
+  const lock = state.lock_option;
+
+  // Debounced oracle fetch
+  useEffect(() => {
+    if (!floor || floor < MIN_FLOOR_USD || !lock) return;
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      setPriceLoading(true);
+      setOracleFailed(false);
+      try {
+        const racer = supabase.functions.invoke('get-nctr-price', { body: {} });
+        const result = await Promise.race([
+          racer,
+          new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 10_000)),
+        ]) as { data?: { price?: number; nctr_usd?: number }; error?: unknown };
+        if (cancelled) return;
+        const price = (result?.data?.price ?? result?.data?.nctr_usd) as number | undefined;
+        if (typeof price === 'number' && price > 0) {
+          setNctrPrice(price);
+          onPriceFetched(price);
+        } else {
+          setOracleFailed(true);
+          setNctrPrice(null);
+          onPriceFetched(null);
+        }
+      } catch {
+        if (cancelled) return;
+        setOracleFailed(true);
+        setNctrPrice(null);
+        onPriceFetched(null);
+      } finally {
+        if (!cancelled) setPriceLoading(false);
+      }
+    }, 250);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [floor, lock, onPriceFetched]);
+
+  const multiplier = lock ? getLockMultiplier(lock) ?? LOCK_OPTIONS[lock].multiplier : null;
+  const payoutUsd = floor && multiplier ? floor * multiplier : null;
+  const nctrPreview =
+    floor && multiplier && nctrPrice && nctrPrice > 0
+      ? computeNctrPreview(floor, multiplier, nctrPrice)
+      : null;
+  const claimsReq = floor ? computeClaimsRequired(floor) : null;
+
+  const showSoftWarn = typeof floor === 'number' && floor > SOFT_WARN_FLOOR_USD;
+  const showMinError = typeof floor === 'number' && floor > 0 && floor < MIN_FLOOR_USD;
+
+  return (
+    <Card className="rounded-none border border-neutral-800 bg-[#131313] p-8 space-y-8">
+      <Field label="What's your reward worth in USD?">
+        <Input
+          type="number"
+          min={MIN_FLOOR_USD}
+          value={floor ?? ''}
+          onChange={(e) => {
+            const v = e.target.value;
+            update({ floor_usd_amount: v === '' ? null : Math.floor(Number(v)) });
+          }}
+          placeholder="e.g., 50"
+          className="rounded-none bg-[#0D0D0D] border-neutral-800 focus-visible:ring-[#E2FF6D] focus-visible:border-[#E2FF6D] text-neutral-100 font-['DM_Sans'] max-w-[200px]"
+        />
+        <p className="font-['DM_Mono'] text-[11px] text-neutral-600 uppercase mt-2">
+          This is the dollar value members are claiming.
+        </p>
+        {showMinError && (
+          <p className="font-['DM_Sans'] text-xs text-red-400 mt-2">
+            Minimum is ${MIN_FLOOR_USD}.
+          </p>
+        )}
+        {showSoftWarn && (
+          <p className="font-['DM_Sans'] text-xs text-yellow-300 mt-2">
+            Heads up — that's a sizable listing. You'll be asked to confirm on submit.
+          </p>
+        )}
+      </Field>
+
+      <Field label="Lock duration">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {(['90lock', '360lock'] as LockOption[]).map((key) => {
+            const opt = LOCK_OPTIONS[key];
+            const selected = lock === key;
+            const isRecommended = key === '360lock';
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => update({ lock_option: key })}
+                className={`rounded-none border p-5 text-left transition-colors relative ${
+                  selected
+                    ? 'border-[#E2FF6D] bg-[#E2FF6D]/5'
+                    : 'border-neutral-800 bg-[#0D0D0D] hover:border-neutral-600 hover:bg-neutral-900'
+                }`}
+              >
+                <p
+                  className={`font-['Barlow_Condensed'] uppercase text-xl tracking-wide mb-1 ${
+                    selected ? 'text-[#E2FF6D]' : 'text-neutral-100'
+                  }`}
+                >
+                  {opt.label}
+                </p>
+                <p className="font-['DM_Mono'] text-sm text-neutral-300">
+                  {opt.multiplier}x multiplier
+                  {isRecommended && <Star className="inline ml-1 -mt-0.5" size={12} fill="#E2FF6D" stroke="#E2FF6D" />}
+                </p>
+                {isRecommended && (
+                  <p className="font-['DM_Mono'] text-[11px] uppercase text-[#E2FF6D] mt-1">Most generous</p>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </Field>
+
+      {/* Live preview */}
+      {floor && floor >= MIN_FLOOR_USD && multiplier && (
+        <div className="space-y-4">
+          <div className="border border-[#E2FF6D]/30 bg-[#E2FF6D]/5 p-5">
+            <p className="font-['DM_Mono'] text-[11px] uppercase tracking-widest text-[#E2FF6D] mb-2">
+              Your payout
+            </p>
+            <p className="font-['DM_Sans'] text-neutral-100 text-base mb-2">
+              You'll receive{' '}
+              <span className="font-['Barlow_Condensed'] text-2xl text-[#E2FF6D] tracking-wide">
+                ${payoutUsd?.toLocaleString()}
+              </span>{' '}
+              worth of NCTR when a member claims this reward.
+            </p>
+            <p className="font-['DM_Sans'] text-sm text-neutral-400">
+              {priceLoading
+                ? 'Fetching today\'s NCTR price…'
+                : oracleFailed || !nctrPrice
+                ? 'NCTR price unavailable right now — your payout is still defined in dollars.'
+                : (
+                  <>
+                    At today's NCTR price (${nctrPrice.toFixed(6)}), that's approximately{' '}
+                    <span className="text-neutral-200 font-['DM_Mono']">
+                      {nctrPreview?.toLocaleString()} NCTR
+                    </span>{' '}
+                    — the exact amount is calculated when a member claims it. Locked for{' '}
+                    {LOCK_OPTIONS[lock as LockOption].durationDays} days, then withdrawable.
+                  </>
+                )}
+            </p>
+            {(oracleFailed || !nctrPrice) && !priceLoading && (
+              <p className="font-['DM_Mono'] text-2xl text-neutral-700 mt-2">—</p>
+            )}
+          </div>
+
+          <div className="border border-neutral-800 bg-[#0D0D0D] p-5">
+            <p className="font-['DM_Mono'] text-[11px] uppercase tracking-widest text-neutral-500 mb-2">
+              Member cost
+            </p>
+            <p className="font-['DM_Sans'] text-neutral-100 text-base">
+              Members will spend{' '}
+              <span className="font-['Barlow_Condensed'] text-2xl text-neutral-100 tracking-wide">
+                {claimsReq}
+              </span>{' '}
+              {claimsReq === 1 ? 'claim' : 'claims'} to claim this.
+            </p>
+            <p className="font-['DM_Mono'] text-[11px] text-neutral-600 uppercase mt-2">
+              Based on $5 = 1 claim, fixed at submission.
+            </p>
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+/* ─────────────────────────────  STEP 5 — BRAND  ───────────────────────────── */
+
+function Step5Brand({
+  state,
+  update,
+}: {
+  state: WizardState;
+  update: (patch: Partial<WizardState>) => void;
+}) {
+  return (
+    <Card className="rounded-none border border-neutral-800 bg-[#131313] p-8 space-y-6">
+      <div className="border border-neutral-800 bg-[#0D0D0D] p-5">
+        <p className="font-['DM_Mono'] text-[11px] uppercase tracking-widest text-neutral-500 mb-2">
+          Brand contribution
+        </p>
+        <p className="font-['DM_Sans'] text-neutral-300 text-sm">
+          You're contributing this reward on behalf of a brand. There's no NCTR payout — this is a direct contribution to the community.
+        </p>
+      </div>
+
+      <Field label="Claims required">
+        <Input
+          type="number"
+          min={1}
+          max={1000}
+          value={state.claims_required ?? ''}
+          onChange={(e) => {
+            const v = e.target.value;
+            update({ claims_required: v === '' ? null : Math.floor(Number(v)) });
+          }}
+          placeholder="e.g., 10"
+          className="rounded-none bg-[#0D0D0D] border-neutral-800 focus-visible:ring-[#E2FF6D] focus-visible:border-[#E2FF6D] text-neutral-100 font-['DM_Sans'] max-w-[200px]"
+        />
+        <p className="font-['DM_Mono'] text-[11px] text-neutral-600 uppercase mt-2">
+          How many claims members spend to claim this. Each claim is worth $5 of perceived reward value.
+        </p>
+      </Field>
+
+      <Field label="Status tier requirement (optional)">
+        <select
+          value={state.required_status_tier ?? ''}
+          onChange={(e) => update({ required_status_tier: e.target.value || null })}
+          className="w-full max-w-[300px] rounded-none bg-[#0D0D0D] border border-neutral-800 text-neutral-100 font-['DM_Sans'] px-3 py-2 focus:outline-none focus:border-[#E2FF6D]"
+        >
+          {TIER_OPTIONS.map((t) => (
+            <option key={t.value} value={t.value} className="bg-[#0D0D0D]">
+              {t.label}
+            </option>
+          ))}
+        </select>
+        <p className="font-['DM_Mono'] text-[11px] text-neutral-600 uppercase mt-2">
+          Restrict claiming to members at this tier or higher. Leave as None for no restriction.
+        </p>
+      </Field>
+    </Card>
+  );
+}
+
 /* ─────────────────────────────  SHARED  ───────────────────────────── */
 
 function Field({
@@ -633,9 +1068,7 @@ function Field({
         <label className="font-['DM_Mono'] text-xs uppercase tracking-widest text-neutral-400">
           {label}
         </label>
-        {counter && (
-          <span className="font-['DM_Mono'] text-[11px] text-neutral-600">{counter}</span>
-        )}
+        {counter && <span className="font-['DM_Mono'] text-[11px] text-neutral-600">{counter}</span>}
       </div>
       {children}
     </div>
