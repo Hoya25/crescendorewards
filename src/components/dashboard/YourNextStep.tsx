@@ -65,17 +65,6 @@ export function YourNextStep() {
     },
     enabled: tierName === "gold" || tierName === "platinum" || tierName === "diamond",
   });
-      const { data } = await supabase
-        .from("bounties")
-        .select("id, title, nctr_reward, image_emoji")
-        .eq("is_active", true)
-        .eq("is_featured", true)
-        .limit(1)
-        .maybeSingle();
-      return data;
-    },
-    enabled: tierName === "gold" || tierName === "platinum" || tierName === "diamond",
-  });
 
   // Determine which condition to show
   const getCondition = () => {
@@ -87,25 +76,51 @@ export function YourNextStep() {
   };
 
   const condition = getCondition();
+  const showContributorCard = userId && hasSubmissions === false;
 
   return (
-    <Card className="overflow-hidden border-0 shadow-lg" style={{ background: "#1A1A2E" }}>
-      <CardContent className="p-5 md:p-6">
-        {condition === 1 && <Condition1 navigate={navigate} />}
-        {condition === 2 && <Condition2 navigate={navigate} earned={totalEarned} />}
-        {condition === 3 && <Condition3 navigate={navigate} locked={locked} />}
-        {condition === 4 && <Condition4 navigate={navigate} locked={locked} />}
-        {condition === 5 && (
-          <Condition5
-            navigate={navigate}
-            tierName={tierName}
-            nextTier={nextTier}
-            locked={locked}
-            featuredBounty={featuredBounty}
-          />
-        )}
-      </CardContent>
-    </Card>
+    <div className="space-y-4">
+      {showContributorCard && (
+        <Card className="overflow-hidden border-0 shadow-lg" style={{ background: "#1A1A2E" }}>
+          <CardContent className="p-5 md:p-6">
+            <StepLabel label="Contribute" />
+            <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+              <PlusCircle className="w-5 h-5" style={{ color: "#C8FF00" }} />
+              Have something to offer?
+            </h3>
+            <p className="text-sm text-white/70 mb-4">
+              List a reward and earn NCTR when members claim it.
+            </p>
+            <Button
+              onClick={() => navigate("/contribute")}
+              className="gap-2 font-semibold"
+              style={{ backgroundColor: "#C8FF00", color: "#1A1A2E" }}
+            >
+              <PlusCircle className="w-4 h-4" />
+              List a Reward
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card className="overflow-hidden border-0 shadow-lg" style={{ background: "#1A1A2E" }}>
+        <CardContent className="p-5 md:p-6">
+          {condition === 1 && <Condition1 navigate={navigate} />}
+          {condition === 2 && <Condition2 navigate={navigate} earned={totalEarned} />}
+          {condition === 3 && <Condition3 navigate={navigate} locked={locked} />}
+          {condition === 4 && <Condition4 navigate={navigate} locked={locked} />}
+          {condition === 5 && (
+            <Condition5
+              navigate={navigate}
+              tierName={tierName}
+              nextTier={nextTier}
+              locked={locked}
+              featuredBounty={featuredBounty}
+            />
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
