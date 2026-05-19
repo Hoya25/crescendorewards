@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { track } from '@/lib/track';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock } from 'lucide-react';
+import { StepContribute } from './StepContribute';
 
 const ONBOARDED_KEY = 'crescendo_onboarded';
 
@@ -29,7 +30,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [step, setStep] = useState(0);
   const navigate = useNavigate();
   const { profile, refreshUnifiedProfile } = useUnifiedUser();
-  const totalSteps = 3;
+  const totalSteps = 4;
 
   const completeOnboarding = useCallback(async () => {
     localStorage.setItem(ONBOARDED_KEY, 'true');
@@ -116,7 +117,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   const stepButtons: Record<number, string> = {
     0: 'Show Me How →',
-    1: 'How Do I Level Up? →',
+    1: 'What Else Can I Do? →',
+    2: 'How Do I Level Up? →',
   };
 
   return (
@@ -140,7 +142,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             >
               {step === 0 && <StepWelcome />}
               {step === 1 && <StepStatus />}
-              {step === 2 && <StepLock onAction={handleFinalAction} />}
+              {step === 2 && <StepContribute />}
+              {step === 3 && <StepLock onAction={handleFinalAction} />}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -148,7 +151,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         {/* Bottom: buttons + progress dots */}
         <div className="px-6 sm:px-8 pb-6 pt-2 space-y-4">
           {/* Step buttons */}
-          {step < 2 ? (
+          {step < 3 ? (
             <button
               onClick={next}
               className="w-full py-3.5 rounded-xl font-bold text-base transition-all hover:brightness-110"

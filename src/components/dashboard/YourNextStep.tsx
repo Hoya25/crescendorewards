@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
-import { Target, ArrowRight, Lock, TrendingUp, Crown } from "lucide-react";
+import { Target, ArrowRight, Lock, TrendingUp, Crown, PlusCircle } from "lucide-react";
 
 import { TIERS as CANONICAL_TIERS } from '@/constants/tiers';
 
@@ -28,11 +28,27 @@ function getTierForAmount(amount: number) {
 export function YourNextStep() {
   const navigate = useNavigate();
   const { profile, tier, nextTier, total360Locked } = useUnifiedUser();
+  const userId = profile?.id;
 
   // Use BH-synced nctr_earned_total as source of truth
   const totalEarned = Number((profile as any)?.nctr_earned_total) || 0;
   const tierName = (tier?.tier_name || "").toLowerCase();
   const locked = total360Locked || 0;
+
+  // Auto-hide contributor card once the user has submitted any reward
+  const { data: hasSubmissions } = useQuery({
+    queryKey: ['has-reward-submissions', userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('reward_submissions')
+        .select('id')
+        .eq('user_id', userId as string)
+        .limit(1);
+      if (error) throw error;
+      return (data?.length ?? 0) > 0;
+    },
+    enabled: !!userId,
+  });
 
   // Fetch a featured bounty for Gold+ users
   const { data: featuredBounty } = useQuery({
@@ -60,25 +76,51 @@ export function YourNextStep() {
   };
 
   const condition = getCondition();
+  const showContributorCard = userId && hasSubmissions === false;
 
   return (
-    <Card className="overflow-hidden border-0 shadow-lg" style={{ background: "#1A1A2E" }}>
-      <CardContent className="p-5 md:p-6">
-        {condition === 1 && <Condition1 navigate={navigate} />}
-        {condition === 2 && <Condition2 navigate={navigate} earned={totalEarned} />}
-        {condition === 3 && <Condition3 navigate={navigate} locked={locked} />}
-        {condition === 4 && <Condition4 navigate={navigate} locked={locked} />}
-        {condition === 5 && (
-          <Condition5
-            navigate={navigate}
-            tierName={tierName}
-            nextTier={nextTier}
-            locked={locked}
-            featuredBounty={featuredBounty}
-          />
-        )}
-      </CardContent>
-    </Card>
+    <div className="space-y-4">
+      {showContributorCard && (
+        <Card className="overflow-hidden border-0 shadow-lg" style={{ background: "#1A1A2E" }}>
+          <CardContent className="p-5 md:p-6">
+            <StepLabel label="Contribute" />
+            <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
+              <PlusCircle className="w-5 h-5" style={{ color: "#C8FF00" }} />
+              Have something to offer?
+            </h3>
+            <p className="text-sm text-white/70 mb-4">
+              List a reward and earn NCTR when members claim it.
+            </p>
+            <Button
+              onClick={() => navigate("/contribute")}
+              className="gap-2 font-semibold"
+              style={{ backgroundColor: "#C8FF00", color: "#1A1A2E" }}
+            >
+              <PlusCircle className="w-4 h-4" />
+              List a Reward
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card className="overflow-hidden border-0 shadow-lg" style={{ background: "#1A1A2E" }}>
+        <CardContent className="p-5 md:p-6">
+          {condition === 1 && <Condition1 navigate={navigate} />}
+          {condition === 2 && <Condition2 navigate={navigate} earned={totalEarned} />}
+          {condition === 3 && <Condition3 navigate={navigate} locked={locked} />}
+          {condition === 4 && <Condition4 navigate={navigate} locked={locked} />}
+          {condition === 5 && (
+            <Condition5
+              navigate={navigate}
+              tierName={tierName}
+              nextTier={nextTier}
+              locked={locked}
+              featuredBounty={featuredBounty}
+            />
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
