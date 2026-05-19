@@ -30,7 +30,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [step, setStep] = useState(0);
   const navigate = useNavigate();
   const { profile, refreshUnifiedProfile } = useUnifiedUser();
-  const totalSteps = 3;
+  const totalSteps = 4;
 
   const completeOnboarding = useCallback(async () => {
     localStorage.setItem(ONBOARDED_KEY, 'true');
