@@ -52,7 +52,7 @@ const MembershipStatisticsPage = lazy(() => import('./components/MembershipStati
 const ReferralAnalyticsDashboard = lazy(() => import('./components/ReferralAnalyticsDashboard').then(m => ({ default: m.ReferralAnalyticsDashboard })));
 const InvitePage = lazy(() => import('./pages/InvitePage'));
 const RewardDetailPage = lazy(() => import('./components/RewardDetailPage').then(m => ({ default: m.RewardDetailPage })));
-const SubmitRewardsPage = lazy(() => import('./components/SubmitRewardsPage').then(m => ({ default: m.SubmitRewardsPage })));
+
 const ContributeWizard = lazy(() => import('./components/contribute/ContributeWizard').then(m => ({ default: m.ContributeWizard })));
 const MySubmissionsPage = lazy(() => import('./components/MySubmissionsPage').then(m => ({ default: m.MySubmissionsPage })));
 const PurchaseHistoryPage = lazy(() => import('./components/PurchaseHistoryPage').then(m => ({ default: m.PurchaseHistoryPage })));
