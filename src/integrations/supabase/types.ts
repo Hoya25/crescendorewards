@@ -2719,16 +2719,18 @@ export type Database = {
           image_urls: string[] | null
           inventory_count: number | null
           inventory_type: string | null
+          is_brand_submission: boolean | null
           is_latest_version: boolean
           lock_option: string | null
           lock_rate: string
           min_status_tier: string | null
           multiplier_at_submission: number | null
-          nctr_amount_calculated: number | null
+          nctr_amount_preview_at_submission: number | null
           nctr_rate_at_submission: number | null
           nctr_value: number
           parent_submission_id: string | null
           reward_type: string
+          scheduling_notes: string | null
           status: string
           status_tier_claims_cost: Json | null
           stock_quantity: number | null
@@ -2758,16 +2760,18 @@ export type Database = {
           image_urls?: string[] | null
           inventory_count?: number | null
           inventory_type?: string | null
+          is_brand_submission?: boolean | null
           is_latest_version?: boolean
           lock_option?: string | null
           lock_rate: string
           min_status_tier?: string | null
           multiplier_at_submission?: number | null
-          nctr_amount_calculated?: number | null
+          nctr_amount_preview_at_submission?: number | null
           nctr_rate_at_submission?: number | null
           nctr_value: number
           parent_submission_id?: string | null
           reward_type: string
+          scheduling_notes?: string | null
           status?: string
           status_tier_claims_cost?: Json | null
           stock_quantity?: number | null
@@ -2797,16 +2801,18 @@ export type Database = {
           image_urls?: string[] | null
           inventory_count?: number | null
           inventory_type?: string | null
+          is_brand_submission?: boolean | null
           is_latest_version?: boolean
           lock_option?: string | null
           lock_rate?: string
           min_status_tier?: string | null
           multiplier_at_submission?: number | null
-          nctr_amount_calculated?: number | null
+          nctr_amount_preview_at_submission?: number | null
           nctr_rate_at_submission?: number | null
           nctr_value?: number
           parent_submission_id?: string | null
           reward_type?: string
+          scheduling_notes?: string | null
           status?: string
           status_tier_claims_cost?: Json | null
           stock_quantity?: number | null
@@ -3137,36 +3143,51 @@ export type Database = {
       }
       rewards_claims: {
         Row: {
+          bh_credit_response: Json | null
           claimed_at: string
+          contributor_settlement_at: string | null
+          contributor_user_id: string | null
           delivered_at: string | null
           delivery_data: Json | null
           delivery_method: string | null
           delivery_status: string | null
           id: string
+          nctr_credited_to_contributor: number | null
+          nctr_rate_at_claim: number | null
           reward_id: string
           shipping_info: Json | null
           status: string
           user_id: string
         }
         Insert: {
+          bh_credit_response?: Json | null
           claimed_at?: string
+          contributor_settlement_at?: string | null
+          contributor_user_id?: string | null
           delivered_at?: string | null
           delivery_data?: Json | null
           delivery_method?: string | null
           delivery_status?: string | null
           id?: string
+          nctr_credited_to_contributor?: number | null
+          nctr_rate_at_claim?: number | null
           reward_id: string
           shipping_info?: Json | null
           status?: string
           user_id: string
         }
         Update: {
+          bh_credit_response?: Json | null
           claimed_at?: string
+          contributor_settlement_at?: string | null
+          contributor_user_id?: string | null
           delivered_at?: string | null
           delivery_data?: Json | null
           delivery_method?: string | null
           delivery_status?: string | null
           id?: string
+          nctr_credited_to_contributor?: number | null
+          nctr_rate_at_claim?: number | null
           reward_id?: string
           shipping_info?: Json | null
           status?: string
