@@ -43,3 +43,7 @@ verify_jwt = false
 # Public rewards preview API for cross-platform use
 [functions.crescendo-rewards-preview]
 verify_jwt = false
+
+# Public NCTR price oracle (Dexscreener wrapper)
+[functions.get-nctr-price]
+verify_jwt = false
