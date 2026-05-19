@@ -1202,9 +1202,58 @@ export function AdminRewards() {
         if (error) throw error;
         savedRewardId = editingReward.id;
       } else {
-        const { data: inserted, error } = await supabase.from('rewards').insert([dataToSave]).select('id').single();
-        if (error) throw error;
-        savedRewardId = inserted.id;
+        // Route admin-created rewards through reward_submissions so the
+        // publish trigger creates the rewards row with reward_origin set.
+        // We then UPDATE the new rewards row with the admin-only fields
+        // (sponsor_*, token_*, brand_id, scheduling, etc.) that the
+        // trigger doesn't copy.
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (!authUser?.id) throw new Error('Not authenticated');
+
+        const { data: submission, error: subError } = await supabase
+          .from('reward_submissions')
+          .insert({
+            user_id: authUser.id,
+            title: dataToSave.title,
+            description: dataToSave.description,
+            category: dataToSave.category,
+            image_url: dataToSave.image_url ?? null,
+            stock_quantity: dataToSave.stock_quantity ?? null,
+            reward_origin: 'admin_manual',
+            is_brand_submission: false,
+            claims_required: dataToSave.cost,
+            claim_value_at_submission: dataToSave.cost,
+            required_status_tier: dataToSave.min_status_tier ?? null,
+            // Legacy NOT NULL fields
+            lock_rate: '360',
+            reward_type: 'digital',
+            nctr_value: 0,
+            claim_passes_required: dataToSave.cost,
+            status: 'approved',
+          })
+          .select('id')
+          .single();
+        if (subError) throw subError;
+
+        const { data: createdReward, error: lookupErr } = await supabase
+          .from('rewards')
+          .select('id')
+          .eq('submission_id', submission.id)
+          .maybeSingle();
+        if (lookupErr) throw lookupErr;
+        if (!createdReward?.id) throw new Error('Reward was not created by the publish trigger');
+        savedRewardId = createdReward.id;
+
+        // Apply admin-only fields the trigger doesn't copy.
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { title, description, category, cost, image_url, stock_quantity, ...extras } = dataToSave;
+        if (Object.keys(extras).length > 0) {
+          const { error: updErr } = await supabase
+            .from('rewards')
+            .update(extras)
+            .eq('id', savedRewardId);
+          if (updErr) throw updErr;
+        }
       }
 
       // Save gallery images to reward_images table

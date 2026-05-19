@@ -292,38 +292,72 @@ export function useSponsor(): UseSponsorReturn {
     }
 
     try {
-      const { data: newReward, error } = await supabase
-        .from('rewards')
+      // Verified sponsors auto-publish (status=approved → trigger creates rewards row).
+      // Unverified sponsors submit for admin review (status=pending).
+      const initialStatus = sponsor.is_verified ? 'approved' : 'pending';
+
+      const { data: submission, error: subError } = await supabase
+        .from('reward_submissions')
         .insert({
+          user_id: profile!.id,
           title: data.title,
           description: data.description,
           category: data.category,
-          cost: data.cost,
-          image_url: data.image_url,
-          contribution_model: data.contribution_model,
-          linked_sponsor_id: sponsor.id,
-          campaign_id: data.campaign_id,
-          sponsor_message: data.sponsor_message,
-          sponsor_cta_text: data.sponsor_cta_text,
-          sponsor_cta_url: data.sponsor_cta_url,
-          cost_per_claim: data.cost_per_claim,
-          revenue_share_percent: data.revenue_share_percent,
-          status_tier_claims_cost: data.status_tier_claims_cost,
-          stock_quantity: data.stock_quantity,
-          is_active: sponsor.is_verified, // Only auto-activate if verified
-          is_sponsored: true,
-          sponsor_enabled: true,
-          sponsor_name: sponsor.name,
-          sponsor_logo: sponsor.logo_url,
+          image_url: data.image_url ?? null,
+          stock_quantity: data.stock_quantity ?? null,
+          reward_origin: 'sponsor',
+          is_brand_submission: true,
+          claims_required: data.cost,
+          claim_value_at_submission: data.cost,
+          // Legacy NOT NULL fields — sponsor flow has no NCTR settlement.
+          lock_rate: '360',
+          reward_type: 'digital',
+          nctr_value: 0,
+          claim_passes_required: data.cost,
+          status: initialStatus,
         })
         .select('id')
         .single();
 
-      if (error) throw error;
+      if (subError) throw subError;
+
+      let createdRewardId: string | null = null;
+
+      if (initialStatus === 'approved') {
+        // Trigger should have created the rewards row. Fetch + enrich it
+        // with sponsor-specific fields that the trigger doesn't copy.
+        const { data: newReward } = await supabase
+          .from('rewards')
+          .select('id')
+          .eq('submission_id', submission.id)
+          .maybeSingle();
+
+        if (newReward?.id) {
+          createdRewardId = newReward.id;
+          await supabase
+            .from('rewards')
+            .update({
+              contribution_model: data.contribution_model,
+              linked_sponsor_id: sponsor.id,
+              campaign_id: data.campaign_id ?? null,
+              sponsor_message: data.sponsor_message ?? null,
+              sponsor_cta_text: data.sponsor_cta_text ?? null,
+              sponsor_cta_url: data.sponsor_cta_url ?? null,
+              cost_per_claim: data.cost_per_claim ?? null,
+              revenue_share_percent: data.revenue_share_percent ?? null,
+              status_tier_claims_cost: (data.status_tier_claims_cost ?? null) as unknown as never,
+              is_sponsored: true,
+              sponsor_enabled: true,
+              sponsor_name: sponsor.name,
+              sponsor_logo: sponsor.logo_url,
+            })
+            .eq('id', newReward.id);
+        }
+      }
 
       await fetchSponsorData();
-      toast.success(sponsor.is_verified ? 'Reward published!' : 'Reward submitted for review!');
-      return newReward.id;
+      toast.success(initialStatus === 'approved' ? 'Reward published!' : 'Reward submitted for review!');
+      return createdRewardId ?? submission.id;
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create reward';
       toast.error(errorMessage);
