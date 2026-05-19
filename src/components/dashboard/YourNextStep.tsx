@@ -28,16 +28,43 @@ function getTierForAmount(amount: number) {
 export function YourNextStep() {
   const navigate = useNavigate();
   const { profile, tier, nextTier, total360Locked } = useUnifiedUser();
+  const userId = profile?.id;
 
   // Use BH-synced nctr_earned_total as source of truth
   const totalEarned = Number((profile as any)?.nctr_earned_total) || 0;
   const tierName = (tier?.tier_name || "").toLowerCase();
   const locked = total360Locked || 0;
 
+  // Auto-hide contributor card once the user has submitted any reward
+  const { data: hasSubmissions } = useQuery({
+    queryKey: ['has-reward-submissions', userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('reward_submissions')
+        .select('id')
+        .eq('user_id', userId as string)
+        .limit(1);
+      if (error) throw error;
+      return (data?.length ?? 0) > 0;
+    },
+    enabled: !!userId,
+  });
+
   // Fetch a featured bounty for Gold+ users
   const { data: featuredBounty } = useQuery({
     queryKey: ["featured-bounty-next-step"],
     queryFn: async () => {
+      const { data } = await supabase
+        .from("bounties")
+        .select("id, title, nctr_reward, image_emoji")
+        .eq("is_active", true)
+        .eq("is_featured", true)
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+    enabled: tierName === "gold" || tierName === "platinum" || tierName === "diamond",
+  });
       const { data } = await supabase
         .from("bounties")
         .select("id, title, nctr_reward, image_emoji")
