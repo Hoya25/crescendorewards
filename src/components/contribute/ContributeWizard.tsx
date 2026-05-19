@@ -334,12 +334,16 @@ export function ContributeWizard() {
 
       // Atomic-ish trust status bump (cosmetic — failure not fatal)
       if (trustStatus === 'none' || trustStatus === null) {
-        const { error: trustErr } = await supabase
+        const guarded = supabase
           .from('profiles')
           .update({ contributor_trust_status: 'requires_review' })
-          .eq('id', user.id)
-          .eq('contributor_trust_status', trustStatus as any); // guarded update
+          .eq('id', user.id);
+        const { error: trustErr } =
+          trustStatus === null
+            ? await guarded.is('contributor_trust_status', null)
+            : await guarded.eq('contributor_trust_status', trustStatus);
         if (trustErr) console.warn('Trust status update failed (non-fatal):', trustErr);
+        else setTrustStatus('requires_review');
       }
 
       // Fire admin notification (non-blocking)
