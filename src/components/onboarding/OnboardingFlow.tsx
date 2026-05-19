@@ -141,7 +141,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             >
               {step === 0 && <StepWelcome />}
               {step === 1 && <StepStatus />}
-              {step === 2 && <StepLock onAction={handleFinalAction} />}
+              {step === 2 && <StepContribute />}
+              {step === 3 && <StepLock onAction={handleFinalAction} />}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -149,7 +150,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         {/* Bottom: buttons + progress dots */}
         <div className="px-6 sm:px-8 pb-6 pt-2 space-y-4">
           {/* Step buttons */}
-          {step < 2 ? (
+          {step < 3 ? (
             <button
               onClick={next}
               className="w-full py-3.5 rounded-xl font-bold text-base transition-all hover:brightness-110"
