@@ -450,12 +450,9 @@ function AppRoutes() {
             />
             <Route 
               path="/submit-reward" 
-              element={
-                <ProtectedRoute>
-                  <AppLayout><SubmitRewardsPage /></AppLayout>
-                </ProtectedRoute>
-              } 
+              element={<Navigate to="/contribute" replace />} 
             />
+
             <Route 
               path="/my-submissions" 
               element={
@@ -552,10 +549,11 @@ function AppRoutes() {
               path="/contribute" 
               element={
                 <ProtectedRoute>
-                  <Navigate to="/submit-reward" replace />
+                  <AppLayout><ContributeWizard /></AppLayout>
                 </ProtectedRoute>
               } 
             />
+
 
             {/* Standalone Wingman Audit — no auth wrapper */}
             <Route path="/wingman-audit" element={<Suspense fallback={<RouteLoading />}><WingmanAuditPage /></Suspense>} />
