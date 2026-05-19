@@ -587,22 +587,55 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       const needsShipping = selectedReward.category === 'merch' || selectedReward.category === 'experiences';
       const shippingData = needsShipping ? shippingInfo : null;
 
-      const { data, error } = await supabase.rpc('claim_reward', {
-        p_reward_id: selectedReward.id,
-        p_shipping_info: shippingData,
-      }) as { data: any; error: any };
+      const { data, error } = await supabase.functions.invoke('process-claim', {
+        body: {
+          reward_id: selectedReward.id,
+          shipping_info: shippingData,
+        },
+      });
 
-      if (error) throw error;
+      const mapError = (code: string | undefined, payload: any): { title: string; description: string } => {
+        switch (code) {
+          case 'insufficient_claims':
+            return { title: 'Not enough claims', description: `You need ${payload?.required} claims to claim this. You have ${payload?.available}.` };
+          case 'reward_sold_out':
+            return { title: 'Sold out', description: 'This reward is sold out.' };
+          case 'reward_not_available':
+            return { title: 'Unavailable', description: "This reward isn't available right now." };
+          case 'tier_requirement_not_met':
+            return { title: 'Status required', description: `This reward requires ${payload?.required_tier} status. You're currently ${payload?.member_tier ?? 'unranked'}.` };
+          case 'oracle_unavailable':
+          case 'contributor_credit_failed':
+            return { title: 'Try again', description: "Couldn't process your claim right now. Please try again in a moment." };
+          case 'contributor_unresolved':
+            return { title: 'Contact support', description: "Couldn't process your claim right now. Please contact support." };
+          case 'claim_settlement_recovery_required':
+            return { title: 'Something went wrong', description: 'Something went wrong with your claim. Our team has been notified. Please contact support.' };
+          case 'claim_recording_failed':
+            return { title: 'Try again', description: "Couldn't record your claim. Please try again." };
+          case 'reward_not_found':
+            return { title: 'Not found', description: "This reward couldn't be found." };
+          default:
+            return { title: 'Claim failed', description: "Couldn't complete your claim. Please try again." };
+        }
+      };
 
-      const result = data as { success: boolean; error?: string; new_balance?: number };
+      const payload: any = data ?? {};
 
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to claim reward');
+      if (payload?.error === 'unauthenticated' || (error && (error as any)?.status === 401)) {
+        toast({ title: 'Sign In Required', description: 'Please sign in to claim rewards', variant: 'destructive' });
+        return;
+      }
+
+      if (error || !payload?.success) {
+        const msg = mapError(payload?.error, payload);
+        toast({ title: msg.title, description: msg.description, variant: 'destructive' });
+        return;
       }
 
       toast({
-        title: 'Success!',
-        description: `You've claimed ${selectedReward.title}! New balance: ${result.new_balance} tokens`,
+        title: 'Reward claimed!',
+        description: `You've claimed ${selectedReward.title}.`,
       });
 
       setShowClaimModal(false);
@@ -615,14 +648,14 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         zip: '',
         country: '',
       });
-      
+
       onClaimSuccess();
       loadRewards();
     } catch (error: any) {
       console.error('Error claiming reward:', error);
       toast({
-        title: 'Error',
-        description: error.message || 'Failed to claim reward',
+        title: 'Claim failed',
+        description: "Couldn't complete your claim. Please try again.",
         variant: 'destructive',
       });
     } finally {
