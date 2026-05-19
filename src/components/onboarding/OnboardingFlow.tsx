@@ -117,7 +117,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   const stepButtons: Record<number, string> = {
     0: 'Show Me How →',
-    1: 'How Do I Level Up? →',
+    1: 'What Else Can I Do? →',
+    2: 'How Do I Level Up? →',
   };
 
   return (
