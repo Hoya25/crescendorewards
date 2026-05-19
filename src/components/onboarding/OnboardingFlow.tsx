@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { track } from '@/lib/track';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock } from 'lucide-react';
+import { StepContribute } from './StepContribute';
 
 const ONBOARDED_KEY = 'crescendo_onboarded';
 
