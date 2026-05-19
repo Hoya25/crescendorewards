@@ -53,6 +53,7 @@ const ReferralAnalyticsDashboard = lazy(() => import('./components/ReferralAnaly
 const InvitePage = lazy(() => import('./pages/InvitePage'));
 const RewardDetailPage = lazy(() => import('./components/RewardDetailPage').then(m => ({ default: m.RewardDetailPage })));
 const SubmitRewardsPage = lazy(() => import('./components/SubmitRewardsPage').then(m => ({ default: m.SubmitRewardsPage })));
+const ContributeWizard = lazy(() => import('./components/contribute/ContributeWizard').then(m => ({ default: m.ContributeWizard })));
 const MySubmissionsPage = lazy(() => import('./components/MySubmissionsPage').then(m => ({ default: m.MySubmissionsPage })));
 const PurchaseHistoryPage = lazy(() => import('./components/PurchaseHistoryPage').then(m => ({ default: m.PurchaseHistoryPage })));
 const FoodBeveragePage = lazy(() => import('./components/FoodBeveragePage').then(m => ({ default: m.FoodBeveragePage })));
@@ -450,12 +451,9 @@ function AppRoutes() {
             />
             <Route 
               path="/submit-reward" 
-              element={
-                <ProtectedRoute>
-                  <AppLayout><SubmitRewardsPage /></AppLayout>
-                </ProtectedRoute>
-              } 
+              element={<Navigate to="/contribute" replace />} 
             />
+
             <Route 
               path="/my-submissions" 
               element={
@@ -552,10 +550,11 @@ function AppRoutes() {
               path="/contribute" 
               element={
                 <ProtectedRoute>
-                  <Navigate to="/submit-reward" replace />
+                  <AppLayout><ContributeWizard /></AppLayout>
                 </ProtectedRoute>
               } 
             />
+
 
             {/* Standalone Wingman Audit — no auth wrapper */}
             <Route path="/wingman-audit" element={<Suspense fallback={<RouteLoading />}><WingmanAuditPage /></Suspense>} />
