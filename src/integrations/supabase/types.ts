@@ -2917,11 +2917,13 @@ export type Database = {
           campaign_id: string | null
           category: string
           claim_limit: number | null
+          claims_required: number
           contributed_by: string | null
           contribution_category: string | null
           contribution_model: string | null
           contribution_status: string | null
           contributor_nctr_per_claim: number | null
+          contributor_user_id: string
           cost: number
           cost_per_claim: number | null
           created_at: string
@@ -2931,6 +2933,7 @@ export type Database = {
           description: string
           display_order: number | null
           dollar_value: number | null
+          floor_usd_amount: number
           id: string
           image_quality_approved: boolean | null
           image_source_url: string | null
@@ -2940,9 +2943,11 @@ export type Database = {
           is_featured: boolean
           is_sponsored: boolean | null
           linked_sponsor_id: string | null
+          lock_option: string
           min_status_tier: string | null
           min_tier_required: string | null
           minimum_token_balance: number | null
+          multiplier_at_submission: number
           powered_by_name: string | null
           publish_at: string | null
           rejection_reason: string | null
@@ -2965,6 +2970,7 @@ export type Database = {
           sponsor_start_date: string | null
           status_tier_claims_cost: Json | null
           stock_quantity: number | null
+          submission_id: string
           title: string
           token_contract_address: string | null
           token_gated: boolean | null
@@ -2981,11 +2987,13 @@ export type Database = {
           campaign_id?: string | null
           category: string
           claim_limit?: number | null
+          claims_required: number
           contributed_by?: string | null
           contribution_category?: string | null
           contribution_model?: string | null
           contribution_status?: string | null
           contributor_nctr_per_claim?: number | null
+          contributor_user_id: string
           cost: number
           cost_per_claim?: number | null
           created_at?: string
@@ -2995,6 +3003,7 @@ export type Database = {
           description: string
           display_order?: number | null
           dollar_value?: number | null
+          floor_usd_amount: number
           id?: string
           image_quality_approved?: boolean | null
           image_source_url?: string | null
@@ -3004,9 +3013,11 @@ export type Database = {
           is_featured?: boolean
           is_sponsored?: boolean | null
           linked_sponsor_id?: string | null
+          lock_option: string
           min_status_tier?: string | null
           min_tier_required?: string | null
           minimum_token_balance?: number | null
+          multiplier_at_submission: number
           powered_by_name?: string | null
           publish_at?: string | null
           rejection_reason?: string | null
@@ -3029,6 +3040,7 @@ export type Database = {
           sponsor_start_date?: string | null
           status_tier_claims_cost?: Json | null
           stock_quantity?: number | null
+          submission_id: string
           title: string
           token_contract_address?: string | null
           token_gated?: boolean | null
@@ -3045,11 +3057,13 @@ export type Database = {
           campaign_id?: string | null
           category?: string
           claim_limit?: number | null
+          claims_required?: number
           contributed_by?: string | null
           contribution_category?: string | null
           contribution_model?: string | null
           contribution_status?: string | null
           contributor_nctr_per_claim?: number | null
+          contributor_user_id?: string
           cost?: number
           cost_per_claim?: number | null
           created_at?: string
@@ -3059,6 +3073,7 @@ export type Database = {
           description?: string
           display_order?: number | null
           dollar_value?: number | null
+          floor_usd_amount?: number
           id?: string
           image_quality_approved?: boolean | null
           image_source_url?: string | null
@@ -3068,9 +3083,11 @@ export type Database = {
           is_featured?: boolean
           is_sponsored?: boolean | null
           linked_sponsor_id?: string | null
+          lock_option?: string
           min_status_tier?: string | null
           min_tier_required?: string | null
           minimum_token_balance?: number | null
+          multiplier_at_submission?: number
           powered_by_name?: string | null
           publish_at?: string | null
           rejection_reason?: string | null
@@ -3093,6 +3110,7 @@ export type Database = {
           sponsor_start_date?: string | null
           status_tier_claims_cost?: Json | null
           stock_quantity?: number | null
+          submission_id?: string
           title?: string
           token_contract_address?: string | null
           token_gated?: boolean | null
@@ -3130,6 +3148,13 @@ export type Database = {
             columns: ["linked_sponsor_id"]
             isOneToOne: false
             referencedRelation: "sponsors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rewards_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "reward_submissions"
             referencedColumns: ["id"]
           },
           {
