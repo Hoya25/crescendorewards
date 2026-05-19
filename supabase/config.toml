@@ -47,3 +47,7 @@ verify_jwt = false
 # Public NCTR price oracle (Dexscreener wrapper)
 [functions.get-nctr-price]
 verify_jwt = false
+
+# Reward claim settlement engine - requires user JWT (validated in code)
+[functions.process-claim]
+verify_jwt = false
