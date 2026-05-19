@@ -342,35 +342,81 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
         ...deliveryData,
         delivery_method: reward.delivery_method || 'email',
       };
-      
-      const { data, error } = await supabase.rpc('claim_reward', {
-        p_reward_id: reward.id,
-        p_shipping_info: claimData,
-      });
-      if (error) throw error;
-      const result = data as { success: boolean; error?: string; claim_code?: string };
-      if (!result.success) throw new Error(result.error || 'Claim failed');
 
-      track('reward_claimed', { reward_id: reward.id, claims_cost: pricing.price });
-      
-      // Store claim code if returned (for instant_code delivery)
-      if (result.claim_code) {
-        setClaimCode(result.claim_code);
+      const { data, error } = await supabase.functions.invoke('process-claim', {
+        body: {
+          reward_id: reward.id,
+          shipping_info: claimData,
+        },
+      });
+
+      // Map error codes to member-friendly messages
+      const mapError = (code: string | undefined, payload: any): { title: string; description: string } => {
+        switch (code) {
+          case 'insufficient_claims':
+            return { title: 'Not enough claims', description: `You need ${payload?.required} claims to claim this. You have ${payload?.available}.` };
+          case 'reward_sold_out':
+            return { title: 'Sold out', description: 'This reward is sold out.' };
+          case 'reward_not_available':
+            return { title: 'Unavailable', description: "This reward isn't available right now." };
+          case 'tier_requirement_not_met':
+            return { title: 'Status required', description: `This reward requires ${payload?.required_tier} status. You're currently ${payload?.member_tier ?? 'unranked'}.` };
+          case 'oracle_unavailable':
+          case 'contributor_credit_failed':
+            return { title: 'Try again', description: "Couldn't process your claim right now. Please try again in a moment." };
+          case 'contributor_unresolved':
+            return { title: 'Contact support', description: "Couldn't process your claim right now. Please contact support." };
+          case 'claim_settlement_recovery_required':
+            return { title: 'Something went wrong', description: 'Something went wrong with your claim. Our team has been notified. Please contact support.' };
+          case 'claim_recording_failed':
+            return { title: 'Try again', description: "Couldn't record your claim. Please try again." };
+          case 'reward_not_found':
+            return { title: 'Not found', description: "This reward couldn't be found." };
+          default:
+            return { title: 'Claim failed', description: "Couldn't complete your claim. Please try again." };
+        }
+      };
+
+      // Edge function errors (non-2xx) may surface via `error` or via data.error
+      const payload: any = data ?? {};
+      if (payload?.error === 'unauthenticated' || (error && (error as any)?.status === 401)) {
+        setAuthMode('signin');
+        setShowAuthModal(true);
+        return;
       }
-      
-      // Show success state instead of just toast
+
+      if (error || !payload?.success) {
+        const code = payload?.error;
+        const msg = mapError(code, payload);
+        toast({ title: msg.title, description: msg.description, variant: 'destructive' });
+        return;
+      }
+
+      track('reward_claimed', {
+        reward_id: reward.id,
+        claims_cost: pricing.price,
+        reward_origin: payload.reward_origin,
+      });
+
+      if (payload.nctr_credited_to_contributor) {
+        console.log('[claim] contributor settled', {
+          nctr: payload.nctr_credited_to_contributor,
+          rate: payload.nctr_rate_at_claim,
+        });
+      }
+
+      // Show success state
       setShowConfirmClaim(false);
       setShowClaimSuccess(true);
       setShowReviewPrompt(true);
-      
       setShowClaimModal(false);
       setDeliveryData({});
       onClaimSuccess?.();
       refreshUnifiedProfile();
       fetchReward();
-    } catch (error: any) {
-      console.error('Error claiming reward:', error);
-      toast({ title: 'Claims Paused', description: 'Claims are temporarily paused while we upgrade Crescendo. Check back soon!', variant: 'destructive' });
+    } catch (err: any) {
+      console.error('Error claiming reward:', err);
+      toast({ title: 'Claim failed', description: "Couldn't complete your claim. Please try again.", variant: 'destructive' });
     } finally {
       setClaiming(false);
     }
