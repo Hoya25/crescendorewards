@@ -1189,10 +1189,14 @@ export function AdminRewards() {
         : null;
 
       // Build the data to save, including tier pricing
+      // TIER COLUMN CONSOLIDATION: write all 3 columns for now
+      // (min_tier_required is the v2 canonical, others are legacy
+      // / mirrors). Drop legacy columns in a follow-up migration.
       const dataToSave: any = {
         ...formData,
         image_url: primaryImageUrl,
         status_tier_claims_cost: tierPricingEnabled && tierPricing ? tierPricing : null,
+        min_tier_required: formData.min_status_tier,
       };
 
       let savedRewardId: string;

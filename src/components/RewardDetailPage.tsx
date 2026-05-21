@@ -509,13 +509,16 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const userTierDisplay = getTierDisplayName(userTier);
   const userTierEmoji = tierEmojis[userTier] || '🥉';
   
+  // TIER COLUMN CONSOLIDATION: prefer v2 column min_tier_required, fall back to legacy min_status_tier.
+  const effectiveMinTier = (reward as any).min_tier_required || reward.min_status_tier;
+
   // Pricing calculations
   const rewardForPricing: RewardType = {
     id: reward.id,
     cost: reward.cost,
     is_sponsored: reward.is_sponsored,
     status_tier_claims_cost: reward.status_tier_claims_cost,
-    min_status_tier: reward.min_status_tier,
+    min_status_tier: effectiveMinTier,
     stock_quantity: reward.stock_quantity,
     is_active: reward.is_active,
   };
@@ -760,15 +763,15 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                     <div className="text-right">
                       <p className="text-xs text-muted-foreground uppercase tracking-wide">Access Requirement</p>
                       <p className="font-bold flex items-center justify-end gap-1.5">
-                        {!reward.min_status_tier || reward.min_status_tier === 'bronze' ? (
+                        {!effectiveMinTier || effectiveMinTier === 'bronze' ? (
                           <>
                             <span className="text-emerald-500">🔓</span>
                             <span className="text-emerald-600 dark:text-emerald-400">All Members</span>
                           </>
                         ) : (
                           <>
-                            <span>{tierEmojis[reward.min_status_tier.toLowerCase()] || '🎫'}</span>
-                            <span>{reward.min_status_tier.charAt(0).toUpperCase() + reward.min_status_tier.slice(1)}+</span>
+                            <span>{tierEmojis[effectiveMinTier.toLowerCase()] || '🎫'}</span>
+                            <span>{effectiveMinTier.charAt(0).toUpperCase() + effectiveMinTier.slice(1)}+</span>
                           </>
                         )}
                       </p>
@@ -789,10 +792,10 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                   <div className="text-center py-4 space-y-4">
                     <Lock className="w-10 h-10 mx-auto text-muted-foreground mb-3" />
                     <p className="text-lg font-semibold text-muted-foreground">
-                      Unlock at {getTierDisplayName(reward.min_status_tier || '')}
+                      Unlock at {getTierDisplayName(effectiveMinTier || '')}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      This reward requires {getTierDisplayName(reward.min_status_tier || '')} status or higher.
+                      This reward requires {getTierDisplayName(effectiveMinTier || '')} status or higher.
                       {userTier && (
                         <> You're currently <span className="font-semibold capitalize">{userTierDisplay}</span> — keep earning to level up!</>
                       )}
@@ -958,7 +961,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                   onClick={() => navigate('/membership')}
                 >
                   <Lock className="w-5 h-5" />
-                  Unlock at {getTierDisplayName(reward.min_status_tier || '')}
+                  Unlock at {getTierDisplayName(effectiveMinTier || '')}
                 </Button>
               ) : !inStock ? (
                 <Button
