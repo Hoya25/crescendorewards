@@ -11,6 +11,7 @@ interface PreviewReward {
   title: string;
   image_url: string | null;
   min_status_tier: string | null;
+  min_tier_required: string | null;
 }
 
 const tierEmoji: Record<string, string> = {
@@ -34,7 +35,7 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
       try {
         const { data } = await supabase
           .from('rewards')
-          .select('id, title, image_url, min_status_tier')
+          .select('id, title, image_url, min_status_tier, min_tier_required')
           .eq('is_active', true)
           .order('is_featured', { ascending: false })
           .order('created_at', { ascending: false })
@@ -74,7 +75,7 @@ export function RewardsPreview({ onJoin }: RewardsPreviewProps) {
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
           {rewards.map((reward) => {
-            const tier = (reward.min_status_tier || 'member').toLowerCase();
+            const tier = (reward.min_tier_required || reward.min_status_tier || 'member').toLowerCase();
             return (
               <div
                 key={reward.id}
