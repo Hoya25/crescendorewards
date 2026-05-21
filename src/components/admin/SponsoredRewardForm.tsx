@@ -223,6 +223,8 @@ export function SponsoredRewardForm({ open, onClose, reward, onSave }: Sponsored
       const imageUrl = await uploadImage();
       if (imageFile && !imageUrl) return;
 
+      // TIER COLUMN CONSOLIDATION: write min_tier_required (v2 canonical)
+      // alongside legacy min_status_tier. Drop legacy in follow-up migration.
       const dataToSave = {
         title: formData.title,
         description: formData.description,
@@ -235,6 +237,7 @@ export function SponsoredRewardForm({ open, onClose, reward, onSave }: Sponsored
         campaign_id: formData.campaign_id,
         status_tier_claims_cost: formData.status_tier_claims_cost as unknown as Record<string, number> | null,
         min_status_tier: formData.min_status_tier,
+        min_tier_required: formData.min_status_tier,
         stock_quantity: formData.stock_quantity,
         sponsor_start_date: formData.sponsor_start_date || null,
         sponsor_end_date: formData.sponsor_end_date || null,

@@ -35,6 +35,7 @@ interface SponsoredReward {
   sponsor_end_date: string | null;
   campaign_id: string | null;
   min_status_tier: string | null;
+  min_tier_required?: string | null;
   status_tier_claims_cost: Record<string, number> | null;
   created_at: string;
   claim_count?: number;
@@ -190,7 +191,7 @@ export function AdminSponsoredRewards() {
       
       if (statusFilter !== 'all' && getRewardStatus(reward) !== statusFilter) return false;
       if (campaignFilter !== 'all' && reward.campaign_id !== campaignFilter) return false;
-      if (tierFilter !== 'all' && reward.min_status_tier !== tierFilter) return false;
+      if (tierFilter !== 'all' && (reward.min_tier_required || reward.min_status_tier) !== tierFilter) return false;
       
       return true;
     });

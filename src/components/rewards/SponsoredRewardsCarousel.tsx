@@ -26,6 +26,7 @@ interface SponsoredReward {
   sponsor_logo?: string | null;
   sponsor_enabled?: boolean | null;
   min_status_tier?: string | null;
+  min_tier_required?: string | null;
   status_tier_claims_cost?: Record<string, number> | null;
   campaign_id?: string | null;
 }

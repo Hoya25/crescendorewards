@@ -62,11 +62,13 @@ export function RewardPriceDisplay({
   
   const tierDisplayName = getTierDisplayName(userTier);
   const isLocked = !eligibility.canClaim && eligibility.reason?.includes('Requires');
+  // TIER COLUMN CONSOLIDATION: prefer v2 column with legacy fallback.
+  const effectiveMinTier = reward.min_tier_required || reward.min_status_tier;
 
   // Locked state - user tier too low
   if (isLocked) {
-    const requiredTier = reward.min_status_tier 
-      ? getTierDisplayName(reward.min_status_tier)
+    const requiredTier = effectiveMinTier 
+      ? getTierDisplayName(effectiveMinTier)
       : 'higher tier';
     
     return (
@@ -161,12 +163,14 @@ export function RewardPriceDisplay({
 const TIER_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
 
 function getLowestFreeTier(reward: Reward): string | null {
-  // Priority 1: Use min_status_tier if set - this is the admin's explicit access setting
-  if (reward.min_status_tier) {
-    return getTierDisplayName(reward.min_status_tier);
+  // TIER COLUMN CONSOLIDATION: prefer v2 column with legacy fallback.
+  const effectiveMinTier = reward.min_tier_required || reward.min_status_tier;
+  // Priority 1: Use min tier if set - this is the admin's explicit access setting
+  if (effectiveMinTier) {
+    return getTierDisplayName(effectiveMinTier);
   }
   
-  // Priority 2: If no min_status_tier, check tier pricing for lowest free tier
+  // Priority 2: If no min tier set, check tier pricing for lowest free tier
   const tierCosts = reward.status_tier_claims_cost;
   if (tierCosts && typeof tierCosts === 'object') {
     const costs = tierCosts as Record<string, number>;

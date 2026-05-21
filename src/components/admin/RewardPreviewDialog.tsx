@@ -28,6 +28,7 @@ interface RewardData {
   sponsor_name: string | null;
   sponsor_logo: string | null;
   min_status_tier: string | null;
+  min_tier_required?: string | null;
   status_tier_claims_cost: Record<string, number> | null;
   delivery_method: DeliveryMethod | null;
   delivery_instructions: string | null;
@@ -71,12 +72,14 @@ export function RewardPreviewDialog({
 
   // Check tier eligibility
   const checkTierEligibility = (): { eligible: boolean; message: string } => {
-    if (!reward.min_status_tier || reward.min_status_tier === 'none') {
+    // TIER COLUMN CONSOLIDATION: prefer v2 column with legacy fallback.
+    const effectiveMinTier = reward.min_tier_required || reward.min_status_tier;
+    if (!effectiveMinTier || effectiveMinTier === 'none') {
       return { eligible: true, message: 'Available to all members' };
     }
     
     const tierOrder = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
-    const requiredIndex = tierOrder.indexOf(reward.min_status_tier);
+    const requiredIndex = tierOrder.indexOf(effectiveMinTier);
     const userIndex = tierOrder.indexOf(previewTier);
     
     if (userIndex >= requiredIndex) {
@@ -85,7 +88,7 @@ export function RewardPreviewDialog({
     
     return { 
       eligible: false, 
-      message: `Requires ${TIER_BADGES[reward.min_status_tier]?.label || reward.min_status_tier} or higher` 
+      message: `Requires ${TIER_BADGES[effectiveMinTier]?.label || effectiveMinTier} or higher` 
     };
   };
 
