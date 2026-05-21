@@ -62,11 +62,13 @@ export function RewardPriceDisplay({
   
   const tierDisplayName = getTierDisplayName(userTier);
   const isLocked = !eligibility.canClaim && eligibility.reason?.includes('Requires');
+  // TIER COLUMN CONSOLIDATION: prefer v2 column with legacy fallback.
+  const effectiveMinTier = reward.min_tier_required || reward.min_status_tier;
 
   // Locked state - user tier too low
   if (isLocked) {
-    const requiredTier = reward.min_status_tier 
-      ? getTierDisplayName(reward.min_status_tier)
+    const requiredTier = effectiveMinTier 
+      ? getTierDisplayName(effectiveMinTier)
       : 'higher tier';
     
     return (
@@ -161,12 +163,14 @@ export function RewardPriceDisplay({
 const TIER_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
 
 function getLowestFreeTier(reward: Reward): string | null {
-  // Priority 1: Use min_status_tier if set - this is the admin's explicit access setting
-  if (reward.min_status_tier) {
-    return getTierDisplayName(reward.min_status_tier);
+  // TIER COLUMN CONSOLIDATION: prefer v2 column with legacy fallback.
+  const effectiveMinTier = reward.min_tier_required || reward.min_status_tier;
+  // Priority 1: Use min tier if set - this is the admin's explicit access setting
+  if (effectiveMinTier) {
+    return getTierDisplayName(effectiveMinTier);
   }
   
-  // Priority 2: If no min_status_tier, check tier pricing for lowest free tier
+  // Priority 2: If no min tier set, check tier pricing for lowest free tier
   const tierCosts = reward.status_tier_claims_cost;
   if (tierCosts && typeof tierCosts === 'object') {
     const costs = tierCosts as Record<string, number>;
@@ -203,9 +207,11 @@ export function RewardPriceCompact({
 }) {
   const pricing = getRewardPriceForUser(reward, userTier);
   
+  // TIER COLUMN CONSOLIDATION: prefer v2 column with legacy fallback.
+  const effectiveMinTier = reward.min_tier_required || reward.min_status_tier;
   // Check if locked - use metal tier order
   const normalizedUserTier = userTier.toLowerCase();
-  const normalizedMinTier = reward.min_status_tier?.toLowerCase() || '';
+  const normalizedMinTier = effectiveMinTier?.toLowerCase() || '';
   const userTierIndex = TIER_ORDER.indexOf(normalizedUserTier);
   const requiredTierIndex = TIER_ORDER.indexOf(normalizedMinTier);
   const isLocked = normalizedMinTier && userTierIndex !== -1 && requiredTierIndex !== -1 && userTierIndex < requiredTierIndex;
@@ -215,7 +221,7 @@ export function RewardPriceCompact({
       <div className={cn('flex items-center gap-2 text-muted-foreground', className)}>
         <Lock className="w-4 h-4" />
         <span className="text-sm font-medium">
-          Unlock at {getTierDisplayName(reward.min_status_tier || '')}
+          Unlock at {getTierDisplayName(effectiveMinTier || '')}
         </span>
       </div>
     );

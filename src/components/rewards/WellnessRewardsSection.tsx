@@ -24,6 +24,7 @@ interface WellnessReward {
   sponsor_name?: string | null;
   sponsor_logo?: string | null;
   min_status_tier?: string | null;
+  min_tier_required?: string | null;
   is_sponsored?: boolean;
   status_tier_claims_cost?: Record<string, number> | null;
 }
@@ -116,7 +117,7 @@ export function WellnessRewardsSection() {
       try {
         const { data, error } = await supabase
           .from('rewards')
-          .select('id, title, description, category, cost, image_url, stock_quantity, is_active, is_featured, sponsor_enabled, sponsor_name, sponsor_logo, min_status_tier, is_sponsored, status_tier_claims_cost')
+          .select('id, title, description, category, cost, image_url, stock_quantity, is_active, is_featured, sponsor_enabled, sponsor_name, sponsor_logo, min_status_tier, min_tier_required, is_sponsored, status_tier_claims_cost')
           .eq('category', 'wellness')
           .eq('is_active', true)
           .order('is_featured', { ascending: false })

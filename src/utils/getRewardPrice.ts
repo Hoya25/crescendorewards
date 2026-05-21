@@ -15,6 +15,7 @@ export interface Reward {
   is_sponsored?: boolean | null;
   status_tier_claims_cost?: TierPricing | Record<string, number> | null;
   min_status_tier?: string | null;
+  min_tier_required?: string | null;
   stock_quantity?: number | null;
   is_active?: boolean;
 }
@@ -94,16 +95,18 @@ export function canUserClaimReward(
   }
 
   // Check minimum tier requirement
-  if (reward.min_status_tier) {
-    const normalizedMinTier = reward.min_status_tier.toLowerCase();
+  // TIER COLUMN CONSOLIDATION: prefer v2 column min_tier_required, fall back to legacy min_status_tier.
+  const effectiveMinTier = reward.min_tier_required || reward.min_status_tier;
+  if (effectiveMinTier) {
+    const normalizedMinTier = effectiveMinTier.toLowerCase();
     const userTierIndex = TIER_ORDER.indexOf(normalizedTier as TierName);
     const requiredTierIndex = TIER_ORDER.indexOf(normalizedMinTier as TierName);
 
     if (userTierIndex === -1 || requiredTierIndex === -1) {
       // Invalid tier, allow claim but log warning
-      console.warn('Invalid tier comparison:', { userTier, minTier: reward.min_status_tier });
+      console.warn('Invalid tier comparison:', { userTier, minTier: effectiveMinTier });
     } else if (userTierIndex < requiredTierIndex) {
-      const displayTier = reward.min_status_tier.charAt(0).toUpperCase() + reward.min_status_tier.slice(1);
+      const displayTier = effectiveMinTier.charAt(0).toUpperCase() + effectiveMinTier.slice(1);
       return {
         canClaim: false,
         reason: `Requires ${displayTier} status or higher`

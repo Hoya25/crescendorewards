@@ -26,6 +26,7 @@ interface SponsoredReward {
   sponsor_logo?: string | null;
   sponsor_enabled?: boolean | null;
   min_status_tier?: string | null;
+  min_tier_required?: string | null;
   status_tier_claims_cost?: Record<string, number> | null;
   campaign_id?: string | null;
 }
@@ -34,7 +35,7 @@ async function fetchSponsoredRewards(): Promise<SponsoredReward[]> {
   // Use sponsor_enabled as the single source of truth for sponsored rewards
   const { data, error } = await supabase
     .from('rewards')
-    .select('id, title, description, category, cost, image_url, stock_quantity, is_active, is_featured, is_sponsored, sponsor_name, sponsor_logo_url, sponsor_logo, sponsor_enabled, min_status_tier, status_tier_claims_cost, campaign_id')
+    .select('id, title, description, category, cost, image_url, stock_quantity, is_active, is_featured, is_sponsored, sponsor_name, sponsor_logo_url, sponsor_logo, sponsor_enabled, min_status_tier, min_tier_required, status_tier_claims_cost, campaign_id')
     .eq('is_active', true)
     .eq('sponsor_enabled', true)
     .order('created_at', { ascending: false })

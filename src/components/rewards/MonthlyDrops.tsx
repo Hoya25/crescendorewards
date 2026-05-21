@@ -19,6 +19,7 @@ interface MonthlyDrop {
   claim_limit: number | null;
   total_claims: number | null;
   min_status_tier: string | null;
+  min_tier_required: string | null;
   publish_at: string;
   unpublish_at: string;
   category: string;
@@ -69,7 +70,7 @@ export function MonthlyDrops({ userTierName, onViewReward }: MonthlyDropsProps) 
       const now = new Date().toISOString();
       const { data, error } = await supabase
         .from('rewards')
-        .select('id, title, description, image_url, cost, claim_limit, total_claims, min_status_tier, publish_at, unpublish_at, category')
+        .select('id, title, description, image_url, cost, claim_limit, total_claims, min_status_tier, min_tier_required, publish_at, unpublish_at, category')
         .eq('is_active', true)
         .not('publish_at', 'is', null)
         .not('unpublish_at', 'is', null)
@@ -100,7 +101,9 @@ export function MonthlyDrops({ userTierName, onViewReward }: MonthlyDropsProps) 
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {drops.map((drop) => {
-          const eligible = isUserTierEligible(drop.min_status_tier, userTierName);
+          // TIER COLUMN CONSOLIDATION: prefer v2 column with legacy fallback.
+          const effectiveMinTier = drop.min_tier_required || drop.min_status_tier;
+          const eligible = isUserTierEligible(effectiveMinTier, userTierName);
           const daysLeft = getDaysRemaining(drop.unpublish_at);
           const totalClaims = drop.total_claims ?? 0;
           const claimLimit = drop.claim_limit ?? 0;
@@ -146,7 +149,7 @@ export function MonthlyDrops({ userTierName, onViewReward }: MonthlyDropsProps) 
                 </Badge>
 
                 {/* Min tier badge */}
-                {drop.min_status_tier && (
+                {effectiveMinTier && (
                   <Badge className={cn(
                     "absolute top-3 right-3 text-xs font-semibold shadow-lg border-0 px-2.5 py-1",
                     eligible 
@@ -154,11 +157,11 @@ export function MonthlyDrops({ userTierName, onViewReward }: MonthlyDropsProps) 
                       : "bg-muted text-muted-foreground"
                   )}>
                     {eligible ? (
-                      `${tierDisplayNames[drop.min_status_tier.toLowerCase()] || drop.min_status_tier}+`
+                      `${tierDisplayNames[effectiveMinTier.toLowerCase()] || effectiveMinTier}+`
                     ) : (
                       <span className="flex items-center gap-1">
                         <Lock className="w-3 h-3" />
-                        {tierDisplayNames[drop.min_status_tier.toLowerCase()] || drop.min_status_tier}
+                        {tierDisplayNames[effectiveMinTier.toLowerCase()] || effectiveMinTier}
                       </span>
                     )}
                   </Badge>
@@ -170,7 +173,7 @@ export function MonthlyDrops({ userTierName, onViewReward }: MonthlyDropsProps) 
                     <div className="text-center space-y-2">
                       <Lock className="w-8 h-8 text-white/80 mx-auto" />
                       <p className="text-white/90 text-sm font-medium">
-                        Unlock with {tierDisplayNames[drop.min_status_tier?.toLowerCase() || ''] || drop.min_status_tier} status
+                        Unlock with {tierDisplayNames[effectiveMinTier?.toLowerCase() || ''] || effectiveMinTier} status
                       </p>
                       <Button
                         size="sm"
