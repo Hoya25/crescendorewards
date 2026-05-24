@@ -47,7 +47,30 @@ export default function GroundballRewardsPage() {
   
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [sponsorFilter, setSponsorFilter] = useState<string>('all');
-  
+  const [engineFilter, setEngineFilter] = useState<string | null>(null);
+
+  // Engine-aware gating (additive — no-op when no engines are live)
+  const { user } = useAuth();
+  const { data: liveEngines = [] } = useLiveEngines();
+  const catalogRequiredEngines = useMemo(() => {
+    const s = new Set<string>();
+    for (const r of rewards as any[]) {
+      const arr: string[] = Array.isArray(r?.required_engines) ? r.required_engines : [];
+      arr.forEach((e) => s.add(e));
+    }
+    return [...s];
+  }, [rewards]);
+  const { data: engineMembership } = useEngineMembership(
+    user?.id ?? null,
+    catalogRequiredEngines,
+  );
+  const memberships = engineMembership?.memberships ?? {};
+  const memberCanClaim = (r: any): boolean => {
+    const req: string[] = Array.isArray(r?.required_engines) ? r.required_engines : [];
+    if (req.length === 0) return true;
+    return req.some((e) => memberships[e]);
+  };
+
   const [selectModalOpen, setSelectModalOpen] = useState(false);
   const [swapModalOpen, setSwapModalOpen] = useState(false);
   const [bonusSlotModalOpen, setBonusSlotModalOpen] = useState(false);
