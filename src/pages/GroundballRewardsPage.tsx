@@ -95,15 +95,25 @@ export default function GroundballRewardsPage() {
       const requiredTier = reward.required_status || 'any';
       const meetsStatus = STATUS_HIERARCHY.indexOf(userTier) >= STATUS_HIERARCHY.indexOf(requiredTier);
       if (!meetsStatus) return false;
+      // AND semantics: tier check AND engine membership both gate "available"
+      if (!memberCanClaim(reward)) return false;
     }
     if (statusFilter === 'my-selections') {
       const isSelected = selections.some(s => s.reward_id === reward.id);
       if (!isSelected) return false;
     }
-    
+
     // Sponsor filter
     if (sponsorFilter !== 'all' && reward.sponsor !== sponsorFilter) return false;
-    
+
+    // Engine filter chip — only narrows when a chip is selected
+    if (engineFilter) {
+      const req: string[] = Array.isArray((reward as any).required_engines)
+        ? (reward as any).required_engines
+        : [];
+      if (!req.includes(engineFilter)) return false;
+    }
+
     return true;
   });
 
