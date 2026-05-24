@@ -17,7 +17,7 @@ const BH_REGISTRY_URL =
   Deno.env.get('BH_ENGINE_REGISTRY_URL') ??
   'https://auibudfactqhisvmiotw.supabase.co/functions/v1/godview-engine-admin-proxy';
 
-const SYNC_SECRET = Deno.env.get('SYNC_SECRET') ?? '';
+const GODVIEW_INGEST_KEY = Deno.env.get('GODVIEW_INGEST_KEY') ?? '';
 
 interface BHEngineRow {
   id: string;
@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-sync-secret': SYNC_SECRET,
+        'x-godview-key': GODVIEW_INGEST_KEY,
       },
       body: JSON.stringify({ action: 'list_engines' }),
       signal: ctrl.signal,
