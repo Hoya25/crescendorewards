@@ -116,13 +116,18 @@ export function RewardCard({
     ? effectiveMinTier.charAt(0).toUpperCase() + effectiveMinTier.slice(1) 
     : '';
 
+  // Engine gating — layered AFTER tier check. AND semantics: a reward is
+  // claimable only if (tier OK) AND (memberCanClaim). Tier lock wins display
+  // priority because it is the more fundamental unlock path.
+  const isEngineLocked = !isTierLocked && memberCanClaim === false;
+
   // Calculate tier-based pricing
   const tierPricing = getRewardPriceForUser(
     { id: reward.id, cost: reward.cost, is_sponsored: reward.is_sponsored, status_tier_claims_cost: reward.status_tier_claims_cost },
     userTier
   );
   
-  const affordable = !isTierLocked && claimBalance >= tierPricing.price;
+  const affordable = !isTierLocked && !isEngineLocked && claimBalance >= tierPricing.price;
   const outOfStock = reward.stock_quantity !== null && reward.stock_quantity <= 0;
   const stockPercentage = reward.stock_quantity !== null ? (reward.stock_quantity / 100) * 100 : 100;
 
