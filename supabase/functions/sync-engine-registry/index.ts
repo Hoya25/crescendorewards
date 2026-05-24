@@ -15,7 +15,7 @@ const corsHeaders = {
 
 const BH_REGISTRY_URL =
   Deno.env.get('BH_ENGINE_REGISTRY_URL') ??
-  'https://bountyhunter.nctr.live/functions/v1/godview-engine-admin-proxy';
+  'https://auibudfactqhisvmiotw.supabase.co/functions/v1/godview-engine-admin-proxy';
 
 const SYNC_SECRET = Deno.env.get('SYNC_SECRET') ?? '';
 

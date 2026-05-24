@@ -14,7 +14,7 @@ const corsHeaders = {
 
 const BH_MEMBERSHIP_URL =
   Deno.env.get('BH_ENGINE_MEMBERSHIP_URL') ??
-  'https://bountyhunter.nctr.live/functions/v1/bh-engine-membership-check';
+  'https://auibudfactqhisvmiotw.supabase.co/functions/v1/bh-engine-membership-check';
 
 const SYNC_SECRET = Deno.env.get('SYNC_SECRET') ?? '';
 
