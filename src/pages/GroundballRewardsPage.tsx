@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,9 @@ import {
   useRewardFilters, 
   filterRewards 
 } from '@/components/groundball/RewardsCatalog';
+import { EngineFilterChips } from '@/components/rewards/EngineFilterChips';
+import { useLiveEngines, useEngineMembership } from '@/hooks/useEngineRegistry';
+import { useAuth } from '@/hooks/useAuth';
 
 type StatusFilter = 'available' | 'all' | 'my-selections';
 
@@ -44,7 +47,30 @@ export default function GroundballRewardsPage() {
   
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [sponsorFilter, setSponsorFilter] = useState<string>('all');
-  
+  const [engineFilter, setEngineFilter] = useState<string | null>(null);
+
+  // Engine-aware gating (additive — no-op when no engines are live)
+  const { user } = useAuth();
+  const { data: liveEngines = [] } = useLiveEngines();
+  const catalogRequiredEngines = useMemo(() => {
+    const s = new Set<string>();
+    for (const r of rewards as any[]) {
+      const arr: string[] = Array.isArray(r?.required_engines) ? r.required_engines : [];
+      arr.forEach((e) => s.add(e));
+    }
+    return [...s];
+  }, [rewards]);
+  const { data: engineMembership } = useEngineMembership(
+    user?.id ?? null,
+    catalogRequiredEngines,
+  );
+  const memberships = engineMembership?.memberships ?? {};
+  const memberCanClaim = (r: any): boolean => {
+    const req: string[] = Array.isArray(r?.required_engines) ? r.required_engines : [];
+    if (req.length === 0) return true;
+    return req.some((e) => memberships[e]);
+  };
+
   const [selectModalOpen, setSelectModalOpen] = useState(false);
   const [swapModalOpen, setSwapModalOpen] = useState(false);
   const [bonusSlotModalOpen, setBonusSlotModalOpen] = useState(false);
@@ -69,15 +95,25 @@ export default function GroundballRewardsPage() {
       const requiredTier = reward.required_status || 'any';
       const meetsStatus = STATUS_HIERARCHY.indexOf(userTier) >= STATUS_HIERARCHY.indexOf(requiredTier);
       if (!meetsStatus) return false;
+      // AND semantics: tier check AND engine membership both gate "available"
+      if (!memberCanClaim(reward)) return false;
     }
     if (statusFilter === 'my-selections') {
       const isSelected = selections.some(s => s.reward_id === reward.id);
       if (!isSelected) return false;
     }
-    
+
     // Sponsor filter
     if (sponsorFilter !== 'all' && reward.sponsor !== sponsorFilter) return false;
-    
+
+    // Engine filter chip — only narrows when a chip is selected
+    if (engineFilter) {
+      const req: string[] = Array.isArray((reward as any).required_engines)
+        ? (reward as any).required_engines
+        : [];
+      if (!req.includes(engineFilter)) return false;
+    }
+
     return true;
   });
 
@@ -238,6 +274,11 @@ export default function GroundballRewardsPage() {
             activeFilterCount={activeFilterCount}
             onClearFilters={clearFilters}
           />
+
+          {/* Engine filter chips — renders nothing until at least one Engine is live */}
+          {liveEngines.length > 0 && (
+            <EngineFilterChips selected={engineFilter} onSelect={setEngineFilter} />
+          )}
 
           {/* Sponsor Filter */}
           {sponsors.length > 0 && (

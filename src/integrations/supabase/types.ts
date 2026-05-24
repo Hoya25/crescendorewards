@@ -1207,6 +1207,30 @@ export type Database = {
         }
         Relationships: []
       }
+      engine_registry_mirror: {
+        Row: {
+          display_name: string
+          id: string
+          last_synced_at: string
+          primary_color: string | null
+          status: string
+        }
+        Insert: {
+          display_name: string
+          id: string
+          last_synced_at?: string
+          primary_color?: string | null
+          status?: string
+        }
+        Update: {
+          display_name?: string
+          id?: string
+          last_synced_at?: string
+          primary_color?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       featured_creators: {
         Row: {
           bio: string | null
@@ -2939,6 +2963,7 @@ export type Database = {
           description: string
           display_order: number | null
           dollar_value: number | null
+          engine_funding_source: string | null
           floor_usd_amount: number | null
           id: string
           image_quality_approved: boolean | null
@@ -2957,6 +2982,7 @@ export type Database = {
           powered_by_name: string | null
           publish_at: string | null
           rejection_reason: string | null
+          required_engines: string[]
           required_status_tier: string | null
           required_user_data: Json | null
           revenue_share_percent: number | null
@@ -3011,6 +3037,7 @@ export type Database = {
           description: string
           display_order?: number | null
           dollar_value?: number | null
+          engine_funding_source?: string | null
           floor_usd_amount?: number | null
           id?: string
           image_quality_approved?: boolean | null
@@ -3029,6 +3056,7 @@ export type Database = {
           powered_by_name?: string | null
           publish_at?: string | null
           rejection_reason?: string | null
+          required_engines?: string[]
           required_status_tier?: string | null
           required_user_data?: Json | null
           revenue_share_percent?: number | null
@@ -3083,6 +3111,7 @@ export type Database = {
           description?: string
           display_order?: number | null
           dollar_value?: number | null
+          engine_funding_source?: string | null
           floor_usd_amount?: number | null
           id?: string
           image_quality_approved?: boolean | null
@@ -3101,6 +3130,7 @@ export type Database = {
           powered_by_name?: string | null
           publish_at?: string | null
           rejection_reason?: string | null
+          required_engines?: string[]
           required_status_tier?: string | null
           required_user_data?: Json | null
           revenue_share_percent?: number | null
