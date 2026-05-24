@@ -275,6 +275,11 @@ export default function GroundballRewardsPage() {
             onClearFilters={clearFilters}
           />
 
+          {/* Engine filter chips — renders nothing until at least one Engine is live */}
+          {liveEngines.length > 0 && (
+            <EngineFilterChips selected={engineFilter} onSelect={setEngineFilter} />
+          )}
+
           {/* Sponsor Filter */}
           {sponsors.length > 0 && (
             <div className="flex items-center gap-2">
