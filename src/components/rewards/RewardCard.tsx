@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,9 +8,10 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { RewardPlaceholderCard } from '@/components/rewards/RewardPlaceholderCard';
 import { SponsorBadge } from '@/components/rewards/SponsorBadge';
+import { EngineOnboardingModal } from '@/components/rewards/EngineOnboardingModal';
 import { 
   Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, 
-  Lock, AlertTriangle, Package, Flame, Clock, Heart, Pencil,
+  Lock, AlertTriangle, Package, Flame, Clock, Heart, Pencil, Layers,
   Bell, BellOff, Eye, Check, Percent
 } from 'lucide-react';
 import { getRewardPriceForUser } from '@/utils/getRewardPrice';
@@ -43,6 +45,9 @@ export interface RewardCardData {
   min_status_tier?: string | null;
   min_tier_required?: string | null;
   reward_tier?: string | null;
+  // Engine gating (Prompt 4)
+  required_engines?: string[] | null;
+  engine_funding_source?: string | null;
 }
 
 const categoryIcons = {
