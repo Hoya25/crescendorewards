@@ -51,3 +51,15 @@ verify_jwt = false
 # Reward claim settlement engine - requires user JWT (validated in code)
 [functions.process-claim]
 verify_jwt = false
+
+# Engine registry sync - called by pg_cron via SYNC_SECRET header
+[functions.sync-engine-registry]
+verify_jwt = false
+
+# Engine membership check - public, proxies BH (LOCKED_FALLBACK on outage)
+[functions.check-engine-membership]
+verify_jwt = false
+
+# Engine-aware catalog fetcher - public read of active rewards + membership join
+[functions.fetch-engine-aware-catalog]
+verify_jwt = false

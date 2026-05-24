@@ -19,8 +19,7 @@ export function useLiveEngines() {
     queryKey: ['engine-registry-mirror', 'live'],
     staleTime: 5 * 60 * 1000, // per page-load cache, refresh after 5min
     queryFn: async (): Promise<EngineMirrorRow[]> => {
-      const { data, error } = await supabase
-        // @ts-expect-error — types regenerate after migration
+      const { data, error } = await (supabase as any)
         .from('engine_registry_mirror')
         .select('*')
         .eq('status', 'live')
