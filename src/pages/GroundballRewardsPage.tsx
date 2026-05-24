@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,9 @@ import {
   useRewardFilters, 
   filterRewards 
 } from '@/components/groundball/RewardsCatalog';
+import { EngineFilterChips } from '@/components/rewards/EngineFilterChips';
+import { useLiveEngines, useEngineMembership } from '@/hooks/useEngineRegistry';
+import { useAuth } from '@/hooks/useAuth';
 
 type StatusFilter = 'available' | 'all' | 'my-selections';
 
