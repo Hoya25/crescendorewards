@@ -341,6 +341,46 @@ export function RewardCard({
               Unlocks at {requiredTierDisplay}
             </button>
           </div>
+        ) : isEngineLocked ? (
+          <div className="space-y-1.5">
+            <button
+              className="w-full flex items-center justify-center gap-2"
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: '12px',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase' as const,
+                backgroundColor: 'transparent',
+                color: '#E2FF6D',
+                border: '1px solid #5A5A58',
+                borderRadius: '0px',
+                height: '44px',
+                cursor: 'pointer',
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setEngineModalOpen(true);
+              }}
+            >
+              <Layers style={{ width: '14px', height: '14px' }} />
+              Join {lockingEngineDisplayName || lockingEngineSlug} to unlock
+            </button>
+            <button
+              type="button"
+              className="block w-full text-center hover:underline"
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '12px',
+                color: '#6B6B68',
+                background: 'transparent',
+                border: 0,
+                cursor: 'pointer',
+              }}
+              onClick={(e) => { e.stopPropagation(); setEngineModalOpen(true); }}
+            >
+              How to join →
+            </button>
+          </div>
         ) : outOfStock ? (
           <Button
             className={`w-full transition-all ${isAnimatingWatch ? 'scale-95' : ''}`}
@@ -428,7 +468,30 @@ export function RewardCard({
             />
           </div>
         )}
+
+        {/* Engine funding attribution */}
+        {fundingEngineDisplayName && (
+          <div
+            className="pt-2"
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: '10px',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              color: '#6B6B68',
+            }}
+          >
+            Funded by {fundingEngineDisplayName} Engine
+          </div>
+        )}
       </CardContent>
+
+      <EngineOnboardingModal
+        open={engineModalOpen}
+        onOpenChange={setEngineModalOpen}
+        engineSlug={lockingEngineSlug}
+        engineDisplayName={lockingEngineDisplayName}
+      />
     </Card>
   );
 }
