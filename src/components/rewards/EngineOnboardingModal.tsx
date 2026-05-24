@@ -11,9 +11,9 @@ import { ExternalLink } from 'lucide-react';
 
 interface EngineOnboardingModalProps {
   open: boolean;
-  onOpenChange: (v: boolean) => void;
+  onOpenChange: (open: boolean) => void;
   engineSlug: string | null;
-  engineDisplayName?: string | null;
+  engineDisplayName: string | null;
 }
 
 export function EngineOnboardingModal({
