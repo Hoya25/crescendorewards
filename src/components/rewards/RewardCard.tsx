@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,9 +8,10 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ImageWithFallback } from '@/components/ImageWithFallback';
 import { RewardPlaceholderCard } from '@/components/rewards/RewardPlaceholderCard';
 import { SponsorBadge } from '@/components/rewards/SponsorBadge';
+import { EngineOnboardingModal } from '@/components/rewards/EngineOnboardingModal';
 import { 
   Gift, Sparkles, ShoppingBag, CreditCard, Coins, ZoomIn, 
-  Lock, AlertTriangle, Package, Flame, Clock, Heart, Pencil,
+  Lock, AlertTriangle, Package, Flame, Clock, Heart, Pencil, Layers,
   Bell, BellOff, Eye, Check, Percent
 } from 'lucide-react';
 import { getRewardPriceForUser } from '@/utils/getRewardPrice';
@@ -43,6 +45,9 @@ export interface RewardCardData {
   min_status_tier?: string | null;
   min_tier_required?: string | null;
   reward_tier?: string | null;
+  // Engine gating (Prompt 4)
+  required_engines?: string[] | null;
+  engine_funding_source?: string | null;
 }
 
 const categoryIcons = {
@@ -70,6 +75,11 @@ interface RewardCardProps {
   watchCount?: number;
   // Tier-based pricing props
   userTier?: string;
+  // Engine gating — supplied by catalog page (per-page-load only)
+  memberCanClaim?: boolean;          // false = locked by engine membership
+  lockingEngineSlug?: string | null; // first required engine missing
+  lockingEngineDisplayName?: string | null;
+  fundingEngineDisplayName?: string | null;
 }
 
 export function RewardCard({
@@ -87,8 +97,13 @@ export function RewardCard({
   isAnimatingWatch = false,
   watchCount = 0,
   userTier = 'droplet',
+  memberCanClaim = true,
+  lockingEngineSlug = null,
+  lockingEngineDisplayName = null,
+  fundingEngineDisplayName = null,
 }: RewardCardProps) {
   const navigate = useNavigate();
+  const [engineModalOpen, setEngineModalOpen] = useState(false);
   const Icon = categoryIcons[reward.category as keyof typeof categoryIcons] || Gift;
   
   // Tier gating: use min_tier_required with fallback to min_status_tier
@@ -101,13 +116,18 @@ export function RewardCard({
     ? effectiveMinTier.charAt(0).toUpperCase() + effectiveMinTier.slice(1) 
     : '';
 
+  // Engine gating — layered AFTER tier check. AND semantics: a reward is
+  // claimable only if (tier OK) AND (memberCanClaim). Tier lock wins display
+  // priority because it is the more fundamental unlock path.
+  const isEngineLocked = !isTierLocked && memberCanClaim === false;
+
   // Calculate tier-based pricing
   const tierPricing = getRewardPriceForUser(
     { id: reward.id, cost: reward.cost, is_sponsored: reward.is_sponsored, status_tier_claims_cost: reward.status_tier_claims_cost },
     userTier
   );
   
-  const affordable = !isTierLocked && claimBalance >= tierPricing.price;
+  const affordable = !isTierLocked && !isEngineLocked && claimBalance >= tierPricing.price;
   const outOfStock = reward.stock_quantity !== null && reward.stock_quantity <= 0;
   const stockPercentage = reward.stock_quantity !== null ? (reward.stock_quantity / 100) * 100 : 100;
 
@@ -321,6 +341,46 @@ export function RewardCard({
               Unlocks at {requiredTierDisplay}
             </button>
           </div>
+        ) : isEngineLocked ? (
+          <div className="space-y-1.5">
+            <button
+              className="w-full flex items-center justify-center gap-2"
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: '12px',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase' as const,
+                backgroundColor: 'transparent',
+                color: '#E2FF6D',
+                border: '1px solid #5A5A58',
+                borderRadius: '0px',
+                height: '44px',
+                cursor: 'pointer',
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setEngineModalOpen(true);
+              }}
+            >
+              <Layers style={{ width: '14px', height: '14px' }} />
+              Join {lockingEngineDisplayName || lockingEngineSlug} to unlock
+            </button>
+            <button
+              type="button"
+              className="block w-full text-center hover:underline"
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '12px',
+                color: '#6B6B68',
+                background: 'transparent',
+                border: 0,
+                cursor: 'pointer',
+              }}
+              onClick={(e) => { e.stopPropagation(); setEngineModalOpen(true); }}
+            >
+              How to join →
+            </button>
+          </div>
         ) : outOfStock ? (
           <Button
             className={`w-full transition-all ${isAnimatingWatch ? 'scale-95' : ''}`}
@@ -408,7 +468,30 @@ export function RewardCard({
             />
           </div>
         )}
+
+        {/* Engine funding attribution */}
+        {fundingEngineDisplayName && (
+          <div
+            className="pt-2"
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: '10px',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              color: '#6B6B68',
+            }}
+          >
+            Funded by {fundingEngineDisplayName} Engine
+          </div>
+        )}
       </CardContent>
+
+      <EngineOnboardingModal
+        open={engineModalOpen}
+        onOpenChange={setEngineModalOpen}
+        engineSlug={lockingEngineSlug}
+        engineDisplayName={lockingEngineDisplayName}
+      />
     </Card>
   );
 }
