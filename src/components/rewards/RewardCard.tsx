@@ -75,6 +75,11 @@ interface RewardCardProps {
   watchCount?: number;
   // Tier-based pricing props
   userTier?: string;
+  // Engine gating — supplied by catalog page (per-page-load only)
+  memberCanClaim?: boolean;          // false = locked by engine membership
+  lockingEngineSlug?: string | null; // first required engine missing
+  lockingEngineDisplayName?: string | null;
+  fundingEngineDisplayName?: string | null;
 }
 
 export function RewardCard({
@@ -92,8 +97,13 @@ export function RewardCard({
   isAnimatingWatch = false,
   watchCount = 0,
   userTier = 'droplet',
+  memberCanClaim = true,
+  lockingEngineSlug = null,
+  lockingEngineDisplayName = null,
+  fundingEngineDisplayName = null,
 }: RewardCardProps) {
   const navigate = useNavigate();
+  const [engineModalOpen, setEngineModalOpen] = useState(false);
   const Icon = categoryIcons[reward.category as keyof typeof categoryIcons] || Gift;
   
   // Tier gating: use min_tier_required with fallback to min_status_tier
