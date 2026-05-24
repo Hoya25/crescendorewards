@@ -46,13 +46,12 @@ Deno.serve(async (req) => {
     const ctrl = new AbortController();
     const timeoutId = setTimeout(() => ctrl.abort(), 10_000);
 
-    const resp = await fetch(BH_REGISTRY_URL, {
+    const resp = await fetch(`${BH_REGISTRY_URL}?action=list_engines`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-godview-key': GODVIEW_INGEST_KEY,
       },
-      body: JSON.stringify({ action: 'list_engines' }),
       signal: ctrl.signal,
     });
     clearTimeout(timeoutId);
