@@ -382,21 +382,52 @@ export function ContributeWizard() {
   };
 
   if (step === 'done') {
+    const shareLink = submittedId ? `${window.location.origin}/submission/${submittedId}` : '';
     return (
       <div className="min-h-screen bg-[#0D0D0D] text-neutral-100">
         <div className="max-w-2xl mx-auto px-6 py-20">
           <Card className="rounded-none border border-neutral-800 bg-[#131313] p-10 text-center">
             <CheckCircle2 className="mx-auto mb-4 text-[#E2FF6D]" size={48} />
             <h1 className="font-['Barlow_Condensed'] uppercase text-3xl tracking-wide text-neutral-100 mb-3">
-              Submitted
+              Submitted!
             </h1>
-            <p className="font-['DM_Sans'] text-neutral-400 mb-8">
-              We'll review your listing and let you know when it's live. You can track its status at My Submissions.
+            <p className="font-['DM_Sans'] text-neutral-400 mb-2">
+              We'll review your listing and let you know when it's live.
             </p>
+            {submittedId && (
+              <>
+                <p className="font-['DM_Sans'] text-neutral-400 mb-4">
+                  Track its status or share it:
+                </p>
+                <div className="flex items-center gap-2 mb-6 justify-center max-w-lg mx-auto">
+                  <input
+                    readOnly
+                    value={shareLink}
+                    className="flex-1 rounded-none bg-neutral-900 border border-neutral-700 px-3 py-2 font-['DM_Mono'] text-xs text-neutral-300 outline-none"
+                  />
+                  <Button
+                    onClick={() => {
+                      navigator.clipboard.writeText(shareLink).then(() => toast.success('Link copied'));
+                    }}
+                    className="rounded-none bg-neutral-800 text-neutral-200 hover:bg-neutral-700"
+                  >
+                    Copy link
+                  </Button>
+                </div>
+              </>
+            )}
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              {submittedId && (
+                <Button
+                  onClick={() => navigate(`/submission/${submittedId}`)}
+                  className="rounded-none bg-[#E2FF6D] text-black hover:bg-[#E2FF6D]/90"
+                >
+                  View status
+                </Button>
+              )}
               <Button
                 onClick={() => navigate('/my-submissions')}
-                className="rounded-none bg-[#E2FF6D] text-black hover:bg-[#E2FF6D]/90"
+                className="rounded-none bg-neutral-800 text-neutral-200 hover:bg-neutral-700"
               >
                 View My Submissions
               </Button>
