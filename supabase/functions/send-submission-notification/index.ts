@@ -13,6 +13,7 @@ interface SubmissionNotificationRequest {
   rejectionReason?: string;
   adminNotes?: string;
   rewardId?: string; // For approved submissions
+  category?: string;
 }
 
 const STATUS_CONFIG: Record<string, { emoji: string; subject: string; headline: string; message: string; color: string; cta?: { text: string; url: string } }> = {
