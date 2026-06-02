@@ -332,6 +332,7 @@ export function ContributeWizard() {
         .select('id')
         .single();
       if (insertErr) throw insertErr;
+      setSubmittedId(inserted.id as string);
 
       // Atomic-ish trust status bump (cosmetic — failure not fatal)
       if (trustStatus === 'none' || trustStatus === null) {
