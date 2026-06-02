@@ -111,6 +111,7 @@ export function ContributeWizard() {
   const [trustStatus, setTrustStatus] = useState<string | null>(null);
   const [trustLoaded, setTrustLoaded] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submittedId, setSubmittedId] = useState<string | null>(null);
   // last fetched NCTR price (informational snapshot for submission)
   const lastNctrPrice = useRef<number | null>(null);
 
