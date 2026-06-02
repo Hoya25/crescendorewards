@@ -50,14 +50,14 @@ export default function SubmissionStatusPage() {
       // Try owner read (RLS-scoped self-read); ignore errors
       if (isAuthenticated) {
         try {
-          const { data } = await withTimeout(
-            supabase
+          const res: any = await withTimeout(
+            (supabase
               .from('reward_submissions')
               .select('id, user_id, title, description, image_url, category, status, admin_notes, created_at')
               .eq('id', id)
-              .maybeSingle() as any
+              .maybeSingle() as unknown) as Promise<any>
           );
-          if (!cancelled && data) setOwnerRow(data as OwnerRow);
+          if (!cancelled && res?.data) setOwnerRow(res.data as OwnerRow);
         } catch { /* ignore */ }
       }
 
