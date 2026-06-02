@@ -86,7 +86,34 @@ serve(async (req) => {
     // Deno uses WebCrypto (async). Stripe requires constructEventAsync in this runtime.
     const event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
 
-    console.log("Webhook event type:", event.type);
+    console.log("Webhook event type:", event.type, "event id:", event.id);
+
+    // Idempotency guard: insert event.id; if it already exists, this is a duplicate delivery.
+    const idempotencyClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
+    const { error: dedupError } = await idempotencyClient
+      .from("stripe_processed_events")
+      .insert({ event_id: event.id });
+
+    if (dedupError) {
+      // Postgres unique_violation = 23505 → already processed, skip silently with 200.
+      if ((dedupError as any).code === "23505") {
+        console.log("Duplicate event, skipping:", event.id);
+        return new Response(JSON.stringify({ received: true, duplicate: true }), {
+          headers: { "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+      // Any other insert failure: log and fail so Stripe retries.
+      console.error("Failed to record event for idempotency:", dedupError);
+      return new Response(JSON.stringify({ error: "idempotency store failed" }), {
+        headers: { "Content-Type": "application/json" },
+        status: 500,
+      });
+    }
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
