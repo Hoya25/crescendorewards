@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
+import { pushToGodview } from "../_shared/push-to-godview.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -189,23 +190,22 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log("Submission notification email sent:", emailResponse);
 
-    // Notify admin when a new submission is awaiting review (non-fatal)
     if (status === "pending") {
+      let categoryLabel = category || "—";
+      if (!category) {
+        const { data: sub } = await supabaseClient
+          .from("reward_submissions")
+          .select("category")
+          .eq("id", submissionId)
+          .maybeSingle();
+        if (sub?.category) categoryLabel = sub.category;
+      }
+
       try {
         const adminEmail = Deno.env.get("ADMIN_EMAIL");
         if (!adminEmail) {
           console.log("ADMIN_EMAIL not set — skipping admin notification");
         } else {
-          let categoryLabel = category || "—";
-          if (!category) {
-            const { data: sub } = await supabaseClient
-              .from("reward_submissions")
-              .select("category")
-              .eq("id", submissionId)
-              .maybeSingle();
-            if (sub?.category) categoryLabel = sub.category;
-          }
-
           const adminUrl = "https://crescendo.nctr.live/admin/submissions";
           const contributorLine = `${userName} (${profile.email})`;
 
@@ -241,7 +241,57 @@ serve(async (req: Request): Promise<Response> => {
       } catch (e) {
         console.error("Admin notification failed (non-fatal):", e);
       }
+
+      try {
+        pushToGodview("submission_created", {
+          submission_id: submissionId,
+          reward_title: rewardTitle,
+          category: categoryLabel,
+          contributor_email: profile.email,
+          contributor_name: userName,
+          user_id: userId,
+          actor_email: profile.email,
+          actor_name: userName,
+        });
+      } catch (e) {
+        console.error("Godview submission_created push failed (non-fatal):", e);
+      }
     }
+
+    if (status === "approved") {
+      try {
+        pushToGodview("submission_approved", {
+          submission_id: submissionId,
+          reward_id: rewardId,
+          reward_title: rewardTitle,
+          contributor_email: profile.email,
+          contributor_name: userName,
+          user_id: userId,
+          actor_email: profile.email,
+          actor_name: userName,
+        });
+      } catch (e) {
+        console.error("Godview submission_approved push failed (non-fatal):", e);
+      }
+    }
+
+    if (status === "rejected") {
+      try {
+        pushToGodview("submission_rejected", {
+          submission_id: submissionId,
+          reward_title: rewardTitle,
+          reason: adminNotes,
+          contributor_email: profile.email,
+          contributor_name: userName,
+          user_id: userId,
+          actor_email: profile.email,
+          actor_name: userName,
+        });
+      } catch (e) {
+        console.error("Godview submission_rejected push failed (non-fatal):", e);
+      }
+    }
+
 
     // Write in-app notification row server-side (RLS restricts to service_role)
     if (status === "approved" || status === "rejected") {
