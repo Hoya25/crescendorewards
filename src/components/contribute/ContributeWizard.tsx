@@ -186,6 +186,7 @@ export function ContributeWizard() {
   const resetWizard = () => {
     setState(INITIAL_STATE);
     setStep('gate');
+    setSubmittedId(null);
     if (STORAGE_KEY) sessionStorage.removeItem(STORAGE_KEY);
     lastNctrPrice.current = null;
   };
