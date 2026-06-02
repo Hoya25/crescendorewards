@@ -188,6 +188,34 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log("Submission notification email sent:", emailResponse);
 
+    // Write in-app notification row server-side (RLS restricts to service_role)
+    if (status === "approved" || status === "rejected") {
+      try {
+        const title = status === "approved"
+          ? `Submission approved: ${rewardTitle}`
+          : `Submission needs work: ${rewardTitle}`;
+        const message = status === "approved"
+          ? `Your reward "${rewardTitle}" is now live in the marketplace.`
+          : `Your reward "${rewardTitle}" was not approved.${adminNotes ? " Reason: " + adminNotes : ""} You can resubmit with changes.`;
+        const metadata: Record<string, unknown> = { submission_id: submissionId };
+        if (rewardId) metadata.reward_id = rewardId;
+
+        const { error: notifError } = await supabaseClient
+          .from("notifications")
+          .insert({
+            user_id: userId,
+            type: "submission_status",
+            title,
+            message,
+            is_read: false,
+            metadata,
+          });
+        if (notifError) console.error("In-app notification insert failed:", notifError);
+      } catch (e) {
+        console.error("In-app notification insert threw:", e);
+      }
+    }
+
     return new Response(
       JSON.stringify({ success: true, data: emailResponse.data }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }

@@ -190,6 +190,23 @@ export function AdminSubmissions() {
 
   const filteredSubmissions = getFilteredSubmissions();
 
+  const notifyMember = (payload: {
+    submissionId: string;
+    userId: string;
+    rewardTitle: string;
+    status: 'approved' | 'rejected';
+    adminNotes?: string;
+    rewardId?: string;
+  }) => {
+    // Fire-and-forget; edge function handles email + in-app notification insert
+    supabase.functions
+      .invoke('send-submission-notification', { body: payload })
+      .then(({ error }) => {
+        if (error) console.error('notifyMember failed:', error);
+      })
+      .catch((e) => console.error('notifyMember threw:', e));
+  };
+
   const updateSubmissionStatus = async (submissionId: string, newStatus: string, notes?: string) => {
     try {
       setUpdating(true);
@@ -204,6 +221,19 @@ export function AdminSubmissions() {
         .eq('id', submissionId);
 
       if (error) throw error;
+
+      if (newStatus === 'approved' || newStatus === 'rejected') {
+        const sub = submissions.find(s => s.id === submissionId);
+        if (sub?.user_id) {
+          notifyMember({
+            submissionId,
+            userId: sub.user_id,
+            rewardTitle: sub.title,
+            status: newStatus,
+            adminNotes: notes,
+          });
+        }
+      }
 
       toast.success(`Submission ${newStatus} successfully`);
       await fetchSubmissions();
@@ -283,6 +313,15 @@ export function AdminSubmissions() {
         }
       }
 
+      if (selectedSubmission.user_id) {
+        notifyMember({
+          submissionId: selectedSubmission.id,
+          userId: selectedSubmission.user_id,
+          rewardTitle: editFormData.title,
+          status: 'approved',
+          rewardId,
+        });
+      }
 
       toast.success('Submission approved and edited successfully');
       setShowApproveEditModal(false);
@@ -322,31 +361,9 @@ export function AdminSubmissions() {
     try {
       setUpdating(true);
       
-      // Update submission status
+      // Update submission status (also fires email + in-app notification via edge function)
       await updateSubmissionStatus(selectedSubmission.id, 'rejected', fullMessage);
-      
-      // Create notification for the contributor
-      const { error: notifError } = await supabase
-        .from('notifications')
-        .insert({
-          user_id: selectedSubmission.user_id,
-          type: 'submission_rejected',
-          title: `Submission Rejected: ${selectedSubmission.title}`,
-          message: `Your reward submission was rejected. Reason: ${fullMessage}. You can resubmit with changes.`,
-          is_read: false,
-          metadata: {
-            submission_id: selectedSubmission.id,
-            rejection_reason: reasonLabel,
-            custom_message: customRejectionMessage || null,
-            link: '/my-submissions'
-          }
-        });
-      
-      if (notifError) {
-        console.error('Failed to create rejection notification:', notifError);
-      }
-      
-      
+
       setShowRejectModal(false);
       setRejectionReason('');
       setCustomRejectionMessage('');
