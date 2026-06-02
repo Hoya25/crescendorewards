@@ -63,3 +63,7 @@ verify_jwt = false
 # Engine-aware catalog fetcher - public read of active rewards + membership join
 [functions.fetch-engine-aware-catalog]
 verify_jwt = false
+
+# Public submission share page data — anon-callable, returns only safe fields
+[functions.get-public-submission]
+verify_jwt = false
