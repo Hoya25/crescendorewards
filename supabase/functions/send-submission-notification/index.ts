@@ -58,7 +58,7 @@ serve(async (req: Request): Promise<Response> => {
   if (preflightResponse) return preflightResponse;
 
   try {
-    const { submissionId, userId, rewardTitle, status, rejectionReason, adminNotes, rewardId }: SubmissionNotificationRequest = await req.json();
+    const { submissionId, userId, rewardTitle, status, rejectionReason, adminNotes, rewardId, category }: SubmissionNotificationRequest = await req.json();
 
     console.log("Processing submission notification:", { submissionId, userId, status, rewardTitle });
 
