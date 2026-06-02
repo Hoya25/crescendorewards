@@ -189,6 +189,60 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log("Submission notification email sent:", emailResponse);
 
+    // Notify admin when a new submission is awaiting review (non-fatal)
+    if (status === "pending") {
+      try {
+        const adminEmail = Deno.env.get("ADMIN_EMAIL");
+        if (!adminEmail) {
+          console.log("ADMIN_EMAIL not set — skipping admin notification");
+        } else {
+          let categoryLabel = category || "—";
+          if (!category) {
+            const { data: sub } = await supabaseClient
+              .from("reward_submissions")
+              .select("category")
+              .eq("id", submissionId)
+              .maybeSingle();
+            if (sub?.category) categoryLabel = sub.category;
+          }
+
+          const adminUrl = "https://crescendo.nctr.live/admin/submissions";
+          const contributorLine = `${userName} (${profile.email})`;
+
+          const adminResp = await resend.emails.send({
+            from: "Crescendo <onboarding@resend.dev>",
+            to: [adminEmail],
+            subject: `New reward submission awaiting review: ${rewardTitle}`,
+            html: `
+              <!DOCTYPE html>
+              <html><body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:#f4f4f5;">
+                <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+                  <div style="background:#111827;border-radius:16px 16px 0 0;padding:28px 32px;">
+                    <h1 style="color:#E2FF6D;margin:0;font-size:22px;font-weight:700;">New submission awaiting review</h1>
+                  </div>
+                  <div style="background:white;border-radius:0 0 16px 16px;padding:28px 32px;box-shadow:0 4px 6px rgba(0,0,0,0.08);">
+                    <p style="font-size:15px;color:#374151;margin:0 0 20px;">A new reward submission has been received and is pending review.</p>
+                    <div style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:24px;font-size:14px;color:#111827;">
+                      <div style="margin-bottom:10px;"><strong>Reward:</strong> ${rewardTitle}</div>
+                      <div style="margin-bottom:10px;"><strong>Category:</strong> ${categoryLabel}</div>
+                      <div style="margin-bottom:10px;"><strong>Contributor:</strong> ${contributorLine}</div>
+                      <div><strong>Submission ID:</strong> <code>${submissionId}</code></div>
+                    </div>
+                    <div style="text-align:center;">
+                      <a href="${adminUrl}" style="display:inline-block;background:#111827;color:#E2FF6D;text-decoration:none;padding:14px 32px;border-radius:8px;font-weight:600;font-size:15px;">Review in Admin</a>
+                    </div>
+                  </div>
+                </div>
+              </body></html>
+            `,
+          });
+          console.log("Admin submission notification sent:", adminResp);
+        }
+      } catch (e) {
+        console.error("Admin notification failed (non-fatal):", e);
+      }
+    }
+
     // Write in-app notification row server-side (RLS restricts to service_role)
     if (status === "approved" || status === "rejected") {
       try {
