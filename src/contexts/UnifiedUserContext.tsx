@@ -446,11 +446,20 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
     };
   }, [profile?.id, fetchUnifiedProfile]);
 
+  // Overlay BH's authoritative tier_multiplier onto the exposed tier object.
+  // Falls back to local status_tiers.earning_multiplier only when BH value
+  // is null/absent (e.g. not_found / error / not yet fetched).
+  const effectiveTier: StatusTier | null = tier
+    ? (bhTierMultiplier !== null
+        ? { ...tier, earning_multiplier: bhTierMultiplier }
+        : tier)
+    : null;
+
   return (
     <UnifiedUserContext.Provider
       value={{
         profile,
-        tier,
+        tier: effectiveTier,
         portfolio,
         allTiers,
         nextTier,
