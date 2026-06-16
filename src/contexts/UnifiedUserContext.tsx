@@ -102,6 +102,10 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<Error | null>(null);
   const [bhFirstName, setBhFirstName] = useState<string | null>(null);
   const [bhLastName, setBhLastName] = useState<string | null>(null);
+  // Authoritative earning multiplier from BH get_user_status.tier_multiplier.
+  // Held in state so write-through / fetchUnifiedProfile cannot clobber it.
+  // null = not yet received or unavailable → fall back to local tier value.
+  const [bhTierMultiplier, setBhTierMultiplier] = useState<number | null>(null);
   // nctr_locked_points from unified_profiles is the single source of truth
   // It is synced from Bounty Hunter and already includes all lock sources
   const total360Locked = Number((profile as any)?.nctr_locked_points) || 0;
@@ -247,6 +251,13 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
       console.log('[SYNC-A] bh-status-proxy response:', data);
       if (data?.first_name) setBhFirstName(data.first_name);
       if (data?.last_name) setBhLastName(data.last_name);
+
+      // Capture BH-authoritative earning multiplier. Only overwrite when BH
+      // returns a finite numeric value; not_found / error responses leave the
+      // previous value intact so we never persist a wrong multiplier.
+      if (data && !res.error && typeof data.tier_multiplier === 'number' && Number.isFinite(data.tier_multiplier)) {
+        setBhTierMultiplier(data.tier_multiplier);
+      }
 
       // ── Write-through cache: persist BH truth back into unified_profiles ──
       if (data && !res.error) {
@@ -435,11 +446,20 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
     };
   }, [profile?.id, fetchUnifiedProfile]);
 
+  // Overlay BH's authoritative tier_multiplier onto the exposed tier object.
+  // Falls back to local status_tiers.earning_multiplier only when BH value
+  // is null/absent (e.g. not_found / error / not yet fetched).
+  const effectiveTier: StatusTier | null = tier
+    ? (bhTierMultiplier !== null
+        ? { ...tier, earning_multiplier: bhTierMultiplier }
+        : tier)
+    : null;
+
   return (
     <UnifiedUserContext.Provider
       value={{
         profile,
-        tier,
+        tier: effectiveTier,
         portfolio,
         allTiers,
         nextTier,
