@@ -252,6 +252,13 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
       if (data?.first_name) setBhFirstName(data.first_name);
       if (data?.last_name) setBhLastName(data.last_name);
 
+      // Capture BH-authoritative earning multiplier. Only overwrite when BH
+      // returns a finite numeric value; not_found / error responses leave the
+      // previous value intact so we never persist a wrong multiplier.
+      if (data && !res.error && typeof data.tier_multiplier === 'number' && Number.isFinite(data.tier_multiplier)) {
+        setBhTierMultiplier(data.tier_multiplier);
+      }
+
       // ── Write-through cache: persist BH truth back into unified_profiles ──
       if (data && !res.error) {
         try {
