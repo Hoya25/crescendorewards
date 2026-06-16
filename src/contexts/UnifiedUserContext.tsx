@@ -102,6 +102,10 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<Error | null>(null);
   const [bhFirstName, setBhFirstName] = useState<string | null>(null);
   const [bhLastName, setBhLastName] = useState<string | null>(null);
+  // Authoritative earning multiplier from BH get_user_status.tier_multiplier.
+  // Held in state so write-through / fetchUnifiedProfile cannot clobber it.
+  // null = not yet received or unavailable → fall back to local tier value.
+  const [bhTierMultiplier, setBhTierMultiplier] = useState<number | null>(null);
   // nctr_locked_points from unified_profiles is the single source of truth
   // It is synced from Bounty Hunter and already includes all lock sources
   const total360Locked = Number((profile as any)?.nctr_locked_points) || 0;
