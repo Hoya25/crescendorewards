@@ -45,24 +45,26 @@ Deno.serve(async (req: Request) => {
     }
 
     // --- Helper: ensure auth user exists ---
-    async function ensureAuthUser(emailAddr: string, displayName?: string, bhUserId?: string) {
+    async function ensureAuthUser(emailAddr: string, displayName?: string, bhUserId?: string, setPassword: boolean = true) {
       const { data: allAuthSearch } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
       const existingAuthUser = allAuthSearch?.users?.find(
         (u: any) => u.email?.toLowerCase() === emailAddr
       );
 
       if (existingAuthUser) {
-        const { error: updateErr } = await supabase.auth.admin.updateUserById(
-          existingAuthUser.id,
-          { password: DEFAULT_PASSWORD }
-        );
-        if (updateErr) console.error("Failed to update auth user password:", updateErr.message);
+        if (setPassword) {
+          const { error: updateErr } = await supabase.auth.admin.updateUserById(
+            existingAuthUser.id,
+            { password: DEFAULT_PASSWORD }
+          );
+          if (updateErr) console.error("Failed to update auth user password:", updateErr.message);
+        }
         return existingAuthUser;
       } else {
         const { data: newUser, error: createAuthErr } = await supabase.auth.admin.createUser({
           email: emailAddr,
           email_confirm: true,
-          password: DEFAULT_PASSWORD,
+          ...(setPassword ? { password: DEFAULT_PASSWORD } : {}),
           user_metadata: {
             display_name: displayName || "User",
             source: "bounty_hunter",
