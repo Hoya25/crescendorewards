@@ -142,8 +142,8 @@ Deno.serve(async (req: Request) => {
         return new Response(JSON.stringify({ success: false, error: "Invalid or expired token" }), { status: 200, headers });
       }
 
-      // Token valid — provision user
-      await ensureAuthUser(normalizedEmail, bhResult.display_name, bhResult.bh_user_id);
+      // Token valid — provision user (no shared password)
+      await ensureAuthUser(normalizedEmail, bhResult.display_name, bhResult.bh_user_id, false);
       await ensureProfile(normalizedEmail, {
         bh_user_id: bhResult.bh_user_id,
         display_name: bhResult.display_name,
@@ -151,10 +151,38 @@ Deno.serve(async (req: Request) => {
         nctr_locked_points: bhResult.nctr_locked_points,
       });
 
+      // Generate one-time magic link for real session establishment
+      const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+        type: "magiclink",
+        email: normalizedEmail,
+      });
+
+      if (linkError || !linkData) {
+        console.error("[token_login] Failed to generate magic link:", linkError?.message);
+        return new Response(JSON.stringify({ success: false, error: "Failed to issue session" }), { status: 500, headers });
+      }
+
+      // Extract token_hash + type from the action_link
+      const actionLink = linkData.properties?.action_link || "";
+      let tokenHash = linkData.properties?.hashed_token || "";
+      let otpType = "magiclink";
+      try {
+        const u = new URL(actionLink);
+        tokenHash = u.searchParams.get("token_hash") || tokenHash;
+        otpType = u.searchParams.get("type") || otpType;
+      } catch (_) { /* ignore */ }
+
+      if (!tokenHash) {
+        console.error("[token_login] No token_hash in generated link");
+        return new Response(JSON.stringify({ success: false, error: "Failed to issue session" }), { status: 500, headers });
+      }
+
       return new Response(JSON.stringify({
         success: true,
         email: normalizedEmail,
         display_name: bhResult.display_name,
+        token_hash: tokenHash,
+        type: otpType,
       }), { status: 200, headers });
     }
 
