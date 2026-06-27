@@ -18,7 +18,7 @@ interface WelcomeFlowProps {
 const ONBOARDED_KEY = "crescendo_onboarding_complete";
 
 const earningWays = [
-  { icon: ShoppingBag, emoji: "🛍️", title: "Shop The Garden", desc: "Thousands of brands. Same prices. You earn NCTR." },
+  { icon: ShoppingBag, emoji: "🛍️", title: "Shop in Bounty Hunter", desc: "Thousands of brands. Same prices. You earn NCTR." },
   { icon: Shirt, emoji: "👕", title: "Rep the Brand", desc: "Buy NCTR merch. Unlock content bounties. Earn 3x." },
   { icon: Camera, emoji: "📸", title: "Complete Bounties", desc: "Create content, refer friends, hit milestones. Get paid in NCTR." },
   { icon: Users, emoji: "🤝", title: "Invite Friends", desc: "They join, you both earn." },
@@ -26,15 +26,15 @@ const earningWays = [
 ];
 
 const tiers = [
-  { emoji: "🥉", name: "Bronze", mult: "1.0x", desc: "Just getting started" },
-  { emoji: "🥈", name: "Silver", mult: "1.25x", desc: "Unlocks Tier 2 bounties + better rewards" },
+  { emoji: "🥉", name: "Bronze", mult: "1.1x", desc: "Just getting started" },
+  { emoji: "🥈", name: "Silver", mult: "1.3x", desc: "Unlocks Tier 2 bounties + better rewards" },
   { emoji: "🥇", name: "Gold", mult: "1.5x", desc: "Unlocks campaign bounties worth up to 3,000 NCTR" },
   { emoji: "💎", name: "Platinum", mult: "1.8x", desc: "Premium access + exclusive experiences" },
   { emoji: "👑", name: "Diamond", mult: "2.5x", desc: "Top tier. Maximum earnings. Community leader." },
 ];
 
 const paths = [
-  { emoji: "🛍️", label: "Shop The Garden", route: "/rewards" },
+  { emoji: "🛍️", label: "Shop in Bounty Hunter", route: "/rewards" },
   { emoji: "👕", label: "Browse NCTR Merch", route: "https://nctr-merch.myshopify.com" },
   { emoji: "📸", label: "See Available Bounties", route: "/bounties" },
 ];
@@ -202,11 +202,6 @@ export function WelcomeFlow({ isOpen, onClose }: WelcomeFlowProps) {
                       </div>
                     </div>
                   ))}
-                </div>
-                <div className="rounded-lg p-4 bg-accent-lime/5 border border-accent-lime/20">
-                  <p className="text-sm text-text-body">
-                    <span className="font-semibold text-text-heading">The secret:</span> Choose 360LOCK on merch purchases and your rewards are multiplied 3x — on top of your status multiplier. Higher status literally makes everything worth more.
-                  </p>
                 </div>
                 <Button onClick={handleNext} className="w-full max-w-xs mx-auto bg-accent-lime text-black font-semibold hover:bg-accent-lime/90">
                   Let's Earn Your First NCTR <ArrowRight className="w-4 h-4 ml-2" />
