@@ -41,13 +41,25 @@ export function useBHTokenAutoLogin(isAuthenticated: boolean, authLoading: boole
     (async () => {
       try {
         // 1. Validate token with BH via verify-universal-auth edge function
-        const { data, error: fnError } = await supabase.functions.invoke('verify-universal-auth', {
+        //    Wrapped in Promise.race with 10s timeout per project convention.
+        const invokePromise = supabase.functions.invoke('verify-universal-auth', {
           body: {
             email: email?.trim().toLowerCase() || '',
             token,
             action: 'token_login',
           },
         });
+        const timeoutPromise = new Promise<{ data: null; error: Error }>((resolve) =>
+          setTimeout(
+            () => resolve({ data: null, error: new Error('verify-universal-auth timed out after 10s') }),
+            10_000,
+          ),
+        );
+
+        const { data, error: fnError } = (await Promise.race([
+          invokePromise,
+          timeoutPromise,
+        ])) as { data: any; error: any };
 
         if (fnError || !data?.success) {
           console.warn('[BH Token] Verification failed:', fnError?.message || data?.error);
@@ -74,7 +86,12 @@ export function useBHTokenAutoLogin(isAuthenticated: boolean, authLoading: boole
           return;
         }
 
-        if (!cancelled) navigate(target, { replace: true });
+        if (!cancelled) {
+          // Clear the processing flag BEFORE navigating so the page-level
+          // <PageLoading /> guard in App.tsx releases.
+          setProcessing(false);
+          navigate(target, { replace: true });
+        }
       } catch (err) {
         console.error('[BH Token] Auto-login error:', err);
         if (!cancelled) setProcessing(false);
@@ -83,6 +100,7 @@ export function useBHTokenAutoLogin(isAuthenticated: boolean, authLoading: boole
 
     return () => { cancelled = true; };
   }, [authLoading, isAuthenticated]);
+
 
   return { processing };
 }
