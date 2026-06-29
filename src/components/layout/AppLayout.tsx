@@ -19,7 +19,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
-import { LogOut, User, Crown, ChevronDown } from 'lucide-react';
+import { LogOut, User, Crown, ChevronDown, Trophy } from 'lucide-react';
 import { MobileStatusBadge, MobileStatusContent } from '@/components/status/StatusBadgeWidget';
 import { WingmanFAB } from '@/components/WingmanFAB';
 import {
