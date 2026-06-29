@@ -47,6 +47,7 @@ const FavoritesPage = lazy(() => import('./components/FavoritesPage').then(m => 
 const ProfilePage = lazy(() => import('./components/ProfilePage').then(m => ({ default: m.ProfilePage })));
 const DeliveryProfilePage = lazy(() => import('./pages/DeliveryProfilePage'));
 const MembershipLevelPage = lazy(() => import('./components/MembershipLevelPage').then(m => ({ default: m.MembershipLevelPage })));
+import MembershipArrival from '@/components/MembershipArrival';
 const MembershipHistoryPage = lazy(() => import('./components/MembershipHistoryPage').then(m => ({ default: m.MembershipHistoryPage })));
 const MembershipStatisticsPage = lazy(() => import('./components/MembershipStatisticsPage').then(m => ({ default: m.MembershipStatisticsPage })));
 const ReferralAnalyticsDashboard = lazy(() => import('./components/ReferralAnalyticsDashboard').then(m => ({ default: m.ReferralAnalyticsDashboard })));
@@ -412,6 +413,14 @@ function AppRoutes() {
               element={
                 <ProtectedRoute>
                   <AppLayout><MembershipLevelPage /></AppLayout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/membership-arrival" 
+              element={
+                <ProtectedRoute>
+                  <MembershipArrival />
                 </ProtectedRoute>
               } 
             />
