@@ -19,7 +19,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
-import { LogOut, User, Crown, ChevronDown } from 'lucide-react';
+import { LogOut, User, Crown, ChevronDown, Trophy } from 'lucide-react';
 import { MobileStatusBadge, MobileStatusContent } from '@/components/status/StatusBadgeWidget';
 import { WingmanFAB } from '@/components/WingmanFAB';
 import {
@@ -162,6 +162,10 @@ export function AppLayout({ children }: AppLayoutProps) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={() => navigate('/membership')}>
+                        <Trophy className="w-4 h-4 mr-2" />
+                        Membership
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate('/profile')}>
                         <User className="w-4 h-4 mr-2" />
                         My Account
