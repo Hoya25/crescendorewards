@@ -69,6 +69,16 @@ All colors MUST be HSL.
     --elevated-bg: 0 0% 94%;
     --accent-lime: 82 100% 50%;
     --accent-lime-subtle: 82 100% 50% / 0.08;
+
+    /* NCTR brand palette — exact hex, mode-invariant */
+    --nctr-charcoal: #131313;
+    --nctr-lime: #E2FF6D;
+    --nctr-lime-muted: #C7E25A;
+    --nctr-lime-deep: #A9C23E;
+    --nctr-paper: #F4F1E9;
+    --nctr-ink-soft: #514E48;
+    --nctr-line: #DCD8CC;
+    --nctr-muted: #8A8780;
     --text-heading: 0 0% 7%;
     --text-body: 0 0% 33%;
     --text-muted: 0 0% 53%;
