@@ -48,6 +48,7 @@ const ProfilePage = lazy(() => import('./components/ProfilePage').then(m => ({ d
 const DeliveryProfilePage = lazy(() => import('./pages/DeliveryProfilePage'));
 const MembershipLevelPage = lazy(() => import('./components/MembershipLevelPage').then(m => ({ default: m.MembershipLevelPage })));
 import MembershipArrival from '@/components/MembershipArrival';
+import MembershipPitch from '@/components/MembershipPitch';
 const MembershipHistoryPage = lazy(() => import('./components/MembershipHistoryPage').then(m => ({ default: m.MembershipHistoryPage })));
 const MembershipStatisticsPage = lazy(() => import('./components/MembershipStatisticsPage').then(m => ({ default: m.MembershipStatisticsPage })));
 const ReferralAnalyticsDashboard = lazy(() => import('./components/ReferralAnalyticsDashboard').then(m => ({ default: m.ReferralAnalyticsDashboard })));
