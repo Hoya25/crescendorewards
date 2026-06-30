@@ -42,6 +42,7 @@ interface NavItem {
 
 const membershipNavItems: NavItem[] = [
   { title: 'Dashboard', url: '/dashboard', icon: Home },
+  { title: 'Membership', url: '/membership', icon: Trophy },
   { title: 'Rewards', url: '/rewards', icon: Gift },
   { title: 'List a Reward', url: '/contribute', icon: PlusCircle },
   { title: 'My Status', url: '/membership', icon: Shield },
