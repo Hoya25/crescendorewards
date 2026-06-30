@@ -60,7 +60,7 @@ export default function MembershipPitch() {
         .select('id, title, category, cost, dollar_value, image_url, sponsor_name, min_status_tier')
         .eq('is_active', true)
         .eq('is_featured', true)
-        .order('created_at', { ascending: false })
+        .order('dollar_value', { ascending: false, nullsFirst: false })
         .limit(4);
       if (!error && data) setRewards(data as Reward[]);
     })();
@@ -95,7 +95,7 @@ export default function MembershipPitch() {
                 {hero.title}
               </div>
               <div style={{ fontSize: 13, color: '#A9A89F', marginTop: 7 }}>
-                {hero.dollar_value ? `$${Math.round(hero.dollar_value)} value · ` : ''}the kind of thing the top of the climb unlocks.
+                {hero.dollar_value ? `$${Math.round(hero.dollar_value)} value · ` : ''}the kind of reward your standing unlocks.
               </div>
             </div>
           </div>
