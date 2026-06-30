@@ -214,6 +214,7 @@ function AppRoutes() {
             <Route path="/claim" element={<ClaimGiftPage />} />
             <Route path="/submission/:id" element={<SubmissionStatusPage />} />
             <Route path="/arrival-preview" element={<MembershipArrival />} />
+            <Route path="/membership-pitch" element={<MembershipPitch />} />
             
             <Route path="/about" element={<AboutPage />} />
             
