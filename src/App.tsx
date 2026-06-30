@@ -415,7 +415,7 @@ function AppRoutes() {
               path="/membership" 
               element={
                 <ProtectedRoute>
-                  <AppLayout><MembershipLevelPage /></AppLayout>
+                  <AppLayout><MembershipPitch /></AppLayout>
                 </ProtectedRoute>
               } 
             />
