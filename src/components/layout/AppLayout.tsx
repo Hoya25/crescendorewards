@@ -36,6 +36,8 @@ interface AppLayoutProps {
   children?: ReactNode;
 }
 
+const BOUNTY_HUNTER_URL = "https://bountyhunter.nctr.live";
+
 /**
  * Main application layout with sidebar and header navigation.
  * All authenticated pages should be wrapped with this layout.
@@ -118,6 +120,15 @@ export function AppLayout({ children }: AppLayoutProps) {
                   >
                     <CrescendoLogo />
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => window.location.href = BOUNTY_HUNTER_URL}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label="Back to Bounty Hunter"
+                    title="Back to Bounty Hunter"
+                  >
+                    ←
+                  </button>
                 </div>
                 <div className="flex items-center gap-2">
                   <Popover>
@@ -144,6 +155,13 @@ export function AppLayout({ children }: AppLayoutProps) {
                     className="hover:opacity-80 transition-opacity cursor-pointer flex items-center"
                   >
                     <CrescendoLogo />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => window.location.href = BOUNTY_HUNTER_URL}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    ← Bounty Hunter
                   </button>
                 </div>
 
