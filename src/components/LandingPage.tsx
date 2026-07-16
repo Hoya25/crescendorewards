@@ -10,6 +10,7 @@ import { TheMathSection } from "./landing/TheMathSection";
 import { FinalCTA } from "./landing/FinalCTA";
 import { LandingFooter } from "./landing/LandingFooter";
 import { NCTRLogo } from "./NCTRLogo";
+import { EcosystemSwitcher } from "./navigation/EcosystemSwitcher";
 
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/contexts/AuthContext";
@@ -74,119 +75,127 @@ export function LandingPage() {
 
       {/* Navigation */}
       <nav
-        className="sticky top-0 z-20 flex items-center justify-between px-6 md:px-12 py-4 md:py-5 w-full max-w-7xl mx-auto"
+        className="sticky top-0 z-20 px-6 md:px-12 py-4 md:py-5 w-full max-w-7xl mx-auto"
         style={{ backgroundColor: '#F9F9F7' }}
       >
-        <div
-          className="flex items-center cursor-pointer"
-          onClick={() => navigate('/')}
-        >
-          <span
-            style={{
-              fontFamily: barlow,
-              fontWeight: 900,
-              fontSize: '26px',
-              color: '#323232',
-              letterSpacing: '-0.02em',
-              textTransform: 'uppercase',
-            }}
-          >
-            CRESCENDO
-          </span>
-          <span
-            style={{
-              fontSize: '9px',
-              letterSpacing: '1px',
-              color: '#5A5A58',
-              border: '1px solid rgba(90,90,88,0.3)',
-              backgroundColor: 'transparent',
-              padding: '2px 8px',
-              borderRadius: '0px',
-              fontFamily: barlow,
-              fontWeight: 600,
-              marginLeft: '8px',
-            }}
-          >
-            BETA
-          </span>
-        </div>
+        <div className="w-full flex flex-col gap-3">
+          <div className="flex justify-center">
+            <EcosystemSwitcher surface="light" />
+          </div>
 
-        <div className="hidden md:flex items-center gap-5">
-          <button
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '14px',
-              color: '#5A5A58',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              transition: `color 300ms ${hoverCurve}`,
-            }}
-            onClick={() => navigate('/rewards')}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#323232')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#5A5A58')}
-          >
-            Rewards
-          </button>
-          <button
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '14px',
-              color: '#5A5A58',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              transition: `color 300ms ${hoverCurve}`,
-            }}
-            onClick={() => navigate('/how-it-works')}
-            onMouseEnter={(e) => (e.currentTarget.style.color = '#323232')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = '#5A5A58')}
-          >
-            How It Works
-          </button>
-          <button
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '14px',
-              color: '#323232',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              transition: `color 300ms ${hoverCurve}`,
-            }}
-            onClick={handleSignIn}
-          >
-            Sign In
-          </button>
-          <button
-            onClick={handleJoin}
-            style={{
-              fontFamily: barlow,
-              fontWeight: 700,
-              fontSize: '13px',
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-              backgroundColor: '#323232',
-              color: '#FFFFFF',
-              border: 'none',
-              borderRadius: '0px',
-              padding: '10px 24px',
-              cursor: 'pointer',
-              marginLeft: '8px',
-              transition: `background-color 300ms ${hoverCurve}`,
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a1a1a')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#323232')}
-          >
-            JOIN FREE
-          </button>
-        </div>
+          <div className="flex items-center justify-between">
+            <div
+              className="flex items-center cursor-pointer"
+              onClick={() => navigate('/')}
+            >
+              <span
+                style={{
+                  fontFamily: barlow,
+                  fontWeight: 900,
+                  fontSize: '26px',
+                  color: '#323232',
+                  letterSpacing: '-0.02em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                CRESCENDO
+              </span>
+              <span
+                style={{
+                  fontSize: '9px',
+                  letterSpacing: '1px',
+                  color: '#5A5A58',
+                  border: '1px solid rgba(90,90,88,0.3)',
+                  backgroundColor: 'transparent',
+                  padding: '2px 8px',
+                  borderRadius: '0px',
+                  fontFamily: barlow,
+                  fontWeight: 600,
+                  marginLeft: '8px',
+                }}
+              >
+                BETA
+              </span>
+            </div>
 
-        <MobileNav
-          onViewRewards={() => navigate('/rewards')}
-          onSignIn={handleSignIn}
-          onJoin={handleJoin}
-        />
+            <div className="hidden md:flex items-center gap-5">
+              <button
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '14px',
+                  color: '#5A5A58',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: `color 300ms ${hoverCurve}`,
+                }}
+                onClick={() => navigate('/rewards')}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#323232')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#5A5A58')}
+              >
+                Rewards
+              </button>
+              <button
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '14px',
+                  color: '#5A5A58',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: `color 300ms ${hoverCurve}`,
+                }}
+                onClick={() => navigate('/how-it-works')}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#323232')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#5A5A58')}
+              >
+                How It Works
+              </button>
+              <button
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: '14px',
+                  color: '#323232',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: `color 300ms ${hoverCurve}`,
+                }}
+                onClick={handleSignIn}
+              >
+                Sign In
+              </button>
+              <button
+                onClick={handleJoin}
+                style={{
+                  fontFamily: barlow,
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  backgroundColor: '#323232',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '0px',
+                  padding: '10px 24px',
+                  cursor: 'pointer',
+                  marginLeft: '8px',
+                  transition: `background-color 300ms ${hoverCurve}`,
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a1a1a')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#323232')}
+              >
+                JOIN FREE
+              </button>
+            </div>
+
+            <MobileNav
+              onViewRewards={() => navigate('/rewards')}
+              onSignIn={handleSignIn}
+              onJoin={handleJoin}
+            />
+          </div>
+        </div>
       </nav>
 
       {/* Hero */}
