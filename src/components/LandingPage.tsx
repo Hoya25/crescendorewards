@@ -80,7 +80,7 @@ export function LandingPage() {
       >
         <div className="w-full flex flex-col gap-3">
           <div className="flex justify-center">
-            <EcosystemSwitcher />
+            <EcosystemSwitcher surface="light" />
           </div>
 
           <div className="flex items-center justify-between">
