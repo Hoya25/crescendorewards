@@ -48,12 +48,23 @@ export function EcosystemSwitcher({ surface = "auto" }: EcosystemSwitcherProps) 
         />
         <span
           className={cn(
-            "px-2 md:px-3 py-1 font-semibold",
+            "px-2 md:px-3 py-1 font-semibold inline-flex items-center gap-2",
             lightOnly ? "text-neutral-800" : "text-neutral-800 dark:text-[#E2FF6D]"
           )}
           aria-current="page"
         >
           CRESCENDO <span className="text-neutral-500 font-normal">— Status</span>
+          <span
+            className={cn(
+              "text-[9px] leading-none px-2 py-0.5 border",
+              "font-['Barlow_Condensed',_sans-serif] tracking-wider font-semibold",
+              lightOnly
+                ? "text-[#5A5A58] border-[rgba(90,90,88,0.3)] bg-transparent"
+                : "text-[#5A5A58] border-[rgba(90,90,88,0.3)] bg-transparent dark:text-[#E2FF6D] dark:border-[rgba(226,255,109,0.35)]"
+            )}
+          >
+            BETA
+          </span>
         </span>
       </div>
     </div>
