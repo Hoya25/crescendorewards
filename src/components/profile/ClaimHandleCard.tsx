@@ -75,7 +75,6 @@ export function ClaimHandleCard() {
       // Try claiming with a dummy handle to see the eligibility response
       // We use a test call with the current handle to trigger the eligibility check
       const { data, error } = await supabase.rpc('claim_handle', {
-        p_user_id: profile.id,
         p_handle: profile.handle + '_test_eligibility_check',
       });
       if (error) throw error;
