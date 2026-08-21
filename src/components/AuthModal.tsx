@@ -82,48 +82,23 @@ export function AuthModal({ mode: _mode, onClose, onSuccess, onToggleMode: _onTo
           const profileExists = verifyData?.success === true;
 
           if (profileExists) {
-            // BH account found — edge function provisioned the auth account
+            // BH account found — a one-time sign-in link was emailed to this
+            // address. No shared password exists, so we never auto sign in here.
             setBhFound(true);
-            setStatusMessage('Your NCTR account was found! Signing you in...');
+            track('universal_auth_link_sent');
 
-            // Try signing in with the standard password (set by edge function)
-            const { error: autoSignInError } = await supabase.auth.signInWithPassword({
-              email: email.trim(),
-              password: 'nctr-beta-2026',
-            });
-
-            if (!autoSignInError) {
-              track('universal_auth_login');
-              toast.success('Welcome to Crescendo! Your NCTR account is linked. 🎉');
-              onSuccess();
-              return;
-            }
-
-            // If that fails, try with user-provided password (they may have set a custom one)
-            const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-              email: email.trim(),
-              password,
-              options: {
-                emailRedirectTo: `${window.location.origin}/`,
-              },
-            });
-
-            if (signUpError) {
-              if (signUpError.message.includes('already registered')) {
-                setError('This email is already registered on Crescendo. Try the password: nctr-beta-2026');
-              } else {
-                setError(signUpError.message);
-              }
+            if (verifyData?.magic_link_sent) {
               setStatusMessage('');
-              return;
+              setError('');
+              toast.success('Check your email — we sent you a secure sign-in link.');
+              setError('Your NCTR account was found. We emailed a one-time sign-in link to ' + email.trim() + '. Open it to finish signing in.');
+            } else {
+              setStatusMessage('');
+              setError('Your NCTR account was found, but we could not email your sign-in link. Sign in from Bounty Hunter to continue.');
             }
-
-            if (signUpData.user) {
-              track('universal_auth_signup');
-              toast.success('Welcome to Crescendo! Your NCTR account is linked. 🎉');
-              onSuccess();
-            }
+            return;
           } else {
+
             // No account found on BH
             setError('');
             setStatusMessage('');
