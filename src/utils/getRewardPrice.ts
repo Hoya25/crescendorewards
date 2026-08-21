@@ -118,8 +118,9 @@ export function canUserClaimReward(
   }
 
   // Check minimum tier requirement
-  // TIER COLUMN CONSOLIDATION: prefer v2 column min_tier_required, fall back to legacy min_status_tier.
-  const effectiveMinTier = reward.min_tier_required || reward.min_status_tier;
+  // CANONICAL tier gate column: rewards.min_tier_required (enforced by claim_reward + process-claim).
+  const effectiveMinTier = reward.min_tier_required;
+
   if (effectiveMinTier) {
     const normalizedMinTier = effectiveMinTier.toLowerCase();
     const userTierIndex = TIER_ORDER.indexOf(normalizedTier as TierName);
