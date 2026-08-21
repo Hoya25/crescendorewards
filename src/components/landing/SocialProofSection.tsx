@@ -9,7 +9,8 @@ export function SocialProofSection() {
       try {
         const { count, error } = await supabase
           .from('unified_profiles')
-          .select('id', { count: 'exact', head: true });
+          .select('id', { count: 'exact', head: true })
+          .not('crescendo_data->>is_test_fixture', 'eq', 'true');
 
         if (!error && count) {
           setMemberCount(count);

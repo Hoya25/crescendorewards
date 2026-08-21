@@ -9,8 +9,10 @@ export function StatsSection() {
     const fetchStats = async () => {
       try {
         const [membersRes, nctrRes, claimsRes] = await Promise.all([
-          supabase.from('unified_profiles').select('id', { count: 'exact', head: true }),
-          supabase.from('unified_profiles').select('nctr_balance'),
+          supabase.from('unified_profiles').select('id', { count: 'exact', head: true })
+            .not('crescendo_data->>is_test_fixture', 'eq', 'true'),
+          supabase.from('unified_profiles').select('nctr_balance')
+            .not('crescendo_data->>is_test_fixture', 'eq', 'true'),
           supabase.from('rewards_claims').select('id', { count: 'exact', head: true }),
         ]);
 
