@@ -10,7 +10,6 @@ import { AlertTriangle, Check, ExternalLink } from 'lucide-react';
 import { AlliancePartner } from './PartnerBenefitCard';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
-import { addDays } from 'date-fns';
 import { PLATFORM_COLORS, PLATFORM_NAMES } from '@/utils/creatorPlatforms';
 
 interface ActivateBenefitModalProps {
@@ -81,37 +80,14 @@ export function ActivateBenefitModal({
 
     setActivating(true);
     try {
-      // Create the activation record
-      const { error } = await supabase
-        .from('member_active_benefits')
-        .insert({
-          user_id: userId,
-          partner_id: partner.id,
-          status: partner.activation_type === 'code' ? 'active' : 'pending',
-          activated_at: new Date().toISOString(),
-          can_swap_after: addDays(new Date(), 30).toISOString(),
-          slots_used: partner.slot_cost,
-          selected_creator_name: isCreatorSub ? creatorName.trim() : null,
-          selected_creator_url: isCreatorSub ? creatorUrl.trim() : null,
-          selected_creator_platform: isCreatorSub ? effectivePlatform : null,
-        });
+      const { error } = await supabase.rpc('activate_member_benefit', {
+        p_partner_id: partner.id,
+        p_selected_creator_name: isCreatorSub ? creatorName.trim() : null,
+        p_selected_creator_url: isCreatorSub ? creatorUrl.trim() : null,
+        p_selected_creator_platform: isCreatorSub ? effectivePlatform : null,
+      });
 
       if (error) throw error;
-
-      // Log the activation
-      await supabase
-        .from('benefit_activation_history')
-        .insert({
-          user_id: userId,
-          partner_id: partner.id,
-          action: 'activated',
-        });
-
-      // Update partner total activations
-      await supabase
-        .from('alliance_partners')
-        .update({ total_activations: partner.total_activations + 1 })
-        .eq('id', partner.id);
 
       const successMessage = isCreatorSub
         ? `We'll set up your subscription to ${creatorName} within 48 hours.`

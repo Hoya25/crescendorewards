@@ -103,47 +103,12 @@ export function useActivateBenefit() {
       partnerId: string; 
       slotCost?: number;
     }) => {
-      const now = new Date();
-      const canSwapAfter = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
-
-      // Insert the active benefit
-      const { data: benefit, error: benefitError } = await supabase
-        .from('member_active_benefits')
-        .insert({
-          user_id: userId,
-          partner_id: partnerId,
-          status: 'active',
-          activated_at: now.toISOString(),
-          can_swap_after: canSwapAfter.toISOString(),
-          slots_used: slotCost,
-        })
-        .select()
-        .single();
+      const { data: benefit, error: benefitError } = await supabase.rpc(
+        'activate_member_benefit',
+        { p_partner_id: partnerId }
+      );
 
       if (benefitError) throw benefitError;
-
-      // Update partner activation count manually
-      const { data: partner } = await supabase
-        .from('alliance_partners')
-        .select('total_activations')
-        .eq('id', partnerId)
-        .single();
-
-      if (partner) {
-        await supabase
-          .from('alliance_partners')
-          .update({ total_activations: (partner.total_activations || 0) + 1 })
-          .eq('id', partnerId);
-      }
-
-      // Log activation history
-      await supabase
-        .from('benefit_activation_history')
-        .insert({
-          user_id: userId,
-          partner_id: partnerId,
-          action: 'activated',
-        });
 
       return benefit;
     },
@@ -172,22 +137,11 @@ export function useDeactivateBenefit() {
       userId: string;
       partnerId: string;
     }) => {
-      // Update status to cancelled
-      const { error: updateError } = await supabase
-        .from('member_active_benefits')
-        .update({ status: 'cancelled' })
-        .eq('id', benefitId);
+      const { error: updateError } = await supabase.rpc('deactivate_member_benefit', {
+        p_benefit_id: benefitId,
+      });
 
       if (updateError) throw updateError;
-
-      // Log deactivation history
-      await supabase
-        .from('benefit_activation_history')
-        .insert({
-          user_id: userId,
-          partner_id: partnerId,
-          action: 'deactivated',
-        });
 
       return { success: true };
     },

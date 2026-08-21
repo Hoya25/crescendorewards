@@ -29,7 +29,6 @@ export function useBountyValidation() {
       if (!profile?.id) throw new Error('Not authenticated');
 
       const { data, error } = await supabase.rpc('validate_and_claim_bounty', {
-        p_user_id: profile.id,
         p_bounty_id: bountyId,
         p_submission_url: submissionUrl ?? null,
         p_submission_notes: submissionNotes ?? null,

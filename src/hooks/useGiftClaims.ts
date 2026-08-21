@@ -94,8 +94,7 @@ export function useGiftClaims() {
       const giftDetails = await getGiftByCode(giftCode);
       
       const { data, error } = await supabase.rpc('claim_gift', {
-        p_gift_code: giftCode,
-        p_user_id: profile.id
+        p_gift_code: giftCode
       });
 
       if (error) throw error;
