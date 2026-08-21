@@ -1,0 +1,1 @@
+ALTER FUNCTION public.block_client_financial_writes() SECURITY INVOKER;
