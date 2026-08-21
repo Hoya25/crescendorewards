@@ -58,32 +58,17 @@ export function RedemptionModal({ selection, onClose }: RedemptionModalProps) {
 
   const redeemMutation = useMutation({
     mutationFn: async () => {
-      // Insert redemption record
-      const { error: insertError } = await supabase
-        .from('reward_redemptions')
-        .insert({
-          member_id: selection.member_id,
-          reward_id: selection.reward_id,
-          selection_id: selection.id,
-          period: getCurrentPeriod(cadence),
-          notes: notes || null,
-        });
+      // Redemption record and selection counters are written server-side.
+      const { error } = await supabase.rpc('groundball_redeem_selection', {
+        p_selection_id: selection.id,
+        p_notes: notes || null,
+      });
 
-      if (insertError) throw insertError;
-
-      // Update selection with last_redeemed_at and increment count
-      const { error: updateError } = await supabase
-        .from('member_reward_selections')
-        .update({
-          last_redeemed_at: new Date().toISOString(),
-          redemption_count: (selection.redemption_count || 0) + 1,
-        })
-        .eq('id', selection.id);
-
-      if (updateError) throw updateError;
+      if (error) throw new Error(error.message);
 
       return { reward };
     },
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['groundball-selections'] });
       toast.success(`${reward.title} redeemed successfully!`);

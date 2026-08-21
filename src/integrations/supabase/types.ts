@@ -4464,6 +4464,7 @@ export type Database = {
       }
       claim_signup_bonus: { Args: never; Returns: Json }
       cleanup_expired_nonces: { Args: never; Returns: undefined }
+      gear_vault_claim_item: { Args: { p_item_id: string }; Returns: Json }
       generate_gift_code: { Args: never; Returns: string }
       generate_referral_code: { Args: never; Returns: string }
       get_admin_dashboard_stats: { Args: never; Returns: Json }
@@ -4611,7 +4612,35 @@ export type Database = {
           wishlist_count: number
         }[]
       }
+      groundball_ensure_status: {
+        Args: { p_member_id: string }
+        Returns: {
+          bonus_selections: number | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          free_swaps_remaining: number | null
+          groundball_locked: number | null
+          id: string
+          member_id: string
+          selections_max: number | null
+          selections_used: number | null
+          status_tier: string | null
+          updated_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "member_groundball_status"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       groundball_purchase_bonus_slot: { Args: never; Returns: Json }
+      groundball_redeem_selection: {
+        Args: { p_notes?: string; p_selection_id: string }
+        Returns: Json
+      }
+      groundball_select_reward: { Args: { p_reward_id: string }; Returns: Json }
       groundball_swap_reward: {
         Args: { p_selection_id: string; p_use_free_swap?: boolean }
         Returns: Json
