@@ -17,6 +17,15 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Caller authentication: trusted scheduler (SYNC_SECRET) or a verified admin.
+    if (!hasSyncSecret(req) && !(await requireAdmin(req))) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+
     const syncSecret = Deno.env.get("SYNC_SECRET");
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
 
