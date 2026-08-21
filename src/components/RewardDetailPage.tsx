@@ -526,6 +526,10 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const pricing = getRewardPriceForUser(rewardForPricing, userTier);
   const eligibility = canUserClaimReward(rewardForPricing, userTier, crescendoData.claim_balance);
   const allTierPrices = getAllTierPrices(rewardForPricing);
+  // CANON: claims are never discounted by tier. Only a per-reward
+  // status_tier_claims_cost override can make prices differ by status.
+  const hasTierOverrides = hasTierPriceOverrides(rewardForPricing);
+
   
   const isSponsored = reward.is_sponsored || reward.sponsor_enabled;
   const sponsorName = reward.sponsor_name;
