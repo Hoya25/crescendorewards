@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
+import { isInternalCaller, safeText, safeUrl, unauthorized } from "../_shared/auth.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
@@ -18,6 +19,9 @@ const handler = async (req: Request): Promise<Response> => {
   
   const preflightResponse = handleCorsPreflightRequest(req);
   if (preflightResponse) return preflightResponse;
+
+  // Server-to-server only: fan-out is triggered by submit-external-feedback.
+  if (!isInternalCaller(req)) return unauthorized(corsHeaders);
 
   try {
     const { 
@@ -99,31 +103,31 @@ const handler = async (req: Request): Promise<Response> => {
           <div style="background: white; border-radius: 0 0 16px 16px; padding: 32px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
             <div style="background: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
               <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 14px;">
-                <strong>From:</strong> ${user_email || "Anonymous user"}
+                <strong>From:</strong> ${safeText(user_email, 200) || "Anonymous user"}
               </p>
               <p style="margin: 0; color: #6b7280; font-size: 14px;">
-                <strong>Page:</strong> <code style="background: #e5e7eb; padding: 2px 6px; border-radius: 4px;">${page_url}</code>
+                <strong>Page:</strong> <code style="background: #e5e7eb; padding: 2px 6px; border-radius: 4px;">${safeText(page_url, 500)}</code>
               </p>
             </div>
             
             ${whats_working ? `
               <div style="background: #f0fdf4; border-left: 4px solid #22c55e; padding: 16px; margin: 16px 0; border-radius: 0 8px 8px 0;">
                 <h3 style="margin: 0 0 8px 0; color: #15803d; font-size: 14px; font-weight: 600;">✨ What's Working</h3>
-                <p style="margin: 0; color: #374151; font-size: 15px; line-height: 1.6;">${whats_working}</p>
+                <p style="margin: 0; color: #374151; font-size: 15px; line-height: 1.6;">${safeText(whats_working)}</p>
               </div>
             ` : ""}
             
             ${whats_broken ? `
               <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 16px; margin: 16px 0; border-radius: 0 8px 8px 0;">
                 <h3 style="margin: 0 0 8px 0; color: #b91c1c; font-size: 14px; font-weight: 600;">🔧 What's Broken</h3>
-                <p style="margin: 0; color: #374151; font-size: 15px; line-height: 1.6;">${whats_broken}</p>
+                <p style="margin: 0; color: #374151; font-size: 15px; line-height: 1.6;">${safeText(whats_broken)}</p>
               </div>
             ` : ""}
             
-            ${image_url ? `
+            ${safeUrl(image_url) ? `
               <div style="margin: 24px 0; text-align: center;">
                 <p style="color: #6b7280; font-size: 14px; margin-bottom: 12px;">📸 Screenshot attached:</p>
-                <a href="${image_url}" style="display: inline-block; background: #7c3aed; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 500; font-size: 14px;">
+                <a href="${safeUrl(image_url)}" style="display: inline-block; background: #7c3aed; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: 500; font-size: 14px;">
                   View Screenshot
                 </a>
               </div>

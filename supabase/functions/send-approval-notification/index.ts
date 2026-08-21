@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.81.1';
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
+import { isInternalCaller, requireAdmin, unauthorized } from "../_shared/auth.ts";
 
 // TODO: Add RESEND_API_KEY secret and implement email sending
 // For now, this function just logs the notification
@@ -16,6 +17,11 @@ const handler = async (req: Request): Promise<Response> => {
   if (corsResponse) return corsResponse;
   
   const corsHeaders = getCorsHeaders(req);
+
+  // Called by the approval DB trigger (service role) or an admin; never anon.
+  if (!isInternalCaller(req) && !(await requireAdmin(req))) {
+    return unauthorized(corsHeaders);
+  }
 
   try {
     const { submission_id, reward_id }: ApprovalNotificationRequest = await req.json();

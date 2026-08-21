@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "npm:resend@2.0.0";
+import { isInternalCaller, unauthorized } from "../_shared/auth.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -229,6 +230,9 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Server-to-server only: triggered by the Shopify webhook / internal jobs.
+  if (!isInternalCaller(req)) return unauthorized(corsHeaders);
 
   try {
     const { type, user_id, email, data }: NotificationRequest = await req.json();
