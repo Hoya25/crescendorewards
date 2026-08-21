@@ -185,7 +185,7 @@ serve(async (req: Request): Promise<Response> => {
             
             <div style="background: white; border-radius: 0 0 16px 16px; padding: 32px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
               <p style="font-size: 16px; color: #374151; margin-bottom: 24px;">
-                Hi ${userName},
+                Hi ${safeText(userName, 80)},
               </p>
               
               <p style="font-size: 16px; color: #374151; margin-bottom: 24px;">
@@ -197,7 +197,7 @@ serve(async (req: Request): Promise<Response> => {
                 
                 <div style="display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
                   <span style="color: #6b7280;">Reward Title</span>
-                  <span style="color: #111827; font-weight: 600;">${rewardTitle}</span>
+                  <span style="color: #111827; font-weight: 600;">${safeText(rewardTitle, 160)}</span>
                 </div>
                 
                 <div style="display: flex; justify-content: space-between;">
@@ -251,7 +251,7 @@ serve(async (req: Request): Promise<Response> => {
           console.log("ADMIN_EMAIL not set — skipping admin notification");
         } else {
           const adminUrl = "https://crescendo.nctr.live/admin/submissions";
-          const contributorLine = `${userName} (${profile.email})`;
+          const contributorLine = `${safeText(userName, 80)} (${safeText(profile.email, 200)})`;
 
           const adminResp = await resend.emails.send({
             from: "Crescendo <onboarding@resend.dev>",
@@ -267,8 +267,8 @@ serve(async (req: Request): Promise<Response> => {
                   <div style="background:white;border-radius:0 0 16px 16px;padding:28px 32px;box-shadow:0 4px 6px rgba(0,0,0,0.08);">
                     <p style="font-size:15px;color:#374151;margin:0 0 20px;">A new reward submission has been received and is pending review.</p>
                     <div style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:24px;font-size:14px;color:#111827;">
-                      <div style="margin-bottom:10px;"><strong>Reward:</strong> ${rewardTitle}</div>
-                      <div style="margin-bottom:10px;"><strong>Category:</strong> ${categoryLabel}</div>
+                      <div style="margin-bottom:10px;"><strong>Reward:</strong> ${safeText(rewardTitle, 160)}</div>
+                      <div style="margin-bottom:10px;"><strong>Category:</strong> ${safeText(categoryLabel, 80)}</div>
                       <div style="margin-bottom:10px;"><strong>Contributor:</strong> ${contributorLine}</div>
                       <div><strong>Submission ID:</strong> <code>${submissionId}</code></div>
                     </div>

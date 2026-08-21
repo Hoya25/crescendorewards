@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
+import { adminClient, getAuthUserId, isAdminUser, isInternalCaller, escapeHtml, safeText, unauthorized } from "../_shared/auth.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
@@ -163,11 +164,68 @@ const handler = async (req: Request): Promise<Response> => {
   if (preflightResponse) return preflightResponse;
 
   try {
-    const data: GiftNotificationRequest = await req.json();
-    
-    if (!data.recipientEmail || !data.type) {
+    const body: GiftNotificationRequest = await req.json();
+
+    if (!body.giftId || !body.type) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: recipientEmail and type" }),
+        JSON.stringify({ error: "Missing required fields: giftId and type" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Load the gift and derive every email field from it. The recipient address,
+    // amount, gift code and message can no longer be supplied by the caller.
+    const admin = adminClient();
+    const { data: gift, error: giftError } = await admin
+      .from("claim_gifts")
+      .select("id, sender_id, sender_name, recipient_email, recipient_id, claims_amount, message, gift_code, expires_at, claimed_by_name")
+      .eq("id", body.giftId)
+      .maybeSingle();
+
+    if (giftError || !gift) {
+      return new Response(
+        JSON.stringify({ error: "Gift not found" }),
+        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Authorization: internal callers pass through; otherwise the caller must be
+    // the gift's sender, its recipient, or an admin.
+    if (!isInternalCaller(req)) {
+      const callerId = await getAuthUserId(req);
+      if (!callerId) return unauthorized(corsHeaders);
+
+      const { data: callerProfile } = await admin
+        .from("unified_profiles")
+        .select("id, email")
+        .eq("auth_user_id", callerId)
+        .maybeSingle();
+
+      const isParty =
+        (callerProfile?.id && (callerProfile.id === gift.sender_id || callerProfile.id === gift.recipient_id)) ||
+        (callerProfile?.email &&
+          String(callerProfile.email).toLowerCase() === String(gift.recipient_email ?? "").toLowerCase());
+
+      if (!isParty && !(await isAdminUser(callerId))) {
+        return unauthorized(corsHeaders);
+      }
+    }
+
+    const data: GiftNotificationRequest = {
+      type: body.type,
+      giftId: gift.id as string,
+      recipientEmail: gift.recipient_email as string,
+      senderName: (gift.sender_name as string) ?? undefined,
+      claimsAmount: Number(gift.claims_amount ?? 0),
+      message: (gift.message as string) ?? undefined,
+      giftCode: (gift.gift_code as string) ?? undefined,
+      expiresAt: (gift.expires_at as string) ?? undefined,
+      claimedByName: (gift.claimed_by_name as string) ?? undefined,
+    };
+
+    if (!data.recipientEmail) {
+      return new Response(
+        JSON.stringify({ error: "Gift has no recipient email" }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
