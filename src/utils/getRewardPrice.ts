@@ -165,22 +165,15 @@ export function getTierDisplayName(tier: string): string {
 }
 
 /**
- * Get all tier prices for a reward (for display purposes)
+ * Get all tier prices for a reward (for display purposes).
+ * Prices come ONLY from the per-reward status_tier_claims_cost override,
+ * falling back to rewards.cost — never from a tier discount table.
  */
 export function getAllTierPrices(reward: Reward): { tier: string; price: number; displayName: string }[] {
-  if (!reward.is_sponsored || !reward.status_tier_claims_cost) {
-    return TIER_ORDER.map(tier => ({
-      tier,
-      price: reward.cost,
-      displayName: getTierDisplayName(tier)
-    }));
-  }
-
-  const tierPricing = reward.status_tier_claims_cost as TierPricing;
-  
   return TIER_ORDER.map(tier => ({
     tier,
-    price: tierPricing[tier] ?? reward.cost,
+    price: getTierOverrideCost(reward, tier) ?? reward.cost,
     displayName: getTierDisplayName(tier)
   }));
 }
+
