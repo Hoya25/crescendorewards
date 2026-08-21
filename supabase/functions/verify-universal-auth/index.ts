@@ -46,27 +46,20 @@ Deno.serve(async (req: Request) => {
       return await res.json();
     }
 
-    // --- Helper: ensure auth user exists ---
-    async function ensureAuthUser(emailAddr: string, displayName?: string, bhUserId?: string, setPassword: boolean = true) {
+    // --- Helper: ensure auth user exists (never sets or resets a password) ---
+    async function ensureAuthUser(emailAddr: string, displayName?: string, bhUserId?: string) {
       const { data: allAuthSearch } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
       const existingAuthUser = allAuthSearch?.users?.find(
         (u: any) => u.email?.toLowerCase() === emailAddr
       );
 
       if (existingAuthUser) {
-        if (setPassword) {
-          const { error: updateErr } = await supabase.auth.admin.updateUserById(
-            existingAuthUser.id,
-            { password: DEFAULT_PASSWORD }
-          );
-          if (updateErr) console.error("Failed to update auth user password:", updateErr.message);
-        }
+        // Existing accounts are left untouched — credentials are never rewritten here.
         return existingAuthUser;
       } else {
         const { data: newUser, error: createAuthErr } = await supabase.auth.admin.createUser({
           email: emailAddr,
           email_confirm: true,
-          ...(setPassword ? { password: DEFAULT_PASSWORD } : {}),
           user_metadata: {
             display_name: displayName || "User",
             source: "bounty_hunter",
@@ -80,6 +73,7 @@ Deno.serve(async (req: Request) => {
         console.log("Auto-provisioned auth user for:", emailAddr);
         return newUser?.user || null;
       }
+
     }
 
     // --- Helper: ensure unified_profiles row ---
