@@ -134,59 +134,24 @@ export function useGroundballStatus() {
     enabled: !!memberId,
   });
 
-  // Select a reward
+  // Select a reward — ownership, tier gate and slot accounting are server-side.
   const selectReward = useMutation({
     mutationFn: async (rewardId: string) => {
       if (!memberId) throw new Error('Not authenticated');
-      
+
       const reward = rewards?.find(r => r.id === rewardId);
-      if (!reward) throw new Error('Reward not found');
-      
-      // Check if already selected
-      const existing = selections?.find(s => s.reward_id === rewardId);
-      if (existing) throw new Error('Reward already selected');
-      
-      // Check slots (skip for give-back rewards)
-      const totalSlots = (status?.selections_max || 0) + (status?.bonus_selections || 0);
-      const usedSlots = status?.selections_used || 0;
-      
-      if (!reward.is_giveback && usedSlots >= totalSlots) {
-        throw new Error('No selection slots available');
-      }
-      
-      // Check status requirement
-      const userTier = status?.status_tier || 'none';
-      const requiredTier = reward.required_status || 'any';
-      if (!meetsStatusRequirement(userTier, requiredTier)) {
-        throw new Error(`Requires ${requiredTier} status`);
-      }
-      
-      // Insert selection
-      const { error: insertError } = await supabase
-        .from('member_reward_selections')
-        .insert({
-          member_id: memberId,
-          reward_id: rewardId,
-          is_active: true,
-        });
-      
-      if (insertError) throw insertError;
-      
-      // Update selections_used (only for non-giveback)
-      if (!reward.is_giveback) {
-        const { error: updateError } = await supabase
-          .from('member_groundball_status')
-          .update({ 
-            selections_used: usedSlots + 1,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('member_id', memberId);
-        
-        if (updateError) throw updateError;
-      }
-      
-      return { reward, isGiveback: reward.is_giveback };
+
+      const { data, error } = await supabase.rpc('groundball_select_reward', {
+        p_reward_id: rewardId,
+      });
+
+      if (error) throw new Error(error.message);
+
+      const result = (data ?? {}) as { is_giveback?: boolean };
+
+      return { reward, isGiveback: !!result.is_giveback };
     },
+
     onSuccess: ({ reward, isGiveback }) => {
       queryClient.invalidateQueries({ queryKey: ['groundball-selections'] });
       queryClient.invalidateQueries({ queryKey: ['groundball-status'] });
