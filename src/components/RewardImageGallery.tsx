@@ -273,7 +273,10 @@ export async function saveGalleryImages(
         });
       }
       const ext = compressed.name.split('.').pop();
-      const fileName = `rewards/${Math.random().toString(36).substring(2)}-${Date.now()}.${ext}`;
+      const { data: authData } = await supabase.auth.getUser();
+      const ownerPrefix = authData?.user?.id;
+      if (!ownerPrefix) throw new Error('You must be signed in to upload images');
+      const fileName = `${ownerPrefix}/${Math.random().toString(36).substring(2)}-${Date.now()}.${ext}`;
       const { error } = await supabase.storage
         .from('reward-images')
         .upload(fileName, compressed, { cacheControl: '3600', upsert: false });
