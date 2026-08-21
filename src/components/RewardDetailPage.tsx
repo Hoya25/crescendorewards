@@ -1083,6 +1083,8 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                   </div>
                 </AccordionContent>
               </AccordionItem>
+              )}
+
 
               <AccordionItem value="terms">
                 <AccordionTrigger>
