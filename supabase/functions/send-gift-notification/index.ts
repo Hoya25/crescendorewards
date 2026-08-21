@@ -18,12 +18,12 @@ interface GiftNotificationRequest {
 
 const getEmailContent = (data: GiftNotificationRequest) => {
   const baseUrl = "https://crescendo-nctr-live.lovable.app";
-  const claimUrl = data.giftCode ? `${baseUrl}/claim?code=${data.giftCode}` : `${baseUrl}/claim`;
+  const claimUrl = data.giftCode ? `${baseUrl}/claim?code=${encodeURIComponent(String(data.giftCode))}` : `${baseUrl}/claim`;
 
   switch (data.type) {
     case "gift_sent":
       return {
-        subject: `🎁 ${data.senderName || "Someone"} sent you a gift on Crescendo!`,
+        subject: `🎁 ${(data.senderName || "Someone")} sent you a gift on Crescendo!`,
         html: `
           <!DOCTYPE html>
           <html>
@@ -39,17 +39,17 @@ const getEmailContent = (data: GiftNotificationRequest) => {
               </div>
               <div style="background: white; border-radius: 0 0 16px 16px; padding: 32px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                 <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-                  <strong>${data.senderName || "A Crescendo member"}</strong> has sent you <strong>${data.claimsAmount} Claims</strong>!
+                  <strong>${safeText(data.senderName, 80) || "A Crescendo member"}</strong> has sent you <strong>${Number(data.claimsAmount) || 0} Claims</strong>!
                 </p>
                 ${data.message ? `
                   <div style="background: #f9fafb; border-left: 4px solid #7c3aed; padding: 16px; margin: 24px 0; border-radius: 0 8px 8px 0;">
                     <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px 0; font-weight: 500;">Personal message:</p>
-                    <p style="color: #374151; font-size: 16px; margin: 0; font-style: italic;">"${data.message}"</p>
+                    <p style="color: #374151; font-size: 16px; margin: 0; font-style: italic;">"${safeText(data.message, 500)}"</p>
                   </div>
                 ` : ""}
                 <div style="background: linear-gradient(135deg, #7c3aed10 0%, #a855f710 100%); border-radius: 12px; padding: 24px; text-align: center; margin: 24px 0;">
                   <p style="color: #7c3aed; font-size: 14px; margin: 0 0 8px 0; font-weight: 600;">YOUR GIFT CODE</p>
-                  <p style="color: #374151; font-size: 28px; margin: 0; font-weight: 700; letter-spacing: 2px;">${data.giftCode || "GIFT-XXXXXXXX"}</p>
+                  <p style="color: #374151; font-size: 28px; margin: 0; font-weight: 700; letter-spacing: 2px;">${escapeHtml(data.giftCode) || "GIFT-XXXXXXXX"}</p>
                 </div>
                 <a href="${claimUrl}" style="display: block; background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); color: white; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 600; text-align: center; margin: 24px 0;">
                   Claim Your Gift
@@ -87,11 +87,11 @@ const getEmailContent = (data: GiftNotificationRequest) => {
               </div>
               <div style="background: white; border-radius: 0 0 16px 16px; padding: 32px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                 <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-                  Great news! <strong>${data.claimedByName || "The recipient"}</strong> has claimed your gift of <strong>${data.claimsAmount} Claims</strong>.
+                  Great news! <strong>${safeText(data.claimedByName, 80) || "The recipient"}</strong> has claimed your gift of <strong>${Number(data.claimsAmount) || 0} Claims</strong>.
                 </p>
                 <div style="background: #f0fdf4; border-radius: 12px; padding: 24px; text-align: center; margin: 24px 0;">
                   <p style="color: #10b981; font-size: 14px; margin: 0 0 8px 0; font-weight: 600;">GIFT DELIVERED</p>
-                  <p style="color: #374151; font-size: 24px; margin: 0; font-weight: 700;">${data.claimsAmount} Claims</p>
+                  <p style="color: #374151; font-size: 24px; margin: 0; font-weight: 700;">${Number(data.claimsAmount) || 0} Claims</p>
                 </div>
                 <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 0;">
                   Thank you for spreading the joy of Crescendo! Your generosity helps grow our community.
@@ -124,16 +124,16 @@ const getEmailContent = (data: GiftNotificationRequest) => {
               </div>
               <div style="background: white; border-radius: 0 0 16px 16px; padding: 32px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                 <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
-                  Don't miss out! You have a gift of <strong>${data.claimsAmount} Claims</strong> waiting for you that expires in <strong>3 days</strong>.
+                  Don't miss out! You have a gift of <strong>${Number(data.claimsAmount) || 0} Claims</strong> waiting for you that expires in <strong>3 days</strong>.
                 </p>
                 ${data.senderName ? `
                   <p style="color: #6b7280; font-size: 14px; margin: 0 0 24px 0;">
-                    Sent by: ${data.senderName}
+                    Sent by: ${safeText(data.senderName, 80)}
                   </p>
                 ` : ""}
                 <div style="background: #fffbeb; border: 2px dashed #f59e0b; border-radius: 12px; padding: 24px; text-align: center; margin: 24px 0;">
                   <p style="color: #b45309; font-size: 14px; margin: 0 0 8px 0; font-weight: 600;">EXPIRES SOON</p>
-                  <p style="color: #374151; font-size: 24px; margin: 0 0 8px 0; font-weight: 700;">${data.claimsAmount} Claims</p>
+                  <p style="color: #374151; font-size: 24px; margin: 0 0 8px 0; font-weight: 700;">${Number(data.claimsAmount) || 0} Claims</p>
                   <p style="color: #b45309; font-size: 12px; margin: 0;">
                     ${data.expiresAt ? new Date(data.expiresAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : "Expiring soon"}
                   </p>
