@@ -95,8 +95,11 @@ export function ResubmitModal({ open, onClose, submission, onSuccess }: Resubmit
       }
 
       const fileExt = compressedFile.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const { data: authData } = await supabase.auth.getUser();
+      const ownerPrefix = authData?.user?.id;
+      if (!ownerPrefix) throw new Error('You must be signed in to upload images');
+      const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+      const filePath = `${ownerPrefix}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('reward-images')

@@ -4501,7 +4501,6 @@ export type Database = {
       }
       get_checkin_streak: { Args: { p_user_id: string }; Returns: Json }
       get_gift_stats: { Args: never; Returns: Json }
-      get_handle_by_email: { Args: { lookup_email: string }; Returns: string }
       get_member_reward_price: {
         Args: { p_member_tier: string; p_reward_id: string }
         Returns: Json
