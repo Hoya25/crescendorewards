@@ -229,10 +229,7 @@ export function useGiftClaims() {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.rpc('cancel_gift', {
-        p_gift_id: giftId,
-        p_user_id: profile.id
-      });
+      const { data, error } = await supabase.rpc('cancel_gift', { p_gift_id: giftId });
 
       if (error) throw error;
 
