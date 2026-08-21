@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
+import { isInternalCaller, safeText, unauthorized } from "../_shared/auth.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -19,6 +20,9 @@ serve(async (req: Request): Promise<Response> => {
   
   const preflightResponse = handleCorsPreflightRequest(req);
   if (preflightResponse) return preflightResponse;
+
+  // Server-to-server only: this email is triggered by the Stripe webhook.
+  if (!isInternalCaller(req)) return unauthorized(corsHeaders);
 
   try {
     const { userId, packageName, claimsAmount, bonusNCTR, amountPaid, newBalance }: PurchaseConfirmationRequest = await req.json();
@@ -77,7 +81,7 @@ serve(async (req: Request): Promise<Response> => {
                 
                 <div style="display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
                   <span style="color: #6b7280;">Package</span>
-                  <span style="color: #111827; font-weight: 600;">${packageName}</span>
+                  <span style="color: #111827; font-weight: 600;">${safeText(packageName, 120)}</span>
                 </div>
                 
                 <div style="display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;">

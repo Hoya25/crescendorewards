@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.81.1";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
+import { isInternalCaller, safeText, safeUrl, unauthorized } from "../_shared/auth.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
@@ -18,6 +19,9 @@ const handler = async (req: Request): Promise<Response> => {
   
   const preflightResponse = handleCorsPreflightRequest(req);
   if (preflightResponse) return preflightResponse;
+
+  // Server-to-server only: fan-out is triggered by submit-external-feedback.
+  if (!isInternalCaller(req)) return unauthorized(corsHeaders);
 
   try {
     const { 
