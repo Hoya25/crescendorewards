@@ -95,7 +95,7 @@ serve(async (req) => {
     if (!memberTierName || memberRank < requiredRank) {
       return json(403, {
         error: "tier_requirement_not_met",
-        required_tier: reward.required_status_tier,
+        required_tier: minTierRequired,
         member_tier: memberTierName,
       });
     }
