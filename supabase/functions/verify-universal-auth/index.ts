@@ -2,7 +2,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
 
 const BH_ADMIN_API = "https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api";
-const DEFAULT_PASSWORD = "nctr-beta-2026";
+// NOTE: no shared/static password exists anymore. Sessions are only ever
+// established through one-time magic links / OTP tokens.
+
 
 Deno.serve(async (req: Request) => {
   const corsResponse = handleCorsPreflightRequest(req);
