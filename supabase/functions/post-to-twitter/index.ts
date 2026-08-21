@@ -189,14 +189,16 @@ serve(async (req: Request) => {
   const corsHeaders = getCorsHeaders(req);
 
   try {
-    // Verify auth
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
+    // Verify the bearer token against Supabase auth AND require an admin role.
+    // Posting to the official X account is an admin-only action.
+    const adminAuthUserId = await requireAdmin(req);
+    if (!adminAuthUserId) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
