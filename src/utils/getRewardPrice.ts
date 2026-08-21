@@ -14,8 +14,11 @@ export interface Reward {
   cost: number;
   is_sponsored?: boolean | null;
   status_tier_claims_cost?: TierPricing | Record<string, number> | null;
+  /** @deprecated legacy mirror of min_tier_required — do not read for gating */
   min_status_tier?: string | null;
+  /** CANONICAL tier gate */
   min_tier_required?: string | null;
+
   stock_quantity?: number | null;
   is_active?: boolean;
 }
@@ -118,8 +121,9 @@ export function canUserClaimReward(
   }
 
   // Check minimum tier requirement
-  // TIER COLUMN CONSOLIDATION: prefer v2 column min_tier_required, fall back to legacy min_status_tier.
-  const effectiveMinTier = reward.min_tier_required || reward.min_status_tier;
+  // CANONICAL tier gate column: rewards.min_tier_required (enforced by claim_reward + process-claim).
+  const effectiveMinTier = reward.min_tier_required;
+
   if (effectiveMinTier) {
     const normalizedMinTier = effectiveMinTier.toLowerCase();
     const userTierIndex = TIER_ORDER.indexOf(normalizedTier as TierName);

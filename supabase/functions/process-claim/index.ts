@@ -73,9 +73,11 @@ serve(async (req) => {
     return json(402, { error: "insufficient_claims", required: claims_required, available: claim_balance });
   }
 
-  // ── STEP 5: Tier gate ──
-  if (reward.required_status_tier) {
-    const requiredTierName = String(reward.required_status_tier).toLowerCase();
+  // ── STEP 5: Tier gate (canonical column: min_tier_required) ──
+  const minTierRequired = reward.min_tier_required ?? reward.min_status_tier ?? reward.required_status_tier;
+  if (minTierRequired) {
+    const requiredTierName = String(minTierRequired).toLowerCase();
+
     const requiredRank = TIER_ORDER[requiredTierName] ?? 0;
 
     const { data: up } = await admin
@@ -93,7 +95,7 @@ serve(async (req) => {
     if (!memberTierName || memberRank < requiredRank) {
       return json(403, {
         error: "tier_requirement_not_met",
-        required_tier: reward.required_status_tier,
+        required_tier: minTierRequired,
         member_tier: memberTierName,
       });
     }

@@ -14,7 +14,7 @@ interface Reward {
   dollar_value: number | null;
   image_url: string | null;
   sponsor_name: string | null;
-  min_status_tier: string | null;
+  min_tier_required: string | null;
 }
 
 function brandOf(r: Reward): string {
@@ -57,7 +57,7 @@ export default function MembershipPitch() {
     (async () => {
       const { data, error } = await supabase
         .from('rewards')
-        .select('id, title, category, cost, dollar_value, image_url, sponsor_name, min_status_tier')
+        .select('id, title, category, cost, dollar_value, image_url, sponsor_name, min_tier_required')
         .eq('is_active', true)
         .eq('is_featured', true)
         .order('dollar_value', { ascending: false, nullsFirst: false })
@@ -89,7 +89,7 @@ export default function MembershipPitch() {
             <div style={{ height: 200, background: hero.image_url ? `#222 url(${hero.image_url}) center/cover no-repeat` : '#222' }} />
             <div style={{ padding: '16px 18px' }}>
               <div style={{ fontFamily: FONT_MONO, fontSize: 10, letterSpacing: '0.18em', color: 'var(--nctr-lime-muted)' }}>
-                {brandOf(hero) ? `${brandOf(hero).toUpperCase()} · ` : ''}{tierLabel(hero.min_status_tier).toUpperCase()}
+                {brandOf(hero) ? `${brandOf(hero).toUpperCase()} · ` : ''}{tierLabel(hero.min_tier_required).toUpperCase()}
               </div>
               <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 24, color: 'var(--nctr-paper)', marginTop: 6, textTransform: 'uppercase', lineHeight: 1 }}>
                 {hero.title}
@@ -110,7 +110,7 @@ export default function MembershipPitch() {
             {grid.map((r) => (
               <div key={r.id} style={{ border: '1px solid var(--nctr-line)', padding: 12 }}>
                 <div style={{ fontFamily: FONT_MONO, fontSize: 9, letterSpacing: '0.14em', color: 'var(--nctr-muted)' }}>
-                  {brandOf(r) ? `${brandOf(r).toUpperCase()} · ` : ''}{tierLabel(r.min_status_tier).toUpperCase()}
+                  {brandOf(r) ? `${brandOf(r).toUpperCase()} · ` : ''}{tierLabel(r.min_tier_required).toUpperCase()}
                 </div>
                 <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 17, color: 'var(--nctr-charcoal)', marginTop: 4, textTransform: 'uppercase', lineHeight: 1.05 }}>
                   {r.title}

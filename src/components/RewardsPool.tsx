@@ -296,11 +296,12 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     if (statusFilter !== 'all') {
       const tierOrder = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
       if (statusFilter === 'eligible') {
-        // Show only rewards the user's tier qualifies for (check both min_tier_required and min_status_tier)
+        // Show only rewards the user's tier qualifies for (canonical: min_tier_required)
         const userTierName = tier?.tier_name?.toLowerCase() || 'bronze';
         const userTierIdx = tierOrder.indexOf(userTierName);
         filtered = filtered.filter(r => {
-          const effectiveMinTier = r.min_tier_required || r.min_status_tier;
+          const effectiveMinTier = r.min_tier_required;
+
           if (!effectiveMinTier) return true;
           const reqIdx = tierOrder.indexOf(effectiveMinTier.toLowerCase());
           return reqIdx === -1 || userTierIdx >= reqIdx;
@@ -309,7 +310,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
         // Show rewards up to and including the selected tier
         const filterIdx = tierOrder.indexOf(statusFilter);
         filtered = filtered.filter(r => {
-          const effectiveMinTier = r.min_tier_required || r.min_status_tier;
+          const effectiveMinTier = r.min_tier_required;
           if (!effectiveMinTier) return true;
           const reqIdx = tierOrder.indexOf(effectiveMinTier.toLowerCase());
           return reqIdx === -1 || reqIdx <= filterIdx;
