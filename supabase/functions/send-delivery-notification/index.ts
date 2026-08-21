@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
+import { isInternalCaller, requireAdmin, safeText, unauthorized } from "../_shared/auth.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -64,6 +65,11 @@ serve(async (req: Request): Promise<Response> => {
   const preflightResponse = handleCorsPreflightRequest(req);
   if (preflightResponse) return preflightResponse;
 
+  // Delivery updates are admin-driven (AdminClaims) or internal jobs only.
+  if (!isInternalCaller(req) && !(await requireAdmin(req))) {
+    return unauthorized(corsHeaders);
+  }
+
   try {
     const { claimId, userId, rewardTitle, deliveryStatus, deliveryMethod }: DeliveryNotificationRequest = await req.json();
 
@@ -96,7 +102,7 @@ serve(async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "Crescendo <onboarding@resend.dev>",
       to: [profile.email],
-      subject: `${statusConfig.emoji} ${statusConfig.subject} - ${rewardTitle}`,
+      subject: `${statusConfig.emoji} ${statusConfig.subject} - ${safeText(rewardTitle, 120)}`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -112,7 +118,7 @@ serve(async (req: Request): Promise<Response> => {
             
             <div style="background: white; border-radius: 0 0 16px 16px; padding: 32px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
               <p style="font-size: 16px; color: #374151; margin-bottom: 24px;">
-                Hi ${userName},
+                Hi ${safeText(userName, 80)},
               </p>
               
               <p style="font-size: 16px; color: #374151; margin-bottom: 24px;">
@@ -124,18 +130,18 @@ serve(async (req: Request): Promise<Response> => {
                 
                 <div style="display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
                   <span style="color: #6b7280;">Reward</span>
-                  <span style="color: #111827; font-weight: 600;">${rewardTitle}</span>
+                  <span style="color: #111827; font-weight: 600;">${safeText(rewardTitle, 120)}</span>
                 </div>
                 
                 <div style="display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
                   <span style="color: #6b7280;">Status</span>
-                  <span style="color: ${statusConfig.color}; font-weight: 600; text-transform: capitalize;">${deliveryStatus}</span>
+                  <span style="color: ${statusConfig.color}; font-weight: 600; text-transform: capitalize;">${safeText(deliveryStatus, 40)}</span>
                 </div>
                 
                 ${deliveryMethod ? `
                 <div style="display: flex; justify-content: space-between;">
                   <span style="color: #6b7280;">Delivery Method</span>
-                  <span style="color: #111827; font-weight: 600; text-transform: capitalize;">${deliveryMethod.replace('_', ' ')}</span>
+                  <span style="color: #111827; font-weight: 600; text-transform: capitalize;">${safeText(deliveryMethod.replace('_', ' '), 40)}</span>
                 </div>
                 ` : ''}
               </div>
