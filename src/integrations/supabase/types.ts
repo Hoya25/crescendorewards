@@ -4611,6 +4611,11 @@ export type Database = {
           wishlist_count: number
         }[]
       }
+      groundball_purchase_bonus_slot: { Args: never; Returns: Json }
+      groundball_swap_reward: {
+        Args: { p_selection_id: string; p_use_free_swap?: boolean }
+        Returns: Json
+      }
       has_admin_permission: {
         Args: { check_user_id: string; required_permission: string }
         Returns: boolean
