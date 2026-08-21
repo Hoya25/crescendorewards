@@ -14,7 +14,6 @@ import {
   getTierDisplayName,
   type Reward 
 } from '@/utils/getRewardPrice';
-import { calculateClaimsForUser, getClaimDiscountUpsell } from '@/utils/calculateClaimsForUser';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { CreatorShowcase, CreatorHandles } from '@/components/creators/CreatorShowcase';
 import { useAmbitions } from '@/contexts/AmbitionsContext';
@@ -321,7 +320,7 @@ export function VisualRewardCard({
               ) : (
                 <>
                   <span style={{ fontFamily: dmMono, fontSize: '18px', color: '#131313', fontWeight: 400 }}>
-                    {calculateClaimsForUser(pricing.price, userTier.tierName)}
+                    {pricing.price}
                   </span>
                   <span style={{ fontFamily: dmMono, fontSize: '12px', color: '#6B6B68' }}>claims</span>
                 </>
