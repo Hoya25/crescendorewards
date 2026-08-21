@@ -80,7 +80,11 @@ export function DevToolsPanel() {
     try {
       const [rewards, unifiedProfiles, claims, tiers] = await Promise.all([
         supabase.from('rewards').select('id, is_active', { count: 'exact' }),
-        supabase.from('unified_profiles').select('id', { count: 'exact', head: true }),
+        // Internal QA fixtures must never inflate member counts
+        supabase
+          .from('unified_profiles')
+          .select('id', { count: 'exact', head: true })
+          .not('crescendo_data->>is_test_fixture', 'eq', 'true'),
         supabase.from('rewards_claims').select('id', { count: 'exact', head: true }),
         supabase.from('status_tiers').select('id', { count: 'exact', head: true }),
       ]);
