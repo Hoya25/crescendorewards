@@ -1050,6 +1050,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                 </AccordionContent>
               </AccordionItem>
               
+              {hasTierOverrides && (
               <AccordionItem value="pricing">
                 <AccordionTrigger>
                   <span className="flex items-center gap-2">
