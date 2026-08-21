@@ -47,10 +47,7 @@ export function useSocialShares() {
       if (!user || isSharing) return null;
       setIsSharing(true);
       try {
-        const { data, error } = await supabase.rpc('perform_social_share', {
-          p_user_id: user.id,
-          p_platform: platform,
-        });
+        const { data, error } = await supabase.rpc('perform_social_share', { p_platform: platform });
         if (error) throw error;
         const d = data as Record<string, unknown>;
         if (d.success) {
