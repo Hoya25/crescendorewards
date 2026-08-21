@@ -131,7 +131,7 @@ export function VisualRewardCard({
   const sponsorName = reward.sponsor_name;
   const sponsorLogo = reward.sponsor_logo_url || reward.sponsor_logo;
   
-  const effectiveMinTier = reward.min_tier_required || reward.min_status_tier;
+  const effectiveMinTier = reward.min_tier_required ?? null;
   const isEligible = isUserTierEligible(effectiveMinTier, userTier.tierName);
   const isTierLocked = isAuthenticated && !isEligible && !!effectiveMinTier;
   const remainingStock = reward.stock_quantity;
