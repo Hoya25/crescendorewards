@@ -1,49 +1,39 @@
-# Close the RPC-bypass write paths
+# Harden Group A and active benefits
 
-Governing rule applied throughout: any value that determines money, standing or access is written only by a server path that derives it. The client reads and displays.
+## Scope
 
-## Audit first (already run, read-only)
+1. Replace the four member-used Group A functions with authenticated-only signatures:
+   - `perform_daily_checkin()` derives the auth user from `auth.uid()` and keeps the fixed 1,500 NCTR award server-side.
+   - `process_referral(p_referrer_code)` derives the referred member from `auth.uid()` and keeps the fixed referral award server-side.
+   - `validate_and_claim_bounty(p_bounty_id, p_submission_url, p_submission_notes)` derives both auth and unified-profile IDs from `auth.uid()`.
+   - `claim_gift(p_gift_code)` derives the recipient from `auth.uid()` and credits only the stored gift amount.
+   - Revoke anonymous execution on all replacements; allow authenticated execution only for these member actions and service-role execution for trusted backend work.
 
-| Table | Rows | Findings |
-| --- | --- | --- |
-| `rewards_claims` | 0 | Clean. No claim rows exist at all, so the self-INSERT path was never used. |
-| `member_groundball_status` | 1 | One row (member `08049d32…`, gold, used 5 / max 7 / bonus 2 / free swaps 3). `updated_at` is byte-identical to `created_at`, so the row has never been updated since insert — the counters are seed values, not self-granted. No Claims debit is expected or missing. Clean. |
-| `member_reward_selections` | 10 | Member `08049d32…`: 5 selections (Jan 9–26). Member `723222d9…`: 5 selections inserted Feb 8, ~10 seconds apart, and that member has **no** `member_groundball_status` row at all — so those five selections were written by the client insert path with no slot accounting and no swap charge behind them. Not an exploit of a paid action (no swaps, no bonus slots, nothing chargeable happened), but the state cannot be traced to any RPC. Flagged as **not traceable**, not as theft. |
-| `gear_vault_items` | 0 | Clean. The over-broad UPDATE policy was never exercised because the table is empty. |
-| `nctr_deposits` | 1 row; `check_ins`, `contributed_reward_earnings`, `membership_history` | 0 rows each | The single deposit is a `pending` self-submitted tx hash awaiting admin verification — the intended flow. |
+2. Remove `calculate_nctr_reward` rather than preserve an unsafe generic calculator:
+   - It has no application or database callers.
+   - It accepts caller-supplied base amount and merchandise status, so there is no authoritative server record from which this generic function can derive a reward.
+   - Dropping it removes both its identity parameter and the caller-controlled value path; future reward writers must calculate from their own authoritative purchase, bounty, or contribution row.
 
-No claim, swap counter, bonus slot or gear vault item was created outside a legitimate path. The only untraceable state is the 10 `member_reward_selections` rows, which are untraceable by design (that insert is a client path today), and the 5 belonging to `723222d9…` sit outside any slot ledger.
+3. Make `member_active_benefits` RPC-write-only for members:
+   - Revoke direct member create/edit/delete privileges.
+   - Add authenticated `activate_member_benefit(...)` and `deactivate_member_benefit(...)` functions that derive the member, tier slot allowance, partner slot cost, activation status, timestamps, and lifecycle fields server-side.
+   - Accept only creator-selection details that are genuinely member input.
+   - Keep admins/service-role able to fulfill benefits and set redemption codes through trusted paths.
+   - Update both existing activation callers and the existing deactivation hook to use these RPCs.
 
-## Changes
+4. Update frontend callers:
+   - `useCheckinStreak.ts`: call check-in with no user ID.
+   - `useGiftClaims.ts`: submit only the gift code.
+   - `useBountyValidation.ts`: submit only bounty details.
+   - `useAlliancePartners.ts` and `ActivateBenefitModal.tsx`: use benefit lifecycle RPCs instead of table writes.
+   - `process_referral` and `calculate_nctr_reward` have no frontend callers today.
 
-### 1. `rewards_claims` — RPC-only creation
-- Drop the `Users can create their own claims` INSERT policy and `REVOKE INSERT ON public.rewards_claims FROM authenticated`.
-- Keep member SELECT of own claims, keep the admin policies (admin gifting from `AdminRewards` uses the admin path), keep `service_role` full access so `process-claim` and `claim_reward` keep working.
-- `claim_reward` is `SECURITY DEFINER` and `process-claim` uses the service-role client, so both are unaffected.
-- No client code writes this table today, so nothing in the UI breaks.
+5. Verify:
+   - Confirm final function signatures and EXECUTE grants.
+   - Test anonymous denial and authenticated ownership boundaries where a signed-in test session is available.
+   - Run the TypeScript-only typecheck and inspect the current build signal.
+   - Audit check-ins, referrals, bounty claims, gift claims, and NCTR credit records against their source records; report each area as clean, exploited, or not determinable, including member, amount, and timestamp for anomalies.
 
-### 2. `member_groundball_status` — counters become server-only
-- Add a `block_groundball_counter_writes` `BEFORE UPDATE` trigger (`SECURITY INVOKER`, same pattern as `block_client_financial_writes`): if the caller is not `service_role` and not inside a definer RPC, reject any change to `bonus_selections`, `free_swaps_remaining`, `selections_max`, `status_tier`, `groundball_locked`.
-- `selections_used` moves server-side too, because it gates access to slots. That means the `selectReward` mutation can no longer bump it from the client.
-- Revoke INSERT from `authenticated` and drop the member INSERT policy — a status row is provisioned by server logic, never self-created.
+## Technical detail
 
-### 3. `member_reward_selections` — selection through an RPC
-- New `groundball_select_reward(p_reward_id uuid)` `SECURITY DEFINER` RPC that, in one transaction: verifies the caller owns the status row, enforces the tier requirement, enforces free slots (give-back rewards exempt, matching current behavior), inserts the selection and increments `selections_used`.
-- Revoke INSERT/UPDATE/DELETE from `authenticated`; keep SELECT of own rows. Redemption (`RedemptionModal`'s `last_redeemed_at` / `redemption_count` bump) moves into a small `groundball_redeem_selection` RPC alongside the `reward_redemptions` insert, since it too is currently a client update on this table.
-- `useGroundballStatus.selectReward` and `RedemptionModal` switch to the RPCs. Behavior members see is unchanged; the errors now come from the server.
-
-### 4. `gear_vault_items` — fix the policy
-- Replace `Authenticated users can claim available items` (UPDATE, no ownership condition) with a claim RPC: `gear_vault_claim_item(p_item_id uuid)` sets `status='claimed'`, `claimed_by`, `claimed_at` only when the item is still `available`, and enforces the bronze-status requirement the UI shows.
-- Keep `Contributors can update their own pending items` (that one is correctly own-row) and revoke the blanket UPDATE grant path.
-
-### 5. The four self-INSERT tables — recommendation
-My read, for your decision:
-- `nctr_deposits` — **keep the client INSERT.** This is a member declaring "I sent this tx hash"; it carries no credited value (`amount_nctr` is written as 0 and admin verification sets the real amount). What must be locked instead: `amount_nctr`, `status`, `lock_type`, `credited_at` should be guarded so a member cannot self-credit a deposit or self-approve one. The withdrawal-request update stays.
-- `membership_history` — **server-only.** It is the standing ledger. Its INSERT policy is already named "System can insert"; the grant just doesn't match the intent. Revoke.
-- `check_ins` — **server-only.** `perform_daily_checkin` is a definer RPC that awards NCTR; a direct insert forges streak state. Revoke.
-- `contributed_reward_earnings` — **server-only.** Pure money. Revoke.
-
-So: revoke three, and harden `nctr_deposits` columns rather than revoking it. Say the word if you want deposits locked down entirely instead.
-
-## Verification after applying
-Signed in as an authenticated non-admin, confirm each of these is rejected and reports no partial state: direct claim insert, counter self-update, selection insert/update, gear item claim on someone else's row, `check_ins` / `membership_history` / `contributed_reward_earnings` insert, and a `nctr_deposits` insert carrying a nonzero `amount_nctr` or `status='verified'`. Then confirm the legitimate flows still work: swap (free and 15-Claim paid), bonus slot (25 Claims), select a reward, redeem a selection, submit a deposit.
+The benefits table is made RPC-write-only instead of using a column guard because activation rows contain multiple coupled server-derived fields (`status`, timestamps, slot cost, redemption lifecycle, and usage totals). A trigger protecting only three columns would still leave members able to forge or delete the surrounding lifecycle record and would duplicate validation across insert/update paths.
