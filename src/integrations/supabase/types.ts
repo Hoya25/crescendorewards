@@ -4650,9 +4650,14 @@ export type Database = {
         Returns: Json
       }
       groundball_select_reward: { Args: { p_reward_id: string }; Returns: Json }
+      groundball_slots_for_tier: { Args: { p_tier: string }; Returns: number }
       groundball_swap_reward: {
         Args: { p_selection_id: string; p_use_free_swap?: boolean }
         Returns: Json
+      }
+      groundball_tier_for_member: {
+        Args: { p_member_id: string }
+        Returns: string
       }
       has_admin_permission: {
         Args: { check_user_id: string; required_permission: string }
