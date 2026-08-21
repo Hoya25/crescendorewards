@@ -4671,6 +4671,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_current_user_admin: { Args: never; Returns: boolean }
       is_fixture_member: { Args: { _auth_id: string }; Returns: boolean }
       is_reserved_slug: { Args: { slug: string }; Returns: boolean }
       is_valid_slug: { Args: { slug: string }; Returns: boolean }
