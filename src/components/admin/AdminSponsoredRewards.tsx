@@ -191,7 +191,7 @@ export function AdminSponsoredRewards() {
       
       if (statusFilter !== 'all' && getRewardStatus(reward) !== statusFilter) return false;
       if (campaignFilter !== 'all' && reward.campaign_id !== campaignFilter) return false;
-      if (tierFilter !== 'all' && (reward.min_tier_required || reward.min_status_tier) !== tierFilter) return false;
+      if (tierFilter !== 'all' && reward.min_tier_required !== tierFilter) return false;
       
       return true;
     });
