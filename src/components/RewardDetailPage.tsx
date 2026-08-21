@@ -872,13 +872,13 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
               </CardContent>
             </Card>
 
-            {/* Tier Pricing Breakdown */}
-            {!isLocked && !pricing.isFree && (
+            {/* Per-reward promotional pricing (status_tier_claims_cost) — the only sanctioned price variance */}
+            {!isLocked && !pricing.isFree && hasTierOverrides && (
               <Card className="overflow-hidden">
                 <CardContent className="p-5 space-y-3">
                   <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Claim Cost by Status</h3>
                   <div className="space-y-0">
-                    {getAllTierDiscountedPrices(pricing.price).map(({ tier, displayName, cost }) => {
+                    {allTierPrices.map(({ tier, displayName, price }) => {
                       const isCurrentTier = tier === userTier;
                       return (
                         <div
@@ -897,24 +897,19 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                             )}
                           </span>
                           <span className={cn(isCurrentTier ? "font-bold text-foreground" : "text-muted-foreground")}>
-                            {cost} claim{cost !== 1 ? 's' : ''}
+                            {price === 0 ? 'FREE' : `${price} claim${price !== 1 ? 's' : ''}`}
                           </span>
                         </div>
                       );
                     })}
                   </div>
                   <p className="text-xs text-muted-foreground pt-1">
-                    Higher status = fewer claims.{' '}
-                    <button
-                      onClick={() => navigate('/status')}
-                      className="text-primary hover:underline inline-flex items-center gap-0.5"
-                    >
-                      See how to level up →
-                    </button>
+                    Promotional pricing set for this reward.
                   </p>
                 </CardContent>
               </Card>
             )}
+
 
             {/* Description */}
             <div>
