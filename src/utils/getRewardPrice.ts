@@ -14,8 +14,11 @@ export interface Reward {
   cost: number;
   is_sponsored?: boolean | null;
   status_tier_claims_cost?: TierPricing | Record<string, number> | null;
+  /** @deprecated legacy mirror of min_tier_required — do not read for gating */
   min_status_tier?: string | null;
+  /** CANONICAL tier gate */
   min_tier_required?: string | null;
+
   stock_quantity?: number | null;
   is_active?: boolean;
 }
