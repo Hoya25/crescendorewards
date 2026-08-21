@@ -80,7 +80,7 @@ export function SponsoredRewardForm({ open, onClose, reward, onSave }: Sponsored
     // Tier Pricing
     status_tier_claims_cost: null as TierPricing | null,
     // Restrictions
-    min_status_tier: null as string | null,
+    min_tier_required: null as string | null,
     stock_quantity: null as number | null,
     sponsor_start_date: '',
     sponsor_end_date: '',
@@ -107,7 +107,7 @@ export function SponsoredRewardForm({ open, onClose, reward, onSave }: Sponsored
           sponsor_link: reward.sponsor_link || '',
           campaign_id: reward.campaign_id || null,
           status_tier_claims_cost: reward.status_tier_claims_cost || null,
-          min_status_tier: reward.min_status_tier || null,
+          min_tier_required: reward.min_tier_required || null,
           stock_quantity: reward.stock_quantity,
           sponsor_start_date: reward.sponsor_start_date ? reward.sponsor_start_date.split('T')[0] : '',
           sponsor_end_date: reward.sponsor_end_date ? reward.sponsor_end_date.split('T')[0] : '',
@@ -129,7 +129,7 @@ export function SponsoredRewardForm({ open, onClose, reward, onSave }: Sponsored
           sponsor_link: '',
           campaign_id: null,
           status_tier_claims_cost: null,
-          min_status_tier: null,
+          min_tier_required: null,
           stock_quantity: null,
           sponsor_start_date: '',
           sponsor_end_date: '',
@@ -236,8 +236,8 @@ export function SponsoredRewardForm({ open, onClose, reward, onSave }: Sponsored
         sponsor_link: formData.sponsor_link || null,
         campaign_id: formData.campaign_id,
         status_tier_claims_cost: formData.status_tier_claims_cost as unknown as Record<string, number> | null,
-        min_status_tier: formData.min_status_tier,
-        min_tier_required: formData.min_status_tier,
+        min_status_tier: formData.min_tier_required,
+        min_tier_required: formData.min_tier_required,
         stock_quantity: formData.stock_quantity,
         sponsor_start_date: formData.sponsor_start_date || null,
         sponsor_end_date: formData.sponsor_end_date || null,
@@ -288,7 +288,7 @@ export function SponsoredRewardForm({ open, onClose, reward, onSave }: Sponsored
     cost: formData.cost,
     is_sponsored: formData.is_sponsored,
     status_tier_claims_cost: formData.status_tier_claims_cost,
-    min_status_tier: formData.min_status_tier,
+    min_status_tier: formData.min_tier_required,
     stock_quantity: formData.stock_quantity,
     is_active: formData.is_active,
   };
@@ -564,8 +564,8 @@ export function SponsoredRewardForm({ open, onClose, reward, onSave }: Sponsored
               <div className="space-y-2">
                 <Label>Minimum Status Tier</Label>
                 <Select
-                  value={formData.min_status_tier || 'none'}
-                  onValueChange={(value) => setFormData({ ...formData, min_status_tier: value === 'none' ? null : value })}
+                  value={formData.min_tier_required || 'none'}
+                  onValueChange={(value) => setFormData({ ...formData, min_tier_required: value === 'none' ? null : value })}
                 >
                   <SelectTrigger>
                     <SelectValue />
