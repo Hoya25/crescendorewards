@@ -51,11 +51,14 @@ export function useActivityTracker() {
   // Check if path is admin (skip tracking)
   const isAdminPath = (path: string) => path.startsWith('/admin');
 
-  // Get the auth user id for tracking
+  // Get the unified profile id for tracking.
+  // user_activity.user_id references unified_profiles.id, and its RLS policy
+  // matches on that id — inserting the raw auth user id is rejected (42501).
   const getAuthUserId = useCallback(async (): Promise<string | null> => {
     const { data: { session } } = await supabase.auth.getSession();
-    return session?.user?.id ?? null;
-  }, []);
+    if (!session?.user?.id) return null;
+    return profile?.id ?? null;
+  }, [profile?.id]);
 
   // Track event function
   const trackEvent = useCallback(async (
