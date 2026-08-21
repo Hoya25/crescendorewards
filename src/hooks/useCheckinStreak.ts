@@ -41,9 +41,7 @@ export function useCheckinStreak() {
     mutationFn: async (): Promise<CheckinResult> => {
       if (!user?.id) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase.rpc('perform_daily_checkin', {
-        p_user_id: user.id,
-      });
+      const { data, error } = await supabase.rpc('perform_daily_checkin');
 
       if (error) throw error;
       return data as unknown as CheckinResult;

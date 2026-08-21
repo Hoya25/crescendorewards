@@ -4408,6 +4408,35 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_member_benefit: {
+        Args: {
+          p_partner_id: string
+          p_selected_creator_name?: string
+          p_selected_creator_platform?: string
+          p_selected_creator_url?: string
+        }
+        Returns: {
+          activated_at: string | null
+          can_swap_after: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          partner_id: string
+          redemption_code: string | null
+          selected_creator_name: string | null
+          selected_creator_platform: string | null
+          selected_creator_url: string | null
+          slots_used: number | null
+          status: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "member_active_benefits"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       admin_credit_claims: {
         Args: {
           p_admin_notes?: string
@@ -4422,20 +4451,6 @@ export type Database = {
         Returns: Json
       }
       award_onboarding_item: { Args: { p_item: string }; Returns: Json }
-      calculate_nctr_reward: {
-        Args: {
-          p_base_amount: number
-          p_is_merch_360lock?: boolean
-          p_user_id: string
-        }
-        Returns: {
-          base_amount: number
-          final_amount: number
-          merch_lock_multiplier: number
-          status_multiplier: number
-          user_tier: string
-        }[]
-      }
       calculate_user_tier: { Args: { p_user_id: string }; Returns: string }
       cancel_gift: {
         Args: { p_gift_id: string; p_user_id: string }
@@ -4449,10 +4464,7 @@ export type Database = {
         Args: { p_slug: string; p_user_id?: string }
         Returns: Json
       }
-      claim_gift: {
-        Args: { p_gift_code: string; p_user_id: string }
-        Returns: Json
-      }
+      claim_gift: { Args: { p_gift_code: string }; Returns: Json }
       claim_handle: {
         Args: { p_handle: string; p_user_id: string }
         Returns: Json
@@ -4464,6 +4476,10 @@ export type Database = {
       claim_signup_bonus: { Args: never; Returns: Json }
       cleanup_expired_nonces: { Args: never; Returns: undefined }
       current_unified_profile_id: { Args: never; Returns: string }
+      deactivate_member_benefit: {
+        Args: { p_benefit_id: string }
+        Returns: Json
+      }
       gear_vault_claim_item: { Args: { p_item_id: string }; Returns: Json }
       generate_gift_code: { Args: never; Returns: string }
       generate_referral_code: { Args: never; Returns: string }
@@ -4657,15 +4673,12 @@ export type Database = {
       }
       is_reserved_slug: { Args: { slug: string }; Returns: boolean }
       is_valid_slug: { Args: { slug: string }; Returns: boolean }
-      perform_daily_checkin: { Args: { p_user_id: string }; Returns: Json }
+      perform_daily_checkin: { Args: never; Returns: Json }
       perform_social_share: {
         Args: { p_platform: string; p_user_id: string }
         Returns: Json
       }
-      process_referral: {
-        Args: { p_referred_id: string; p_referrer_code: string }
-        Returns: Json
-      }
+      process_referral: { Args: { p_referrer_code: string }; Returns: Json }
       register_wallet_address: { Args: { p_wallet: string }; Returns: Json }
       save_referral_slug: { Args: { p_slug: string }; Returns: Json }
       send_gift_from_balance: {
@@ -4714,7 +4727,6 @@ export type Database = {
           p_bounty_id: string
           p_submission_notes?: string
           p_submission_url?: string
-          p_user_id: string
         }
         Returns: Json
       }
