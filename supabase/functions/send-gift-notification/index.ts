@@ -178,7 +178,7 @@ const handler = async (req: Request): Promise<Response> => {
     const admin = adminClient();
     const { data: gift, error: giftError } = await admin
       .from("claim_gifts")
-      .select("id, sender_id, sender_name, recipient_email, recipient_id, claims_amount, message, gift_code, expires_at, claimed_by_name")
+      .select("id, sender_id, recipient_email, recipient_id, claims_amount, message, gift_code, expires_at")
       .eq("id", body.giftId)
       .maybeSingle();
 
@@ -211,16 +211,27 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
+    // Display names come from the profile rows referenced by the gift.
+    const nameFor = async (profileId: string | null) => {
+      if (!profileId) return undefined;
+      const { data: p } = await admin
+        .from("unified_profiles")
+        .select("display_name")
+        .eq("id", profileId)
+        .maybeSingle();
+      return (p?.display_name as string) ?? undefined;
+    };
+
     const data: GiftNotificationRequest = {
       type: body.type,
       giftId: gift.id as string,
       recipientEmail: gift.recipient_email as string,
-      senderName: (gift.sender_name as string) ?? undefined,
+      senderName: await nameFor(gift.sender_id as string | null),
       claimsAmount: Number(gift.claims_amount ?? 0),
       message: (gift.message as string) ?? undefined,
       giftCode: (gift.gift_code as string) ?? undefined,
       expiresAt: (gift.expires_at as string) ?? undefined,
-      claimedByName: (gift.claimed_by_name as string) ?? undefined,
+      claimedByName: await nameFor(gift.recipient_id as string | null),
     };
 
     if (!data.recipientEmail) {
