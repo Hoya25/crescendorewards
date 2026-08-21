@@ -509,8 +509,8 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const userTierDisplay = getTierDisplayName(userTier);
   const userTierEmoji = tierEmojis[userTier] || '🥉';
   
-  // TIER COLUMN CONSOLIDATION: prefer v2 column min_tier_required, fall back to legacy min_status_tier.
-  const effectiveMinTier = (reward as any).min_tier_required || reward.min_status_tier;
+  // CANONICAL tier gate column: rewards.min_tier_required (kept in sync server-side).
+  const effectiveMinTier = (reward as any).min_tier_required ?? null;
 
   // Pricing calculations
   const rewardForPricing: RewardType = {
@@ -518,7 +518,8 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
     cost: reward.cost,
     is_sponsored: reward.is_sponsored,
     status_tier_claims_cost: reward.status_tier_claims_cost,
-    min_status_tier: effectiveMinTier,
+    min_tier_required: effectiveMinTier,
+
     stock_quantity: reward.stock_quantity,
     is_active: reward.is_active,
   };
