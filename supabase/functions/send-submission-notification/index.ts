@@ -3,6 +3,7 @@ import { Resend } from "https://esm.sh/resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
 import { pushToGodview } from "../_shared/push-to-godview.ts";
+import { getAuthUserId, isAdminUser, isInternalCaller, safeText, unauthorized } from "../_shared/auth.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -59,15 +60,58 @@ serve(async (req: Request): Promise<Response> => {
   if (preflightResponse) return preflightResponse;
 
   try {
-    const { submissionId, userId, rewardTitle, status, rejectionReason, adminNotes, rewardId, category }: SubmissionNotificationRequest = await req.json();
+    const body: SubmissionNotificationRequest = await req.json();
+    const { submissionId, status, rejectionReason, rewardId } = body;
 
-    console.log("Processing submission notification:", { submissionId, userId, status, rewardTitle });
+    if (!submissionId || !status) {
+      return new Response(
+        JSON.stringify({ error: "submissionId and status are required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    // Get user email from Supabase
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
+
+    // Recipient and reward details are read from the submission row — never from
+    // the request body — so a caller cannot pick who gets emailed or what it says.
+    const { data: submission, error: submissionError } = await supabaseClient
+      .from("reward_submissions")
+      .select("id, user_id, title, category, admin_notes")
+      .eq("id", submissionId)
+      .maybeSingle();
+
+    if (submissionError || !submission) {
+      return new Response(
+        JSON.stringify({ error: "Submission not found" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const userId = submission.user_id as string;
+    const rewardTitle = (submission.title as string) || "Your submission";
+    const category = (submission.category as string) || undefined;
+    const adminNotes = (submission.admin_notes as string) || undefined;
+
+    // Authorization: internal callers pass through; the contributor may only
+    // trigger their own "submission received" email; status decisions are admin-only.
+    if (!isInternalCaller(req)) {
+      const callerId = await getAuthUserId(req);
+      if (!callerId) return unauthorized(corsHeaders);
+
+      const callerIsAdmin = await isAdminUser(callerId);
+      const callerIsOwner = callerId === userId;
+
+      if (status === "pending") {
+        if (!callerIsOwner && !callerIsAdmin) return unauthorized(corsHeaders);
+      } else if (!callerIsAdmin) {
+        return unauthorized(corsHeaders);
+      }
+    }
+
+    console.log("Processing submission notification:", { submissionId, userId, status });
 
     const { data: profile, error: profileError } = await supabaseClient
       .from("profiles")
@@ -92,8 +136,8 @@ serve(async (req: Request): Promise<Response> => {
       rejectionDetailsHtml = `
         <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
           <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #dc2626;">📋 Reason for Rejection</h3>
-          <p style="margin: 0; color: #7f1d1d; font-size: 14px;">${rejectionReason}</p>
-          ${adminNotes ? `<p style="margin: 12px 0 0 0; color: #9ca3af; font-size: 13px; font-style: italic;">Admin notes: ${adminNotes}</p>` : ''}
+          <p style="margin: 0; color: #7f1d1d; font-size: 14px;">${safeText(rejectionReason, 2000)}</p>
+          ${adminNotes ? `<p style="margin: 12px 0 0 0; color: #9ca3af; font-size: 13px; font-style: italic;">Admin notes: ${safeText(adminNotes, 2000)}</p>` : ''}
         </div>
         <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
           <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #16a34a;">💡 How to Resubmit</h3>
