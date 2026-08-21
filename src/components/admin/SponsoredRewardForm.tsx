@@ -289,7 +289,7 @@ export function SponsoredRewardForm({ open, onClose, reward, onSave }: Sponsored
     cost: formData.cost,
     is_sponsored: formData.is_sponsored,
     status_tier_claims_cost: formData.status_tier_claims_cost,
-    min_status_tier: formData.min_tier_required,
+    min_tier_required: formData.min_tier_required,
     stock_quantity: formData.stock_quantity,
     is_active: formData.is_active,
   };
