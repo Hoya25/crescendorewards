@@ -34,27 +34,13 @@ export async function syncWalletPortfolio(
   source: 'the_garden' | 'crescendo' | 'manual_sync' = 'crescendo'
 ): Promise<SyncResult> {
   try {
-    const { error: upsertError } = await supabase
-      .from('wallet_portfolio')
-      .upsert({
-        user_id: userId,
-        wallet_address: walletAddress.toLowerCase(),
-        nctr_balance: portfolioData.nctr_balance ?? 0,
-        nctr_360_locked: portfolioData.nctr_360_locked ?? 0,
-        nctr_90_locked: portfolioData.nctr_90_locked ?? 0,
-        nctr_unlocked: portfolioData.nctr_unlocked ?? 0,
-        locks: portfolioData.locks ?? [],
-        last_synced_at: new Date().toISOString(),
-        sync_source: source,
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'wallet_address'
-      });
+    // Client-supplied balances are NOT accepted. Portfolio balances are written
+    // only by the verified Garden webhook (sync-garden-portfolio) or admin tools.
+    // This helper now just triggers a tier recalculation from stored values.
+    void portfolioData;
+    void walletAddress;
+    void source;
 
-    if (upsertError) {
-      console.error('[Portfolio Sync] Upsert error:', upsertError);
-      return { success: false, error: upsertError.message };
-    }
 
     // The trigger handles tier recalculation, but we can also call it explicitly
     // for immediate feedback if needed

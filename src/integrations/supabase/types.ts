@@ -4422,6 +4422,7 @@ export type Database = {
         Args: { p_admin_notes?: string; p_reward_id: string; p_user_id: string }
         Returns: Json
       }
+      award_onboarding_item: { Args: { p_item: string }; Returns: Json }
       calculate_nctr_reward: {
         Args: {
           p_base_amount: number
@@ -4461,6 +4462,7 @@ export type Database = {
         Args: { p_reward_id: string; p_shipping_info?: Json }
         Returns: Json
       }
+      claim_signup_bonus: { Args: never; Returns: Json }
       cleanup_expired_nonces: { Args: never; Returns: undefined }
       generate_gift_code: { Args: never; Returns: string }
       generate_referral_code: { Args: never; Returns: string }
@@ -4631,6 +4633,7 @@ export type Database = {
         Args: { p_referred_id: string; p_referrer_code: string }
         Returns: Json
       }
+      register_wallet_address: { Args: { p_wallet: string }; Returns: Json }
       save_referral_slug: { Args: { p_slug: string }; Returns: Json }
       send_gift_from_balance: {
         Args: {
