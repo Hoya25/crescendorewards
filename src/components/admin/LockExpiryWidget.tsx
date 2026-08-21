@@ -24,22 +24,26 @@ export function LockExpiryWidget() {
       const in90Days = addDays(now, 90);
 
       // Get counts for each range
+      // Internal QA fixtures are excluded from all member totals
       const [expiring7, expiring30, expiring90] = await Promise.all([
         supabase
           .from('unified_profiles')
           .select('id', { count: 'exact', head: true })
+          .not('crescendo_data->>is_test_fixture', 'eq', 'true')
           .not('nctr_lock_expires_at', 'is', null)
           .lte('nctr_lock_expires_at', in7Days.toISOString())
           .gte('nctr_lock_expires_at', now.toISOString()),
         supabase
           .from('unified_profiles')
           .select('id', { count: 'exact', head: true })
+          .not('crescendo_data->>is_test_fixture', 'eq', 'true')
           .not('nctr_lock_expires_at', 'is', null)
           .lte('nctr_lock_expires_at', in30Days.toISOString())
           .gt('nctr_lock_expires_at', in7Days.toISOString()),
         supabase
           .from('unified_profiles')
           .select('id', { count: 'exact', head: true })
+          .not('crescendo_data->>is_test_fixture', 'eq', 'true')
           .not('nctr_lock_expires_at', 'is', null)
           .lte('nctr_lock_expires_at', in90Days.toISOString())
           .gt('nctr_lock_expires_at', in30Days.toISOString()),
