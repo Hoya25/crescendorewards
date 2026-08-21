@@ -4410,7 +4410,6 @@ export type Database = {
     Functions: {
       admin_credit_claims: {
         Args: {
-          p_admin_id: string
           p_admin_notes?: string
           p_claims_amount: number
           p_message?: string
@@ -4464,6 +4463,7 @@ export type Database = {
       }
       claim_signup_bonus: { Args: never; Returns: Json }
       cleanup_expired_nonces: { Args: never; Returns: undefined }
+      current_unified_profile_id: { Args: never; Returns: string }
       gear_vault_claim_item: { Args: { p_item_id: string }; Returns: Json }
       generate_gift_code: { Args: never; Returns: string }
       generate_referral_code: { Args: never; Returns: string }
@@ -4674,7 +4674,6 @@ export type Database = {
           p_claims_amount: number
           p_message?: string
           p_recipient_email: string
-          p_sender_id: string
         }
         Returns: Json
       }

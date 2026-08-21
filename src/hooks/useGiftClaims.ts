@@ -42,7 +42,6 @@ export function useGiftClaims() {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.rpc('send_gift_from_balance', {
-        p_sender_id: profile.id,
         p_recipient_email: recipientEmail,
         p_claims_amount: claimsAmount,
         p_message: message || null
