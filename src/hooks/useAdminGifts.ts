@@ -41,7 +41,6 @@ export function useAdminGifts() {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.rpc('admin_credit_claims', {
-        p_admin_id: profile.id,
         p_recipient_id: recipientId,
         p_claims_amount: amount,
         p_message: message || null,
