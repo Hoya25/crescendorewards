@@ -138,8 +138,9 @@ Deno.serve(async (req: Request) => {
         return new Response(JSON.stringify({ success: false, error: "Invalid or expired token" }), { status: 200, headers });
       }
 
-      // Token valid — provision user (no shared password)
-      await ensureAuthUser(normalizedEmail, bhResult.display_name, bhResult.bh_user_id, false);
+      // Token valid — provision user (no password is ever set)
+      await ensureAuthUser(normalizedEmail, bhResult.display_name, bhResult.bh_user_id);
+
       await ensureProfile(normalizedEmail, {
         bh_user_id: bhResult.bh_user_id,
         display_name: bhResult.display_name,
