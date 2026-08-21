@@ -33,8 +33,8 @@ import { BetaTestingNotice } from '@/components/BetaTestingNotice';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { useDeliveryProfile } from '@/hooks/useDeliveryProfile';
-import { getRewardPriceForUser, canUserClaimReward, getTierDisplayName, getAllTierPrices, type Reward as RewardType } from '@/utils/getRewardPrice';
-import { calculateClaimsForUser, getClaimDiscountUpsell, getAllTierDiscountedPrices } from '@/utils/calculateClaimsForUser';
+import { getRewardPriceForUser, canUserClaimReward, getTierDisplayName, getAllTierPrices, hasTierPriceOverrides, type Reward as RewardType } from '@/utils/getRewardPrice';
+
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import type { DeliveryMethod, RequiredDataField } from '@/types/delivery';
