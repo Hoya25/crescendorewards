@@ -46,14 +46,16 @@ Deno.serve(async (req) => {
     let userId: string | null = null;
     let authUserId: string | null = null;
 
-    // Webhook from The Garden (service-to-service)
+    // Webhook from The Garden (service-to-service) — the ONLY authoritative
+    // writer of balances. Fails closed if the secret is not configured.
     if (gardenWebhookSecret) {
-      if (webhookSecret && gardenWebhookSecret !== webhookSecret) {
+      if (!webhookSecret || gardenWebhookSecret !== webhookSecret) {
         return new Response(
           JSON.stringify({ error: 'Invalid webhook secret' }),
           { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
+
 
       const payload: WebhookPayload = await req.json();
       console.log('Webhook received:', payload.event, payload.email || payload.user_id);
