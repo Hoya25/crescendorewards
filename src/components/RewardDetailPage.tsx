@@ -836,32 +836,14 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                   </div>
                 ) : (
                   <div className="text-center py-4">
-                    {(() => {
-                      const discountedCost = calculateClaimsForUser(pricing.price, userTier);
-                      const hasDiscount = discountedCost < pricing.price;
-                      return (
-                        <>
-                          <div className="flex items-center justify-center gap-2">
-                            <Coins className="w-8 h-8 text-primary" />
-                            <span className="text-5xl font-bold text-primary">{discountedCost}</span>
-                            <span className="text-xl text-muted-foreground">claims</span>
-                          </div>
-                          {hasDiscount && (
-                            <p className="text-muted-foreground mt-2">
-                              <span className="line-through">{pricing.price} claims</span>
-                              <Badge variant="secondary" className="ml-2 bg-emerald-500/10 text-emerald-600">
-                                {getTierDisplayName(userTier)} discount
-                              </Badge>
-                            </p>
-                          )}
-                          <p className="text-sm text-muted-foreground mt-2">
-                            {getClaimDiscountUpsell(pricing.price, userTier)}
-                          </p>
-                        </>
-                      );
-                    })()}
+                    <div className="flex items-center justify-center gap-2">
+                      <Coins className="w-8 h-8 text-primary" />
+                      <span className="text-5xl font-bold text-primary">{pricing.price}</span>
+                      <span className="text-xl text-muted-foreground">claims</span>
+                    </div>
                   </div>
                 )}
+
 
                 {/* Balance Check */}
                 {profile && !isLocked && !pricing.isFree && (
