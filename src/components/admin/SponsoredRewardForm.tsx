@@ -223,8 +223,9 @@ export function SponsoredRewardForm({ open, onClose, reward, onSave }: Sponsored
       const imageUrl = await uploadImage();
       if (imageFile && !imageUrl) return;
 
-      // TIER COLUMN CONSOLIDATION: write min_tier_required (v2 canonical)
-      // alongside legacy min_status_tier. Drop legacy in follow-up migration.
+      // CANONICAL tier gate: write min_tier_required only. The database keeps the
+      // deprecated mirrors (min_status_tier / required_status_tier) in sync.
+
       const dataToSave = {
         title: formData.title,
         description: formData.description,
