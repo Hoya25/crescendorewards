@@ -4551,11 +4551,11 @@ export type Database = {
       }
       get_unified_profile_id: { Args: { _auth_id: string }; Returns: string }
       get_unified_user_profile: {
-        Args: { p_auth_user_id: string }
+        Args: { p_auth_user_id?: string }
         Returns: Json
       }
       get_user_activity: {
-        Args: { p_limit?: number; p_user_id: string }
+        Args: { p_limit?: number; p_user_id?: string }
         Returns: {
           activity_type: string
           amount: number
@@ -4674,6 +4674,7 @@ export type Database = {
       is_current_user_admin: { Args: never; Returns: boolean }
       is_fixture_member: { Args: { _auth_id: string }; Returns: boolean }
       is_reserved_slug: { Args: { slug: string }; Returns: boolean }
+      is_self_or_admin: { Args: { p_subject: string }; Returns: boolean }
       is_valid_slug: { Args: { slug: string }; Returns: boolean }
       perform_daily_checkin: { Args: never; Returns: Json }
       perform_social_share: {
