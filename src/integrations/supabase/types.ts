@@ -4452,10 +4452,7 @@ export type Database = {
       }
       award_onboarding_item: { Args: { p_item: string }; Returns: Json }
       calculate_user_tier: { Args: { p_user_id: string }; Returns: string }
-      cancel_gift: {
-        Args: { p_gift_id: string; p_user_id: string }
-        Returns: Json
-      }
+      cancel_gift: { Args: { p_gift_id: string }; Returns: Json }
       check_handle_available: { Args: { p_handle: string }; Returns: Json }
       check_merch_milestones: { Args: { p_user_id: string }; Returns: Json }
       check_purchase_milestones: { Args: { p_user_id: string }; Returns: Json }
@@ -4465,10 +4462,7 @@ export type Database = {
         Returns: Json
       }
       claim_gift: { Args: { p_gift_code: string }; Returns: Json }
-      claim_handle: {
-        Args: { p_handle: string; p_user_id: string }
-        Returns: Json
-      }
+      claim_handle: { Args: { p_handle: string }; Returns: Json }
       claim_reward: {
         Args: { p_reward_id: string; p_shipping_info?: Json }
         Returns: Json
@@ -4677,10 +4671,7 @@ export type Database = {
       is_self_or_admin: { Args: { p_subject: string }; Returns: boolean }
       is_valid_slug: { Args: { slug: string }; Returns: boolean }
       perform_daily_checkin: { Args: never; Returns: Json }
-      perform_social_share: {
-        Args: { p_platform: string; p_user_id: string }
-        Returns: Json
-      }
+      perform_social_share: { Args: { p_platform: string }; Returns: Json }
       process_referral: { Args: { p_referrer_code: string }; Returns: Json }
       register_wallet_address: { Args: { p_wallet: string }; Returns: Json }
       save_referral_slug: { Args: { p_slug: string }; Returns: Json }
@@ -4709,10 +4700,7 @@ export type Database = {
         }
         Returns: Json
       }
-      toggle_leaderboard_opt_in: {
-        Args: { p_opt_in: boolean; p_user_id: string }
-        Returns: Json
-      }
+      toggle_leaderboard_opt_in: { Args: { p_opt_in: boolean }; Returns: Json }
       track_reward_conversion: {
         Args: { p_referral_code: string; p_reward_id: string }
         Returns: Json
