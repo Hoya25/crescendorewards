@@ -204,7 +204,9 @@ Deno.serve(async (req: Request) => {
         }), { status: 200, headers });
       }
 
-      // BH user found — provision auth + profile
+      // BH user found — provision auth + profile. No password is set, and no
+      // session is returned to the caller: the only way to sign in is via a
+      // one-time link delivered to the mailbox owner.
       await ensureAuthUser(normalizedEmail, bhResult.display_name, bhResult.user_id || bhResult.bh_user_id);
       await ensureProfile(normalizedEmail, {
         bh_user_id: bhResult.user_id || bhResult.bh_user_id,
@@ -214,11 +216,33 @@ Deno.serve(async (req: Request) => {
         avatar_url: bhResult.avatar_url,
       });
 
+      // Send a one-time sign-in link to the address itself (anon client sends the email)
+      let emailSent = false;
+      try {
+        const anonClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+          auth: { persistSession: false },
+        });
+        const { error: otpError } = await anonClient.auth.signInWithOtp({
+          email: normalizedEmail,
+          options: {
+            shouldCreateUser: false,
+            emailRedirectTo: redirect_to || "https://crescendo.nctr.live/dashboard",
+          },
+        });
+        if (otpError) console.error("[check_bh_account] OTP send failed:", otpError.message);
+        else emailSent = true;
+      } catch (e) {
+        console.error("[check_bh_account] OTP send threw:", e);
+      }
+
       return new Response(JSON.stringify({
         success: true,
         email: normalizedEmail,
         display_name: bhResult.display_name,
+        session_issued: false,
+        magic_link_sent: emailSent,
       }), { status: 200, headers });
+
     }
 
     // ============================================================
