@@ -2,7 +2,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
 
 const BH_ADMIN_API = "https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api";
-const DEFAULT_PASSWORD = "nctr-beta-2026";
+// NOTE: no shared/static password exists anymore. Sessions are only ever
+// established through one-time magic links / OTP tokens.
+
 
 Deno.serve(async (req: Request) => {
   const corsResponse = handleCorsPreflightRequest(req);
@@ -44,27 +46,20 @@ Deno.serve(async (req: Request) => {
       return await res.json();
     }
 
-    // --- Helper: ensure auth user exists ---
-    async function ensureAuthUser(emailAddr: string, displayName?: string, bhUserId?: string, setPassword: boolean = true) {
+    // --- Helper: ensure auth user exists (never sets or resets a password) ---
+    async function ensureAuthUser(emailAddr: string, displayName?: string, bhUserId?: string) {
       const { data: allAuthSearch } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
       const existingAuthUser = allAuthSearch?.users?.find(
         (u: any) => u.email?.toLowerCase() === emailAddr
       );
 
       if (existingAuthUser) {
-        if (setPassword) {
-          const { error: updateErr } = await supabase.auth.admin.updateUserById(
-            existingAuthUser.id,
-            { password: DEFAULT_PASSWORD }
-          );
-          if (updateErr) console.error("Failed to update auth user password:", updateErr.message);
-        }
+        // Existing accounts are left untouched — credentials are never rewritten here.
         return existingAuthUser;
       } else {
         const { data: newUser, error: createAuthErr } = await supabase.auth.admin.createUser({
           email: emailAddr,
           email_confirm: true,
-          ...(setPassword ? { password: DEFAULT_PASSWORD } : {}),
           user_metadata: {
             display_name: displayName || "User",
             source: "bounty_hunter",
@@ -78,6 +73,7 @@ Deno.serve(async (req: Request) => {
         console.log("Auto-provisioned auth user for:", emailAddr);
         return newUser?.user || null;
       }
+
     }
 
     // --- Helper: ensure unified_profiles row ---
@@ -142,8 +138,9 @@ Deno.serve(async (req: Request) => {
         return new Response(JSON.stringify({ success: false, error: "Invalid or expired token" }), { status: 200, headers });
       }
 
-      // Token valid — provision user (no shared password)
-      await ensureAuthUser(normalizedEmail, bhResult.display_name, bhResult.bh_user_id, false);
+      // Token valid — provision user (no password is ever set)
+      await ensureAuthUser(normalizedEmail, bhResult.display_name, bhResult.bh_user_id);
+
       await ensureProfile(normalizedEmail, {
         bh_user_id: bhResult.bh_user_id,
         display_name: bhResult.display_name,
@@ -207,7 +204,9 @@ Deno.serve(async (req: Request) => {
         }), { status: 200, headers });
       }
 
-      // BH user found — provision auth + profile
+      // BH user found — provision auth + profile. No password is set, and no
+      // session is returned to the caller: the only way to sign in is via a
+      // one-time link delivered to the mailbox owner.
       await ensureAuthUser(normalizedEmail, bhResult.display_name, bhResult.user_id || bhResult.bh_user_id);
       await ensureProfile(normalizedEmail, {
         bh_user_id: bhResult.user_id || bhResult.bh_user_id,
@@ -217,11 +216,33 @@ Deno.serve(async (req: Request) => {
         avatar_url: bhResult.avatar_url,
       });
 
+      // Send a one-time sign-in link to the address itself (anon client sends the email)
+      let emailSent = false;
+      try {
+        const anonClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
+          auth: { persistSession: false },
+        });
+        const { error: otpError } = await anonClient.auth.signInWithOtp({
+          email: normalizedEmail,
+          options: {
+            shouldCreateUser: false,
+            emailRedirectTo: redirect_to || "https://crescendo.nctr.live/dashboard",
+          },
+        });
+        if (otpError) console.error("[check_bh_account] OTP send failed:", otpError.message);
+        else emailSent = true;
+      } catch (e) {
+        console.error("[check_bh_account] OTP send threw:", e);
+      }
+
       return new Response(JSON.stringify({
         success: true,
         email: normalizedEmail,
         display_name: bhResult.display_name,
+        session_issued: false,
+        magic_link_sent: emailSent,
       }), { status: 200, headers });
+
     }
 
     // ============================================================

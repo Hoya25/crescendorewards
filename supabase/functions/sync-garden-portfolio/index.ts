@@ -46,14 +46,16 @@ Deno.serve(async (req) => {
     let userId: string | null = null;
     let authUserId: string | null = null;
 
-    // Webhook from The Garden (service-to-service)
+    // Webhook from The Garden (service-to-service) — the ONLY authoritative
+    // writer of balances. Fails closed if the secret is not configured.
     if (gardenWebhookSecret) {
-      if (webhookSecret && gardenWebhookSecret !== webhookSecret) {
+      if (!webhookSecret || gardenWebhookSecret !== webhookSecret) {
         return new Response(
           JSON.stringify({ error: 'Invalid webhook secret' }),
           { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
+
 
       const payload: WebhookPayload = await req.json();
       console.log('Webhook received:', payload.event, payload.email || payload.user_id);
@@ -229,44 +231,20 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Manual portfolio sync (with data provided)
-      if (portfolio_data && portfolio_data.wallet_address) {
-        const walletAddr = portfolio_data.wallet_address.toLowerCase();
-        
-        await supabaseAdmin
-          .from('wallet_portfolio')
-          .upsert({
-            user_id: userId,
-            wallet_address: walletAddr,
-            nctr_balance: portfolio_data.nctr_balance || 0,
-            nctr_360_locked: portfolio_data.nctr_360_locked || 0,
-            nctr_90_locked: portfolio_data.nctr_90_locked || 0,
-            nctr_unlocked: portfolio_data.nctr_unlocked || 0,
-            locks: portfolio_data.locks || [],
-            sync_source: 'manual_sync',
-            last_synced_at: new Date().toISOString(),
-          }, {
-            onConflict: 'wallet_address',
-          });
-
-        if (!profile.wallet_address) {
-          await supabaseAdmin
-            .from('unified_profiles')
-            .update({ wallet_address: walletAddr, updated_at: new Date().toISOString() })
-            .eq('id', userId);
-        }
-
-        await supabaseAdmin.rpc('calculate_user_tier', { p_user_id: userId });
-
+      // SECURITY: balances and lock amounts are tier-determining, so they may
+      // ONLY be written by the trusted Garden webhook (verified above with
+      // x-garden-webhook-secret). A client-supplied portfolio is rejected —
+      // never trusted, never upserted, and never used to recalculate tier.
+      if (portfolio_data) {
         return new Response(
-          JSON.stringify({ 
-            success: true, 
-            message: 'Portfolio synced',
-            wallet_address: walletAddr
+          JSON.stringify({
+            error: 'Client-supplied balances are not accepted',
+            message: 'NCTR balances and lock amounts are only accepted from the verified Garden sync. Lock your NCTR in The Garden and your status will update automatically.',
           }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
+
 
       // Return current sync status
       const { data: portfolioData } = await supabaseAdmin

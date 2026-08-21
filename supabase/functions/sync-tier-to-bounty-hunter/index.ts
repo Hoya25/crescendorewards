@@ -3,6 +3,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
 import { pushToGodview } from "../_shared/push-to-godview.ts";
+import { getAuthUserId, hasSyncSecret } from "../_shared/auth.ts";
+
 
 const BH_ADMIN_API = "https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api";
 
@@ -18,18 +20,53 @@ serve(async (req) => {
     });
 
   try {
-    const { auth_user_id, email, new_tier } = await req.json();
+    const body = await req.json();
+    const isInternal = hasSyncSecret(req);
 
-    if (!auth_user_id || !email) {
-      return json({ synced: false, error: "auth_user_id and email are required" }, 400);
+    // Caller must be either a trusted internal service (SYNC_SECRET) or an
+    // authenticated member acting on their own account. The client-supplied
+    // tier is NEVER trusted — see below.
+    let authUserId: string | null = null;
+    if (isInternal) {
+      authUserId = body.auth_user_id ?? null;
+    } else {
+      authUserId = await getAuthUserId(req);
+      if (!authUserId) {
+        return json({ synced: false, error: "Unauthorized" }, 401);
+      }
+      if (body.auth_user_id && body.auth_user_id !== authUserId) {
+        return json({ synced: false, error: "Forbidden" }, 403);
+      }
     }
 
-    // --- Look up referral_code and point balances from unified_profiles ---
+    if (!authUserId) {
+      return json({ synced: false, error: "auth_user_id is required" }, 400);
+    }
+
+    const auth_user_id = authUserId;
+
+    // --- Look up profile, email and the AUTHORITATIVE tier server-side ---
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
       { auth: { persistSession: false } }
     );
+
+    const { data: identity } = await supabaseAdmin
+      .from("unified_profiles")
+      .select("email, current_tier_id, status_tiers(tier_name)")
+      .eq("auth_user_id", auth_user_id)
+      .maybeSingle();
+
+    const email = identity?.email;
+    if (!email) {
+      return json({ synced: false, error: "Profile not found" }, 404);
+    }
+
+    // Tier is derived from the member's stored tier (itself computed by
+    // calculate_user_tier from verified locked NCTR) — not from the request.
+    const new_tier = (identity as any)?.status_tiers?.tier_name ?? null;
+
 
     let referralCode: string | null = null;
     let nctrLockedPoints: number | null = null;

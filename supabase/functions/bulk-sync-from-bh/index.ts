@@ -1,8 +1,11 @@
+import { hasSyncSecret, requireAdmin } from "../_shared/auth.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-sync-secret",
 };
+
 
 // BH's secured export endpoint — data never leaves BH's own edge functions
 const BH_EXPORT_URL =
@@ -14,6 +17,15 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Caller authentication: trusted scheduler (SYNC_SECRET) or a verified admin.
+    if (!hasSyncSecret(req) && !(await requireAdmin(req))) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+
     const syncSecret = Deno.env.get("SYNC_SECRET");
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
 
