@@ -111,7 +111,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             email: authUser.email,
             display_name: authUser.user_metadata?.full_name || null,
             current_tier_id: defaultTier?.id || null,
-            nctr_balance_points: 100,
+            // No starting balance: balances are server-owned and granted only
+            // by claim_signup_bonus() / verified sync.
+
             crescendo_data: {
               claims_balance: 0,
               role: 'member'

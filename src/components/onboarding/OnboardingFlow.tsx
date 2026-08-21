@@ -43,52 +43,10 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
           .update({ has_completed_onboarding: true } as any)
           .eq('id', profile.id);
 
-        // Award signup bonus if not already awarded
-        const { data: profileCheck } = await supabase
-          .from('unified_profiles')
-          .select('signup_bonus_awarded' as any)
-          .eq('id', profile.id)
-          .single();
-
-        if (!(profileCheck as any)?.signup_bonus_awarded) {
-          const currentAvailable = Number(profile?.nctr_balance_points) || 0;
-          await supabase
-            .from('unified_profiles')
-            .update({
-              signup_bonus_awarded: true,
-              nctr_balance_points: currentAvailable + 25,
-            } as any)
-            .eq('id', profile.id);
-
-          const authUserId = profile.auth_user_id;
-          if (authUserId) {
-            await supabase
-              .from('profiles')
-              .update({
-                has_claimed_signup_bonus: true,
-                claim_balance: (profile.crescendo_data?.claim_balance as number || 0) + 5,
-              })
-              .eq('id', authUserId);
-          }
-
-          await supabase.from('nctr_transactions').insert({
-            user_id: profile.id,
-            source: 'signup_bonus',
-            base_amount: 25,
-            status_multiplier: 1,
-            merch_lock_multiplier: 1,
-            final_amount: 25,
-            notes: 'Welcome to Crescendo — 25 NCTR + 5 Claims',
-            lock_type: '360lock',
-          });
-
-          await supabase.from('cross_platform_activity_log').insert({
-            user_id: profile.id,
-            platform: 'crescendo',
-            action_type: 'signup_bonus',
-            action_data: { amount: 25, type: 'signup_bonus', nctr: 25, claims: 5, description: 'Welcome to Crescendo' },
-          });
-
+        // Signup bonus is granted server-side: idempotent, fixed at 25 NCTR + 5
+        // Claims, and it also writes the ledger + activity rows.
+        const { data: bonus } = await (supabase as any).rpc('claim_signup_bonus');
+        if (bonus?.awarded) {
           track('first_token_earned', { source: 'crescendo', amount: 25 });
         }
 
@@ -97,6 +55,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         console.error('Error completing onboarding:', err);
       }
     }
+
 
     onComplete();
     toast.success('Welcome! You received 5 free Claims 🎉');

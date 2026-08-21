@@ -126,33 +126,27 @@ export function useUserOnboarding() {
     const nctrReward = NCTR_REWARDS[itemId];
 
     try {
-      const { error: updateError } = await supabase
-        .from('user_onboarding')
-        .update({
-          [itemId]: true,
-          [timestampField]: new Date().toISOString(),
-          onboarding_nctr_awarded: (progress.onboarding_nctr_awarded || 0) + nctrReward,
-        })
-        .eq('user_id', unifiedId);
+      // Server-owned award. The RPC validates the item, enforces the canonical
+      // amount (10/10/50) and is idempotent per item — the client cannot choose
+      // the amount or award the same item twice.
+      const { data, error: rpcError } = await (supabase as any).rpc('award_onboarding_item', {
+        p_item: itemId,
+      });
 
-      if (updateError) {
-        console.error('Error updating onboarding:', updateError);
+      if (rpcError) {
+        console.error('Error awarding onboarding item:', rpcError);
+        return;
+      }
+      if (!data?.success) {
+        console.error('Onboarding award rejected:', data?.error);
+        return;
+      }
+      if (!data.awarded) {
+        // Already credited server-side; just re-sync local state.
+        await fetchProgress();
         return;
       }
 
-      const authUserId = profile.auth_user_id;
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('available_nctr')
-        .eq('id', authUserId)
-        .single();
-
-      if (profileData) {
-        await supabase
-          .from('profiles')
-          .update({ available_nctr: (profileData.available_nctr || 0) + nctrReward })
-          .eq('id', authUserId);
-      }
 
       setProgress(prev => prev ? {
         ...prev,

@@ -88,22 +88,21 @@ export default function DepositPage() {
       return;
     }
     setSaving(true);
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        registered_wallet_address: walletAddress,
-        wallet_verified_at: new Date().toISOString(),
-      })
-      .eq('id', user!.id);
+    // Registration only — verification is set server-side once a deposit is
+    // confirmed. The client can never mark a wallet as verified.
+    const { data, error } = await (supabase as any).rpc('register_wallet_address', {
+      p_wallet: walletAddress,
+    });
     setSaving(false);
-    if (error) {
+    if (error || !data?.success) {
       toast.error('Failed to save wallet address');
     } else {
-      setRegisteredWallet(walletAddress);
+      setRegisteredWallet(data.wallet_address);
       setShowChangeWallet(false);
       toast.success('Wallet address saved!');
     }
   }
+
 
   async function submitDeposit() {
     if (!txHash.startsWith('0x') || txHash.length < 10) {
@@ -399,10 +398,8 @@ export default function DepositPage() {
               </button>
               <button
                 onClick={async () => {
-                  await supabase
-                    .from('profiles')
-                    .update({ registered_wallet_address: null, wallet_verified_at: null } as any)
-                    .eq('id', user!.id);
+                  await (supabase as any).rpc('register_wallet_address', { p_wallet: null });
+
                   setRegisteredWallet(null);
                   setWalletAddress('');
                   setShowChangeConfirm(false);

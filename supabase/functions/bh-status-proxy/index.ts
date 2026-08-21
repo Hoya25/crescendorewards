@@ -66,22 +66,23 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Use the authenticated user's email for email-based actions,
-    // preventing users from querying other users' data
+    // Always use the authenticated user's own email. A client-supplied email is
+    // ignored entirely (previously it could override the verified identity, an IDOR).
     const bhPayload: Record<string, unknown> = { action };
 
     if (action === 'get_user_status') {
-      bhPayload.email = email || userEmail;
+      bhPayload.email = userEmail;
     } else if (action === 'verify_deposit') {
-      bhPayload.email = email || userEmail;
+      bhPayload.email = userEmail;
       bhPayload.tx_hash = tx_hash;
     } else if (action === 'upgrade_to_360lock') {
-      bhPayload.email = email || userEmail;
+      bhPayload.email = userEmail;
       bhPayload.amount = amount;
     } else if (action === 'wingman_briefing') {
-      bhPayload.user_id = user_id || userId;
+      bhPayload.user_id = userId;
       if (question) bhPayload.question = question;
     }
+
 
     // Call BH admin-api
     const bhRes = await fetch(`${BH_FUNCTIONS_BASE}/admin-api`, {
@@ -129,7 +130,7 @@ Deno.serve(async (req) => {
         (bhData as { tier?: string })?.tier ??
         null;
 
-      // Look up display_name from unified_profiles using a service role client
+      // Service-role client: display_name lookup + BH write-through cache.
       let actorName: string | null = null;
       try {
         const serviceClient = createClient(
@@ -143,9 +144,44 @@ Deno.serve(async (req) => {
           .eq('auth_user_id', userId)
           .maybeSingle();
         actorName = actorProfile?.display_name ?? null;
+
+        // ── Write-through cache (server-side, service role) ──────────────
+        // Balances and tier are server-owned columns; only this path (and the
+        // verified Garden webhook) may persist them.
+        const bh = bhData as Record<string, unknown>;
+        const updatePayload: Record<string, unknown> = {};
+        if (typeof bh?.nctr_locked_points === 'number')
+          updatePayload.nctr_locked_points = bh.nctr_locked_points;
+        if (typeof bh?.nctr_balance_points === 'number')
+          updatePayload.nctr_balance_points = bh.nctr_balance_points;
+        if (typeof bh?.nctr_earned_total === 'number')
+          updatePayload.nctr_earned_total = bh.nctr_earned_total;
+        if (bh?.bh_user_id) updatePayload.bh_user_id = bh.bh_user_id;
+
+        const tierName = (bh?.current_tier ?? bh?.crescendo_tier ?? null) as string | null;
+        if (tierName) {
+          const { data: tierRow } = await serviceClient
+            .from('status_tiers')
+            .select('id')
+            .ilike('tier_name', tierName)
+            .maybeSingle();
+          if (tierRow?.id) updatePayload.current_tier_id = tierRow.id;
+        }
+
+        if (Object.keys(updatePayload).length > 0) {
+          updatePayload.updated_at = new Date().toISOString();
+          const { error: cacheErr } = await serviceClient
+            .from('unified_profiles')
+            .update(updatePayload)
+            .eq('auth_user_id', userId);
+          if (cacheErr) {
+            console.error('[bh-status-proxy] write-through cache failed:', cacheErr.message);
+          }
+        }
       } catch (_e) {
-        // ignore lookup errors
+        // never fail the request because of caching
       }
+
 
       pushToGodview('crescendo_dashboard_loaded', {
         user_id: userId,

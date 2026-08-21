@@ -259,55 +259,14 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
         setBhTierMultiplier(data.tier_multiplier);
       }
 
-      // ── Write-through cache: persist BH truth back into unified_profiles ──
-      if (data && !res.error) {
-        try {
-          // Resolve capitalized tier name → status_tiers.id (uses already-cached allTiers state)
-          const tierName: string | undefined =
-            data.current_tier ?? data.crescendo_tier ?? undefined;
-          const resolvedTierId = tierName
-            ? allTiers.find(
-                (t) => t.tier_name?.toLowerCase() === String(tierName).toLowerCase()
-              )?.id ?? null
-            : null;
-
-          const updatePayload: Record<string, unknown> = {
-            updated_at: new Date().toISOString(),
-          };
-          if (typeof data.nctr_locked_points === 'number')
-            updatePayload.nctr_locked_points = data.nctr_locked_points;
-          if (typeof data.nctr_balance_points === 'number')
-            updatePayload.nctr_balance_points = data.nctr_balance_points;
-          if (typeof data.nctr_earned_total === 'number')
-            updatePayload.nctr_earned_total = data.nctr_earned_total;
-          if (data.bh_user_id) updatePayload.bh_user_id = data.bh_user_id;
-          if (resolvedTierId) updatePayload.current_tier_id = resolvedTierId;
-
-          console.log('[SYNC-A] About to write to unified_profiles:', {
-            auth_user_id: user.id,
-            nctr_locked_points: data.nctr_locked_points,
-            nctr_balance_points: data.nctr_balance_points,
-            nctr_earned_total: data.nctr_earned_total,
-            resolved_tier_id: resolvedTierId,
-          });
-
-          const { data: updateData, error } = await supabase
-            .from('unified_profiles')
-            .update(updatePayload)
-            .eq('auth_user_id', user.id);
-
-          console.log('[SYNC-A] unified_profiles update result:', {
-            error: error?.message,
-            data: updateData,
-          });
-
-          if (error) {
-            console.error('[UnifiedUserContext] BH write-through cache failed:', error);
-          }
-        } catch (cacheErr) {
-          console.error('[UnifiedUserContext] BH write-through cache exception:', cacheErr);
-        }
+      // NOTE: the BH → unified_profiles write-through cache now happens inside the
+      // bh-status-proxy edge function using the service role. Balances and tiers are
+      // server-owned columns and are no longer writable from the client.
+      if (data && !res.error && data.bh_user_id) {
+        // BH id is echoed back for client-side use only (affiliate links etc).
+        // Persistence is handled server-side.
       }
+
     } catch {
       // silent — fall back to handle/email
     }
@@ -374,10 +333,11 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
     }
   }, [profile, fetchUnifiedProfile]);
 
-  // Sync wallet portfolio
+  // Sync wallet portfolio — registration of a wallet only. Balances are
+  // server-owned and rejected by the database if sent from the client.
   const syncWalletPortfolio = useCallback(async (
-    walletAddress: string, 
-    data: Partial<WalletPortfolio>
+    walletAddress: string,
+    _data: Partial<WalletPortfolio>
   ) => {
     if (!profile) return;
 
@@ -387,12 +347,12 @@ export function UnifiedUserProvider({ children }: { children: ReactNode }) {
         .upsert({
           user_id: profile.id,
           wallet_address: walletAddress,
-          ...data,
           last_synced_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }, {
           onConflict: 'user_id,wallet_address'
         });
+
 
       if (upsertError) throw upsertError;
       
