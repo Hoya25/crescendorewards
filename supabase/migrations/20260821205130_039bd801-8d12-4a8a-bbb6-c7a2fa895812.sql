@@ -1,0 +1,1 @@
+DELETE FROM public.member_groundball_status WHERE member_id = 'f030b38c-dca6-4d29-a22a-77f221f57dd0';
