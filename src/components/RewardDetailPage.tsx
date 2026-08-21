@@ -33,8 +33,8 @@ import { BetaTestingNotice } from '@/components/BetaTestingNotice';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { useDeliveryProfile } from '@/hooks/useDeliveryProfile';
-import { getRewardPriceForUser, canUserClaimReward, getTierDisplayName, getAllTierPrices, type Reward as RewardType } from '@/utils/getRewardPrice';
-import { calculateClaimsForUser, getClaimDiscountUpsell, getAllTierDiscountedPrices } from '@/utils/calculateClaimsForUser';
+import { getRewardPriceForUser, canUserClaimReward, getTierDisplayName, getAllTierPrices, hasTierPriceOverrides, type Reward as RewardType } from '@/utils/getRewardPrice';
+
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import type { DeliveryMethod, RequiredDataField } from '@/types/delivery';
@@ -526,6 +526,10 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   const pricing = getRewardPriceForUser(rewardForPricing, userTier);
   const eligibility = canUserClaimReward(rewardForPricing, userTier, crescendoData.claim_balance);
   const allTierPrices = getAllTierPrices(rewardForPricing);
+  // CANON: claims are never discounted by tier. Only a per-reward
+  // status_tier_claims_cost override can make prices differ by status.
+  const hasTierOverrides = hasTierPriceOverrides(rewardForPricing);
+
   
   const isSponsored = reward.is_sponsored || reward.sponsor_enabled;
   const sponsorName = reward.sponsor_name;
@@ -836,32 +840,14 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                   </div>
                 ) : (
                   <div className="text-center py-4">
-                    {(() => {
-                      const discountedCost = calculateClaimsForUser(pricing.price, userTier);
-                      const hasDiscount = discountedCost < pricing.price;
-                      return (
-                        <>
-                          <div className="flex items-center justify-center gap-2">
-                            <Coins className="w-8 h-8 text-primary" />
-                            <span className="text-5xl font-bold text-primary">{discountedCost}</span>
-                            <span className="text-xl text-muted-foreground">claims</span>
-                          </div>
-                          {hasDiscount && (
-                            <p className="text-muted-foreground mt-2">
-                              <span className="line-through">{pricing.price} claims</span>
-                              <Badge variant="secondary" className="ml-2 bg-emerald-500/10 text-emerald-600">
-                                {getTierDisplayName(userTier)} discount
-                              </Badge>
-                            </p>
-                          )}
-                          <p className="text-sm text-muted-foreground mt-2">
-                            {getClaimDiscountUpsell(pricing.price, userTier)}
-                          </p>
-                        </>
-                      );
-                    })()}
+                    <div className="flex items-center justify-center gap-2">
+                      <Coins className="w-8 h-8 text-primary" />
+                      <span className="text-5xl font-bold text-primary">{pricing.price}</span>
+                      <span className="text-xl text-muted-foreground">claims</span>
+                    </div>
                   </div>
                 )}
+
 
                 {/* Balance Check */}
                 {profile && !isLocked && !pricing.isFree && (
@@ -890,13 +876,13 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
               </CardContent>
             </Card>
 
-            {/* Tier Pricing Breakdown */}
-            {!isLocked && !pricing.isFree && (
+            {/* Per-reward promotional pricing (status_tier_claims_cost) — the only sanctioned price variance */}
+            {!isLocked && !pricing.isFree && hasTierOverrides && (
               <Card className="overflow-hidden">
                 <CardContent className="p-5 space-y-3">
                   <h3 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">Claim Cost by Status</h3>
                   <div className="space-y-0">
-                    {getAllTierDiscountedPrices(pricing.price).map(({ tier, displayName, cost }) => {
+                    {allTierPrices.map(({ tier, displayName, price }) => {
                       const isCurrentTier = tier === userTier;
                       return (
                         <div
@@ -915,24 +901,19 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                             )}
                           </span>
                           <span className={cn(isCurrentTier ? "font-bold text-foreground" : "text-muted-foreground")}>
-                            {cost} claim{cost !== 1 ? 's' : ''}
+                            {price === 0 ? 'FREE' : `${price} claim${price !== 1 ? 's' : ''}`}
                           </span>
                         </div>
                       );
                     })}
                   </div>
                   <p className="text-xs text-muted-foreground pt-1">
-                    Higher status = fewer claims.{' '}
-                    <button
-                      onClick={() => navigate('/status')}
-                      className="text-primary hover:underline inline-flex items-center gap-0.5"
-                    >
-                      See how to level up →
-                    </button>
+                    Promotional pricing set for this reward.
                   </p>
                 </CardContent>
               </Card>
             )}
+
 
             {/* Description */}
             <div>
@@ -1069,6 +1050,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                 </AccordionContent>
               </AccordionItem>
               
+              {hasTierOverrides && (
               <AccordionItem value="pricing">
                 <AccordionTrigger>
                   <span className="flex items-center gap-2">
@@ -1101,6 +1083,8 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                   </div>
                 </AccordionContent>
               </AccordionItem>
+              )}
+
 
               <AccordionItem value="terms">
                 <AccordionTrigger>

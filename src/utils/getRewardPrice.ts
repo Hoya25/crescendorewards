@@ -37,36 +37,59 @@ const TIER_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'] as const;
 type TierName = typeof TIER_ORDER[number];
 
 /**
- * Get the reward price for a specific user tier
- * Sponsored rewards can have tier-specific pricing
+ * CANON: Claims are NEVER discounted by status tier.
+ * Tier value = access, eligibility, and earn multipliers.
+ * The ONLY sanctioned price override is the per-reward
+ * `status_tier_claims_cost` map, set per reward by an admin.
+ *
+ * This mirrors the server-side `claim_reward` RPC exactly:
+ *   if (status_tier_claims_cost ? user_tier) -> that value
+ *   else -> rewards.cost
+ */
+export function getTierOverrideCost(
+  reward: Reward,
+  userTier: string
+): number | null {
+  const map = reward.status_tier_claims_cost as Record<string, number> | null | undefined;
+  if (!map || typeof map !== 'object') return null;
+
+  // Server matches the tier key as stored (status_tiers.tier_name).
+  // Try exact, then case-insensitive, to stay safe across casings.
+  if (userTier in map && typeof map[userTier] === 'number') return map[userTier];
+  const key = Object.keys(map).find(k => k.toLowerCase() === userTier.toLowerCase());
+  if (key && typeof map[key] === 'number') return map[key];
+  return null;
+}
+
+export function hasTierPriceOverrides(reward: Reward): boolean {
+  const map = reward.status_tier_claims_cost as Record<string, number> | null | undefined;
+  if (!map || typeof map !== 'object') return false;
+  return Object.values(map).some(v => typeof v === 'number' && v !== reward.cost);
+}
+
+/**
+ * Get the reward price for a specific user tier.
+ * Returns exactly what the server will charge.
  */
 export function getRewardPriceForUser(
   reward: Reward,
   userTier: string
 ): PriceResult {
-  const normalizedTier = userTier.toLowerCase();
-  
-  // If not sponsored or no tier pricing, return base cost
-  if (!reward.is_sponsored || !reward.status_tier_claims_cost) {
-    return {
-      price: reward.cost,
-      isFree: reward.cost === 0,
-      discount: 0,
-      originalPrice: reward.cost
-    };
-  }
-
-  const tierPricing = reward.status_tier_claims_cost as TierPricing;
-  const tierPrice = tierPricing[normalizedTier as keyof TierPricing] ?? reward.cost;
-  const originalPrice = tierPricing.bronze ?? reward.cost;
+  const override = getTierOverrideCost(reward, userTier);
+  const price = override ?? reward.cost;
+  const originalPrice = reward.cost;
 
   return {
-    price: tierPrice,
-    isFree: tierPrice === 0,
-    discount: originalPrice > 0 ? Math.round((1 - tierPrice / originalPrice) * 100) : 0,
+    price,
+    isFree: price === 0,
+    // Only a real per-reward override can produce a "discount".
+    discount: originalPrice > 0 && price < originalPrice
+      ? Math.round((1 - price / originalPrice) * 100)
+      : 0,
     originalPrice
   };
 }
+
 
 /**
  * Check if a user can claim a reward based on tier and balance
@@ -142,22 +165,15 @@ export function getTierDisplayName(tier: string): string {
 }
 
 /**
- * Get all tier prices for a reward (for display purposes)
+ * Get all tier prices for a reward (for display purposes).
+ * Prices come ONLY from the per-reward status_tier_claims_cost override,
+ * falling back to rewards.cost — never from a tier discount table.
  */
 export function getAllTierPrices(reward: Reward): { tier: string; price: number; displayName: string }[] {
-  if (!reward.is_sponsored || !reward.status_tier_claims_cost) {
-    return TIER_ORDER.map(tier => ({
-      tier,
-      price: reward.cost,
-      displayName: getTierDisplayName(tier)
-    }));
-  }
-
-  const tierPricing = reward.status_tier_claims_cost as TierPricing;
-  
   return TIER_ORDER.map(tier => ({
     tier,
-    price: tierPricing[tier] ?? reward.cost,
+    price: getTierOverrideCost(reward, tier) ?? reward.cost,
     displayName: getTierDisplayName(tier)
   }));
 }
+
