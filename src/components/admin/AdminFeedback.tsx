@@ -50,6 +50,26 @@ export function AdminFeedback() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  // feedback-screenshots is a private bucket: resolve a short-lived signed URL
+  const openScreenshot = async (storedUrl: string | null) => {
+    if (!storedUrl) return;
+    const marker = '/feedback-screenshots/';
+    const idx = storedUrl.indexOf(marker);
+    if (idx === -1) {
+      setSelectedImage(storedUrl);
+      return;
+    }
+    const objectPath = decodeURIComponent(storedUrl.slice(idx + marker.length).split('?')[0]);
+    const { data, error } = await supabase.storage
+      .from('feedback-screenshots')
+      .createSignedUrl(objectPath, 300);
+    if (error || !data?.signedUrl) {
+      toast({ title: 'Could not load screenshot', variant: 'destructive' });
+      return;
+    }
+    setSelectedImage(data.signedUrl);
+  };
   const [expandedFeedback, setExpandedFeedback] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
@@ -368,7 +388,7 @@ export function AdminFeedback() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setSelectedImage(item.image_url)}
+                          onClick={() => openScreenshot(item.image_url)}
                           className="text-primary hover:text-primary/80"
                         >
                           <Image className="w-4 h-4" />
