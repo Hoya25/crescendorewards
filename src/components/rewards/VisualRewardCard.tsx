@@ -141,7 +141,7 @@ export function VisualRewardCard({
     cost: reward.cost,
     is_sponsored: reward.is_sponsored,
     status_tier_claims_cost: reward.status_tier_claims_cost,
-    min_status_tier: effectiveMinTier,
+    min_tier_required: effectiveMinTier,
     stock_quantity: reward.stock_quantity,
     is_active: reward.is_active,
   };
