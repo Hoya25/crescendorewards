@@ -237,8 +237,8 @@ export function SponsoredRewardForm({ open, onClose, reward, onSave }: Sponsored
         sponsor_link: formData.sponsor_link || null,
         campaign_id: formData.campaign_id,
         status_tier_claims_cost: formData.status_tier_claims_cost as unknown as Record<string, number> | null,
-        min_status_tier: formData.min_tier_required,
         min_tier_required: formData.min_tier_required,
+
         stock_quantity: formData.stock_quantity,
         sponsor_start_date: formData.sponsor_start_date || null,
         sponsor_end_date: formData.sponsor_end_date || null,
