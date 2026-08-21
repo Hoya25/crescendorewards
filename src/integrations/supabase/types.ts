@@ -4575,21 +4575,6 @@ export type Database = {
           total_shares: number
         }[]
       }
-      get_user_task_progress: {
-        Args: never
-        Returns: {
-          completed_at: string
-          description: string
-          icon: string
-          is_completed: boolean
-          link: string
-          recurring: boolean
-          reward_amount: number
-          task_id: string
-          task_type: string
-          title: string
-        }[]
-      }
       get_user_wishlist: {
         Args: { p_user_id?: string }
         Returns: {
