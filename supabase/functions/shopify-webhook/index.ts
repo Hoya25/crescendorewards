@@ -36,29 +36,68 @@ async function sendNotification(supabaseUrl: string, type: string, userId: strin
 }
 
 // Get user's tier multiplier from status_tiers
-async function getUserTierMultiplier(supabase: any, userId: string): Promise<{ tierName: string; earningMultiplier: number; tierId: string | null }> {
-  const { data: userProfile } = await supabase
+// Resolve the member's TRUE tier at settlement time from their locked balance.
+// Balance is the source of truth. current_tier_id is read for divergence logging
+// only. Below the lowest active threshold the member is pre_bronze and correctly
+// earns 1.0 — Bronze economics require a qualifying lock.
+// This function must never write to unified_profiles or status_tiers. Read-only.
+async function getUserTierMultiplier(
+  supabase: any,
+  userId: string
+): Promise<{ tierName: string; earningMultiplier: number; tierId: string | null }> {
+  const PRE_BRONZE = { tierName: 'pre_bronze', earningMultiplier: 1.0, tierId: null };
+
+  const { data: userProfile, error: profileError } = await supabase
     .from('unified_profiles')
-    .select('current_tier_id')
+    .select('current_tier_id, nctr_locked_points, tier_override')
     .eq('id', userId)
     .single();
 
-  if (!userProfile?.current_tier_id) {
-    return { tierName: 'bronze', earningMultiplier: 1.0, tierId: null };
+  if (profileError || !userProfile) {
+    console.error(`[tier] profile read failed for user ${userId}; settling pre_bronze`, profileError);
+    return PRE_BRONZE;
   }
 
-  const { data: tierData } = await supabase
+  const { data: tiers, error: tiersError } = await supabase
     .from('status_tiers')
-    .select('id, tier_name, earning_multiplier')
-    .eq('id', userProfile.current_tier_id)
-    .single();
+    .select('id, tier_name, earning_multiplier, min_nctr_360_locked')
+    .eq('is_active', true)
+    .order('min_nctr_360_locked', { ascending: false });
+
+  if (tiersError || !tiers?.length) {
+    console.error(`[tier] tier read failed for user ${userId}; settling pre_bronze`, tiersError);
+    return PRE_BRONZE;
+  }
+
+  const locked = Number(userProfile.nctr_locked_points) || 0;
+
+  const override = userProfile.tier_override
+    ? (tiers.find(
+        (t: any) =>
+          String(t.tier_name).toLowerCase() ===
+          String(userProfile.tier_override).toLowerCase()
+      ) ?? null)
+    : null;
+
+  const earned = tiers.find((t: any) => locked >= Number(t.min_nctr_360_locked));
+  const resolved = override ?? earned ?? null;
+
+  const storedTier = tiers.find((t: any) => t.id === userProfile.current_tier_id);
+  if ((storedTier?.tier_name ?? null) !== (resolved?.tier_name ?? null)) {
+    console.warn(
+      `[tier] divergence user=${userId} locked=${locked} stored=${storedTier?.tier_name ?? 'none'} resolved=${resolved?.tier_name ?? 'pre_bronze'}${override ? ' (override)' : ''}`
+    );
+  }
+
+  if (!resolved) return PRE_BRONZE;
 
   return {
-    tierName: tierData?.tier_name?.toLowerCase() || 'bronze',
-    earningMultiplier: Number(tierData?.earning_multiplier) || 1.0,
-    tierId: tierData?.id || null,
+    tierName: String(resolved.tier_name).toLowerCase(),
+    earningMultiplier: Number(resolved.earning_multiplier) || 1.0,
+    tierId: resolved.id ?? null,
   };
 }
+
 
 // Determine user's Crescendo tier and accessible bounties
 async function getUserTierAndBounties(supabase: any, userId: string) {
