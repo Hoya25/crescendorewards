@@ -316,7 +316,7 @@ Deno.serve(async (req) => {
 
     // Default status multiplier (used if user not found)
     let statusMultiplier = 1.0;
-    let tierAtTime = 'bronze';
+    let tierAtTime = 'pre_bronze';
 
     // Try to find user by email
     let userId: string | null = null;
