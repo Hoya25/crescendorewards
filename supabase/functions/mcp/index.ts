@@ -34,7 +34,7 @@ import { z } from 'npm:zod@^4.1.13'
 interface Bounty {
   id: string
   name: string
-  category: 'entry' | 'revenue' | 'merch' | 'referral' | 'engagement'
+  category: 'entry' | 'shopping' | 'merch' | 'referral' | 'engagement'
   description: string
   amount: number
   currency: string
@@ -86,11 +86,11 @@ const BOUNTIES: Bounty[] = [
     requirements: ['Upload avatar', 'Write bio', 'Set preferences'],
     tags: ['onboarding', 'profile', 'easy']
   },
-  // ── Revenue Bounties ──
+  // ── Shopping Bounties ──
   {
     id: 'bounty-first-purchase',
     name: 'First Purchase Bounty',
-    category: 'revenue',
+    category: 'shopping',
     description: 'Make your first purchase through The Garden and earn 2,500 NCTR.',
     amount: 2500,
     currency: 'NCTR',
@@ -103,7 +103,7 @@ const BOUNTIES: Bounty[] = [
   {
     id: 'bounty-shop-and-earn',
     name: 'Shop & Earn',
-    category: 'revenue',
+    category: 'shopping',
     description: 'Earn 250 NCTR per qualifying purchase through The Garden. No cap — earn every time you shop.',
     amount: 250,
     currency: 'NCTR',
@@ -116,7 +116,7 @@ const BOUNTIES: Bounty[] = [
   {
     id: 'bounty-quarterly-spend',
     name: 'Quarterly Spend Bounty',
-    category: 'revenue',
+    category: 'shopping',
     description: 'Hit the quarterly spend threshold and earn 5,000 NCTR. Resets each quarter.',
     amount: 5000,
     currency: 'NCTR',
@@ -129,7 +129,7 @@ const BOUNTIES: Bounty[] = [
   {
     id: 'bounty-annual-member',
     name: 'Annual Member Bounty',
-    category: 'revenue',
+    category: 'shopping',
     description: 'Maintain active membership for a full year and earn 10,000 NCTR.',
     amount: 10000,
     currency: 'NCTR',
@@ -140,9 +140,9 @@ const BOUNTIES: Bounty[] = [
     tags: ['loyalty', 'annual', 'milestone']
   },
   {
-    id: 'bounty-whale-spend',
-    name: 'Whale Spend Bounty',
-    category: 'revenue',
+    id: 'bounty-top-supporter-spend',
+    name: 'Top Supporter Spend Bounty',
+    category: 'shopping',
     description: 'Reach the top-tier annual spend level and earn 25,000 NCTR.',
     amount: 25000,
     currency: 'NCTR',
@@ -457,12 +457,14 @@ server.registerTool(
   {
     title: 'Search Bounties',
     description:
-      'Search and filter available NCTR bounties. Filter by category (entry, revenue, merch, referral, engagement), minimum/maximum NCTR amount, or keyword. Returns bounty details including name, amount, lock period, and requirements. All bounties use 360LOCK — tokens stay yours after the lock period.',
+      'Search and filter available NCTR bounties. Filter by category (entry, shopping, merch, referral, engagement), minimum/maximum NCTR amount, or keyword. Returns bounty details including name, amount, lock period, and requirements. All bounties use 360LOCK — tokens stay yours after the lock period.',
     inputSchema: {
       category: z
-        .enum(['entry', 'revenue', 'merch', 'referral', 'engagement'])
+        .string()
         .optional()
-        .describe('Filter by bounty category'),
+        .describe(
+          'Filter by bounty category: entry, shopping, merch, referral, engagement'
+        ),
       min_amount: z.number().optional().describe('Minimum NCTR amount'),
       max_amount: z.number().optional().describe('Maximum NCTR amount'),
       keyword: z
@@ -479,7 +481,12 @@ server.registerTool(
     let results = [...BOUNTIES]
 
     if (category) {
-      results = results.filter((b) => b.category === category)
+      // Silent input alias, retired 2026-10-01: legacy callers may still send
+      // the old category name. Mapped on input; never emitted in responses.
+      const LEGACY_CATEGORY_ALIASES: Record<string, string> = { revenue: 'shopping' }
+      const normalized = category.toLowerCase().trim()
+      const resolved = LEGACY_CATEGORY_ALIASES[normalized] ?? normalized
+      results = results.filter((b) => b.category === resolved)
     }
     if (min_amount !== undefined) {
       results = results.filter((b) => b.amount >= min_amount)
