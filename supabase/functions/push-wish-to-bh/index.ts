@@ -59,7 +59,8 @@ async function pushWish(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-sync-secret": syncSecret,
+      // BH receive-crescendo-sync authenticates the shared secret as a bearer token.
+      "Authorization": `Bearer ${syncSecret}`,
     },
     body: JSON.stringify({
       type: "wish_create",
