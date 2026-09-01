@@ -115,6 +115,21 @@ export function AmbitionsProvider({ children }: { children: ReactNode }) {
           return;
         }
 
+        // Additive: mirror the wish into Bounty Hunter. Fire-and-forget —
+        // never blocks or fails the Want This action.
+        supabase.functions
+          .invoke('push-wish-to-bh', {
+            body: {
+              reward_id: ambition.rewardId,
+              reward_name: ambition.rewardName,
+              reward_tier: ambition.tierRequired || null,
+            },
+          })
+          .then(({ error: bhError }) => {
+            if (bhError) console.warn('[BH Wish] push failed:', bhError.message);
+          })
+          .catch((e) => console.warn('[BH Wish] network error:', e));
+
         setAmbitions((prev) => [...prev, ambition]);
         toast(`Wingman: ${ambition.rewardName} — on my radar.`, { duration: 3000, style: toastStyle });
       }
