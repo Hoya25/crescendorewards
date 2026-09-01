@@ -115,8 +115,9 @@ serve(async (req) => {
 
     // ---- One-time admin backfill ----
     if (body.mode === "backfill") {
-      const adminId = await requireAdmin(req);
+      const adminId = hasSyncSecret(req) ? "internal" : await requireAdmin(req);
       if (!adminId) return json({ error: "Forbidden" }, 403);
+
 
       const { data: rows, error } = await admin
         .from("member_ambitions")
