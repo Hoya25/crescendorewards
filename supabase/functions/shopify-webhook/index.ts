@@ -6,11 +6,60 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
+// BH is the ledger of record for member balances (ruling M7, 2026-09-25).
+// Crescendo computes the merch credit (math unchanged until the earn cutover) and hands it
+// to BH, which records it once (idempotent on "shopify:<order_id>") and mirrors the new
+// balance back into unified_profiles via receive-lock-request.
+const BH_CREDIT_URL = 'https://auibudfactqhisvmiotw.supabase.co/functions/v1/receive-crescendo-credit';
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+type LedgerResult = {
+  outcome: 'credited' | 'rejected' | 'retry' | 'skipped_zero';
+  http_status: number | null;
+  bh_status: string | null;
+  bounty_id: string | null;
+  mirror: string | null;
+  error: string | null;
+};
+
+async function creditBhLedger(payload: Record<string, unknown>): Promise<LedgerResult> {
+  const base = { http_status: null, bh_status: null, bounty_id: null, mirror: null, error: null };
+  const secret = Deno.env.get('CRESCENDO_BH_CREDIT_SECRET');
+  if (!secret) {
+    return { ...base, outcome: 'retry', error: 'CRESCENDO_BH_CREDIT_SECRET not configured' };
+  }
+  try {
+    const res = await fetch(BH_CREDIT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-sync-secret': secret },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(15000),
+    });
+    const data: any = await res.json().catch(() => ({}));
+    const common = {
+      http_status: res.status,
+      bh_status: typeof data?.status === 'string' ? data.status : null,
+      bounty_id: typeof data?.bounty_id === 'string' ? data.bounty_id : null,
+      mirror: typeof data?.mirror === 'string' ? data.mirror : null,
+    };
+    if (res.ok && (data?.status === 'credited' || data?.status === 'already_credited')) {
+      return { ...common, outcome: 'credited', error: null };
+    }
+    // 400 invalid / 404 member not in BH / 409 identity mismatch: a retry cannot succeed.
+    if (res.status === 400 || res.status === 404 || res.status === 409) {
+      return { ...common, outcome: 'rejected', error: String(data?.error ?? `http_${res.status}`) };
+    }
+    return { ...common, outcome: 'retry', error: String(data?.error ?? `http_${res.status}`) };
+  } catch (e) {
+    return { ...base, outcome: 'retry', error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
 // Helper to send notification email
 async function sendNotification(supabaseUrl: string, type: string, userId: string | null, email: string | null, data: Record<string, unknown>) {
   try {
     const notificationUrl = `${supabaseUrl}/functions/v1/send-account-notification`;
-    
+
     const response = await fetch(notificationUrl, {
       method: 'POST',
       headers: {
@@ -124,7 +173,7 @@ async function getUserTierAndBounties(supabase: any, userId: string) {
   const accessibleStatuses: (string | null)[] = [null];
   const tierHierarchy = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
   const tierIndex = tierHierarchy.indexOf(tierName);
-  
+
   for (let i = 0; i <= tierIndex; i++) {
     accessibleStatuses.push(tierHierarchy[i]);
   }
@@ -234,17 +283,17 @@ Deno.serve(async (req) => {
     const orderNumber = body.order_number ? String(body.order_number) : null;
     const totalPrice = parseFloat(body.total_price || '0');
     const currency = body.currency || 'USD';
-    
+
     const productNames = (body.line_items || [])
       .map((item: any) => item.title || item.name)
       .filter(Boolean)
       .join(', ');
-    
-    const customerEmail = body.email || 
-      body.customer?.email || 
-      body.contact_email || 
+
+    const customerEmail = body.email ||
+      body.customer?.email ||
+      body.contact_email ||
       null;
-    
+
     const customerFirstName = body.customer?.first_name || '';
     const customerLastName = body.customer?.last_name || '';
     const customerName = [customerFirstName, customerLastName].filter(Boolean).join(' ') || null;
@@ -323,17 +372,21 @@ Deno.serve(async (req) => {
     let status = 'pending';
     let creditedAt: string | null = null;
     let userDisplayName: string | null = null;
+    let bhUserId: string | null = null;
+    let profileEmail: string | null = null;
 
     if (customerEmail) {
       const { data: user } = await supabase
         .from('unified_profiles')
-        .select('id, display_name')
+        .select('id, display_name, email, bh_user_id')
         .ilike('email', customerEmail)
         .single();
 
       if (user) {
         userId = user.id;
         userDisplayName = user.display_name;
+        bhUserId = typeof user.bh_user_id === 'string' && UUID_RE.test(user.bh_user_id) ? user.bh_user_id : null;
+        profileEmail = user.email ?? customerEmail;
         status = 'credited';
         creditedAt = new Date().toISOString();
         console.log('Found matching user:', userId);
@@ -352,55 +405,47 @@ Deno.serve(async (req) => {
     const finalNctr = Math.round(baseNctr * merchLockMultiplier * statusMultiplier);
     console.log(`NCTR calc: ${baseNctr} base × ${merchLockMultiplier} merch × ${statusMultiplier} status = ${finalNctr} final`);
 
-    // Credit NCTR to user
+    // =====================================================
+    // LEDGER CREDIT — BH first (ruling M7). Crescendo never writes a member balance
+    // directly; the BH mirror updates unified_profiles.nctr_locked_points.
+    // Order of operations makes Shopify retries safe:
+    //   1. credit BH (idempotent on shopify:<order_id>)
+    //   2. claim the order in shop_transactions (order_id is unique)
+    //   3. write the nctr_transactions audit row and notifications
+    // =====================================================
+    let ledger: LedgerResult | null = null;
     if (status === 'credited' && userId) {
-      const { data: profileData } = await supabase
-        .from('unified_profiles')
-        .select('auth_user_id, nctr_locked_points')
-        .eq('id', userId)
-        .single();
-
-      if (profileData?.auth_user_id) {
-        // Update profiles table (legacy) - use parameterized Supabase client instead of raw SQL
-        const { data: currentProfile } = await supabase
-          .from('profiles')
-          .select('locked_nctr')
-          .eq('id', profileData.auth_user_id)
-          .single();
-
-        if (currentProfile) {
-          await supabase
-            .from('profiles')
-            .update({ 
-              locked_nctr: (currentProfile.locked_nctr || 0) + finalNctr,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('id', profileData.auth_user_id);
-        }
-
-        // Update canonical nctr_locked_points column
-        const currentLocked = Number(profileData.nctr_locked_points) || 0;
-        await supabase
-          .from('unified_profiles')
-          .update({
-            nctr_locked_points: currentLocked + finalNctr,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', userId);
+      if (finalNctr > 0) {
+        ledger = await creditBhLedger({
+          ...(bhUserId ? { bh_user_id: bhUserId } : { email: profileEmail ?? customerEmail }),
+          source_ref: `shopify:${orderId}`,
+          nctr_amount: finalNctr,
+          order_usd: totalPrice,
+          brand_name: 'NCTR Merch',
+          order_number: orderNumber ?? orderId,
+          tier_at_time: tierAtTime,
+          status_multiplier: statusMultiplier,
+          merch_multiplier: merchLockMultiplier,
+        });
+      } else {
+        ledger = { outcome: 'skipped_zero', http_status: null, bh_status: null, bounty_id: null, mirror: null, error: null };
       }
+      console.log('BH ledger result:', JSON.stringify(ledger));
 
-      // Record in nctr_transactions for audit trail
-      await supabase.from('nctr_transactions').insert({
-        user_id: userId,
-        source: 'merch_purchase',
-        base_amount: baseNctr,
-        status_multiplier: statusMultiplier,
-        merch_lock_multiplier: merchLockMultiplier,
-        final_amount: finalNctr,
-        lock_type: '360lock',
-        tier_at_time: tierAtTime,
-        notes: `Shopify order #${orderNumber || orderId} — ${productNames}`,
-      });
+      if (ledger.outcome === 'retry') {
+        // Transient: record nothing, so Shopify's redelivery re-runs this order end to end.
+        console.error('BH ledger credit failed (transient); returning 500 for Shopify retry:', ledger.error);
+        return new Response(JSON.stringify({ error: 'Ledger credit pending retry' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (ledger.outcome === 'rejected') {
+        // Permanent: keep the order visible for reconciliation, credit nothing, notify nobody.
+        console.error('BH ledger credit rejected (permanent):', ledger.error);
+        status = 'failed';
+        creditedAt = null;
+      }
     }
 
     // Insert shop transaction (use finalNctr as the earned amount)
@@ -420,16 +465,41 @@ Deno.serve(async (req) => {
         credited_at: creditedAt,
         store_identifier: 'nctr-merch',
         shopify_data: body,
+        ...(ledger ? { metadata: { ledger } } : {}),
       })
       .select('id')
       .single();
 
     if (insertError) {
+      if ((insertError as any).code === '23505') {
+        // A concurrent delivery of the same order already recorded it (BH credit is idempotent).
+        console.log('Order recorded by a concurrent delivery, skipping:', orderId);
+        return new Response(JSON.stringify({ success: true, message: 'Order already processed' }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
       console.error('Error inserting transaction:', insertError);
       throw insertError;
     }
 
     console.log('Order stored:', transaction?.id, 'Status:', status);
+
+    // Record in nctr_transactions for audit trail (after the claim, so a redelivery never duplicates it)
+    if (status === 'credited' && userId) {
+      const { error: auditError } = await supabase.from('nctr_transactions').insert({
+        user_id: userId,
+        source: 'merch_purchase',
+        base_amount: baseNctr,
+        status_multiplier: statusMultiplier,
+        merch_lock_multiplier: merchLockMultiplier,
+        final_amount: finalNctr,
+        lock_type: '360lock',
+        tier_at_time: tierAtTime,
+        notes: `Shopify order #${orderNumber || orderId} — ${productNames} · BH bounty ${ledger?.bounty_id ?? 'n/a'}`,
+      });
+      if (auditError) console.error('Error inserting nctr_transactions:', auditError);
+    }
 
     // =====================================================
     // MERCH BOUNTY ELIGIBILITY + NOTIFICATIONS
@@ -535,15 +605,16 @@ Deno.serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ 
-      success: true, 
+    return new Response(JSON.stringify({
+      success: true,
       base_nctr: baseNctr,
       merch_lock_multiplier: merchLockMultiplier,
       status_multiplier: statusMultiplier,
       nctr_earned: finalNctr,
       tier: tierAtTime,
       status,
-      transaction_id: transaction?.id
+      transaction_id: transaction?.id,
+      ledger,
     }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -551,7 +622,7 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Webhook error:', error);
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
       error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error'
     }), {
