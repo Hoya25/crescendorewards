@@ -536,6 +536,47 @@ export type Database = {
         }
         Relationships: []
       }
+      bh_sync_events: {
+        Row: {
+          bh_user_id: string
+          detail: string | null
+          event_id: string
+          nctr_locked_points: number | null
+          outcome: string
+          profile_id: string | null
+          received_at: string
+          source_updated_at: string
+        }
+        Insert: {
+          bh_user_id: string
+          detail?: string | null
+          event_id: string
+          nctr_locked_points?: number | null
+          outcome: string
+          profile_id?: string | null
+          received_at?: string
+          source_updated_at: string
+        }
+        Update: {
+          bh_user_id?: string
+          detail?: string | null
+          event_id?: string
+          nctr_locked_points?: number | null
+          outcome?: string
+          profile_id?: string | null
+          received_at?: string
+          source_updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bh_sync_events_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bounties: {
         Row: {
           bounty_tier: string | null
@@ -3953,6 +3994,7 @@ export type Database = {
           id: string
           last_active_crescendo: string | null
           last_active_garden: string | null
+          last_bh_sync_at: string | null
           leaderboard_opt_in: boolean
           nctr_balance_points: number | null
           nctr_earned_total: number | null
@@ -3990,6 +4032,7 @@ export type Database = {
           id?: string
           last_active_crescendo?: string | null
           last_active_garden?: string | null
+          last_bh_sync_at?: string | null
           leaderboard_opt_in?: boolean
           nctr_balance_points?: number | null
           nctr_earned_total?: number | null
@@ -4027,6 +4070,7 @@ export type Database = {
           id?: string
           last_active_crescendo?: string | null
           last_active_garden?: string | null
+          last_bh_sync_at?: string | null
           leaderboard_opt_in?: boolean
           nctr_balance_points?: number | null
           nctr_earned_total?: number | null
