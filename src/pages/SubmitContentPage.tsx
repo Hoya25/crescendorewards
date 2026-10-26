@@ -83,7 +83,7 @@ export default function SubmitContentPage() {
 
   const submitMutation = useMutation({
     mutationFn: async () => {
-      if (!userId) throw new Error('Not authenticated');
+      if (!userId) throw new Error('Sign in to continue.');
       const sourceType = isSponsor ? 'sponsor' : 'contributor';
       const sourceName = isSponsor ? brandName : (displayName || profile?.display_name || 'Contributor');
 
