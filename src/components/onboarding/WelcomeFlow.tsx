@@ -139,10 +139,10 @@ export function WelcomeFlow({ isOpen, onClose }: WelcomeFlowProps) {
             {step === 0 && (
               <div className="space-y-6">
                 <p className="text-xs tracking-widest text-text-body-muted uppercase">NCTR Alliance</p>
-                <h1 className="text-4xl font-bold text-text-heading">Welcome to Crescendo</h1>
-                <p className="text-text-body">The rewards program that pays you to participate.</p>
+                <h1 className="text-4xl font-bold text-text-heading">Welcome to the Alliance.</h1>
+                <p className="text-text-body">Earn NCTR. Commit it. Rise in status.</p>
                 <p className="text-sm text-text-body-muted max-w-sm mx-auto">
-                  Most rewards programs reward spending. Crescendo rewards contribution. The more you participate and commit, the more you earn.
+                  Crescendo is where your status lives. Earn NCTR by shopping and contributing, commit it through 360LOCK, and rise from Bronze to Diamond. Every tier opens more.
                 </p>
                 <Button onClick={handleNext} className="w-full max-w-xs mx-auto bg-accent-lime text-black font-semibold hover:bg-accent-lime/90">
                   How It Works <ArrowRight className="w-4 h-4 ml-2" />
@@ -178,7 +178,7 @@ export function WelcomeFlow({ isOpen, onClose }: WelcomeFlowProps) {
             {step === 2 && (
               <div className="space-y-6 w-full">
                 <h1 className="text-3xl font-bold text-text-heading">Commit More, Unlock More</h1>
-                <p className="text-text-body">Your NCTR is always yours. Locking it is a commitment, not a cost.</p>
+                <p className="text-text-body">Your NCTR stays yours. Committing it is how you build status.</p>
                 <div className="space-y-2 text-left">
                   {tiers.map((t) => (
                     <div key={t.name} className="flex items-center gap-3 py-2">
@@ -286,7 +286,7 @@ export function WelcomeFlow({ isOpen, onClose }: WelcomeFlowProps) {
                   <p className="text-sm text-text-body">
                     Your NCTR: <motion.span key={nctrTotal} initial={{ scale: 1.3 }} animate={{ scale: 1 }} className="text-lg font-bold text-accent-lime">{nctrTotal}</motion.span>
                   </p>
-                  <p className="text-xs text-text-body-muted mt-1">This NCTR is yours. After onboarding you'll choose how to lock it.</p>
+                  <p className="text-xs text-text-body-muted mt-1">This NCTR is yours. Next, you'll choose how to commit it.</p>
                 </div>
 
                 <Button

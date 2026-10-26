@@ -39,7 +39,7 @@ export function FiveWaysToEarn() {
           Six Ways to Earn
         </h2>
         <p className="text-center max-w-2xl mx-auto mb-10 text-sm md:text-base text-text-body">
-          People earn by participating. Brands earn by sponsoring life. The Alliance grows because everyone has a stake in it.
+          People earn by participating. Brands earn by sponsoring the moments that matter to their members. The Alliance grows because everyone has a reason to show up.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4" style={{ alignItems: 'stretch' }}>

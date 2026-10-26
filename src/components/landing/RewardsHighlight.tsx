@@ -20,7 +20,7 @@ const cards: Array<{ title: string; subtitle: React.ReactNode; tier: string }> =
   },
   {
     title: "The life you're building",
-    subtitle: 'Products, experiences, and opportunities that match what matters to you. The higher your status, the more the ecosystem invests in your life.',
+    subtitle: 'Products, experiences, and opportunities that match what matters to you — sponsored by the alliance and its partner brands, earned through status.',
     tier: 'Gold+',
   },
 ];
@@ -44,7 +44,7 @@ export function RewardsHighlight({ onJoin }: RewardsHighlightProps) {
           className="text-center mb-12 max-w-2xl mx-auto text-text-body"
           style={{ fontFamily: dmSans, fontSize: '14px', lineHeight: 1.7 }}
         >
-          The Alliance exists to sponsor the things that matter to you. As you participate and grow your status, the ecosystem invests more in your life — from everyday subscriptions to once-in-a-lifetime experiences.
+          The Alliance exists to sponsor the things that matter to you. As your status rises, more of them open — from everyday subscriptions to once-in-a-lifetime experiences.
         </p>
 
         <div className="grid md:grid-cols-3 gap-5 mb-12">

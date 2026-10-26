@@ -101,7 +101,7 @@ export default function MyGroundballRewardsPage() {
                     {statusConfig.label} Status
                   </h2>
                   <p className="text-muted-foreground text-sm">
-                    {status?.groundball_locked || 0} GROUNDBALL Locked
+                    {status?.groundball_locked || 0} GROUNDBALL Committed
                   </p>
                 </div>
               </div>

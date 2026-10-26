@@ -209,9 +209,9 @@ export default function GroundballOverviewPage() {
               <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-3">
                 <span className="text-2xl">🔒</span>
               </div>
-              <h3 className="font-medium text-white mb-2">Lock for Status</h3>
+              <h3 className="font-medium text-white mb-2">Commit for Status</h3>
               <p className="text-sm text-slate-400">
-                Lock your tokens to unlock Bronze, Silver, and Gold status tiers
+                Commit your tokens to unlock Bronze, Silver, and Gold status tiers
               </p>
             </div>
             <div className="text-center">

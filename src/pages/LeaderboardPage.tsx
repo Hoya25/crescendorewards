@@ -37,7 +37,7 @@ export default function LeaderboardPage() {
       await toggleOptIn(checked);
       toast.success(checked ? 'You joined the leaderboard!' : 'You left the leaderboard');
     } catch {
-      toast.error('Failed to update preference');
+      toast.error('Could not save your leaderboard preference. Try again.');
     }
   };
 

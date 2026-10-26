@@ -31,7 +31,7 @@ export function HowItWorksSection() {
             </div>
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider" style={{ fontFamily: dmSans }}>Step 2</span>
             <h3 className="text-xl mt-1 mb-2" style={{ fontFamily: barlow, fontWeight: 700 }}>Level Up</h3>
-            <p className="text-sm text-muted-foreground" style={{ fontFamily: dmSans }}>Your Claims unlock membership tiers. Higher tier = better rewards.</p>
+            <p className="text-sm text-muted-foreground" style={{ fontFamily: dmSans }}>Commit NCTR through 360LOCK to build status. Use Claims to claim rewards.</p>
           </div>
 
           <div className="bg-background p-6 text-center border" style={{ borderRadius: '0px' }}>

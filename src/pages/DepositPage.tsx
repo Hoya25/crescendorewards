@@ -174,7 +174,7 @@ export default function DepositPage() {
         {/* Page Header */}
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Deposit NCTR</h1>
-          <p className="text-muted-foreground mt-1">Lock tokens for 360 days to level up your membership status.</p>
+          <p className="text-muted-foreground mt-1">Commit NCTR through 360LOCK for 360 days to build your Crescendo status.</p>
         </div>
 
         {/* STEP 1: Register Wallet */}
@@ -277,7 +277,7 @@ export default function DepositPage() {
             <div className="rounded-lg border border-border bg-background/50 p-4 space-y-3">
               <div className="flex items-center gap-2 text-sm font-semibold">
                 <TrendingUp className="w-4 h-4 text-[#E2FF6D]" />
-                <span>Your Status: {totalLockedNctr.toLocaleString()} NCTR locked</span>
+                <span>Your commitment: {totalLockedNctr.toLocaleString()} NCTR committed</span>
               </div>
               <div className="space-y-1.5">
                 {TIER_THRESHOLDS.filter(t => t.min > totalLockedNctr).map(t => (

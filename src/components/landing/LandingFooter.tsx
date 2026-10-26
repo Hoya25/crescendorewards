@@ -45,7 +45,7 @@ export function LandingFooter() {
         </nav>
 
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#5A5A58' }}>
-          © 2026 <NCTRLogo variant="wordmark-grey" height={12} /> Alliance · Crescendo. <NCTRLogo variant="wordmark-grey" height={12} /> is a utility token used within the <NCTRLogo variant="wordmark-grey" height={12} /> Alliance commerce network. Not an investment product. Not a security.
+          © 2026 <NCTRLogo variant="wordmark-grey" height={12} /> Alliance · Crescendo. NCTR is the participation token of NCTR Alliance — earned through shopping and contribution, committed for status. It is a utility token; not an investment product or a security.
         </p>
       </div>
     </footer>

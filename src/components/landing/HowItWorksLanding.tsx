@@ -19,14 +19,14 @@ const steps: Array<{ emoji: string; title: string; description: React.ReactNode 
     emoji: '🔒',
     title: 'Commit with 360LOCK',
     description: (
-      <>Lock your earned {N} for 360 days to build Crescendo status. Higher tiers multiply everything you earn — up to 2.5x at Diamond. Your {N} stays yours — locking is commitment, not spending.</>
+      <>Commit your earned {N} through 360LOCK for 360 days to build Crescendo status. Higher tiers earn more on everything you do, all the way to Diamond. Your {N} stays yours the whole time.</>
     ),
   },
   {
     emoji: '🏆',
     title: 'Unlock Rewards & Status',
     description: (
-      <>Your locked {N} determines your Crescendo status: Bronze through Diamond. Higher status means higher earning multipliers, exclusive rewards, and premium experiences. The more you commit, the more you unlock.</>
+      <>Your committed {N} sets your Crescendo status, Bronze through Diamond. Higher status earns more on every bounty and opens rewards sponsored by the alliance and its partner brands.</>
     ),
   },
 ];

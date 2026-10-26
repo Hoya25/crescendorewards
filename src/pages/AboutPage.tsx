@@ -17,23 +17,23 @@ const PLATFORMS = [
   {
     name: 'Crescendo',
     url: 'https://crescendo.nctr.live',
-    description: 'Member rewards marketplace where 360LOCK status unlocks benefits, discounts, and exclusive access.',
+    description: 'Crescendo is where Alliance members hold status and claim sponsored rewards.',
   },
   {
     name: 'BaseCamp',
     url: 'https://basecamp.nctr.live',
-    description: 'Token dashboard for tracking NCTR vesting and lockup plans.',
+    description: 'Token dashboard for tracking NCTR vesting and commitment plans.',
   },
 ];
 
 const FAQS = [
   {
     q: 'What is NCTR Alliance?',
-    a: 'NCTR Alliance is a participation token economy on the Base blockchain. Members earn NCTR tokens through shopping and contribution — not speculation.',
+    a: 'NCTR Alliance is a participation economy. Members earn NCTR through shopping and contribution, commit it for status, and claim rewards sponsored by the alliance and its partner brands.',
   },
   {
     q: 'What is the NCTR token?',
-    a: 'NCTR (pronounced Nectar) is the participation token of NCTR Alliance on Base. Contract: 0x973104fAa7F2B11787557e85953ECA6B4e262328. It is earned, not bought.',
+    a: 'NCTR (pronounced Nectar) is the participation token of NCTR Alliance. It is earned by shopping and contributing, and committed through 360LOCK for status.',
   },
   {
     q: 'How do I earn NCTR through shopping?',
@@ -41,7 +41,7 @@ const FAQS = [
   },
   {
     q: 'What is 360LOCK?',
-    a: 'LOCK is a 360-day commitment where you lock your NCTR tokens to earn status tiers on Crescendo — Bronze through Diamond. Tokens are never spent. You always keep ownership after the lock period ends.',
+    a: '360LOCK is a 360-day commitment. Commit your NCTR and your Crescendo status rises, Bronze through Diamond. Your NCTR stays yours throughout, and returns to you when the commitment ends.',
   },
   {
     q: 'What is the difference between 90LOCK and 360LOCK?',
@@ -53,8 +53,8 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#0D0D0D', color: '#D9D9D9' }}>
       <SEO
-        title="About NCTR Alliance — Participation Token Economy on Base"
-        description="NCTR Alliance is a participation token economy on the Base blockchain where people earn NCTR (pronounced Nectar) tokens by shopping at thousands of brands and commit them via 360LOCK to unlock rewards and status on Crescendo."
+        title="About NCTR Alliance — Earn, Commit, Rise"
+        description="NCTR Alliance is a participation economy where members earn NCTR by shopping at thousands of stores, commit it through 360LOCK, and hold status on Crescendo."
         canonical="https://crescendo.nctr.live/about"
       />
 
@@ -65,7 +65,7 @@ export default function AboutPage() {
             About NCTR Alliance
           </h1>
           <p className="text-base sm:text-lg leading-relaxed">
-            NCTR Alliance (pronounced Nectar Alliance) is a participation token economy. Members earn NCTR tokens through everyday shopping at thousands of brands on The Mall, then commit those tokens via 360LOCK — a 360-day commitment — to rise through status tiers on Crescendo, our member rewards marketplace. You never spend your tokens. You always keep ownership. Members earn NCTR tokens through everyday shopping at thousands of brands on The Mall, then commit those tokens via 360LOCK — a 360-day commitment — to rise through status tiers on Crescendo, our member rewards marketplace. You never spend your tokens. You always keep ownership.
+            NCTR Alliance is a participation economy. Members earn NCTR through everyday shopping on The Mall and through contribution, then commit it through 360LOCK — a 360-day commitment — to rise through status on Crescendo. Rewards are sponsored by the alliance and its partner brands, and earned through status.
           </p>
         </section>
 
@@ -82,7 +82,7 @@ export default function AboutPage() {
             <li>We are NOT any other Nectar-branded token on centralized exchanges</li>
           </ul>
           <p className="text-sm">
-            NCTR Alliance's token is deployed exclusively on Base. Contract:{' '}
+            Verify the contract:{' '}
             <code className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: '#1a1a1a', color: '#E2FF6D' }}>
               0x973104fAa7F2B11787557e85953ECA6B4e262328
             </code>

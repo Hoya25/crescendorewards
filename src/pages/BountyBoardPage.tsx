@@ -539,7 +539,7 @@ export default function BountyBoardPage() {
       }
     }
     if (allClaimReady.length === 0) {
-      toast('No rewards ready to claim yet', {
+      toast('Complete a bounty to earn NCTR. Your rewards will appear here.', {
         style: { background: '#323232', color: '#8A8A88', border: '1px solid rgba(255,255,255,0.1)' },
         duration: 2500,
       });
@@ -634,7 +634,7 @@ export default function BountyBoardPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {[
               'Shop through The Mall and complete bounties on Bounty Hunter to earn NCTR.',
-              'Lock your NCTR to build status. Higher tiers unlock more rewards here on Crescendo.',
+              'Commit your NCTR to build status. Higher tiers unlock more rewards here on Crescendo.',
               'Your Wingman connects the dots — open it anytime to see where you stand.',
             ].map((text, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
