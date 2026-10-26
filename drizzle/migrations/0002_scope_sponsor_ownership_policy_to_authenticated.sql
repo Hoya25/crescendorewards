@@ -1,0 +1,1 @@
+ALTER POLICY "Sponsors can manage own profile" ON public.sponsors TO authenticated;
