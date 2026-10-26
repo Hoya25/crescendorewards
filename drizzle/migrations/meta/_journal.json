@@ -15,6 +15,13 @@
       "when": 1793047015094,
       "tag": "0001_scope_public_has_role_policies_to_authenticated",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793047241795,
+      "tag": "0002_scope_sponsor_ownership_policy_to_authenticated",
+      "breakpoints": true
     }
   ]
 }
