@@ -184,7 +184,7 @@ export function WellnessRewardsSection() {
               </div>
               <p className="text-sm text-muted-foreground max-w-lg">
                 <span className="font-medium text-foreground">Food is medicine.</span>{' '}
-                Earn through participation. Unlock through commitment. These rewards are earned, not bought.
+                Earned through participation. Opened through commitment. Sponsored by the alliance and its partner brands.
               </p>
             </div>
           </div>
@@ -247,7 +247,7 @@ export function WellnessRewardsSection() {
           >
             <span className="font-semibold">How it works:</span>{' '}
             Shop at alliance stores through The Mall → Earn NCTR → Commit with 360LOCK → Unlock these rewards.
-            Your commitment unlocks value; you never spend your earned rewards.
+            Your commitment opens rewards. Your earned NCTR stays yours.
           </div>
           <a
             href="https://themall.nctr.live"

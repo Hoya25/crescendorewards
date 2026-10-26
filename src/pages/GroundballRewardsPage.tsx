@@ -314,17 +314,17 @@ export default function GroundballRewardsPage() {
             </div>
             <h3 className="text-xl font-semibold text-white mb-2">
               {statusFilter === 'my-selections' 
-                ? 'No selections yet'
+                ? 'Choose your rewards'
                 : statusFilter === 'available'
-                ? 'No rewards unlocked yet'
-                : 'No rewards match your filters'
+                ? 'Build status to open rewards'
+                : 'Try different filters'
               }
             </h3>
             <p className="text-slate-400 mb-6">
               {statusFilter === 'my-selections'
-                ? 'Browse rewards and start selecting!'
+                ? 'Browse rewards and choose your first selection.'
                 : statusFilter === 'available'
-                ? `Commit GROUNDBALL tokens to unlock rewards! You're currently at ${userTier === 'none' ? 'Member' : userTier.charAt(0).toUpperCase() + userTier.slice(1)} status. Commit 100+ $GBS to reach Bronze and unlock your first reward selections.`
+                ? `Commit GROUNDBALL tokens to open rewards. You're currently at ${userTier === 'none' ? 'Member' : userTier.charAt(0).toUpperCase() + userTier.slice(1)} status. Commit 100+ $GBS to reach Bronze and unlock your first reward selections.`
                 : 'Try adjusting your filters to see more rewards.'}
             </p>
             {statusFilter === 'my-selections' && (

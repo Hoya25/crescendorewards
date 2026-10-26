@@ -45,7 +45,7 @@ function NctrWordmark({ height = 28 }: { height?: number }) {
 const CATEGORIES = [
   { name: 'Claimable Rewards', body: 'The catalog you see — new drops every week.' },
   { name: 'Brand Discounts', body: 'Ongoing savings across partner brands. Deeper every tier.' },
-  { name: 'Amplified Earning', body: 'Your multiplier. Silver 1.3× → Diamond 2.5×. Everything you do, worth more.' },
+  { name: 'Amplified Earning', body: 'Your status. Silver earns more than Bronze. Diamond earns more than anyone. Everything you do, worth more.' },
   { name: 'Exclusive Access', body: 'Drops, experiences, and perks only status unlocks.' },
 ];
 
@@ -75,13 +75,13 @@ export default function MembershipPitch() {
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '0 24px' }}>
 
         <div style={{ marginTop: 40, lineHeight: 0 }}><NctrWordmark height={30} /></div>
-        <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.3em', color: 'var(--nctr-muted)', marginTop: 12 }}>CRESCENDO MEMBERSHIP</div>
+        <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.3em', color: 'var(--nctr-muted)', marginTop: 12 }}>NCTR ALLIANCE · CRESCENDO MEMBERSHIP</div>
 
         <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: 56, lineHeight: 0.95, color: 'var(--nctr-charcoal)', marginTop: 20, textTransform: 'uppercase' }}>
           Your status unlocks a world.
         </div>
         <div style={{ fontSize: 15, lineHeight: 1.55, color: 'var(--nctr-ink-soft)', marginTop: 14, maxWidth: 460 }}>
-          Rewards to claim. Discounts at the brands you love. Earning that multiplies. Access others never get. The higher you rise, the more opens.
+          Rewards to claim. Access that opens by tier. Earning that grows with your status. The higher you rise, the more opens.
         </div>
 
         {hero && (

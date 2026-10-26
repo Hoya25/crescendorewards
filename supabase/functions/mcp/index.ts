@@ -2,7 +2,7 @@
  * NCTR Alliance MCP Server
  * ========================
  * Model Context Protocol server for AI agents to discover and interact
- * with the NCTR rewards program, bounties, and Impact Engines.
+ * with NCTR Alliance status, rewards, bounties, and Impact Engines.
  *
  * Deployment: Supabase Edge Functions
  * Transport: Streamable HTTP (MCP specification standard)
@@ -317,36 +317,36 @@ const TIERS: Tier[] = [
     name: 'Bronze',
     threshold: 1000,
     multiplier: 1.1,
-    description: 'Starting tier — members with 1,000+ NCTR committed. 1.1x earning multiplier.',
-    perks: ['1.1x earning multiplier', 'Access to all standard bounties', 'The Mall shopping', 'Community access']
+    description: 'Where every member starts. 1,000+ NCTR committed through 360LOCK.',
+    perks: ['Earns on every bounty', 'Access to all standard bounties', 'The Mall shopping', 'Community access']
   },
   {
     name: 'Silver',
     threshold: 5000,
     multiplier: 1.3,
-    description: 'Members with 5,000+ NCTR committed. 1.3x earning multiplier.',
-    perks: ['1.3x earning multiplier', 'Early access to new bounties', 'Silver badge']
+    description: 'Silver status — 5,000+ NCTR committed through 360LOCK. Earns more on every bounty than Bronze.',
+    perks: ['Earns more than Bronze on every bounty', 'Early access to new bounties', 'Silver badge']
   },
   {
     name: 'Gold',
     threshold: 15000,
     multiplier: 1.5,
-    description: 'Active members with 15,000+ NCTR committed. 1.5x earning multiplier.',
-    perks: ['1.5x earning multiplier', 'Exclusive Gold bounties', 'Priority support', 'Gold badge']
+    description: 'Gold status — 15,000+ NCTR committed through 360LOCK. Earns more on every bounty than Silver.',
+    perks: ['Earns more than Silver on every bounty', 'Exclusive Gold bounties', 'Priority support', 'Gold badge']
   },
   {
     name: 'Platinum',
     threshold: 40000,
     multiplier: 1.8,
-    description: 'Power members with 40,000+ NCTR committed. 1.8x earning multiplier.',
-    perks: ['1.8x earning multiplier', 'VIP experiences', 'Platinum-only drops', 'Platinum badge']
+    description: 'Platinum status — 40,000+ NCTR committed through 360LOCK. Earns more on every bounty than Gold.',
+    perks: ['Earns more than Gold on every bounty', 'VIP experiences', 'Platinum-only drops', 'Platinum badge']
   },
   {
     name: 'Diamond',
     threshold: 100000,
     multiplier: 2.5,
-    description: 'Top-tier members with 100,000+ NCTR committed. 2.5x earning multiplier.',
-    perks: ['2.5x earning multiplier', 'Charter member recognition', 'Diamond-exclusive events', 'Diamond badge', 'Direct team access']
+    description: 'Diamond status — 100,000+ NCTR committed through 360LOCK. Earns more on every bounty than Platinum.',
+    perks: ['Earns the most on every bounty', 'Charter member recognition', 'Diamond-exclusive events', 'Diamond badge', 'Direct team access']
   }
 ]
 
@@ -457,7 +457,7 @@ server.registerTool(
   {
     title: 'Search Bounties',
     description:
-      'Search and filter available NCTR bounties. Filter by category (entry, shopping, merch, referral, engagement), minimum/maximum NCTR amount, or keyword. Returns bounty details including name, amount, commitment period, and requirements. Every bounty is committed for 360 days, and the tokens stay yours after the commitment period.',
+      'Search and filter available NCTR bounties. Filter by category (entry, shopping, merch, referral, engagement), minimum/maximum NCTR amount, or keyword. Returns bounty details including name, amount, commitment period, and requirements. Every bounty is committed through 360LOCK for 360 days. Your NCTR stays yours throughout.',
     inputSchema: {
       category: z
         .string()
@@ -512,7 +512,7 @@ server.registerTool(
         content: [
           {
             type: 'text' as const,
-            text: 'No bounties found matching your filters. Try broadening your search: bounties span the entry, shopping, merch, referral and engagement categories.',
+            text: 'Explore NCTR Alliance bounties with broader filters. Try entry, shopping, merch, referral or engagement.',
           },
         ],
       }
@@ -537,7 +537,7 @@ server.registerTool(
             {
               total: results.length,
               bounties: formatted,
-              note: 'Every bounty is committed for 360 days. Tokens are committed, not spent, and stay yours after the commitment period.',
+              note: 'Every bounty is committed through 360LOCK for 360 days. Your NCTR stays yours throughout and becomes available when the commitment ends.',
             },
             null,
             2
@@ -555,7 +555,7 @@ server.registerTool(
   {
     title: 'Get Earning Rates',
     description:
-      'Get NCTR earning rates for a specific Crescendo status tier, or compare all tiers. Shows the multiplier applied to bounty earnings at each tier level. Higher tiers earn more NCTR per bounty.',
+      'Get NCTR earning rates for a specific Crescendo status tier, or compare all tiers. Shows how your status sets what you earn on every bounty. Higher tiers earn more NCTR per bounty.',
     inputSchema: {
       tier: z
         .enum(['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'])
@@ -601,7 +601,7 @@ server.registerTool(
           text: JSON.stringify(
             {
               tiers: formatted,
-              note: 'Crescendo Status Tiers determine your earning multiplier. Commit more NCTR to progress through tiers and earn more on every bounty.',
+              note: 'Your Crescendo status sets how much you earn on every bounty. Commit NCTR through 360LOCK to rise. Higher status earns more on every bounty.',
             },
             null,
             2
@@ -619,7 +619,7 @@ server.registerTool(
   {
     title: 'Check Tier Requirements',
     description:
-      'Check what is needed to reach a specific Crescendo status tier, or see the full progression path. Shows NCTR commitment thresholds, multipliers, and perks for each tier.',
+      'Check what is needed to reach a specific Crescendo status tier, or see the full progression path. Shows NCTR commitment thresholds, earning benefits, and rewards for each tier.',
     inputSchema: {
       current_balance: z
         .number()
@@ -700,7 +700,7 @@ server.registerTool(
                   ? `${current_balance.toLocaleString()} NCTR`
                   : undefined,
               progression,
-              note: 'Tiers are based on total NCTR committed. Higher tiers unlock better multipliers and exclusive perks.',
+              note: 'Your NCTR committed through 360LOCK sets your Crescendo status. Higher status earns more on every bounty and opens more rewards.',
             },
             null,
             2
@@ -718,7 +718,7 @@ server.registerTool(
   {
     title: 'Get Active Promotions',
     description:
-      'Get currently active promotions, limited-time offers, and special earning opportunities in the NCTR program.',
+      'Explore active offers and earning opportunities in NCTR Alliance.',
     inputSchema: {},
   },
   () => {
@@ -729,7 +729,7 @@ server.registerTool(
         content: [
           {
             type: 'text' as const,
-            text: 'No special promotions are active right now.',
+            text: 'NCTR Alliance bounties are open to explore. Special offers will appear here when available.',
           },
         ],
       }
@@ -790,7 +790,7 @@ server.registerTool(
       ],
       total_potential: '2,250 NCTR',
       referral_code: referral_code || null,
-      note: 'New members can earn up to 2,250 NCTR by signing up and completing their profile while the offer runs. All tokens are committed for 360 days, not spent.',
+      note: 'New members can earn up to 2,250 NCTR by signing up and completing their profile while the offer runs. All tokens are committed through 360LOCK for 360 days. Your NCTR stays yours throughout.',
     }
 
     return {
@@ -829,7 +829,7 @@ server.registerTool(
         content: [
           {
             type: 'text' as const,
-            text: `No Impact Engines found for "${category}". Available categories: Powersports, Lacrosse, Entertainment, Skilled Trades, Recovery, Wellness.`,
+            text: `Explore NCTR Alliance communities in Powersports, Lacrosse, Entertainment, Skilled Trades, Recovery or Wellness. Try another category instead of "${category}".`,
           },
         ],
       }
@@ -872,7 +872,7 @@ app.get('/mcp', (c) => {
     name: 'NCTR Alliance MCP Server',
     version: '1.0.0',
     description:
-      'Model Context Protocol server for AI agents to discover and interact with the NCTR rewards program.',
+      'Model Context Protocol server for agents to explore NCTR Alliance bounties, status, commitments, and rewards.',
     tools: [
       'search_bounties',
       'get_earning_rates',

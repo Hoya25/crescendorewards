@@ -69,9 +69,9 @@ export function MembershipHistory({ userId }: MembershipHistoryProps) {
       <Card className="p-6">
         <div className="text-center py-8">
           <TrendingUp className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
-          <p className="text-muted-foreground">No membership history yet</p>
+          <p className="text-muted-foreground">Your membership history starts here</p>
           <p className="text-sm text-muted-foreground mt-1">
-            Lock NCTR to upgrade your tier and build your history
+            Commit NCTR to upgrade your tier and build your history
           </p>
         </div>
       </Card>

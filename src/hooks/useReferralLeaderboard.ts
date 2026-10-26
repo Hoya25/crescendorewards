@@ -51,7 +51,7 @@ export function useReferralLeaderboard() {
 
   const toggleOptIn = useMutation({
     mutationFn: async (optIn: boolean) => {
-      if (!user?.id) throw new Error('Not authenticated');
+      if (!user?.id) throw new Error('Sign in to continue.');
       const { data, error } = await supabase.rpc('toggle_leaderboard_opt_in', { p_opt_in: optIn });
       if (error) throw error;
       return data;

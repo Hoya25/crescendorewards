@@ -115,7 +115,7 @@ export function ResubmitModal({ open, onClose, submission, onSuccess }: Resubmit
       toast.success('Image uploaded successfully');
     } catch (error) {
       console.error('Error uploading image:', error);
-      toast.error('Failed to upload image');
+      toast.error('Try uploading the image again');
     } finally {
       setUploadingImage(false);
     }
@@ -133,7 +133,7 @@ export function ResubmitModal({ open, onClose, submission, onSuccess }: Resubmit
     try {
       // Create a new submission linked to the original via parent_submission_id
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      if (!user) throw new Error('Sign in to continue.');
 
       const { error } = await supabase
         .from('reward_submissions')
@@ -173,7 +173,7 @@ export function ResubmitModal({ open, onClose, submission, onSuccess }: Resubmit
       onClose();
     } catch (error: any) {
       console.error('Error resubmitting:', error);
-      toast.error(error.message || 'Failed to resubmit');
+      toast.error(error.message || 'Try resubmitting again');
     } finally {
       setLoading(false);
     }

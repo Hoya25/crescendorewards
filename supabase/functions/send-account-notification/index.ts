@@ -78,11 +78,11 @@ const getEmailTemplate = (type: string, data: Record<string, unknown>) => {
                 <p style="margin: 0; font-size: 36px; font-weight: bold;">+${formatNumber(data.nctr_earned as number)} NCTR</p>
               </div>
               
-              <p>Your NCTR is building your digital ownership stake in the NCTR Alliance ecosystem.</p>
+              <p>NCTR is the participation token of NCTR Alliance. Commit what you earn through 360LOCK to build your Crescendo status.</p>
               
               ${data.total_balance ? `<p><strong>Current NCTR Balance:</strong> ${formatNumber(data.total_balance as number)} NCTR</p>` : ''}
               
-              <p style="margin-top: 20px;">Keep earning at The Mall — shop thousands of brands and earn NCTR with every purchase.</p>
+              <p style="margin-top: 20px;">Keep earning at The Mall — shop thousands of brands and earn NCTR on qualifying purchases.</p>
               
               <div style="text-align: center;">
                 <a href="${baseUrl}/rewards" style="${buttonStyle}">View My Rewards</a>
@@ -122,13 +122,15 @@ const getEmailTemplate = (type: string, data: Record<string, unknown>) => {
                 <p style="margin: 8px 0 0 0; font-size: 24px; font-weight: bold;">${data.tier_name}</p>
               </div>
               
-              <h3 style="margin-bottom: 16px;">Your New Benefits:</h3>
+              <h3 style="margin-bottom: 16px;">${data.tier_name} earns more on every bounty</h3>
               <ul style="padding-left: 20px;">
-                ${data.multiplier ? `<li><strong>${data.multiplier}x</strong> earning multiplier</li>` : ''}
-                ${data.claims_per_period ? `<li><strong>${data.claims_per_period}</strong> claims per period</li>` : ''}
-                ${data.discount_percent ? `<li><strong>${data.discount_percent}%</strong> discount on rewards</li>` : ''}
-                ${data.priority_support ? `<li>Priority support access</li>` : ''}
-                ${data.early_access ? `<li>Early access to new rewards</li>` : ''}
+                ${({
+                  bronze: ['Earns on every bounty', 'Rewards sponsored by the alliance and its partner brands open at Bronze'],
+                  silver: ['Earns more than Bronze on every bounty', 'Silver rewards open'],
+                  gold: ['Earns more than Silver on every bounty', 'Gold rewards and experiences open'],
+                  platinum: ['Earns more than Gold on every bounty', 'Platinum rewards, experiences, and first looks open'],
+                  diamond: ['Earns the most on every bounty', 'Everything opens at Diamond'],
+                }[String(data.tier_name).toLowerCase()] || []).map((benefit) => `<li>${benefit}</li>`).join('')}
               </ul>
               
               <p style="margin-top: 20px;">Your rewards are growing with your commitment.</p>
@@ -205,7 +207,7 @@ const getEmailTemplate = (type: string, data: Record<string, unknown>) => {
               </div>
               
               <p><strong>What is NCTR?</strong></p>
-              <p>NCTR is your digital ownership stake in the NCTR Alliance ecosystem. As a member, you'll unlock exclusive rewards, benefits, and experiences.</p>
+              <p>Crescendo is where NCTR Alliance members hold status. Earn NCTR through shopping and contribution. Commit it through 360LOCK to rise and open rewards sponsored by the Alliance and its partner brands.</p>
               
               <p style="margin-top: 20px;">Sign up for Crescendo to claim your NCTR and start unlocking rewards.</p>
               

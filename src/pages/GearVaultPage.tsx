@@ -190,7 +190,7 @@ export default function GearVaultPage() {
             ) : (gearItems?.length || 0) === 0 ? (
               <div className="text-center py-16">
                 <div className="text-6xl mb-4">📦</div>
-                <h3 className="text-xl font-semibold text-white mb-2">No gear available</h3>
+                <h3 className="text-xl font-semibold text-white mb-2">Explore other rewards</h3>
                 <p className="text-slate-400">Check back soon or contribute your own gear!</p>
               </div>
             ) : (

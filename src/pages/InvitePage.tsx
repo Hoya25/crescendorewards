@@ -54,12 +54,12 @@ export default function InvitePage() {
       toast.success('Link copied!');
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error('Failed to copy');
+      toast.error('Could not copy your link. Try again.');
     }
   };
 
   const shareText = {
-    twitter: `I'm building status on Crescendo — a rewards marketplace where you earn, not spend. Join through my link and we both earn NCTR 🔥 ${referralLink}`,
+    twitter: `I'm building status in NCTR Alliance on Crescendo. Join through my link and we both earn NCTR 🔥 ${referralLink}`,
     whatsapp: `Join me on Crescendo — earn NCTR from shopping and unlock real rewards. Use my invite link: ${referralLink}`,
     telegram: `Join me on Crescendo — earn NCTR from shopping and unlock real rewards. Use my invite link: ${referralLink}`,
     emailSubject: 'Join me on Crescendo',

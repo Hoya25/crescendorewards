@@ -144,7 +144,7 @@ export function BrandPartnersPage() {
       setFilteredBrands((data || []).filter(b => !b.is_featured));
     } catch (error: any) {
       console.error('Error loading brands:', error);
-      toast.error('Failed to load brand partners');
+      toast.error('Refresh to load brand partners');
     } finally {
       setLoading(false);
     }
@@ -260,7 +260,7 @@ export function BrandPartnersPage() {
                   <h3 className="font-semibold mb-1 flex items-center gap-1">
                     Earn <NCTRLogo size="sm" />
                   </h3>
-                  <p className="text-sm text-muted-foreground">Base rate × your status multiplier ({multiplier}x)</p>
+                  <p className="text-sm text-muted-foreground">Base rate at your status</p>
                 </div>
               </div>
             </div>
@@ -271,7 +271,7 @@ export function BrandPartnersPage() {
         <Card className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
           <CardContent className="p-6 flex items-center justify-between">
             <div>
-              <p className="text-sm opacity-90 mb-1">Your Current Earnings Multiplier</p>
+              <p className="text-sm opacity-90 mb-1">Your current earning</p>
               <p className="text-5xl font-bold">{multiplier}x</p>
             </div>
             <div className="text-right">
@@ -451,7 +451,7 @@ export function BrandPartnersPage() {
             <Card>
               <CardContent className="p-12 text-center">
                 <Store className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-lg text-muted-foreground">No partners found in this category</p>
+                <p className="text-lg text-muted-foreground">Explore another category</p>
               </CardContent>
             </Card>
           ) : (
@@ -513,9 +513,9 @@ export function BrandPartnersPage() {
                   <Zap className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-1">Status Multiplier Applies</h3>
+                  <h3 className="font-semibold mb-1">Your status applies</h3>
                   <p className="text-sm text-muted-foreground">
-                    Your status level multiplier automatically applies to all partner earnings
+                    Your Crescendo status applies to every partner earning.
                   </p>
                 </div>
               </div>

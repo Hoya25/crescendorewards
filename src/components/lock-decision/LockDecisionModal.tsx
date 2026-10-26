@@ -191,7 +191,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
             <Check className="w-7 h-7" style={{ color: '#E2FF6D' }} />
           </div>
           <h2 className="text-xl font-bold text-white">
-            {selectedAmount.toLocaleString()} NCTR Locked
+            {selectedAmount.toLocaleString()} NCTR Committed
           </h2>
           <div className="p-3 rounded-lg text-left" style={{ background: 'rgba(255,255,255,0.05)' }}>
             <p className="text-xs text-white/60">
@@ -221,11 +221,11 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
   const faqs = [
     {
       q: 'What happens to my NCTR when I commit it?',
-      a: 'Your NCTR stays in your wallet — it is not spent or consumed. It is simply committed for the chosen period. After the period ends, it becomes available and you can use it freely or re-commit for continued status.',
+      a: "Your NCTR stays yours. It's committed for the period you choose, then it's available again — use it freely or recommit to hold your status.",
     },
     {
       q: 'Can I withdraw my NCTR before 360 days?',
-      a: 'No. Once committed, your NCTR is held for the full period. This is what makes Crescendo status meaningful — it represents real commitment to the community.',
+      a: "Your commitment holds for the full period. That's what makes Crescendo status mean something — it's real commitment, made visible.",
     },
     {
       q: 'What is Crescendo status?',
@@ -300,7 +300,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
                     ? 'bg-white text-[#1A1A2E]'
                     : 'bg-white/10 text-white/60'
                 )}>
-                  Lock for 90 Days
+                  Commit for 90 Days
                 </div>
               </button>
 
@@ -373,7 +373,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
                     color: selected === '360lock' ? '#1A1A2E' : '#C8FF00',
                   }}
                 >
-                  Lock for 360 Days
+                  Commit for 360 Days
                 </div>
               </button>
             </div>
@@ -385,7 +385,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
               Status Impact Preview
             </h4>
             <p className="text-sm text-white/60">
-              If you lock {request.baseAmount.toLocaleString()} NCTR for {lockDays} days:
+              If you commit {request.baseAmount.toLocaleString()} NCTR for {lockDays} days:
             </p>
 
             <div className="grid grid-cols-2 gap-3">
@@ -451,7 +451,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
               style={{ background: '#C8FF00', color: '#1A1A2E' }}
               onClick={handleConfirm}
             >
-              Lock {amount360.toLocaleString()} NCTR for 360 Days
+              Commit {amount360.toLocaleString()} NCTR for 360 Days
             </Button>
           ) : (
             <Button
@@ -467,8 +467,8 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
               onClick={handleConfirm}
             >
               {selected === '360lock'
-                ? `Lock ${amount360.toLocaleString()} NCTR for 360 Days`
-                : `Lock ${amount90.toLocaleString()} NCTR for 90 Days`
+                ? `Commit ${amount360.toLocaleString()} NCTR for 360 Days`
+                : `Commit ${amount90.toLocaleString()} NCTR for 90 Days`
               }
             </Button>
           )}
@@ -535,8 +535,8 @@ function Lock360Celebration({
   }, []);
 
   const summaryItems = [
-    { label: 'Amount Locked', value: `${amount.toLocaleString()} NCTR` },
-    { label: 'Lock Duration', value: '360 Days' },
+    { label: 'Amount Committed', value: `${amount.toLocaleString()} NCTR` },
+    { label: 'Commitment Duration', value: '360 Days' },
     { label: 'Status Tier', value: tierName, isBadge: true, badgeColor: tierColor, badgeEmoji: tierEmoji },
     { label: 'Unlock Date', value: unlockDate },
   ];
@@ -553,7 +553,7 @@ function Lock360Celebration({
         {/* Headline */}
         <div className="space-y-3">
           <h1 className="text-3xl sm:text-4xl font-bold text-white">
-            🔒 Locked & Loaded!
+            🔒 Commitment complete!
           </h1>
           <p className="text-base text-white/80">
             Your <span className="font-bold" style={{ color: '#E2FF6D' }}>{amount.toLocaleString()} NCTR</span> is committed for 360 days.
@@ -670,7 +670,7 @@ function Required360View({
           <Lock className="w-4 h-4" style={{ color: '#C8FF00' }} />
           <span className="font-bold text-white">360LOCK</span>
         </div>
-        <p className="text-xs text-white/40">Locked for 360 days</p>
+        <p className="text-xs text-white/40">Committed for 360 days</p>
         <p className="text-3xl font-bold" style={{ color: '#C8FF00' }}>
           {amount360.toLocaleString()} NCTR
         </p>
@@ -688,8 +688,7 @@ function Required360View({
       <div className="flex items-start gap-2 p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)' }}>
         <Info className="w-4 h-4 text-white/40 shrink-0 mt-0.5" />
         <p className="text-xs text-white/50">
-          Why 360 days only? Merch bounties reward commitment to your status. The {calc360.merchBonus > 1 ? `${calc360.merchBonus}x merch bonus` : `${multiplier}x multiplier`} is built in.
-          {statusMultiplier > 1 && ` Your ${tierName} status adds ${statusMultiplier}x on top.`}
+          Merch bounties reward commitment. Choose 360 days and the merch bonus is built in.
         </p>
       </div>
     </div>

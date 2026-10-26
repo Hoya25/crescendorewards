@@ -11,17 +11,17 @@
 
 export const LOCK_OPTIONS = {
   '90lock': {
-    label: '90-Day Lock',
+    label: '90-Day Commitment',
     durationDays: 90,
     multiplier: 1.5,
-    description: '1.5x multiplier',
+    description: 'Counts 1.5× toward status',
     bhLockType: '90LOCK' as const,
   },
   '360lock': {
-    label: '360-Day Lock',
+    label: '360LOCK',
     durationDays: 360,
     multiplier: 3.0,
-    description: '3.0x multiplier',
+    description: 'Counts 3× toward status',
     isDefault: true,
     description2: 'Most generous',
     bhLockType: '360LOCK' as const,

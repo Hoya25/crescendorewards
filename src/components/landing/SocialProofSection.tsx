@@ -48,7 +48,7 @@ export function SocialProofSection() {
           )}
         </p>
         <p className="text-sm text-muted-foreground mt-2">
-          No credit card required. Start earning in minutes.
+          Free to join. Earning in minutes.
         </p>
       </div>
     </section>

@@ -10,8 +10,8 @@ interface SEOProps {
 }
 
 const defaultMeta = {
-  title: "Crescendo | Live and Earn | by NCTR Alliance",
-  description: "Earn status through participation. Shop, contribute, commit for 360 days, and rise from Bronze to Diamond. Crescendo by NCTR Alliance.",
+  title: "Crescendo | Status in the NCTR Alliance",
+  description: "Crescendo is where NCTR Alliance members hold status. Earn NCTR shopping thousands of stores, commit it through 360LOCK, and rise from Bronze to Diamond — rewards sponsored by the alliance and its partner brands.",
   ogImage: "https://crescendo.nctr.live/og-image.png",
   siteUrl: "https://crescendo.nctr.live",
 };
@@ -65,7 +65,7 @@ export function SEO({
         "name": "NCTR Alliance",
         "alternateName": "Nectar Alliance",
         "url": "https://nctr.live",
-        "description": "NCTR Alliance is a participation token economy on the Base blockchain. Members earn NCTR tokens through shopping and commit them via 360LOCK to unlock rewards and status on Crescendo.",
+        "description": "Crescendo is where NCTR Alliance members hold status. Earn NCTR shopping thousands of stores, commit it through 360LOCK, and rise from Bronze to Diamond — rewards sponsored by the alliance and its partner brands.",
         "sameAs": [
           "https://crescendo.nctr.live",
           "https://themall.nctr.live",

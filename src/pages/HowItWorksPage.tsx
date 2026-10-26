@@ -21,7 +21,7 @@ const sectionPad = { padding: '100px 0' };
 
 const FLYWHEEL_STEPS = [
   { num: "01", title: "You Shop & Participate", desc: "Browse thousands of brands through The Mall or Crescendo's marketplace. Every purchase, every action counts." },
-  { num: "02", title: "Revenue Flows In", desc: "Shopping commissions, brand partnerships, and ecosystem activity generate revenue. Multiple streams, one treasury." },
+  { num: "02", title: "Revenue Flows In", desc: "Shopping at thousands of stores, brand partnerships, and member activity fund the rewards. The everyday economy pays into the moments that matter to you." },
   { num: "03", title: "The Treasury Fuels Everything", desc: "The treasury exists for one purpose: to fund rewards, opportunities, and experiences for the community." },
   { num: "04", title: "Rewards Keep Flowing", desc: "Brands contribute directly. Community members list their own. The treasury purchases the rest. Three channels keep the marketplace full." },
   { num: "05", title: "You Commit & Level Up", desc: "Earn NCTR and commit through 360LOCK for 360 days. Your commitment builds status. Higher status unlocks better rewards." },
@@ -29,7 +29,7 @@ const FLYWHEEL_STEPS = [
 ];
 
 const TREASURY_SOURCES = [
-  { title: "Brand Partnerships", desc: "Brands invest in the Alliance to reach engaged communities. Their participation budget funds your rewards." },
+  { title: "Brand Partnerships", desc: "Brands join the Alliance to reach engaged members. Their sponsorship funds your rewards." },
   { title: "Shopping Commissions", desc: "Every purchase you make through the ecosystem generates revenue that flows directly into the rewards pool." },
   { title: "Reward Claims", desc: "When members claim rewards, the ecosystem grows. More activity means more brands, more rewards, more value." },
   { title: "Circular Commerce", desc: "A portion of every trade circulates back into the rewards pool — designed to grow stronger over time, not weaker." },
@@ -37,14 +37,14 @@ const TREASURY_SOURCES = [
 ];
 
 const REWARD_CHANNELS = [
-  { title: "Brand-Funded", subtitle: "BRANDS INVEST IN YOU", desc: "Brands supply rewards, experiences, and access directly to the marketplace as a way to build loyalty with the community." },
+  { title: "Brand-Funded", subtitle: "BRANDS SPONSOR. MEMBERS RISE.", desc: "Brands supply rewards, experiences, and access directly to the marketplace as a way to build loyalty with the community." },
   { title: "Community-Sourced", subtitle: "MEMBERS HELPING MEMBERS", desc: "Community members list their own rewards and opportunities. When someone claims them, the contributor earns NCTR." },
   { title: "Treasury-Purchased", subtitle: "FUNDED BY COMMERCE", desc: "The treasury uses its revenue to purchase gift cards, experiences, and exclusive opportunities at scale." },
 ];
 
 const BUILT_TO_LAST = [
   { title: "Always Fueled", desc: "The treasury is constantly replenished by multiple revenue streams. As the community grows, revenue grows with it — creating a self-reinforcing cycle." },
-  { title: "Cash Firewall", desc: "A hard constraint ensures cash outflows never exceed cash contributions. Not a policy — a structural rule built into the design." },
+  { title: "Cash Firewall", desc: "Rewards are funded before they're featured. What you see on Crescendo is backed." },
   { title: "Pay on Claim", desc: "Nothing is purchased until someone claims it. The treasury only spends when there's real demand — zero wasted inventory, ever." },
 ];
 
@@ -125,7 +125,7 @@ export default function HowItWorksPage() {
               <span style={{ color: '#E2FF6D' }}>You earn.</span>
             </h1>
             <p style={descStyle(false)}>
-              Crescendo is a rewards marketplace powered by real commerce. The more active the community, the more rewards, opportunities, and experiences flow to members.
+              Crescendo is where Alliance members hold status. The more the community participates, the more rewards, opportunities, and experiences flow to members.
             </p>
           </motion.div>
         </div>

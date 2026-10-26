@@ -87,9 +87,9 @@ export default function MyContentPage() {
             {submissions.length === 0 ? (
               <EmptyState
                 icon={Upload}
-                title="No content yet"
+                title="Share your first story"
                 description="Share videos, tutorials, and reviews about rewards you love."
-                actionLabel="Submit Your First Content"
+                actionLabel="Submit content"
                 actionHref="/submit-content"
               />
             ) : (

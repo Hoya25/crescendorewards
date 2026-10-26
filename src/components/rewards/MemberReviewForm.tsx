@@ -70,7 +70,7 @@ export function MemberReviewForm({ open, onClose, rewardId, rewardTitle, mode = 
 
   const submitMutation = useMutation({
     mutationFn: async () => {
-      if (!userId) throw new Error('Not authenticated');
+      if (!userId) throw new Error('Sign in to continue.');
       const userName = profile?.display_name || profile?.email || 'Member';
 
       const { error } = await supabase.from('content_submissions').insert({

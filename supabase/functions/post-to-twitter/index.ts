@@ -132,13 +132,13 @@ function generatePostContent(reward: {
   const hooks: Record<string, string[]> = {
     gaming: ['🎮', 'Level up your rewards game!', 'Gamers, this one is for you!'],
     entertainment: ['📺', 'Entertainment unlocked!', 'Your next binge is waiting!'],
-    experiences: ['✨', 'Experiences money can not buy!', 'Create memories, not transactions!'],
-    subscriptions: ['🔄', 'Subscribe without spending!', 'Premium access, no purchase needed!'],
+    experiences: ['✨', 'Experiences earned through status!', 'Make moments that matter!'],
+    subscriptions: ['🔄', 'Subscriptions earned through status!', 'Your status opens premium access!'],
     merch: ['👕', 'Fresh merch alert!', 'Rep your favorites!'],
-    gift_cards: ['🎁', 'Gift yourself something nice!', 'Turn loyalty into spending power!'],
-    wellness: ['💪', 'Invest in yourself!', 'Your wellness journey starts here!'],
-    crypto: ['🪙', 'Earn your way in!', 'Digital rewards, no wallet required!'],
-    alliance_tokens: ['🌟', 'Exclusive NCTR rewards!', 'Alliance benefits unlocked!'],
+    gift_cards: ['🎁', 'Gift yourself something nice!', 'Your participation opens rewards!'],
+    wellness: ['💪', 'Your status opens wellness rewards!', 'Your wellness journey starts here!'],
+    crypto: ['🪙', 'Earn your way in!', 'Digital rewards earned through participation!'],
+    alliance_tokens: ['🌟', 'Exclusive NCTR rewards!', 'NCTR Alliance benefits unlocked!'],
     opportunity: ['🚀', 'Opportunity knocks!', 'Your next big break awaits!'],
   };
 
@@ -153,7 +153,7 @@ function generatePostContent(reward: {
   const hashtagStr = hashtags.length > 0 ? ` ${hashtags.slice(0, 3).join(' ')}` : '';
 
   // Always add Crescendo and NCTR hashtags
-  const crescendoHashtags = ' #Crescendo #EarnDontBuy';
+  const crescendoHashtags = ' #Crescendo #LiveAndEarn';
 
   // Calculate available space for title
   // 280 max - emoji(2) - hook(~40) - url(~50) - mentions(~40) - hashtags(~50) - crescendoHashtags(~25) - spaces(~10)

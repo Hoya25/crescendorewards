@@ -20,7 +20,7 @@ const steps = [
   },
   {
     icon: Lock,
-    title: "Lock",
+    title: "Commit",
     description: "Commit NCTR to unlock access",
   },
   {

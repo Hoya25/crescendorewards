@@ -153,7 +153,7 @@ export default function MerchPage() {
               </div>
             ) : (
               <div className="text-center py-6 space-y-3">
-                <p className="text-[#D9D9D9]">No merch purchases yet. Shop the store to start earning!</p>
+                <p className="text-[#D9D9D9]">Shop the store to start earning!</p>
                 <ShopNowButton />
               </div>
             )}

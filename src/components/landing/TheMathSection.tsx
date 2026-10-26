@@ -25,7 +25,7 @@ export function TheMathSection() {
           {/* Without 360LOCK */}
           <div className="p-6 border border-border-card bg-page-bg space-y-4" style={{ borderRadius: '0px' }}>
             <p className="text-xs font-bold uppercase tracking-wider text-text-body-muted">
-              Without 360LOCK
+              Everyday earning
             </p>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
@@ -55,7 +55,7 @@ export function TheMathSection() {
             </p>
             <div className="space-y-3">
               {[
-                { label: 'Purchase reward at your tier multiplier', amount: '' },
+                { label: 'Purchase reward at your status', amount: '' },
                 { label: 'Merch participation bonus', amount: '' },
                 { label: 'Brand representation bonus', amount: '' },
               ].map((item) => (

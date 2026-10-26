@@ -38,7 +38,7 @@ export function SocialShareButtons({ referralLink, allocation, variant = 'defaul
       toast.success('Link copied to clipboard!');
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error('Failed to copy');
+      toast.error('Try copying again');
     }
   };
 

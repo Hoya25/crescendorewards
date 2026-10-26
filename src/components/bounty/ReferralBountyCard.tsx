@@ -29,7 +29,7 @@ export function ReferralBountyCard({ bounty, referralCode, referralCount }: Prop
       toast.success('Referral link copied!');
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error('Failed to copy');
+      toast.error('Try copying again');
     }
   };
 

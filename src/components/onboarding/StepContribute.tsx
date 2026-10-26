@@ -43,7 +43,7 @@ export function StepContribute() {
         >
           <p className="text-sm font-semibold text-white mb-1">Collect</p>
           <p className="text-xs" style={{ color: MID_GREY }}>
-            Earn NCTR through actions, and lock what you earn to climb status tiers and unlock rewards.
+            Earn NCTR through what you do, then commit it through 360LOCK to rise in status and unlock rewards.
           </p>
         </motion.div>
         <motion.div

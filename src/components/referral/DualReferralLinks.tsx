@@ -36,7 +36,7 @@ export function DualReferralLinks({ referralCode, className, compact = false }: 
       toast.success('Link copied!');
       setTimeout(() => setCopiedKey(null), 2000);
     } catch {
-      toast.error('Failed to copy');
+      toast.error('Try copying again');
     }
   };
 

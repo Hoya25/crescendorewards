@@ -39,7 +39,7 @@ const faqs = [
   },
   {
     question: "What is NCTR?",
-    answer: "NCTR is the native token of the NCTR Alliance ecosystem. On Crescendo, you can earn bonus NCTR with purchases and lock NCTR to unlock status tier benefits."
+    answer: "NCTR is the participation token of NCTR Alliance. On Crescendo you earn bonus NCTR on purchases and commit NCTR through 360LOCK to build status and unlock rewards."
   },
   {
     question: "How do refunds work?",

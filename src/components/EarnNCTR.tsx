@@ -68,7 +68,7 @@ export function EarnNCTR() {
           <Card className="max-w-md mx-auto">
             <CardContent className="p-8 text-center">
               <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
-              <h3 className="font-bold text-lg mb-2">Failed to load opportunities</h3>
+              <h3 className="font-bold text-lg mb-2">Refresh to load opportunities</h3>
               <p className="text-muted-foreground mb-4">{error}</p>
               <Button onClick={refresh} className="gap-2">
                 <RefreshCw className="w-4 h-4" />
@@ -150,7 +150,7 @@ export function EarnNCTR() {
                     {tier ? `${tier.badge_emoji} ${tier.display_name}` : 'Your 360LOCK'}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {total360Locked.toLocaleString()} NCTR locked for 360 days. Tap to view your full profile and tier benefits.
+                    {total360Locked.toLocaleString()} NCTR committed for 360 days. Tap to view your full profile and tier benefits.
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -198,7 +198,7 @@ export function EarnNCTR() {
                 <TooltipContent side="bottom" className="max-w-xs">
                   <p className="font-medium mb-1">What is 360LOCK?</p>
                   <p className="text-xs text-muted-foreground">
-                    NCTR locked for 360 days. Higher locks mean better membership tier, 
+                    NCTR committed for 360 days. Higher commitments mean better membership tier, 
                     lower reward costs, and exclusive benefits.
                   </p>
                 </TooltipContent>
@@ -318,7 +318,7 @@ export function EarnNCTR() {
                         <Icon className="w-8 h-8 text-muted-foreground" />
                       </div>
                       <h3 className="font-semibold text-lg mb-2">
-                        No {categoryLabel} opportunities yet
+                        Explore another category
                       </h3>
                       <p className="text-muted-foreground text-sm max-w-sm mx-auto">
                         Check back soon or explore other ways to earn free claims

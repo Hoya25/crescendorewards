@@ -26,10 +26,10 @@ export function FinalCTA() {
 
       <div className="relative z-10 max-w-3xl mx-auto text-center">
         <h2 className="text-3xl md:text-5xl font-black text-text-heading mb-4">
-          The People's Rewards Program
+          Your status in the Alliance.
         </h2>
         <p className="text-base md:text-lg mb-10 text-text-body">
-          Not corporate-owned. Not pay-to-play. Earned by you. Owned by you.
+          Earn NCTR at thousands of stores. Commit it for 360 days. Every tier you reach opens rewards sponsored by the alliance and the brands that back its members.
         </p>
         <Button
           size="lg"
@@ -44,6 +44,7 @@ export function FinalCTA() {
           Free to join. Always.
         </p>
       </div>
+      <p className="relative mt-6 text-center text-xs text-text-body-muted">Your tokens stay yours.</p>
     </section>
   );
 }

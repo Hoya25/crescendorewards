@@ -239,7 +239,7 @@ Deno.serve(async (req) => {
         return new Response(
           JSON.stringify({
             error: 'Client-supplied balances are not accepted',
-            message: 'NCTR balances and lock amounts are only accepted from the verified Garden sync. Lock your NCTR in The Mall and your status will update automatically.',
+            message: 'NCTR balances and commitment amounts are updated through the verified sync from The Mall. Commit your NCTR through 360LOCK in The Mall and your status will update automatically.',
           }),
           { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );

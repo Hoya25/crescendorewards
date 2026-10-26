@@ -89,7 +89,7 @@ export function MySubmissionsPage() {
       setSubmissions(data || []);
     } catch (error) {
       console.error('Error fetching submissions:', error);
-      toast.error('Failed to load submissions');
+      toast.error('Refresh to load submissions');
     } finally {
       setLoading(false);
     }
@@ -249,7 +249,7 @@ export function MySubmissionsPage() {
       toast.success('Link copied! Share it to earn bonuses when people claim this reward.');
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      toast.error('Failed to copy link');
+      toast.error('Try copying the link again');
     }
   };
 
@@ -397,11 +397,11 @@ export function MySubmissionsPage() {
           <Card>
             <CardContent className="py-16 text-center">
               <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No Submissions Yet</h3>
+              <h3 className="text-xl font-semibold mb-2">Your submissions start here</h3>
               <p className="text-muted-foreground mb-6">
                 {statusFilter === 'all' 
                   ? "You haven't submitted any rewards yet. Start contributing to the marketplace!"
-                  : `No ${statusFilter} submissions found.`}
+                  : `Try another submission filter.`}
               </p>
               <Button onClick={() => navigate('/dashboard')}>Go Back</Button>
             </CardContent>

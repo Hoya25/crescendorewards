@@ -2,3 +2,6 @@
 - [x] Render Status Perks only from database rewards, hiding empty sections.
 - [x] Replace Garden copy and links with The Mall across application source.
 - [x] Verify catalog, copy, links, and report changed occurrences.
+- [x] Apply approved copy rulings to pages, member components, emails and public tool text.
+- [x] Update approved database benefit, bounty and Mall copy without changing economic columns.
+- [x] Update social image text, verify changes, and list all changed files and rows; do not publish.

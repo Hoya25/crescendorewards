@@ -12,7 +12,7 @@ interface DataErrorStateProps {
 }
 
 export function DataErrorState({
-  title = 'Failed to load data',
+  title = 'Refresh to load data',
   message = 'Something went wrong while fetching the data. Please try again.',
   onRetry,
   retrying = false,
@@ -63,7 +63,7 @@ export function NetworkErrorState({ onRetry, retrying }: { onRetry?: () => void;
   return (
     <DataErrorState
       title="Connection Error"
-      message="Unable to connect to the server. Please check your internet connection and try again."
+      message="Check your internet connection and try again."
       onRetry={onRetry}
       retrying={retrying}
       showIcon={true}

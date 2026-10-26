@@ -51,7 +51,7 @@ export function NoRewardsEmpty() {
   return (
     <EmptyState
       icon={Gift}
-      title="No rewards available yet"
+      title="Explore rewards"
       description="Check back soon for exclusive rewards, experiences, and merchandise."
       actionLabel="Explore Rewards"
       actionHref="/rewards"
@@ -75,7 +75,7 @@ export function NoTransactionsEmpty() {
   return (
     <EmptyState
       icon={Receipt}
-      title="No transactions found"
+      title="Your transaction history starts here"
       description="Your transaction history will appear here once you start earning NCTR and claiming rewards."
     />
   );
@@ -97,7 +97,7 @@ export function NoSubmissionsEmpty() {
   return (
     <EmptyState
       icon={FileText}
-      title="No submissions yet"
+      title="Your submissions start here"
       description="Submit reward ideas to contribute to the marketplace and earn NCTR when they're approved."
       actionLabel="Submit a Reward"
       actionHref="/submit-reward"

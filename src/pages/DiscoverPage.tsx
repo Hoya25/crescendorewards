@@ -160,9 +160,9 @@ export default function DiscoverPage() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-16 space-y-3">
             <Compass className="w-12 h-12 mx-auto text-muted-foreground/40" />
-            <h3 className="font-semibold text-lg">No content yet</h3>
+            <h3 className="font-semibold text-lg">Member stories are on the way</h3>
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              Content from sponsors, contributors, and member reviews will appear here once published.
+              Check back for sponsor content, member stories, and reward reviews.
             </p>
           </div>
         ) : (

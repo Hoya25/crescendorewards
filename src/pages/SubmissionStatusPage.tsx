@@ -81,7 +81,7 @@ export default function SubmissionStatusPage() {
       await navigator.clipboard.writeText(url);
       toast.success('Share link copied');
     } catch {
-      toast.error('Could not copy link');
+      toast.error('Could not copy your link. Try again.');
     }
   };
 

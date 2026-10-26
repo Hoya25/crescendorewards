@@ -243,7 +243,7 @@ export function GroundballStatusBadge({
                 </div>
                 <div className="flex items-center gap-1.5 text-sm text-slate-400">
                   <Lock className="w-3.5 h-3.5" />
-                  <span>{locked.toLocaleString()} $GBS Locked</span>
+                  <span>{locked.toLocaleString()} $GBS Committed</span>
                 </div>
               </div>
             </div>
@@ -274,7 +274,7 @@ export function GroundballStatusBadge({
           </div>
           <div className="text-center p-2 rounded-lg bg-slate-800/50">
             <div className="text-lg font-semibold text-emerald-400">{locked}</div>
-            <div className="text-xs text-slate-400">$GBS Locked</div>
+            <div className="text-xs text-slate-400">$GBS Committed</div>
           </div>
         </div>
         
@@ -354,7 +354,7 @@ export function GroundballStatusBadge({
               >
                 <Link to="/groundball/gear-vault">
                   <Sparkles className="w-4 h-4 mr-1.5" />
-                  Lock More $GBS
+                  Commit More $GBS
                   <ArrowRight className="w-4 h-4 ml-1.5" />
                 </Link>
               </Button>
@@ -426,7 +426,7 @@ export function GroundballStatusBadge({
           </div>
           <div className="flex items-center justify-center gap-1.5 text-slate-400 mt-1">
             <Lock className="w-4 h-4" />
-            <span>{locked.toLocaleString()} $GBS Locked</span>
+            <span>{locked.toLocaleString()} $GBS Committed</span>
           </div>
         </div>
         
@@ -492,7 +492,7 @@ export function GroundballStatusBadge({
             
             {progress.nextTier && (
               <div className="text-center text-sm text-slate-400">
-                Lock <span className={colors.text}>{progress.remaining} more $GBS</span> to unlock {progress.nextTier.charAt(0).toUpperCase() + progress.nextTier.slice(1)}
+                Commit <span className={colors.text}>{progress.remaining} more $GBS</span> to unlock {progress.nextTier.charAt(0).toUpperCase() + progress.nextTier.slice(1)}
               </div>
             )}
             
@@ -567,7 +567,7 @@ export function GroundballStatusBadge({
               >
                 <Link to="/groundball/gear-vault">
                   <Sparkles className="w-4 h-4 mr-1.5" />
-                  Lock More $GBS to Reach {progress.nextTier.charAt(0).toUpperCase() + progress.nextTier.slice(1)}
+                  Commit More $GBS to Reach {progress.nextTier.charAt(0).toUpperCase() + progress.nextTier.slice(1)}
                 </Link>
               </Button>
             )}

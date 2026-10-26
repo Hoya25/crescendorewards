@@ -106,7 +106,7 @@ export function CreatorReferrals() {
           <CardContent className="p-5 text-center space-y-3">
             <Users className="w-8 h-8 mx-auto text-muted-foreground/50" />
             <p className="text-sm text-muted-foreground">
-              No referrals yet. Share your link to start earning from your community.
+              Share your link to invite your community into NCTR Alliance and start earning.
             </p>
             <DualReferralLinks referralCode={referralCode} compact className="max-w-md mx-auto text-left" />
           </CardContent>

@@ -36,7 +36,7 @@ export function useGiftClaims() {
     message?: string
   ): Promise<{ success: boolean; giftCode?: string; error?: string }> => {
     if (!profile?.id) {
-      return { success: false, error: 'Not authenticated' };
+      return { success: false, error: 'Sign in to continue.' };
     }
 
     setIsLoading(true);
@@ -85,7 +85,7 @@ export function useGiftClaims() {
     giftCode: string
   ): Promise<{ success: boolean; claimsReceived?: number; message?: string; error?: string }> => {
     if (!profile?.id) {
-      return { success: false, error: 'Not authenticated' };
+      return { success: false, error: 'Sign in to continue.' };
     }
 
     setIsLoading(true);
@@ -224,7 +224,7 @@ export function useGiftClaims() {
     giftId: string
   ): Promise<{ success: boolean; refunded?: boolean; error?: string }> => {
     if (!profile?.id) {
-      return { success: false, error: 'Not authenticated' };
+      return { success: false, error: 'Sign in to continue.' };
     }
 
     setIsLoading(true);

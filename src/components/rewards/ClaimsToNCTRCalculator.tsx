@@ -89,7 +89,7 @@ export function ClaimsToNCTRCalculator({
               <span className="text-lg font-bold text-primary">{selectedCalc.totalNCTR.toLocaleString()}</span>
               <NCTRLogo size="xs" />
             </div>
-            <span className="text-xs text-muted-foreground">{selectedCalc.label} lock</span>
+            <span className="text-xs text-muted-foreground">{selectedCalc.label} commitment</span>
           </div>
         </div>
       </div>
@@ -138,11 +138,11 @@ export function ClaimsToNCTRCalculator({
           </div>
         </div>
 
-        {/* Lock Period Options */}
+        {/* Commitment Period Options */}
         <div className="space-y-3">
           <Label className="text-sm font-medium flex items-center gap-2">
             <Lock className="w-4 h-4 text-primary" />
-            Lock Period
+            Commitment Period
           </Label>
           <div className="grid grid-cols-2 gap-3">
             {LOCK_PERIODS.map((period) => {
@@ -183,7 +183,7 @@ export function ClaimsToNCTRCalculator({
             <span className="text-sm font-medium text-muted-foreground">Your Conversion</span>
             <Badge variant="outline" className="gap-1">
               <TrendingUp className="w-3 h-3" />
-              {selectedCalc.label} lock
+              {selectedCalc.label} commitment
             </Badge>
           </div>
           
@@ -214,13 +214,13 @@ export function ClaimsToNCTRCalculator({
         <div className="space-y-2">
           <Label className="text-sm font-medium flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-primary" />
-            All Lock Period Rates
+            All Commitment Period Rates
           </Label>
           <div className="bg-muted/30 rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border/50">
-                  <th className="py-2 px-3 text-left font-medium text-muted-foreground">Lock Period</th>
+                  <th className="py-2 px-3 text-left font-medium text-muted-foreground">Commitment Period</th>
                   <th className="py-2 px-3 text-center font-medium text-muted-foreground">Rate</th>
                   <th className="py-2 px-3 text-right font-medium text-muted-foreground">Total NCTR</th>
                 </tr>

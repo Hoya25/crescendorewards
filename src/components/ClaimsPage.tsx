@@ -514,7 +514,7 @@ export function ClaimsPage() {
                   ) : filteredTransactions.length === 0 ? (
                     <div className="text-center py-12 text-muted-foreground">
                       <Ticket className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p className="text-lg font-medium">No transactions found</p>
+                      <p className="text-lg font-medium">Your transaction history starts here</p>
                       <p className="text-sm mt-1">
                         {searchQuery || typeFilter !== 'all' || dateFilter !== 'all'
                           ? 'Try adjusting your filters'

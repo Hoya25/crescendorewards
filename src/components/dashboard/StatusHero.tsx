@@ -57,7 +57,7 @@ export function StatusHero() {
               <p className="text-sm text-text-body">
                 <span style={{ fontFamily: 'var(--font-mono, "DM Mono", monospace)' }}>
                   {total360Locked.toLocaleString()}
-                </span> NCTR locked
+                </span> NCTR committed
                 <span className="ml-2 font-semibold text-accent-lime">
                   {currentMultiplier}x earning
                 </span>
@@ -65,12 +65,12 @@ export function StatusHero() {
               <NctrMarketReference nctrAmount={total360Locked} />
               {nctrLockedPoints > 0 && (
                 <p className="text-[13px] text-muted-foreground">
-                  {nctrLockedPoints.toLocaleString()} NCTR locked · {tier?.display_name || "Bronze"} status
+                  {nctrLockedPoints.toLocaleString()} NCTR committed · {tier?.display_name || "Bronze"} status
                 </p>
               )}
               {nctrBalancePoints > 0 && (
                 <p className="text-[13px] text-muted-foreground">
-                  {nctrBalancePoints.toLocaleString()} NCTR available to lock{' '}
+                  {nctrBalancePoints.toLocaleString()} NCTR available to commit{' '}
                   <a
                     href="https://bountyhunter.nctr.live/lock"
                     target="_blank"
@@ -99,7 +99,7 @@ export function StatusHero() {
                   <span className="text-text-body-muted">
                     <span style={{ fontFamily: 'var(--font-mono, "DM Mono", monospace)' }}>
                       {total360Locked.toLocaleString()}
-                    </span> / {nextTier?.min_nctr_360_locked.toLocaleString()} NCTR locked toward {nextTier?.display_name}
+                    </span> / {nextTier?.min_nctr_360_locked.toLocaleString()} NCTR committed toward {nextTier?.display_name}
                   </span>
                   <span className="text-text-body-muted">
                     {Math.round(progressToNextTier)}%
@@ -134,7 +134,7 @@ export function StatusHero() {
                   </p>
                 ) : hasNoLocked ? (
                   <p className="text-xs text-text-body-muted">
-                    Every NCTR you lock counts toward your next tier. Higher tier = higher earning multiplier on everything.
+                    Every NCTR you commit counts toward your next tier. Higher tiers earn more on everything.
                   </p>
                 ) : null}
               </div>

@@ -243,7 +243,7 @@ export function BenefitsPage() {
           {/* Empty state */}
           {!isLoading && availablePartners.length === 0 && lockedPartners.length === 0 && (
             <div className="text-center py-12 text-muted-foreground">
-              No benefits found in this category.
+              Explore another benefits category.
             </div>
           )}
         </section>

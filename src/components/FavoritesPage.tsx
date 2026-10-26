@@ -255,8 +255,8 @@ export function FavoritesPage({ claimBalance }: FavoritesPageProps) {
               <Heart className="w-16 h-16 mx-auto mb-4 text-muted-foreground/30" />
               <h3 className="text-xl font-semibold mb-2">
                 {favorites.length === 0 
-                  ? "No favorites yet" 
-                  : "No matches found"}
+                  ? "Save your favorite rewards" 
+                  : "Try a different search"}
               </h3>
               <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
                 {favorites.length === 0 

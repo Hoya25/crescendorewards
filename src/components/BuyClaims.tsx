@@ -404,7 +404,7 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                               <TooltipContent className="max-w-xs">
                                 <p className="font-semibold mb-1">360LOCK Bonus</p>
                                 <p className="text-sm">
-                                  Earn 3 NCTR per $1 spent. Bonus NCTR is locked for 360 days, boosting your membership tier.
+                                  Earn 3 NCTR per $1 spent. Bonus NCTR is committed for 360 days, boosting your membership tier.
                                 </p>
                               </TooltipContent>
                             </Tooltip>
@@ -547,7 +547,7 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                         <TooltipContent className="max-w-xs">
                           <p className="font-semibold mb-1">360LOCK Bonus</p>
                           <p className="text-sm">
-                            Earn 3 NCTR per $1 spent on claim passes. These bonus NCTR are automatically locked for 360 days, 
+                            Earn 3 NCTR per $1 spent on claim passes. These bonus NCTR are automatically committed for 360 days, 
                             contributing to your membership tier level while they vest.
                           </p>
                         </TooltipContent>
@@ -590,7 +590,7 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                             <Progress value={currentProgress} className="h-2 transition-all duration-500 ease-out" />
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {lockedNCTR.toLocaleString()} <NCTRLogo size="xs" /> locked
+                            {lockedNCTR.toLocaleString()} <NCTRLogo size="xs" /> committed
                           </div>
                         </div>
 
@@ -632,7 +632,7 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                             )}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {newLockedNCTR.toLocaleString()} <NCTRLogo size="xs" /> locked
+                            {newLockedNCTR.toLocaleString()} <NCTRLogo size="xs" /> committed
                             <span className="text-violet-600 font-medium ml-1 inline-block animate-fade-in">
                               (+{selectedPackage.bonus.toLocaleString()})
                             </span>

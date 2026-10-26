@@ -122,11 +122,11 @@ export function LevelUpModal({
       if (res.error) throw new Error('Lock failed');
       const data = res.data;
       if (data?.error) throw new Error(data.error);
-      setLockResult({ text: `Locked! +${availableNCTR.toLocaleString()} NCTR committed to 360LOCK`, color: '#E2FF6D' });
+      setLockResult({ text: `Committed! +${availableNCTR.toLocaleString()} NCTR committed to 360LOCK`, color: '#E2FF6D' });
       if (onBalanceRefresh) await onBalanceRefresh();
     } catch (err) {
       console.error('Lock error:', err);
-      setLockResult({ text: 'Unable to lock right now. Try again in a moment.', color: '#FFD700' });
+      setLockResult({ text: 'Unable to commit right now. Try again in a moment.', color: '#FFD700' });
     } finally {
       setLocking(false);
     }
@@ -166,7 +166,7 @@ export function LevelUpModal({
             REACH {targetTierName.toUpperCase()}
           </h2>
           <p style={{ fontFamily: sans, fontSize: '14px', color: '#D9D9D9', marginBottom: '24px' }}>
-            You have {currentLocked.toLocaleString()} NCTR locked. You need{' '}
+            You have {currentLocked.toLocaleString()} NCTR committed. You need{' '}
             {amountNeeded.toLocaleString()} more to reach {targetTierName}.
           </p>
 
@@ -177,11 +177,11 @@ export function LevelUpModal({
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                   <Lock size={20} color="#E2FF6D" />
                   <span style={{ fontFamily: heading, fontSize: '16px', textTransform: 'uppercase', color: '#FFFFFF' }}>
-                    LOCK YOUR AVAILABLE NCTR
+                    COMMIT YOUR AVAILABLE NCTR
                   </span>
                 </div>
                 <p style={{ fontFamily: sans, fontSize: '13px', color: '#D9D9D9', marginBottom: '12px' }}>
-                  You have {availableNCTR.toLocaleString()} NCTR available. Lock it now to build status.
+                  You have {availableNCTR.toLocaleString()} NCTR available. Commit it now to build status.
                 </p>
                 <button
                   onClick={handleLockAvailable}
@@ -208,7 +208,7 @@ export function LevelUpModal({
                     e.currentTarget.style.color = '#E2FF6D';
                   }}
                 >
-                  {locking ? 'Locking...' : `Lock ${availableNCTR.toLocaleString()} NCTR →`}
+                  {locking ? 'Committing...' : `Commit ${availableNCTR.toLocaleString()} NCTR →`}
                 </button>
               </div>
             </>
@@ -277,59 +277,12 @@ export function LevelUpModal({
               Already have NCTR? Send it to your account to level up instantly.
             </p>
 
-            {/* Contract Address */}
-            <div style={{ marginBottom: '16px' }}>
-              <p style={{ fontFamily: sans, fontSize: '12px', color: '#999', marginBottom: '6px', textTransform: 'uppercase' }}>
-                CONTRACT ADDRESS (BASE)
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <code style={{ fontFamily: mono, fontSize: '12px', color: '#FFFFFF', wordBreak: 'break-all' }}>
-                  {NCTR_CONTRACT}
-                </code>
-                <button
-                  onClick={() => copyToClipboard(NCTR_CONTRACT, 'contract')}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#D9D9D9', flexShrink: 0 }}
-                >
-                  {copiedContract ? <Check size={14} color="#E2FF6D" /> : <Copy size={14} />}
-                </button>
-              </div>
-            </div>
-
-            {/* Where to Buy */}
-            <div style={{ marginBottom: '16px' }}>
-              <p style={{ fontFamily: sans, fontSize: '12px', color: '#999', marginBottom: '6px', textTransform: 'uppercase' }}>
-                WHERE TO BUY
-              </p>
-              <ul style={{ fontFamily: sans, fontSize: '13px', color: '#D9D9D9', listStyle: 'disc', paddingLeft: '20px', margin: 0, lineHeight: '1.8' }}>
-                <li><strong>Coinbase</strong> — Search NCTR or paste the contract address</li>
-                <li>
-                  <strong>Aerodrome</strong> — Swap any Base token for NCTR at{' '}
-                  <a href="https://aerodrome.finance" target="_blank" rel="noopener noreferrer" style={{ color: '#E2FF6D', textDecoration: 'underline' }}>
-                    aerodrome.finance
-                  </a>
-                </li>
-                <li><strong>Uniswap</strong> — Use Base network and paste the contract address</li>
-              </ul>
-            </div>
-
-            {/* Warning Box */}
-            <div
-              style={{
-                border: '1px solid #FFD700',
-                background: 'rgba(255,215,0,0.05)',
-                padding: '12px',
-                borderRadius: 0,
-                marginBottom: '16px',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '8px',
-              }}
-            >
-              <AlertTriangle size={16} color="#FFD700" style={{ flexShrink: 0, marginTop: '2px' }} />
-              <p style={{ fontFamily: sans, fontSize: '12px', color: '#FFD700', margin: 0 }}>
-                VERIFY THE CONTRACT ADDRESS — Only buy NCTR matching the address above. Do not trust search results alone.
-              </p>
-            </div>
+            <section className="mb-4 text-foreground">
+              <h3 className="text-base font-semibold">Earn NCTR</h3>
+              <p><a href="https://themall.nctr.live">Shop the Mall — earn on every qualifying purchase.</a></p>
+              <p><a href="https://bountyhunter.nctr.live">Complete bounties — reviews, referrals, content.</a></p>
+              <p><a href="https://bountyhunter.nctr.live/lock">Commit what you earn through 360LOCK to rise.</a></p>
+            </section>
 
             {/* Send To Address */}
             <div style={{ marginBottom: '16px' }}>

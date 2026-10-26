@@ -82,7 +82,7 @@ export function RewardVersionHistory({ open, onClose, submissionId }: VersionHis
       setVersions(versionsData || []);
     } catch (error) {
       console.error('Error fetching version history:', error);
-      toast.error('Failed to load version history');
+      toast.error('Refresh to load version history');
     } finally {
       setLoading(false);
     }

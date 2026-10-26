@@ -67,8 +67,8 @@ export function LandingPage() {
   return (
     <div className="min-h-screen w-full overflow-x-hidden" style={{ backgroundColor: '#F9F9F7' }}>
       <SEO 
-        title="Get Rewarded for the Things You Already Do"
-        description="Shop at thousands of brands, create content, and earn real rewards that grow the more you commit. Join Crescendo — it's free."
+        title="Status in the NCTR Alliance"
+        description="Crescendo is where NCTR Alliance members hold status. Earn NCTR shopping thousands of stores, commit it through 360LOCK, and rise from Bronze to Diamond — rewards sponsored by the alliance and its partner brands."
       />
 
       {/* Beta Banner removed — single banner lives in AppLayout/BetaBanner */}

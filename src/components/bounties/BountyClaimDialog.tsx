@@ -64,7 +64,7 @@ export function BountyClaimDialog({
                     = {bounty.nctr_reward} × {statusMult}x ({tierName.charAt(0).toUpperCase() + tierName.slice(1)}) × {lockMult}x (360LOCK)
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Locked for 360 days. Counts toward your Crescendo status.
+                    Committed for 360 days. Counts toward your Crescendo status.
                   </p>
                 </div>
               </div>

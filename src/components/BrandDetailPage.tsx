@@ -96,9 +96,9 @@ export function BrandDetailPage() {
       }
     } catch (err: any) {
       console.error('Error loading brand:', err);
-      setError(err instanceof Error ? err : new Error('Failed to load brand'));
+      setError(err instanceof Error ? err : new Error('Refresh to load brand'));
       if (!isRetry) {
-        toast.error('Failed to load brand details');
+        toast.error('Refresh to load brand details');
       }
     } finally {
       setLoading(false);
@@ -178,7 +178,7 @@ export function BrandDetailPage() {
             Back to Brands
           </Button>
           <DataErrorState
-            title="Failed to load brand"
+            title="Refresh to load brand"
             message="We couldn't load the brand details. Please try again."
             onRetry={handleRetry}
             retrying={retrying}
@@ -286,7 +286,7 @@ export function BrandDetailPage() {
             <Card>
               <CardContent className="py-12 text-center">
                 <Gift className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
-                <p className="text-muted-foreground font-medium">No rewards currently available from this brand</p>
+                <p className="text-muted-foreground font-medium">Explore rewards from other brands</p>
                 <p className="text-sm text-muted-foreground mt-1">Check back soon for exclusive offers</p>
               </CardContent>
             </Card>

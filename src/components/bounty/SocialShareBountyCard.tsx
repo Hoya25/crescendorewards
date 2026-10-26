@@ -16,9 +16,9 @@ export function SocialShareBountyCard({ bounty }: { bounty: StaticBounty }) {
   const [pendingPlatform, setPendingPlatform] = useState<string | null>(null);
 
   const SHARE_TEXTS = {
-    twitter: "I'm earning NCTR by participating in @NCTRAlliance's Crescendo. The participation economy is here 🔥 crescendo.nctr.live",
-    farcaster: "Earning NCTR through real participation on Crescendo. No grinding, no gimmicks — just show up and earn 👇 crescendo.nctr.live",
-    telegram: "Join Crescendo by NCTR Alliance — earn NCTR just by participating. crescendo.nctr.live",
+    twitter: "I'm building status in NCTR Alliance on Crescendo. Earn NCTR, commit through 360LOCK, and rise 🔥 crescendo.nctr.live",
+    farcaster: "Building status in NCTR Alliance on Crescendo. Earn NCTR through shopping and contribution, then commit through 360LOCK 👇 crescendo.nctr.live",
+    telegram: "Join NCTR Alliance on Crescendo. Earn NCTR through shopping and contribution, then commit through 360LOCK to build status. crescendo.nctr.live",
   };
 
   const openShareAndRecord = useCallback(async (platform: 'twitter' | 'farcaster' | 'telegram') => {
@@ -42,7 +42,7 @@ export function SocialShareBountyCard({ bounty }: { bounty: StaticBounty }) {
     setPendingPlatform(null);
 
     if (result && (result as Record<string, unknown>).success) {
-      toast.success('Share recorded! 250 NCTR earned (360LOCK)', { duration: 4000 });
+      toast.success('You earned 250 NCTR! Share recorded.', { duration: 4000 });
     } else if (result) {
       toast.info((result as Record<string, unknown>).error as string || 'Share not recorded');
     }

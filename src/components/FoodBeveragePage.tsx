@@ -57,7 +57,7 @@ export function FoodBeveragePage({ claimBalance }: FoodBeveragePageProps) {
       console.error('Error fetching rewards:', error);
       toast({
         title: 'Error',
-        description: 'Failed to load food & beverage rewards',
+        description: 'Refresh to load food & beverage rewards',
         variant: 'destructive',
       });
     } finally {
@@ -99,7 +99,7 @@ export function FoodBeveragePage({ claimBalance }: FoodBeveragePageProps) {
           <Card>
             <CardContent className="p-8 text-center">
               <Coffee className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-lg font-medium mb-2">No Food & Beverage Rewards</h3>
+              <h3 className="text-lg font-medium mb-2">Explore other reward categories</h3>
               <p className="text-muted-foreground">Check back later for tasty rewards!</p>
             </CardContent>
           </Card>

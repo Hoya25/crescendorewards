@@ -156,7 +156,7 @@ export function MerchBountiesWidget() {
                 {tier?.display_name || 'Bronze'} → {nextTierInfo.name}
               </span>
               <span className="text-xs text-muted-foreground">
-                {nctrToNextTier.toLocaleString()} more NCTR to lock
+                {nctrToNextTier.toLocaleString()} more NCTR to commit
               </span>
             </div>
             <Progress value={progressToNextTier || 0} className="h-1.5 mb-2" />

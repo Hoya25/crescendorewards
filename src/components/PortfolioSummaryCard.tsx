@@ -33,7 +33,7 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast({
-          title: "Not authenticated",
+          title: "Sign in to continue.",
           description: "Please sign in to sync your balance",
           variant: "destructive",
         });

@@ -55,7 +55,7 @@ export function CompactReferralCard({
       toast.success('Link copied!');
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error('Failed to copy');
+      toast.error('Try copying again');
     }
   };
 
