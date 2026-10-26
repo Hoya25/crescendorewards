@@ -2,7 +2,7 @@
  * NCTR Alliance MCP Server
  * ========================
  * Model Context Protocol server for AI agents to discover and interact
- * with the NCTR rewards program, bounties, and Impact Engines.
+ * with NCTR Alliance status, rewards, bounties, and Impact Engines.
  *
  * Deployment: Supabase Edge Functions
  * Transport: Streamable HTTP (MCP specification standard)
@@ -512,7 +512,7 @@ server.registerTool(
         content: [
           {
             type: 'text' as const,
-            text: 'No bounties found matching your filters. Try broadening your search: bounties span the entry, shopping, merch, referral and engagement categories.',
+            text: 'Explore NCTR Alliance bounties with broader filters. Try entry, shopping, merch, referral or engagement.',
           },
         ],
       }
@@ -718,7 +718,7 @@ server.registerTool(
   {
     title: 'Get Active Promotions',
     description:
-      'Get currently active promotions, limited-time offers, and special earning opportunities in the NCTR program.',
+      'Explore active offers and earning opportunities in NCTR Alliance.',
     inputSchema: {},
   },
   () => {
@@ -729,7 +729,7 @@ server.registerTool(
         content: [
           {
             type: 'text' as const,
-            text: 'No special promotions are active right now.',
+            text: 'NCTR Alliance bounties are open to explore. Special offers will appear here when available.',
           },
         ],
       }
@@ -829,7 +829,7 @@ server.registerTool(
         content: [
           {
             type: 'text' as const,
-            text: `No Impact Engines found for "${category}". Available categories: Powersports, Lacrosse, Entertainment, Skilled Trades, Recovery, Wellness.`,
+            text: `Explore NCTR Alliance communities in Powersports, Lacrosse, Entertainment, Skilled Trades, Recovery or Wellness. Try another category instead of "${category}".`,
           },
         ],
       }
@@ -872,7 +872,7 @@ app.get('/mcp', (c) => {
     name: 'NCTR Alliance MCP Server',
     version: '1.0.0',
     description:
-      'Model Context Protocol server for AI agents to discover and interact with the NCTR rewards program.',
+      'Model Context Protocol server for agents to explore NCTR Alliance bounties, status, commitments, and rewards.',
     tools: [
       'search_bounties',
       'get_earning_rates',
