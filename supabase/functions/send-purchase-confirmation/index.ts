@@ -107,7 +107,7 @@ serve(async (req: Request): Promise<Response> => {
               
               <div style="background: linear-gradient(135deg, #7c3aed10 0%, #a855f710 100%); border: 1px solid #7c3aed30; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
                 <p style="margin: 0; color: #7c3aed; font-size: 14px;">
-                  <strong>🎁 Bonus Applied!</strong> Your ${bonusNCTR.toLocaleString()} NCTR has been locked for 360 days and is contributing to your membership tier progression.
+                  <strong>🎁 Bonus Applied!</strong> Your ${bonusNCTR.toLocaleString()} NCTR is committed through 360LOCK for 360 days. It builds your Crescendo status.
                 </p>
               </div>
               
