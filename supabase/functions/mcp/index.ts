@@ -64,13 +64,13 @@ const BOUNTIES: Bounty[] = [
     id: 'bounty-early-adopter',
     name: 'Early Adopter Bonus',
     category: 'entry',
-    description: 'Launch period only — earn 1,250 NCTR as an early adopter. Available during launch period.',
+    description: 'Earn 1,250 NCTR as an early adopter, while the offer runs.',
     amount: 1250,
     currency: 'NCTR',
     lock_period: '360LOCK',
     lock_days: 360,
     repeatable: false,
-    requirements: ['Join during launch period'],
+    requirements: ['Join while the offer runs'],
     tags: ['limited-time', 'launch', 'bonus']
   },
   {
@@ -210,13 +210,13 @@ const BOUNTIES: Bounty[] = [
     id: 'bounty-early-referral',
     name: 'Early Referral Bonus',
     category: 'referral',
-    description: 'Launch period referral bonus — earn 500 NCTR per referral during early access.',
+    description: 'Referral bonus: earn 500 NCTR per referral while the offer runs.',
     amount: 500,
     currency: 'NCTR',
     lock_period: '360LOCK',
     lock_days: 360,
     repeatable: true,
-    requirements: ['Refer during launch period'],
+    requirements: ['Refer while the offer runs'],
     tags: ['referral', 'launch', 'limited-time']
   },
   {
@@ -317,35 +317,35 @@ const TIERS: Tier[] = [
     name: 'Bronze',
     threshold: 1000,
     multiplier: 1.1,
-    description: 'Starting tier — members with 1,000+ NCTR locked. 1.1x earning multiplier.',
+    description: 'Starting tier — members with 1,000+ NCTR committed. 1.1x earning multiplier.',
     perks: ['1.1x earning multiplier', 'Access to all standard bounties', 'The Garden shopping', 'Community access']
   },
   {
     name: 'Silver',
     threshold: 5000,
     multiplier: 1.3,
-    description: 'Committed members with 5,000+ NCTR locked. 1.3x earning multiplier.',
+    description: 'Members with 5,000+ NCTR committed. 1.3x earning multiplier.',
     perks: ['1.3x earning multiplier', 'Early access to new bounties', 'Silver badge']
   },
   {
     name: 'Gold',
     threshold: 15000,
     multiplier: 1.5,
-    description: 'Active members with 15,000+ NCTR locked. 1.5x earning multiplier.',
+    description: 'Active members with 15,000+ NCTR committed. 1.5x earning multiplier.',
     perks: ['1.5x earning multiplier', 'Exclusive Gold bounties', 'Priority support', 'Gold badge']
   },
   {
     name: 'Platinum',
     threshold: 40000,
     multiplier: 1.8,
-    description: 'Power members with 40,000+ NCTR locked. 1.8x earning multiplier.',
+    description: 'Power members with 40,000+ NCTR committed. 1.8x earning multiplier.',
     perks: ['1.8x earning multiplier', 'VIP experiences', 'Platinum-only drops', 'Platinum badge']
   },
   {
     name: 'Diamond',
     threshold: 100000,
     multiplier: 2.5,
-    description: 'Top-tier members with 100,000+ NCTR locked. 2.5x earning multiplier.',
+    description: 'Top-tier members with 100,000+ NCTR committed. 2.5x earning multiplier.',
     perks: ['2.5x earning multiplier', 'Charter member recognition', 'Diamond-exclusive events', 'Diamond badge', 'Direct team access']
   }
 ]
@@ -423,19 +423,19 @@ interface Promotion {
 const PROMOTIONS: Promotion[] = [
   {
     name: 'Early Adopter Bonus',
-    description: 'Earn 1,250 NCTR just for joining during the launch period. No counter, no slot limit — available while the launch window is open.',
+    description: 'Earn 1,250 NCTR for joining while the offer runs. No counter and no slot limit.',
     type: 'launch-bonus',
     bounty_id: 'bounty-early-adopter',
     active: true,
-    details: 'Launch period only. 1,250 NCTR with 360LOCK. Open to all new members.'
+    details: 'Open to new members while the offer runs. 1,250 NCTR, committed for 360 days.'
   },
   {
     name: 'Early Referral Bonus',
-    description: 'During the launch period, earn 500 NCTR for each friend you refer (instead of standard 100 NCTR post-launch).',
+    description: 'Earn 500 NCTR for each friend you refer while the offer runs, a higher bounty than the standard referral rate.',
     type: 'referral-boost',
     bounty_id: 'bounty-early-referral',
     active: true,
-    details: 'Launch period only. 5x the standard referral rate. No cap on referrals.'
+    details: 'Open while the offer runs. A higher referral bounty than the standard rate, with no cap on referrals.'
   }
 ]
 
@@ -457,7 +457,7 @@ server.registerTool(
   {
     title: 'Search Bounties',
     description:
-      'Search and filter available NCTR bounties. Filter by category (entry, shopping, merch, referral, engagement), minimum/maximum NCTR amount, or keyword. Returns bounty details including name, amount, lock period, and requirements. All bounties use 360LOCK — tokens stay yours after the lock period.',
+      'Search and filter available NCTR bounties. Filter by category (entry, shopping, merch, referral, engagement), minimum/maximum NCTR amount, or keyword. Returns bounty details including name, amount, commitment period, and requirements. Every bounty is committed for 360 days, and the tokens stay yours after the commitment period.',
     inputSchema: {
       category: z
         .string()
@@ -512,7 +512,7 @@ server.registerTool(
         content: [
           {
             type: 'text' as const,
-            text: 'No bounties found matching your filters. Try broadening your search — there are 19 bounties across 5 categories.',
+            text: 'No bounties found matching your filters. Try broadening your search: bounties span the entry, shopping, merch, referral and engagement categories.',
           },
         ],
       }
@@ -537,7 +537,7 @@ server.registerTool(
             {
               total: results.length,
               bounties: formatted,
-              note: 'All bounties use 360LOCK (exactly 360 days). Tokens are committed, not spent — they stay yours after the lock period.',
+              note: 'Every bounty is committed for 360 days. Tokens are committed, not spent, and stay yours after the commitment period.',
             },
             null,
             2
@@ -601,7 +601,7 @@ server.registerTool(
           text: JSON.stringify(
             {
               tiers: formatted,
-              note: 'Crescendo Status Tiers determine your earning multiplier. Lock more NCTR to progress through tiers and earn more on every bounty.',
+              note: 'Crescendo Status Tiers determine your earning multiplier. Commit more NCTR to progress through tiers and earn more on every bounty.',
             },
             null,
             2
@@ -619,7 +619,7 @@ server.registerTool(
   {
     title: 'Check Tier Requirements',
     description:
-      'Check what is needed to reach a specific Crescendo status tier, or see the full progression path. Shows NCTR lock thresholds, multipliers, and perks for each tier.',
+      'Check what is needed to reach a specific Crescendo status tier, or see the full progression path. Shows NCTR commitment thresholds, multipliers, and perks for each tier.',
     inputSchema: {
       current_balance: z
         .number()
@@ -700,7 +700,7 @@ server.registerTool(
                   ? `${current_balance.toLocaleString()} NCTR`
                   : undefined,
               progression,
-              note: 'Tiers are based on total NCTR locked. Higher tiers unlock better multipliers and exclusive perks.',
+              note: 'Tiers are based on total NCTR committed. Higher tiers unlock better multipliers and exclusive perks.',
             },
             null,
             2
@@ -729,7 +729,7 @@ server.registerTool(
         content: [
           {
             type: 'text' as const,
-            text: 'No special promotions are active right now. Check back soon — new opportunities launch regularly.',
+            text: 'No special promotions are active right now.',
           },
         ],
       }
@@ -751,7 +751,7 @@ server.registerTool(
             {
               active_promotions: formatted,
               count: active.length,
-              note: 'Promotions are time-limited. Join now to take advantage of launch period bonuses.',
+              note: 'Promotions run for a limited time; each one\'s details say who it\'s for.',
             },
             null,
             2
@@ -785,12 +785,12 @@ server.registerTool(
       url,
       welcome_bounties: [
         { name: 'Sign-Up Bounty', amount: '625 NCTR', lock: '360LOCK' },
-        { name: 'Early Adopter Bonus', amount: '1,250 NCTR', lock: '360LOCK', note: 'Launch period only' },
+        { name: 'Early Adopter Bonus', amount: '1,250 NCTR', lock: '360LOCK', note: 'While the offer runs' },
         { name: 'Profile Completion Bounty', amount: '375 NCTR', lock: '360LOCK' },
       ],
       total_potential: '2,250 NCTR',
       referral_code: referral_code || null,
-      note: 'New members can earn up to 2,250 NCTR just by signing up and completing their profile during the launch period. All tokens use 360LOCK — committed, not spent.',
+      note: 'New members can earn up to 2,250 NCTR by signing up and completing their profile while the offer runs. All tokens are committed for 360 days, not spent.',
     }
 
     return {
@@ -850,7 +850,7 @@ server.registerTool(
             {
               impact_engines: formatted,
               count: engines.length,
-              bounty: 'Join any Impact Engine to earn the Impact Engine Join Bounty — 5,000 NCTR with 360LOCK.',
+              bounty: 'Join any Impact Engine to earn the Impact Engine Join Bounty — 5,000 NCTR, committed for 360 days.',
               note: 'Impact Engines are passion-based communities. Each one connects people around a shared interest, with community-specific experiences and rewards.',
             },
             null,
