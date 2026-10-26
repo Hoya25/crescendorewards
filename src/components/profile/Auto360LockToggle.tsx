@@ -174,7 +174,7 @@ export function Auto360LockToggle() {
     if (!auto360lock) {
       return (
         <p className="text-xs text-muted-foreground mt-2">
-          Turn on to auto-lock every bounty to Crescendo and earn bonus NCTR
+          Turn on to auto-commit every bounty to Crescendo and earn bonus NCTR
         </p>
       );
     }

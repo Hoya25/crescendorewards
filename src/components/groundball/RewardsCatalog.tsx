@@ -298,7 +298,7 @@ export function RewardsCatalog({
           <div className="text-center py-16">
             <div className="text-6xl mb-4">🔍</div>
             <h3 className="text-xl font-semibold text-white mb-2">
-              No rewards match your filters
+              Try different filters
             </h3>
             <p className="text-slate-400 mb-4">
               Try adjusting your filters or search term

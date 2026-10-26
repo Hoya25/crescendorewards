@@ -122,7 +122,7 @@ export default function LeaderboardPage() {
           ) : top10.length === 0 ? (
             <div className="p-8 text-center space-y-2">
               <Users className="h-8 w-8 mx-auto text-muted-foreground/40" />
-              <p className="text-sm text-muted-foreground">No leaderboard entries yet this month.</p>
+              <p className="text-sm text-muted-foreground">This month’s leaderboard starts here.</p>
               <p className="text-xs text-muted-foreground/60">Be the first to refer and climb the ranks!</p>
             </div>
           ) : (

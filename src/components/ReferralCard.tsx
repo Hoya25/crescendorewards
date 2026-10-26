@@ -42,7 +42,7 @@ export function ReferralCard({ stats, referralCode, isLoading }: ReferralCardPro
       toast.success('Copied to clipboard!');
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      toast.error('Failed to copy');
+      toast.error('Try copying again');
     }
   };
 

@@ -55,7 +55,7 @@ export function BountyEarningsPanel({ open }: { open: boolean }) {
         </div>
       ) : !entries || entries.length === 0 ? (
         <div className="p-6 text-center">
-          <p className="text-sm text-white/40">No earnings yet. Complete a bounty to get started!</p>
+          <p className="text-sm text-white/40">Complete a bounty to start earning!</p>
         </div>
       ) : (
         <ScrollArea className="max-h-[320px]">

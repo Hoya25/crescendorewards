@@ -170,7 +170,7 @@ export function StatusPage({ onBack }: StatusPageProps) {
                   <p className="text-sm text-muted-foreground mb-1">Your Current Status</p>
                   <h2 className="text-4xl font-bold mb-2">{currentTier.name}</h2>
                   <p className="text-muted-foreground flex items-center gap-1">
-                    {lockedNCTR.toLocaleString()} <NCTRLogo size="xs" /> locked in 360LOCK
+                    {lockedNCTR.toLocaleString()} <NCTRLogo size="xs" /> committed through 360LOCK
                   </p>
                 </div>
               </div>

@@ -314,10 +314,10 @@ export default function GroundballRewardsPage() {
             </div>
             <h3 className="text-xl font-semibold text-white mb-2">
               {statusFilter === 'my-selections' 
-                ? 'No selections yet'
+                ? 'Choose your rewards'
                 : statusFilter === 'available'
-                ? 'No rewards unlocked yet'
-                : 'No rewards match your filters'
+                ? 'Build status to open rewards'
+                : 'Try different filters'
               }
             </h3>
             <p className="text-slate-400 mb-6">

@@ -467,7 +467,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
               onClick={handleConfirm}
             >
               {selected === '360lock'
-                ? `Lock ${amount360.toLocaleString()} NCTR for 360 Days`
+                ? `Commit ${amount360.toLocaleString()} NCTR for 360 Days`
                 : `Commit ${amount90.toLocaleString()} NCTR for 90 Days`
               }
             </Button>
@@ -536,7 +536,7 @@ function Lock360Celebration({
 
   const summaryItems = [
     { label: 'Amount Committed', value: `${amount.toLocaleString()} NCTR` },
-    { label: 'Lock Duration', value: '360 Days' },
+    { label: 'Commitment Duration', value: '360 Days' },
     { label: 'Status Tier', value: tierName, isBadge: true, badgeColor: tierColor, badgeEmoji: tierEmoji },
     { label: 'Unlock Date', value: unlockDate },
   ];

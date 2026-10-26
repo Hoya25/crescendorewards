@@ -102,7 +102,7 @@ export function BountyDetailModal({ data, onClose }: Props) {
         onClose();
       }
     } catch {
-      toast.error('Failed to validate bounty. Try again.');
+      toast.error('Try validating the bounty again.');
     }
   };
 
@@ -124,7 +124,7 @@ export function BountyDetailModal({ data, onClose }: Props) {
         onClose();
       }
     } catch {
-      toast.error('Failed to submit content. Try again.');
+      toast.error('Try submitting your content again.');
     }
   };
 

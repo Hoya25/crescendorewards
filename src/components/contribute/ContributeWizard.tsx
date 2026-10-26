@@ -379,7 +379,7 @@ export function ContributeWizard() {
     2: 'How will members receive it?',
     3: 'When will you deliver?',
     4: 'How many can you fulfill?',
-    5: state.is_brand_submission ? 'Brand contribution' : 'Floor value and lock',
+    5: state.is_brand_submission ? 'Brand contribution' : 'Floor value and commitment',
   };
 
   if (step === 'done') {
@@ -934,7 +934,7 @@ function Step5Individual({
         )}
       </Field>
 
-      <Field label="Lock duration">
+      <Field label="Commitment duration">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {(['90lock', '360lock'] as LockOption[]).map((key) => {
             const opt = LOCK_OPTIONS[key];
@@ -996,7 +996,7 @@ function Step5Individual({
                     <span className="text-neutral-200 font-['DM_Mono']">
                       {nctrPreview?.toLocaleString()} NCTR
                     </span>{' '}
-                    — the exact amount is calculated when a member claims it. Locked for{' '}
+                    — the exact amount is calculated when a member claims it. Committed for{' '}
                     {LOCK_OPTIONS[lock as LockOption].durationDays} days, then withdrawable.
                   </>
                 )}

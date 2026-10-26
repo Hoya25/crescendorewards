@@ -107,7 +107,7 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
                 <NctrMarketReference nctrAmount={currentBalance} />
               </div>
               <div style={{ textAlign: 'right' as const }}>
-                <p style={{ fontFamily: 'var(--font-body)', fontSize: '9px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: 'rgba(217,217,217,0.3)', marginBottom: '4px' }}>Lock Period</p>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: '9px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: 'rgba(217,217,217,0.3)', marginBottom: '4px' }}>Commitment Period</p>
                 <p style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', fontWeight: 500, color: 'rgba(217,217,217,0.62)' }}>360 <span style={{ fontFamily: 'var(--font-body)', fontSize: '10px', color: 'rgba(217,217,217,0.3)' }}>days</span></p>
               </div>
             </div>

@@ -108,7 +108,7 @@ export default function TierProgressBar({ balance = 0, lockedBalance = 0, onLeve
             {lockedBalance > 0 && (
               <div style={{ background: `rgba(${tier.rgb},0.07)`, border: `1px solid rgba(${tier.rgb},0.18)`, borderRadius: '8px', padding: '0.625rem 0.875rem', minWidth: '100px', transition: 'background 0.4s ease' }}>
                 <p style={{ fontFamily: 'var(--font-body)', fontSize: '8px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: `rgba(${tier.rgb},0.55)`, marginBottom: '3px' }}>360LOCK</p>
-                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(15px,2.3vw,19px)', fontWeight: 500, lineHeight: 1, color: tier.color, transition: 'color 0.4s ease' }}>{displayLocked.toLocaleString()} <span style={{ fontFamily: 'var(--font-body)', fontSize: '9px', color: `rgba(${tier.rgb},0.4)` }}>locked</span></p>
+                <p style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(15px,2.3vw,19px)', fontWeight: 500, lineHeight: 1, color: tier.color, transition: 'color 0.4s ease' }}>{displayLocked.toLocaleString()} <span style={{ fontFamily: 'var(--font-body)', fontSize: '9px', color: `rgba(${tier.rgb},0.4)` }}>committed</span></p>
               </div>
             )}
           </div>

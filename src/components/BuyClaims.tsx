@@ -590,7 +590,7 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                             <Progress value={currentProgress} className="h-2 transition-all duration-500 ease-out" />
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {lockedNCTR.toLocaleString()} <NCTRLogo size="xs" /> locked
+                            {lockedNCTR.toLocaleString()} <NCTRLogo size="xs" /> committed
                           </div>
                         </div>
 
@@ -632,7 +632,7 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
                             )}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {newLockedNCTR.toLocaleString()} <NCTRLogo size="xs" /> locked
+                            {newLockedNCTR.toLocaleString()} <NCTRLogo size="xs" /> committed
                             <span className="text-violet-600 font-medium ml-1 inline-block animate-fade-in">
                               (+{selectedPackage.bonus.toLocaleString()})
                             </span>

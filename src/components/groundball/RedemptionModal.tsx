@@ -75,7 +75,7 @@ export function RedemptionModal({ selection, onClose }: RedemptionModalProps) {
       onClose();
     },
     onError: (error: Error) => {
-      toast.error(`Failed to redeem: ${error.message}`);
+      toast.error(`Try redeeming again: ${error.message}`);
     },
   });
 

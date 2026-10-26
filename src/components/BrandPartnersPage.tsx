@@ -144,7 +144,7 @@ export function BrandPartnersPage() {
       setFilteredBrands((data || []).filter(b => !b.is_featured));
     } catch (error: any) {
       console.error('Error loading brands:', error);
-      toast.error('Failed to load brand partners');
+      toast.error('Refresh to load brand partners');
     } finally {
       setLoading(false);
     }
@@ -451,7 +451,7 @@ export function BrandPartnersPage() {
             <Card>
               <CardContent className="p-12 text-center">
                 <Store className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-lg text-muted-foreground">No partners found in this category</p>
+                <p className="text-lg text-muted-foreground">Explore another category</p>
               </CardContent>
             </Card>
           ) : (

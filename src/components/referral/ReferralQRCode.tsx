@@ -89,7 +89,7 @@ export function ReferralQRCode({
     try {
       const imageData = await generateShareableCard();
       if (!imageData) {
-        toast.error('Failed to generate card');
+        toast.error('Try generating the card again');
         return;
       }
       
@@ -99,7 +99,7 @@ export function ReferralQRCode({
       link.click();
       toast.success('Card downloaded!');
     } catch (error) {
-      toast.error('Failed to download card');
+      toast.error('Try downloading the card again');
     } finally {
       setIsGeneratingCard(false);
     }
@@ -110,7 +110,7 @@ export function ReferralQRCode({
     try {
       const imageData = await generateShareableCard();
       if (!imageData) {
-        toast.error('Failed to generate card');
+        toast.error('Try generating the card again');
         return;
       }
 
@@ -133,7 +133,7 @@ export function ReferralQRCode({
       }
     } catch (error) {
       if ((error as Error).name !== 'AbortError') {
-        toast.error('Failed to share card');
+        toast.error('Try sharing the card again');
       }
     } finally {
       setIsGeneratingCard(false);

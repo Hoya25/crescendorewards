@@ -263,7 +263,7 @@ export function MembershipStatistics({ userId }: MembershipStatisticsProps) {
       <Card className="p-6">
         <div className="text-center py-12">
           <TrendingUp className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-          <p className="text-lg font-medium text-muted-foreground">No statistics yet</p>
+          <p className="text-lg font-medium text-muted-foreground">Build your membership statistics</p>
           <p className="text-sm text-muted-foreground mt-2">
             Start committing NCTR to track your membership journey
           </p>
@@ -310,7 +310,7 @@ export function MembershipStatistics({ userId }: MembershipStatisticsProps) {
                 Next Tier Prediction
               </h3>
               <p className="text-sm text-muted-foreground">
-                Based on your locking patterns over the last {history.length} upgrades
+                Based on your commitment patterns over the last {history.length} upgrades
               </p>
             </div>
             <Badge className={getConfidenceColor()}>
@@ -358,7 +358,7 @@ export function MembershipStatistics({ userId }: MembershipStatisticsProps) {
                 {prediction.dailyAverage.toFixed(1)} NCTR
               </div>
               <p className="text-sm text-muted-foreground">
-                Average locking velocity
+                Average commitment velocity
               </p>
             </div>
           </div>
@@ -425,7 +425,7 @@ export function MembershipStatistics({ userId }: MembershipStatisticsProps) {
           {prediction.confidence === 'low' && (
             <div className="mt-4 p-3 bg-muted/50 rounded-lg">
               <p className="text-sm text-muted-foreground">
-                ℹ️ Low confidence: Predictions improve with more consistent locking activity. 
+                ℹ️ Low confidence: Predictions improve with more consistent commitment activity. 
                 Commit NCTR regularly to get more accurate forecasts.
               </p>
             </div>

@@ -175,7 +175,7 @@ function Condition2({ navigate, earned }: { navigate: (path: string) => void; ea
         className="gap-2 font-semibold"
         style={{ backgroundColor: "#C8FF00", color: "#1A1A2E" }}
       >
-        Lock Now
+        Commit Now
         <ArrowRight className="w-4 h-4" />
       </Button>
     </div>

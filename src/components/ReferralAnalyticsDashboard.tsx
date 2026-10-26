@@ -44,7 +44,7 @@ export function ReferralAnalyticsDashboard() {
       console.error('Error fetching analytics:', error);
       toast({
         title: 'Error',
-        description: 'Failed to load referral analytics',
+        description: 'Refresh to load referral analytics',
         variant: 'destructive',
       });
     } finally {
@@ -132,7 +132,7 @@ export function ReferralAnalyticsDashboard() {
           <Card>
             <CardContent className="p-8 text-center">
               <Share2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-lg font-medium mb-2">No Referral Data Yet</h3>
+              <h3 className="text-lg font-medium mb-2">Your referral activity starts here</h3>
               <p className="text-muted-foreground mb-4">
                 Start sharing rewards to earn bonuses!
               </p>

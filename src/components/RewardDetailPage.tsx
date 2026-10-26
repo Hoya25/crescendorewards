@@ -213,11 +213,11 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
       }
     } catch (err) {
       console.error('Error fetching reward:', err);
-      setError(err instanceof Error ? err : new Error('Failed to load reward'));
+      setError(err instanceof Error ? err : new Error('Refresh to load reward'));
       if (!isRetry) {
         toast({
           title: 'Error',
-          description: 'Failed to load reward details',
+          description: 'Refresh to load reward details',
           variant: 'destructive',
         });
       }
@@ -273,7 +273,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
       }
     } catch (error) {
       console.error('Error toggling wishlist:', error);
-      toast({ title: 'Error', description: 'Failed to update wishlist', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Try updating your wishlist again', variant: 'destructive' });
     } finally {
       setAddingToWishlist(false);
     }
@@ -429,7 +429,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
       toast({ title: 'Link copied!', description: 'Share link copied to clipboard' });
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast({ title: 'Failed to copy', variant: 'destructive' });
+      toast({ title: 'Try copying again', variant: 'destructive' });
     }
   };
 
@@ -481,7 +481,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
             Back to Rewards
           </Button>
           <DataErrorState
-            title="Failed to load reward"
+            title="Refresh to load reward"
             message="We couldn't load the reward details. Please try again."
             onRetry={handleRetry}
             retrying={retrying}
