@@ -8,6 +8,13 @@
       "when": 1793046636652,
       "tag": "0000_scope_rewards_and_brands_admin_policies_to_authenticated",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793047015094,
+      "tag": "0001_scope_public_has_role_policies_to_authenticated",
+      "breakpoints": true
     }
   ]
 }
