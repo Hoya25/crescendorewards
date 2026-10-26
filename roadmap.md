@@ -1,4 +1,4 @@
 - [x] Retire unapproved rewards and clear attribution; reactivate concert credit.
 - [x] Render Status Perks only from database rewards, hiding empty sections.
 - [x] Replace Garden copy and links with The Mall across application source.
-- [ ] Verify catalog, copy, links, and report changed occurrences.
+- [x] Verify catalog, copy, links, and report changed occurrences.
