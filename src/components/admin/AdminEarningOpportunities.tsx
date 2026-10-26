@@ -405,7 +405,7 @@ export function AdminEarningOpportunities() {
                 <Input
                   value={formData.name}
                   onChange={e => handleNameChange(e.target.value)}
-                  placeholder="The Garden"
+                  placeholder="The Mall"
                 />
               </div>
               <div className="space-y-2">

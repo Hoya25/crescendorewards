@@ -22,7 +22,7 @@ export interface SyncResult {
 
 /**
  * Syncs wallet portfolio data and automatically recalculates user tier.
- * Use this function from both The Garden and Crescendo for consistent behavior.
+ * Use this function from both The Mall and Crescendo for consistent behavior.
  * 
  * The database trigger `trigger_recalculate_tier` will automatically
  * update the user's status tier when nctr_360_locked changes.

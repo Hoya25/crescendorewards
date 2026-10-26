@@ -340,7 +340,7 @@ export default function InviteLandingPage() {
                 icon: TrendingUp,
                 emoji: '💰',
                 title: 'EARN BY CONTRIBUTING',
-                description: 'Submit rewards, refer friends, shop through The Garden. Every contribution earns NCTR toward higher status.',
+                description: 'Submit rewards, refer friends, shop through The Mall. Every contribution earns NCTR toward higher status.',
                 gradient: 'from-blue-500/20 to-cyan-500/20',
               }
             ].map((item, idx) => (

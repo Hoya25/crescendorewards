@@ -808,7 +808,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                     <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
                       <p className="text-sm text-primary font-medium mb-1">🚀 Level Up Your Status</p>
                       <p className="text-xs text-muted-foreground">
-                        Keep earning through The Garden, referrals, and bounties to unlock this reward!
+                        Keep earning through The Mall, referrals, and bounties to unlock this reward!
                       </p>
                     </div>
                     <Button 

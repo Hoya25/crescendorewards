@@ -26,7 +26,7 @@ const steps = [
   {
     icon: Sparkles,
     title: "Earn",
-    description: "Earn NCTR through The Garden",
+    description: "Earn NCTR through The Mall",
   },
 ];
 

@@ -187,14 +187,14 @@ export function BrandPartnersPage() {
             </div>
             <div>
               <h1 className="text-3xl font-bold">Partner Network</h1>
-              <p className="text-muted-foreground">Shop through The Garden to earn on everyday purchases</p>
+              <p className="text-muted-foreground">Shop through The Mall to earn on everyday purchases</p>
             </div>
           </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8 space-y-8">
-        {/* The Garden CTA */}
+        {/* The Mall CTA */}
         <Card className="bg-gradient-to-r from-emerald-500 to-teal-600 border-0 overflow-hidden">
           <CardContent className="p-8">
             <div className="flex flex-col md:flex-row items-center gap-6">
@@ -204,14 +204,14 @@ export function BrandPartnersPage() {
               <div className="flex-1 text-center md:text-left">
                 <h2 className="text-2xl font-bold text-white mb-2">Earn NCTR on Everyday Purchases</h2>
                 <p className="text-white/90 mb-4">
-                  Connect your spending to The Garden and earn NCTR automatically from hundreds of brands.
+                  Connect your spending to The Mall and earn NCTR automatically from hundreds of brands.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center gap-3">
                   <Button 
                     className="bg-white text-emerald-600 hover:bg-white/90 gap-2"
-                    onClick={() => window.open('https://thegarden.nctr.live/', '_blank')}
+                    onClick={() => window.open('https://themall.nctr.live/', '_blank')}
                   >
-                    Visit The Garden
+                    Visit The Mall
                     <ExternalLink className="w-4 h-4" />
                   </Button>
                   <span className="text-white/70 text-sm">External site • Powered by NCTR Alliance</span>

@@ -76,7 +76,7 @@ export function NCTREarnedCelebration({
 
   const handleBackToGarden = () => {
     onClose();
-    window.open('https://thegarden.nctr.live/', '_blank');
+    window.open('https://themall.nctr.live/', '_blank');
   };
 
   return (
@@ -98,7 +98,7 @@ export function NCTREarnedCelebration({
               You Just Earned NCTR!
             </h2>
             <p className="text-sm text-muted-foreground animate-fade-in">
-              Your purchase through <span className="font-semibold">{brandName || 'The Garden'}</span> just added to your stake.
+              Your purchase through <span className="font-semibold">{brandName || 'The Mall'}</span> just added to your stake.
             </p>
           </div>
         </div>
@@ -188,7 +188,7 @@ export function NCTREarnedCelebration({
             </Button>
             <Button onClick={handleBackToGarden} variant="outline" className="w-full">
               <ExternalLink className="w-4 h-4 mr-2" />
-              Keep Earning — Back to The Garden
+              Keep Earning — Back to The Mall
             </Button>
             <Button onClick={onClose} variant="ghost" className="w-full text-muted-foreground">
               Got it, thanks!
@@ -200,7 +200,7 @@ export function NCTREarnedCelebration({
             <div className="flex items-start gap-3">
               <Lightbulb className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
               <p className="text-xs text-muted-foreground leading-relaxed">
-                <span className="font-semibold text-foreground">How it works:</span> Every purchase through The Garden earns you NCTR — real digital asset stakes that grow your membership. The more you earn, the more benefits you unlock. You never buy NCTR — you earn it by living your life.
+                <span className="font-semibold text-foreground">How it works:</span> Every purchase through The Mall earns you NCTR — real digital asset stakes that grow your membership. The more you earn, the more benefits you unlock. You never buy NCTR — you earn it by living your life.
               </p>
             </div>
           </div>

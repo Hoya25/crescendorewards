@@ -85,7 +85,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         await showLockDecision({
           baseAmount: pendingEarning.nctrEarned,
           sourceType: 'shopping',
-          sourceName: pendingEarning.brandName || 'The Garden',
+          sourceName: pendingEarning.brandName || 'The Mall',
         });
         clearEarning();
       };

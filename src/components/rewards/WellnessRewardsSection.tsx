@@ -201,7 +201,7 @@ export function WellnessRewardsSection() {
           <span className="text-3xl shrink-0">🌿</span>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-foreground">
-              Shop Kroma Wellness on The Garden → Earn NCTR toward these rewards
+              Shop Kroma Wellness on The Mall → Earn NCTR toward these rewards
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
               Every Kroma purchase earns NCTR. Commit via 360LOCK to unlock the rewards below.
@@ -246,19 +246,19 @@ export function WellnessRewardsSection() {
             style={{ borderRadius: '0px', backgroundColor: '#323232', color: '#E2FF6D' }}
           >
             <span className="font-semibold">How it works:</span>{' '}
-            Shop through The Garden → Earn NCTR → Commit via 360LOCK → Unlock these rewards.
-            Your commitment unlocks value — you never spend your earned rewards.
+            Shop at alliance stores through The Mall → Earn NCTR → Commit with 360LOCK → Unlock these rewards.
+            Your commitment unlocks value; you never spend your earned rewards.
           </div>
           <a
-            href="https://thegarden.nctr.live"
+            href="https://themall.nctr.live"
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-3 text-sm leading-relaxed border border-emerald-200 dark:border-emerald-800 bg-card hover:bg-accent transition-colors flex items-center gap-2 sm:max-w-[240px]" style={{ borderRadius: '0px' }}
           >
             <span className="text-base">🛒</span>
             <span>
-              <span className="font-semibold block text-foreground">Shop Kroma &amp; thousands of brands</span>
-              <span className="text-muted-foreground text-xs">on The Garden to earn toward these rewards →</span>
+              <span className="font-semibold block text-foreground">Shop Kroma and thousands of alliance stores</span>
+              <span className="text-muted-foreground text-xs">on The Mall to earn toward these rewards →</span>
             </span>
           </a>
         </div>

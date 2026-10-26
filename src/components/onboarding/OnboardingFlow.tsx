@@ -245,7 +245,7 @@ function StepLock({ onAction }: { onAction: (path: string) => void }) {
         className="text-sm leading-relaxed max-w-sm mx-auto"
         style={{ color: '#ccc' }}
       >
-        Commit your NCTR for 360 days and your status activates instantly. The more NCTR you commit, the higher your tier. Earn NCTR by shopping in The Garden.
+        Commit your NCTR for 360 days and your status activates instantly. The more NCTR you commit, the higher your tier. Earn NCTR by shopping in The Mall.
       </motion.p>
 
       {/* Two buttons side by side */}
@@ -263,11 +263,11 @@ function StepLock({ onAction }: { onAction: (path: string) => void }) {
           Check My Status →
         </button>
         <button
-          onClick={() => onAction('https://thegarden.nctr.live')}
+          onClick={() => onAction('https://themall.nctr.live')}
           className="flex-1 py-3.5 rounded-xl font-bold text-sm transition-all hover:brightness-110 border"
           style={{ backgroundColor: 'transparent', color: ACCENT, borderColor: `${ACCENT}66` }}
         >
-          Earn NCTR in The Garden →
+          Earn NCTR in The Mall →
         </button>
       </motion.div>
     </div>

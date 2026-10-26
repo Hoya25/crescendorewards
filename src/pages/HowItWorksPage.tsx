@@ -20,7 +20,7 @@ const sectionPad = { padding: '100px 0' };
 // ── Data ──
 
 const FLYWHEEL_STEPS = [
-  { num: "01", title: "You Shop & Participate", desc: "Browse thousands of brands through The Garden or Crescendo's marketplace. Every purchase, every action counts." },
+  { num: "01", title: "You Shop & Participate", desc: "Browse thousands of brands through The Mall or Crescendo's marketplace. Every purchase, every action counts." },
   { num: "02", title: "Revenue Flows In", desc: "Shopping commissions, brand partnerships, and ecosystem activity generate revenue. Multiple streams, one treasury." },
   { num: "03", title: "The Treasury Fuels Everything", desc: "The treasury exists for one purpose: to fund rewards, opportunities, and experiences for the community." },
   { num: "04", title: "Rewards Keep Flowing", desc: "Brands contribute directly. Community members list their own. The treasury purchases the rest. Three channels keep the marketplace full." },
