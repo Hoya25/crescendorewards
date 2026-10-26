@@ -14,23 +14,23 @@ export const REFERRAL_REWARDS = {
   // Reward descriptions for consistent messaging
   descriptions: {
     inviter: {
-      short: (nctr: number) => `${nctr} NCTR 360LOCK per referral`,
-      full: (nctr: number) => `Earn ${nctr} NCTR in 360LOCK for each friend who joins`,
+      short: (nctr: number) => `${nctr} NCTR committed through 360LOCK per referral`,
+      full: (nctr: number) => `Earn ${nctr} NCTR committed through 360LOCK for each friend who joins`,
     },
     invitee: {
-      short: (nctr: number) => `${nctr} NCTR 360LOCK welcome bonus`,
-      full: (nctr: number) => `Get ${nctr} NCTR in 360LOCK when you join`,
+      short: (nctr: number) => `${nctr} NCTR committed through 360LOCK welcome bonus`,
+      full: (nctr: number) => `Get ${nctr} NCTR committed through 360LOCK when you join`,
     },
-    mutual: (nctr: number) => `You both earn ${nctr} NCTR in 360LOCK`,
+    mutual: (nctr: number) => `You both earn ${nctr} NCTR committed through 360LOCK`,
   },
   
   // Share text templates
   shareText: {
-    default: (nctr: number) => `Join me on Crescendo and we both earn ${nctr} NCTR in 360LOCK!`,
+    default: (nctr: number) => `Join me in NCTR Alliance on Crescendo and we both earn ${nctr} NCTR committed through 360LOCK!`,
     qrCard: (nctr: number) => `Scan the QR code or use my link to join and earn ${nctr} NCTR!`,
-    twitter: (nctr: number) => `🎁 Join me on @CrescendoNCTR and we BOTH earn ${nctr} NCTR in 360LOCK! No purchase required.`,
-    telegram: (nctr: number) => `🎁 Join Crescendo with my link and we both earn ${nctr} NCTR in 360LOCK!`,
-    whatsapp: (nctr: number) => `Hey! Join me on Crescendo and we'll both earn ${nctr} NCTR in 360LOCK. It's free to join:`,
+    twitter: (nctr: number) => `🎁 Join me on @CrescendoNCTR and we BOTH earn ${nctr} NCTR committed through 360LOCK! Build your status in NCTR Alliance.`,
+    telegram: (nctr: number) => `🎁 Join NCTR Alliance on Crescendo with my link and we both earn ${nctr} NCTR committed through 360LOCK!`,
+    whatsapp: (nctr: number) => `Hey! Join me in NCTR Alliance on Crescendo and we'll both earn ${nctr} NCTR committed through 360LOCK. It's free to join:`,
   },
   
   // Milestone definitions (synced with referral_milestones table)

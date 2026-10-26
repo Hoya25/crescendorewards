@@ -78,7 +78,7 @@ export function ReferralCard({ stats, referralCode, isLoading }: ReferralCardPro
               </div>
             </div>
             <p className="text-sm text-emerald-800 dark:text-emerald-200 mb-4">
-              <strong>You AND your friend</strong> each receive {allocation360Lock.toLocaleString()} NCTR locked for 360 days. 
+              <strong>You AND your friend</strong> each receive {allocation360Lock.toLocaleString()} NCTR committed for 360 days. 
               Build your tier status faster by referring friends!
             </p>
             <Button 

@@ -85,7 +85,7 @@ export function useDeliveryProfile(): UseDeliveryProfileReturn {
 
   const updateProfile = useCallback(async (data: Partial<UserDeliveryProfile>): Promise<boolean> => {
     if (!unifiedProfileId) {
-      toast({ title: 'Error', description: 'Not authenticated', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Sign in to continue.', variant: 'destructive' });
       return false;
     }
 

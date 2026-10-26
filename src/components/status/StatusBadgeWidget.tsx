@@ -92,7 +92,7 @@ export function StatusBadgeSidebar() {
         {info.isMaxTier
           ? 'Maximum Status'
           : total360Locked === 0
-            ? 'Lock NCTR to start'
+            ? 'Commit NCTR to start'
             : `${total360Locked.toLocaleString()} / ${info.nextMin.toLocaleString()} NCTR`}
       </p>
     </div>
@@ -109,7 +109,7 @@ export function StatusBadgeCollapsed() {
     <div
       onClick={() => navigate('/membership')}
       className="cursor-pointer flex justify-center py-2"
-      title={`${info.tierName} — ${total360Locked.toLocaleString()} NCTR locked`}
+      title={`${info.tierName} — ${total360Locked.toLocaleString()} NCTR committed`}
     >
       <TierBadgeCircle color={info.tierColor} size={24} />
     </div>
@@ -158,7 +158,7 @@ export function MobileStatusContent() {
           {info.isMaxTier
             ? 'Maximum Status'
             : total360Locked === 0
-              ? 'Lock NCTR to start'
+              ? 'Commit NCTR to start'
               : `${nctrNeeded.toLocaleString()} NCTR to reach ${info.nextName}`}
         </p>
       </div>

@@ -305,7 +305,7 @@ export function ClaimConfirmationDialog({
                   <span className="text-sm font-medium">Status Savings</span>
                 </div>
                 <span className="font-bold" style={{ color: userTierColor }}>
-                  {isFree ? `${originalPrice} Claims` : `${savings} Claims (${discount}% off)`}
+                  {savings} Claims saved
                 </span>
               </div>
             )}

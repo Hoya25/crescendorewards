@@ -156,7 +156,7 @@ export function useSocialPosts() {
       const token = sessionData.session?.access_token;
 
       if (!token) {
-        throw new Error('Not authenticated');
+        throw new Error('Sign in to continue.');
       }
 
       const response = await fetch(

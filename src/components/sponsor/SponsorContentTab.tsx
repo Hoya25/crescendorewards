@@ -81,7 +81,7 @@ export function SponsorContentTab({ sponsorName, sponsorId, sponsoredRewards }: 
 
   const submitMutation = useMutation({
     mutationFn: async () => {
-      if (!userId) throw new Error('Not authenticated');
+      if (!userId) throw new Error('Sign in to continue.');
       const { error } = await supabase.from('content_submissions').insert({
         title,
         description: requestFeature

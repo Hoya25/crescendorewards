@@ -77,7 +77,7 @@ export function StandingsTab({ tiers }: StandingsTabProps) {
           lineHeight: 1.5,
         }}
       >
-        Your 360LOCK balance determines your tier. Each unlocks more claims, stronger multipliers, and new opportunities.
+        Your 360LOCK commitment sets your tier. Each tier earns more on every bounty and opens new rewards and opportunities.
       </p>
 
       <div className="flex flex-col" style={{ gap: '2px' }}>

@@ -133,7 +133,7 @@ export function ResubmitModal({ open, onClose, submission, onSuccess }: Resubmit
     try {
       // Create a new submission linked to the original via parent_submission_id
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      if (!user) throw new Error('Sign in to continue.');
 
       const { error } = await supabase
         .from('reward_submissions')

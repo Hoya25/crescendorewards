@@ -14,10 +14,8 @@ export const membershipTiers: MembershipTier[] = [
     claims: '1 annual claim',
     discount: 0,
     benefits: [
-      'Access to bronze reward catalog',
-      '1 reward claim per year',
-      'Priority customer support',
-      'Earn 1.1x NCTR on all activities'
+      'Earns on every bounty',
+      'Rewards sponsored by the alliance and its partner brands open at Bronze'
     ],
     nftBadges: ['Digital Rewards Access'],
     color: 'hsl(14 100% 57%)',
@@ -32,11 +30,8 @@ export const membershipTiers: MembershipTier[] = [
     claims: '4 annual claims',
     discount: 10,
     benefits: [
-      'Access to silver reward catalog',
-      '4 reward claims per year',
-      'Early access to new rewards',
-      'Earn 1.3x NCTR on all activities',
-      '10% discount on partner brands'
+      'Earns more than Bronze on every bounty',
+      'Silver rewards open'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access'],
     color: 'hsl(0 0% 75%)',
@@ -51,12 +46,8 @@ export const membershipTiers: MembershipTier[] = [
     claims: '1 monthly claim',
     discount: 15,
     benefits: [
-      'Access to gold reward catalog',
-      '1 reward claim per month',
-      'VIP event invitations',
-      'Earn 1.5x NCTR on all activities',
-      '15% discount on partner brands',
-      'Dedicated account manager'
+      'Earns more than Silver on every bounty',
+      'Gold rewards and experiences open'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access', 'VIP Experiences'],
     color: 'hsl(43 96% 56%)',
@@ -71,13 +62,8 @@ export const membershipTiers: MembershipTier[] = [
     claims: '2 monthly claims',
     discount: 20,
     benefits: [
-      'Access to platinum reward catalog',
-      '2 reward claims per month',
-      'Exclusive platinum events',
-      'Earn 1.8x NCTR on all activities',
-      '20% discount on partner brands',
-      'Personal concierge service',
-      'Priority shipping'
+      'Earns more than Gold on every bounty',
+      'Platinum rewards, experiences, and first looks open'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access', 'VIP Experiences', 'Platinum Concierge'],
     color: 'hsl(0 0% 85%)',
@@ -92,14 +78,8 @@ export const membershipTiers: MembershipTier[] = [
     claims: 'Unlimited',
     discount: 25,
     benefits: [
-      'Access to diamond reward catalog',
-      'Unlimited reward claims',
-      'Exclusive diamond experiences',
-      'Earn 2.5x NCTR on all activities',
-      '25% discount on partner brands',
-      'White-glove concierge service',
-      'Free expedited shipping',
-      'Early access to all new features'
+      'Earns the most on every bounty',
+      'Everything opens at Diamond'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access', 'VIP Experiences', 'Diamond Elite'],
     color: 'hsl(180 100% 50%)',

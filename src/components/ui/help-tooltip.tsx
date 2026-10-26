@@ -17,13 +17,13 @@ interface HelpTooltipProps {
 
 // Predefined help content for common terms
 export const HELP_CONTENT = {
-  nctr: "Your digital ownership stake. Earned through participation, not purchased.",
+  nctr: "NCTR is earned through participation in NCTR Alliance and committed through 360LOCK for status.",
   "360lock": "Commit your NCTR for 360 days to unlock higher status tiers and better rewards.",
-  statusTier: "Your tier determines your reward multiplier and how many rewards you can claim.",
+  statusTier: "Your status sets how much you earn on every bounty and which rewards open to you.",
   pendingNctr: "NCTR you've earned that hasn't been committed yet. Commit it via 360LOCK to increase your tier.",
   lockedNctr: "NCTR you've committed via 360LOCK. This determines your status tier.",
   claims: "Use claims to redeem rewards from the marketplace. Earn claims through participation or purchase packages.",
-  multiplier: "Higher tiers earn more NCTR from the same actions. A 2x multiplier means you earn double.",
+  multiplier: "Higher status earns more on every bounty.",
 } as const;
 
 export function HelpTooltip({ 

@@ -137,7 +137,7 @@ export function useGroundballStatus() {
   // Select a reward — ownership, tier gate and slot accounting are server-side.
   const selectReward = useMutation({
     mutationFn: async (rewardId: string) => {
-      if (!memberId) throw new Error('Not authenticated');
+      if (!memberId) throw new Error('Sign in to continue.');
 
       const reward = rewards?.find(r => r.id === rewardId);
 
@@ -169,7 +169,7 @@ export function useGroundballStatus() {
   // Swap out a reward — pricing, affordability and the Claims debit are server-side.
   const swapReward = useMutation({
     mutationFn: async ({ selectionId, useFreeSwap }: { selectionId: string; useFreeSwap: boolean }) => {
-      if (!memberId) throw new Error('Not authenticated');
+      if (!memberId) throw new Error('Sign in to continue.');
 
       const selection = selections?.find(s => s.id === selectionId);
       const reward = rewards?.find(r => r.id === selection?.reward_id);
@@ -213,7 +213,7 @@ export function useGroundballStatus() {
   // Purchase a bonus selection slot — cost and debit are enforced server-side.
   const purchaseBonusSlot = useMutation({
     mutationFn: async () => {
-      if (!memberId) throw new Error('Not authenticated');
+      if (!memberId) throw new Error('Sign in to continue.');
 
       const { data, error } = await supabase.rpc('groundball_purchase_bonus_slot');
 

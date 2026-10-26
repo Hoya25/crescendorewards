@@ -163,7 +163,7 @@ export function TierProgress({
       
       {showDetails && (
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>{total360Locked.toLocaleString()} NCTR locked</span>
+          <span>{total360Locked.toLocaleString()} NCTR committed</span>
           {nextTier && (
             <span>
               {(nextTier.min_nctr_360_locked - total360Locked).toLocaleString()} to {nextTier.display_name}

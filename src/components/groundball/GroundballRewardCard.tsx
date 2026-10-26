@@ -401,9 +401,9 @@ export function GroundballRewardCard({
                 Unlock at {tierConfig.label}
               </Button>
               <p className="text-xs text-center text-slate-500">
-                {requiredStatus === 'bronze' && 'Lock 100 $GBS to unlock'}
-                {requiredStatus === 'silver' && 'Lock 250 $GBS to unlock'}
-                {requiredStatus === 'gold' && 'Lock 500 $GBS to unlock'}
+                {requiredStatus === 'bronze' && 'Commit 100 $GBS to unlock'}
+                {requiredStatus === 'silver' && 'Commit 250 $GBS to unlock'}
+                {requiredStatus === 'gold' && 'Commit 500 $GBS to unlock'}
               </p>
             </div>
           )}

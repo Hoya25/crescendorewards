@@ -176,7 +176,7 @@ export function DemoModeToggle() {
                 </h5>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">$GBS Locked:</span>
+                    <span className="text-slate-400">$GBS Committed:</span>
                     <span className="text-emerald-400 font-bold">{demoMode.groundballLocked}</span>
                   </div>
                   <div className="flex justify-between">

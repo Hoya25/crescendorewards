@@ -265,7 +265,7 @@ export function MembershipStatistics({ userId }: MembershipStatisticsProps) {
           <TrendingUp className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-50" />
           <p className="text-lg font-medium text-muted-foreground">No statistics yet</p>
           <p className="text-sm text-muted-foreground mt-2">
-            Start locking NCTR to track your membership journey
+            Start committing NCTR to track your membership journey
           </p>
         </div>
       </Card>
@@ -426,7 +426,7 @@ export function MembershipStatistics({ userId }: MembershipStatisticsProps) {
             <div className="mt-4 p-3 bg-muted/50 rounded-lg">
               <p className="text-sm text-muted-foreground">
                 ℹ️ Low confidence: Predictions improve with more consistent locking activity. 
-                Lock NCTR regularly to get more accurate forecasts.
+                Commit NCTR regularly to get more accurate forecasts.
               </p>
             </div>
           )}
@@ -496,11 +496,11 @@ export function MembershipStatistics({ userId }: MembershipStatisticsProps) {
         </Card>
       </div>
 
-      {/* NCTR Locked Over Time */}
+      {/* NCTR Committed Over Time */}
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <TrendingUp className="w-5 h-5" />
-          NCTR Locked Over Time
+          NCTR Committed Over Time
         </h3>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={getChartData()}>

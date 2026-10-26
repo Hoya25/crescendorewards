@@ -36,11 +36,8 @@ const statusTiers: StatusTier[] = [
     claims: '1 annual claim',
     discount: 5,
     benefits: [
-      'Access to bronze reward catalog',
-      '1 reward claim per year',
-      'Priority customer support',
-      'Earn 1.0x NCTR on all activities',
-      '5% discount on partner brands'
+      'Earns on every bounty',
+      'Rewards sponsored by the alliance and its partner brands open at Bronze'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access'],
     color: 'hsl(142 76% 36%)',
@@ -55,11 +52,8 @@ const statusTiers: StatusTier[] = [
     claims: '4 annual claims',
     discount: 10,
     benefits: [
-      'Access to premium reward catalog',
-      '4 reward claims per year',
-      'Early access to new rewards',
-      'Earn 1.25x NCTR on all activities',
-      '10% discount on partner brands'
+      'Earns more than Bronze on every bounty',
+      'Silver rewards open'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access'],
     color: 'hsl(199 89% 48%)',
@@ -74,13 +68,8 @@ const statusTiers: StatusTier[] = [
     claims: '1 monthly claim',
     discount: 15,
     benefits: [
-      'Access to exclusive reward catalog',
-      '1 reward claim per month',
-      'VIP event invitations',
-      'Earn 1.5x NCTR on all activities',
-      '15% discount on partner brands',
-      'Dedicated account manager',
-      'Buy\'r Premium membership'
+      'Earns more than Silver on every bounty',
+      'Gold rewards and experiences open'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access', 'VIP Experiences'],
     color: 'hsl(271 91% 65%)',
@@ -95,14 +84,8 @@ const statusTiers: StatusTier[] = [
     claims: '2 monthly claims',
     discount: 20,
     benefits: [
-      'Access to platinum reward catalog',
-      '2 reward claims per month',
-      'Exclusive platinum events',
-      'Earn 1.8x NCTR on all activities',
-      '20% discount on partner brands',
-      'Personal concierge service',
-      'Priority shipping',
-      'Buy\'r Premium membership'
+      'Earns more than Gold on every bounty',
+      'Platinum rewards, experiences, and first looks open'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access', 'VIP Experiences', 'Platinum Concierge'],
     color: 'hsl(43 96% 56%)',
@@ -117,15 +100,8 @@ const statusTiers: StatusTier[] = [
     claims: 'Unlimited',
     discount: 25,
     benefits: [
-      'Access to diamond reward catalog',
-      'Unlimited reward claims',
-      'Exclusive diamond experiences',
-      'Earn 2.5x NCTR on all activities',
-      '25% discount on partner brands',
-      'White-glove concierge service',
-      'Free expedited shipping',
-      'Early access to all new features',
-      'Buy\'r Premium membership'
+      'Earns the most on every bounty',
+      'Everything opens at Diamond'
     ],
     nftBadges: ['Digital Rewards Access', 'Event Access', 'VIP Experiences', 'Diamond Elite'],
     color: 'hsl(180 100% 50%)',
@@ -337,7 +313,7 @@ export function StatusPage({ onBack }: StatusPageProps) {
                 <div>
                   <h3 className="font-semibold mb-1">Commit to 360LOCK</h3>
                   <p className="text-sm text-muted-foreground flex items-center gap-1 flex-wrap">
-                    Lock your <NCTRLogo size="xs" /> for 360 days to build your member status level
+                    Commit your <NCTRLogo size="xs" /> for 360 days to build your member status level
                   </p>
                 </div>
               </div>

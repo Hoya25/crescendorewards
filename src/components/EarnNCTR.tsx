@@ -150,7 +150,7 @@ export function EarnNCTR() {
                     {tier ? `${tier.badge_emoji} ${tier.display_name}` : 'Your 360LOCK'}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {total360Locked.toLocaleString()} NCTR locked for 360 days. Tap to view your full profile and tier benefits.
+                    {total360Locked.toLocaleString()} NCTR committed for 360 days. Tap to view your full profile and tier benefits.
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -198,7 +198,7 @@ export function EarnNCTR() {
                 <TooltipContent side="bottom" className="max-w-xs">
                   <p className="font-medium mb-1">What is 360LOCK?</p>
                   <p className="text-xs text-muted-foreground">
-                    NCTR locked for 360 days. Higher locks mean better membership tier, 
+                    NCTR committed for 360 days. Higher commitments mean better membership tier, 
                     lower reward costs, and exclusive benefits.
                   </p>
                 </TooltipContent>

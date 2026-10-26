@@ -13,7 +13,7 @@ const TIER_INFO = [
     name: "Bronze",
     key: "bronze",
     emoji: "🥉",
-    range: "1,000+ NCTR locked",
+    range: "1,000+ NCTR committed",
     mult: "1.0x",
     perks: "1 monthly claim · wellness rewards",
     color: "#CD7F32",
@@ -22,7 +22,7 @@ const TIER_INFO = [
     name: "Silver",
     key: "silver",
     emoji: "🥈",
-    range: "5,000+ NCTR locked",
+    range: "5,000+ NCTR committed",
     mult: "1.25x",
     perks: "5 monthly claims · early access · streams",
     color: "#C0C0C0",
@@ -31,7 +31,7 @@ const TIER_INFO = [
     name: "Gold",
     key: "gold",
     emoji: "🥇",
-    range: "15,000+ NCTR locked",
+    range: "15,000+ NCTR committed",
     mult: "1.5x",
     perks: "12 monthly claims · creator tools · merch",
     color: "#FFD700",
@@ -40,7 +40,7 @@ const TIER_INFO = [
     name: "Platinum",
     key: "platinum",
     emoji: "💎",
-    range: "40,000+ NCTR locked",
+    range: "40,000+ NCTR committed",
     mult: "1.8x",
     perks: "25 monthly claims · brand priority",
     color: "#E5E4E2",
@@ -49,7 +49,7 @@ const TIER_INFO = [
     name: "Diamond",
     key: "diamond",
     emoji: "👑",
-    range: "100,000+ NCTR locked",
+    range: "100,000+ NCTR committed",
     mult: "2.5x",
     perks: "50 monthly claims · governance · vault",
     color: "#B9F2FF",
@@ -122,8 +122,7 @@ export function StatusExplainer() {
           </div>
 
           <p className="text-xs text-muted-foreground text-center">
-            Your NCTR stays yours when locked. Locking = commitment, not
-            spending. Choose <span className="font-semibold text-cta">360LOCK</span> for 3x rewards.
+            Your NCTR stays yours when committed. Choose 360LOCK and it counts three times toward your status.
           </p>
         </div>
       </CollapsibleContent>

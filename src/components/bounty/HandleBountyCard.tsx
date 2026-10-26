@@ -115,7 +115,7 @@ export function HandleBountyCard() {
         {/* Progress bar */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>NCTR Locked</span>
+            <span>NCTR Committed</span>
             <span className="font-medium">{Math.floor(total360Locked)} / {BRONZE_THRESHOLD}</span>
           </div>
           <Progress
@@ -135,7 +135,7 @@ export function HandleBountyCard() {
           className="w-full text-muted-foreground"
           onClick={() => navigate('/membership')}
         >
-          🔒 Lock NCTR to Reach Bronze →
+          🔒 Commit NCTR to Reach Bronze →
         </Button>
       </CardContent>
     </Card>

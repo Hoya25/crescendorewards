@@ -159,7 +159,7 @@ export function ClaimsPackageCard({
                   <TooltipContent className="max-w-xs">
                     <p className="font-semibold mb-1">360LOCK NCTR Bonus</p>
                     <p className="text-sm">
-                      Bonus NCTR is locked for 360 days, boosting your membership tier and earning potential.
+                      Bonus NCTR is committed for 360 days, boosting your membership tier and earning potential.
                     </p>
                   </TooltipContent>
                 </Tooltip>

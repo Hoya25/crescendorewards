@@ -137,7 +137,7 @@ export function RewardPriceDisplay({
               'bg-emerald-500/10 text-emerald-600 border-0'
             )}
           >
-            Save {pricing.discount}% as {tierDisplayName}
+            {tierDisplayName} price
           </Badge>
         )}
       </div>

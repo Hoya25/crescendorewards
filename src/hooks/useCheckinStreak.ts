@@ -39,7 +39,7 @@ export function useCheckinStreak() {
 
   const checkinMutation = useMutation({
     mutationFn: async (): Promise<CheckinResult> => {
-      if (!user?.id) throw new Error('Not authenticated');
+      if (!user?.id) throw new Error('Sign in to continue.');
 
       const { data, error } = await supabase.rpc('perform_daily_checkin');
 

@@ -13,11 +13,11 @@ export interface OpportunityCard {
 const hardcodedOpportunities: OpportunityCard[] = [
   {
     type: 'Earn Amplifier',
-    name: 'Silver Multiplier',
-    description: 'Every bounty amplified. 25% more NCTR on everything.',
+    name: 'Silver earning',
+    description: 'Every bounty worth more at Silver.',
     status: 'active',
     details: [
-      { label: 'Rate', value: '1.25x' },
+      { label: 'Rate', value: 'Silver' },
       { label: 'Extra earned', value: '+2,105 NCTR' },
       { label: 'At Gold', value: '1.5x' },
     ],

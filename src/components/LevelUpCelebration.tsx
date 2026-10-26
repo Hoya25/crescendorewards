@@ -35,7 +35,7 @@ const tierUnlocks: Record<string, { icon: any; title: string; desc: string }[]> 
   platinum: [
     { icon: Gem, title: "Premium Rewards", desc: "Exclusive experiences and opportunities" },
     { icon: Star, title: "Priority Contributor", desc: "Your contributed rewards get featured placement" },
-    { icon: Zap, title: "1.8x Earning", desc: "80% more on everything" },
+    { icon: Zap, title: "1.8x Earning", desc: "Earns more on everything" },
   ],
   diamond: [
     { icon: Crown, title: "Maximum Status", desc: "Every opportunity in Crescendo is yours" },
@@ -73,7 +73,7 @@ export function LevelUpCelebration({
   const multIncrease = Math.round((newMultiplier - previousMultiplier) * 100);
 
   const handleShare = () => {
-    const text = `Just reached ${newTier} status on Crescendo! ${newMultiplier}x earning multiplier on everything. #LiveAndEarn`;
+    const text = `Just reached ${newTier} status on Crescendo! Earning more on everything in NCTR Alliance. #LiveAndEarn`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     toast.success("Copied to clipboard!");
@@ -132,14 +132,14 @@ export function LevelUpCelebration({
             >
               {/* Multiplier upgrade */}
               <div>
-                <p className="text-sm text-text-body-muted mb-1">Your earning multiplier:</p>
+                <p className="text-sm text-text-body-muted mb-1">Your new earning:</p>
                 <div className="flex items-center justify-center gap-3">
                   <span className="text-lg text-text-body-muted line-through">{previousMultiplier}x</span>
                   <span className="text-text-body-muted">→</span>
                   <span className="text-2xl font-bold text-accent-lime">{newMultiplier}x</span>
                 </div>
                 <p className="text-sm text-text-body mt-1">
-                  You now earn {multIncrease}% more on every action.
+                  {newTier} earns more on every action.
                 </p>
               </div>
 

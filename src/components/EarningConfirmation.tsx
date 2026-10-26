@@ -94,7 +94,7 @@ export function EarningConfirmation({
           <div className="mb-4 p-3 rounded-lg bg-accent-lime/10 border border-accent-lime/20">
             <p className="text-sm text-text-body">
               <Star className="w-4 h-4 inline text-accent-lime mr-1" />
-              <span className="font-semibold">First time earning?</span> Your Crescendo status gives you an automatic earning multiplier. The higher your tier, the more everything is worth.
+              <span className="font-semibold">First time earning?</span> Your Crescendo status sets how much you earn. The higher your tier, the more every action is worth.
             </p>
             <button onClick={dismissFirstTime} className="text-xs text-accent-lime mt-2 font-semibold">Got it</button>
           </div>
@@ -152,7 +152,7 @@ export function EarningConfirmation({
               )}
             >
               <p className="font-semibold text-sm text-text-heading">90LOCK</p>
-              <p className="text-xs text-text-body-muted">Locked for 90 days</p>
+              <p className="text-xs text-text-body-muted">Committed for 90 days</p>
               <p className="text-sm font-semibold text-text-heading mt-2">{statusAmount} NCTR</p>
             </button>
             <button
@@ -165,16 +165,16 @@ export function EarningConfirmation({
               )}
             >
               <p className="font-semibold text-sm text-accent-lime">360LOCK ★ RECOMMENDED</p>
-              <p className="text-xs text-text-body-muted">Locked for 360 days</p>
+              <p className="text-xs text-text-body-muted">Committed for 360 days</p>
               <p className="text-sm font-semibold text-text-heading mt-2">{statusAmount} NCTR</p>
-              <p className="text-xs text-accent-lime mt-1">Builds status faster → higher multiplier</p>
+              <p className="text-xs text-accent-lime mt-1">Builds status faster → earns more</p>
             </button>
           </div>
         )}
 
         {!requires_360lock && (
           <p className="text-xs text-text-body-muted mb-4">
-            Both options give you the same NCTR. 360LOCK counts more toward your Crescendo status — higher status means a higher multiplier on everything you earn.
+            Both options give you the same NCTR. 360LOCK counts more toward your Crescendo status — and higher status earns more on everything.
           </p>
         )}
 
@@ -182,7 +182,7 @@ export function EarningConfirmation({
         {next_tier_name && next_tier_threshold && (
           <div className="mb-4 space-y-1">
             <p className="text-xs text-text-body-muted">
-              Your locked NCTR: {current_locked.toLocaleString()} → {newLocked.toLocaleString()}
+              Your committed NCTR: {current_locked.toLocaleString()} → {newLocked.toLocaleString()}
             </p>
             <div className="h-2 rounded-full bg-elevated-bg overflow-hidden">
               <div className="h-full rounded-full bg-accent-lime transition-all" style={{ width: `${progressToNext}%` }} />
@@ -209,7 +209,7 @@ export function EarningConfirmation({
               : "bg-elevated-bg text-text-heading hover:bg-elevated-bg/80"
           )}
         >
-          Lock {requires_360lock ? finalAmount : statusAmount} NCTR for {requires_360lock || selectedLock === "360lock" ? "360" : "90"} Days
+          Commit {requires_360lock ? finalAmount : statusAmount} NCTR for {requires_360lock || selectedLock === "360lock" ? "360" : "90"} Days
         </Button>
       </motion.div>
     </div>

@@ -253,7 +253,7 @@ export function MembershipLevelPage() {
                   Current Level: {currentTier.name}
                 </CardTitle>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {currentLockedNCTR.toLocaleString()} NCTR Locked in 360LOCK
+                  {currentLockedNCTR.toLocaleString()} NCTR Committed in 360LOCK
                 </p>
               </div>
               <Badge 
@@ -548,7 +548,7 @@ export function MembershipLevelPage() {
                         className="w-full gap-2"
                       >
                         <Lock className="w-4 h-4" />
-                        Lock {(tier.requirement - currentLockedNCTR).toLocaleString()} NCTR
+                        Commit {(tier.requirement - currentLockedNCTR).toLocaleString()} NCTR
                       </Button>
                     )}
                     {isLocked && !canUpgrade && (

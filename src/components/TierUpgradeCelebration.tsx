@@ -236,7 +236,7 @@ export function TierUpgradeCelebration({
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold"
                 style={{ background: `${tierColor}15`, border: `1px solid ${tierColor}30`, color: tierColor }}
               >
-                ⚡ {newMultiplier}x Earning Multiplier Active
+                ⚡ {newTier.display_name} earning active
               </motion.div>
             )}
           </div>
@@ -312,7 +312,7 @@ export function TierUpgradeCelebration({
                         Next: {nextTierName}
                       </p>
                       <p className="text-xs text-white/40">
-                        {nextTierThreshold.toLocaleString()} NCTR locked
+                        {nextTierThreshold.toLocaleString()} NCTR committed
                       </p>
                     </div>
 
