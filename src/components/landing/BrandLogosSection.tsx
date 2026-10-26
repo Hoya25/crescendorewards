@@ -34,7 +34,7 @@ export function BrandLogosSection() {
           Shop Thousands of Brands. Earn Every Time.
         </h2>
         <p className="text-center text-muted-foreground max-w-xl mx-auto mb-10">
-          Same prices you'd pay anywhere. But when you shop through The Garden, every dollar earns NCTR.
+          Same prices you'd pay anywhere. But when you shop through The Mall, every dollar earns NCTR.
         </p>
 
         <div className="grid grid-cols-4 gap-4 md:gap-6 mb-8">

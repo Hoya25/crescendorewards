@@ -73,7 +73,7 @@ export function AppSidebar({ onNavigate }: AppSidebarProps) {
         clearTimeout(timeoutId);
         window.open(external, '_blank');
       } catch {
-        toast.info("The Garden is being updated. Check back soon!");
+        toast.info("The Mall is being updated. Check back soon!");
       }
     } else {
       navigate(url);

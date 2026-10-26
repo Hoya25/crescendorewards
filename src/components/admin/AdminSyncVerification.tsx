@@ -434,7 +434,7 @@ export function AdminSyncVerification() {
         <div>
           <h2 className="text-3xl font-bold">Sync Verification</h2>
           <p className="text-muted-foreground mt-1">
-            Test and verify the profile synchronization between Crescendo and The Garden
+            Test and verify the profile synchronization between Crescendo and The Mall
           </p>
         </div>
         <Button variant="outline" onClick={fetchData} disabled={loading}>

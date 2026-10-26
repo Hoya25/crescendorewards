@@ -54,7 +54,7 @@ export function useNCTREarningDetection(userId: string | undefined) {
           : 0;
         const brandName = typeof metadata?.brand_name === 'string'
           ? metadata.brand_name
-          : 'The Garden';
+          : 'The Mall';
 
         if (nctrEarned > 0) {
           setPendingEarning({
@@ -100,7 +100,7 @@ export function useNCTREarningDetection(userId: string | undefined) {
               : 0;
             const brandName = typeof metadata?.brand_name === 'string'
               ? metadata.brand_name
-              : 'The Garden';
+              : 'The Mall';
 
             if (nctrEarned > 0) {
               setPendingEarning({

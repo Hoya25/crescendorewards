@@ -55,7 +55,7 @@ export function PortfolioIndicator({ className }: PortfolioIndicatorProps) {
       } else {
         toast({ 
           title: "No balance data yet", 
-          description: "Link your wallet in The Garden first" 
+          description: "Link your wallet in The Mall first" 
         });
       }
     } catch (error) {
@@ -114,7 +114,7 @@ export function PortfolioIndicator({ className }: PortfolioIndicatorProps) {
               className="h-8 w-8"
               onClick={handleSync}
               disabled={syncing}
-              title="Sync from The Garden"
+              title="Sync from The Mall"
             >
               <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
             </Button>
@@ -124,7 +124,7 @@ export function PortfolioIndicator({ className }: PortfolioIndicatorProps) {
             // No balance data prompt
             <div className="text-center py-4 space-y-3">
               <p className="text-sm text-muted-foreground">
-                No balance data. Sync from The Garden to see your NCTR holdings.
+                No balance data. Sync from The Mall to see your NCTR holdings.
               </p>
               <Button 
                 size="sm" 
@@ -204,9 +204,9 @@ export function PortfolioIndicator({ className }: PortfolioIndicatorProps) {
               variant="outline" 
               size="sm" 
               className="flex-1 text-xs gap-1"
-              onClick={() => window.open('https://thegarden.nctr.live', '_blank')}
+              onClick={() => window.open('https://themall.nctr.live', '_blank')}
             >
-              The Garden
+              The Mall
               <ExternalLink className="w-3 h-3" />
             </Button>
           </div>

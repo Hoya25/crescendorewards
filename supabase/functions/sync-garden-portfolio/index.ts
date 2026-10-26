@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
     let userId: string | null = null;
     let authUserId: string | null = null;
 
-    // Webhook from The Garden (service-to-service) — the ONLY authoritative
+    // Webhook from The Mall (service-to-service) — the ONLY authoritative
     // writer of balances. Fails closed if the secret is not configured.
     if (gardenWebhookSecret) {
       if (!webhookSecret || gardenWebhookSecret !== webhookSecret) {
@@ -223,9 +223,9 @@ Deno.serve(async (req) => {
         return new Response(
           JSON.stringify({ 
             success: true, 
-            message: 'Wallet linked. Sync your portfolio from The Garden.',
+            message: 'Wallet linked. Sync your portfolio from The Mall.',
             wallet_address,
-            garden_url: 'https://thegarden.nctr.live'
+            garden_url: 'https://themall.nctr.live'
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -239,7 +239,7 @@ Deno.serve(async (req) => {
         return new Response(
           JSON.stringify({
             error: 'Client-supplied balances are not accepted',
-            message: 'NCTR balances and lock amounts are only accepted from the verified Garden sync. Lock your NCTR in The Garden and your status will update automatically.',
+            message: 'NCTR balances and lock amounts are only accepted from the verified Garden sync. Lock your NCTR in The Mall and your status will update automatically.',
           }),
           { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -258,8 +258,8 @@ Deno.serve(async (req) => {
           profile_id: userId,
           wallet_address: profile.wallet_address,
           portfolio: portfolioData || [],
-          message: portfolioData?.length ? 'Portfolio data found' : 'No portfolio data. Visit The Garden to sync.',
-          garden_url: 'https://thegarden.nctr.live'
+          message: portfolioData?.length ? 'Portfolio data found' : 'No portfolio data. Visit The Mall to sync.',
+          garden_url: 'https://themall.nctr.live'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );

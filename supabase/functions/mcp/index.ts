@@ -17,7 +17,7 @@
  *   6. get_impact_engines     — Discover NCTR Impact Engine communities
  *
  * NCTR Alliance — https://nctr.live
- * The Garden — https://thegarden.nctr.live
+ * The Mall — https://themall.nctr.live
  */
 
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
@@ -91,26 +91,26 @@ const BOUNTIES: Bounty[] = [
     id: 'bounty-first-purchase',
     name: 'First Purchase Bounty',
     category: 'shopping',
-    description: 'Make your first purchase through The Garden and earn 2,500 NCTR.',
+    description: 'Make your first purchase through The Mall and earn 2,500 NCTR.',
     amount: 2500,
     currency: 'NCTR',
     lock_period: '360LOCK',
     lock_days: 360,
     repeatable: false,
-    requirements: ['Complete first purchase through The Garden'],
+    requirements: ['Complete first purchase through The Mall'],
     tags: ['shopping', 'first-time', 'the-garden']
   },
   {
     id: 'bounty-shop-and-earn',
     name: 'Shop & Earn',
     category: 'shopping',
-    description: 'Earn 250 NCTR per qualifying purchase through The Garden. No cap — earn every time you shop.',
+    description: 'Earn 250 NCTR per qualifying purchase through The Mall. No cap — earn every time you shop.',
     amount: 250,
     currency: 'NCTR',
     lock_period: '360LOCK',
     lock_days: 360,
     repeatable: true,
-    requirements: ['Make a qualifying purchase through The Garden'],
+    requirements: ['Make a qualifying purchase through The Mall'],
     tags: ['shopping', 'recurring', 'the-garden', 'uncapped']
   },
   {
@@ -318,7 +318,7 @@ const TIERS: Tier[] = [
     threshold: 1000,
     multiplier: 1.1,
     description: 'Starting tier — members with 1,000+ NCTR committed. 1.1x earning multiplier.',
-    perks: ['1.1x earning multiplier', 'Access to all standard bounties', 'The Garden shopping', 'Community access']
+    perks: ['1.1x earning multiplier', 'Access to all standard bounties', 'The Mall shopping', 'Community access']
   },
   {
     name: 'Silver',
@@ -883,9 +883,9 @@ app.get('/mcp', (c) => {
     ],
     links: {
       website: 'https://nctr.live',
-      the_garden: 'https://thegarden.nctr.live',
+      the_garden: 'https://themall.nctr.live',
       onboarding: 'https://crescendo.nctr.live',
-      for_agents: 'https://thegarden.nctr.live/for-agents',
+      for_agents: 'https://themall.nctr.live/for-agents',
       manifest: 'https://nctr.live/.well-known/nctr.json',
     },
   })

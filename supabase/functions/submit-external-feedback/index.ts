@@ -126,7 +126,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Send email notification if we have admins and Resend key
     if (adminEmails.length > 0 && RESEND_API_KEY) {
       const feedbackType = whats_broken ? "🔧 Issue Report" : "✨ Positive Feedback";
-      const sourceLabel = source === "the-garden" ? "The Garden" : (source || "External").slice(0, 60);
+      const sourceLabel = source === "the-garden" ? "The Mall" : (source || "External").slice(0, 60);
       const escapeHtmlType = feedbackType; // fixed, non-user-controlled label
 
       const emailHtml = `

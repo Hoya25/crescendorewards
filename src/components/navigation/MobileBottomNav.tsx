@@ -6,7 +6,7 @@ const navItems = [
   { icon: Home, label: "Home", route: "/dashboard", emoji: undefined },
   { icon: Gift, label: "Rewards", route: "/rewards", emoji: "🎁" },
   { icon: Lock, label: "Status", route: "/membership", emoji: "💎" },
-  { icon: ShoppingBag, label: "Shop", route: undefined, emoji: "🛒", external: "https://thegarden.nctr.live/" },
+  { icon: ShoppingBag, label: "Shop", route: undefined, emoji: "🛒", external: "https://themall.nctr.live/" },
   { icon: Zap, label: "Earn", route: "/bounties", emoji: "⚡" },
 ];
 

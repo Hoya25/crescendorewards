@@ -176,7 +176,7 @@ export function DevToolsPanel() {
                   <div className="flex items-center gap-2">
                     <Badge variant={isExternalDb ? 'default' : 'secondary'} className="text-xs">
                       <Server className="h-3 w-3 mr-1" />
-                      {isExternalDb ? 'The Garden' : 'Lovable Cloud'}
+                      {isExternalDb ? 'The Mall' : 'Lovable Cloud'}
                     </Badge>
                     <Badge variant={isAuthenticated ? 'default' : 'outline'} className="text-xs">
                       <StatusDot status={isAuthenticated} />
@@ -493,7 +493,7 @@ export function DevToolsPanel() {
                           <div className="flex items-center justify-between">
                             <span className="text-muted-foreground">Database:</span>
                             <Badge variant={isExternalDb ? 'default' : 'secondary'} className="text-xs">
-                              {isExternalDb ? 'The Garden (External)' : 'Lovable Cloud'}
+                              {isExternalDb ? 'The Mall (External)' : 'Lovable Cloud'}
                             </Badge>
                           </div>
                           <div className="flex items-center justify-between">

@@ -68,7 +68,7 @@ export function SEO({
         "description": "NCTR Alliance is a participation token economy on the Base blockchain. Members earn NCTR tokens through shopping and commit them via 360LOCK to unlock rewards and status on Crescendo.",
         "sameAs": [
           "https://crescendo.nctr.live",
-          "https://thegarden.nctr.live",
+          "https://themall.nctr.live",
           "https://basecamp.nctr.live"
         ]
       })}</script>

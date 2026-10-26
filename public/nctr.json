@@ -49,7 +49,7 @@
   "apps": {
     "bounty_hunter": {"url": "https://bountyhunter.nctr.live", "role": "Consumer front door — earn NCTR through bounties and shopping"},
     "crescendo": {"url": "https://crescendo.nctr.live", "role": "Rewards marketplace — unlock benefits via 360LOCK status"},
-    "the_garden": {"url": "https://thegarden.nctr.live", "role": "Affiliate commerce portal"},
+    "the_garden": {"url": "https://themall.nctr.live", "role": "Affiliate commerce portal"},
     "beacon": {"url": "https://beacon.nctr.live", "role": "Brand-facing Shopify integration"},
     "basecamp": {"url": "https://basecamp.nctr.live", "role": "On-chain transparency dashboard"}
   }

@@ -61,7 +61,7 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
       } else {
         toast({
           title: "No balance data yet",
-          description: "Your account is synced but no wallet data found. Link a wallet in The Garden first.",
+          description: "Your account is synced but no wallet data found. Link a wallet in The Mall first.",
         });
       }
     } catch (error) {
@@ -190,7 +190,7 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
               className="h-8 w-8"
               onClick={handleSyncFromGarden}
               disabled={isCurrentlySyncing}
-              title="Sync from The Garden"
+              title="Sync from The Mall"
             >
               <RefreshCw className={`w-4 h-4 ${isCurrentlySyncing ? 'animate-spin' : ''}`} />
             </Button>
@@ -207,7 +207,7 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
             <div>
               <p className="font-medium">No balance data found</p>
               <p className="text-sm text-muted-foreground">
-                Sync your wallet from The Garden to see your NCTR holdings
+                Sync your wallet from The Mall to see your NCTR holdings
               </p>
             </div>
             <Button 
@@ -220,7 +220,7 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
               ) : (
                 <ExternalLink className="w-4 h-4" />
               )}
-              Sync from The Garden
+              Sync from The Mall
             </Button>
           </div>
         ) : (

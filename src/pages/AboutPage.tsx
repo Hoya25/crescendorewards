@@ -10,8 +10,8 @@ import {
 
 const PLATFORMS = [
   {
-    name: 'The Garden',
-    url: 'https://thegarden.nctr.live',
+    name: 'The Mall',
+    url: 'https://themall.nctr.live',
     description: 'Commerce gateway where members shop at thousands of brands and earn NCTR automatically on every purchase.',
   },
   {
@@ -37,7 +37,7 @@ const FAQS = [
   },
   {
     q: 'How do I earn NCTR through shopping?',
-    a: 'Shop at thousands of partner brands through The Garden at thegarden.nctr.live and earn NCTR automatically on every purchase.',
+    a: 'Shop at thousands of partner brands through The Mall at https://themall.nctr.live and earn NCTR automatically on every purchase.',
   },
   {
     q: 'What is 360LOCK?',
@@ -65,7 +65,7 @@ export default function AboutPage() {
             About NCTR Alliance
           </h1>
           <p className="text-base sm:text-lg leading-relaxed">
-            NCTR Alliance (pronounced Nectar Alliance) is a participation token economy. Members earn NCTR tokens through everyday shopping at thousands of brands on The Garden, then commit those tokens via 360LOCK — a 360-day commitment — to rise through status tiers on Crescendo, our member rewards marketplace. You never spend your tokens. You always keep ownership. Members earn NCTR tokens through everyday shopping at thousands of brands on The Garden, then commit those tokens via 360LOCK — a 360-day commitment — to rise through status tiers on Crescendo, our member rewards marketplace. You never spend your tokens. You always keep ownership.
+            NCTR Alliance (pronounced Nectar Alliance) is a participation token economy. Members earn NCTR tokens through everyday shopping at thousands of brands on The Mall, then commit those tokens via 360LOCK — a 360-day commitment — to rise through status tiers on Crescendo, our member rewards marketplace. You never spend your tokens. You always keep ownership. Members earn NCTR tokens through everyday shopping at thousands of brands on The Mall, then commit those tokens via 360LOCK — a 360-day commitment — to rise through status tiers on Crescendo, our member rewards marketplace. You never spend your tokens. You always keep ownership.
           </p>
         </section>
 
