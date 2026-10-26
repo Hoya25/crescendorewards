@@ -75,7 +75,7 @@ export default function MembershipPitch() {
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '0 24px' }}>
 
         <div style={{ marginTop: 40, lineHeight: 0 }}><NctrWordmark height={30} /></div>
-        <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.3em', color: 'var(--nctr-muted)', marginTop: 12 }}>CRESCENDO MEMBERSHIP</div>
+        <div style={{ fontFamily: FONT_MONO, fontSize: 11, letterSpacing: '0.3em', color: 'var(--nctr-muted)', marginTop: 12 }}>NCTR ALLIANCE · CRESCENDO MEMBERSHIP</div>
 
         <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: 56, lineHeight: 0.95, color: 'var(--nctr-charcoal)', marginTop: 20, textTransform: 'uppercase' }}>
           Your status unlocks a world.

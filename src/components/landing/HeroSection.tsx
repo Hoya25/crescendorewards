@@ -134,7 +134,7 @@ export function HeroSection({ onJoin }: HeroSectionProps) {
                 color: '#323232', display: 'block',
               }}
             >
-              The alliance powered by everyday commerce.
+              NCTR Alliance, powered by everyday commerce.
             </span>
             <span
               style={{

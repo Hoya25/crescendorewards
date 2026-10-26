@@ -145,7 +145,7 @@ export function EarningsHistory({ className = '' }: { className?: string }) {
         <CardContent>
           <div className="text-center py-6 text-gray-400">
             <Sparkles className="w-10 h-10 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">No earnings yet — start shopping in The Mall to earn your first NCTR</p>
+            <p className="text-sm">Start shopping in The Mall to earn your first NCTR in NCTR Alliance.</p>
             <Button
               variant="outline"
               size="sm"
