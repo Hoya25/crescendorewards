@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { NctrMarketReference } from './NctrMarketReference';
 
 import { TIER_VISUALS } from '@/constants/tiers';
+import { useTierBenefits } from '@/hooks/useTierBenefits';
 
 const TIERS = TIER_VISUALS.map(t => ({
   id: t.id,
@@ -32,6 +33,8 @@ function getProgress(balance: number, tierIdx: number) {
 }
 
 export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLevelUp }: CrescendoHeroProps) {
+  const { forTier } = useTierBenefits();
+  const rowsFor = (id: string) => { const b = forTier(id); return b ? [b.earn, b.opens.label, b.say.label, ...b.perks] : []; };
   const tierIdx = getTierIndex(currentBalance);
   const tier = TIERS[tierIdx];
   const nextTier = TIERS[tierIdx + 1] ?? null;
@@ -147,7 +150,7 @@ export default function CrescendoHero({ currentBalance = 0, onViewRewards, onLev
             {/* Perks */}
             <div style={{ background: `rgba(${activeTier.rgb},0.07)`, border: `1px solid rgba(${activeTier.rgb},0.15)`, borderRadius: '0px', padding: '0.875rem', transition: 'background 0.4s ease' }}>
               <p style={{ fontFamily: 'var(--font-body)', fontSize: '11px', fontWeight: 500, fontStyle: 'italic', color: activeTier.color, marginBottom: '8px' }}>{activeTier.tagline}</p>
-              {activeTier.perks.map((perk, pi) => (
+              {rowsFor(activeTier.id).map((perk, pi) => (
                 <div key={pi} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '4px 0', borderTop: pi > 0 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
                   <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style={{ marginTop: '3px', flexShrink: 0, color: activeTier.color }}>
                     <path d="M1.5 5.5l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

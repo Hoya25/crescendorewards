@@ -1,3 +1,4 @@
+import { useTierBenefits } from '@/hooks/useTierBenefits';
 import { CommitmentArc } from '@/components/CommitmentArc';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { TIERS, getTierForBalance, getProgressToNextTier } from '@/constants/tiers';
@@ -35,6 +36,7 @@ interface StandingsTabProps {
 }
 
 export function StandingsTab({ tiers }: StandingsTabProps) {
+  const { forTier } = useTierBenefits();
   const { total360Locked } = useUnifiedUser();
   const currentPoints = Number(total360Locked) || 0;
   const currentTier = getTierForBalance(currentPoints);
@@ -152,7 +154,7 @@ export function StandingsTab({ tiers }: StandingsTabProps) {
                 minWidth: '40px',
               }}
             >
-              {tier.multiplier}
+              {forTier(tier.name)?.earn}
             </span>
 
             {/* Perks - hidden on mobile */}
@@ -166,7 +168,7 @@ export function StandingsTab({ tiers }: StandingsTabProps) {
                 minWidth: '180px',
               }}
             >
-              {tier.perks}
+              {(() => { const b = forTier(tier.name); return b ? [b.opens.label, b.say.label].join(' · ') : null; })()}
             </span>
           </div>
         ))}
