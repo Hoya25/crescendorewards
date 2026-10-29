@@ -16,7 +16,7 @@ import {
 } from '@/utils/getRewardPrice';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { CreatorShowcase, CreatorHandles } from '@/components/creators/CreatorShowcase';
-import { useAmbitions } from '@/contexts/AmbitionsContext';
+import { BackRewardButton, BackingMeta } from '@/components/rewards/BackRewardButton';
 import { toast } from 'sonner';
 import { useRewardCreators } from '@/hooks/useFeaturedCreators';
 
@@ -117,8 +117,6 @@ export function VisualRewardCard({
 }: VisualRewardCardProps) {
   const navigate = useNavigate();
   const { isAuthenticated, setShowAuthModal, setAuthMode } = useAuthContext();
-  const { toggleAmbition, isAmbition } = useAmbitions();
-  const isWanted = isAmbition(reward.id);
   const Icon = categoryIcons[reward.category] || Gift;
   
   const showcaseMode = reward.showcase_mode || 'default';
@@ -345,6 +343,8 @@ export function VisualRewardCard({
         </span>
       </div>
 
+      <BackingMeta rewardId={reward.id} />
+
       {/* CTA BUTTONS */}
       {isTierLocked ? (
         <div className="px-3.5 pb-3.5 pt-2 flex flex-col sm:flex-row gap-2" style={{ backgroundColor: '#FFFFFF' }}>
@@ -366,14 +366,11 @@ export function VisualRewardCard({
           >
             Unlocks at {requiredTier}
           </button>
-          <WantThisButton
+          <BackRewardButton
             rewardId={reward.id}
             rewardName={reward.title}
-            claimable={false}
             tierRequired={effectiveMinTier || 'Bronze'}
-            distance={requiredTier ? `${requiredTier} required` : undefined}
-            isWanted={isWanted}
-            onToggle={toggleAmbition}
+            claimable={false}
           />
         </div>
       ) : (
@@ -399,73 +396,14 @@ export function VisualRewardCard({
           >
             {!isAuthenticated ? 'SIGN IN TO CLAIM' : 'CLAIM NOW'}
           </button>
-          <WantThisButton
+          <BackRewardButton
             rewardId={reward.id}
             rewardName={reward.title}
-            claimable={true}
             tierRequired={effectiveMinTier || 'Bronze'}
-            isWanted={isWanted}
-            onToggle={toggleAmbition}
+            claimable={true}
           />
         </div>
       )}
     </div>
-  );
-}
-
-// ─── Want This Button ───────────────────────────────────────────────────────
-function WantThisButton({
-  rewardId,
-  rewardName,
-  claimable,
-  tierRequired,
-  distance,
-  isWanted,
-  onToggle,
-}: {
-  rewardId: string;
-  rewardName: string;
-  claimable: boolean;
-  tierRequired: string;
-  distance?: string;
-  isWanted: boolean;
-  onToggle: (ambition: { rewardId: string; rewardName: string; claimable: boolean; tierRequired: string; distance?: string }) => void;
-}) {
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onToggle({ rewardId, rewardName, claimable, tierRequired, distance });
-  };
-
-  return (
-    <button
-      onClick={handleClick}
-      style={{
-        padding: '11px 12px',
-        background: isWanted ? 'transparent' : 'transparent',
-        border: isWanted ? '1px solid #E2FF6D' : '1px solid #E0DFDB',
-        color: isWanted ? '#E2FF6D' : '#6B6B68',
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: '12px',
-        textTransform: 'uppercase' as const,
-        borderRadius: '0px',
-        cursor: 'pointer',
-        transition: 'all 200ms',
-        whiteSpace: 'nowrap',
-      }}
-      onMouseEnter={(e) => {
-        if (!isWanted) {
-          e.currentTarget.style.borderColor = '#131313';
-          e.currentTarget.style.color = '#131313';
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!isWanted) {
-          e.currentTarget.style.borderColor = '#E0DFDB';
-          e.currentTarget.style.color = '#6B6B68';
-        }
-      }}
-    >
-      {isWanted ? 'Ambition ✓' : 'Want This'}
-    </button>
   );
 }
