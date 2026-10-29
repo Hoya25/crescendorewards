@@ -1,3 +1,6 @@
+import { useTierBenefits } from '@/hooks/useTierBenefits';
+import { earnLabel } from '@/lib/tierBenefits';
+import { TierBenefitRowsList } from '@/components/status/TierBenefitsTable';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CommitmentArc } from '@/components/CommitmentArc';
@@ -28,6 +31,7 @@ export function MembershipLevelPage() {
   const [searchParams] = useSearchParams();
   const { trackAction } = useTracking();
   const { profile, tier, portfolio, nextTier, progressToNextTier, total360Locked, allTiers, refreshUnifiedProfile } = useUnifiedUser();
+  const { forTier } = useTierBenefits();
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [selectedTier, setSelectedTier] = useState<typeof membershipTiers[0] | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -260,7 +264,7 @@ export function MembershipLevelPage() {
                 className="text-lg px-4 py-2" 
                 style={{ backgroundColor: currentTier.color, color: 'white' }}
               >
-                {currentTier.multiplier}x
+                {earnLabel(Number(currentTier.multiplier))}
               </Badge>
             </div>
           </CardHeader>
@@ -371,11 +375,11 @@ export function MembershipLevelPage() {
         {/* STATUS LEVELS — compact tier table */}
         {(() => {
           const tierData = [
-            { name: 'Diamond', nctr: 100000, multiplier: '2.5x', color: '#B9F2FF' },
-            { name: 'Platinum', nctr: 40000, multiplier: '1.8x', color: '#E5E4E2' },
-            { name: 'Gold', nctr: 15000, multiplier: '1.5x', color: '#FFD700' },
-            { name: 'Silver', nctr: 5000, multiplier: '1.25x', color: '#C0C0C0' },
-            { name: 'Bronze', nctr: 1000, multiplier: '1.0x', color: '#CD7F32' },
+            { name: 'Diamond', nctr: 100000, color: '#B9F2FF' },
+            { name: 'Platinum', nctr: 40000, color: '#E5E4E2' },
+            { name: 'Gold', nctr: 15000, color: '#FFD700' },
+            { name: 'Silver', nctr: 5000, color: '#C0C0C0' },
+            { name: 'Bronze', nctr: 1000, color: '#CD7F32' },
           ];
           const currentTierName = currentTier.name;
           const currentTierIdx = tierData.findIndex(t => t.name === currentTierName);
@@ -412,7 +416,7 @@ export function MembershipLevelPage() {
                           {t.nctr.toLocaleString()} NCTR
                         </span>
                         <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '14px', color: '#D9D9D9' }}>
-                          {t.multiplier}
+                          {forTier(t.name)?.earn}
                         </span>
                       </div>
                       {isCurrent && nextTierForProgress && (
@@ -511,7 +515,7 @@ export function MembershipLevelPage() {
                         </p>
                       </div>
                       <Badge variant="outline" style={{ borderColor: tier.color, color: tier.color }}>
-                        {tier.multiplier}x NCTR
+                        {earnLabel(Number(tier.multiplier))}
                       </Badge>
                     </div>
                   </CardHeader>
@@ -519,28 +523,7 @@ export function MembershipLevelPage() {
                   <CardContent className="space-y-4">
                     <p className="text-sm">{tier.description}</p>
 
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Gift className="w-4 h-4 text-primary" />
-                        <span className="font-medium">{tier.claims}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Tag className="w-4 h-4 text-primary" />
-                        <span className="font-medium">{tier.discount}% Partner Discount</span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <p className="text-sm font-semibold">Benefits:</p>
-                      <ul className="space-y-1">
-                        {tier.benefits.slice(0, 3).map((benefit, idx) => (
-                          <li key={idx} className="text-sm flex items-start gap-2">
-                            <Check className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                            <span>{benefit}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    {forTier(tier.name) && <TierBenefitRowsList row={forTier(tier.name)!} />}
 
                     {isLocked && canUpgrade && (
                       <Button 
