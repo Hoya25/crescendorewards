@@ -58,7 +58,7 @@ function useCountUp(target: number, duration = 1350) {
 }
 
 export default function TierProgressBar({ balance = 0, lockedBalance = 0, onLevelUp, onViewPerks }: TierProgressBarProps) {
-  const { forTier } = useTierBenefits();
+  const { forTier, progressLabel: nextLabel } = useTierBenefits(lockedBalance);
   const rowsFor = (id: string) => { const b = forTier(id); return b ? [b.earn, b.opens.label, b.say.label, ...b.perks] : []; };
   const [perksOpen, setPerksOpen] = useState(false);
   const [progAnim, setProgAnim] = useState(false);
@@ -124,7 +124,7 @@ export default function TierProgressBar({ balance = 0, lockedBalance = 0, onLeve
           </div>
           {!isMax ? (
             <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: '0.5rem' }}>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'rgba(217,217,217,0.48)' }}><span style={{ color: tier.color, fontWeight: 700 }}>{progress}%</span> toward <span style={{ color: nextTier!.color, fontWeight: 600 }}>{nextTier!.name}</span></p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'rgba(217,217,217,0.48)' }}>{nextLabel ?? <>Toward <span style={{ color: nextTier!.color, fontWeight: 600 }}>{nextTier!.name}</span></>}</p>
               <p style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'rgba(217,217,217,0.3)' }}>{remaining.toLocaleString()} NCTR to go</p>
             </div>
           ) : (
