@@ -558,11 +558,7 @@ export function ProfilePage() {
                     Your Benefits
                   </p>
                   <ul className="space-y-2">
-                    {(tier?.benefits || [
-                      'Access to basic rewards',
-                      'Earn 1x NCTR on activities',
-                      'Community access'
-                    ]).slice(0, 5).map((benefit, idx) => (
+                    {benefitLines(tier?.tier_name).map((benefit, idx) => (
                       <li 
                         key={idx} 
                         className="flex items-start gap-2 text-sm animate-fade-in opacity-0"
@@ -589,7 +585,7 @@ export function ProfilePage() {
                 </div>
 
                 {/* Next Tier Preview */}
-                {nextTier && nextTier.benefits && nextTier.benefits.length > 0 && (
+                {nextTier && benefitLines(nextTier.tier_name).length > 0 && (
                   <>
                     <Separator />
                     <div className="space-y-3 animate-fade-in" style={{ animationDelay: '0.6s' }}>
