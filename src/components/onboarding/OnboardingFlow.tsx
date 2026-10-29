@@ -31,7 +31,6 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [step, setStep] = useState(0);
   const navigate = useNavigate();
   const { profile, refreshUnifiedProfile } = useUnifiedUser();
-  const { forTier } = useTierBenefits();
   const totalSteps = 4;
 
   const completeOnboarding = useCallback(async () => {
@@ -176,6 +175,7 @@ function StepWelcome() {
 // ─── Step 2: Status Explained ────────────────────────────────
 
 function StepStatus() {
+  const { forTier } = useTierBenefits();
   return (
     <div className="text-center space-y-5">
       <motion.h1
