@@ -1,3 +1,4 @@
+import { TierProgressLabel } from '@/components/status/TierProgressLabel';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
@@ -528,7 +529,7 @@ export function ProfilePage() {
                         />
                       </div>
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>{Math.round(progressToNextTier)}% to next level</span>
+                        <TierProgressLabel />
                         <span className="flex items-center gap-1">
                           <span>{nextTier.badge_emoji}</span>
                           {nextTier.display_name}

@@ -1,3 +1,4 @@
+import { TierProgressLabel } from '@/components/status/TierProgressLabel';
 import { useState } from "react";
 import { NCTRLogo } from "./NCTRLogo";
 import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
@@ -175,11 +176,9 @@ export function PortfolioIndicator({ className }: PortfolioIndicatorProps) {
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-medium">
-                      Next: {nextTier.badge_emoji} {nextTier.display_name}
+                      <TierProgressLabel />
                     </span>
-                    <span className="text-xs text-muted-foreground">
-                      {Math.round(progressToNextTier)}%
-                    </span>
+
                   </div>
                   <Progress value={progressToNextTier} className="h-1.5" />
                   <p className="text-[10px] text-muted-foreground mt-1">

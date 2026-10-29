@@ -1,3 +1,4 @@
+import { TierProgressLabel } from '@/components/status/TierProgressLabel';
 import { useNavigate } from 'react-router-dom';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 
@@ -67,8 +68,7 @@ export default function MembershipArrival() {
           {hasUser && !isMax && (
             <div style={{ marginTop: 26 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontFamily: FONT_MONO, fontSize: 11.5, letterSpacing: '0.12em', color: 'var(--nctr-charcoal)' }}>
-                <span>{(nextTierName || '').toUpperCase()} &middot; {remaining.toLocaleString()} NCTR TO GO</span>
-                <span style={{ color: 'var(--nctr-muted)' }}>{progress}%</span>
+                <TierProgressLabel />
               </div>
               <div style={{ height: 6, background: 'var(--nctr-line)', marginTop: 8 }}>
                 <div style={{ height: '100%', width: `${progress}%`, background: 'var(--nctr-charcoal)' }} />
