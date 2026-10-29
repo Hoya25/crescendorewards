@@ -9,6 +9,8 @@ import {
   Rocket, Copy, ExternalLink,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTierBenefits } from '@/hooks/useTierBenefits';
+import type { TierBenefitRows } from '@/lib/tierBenefits';
 import type { StatusTier } from '@/contexts/UnifiedUserContext';
 import { DEFAULT_EARNING_MULTIPLIERS } from '@/utils/calculateReward';
 
@@ -44,44 +46,17 @@ interface UnlockCard {
   description: string;
 }
 
-function getUnlockCards(tierName: string): UnlockCard[] {
+function buildUnlockCards(b: TierBenefitRows | null): UnlockCard[] {
+  if (!b) return [];
   const iconClass = 'w-5 h-5';
-  const cards: Record<string, UnlockCard[]> = {
-    bronze: [
-      { icon: <ShoppingBag className={iconClass} />, title: 'Tier 1 Merch Bounties', description: 'Earn NCTR by purchasing and sharing NCTR merch' },
-      { icon: <Gift className={iconClass} />, title: 'Basic Crescendo Rewards', description: 'Access Bronze-level rewards in the marketplace' },
-      { icon: <CheckSquare className={iconClass} />, title: 'Community Voting Rights', description: 'Vote on new rewards and community decisions' },
-    ],
-    silver: [
-      { icon: <Flame className={iconClass} />, title: 'Tier 2 Merch Bounties', description: 'Up to 1,500 NCTR each with 360LOCK' },
-      { icon: <Star className={iconClass} />, title: 'Silver-tier Crescendo Rewards', description: 'Upgraded rewards now available to you' },
-      { icon: <Eye className={iconClass} />, title: 'NCTR Sighting Bounty', description: 'Spot someone wearing NCTR merch, earn 1,500 NCTR' },
-    ],
-    gold: [
-      { icon: <Trophy className={iconClass} />, title: 'Tier 3 Campaign Bounties', description: 'Up to 3,000 NCTR each — the highest-value bounties' },
-      { icon: <Crown className={iconClass} />, title: 'Gold-tier Crescendo Rewards', description: 'Premium experiences and rewards unlocked' },
-      { icon: <Sparkles className={iconClass} />, title: 'VIP Opportunities', description: 'Exclusive access to special campaigns and events' },
-    ],
-    platinum: [
-      { icon: <Gem className={iconClass} />, title: 'Platinum-exclusive Rewards', description: 'The best Crescendo has to offer' },
-      { icon: <Rocket className={iconClass} />, title: 'Priority Access to New Features', description: 'Be first to try new platform capabilities' },
-      { icon: <Scale className={iconClass} />, title: 'Enhanced Governance Weight', description: 'Your voice carries more weight in community decisions' },
-    ],
-    diamond: [
-      { icon: <Gem className={iconClass} />, title: 'Diamond-exclusive Everything', description: 'Every reward in Crescendo is available to you' },
-      { icon: <Shield className={iconClass} />, title: 'Inner Circle Access', description: 'Join the inner circle shaping Crescendo\'s future' },
-      { icon: <Crown className={iconClass} />, title: 'Maximum Governance Influence', description: 'The highest level of community leadership' },
-    ],
-  };
-  return cards[tierName] || cards.bronze;
+  const cards: UnlockCard[] = [
+    { icon: <Trophy className={iconClass} />, title: 'Earn', description: b.earn },
+    { icon: <Gift className={iconClass} />, title: 'Opens', description: b.opens.count > 0 ? `${b.opens.label} — ${b.opens.first.map((r) => r.title).join(', ')}` : b.opens.label },
+    { icon: <CheckSquare className={iconClass} />, title: 'Your say', description: b.say.label },
+  ];
+  if (b.perks.length) cards.push({ icon: <Star className={iconClass} />, title: 'Perks', description: b.perks.join(' · ') });
+  return cards;
 }
-
-const NEXT_TIER_PREVIEWS: Record<string, string[]> = {
-  bronze: ['Tier 2 Merch Bounties worth up to 1,500 NCTR', 'NCTR Sighting Bounty'],
-  silver: ['Campaign Bounties worth up to 3,000 NCTR', 'VIP Opportunities'],
-  gold: ['Platinum-exclusive Rewards', 'Priority Feature Access'],
-  platinum: ['Diamond-exclusive Everything', 'Inner Circle Access'],
-};
 
 export function TierUpgradeCelebration({
   isOpen,
@@ -99,7 +74,9 @@ export function TierUpgradeCelebration({
   const tierColor = newTier.badge_color || '#C8FF00';
   const newMultiplier = (newTier as any)?.earning_multiplier ?? DEFAULT_EARNING_MULTIPLIERS[tierName] ?? 1;
   const nctrToNext = nextTierThreshold ? Math.max(0, nextTierThreshold - totalLockedNctr) : null;
-  const unlockCards = getUnlockCards(tierName);
+  const { forTier, nextOpens, next } = useTierBenefits(totalLockedNctr);
+  const unlockCards = buildUnlockCards(forTier(tierName));
+  const nextPreviews = next ? nextOpens.slice(0, 2).map((r) => `Opens at ${next.display_name}: ${r.title}`) : [];
 
   const progressPercent = nextTierThreshold
     ? Math.min(100, ((totalLockedNctr - newTier.min_nctr_360_locked) / (nextTierThreshold - newTier.min_nctr_360_locked)) * 100)
@@ -332,10 +309,10 @@ export function TierUpgradeCelebration({
                     </p>
 
                     {/* Next tier preview rewards */}
-                    {NEXT_TIER_PREVIEWS[tierName] && (
+                    {nextPreviews.length > 0 && (
                       <div className="space-y-1.5 mt-2">
                         <p className="text-[11px] text-white/30 uppercase tracking-wider">Coming at {nextTierName}:</p>
-                        {NEXT_TIER_PREVIEWS[tierName].map((preview, i) => (
+                        {nextPreviews.map((preview, i) => (
                           <p key={i} className="text-xs text-white/50 flex items-center gap-1.5">
                             <span style={{ color: tierColor }}>•</span> {preview}
                           </p>
