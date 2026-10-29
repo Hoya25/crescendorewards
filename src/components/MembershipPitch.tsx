@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
+import { useTierBenefits } from '@/hooks/useTierBenefits';
+import { TierBenefitsTable } from '@/components/status/TierBenefitsTable';
+import { StatusSayBlock } from '@/components/status/StatusSayBlock';
 
 const FONT_DISPLAY = '"Barlow Condensed", sans-serif';
 const FONT_SANS = '"DM Sans", sans-serif';
@@ -42,16 +46,12 @@ function NctrWordmark({ height = 28 }: { height?: number }) {
   );
 }
 
-const CATEGORIES = [
-  { name: 'Claimable Rewards', body: 'The catalog you see — new drops every week.' },
-  { name: 'Brand Discounts', body: 'Ongoing savings across partner brands. Deeper every tier.' },
-  { name: 'Amplified Earning', body: 'Your status. Silver earns more than Bronze. Diamond earns more than anyone. Everything you do, worth more.' },
-  { name: 'Exclusive Access', body: 'Drops, experiences, and perks only status unlocks.' },
-];
 
 export default function MembershipPitch() {
   const navigate = useNavigate();
   const [rewards, setRewards] = useState<Reward[]>([]);
+  const { total360Locked, progressToNextTier } = useUnifiedUser();
+  const benefits = useTierBenefits(total360Locked || 0);
 
   useEffect(() => {
     (async () => {
@@ -128,34 +128,30 @@ export default function MembershipPitch() {
             What every tier unlocks.
           </div>
           <div style={{ fontSize: 14, color: 'var(--nctr-ink-soft)', marginTop: 8, maxWidth: 480 }}>
-            Rewards are one piece. Status keeps paying out four ways — and each grows as you rise.
+            Every tier in the Alliance earns, opens rewards, and gives you a say.
           </div>
-          <div style={{ marginTop: 18 }}>
-            {CATEGORIES.map((c, i) => (
-              <div key={c.name} style={{ display: 'flex', gap: 13, padding: '13px 0', borderBottom: i < CATEGORIES.length - 1 ? '1px solid #E4E0D5' : 'none' }}>
-                <div style={{ width: 3, background: 'var(--nctr-lime-muted)', flexShrink: 0 }} />
-                <div>
-                  <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 19, color: 'var(--nctr-charcoal)', textTransform: 'uppercase' }}>{c.name}</div>
-                  <div style={{ fontSize: 13.5, color: '#6b6960', marginTop: 2, lineHeight: 1.4 }}>{c.body}</div>
-                </div>
-              </div>
-            ))}
+          <div style={{ marginTop: 10 }}>
+            <TierBenefitsTable />
           </div>
-          <div style={{ fontSize: 13, color: 'var(--nctr-muted)', marginTop: 14, fontStyle: 'italic' }}>And the list keeps growing.</div>
         </div>
 
         <div style={{ borderTop: '1px solid var(--nctr-line)', marginTop: 36, paddingTop: 28, paddingBottom: 8 }}>
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: 34, color: 'var(--nctr-charcoal)', textTransform: 'uppercase' }}>The climb.</div>
           <div style={{ fontSize: 14, color: 'var(--nctr-ink-soft)', marginTop: 6, maxWidth: 480 }}>
-            Each tier deepens all four. Bronze opens the door. Diamond opens everything.
+            Each tier earns more, opens more, and carries more say. Bronze opens the door. Diamond opens everything.
           </div>
+          {benefits.progressLabel && (
+            <div style={{ fontFamily: FONT_MONO, fontSize: 12, color: 'var(--nctr-charcoal)', marginTop: 12 }}>{benefits.progressLabel}</div>
+          )}
           <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 19, letterSpacing: '0.04em', color: 'var(--nctr-charcoal)', textTransform: 'uppercase', marginTop: 16 }}>
             Bronze <span style={{ color: '#B3AE9E' }}>→ Silver → Gold → Platinum →</span> Diamond
           </div>
           <div style={{ height: 6, background: 'var(--nctr-line)', marginTop: 12 }}>
-            <div style={{ height: '100%', width: '46%', background: 'var(--nctr-charcoal)' }} />
+            <div style={{ height: '100%', width: `${Math.min(100, progressToNextTier || 0)}%`, background: 'var(--nctr-charcoal)' }} />
           </div>
         </div>
+
+        <StatusSayBlock />
       </div>
 
       <div style={{ background: 'var(--nctr-charcoal)', marginTop: 36, padding: '40px 24px' }}>

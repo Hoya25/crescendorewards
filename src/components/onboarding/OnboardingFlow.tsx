@@ -1,3 +1,4 @@
+import { useTierBenefits } from '@/hooks/useTierBenefits';
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,11 +20,11 @@ const DARK_BG = '#323232';
 const MID_GREY = '#5A5A58';
 
 const tierLadder = [
-  { emoji: '💎', name: 'Diamond', desc: 'Exclusive access, premium rewards' },
-  { emoji: '🥇', name: 'Platinum', desc: 'Priority opportunities, VIP benefits' },
-  { emoji: '🥈', name: 'Gold', desc: 'Enhanced rewards, partner discounts' },
-  { emoji: '🥉', name: 'Silver', desc: 'Growing benefits, community access' },
-  { emoji: '🟫', name: 'Bronze', desc: 'Starting tier, foundation rewards' },
+  { emoji: '💎', name: 'Diamond' },
+  { emoji: '🥇', name: 'Platinum' },
+  { emoji: '🥈', name: 'Gold' },
+  { emoji: '🥉', name: 'Silver' },
+  { emoji: '🟫', name: 'Bronze' },
 ];
 
 export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
@@ -174,6 +175,7 @@ function StepWelcome() {
 // ─── Step 2: Status Explained ────────────────────────────────
 
 function StepStatus() {
+  const { forTier } = useTierBenefits();
   return (
     <div className="text-center space-y-5">
       <motion.h1
@@ -210,7 +212,7 @@ function StepStatus() {
             <span className="text-xl leading-none mt-0.5">{t.emoji}</span>
             <div className="min-w-0">
               <p className="text-sm font-semibold text-white">{t.name}</p>
-              <p className="text-xs" style={{ color: MID_GREY }}>{t.desc}</p>
+              <p className="text-xs" style={{ color: MID_GREY }}>{(() => { const b = forTier(t.name); return b ? `${b.earn} · ${b.say.label}` : null; })()}</p>
             </div>
           </motion.div>
         ))}

@@ -1,3 +1,4 @@
+import { TierProgressLabel } from '@/components/status/TierProgressLabel';
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -265,8 +266,7 @@ export function PortfolioSummaryCard({ compact = false, showLink = true }: Portf
             {nextTier && (
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Progress to {nextTier.display_name}</span>
-                  <span className="font-medium">{Math.round(progressToNextTier)}%</span>
+                  <TierProgressLabel className="text-muted-foreground" />
                 </div>
                 <Progress value={progressToNextTier} className="h-2" />
                 <p className="text-xs text-muted-foreground">

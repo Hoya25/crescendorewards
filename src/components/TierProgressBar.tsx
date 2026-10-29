@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
 import { TIER_VISUALS } from '@/constants/tiers';
+import { useTierBenefits } from '@/hooks/useTierBenefits';
 
 const TIERS = TIER_VISUALS.map(t => ({
   id: t.id,
@@ -57,6 +58,8 @@ function useCountUp(target: number, duration = 1350) {
 }
 
 export default function TierProgressBar({ balance = 0, lockedBalance = 0, onLevelUp, onViewPerks }: TierProgressBarProps) {
+  const { forTier, progressLabel: nextLabel } = useTierBenefits(lockedBalance);
+  const rowsFor = (id: string) => { const b = forTier(id); return b ? [b.earn, b.opens.label, b.say.label, ...b.perks] : []; };
   const [perksOpen, setPerksOpen] = useState(false);
   const [progAnim, setProgAnim] = useState(false);
   const ref = useRef<HTMLElement>(null);
@@ -121,7 +124,7 @@ export default function TierProgressBar({ balance = 0, lockedBalance = 0, onLeve
           </div>
           {!isMax ? (
             <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: '0.5rem' }}>
-              <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'rgba(217,217,217,0.48)' }}><span style={{ color: tier.color, fontWeight: 700 }}>{progress}%</span> toward <span style={{ color: nextTier!.color, fontWeight: 600 }}>{nextTier!.name}</span></p>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '12px', color: 'rgba(217,217,217,0.48)' }}>{nextLabel ?? <>Toward <span style={{ color: nextTier!.color, fontWeight: 600 }}>{nextTier!.name}</span></>}</p>
               <p style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'rgba(217,217,217,0.3)' }}>{remaining.toLocaleString()} NCTR to go</p>
             </div>
           ) : (
@@ -158,8 +161,8 @@ export default function TierProgressBar({ balance = 0, lockedBalance = 0, onLeve
         {/* Perks drawer */}
         <div style={{ maxHeight: perksOpen ? '320px' : '0', opacity: perksOpen ? 1 : 0, overflow: 'hidden', transition: 'max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease' }}>
           <div style={{ background: `rgba(${tier.rgb},0.06)`, border: `1px solid rgba(${tier.rgb},0.14)`, borderRadius: '10px', padding: '0.875rem', transition: 'all 0.3s ease' }}>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: '9px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: `rgba(${tier.rgb},0.5)`, marginBottom: '8px' }}>{tier.name} Tier Perks</p>
-            {tier.perks.map((perk, pi) => (
+            <p style={{ fontFamily: 'var(--font-body)', fontSize: '9px', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase' as const, color: `rgba(${tier.rgb},0.5)`, marginBottom: '8px' }}>{tier.name}</p>
+            {rowsFor(tier.id).map((perk, pi) => (
               <div key={pi} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '5px 0', borderTop: pi > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
                 <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style={{ marginTop: '3px', flexShrink: 0, color: tier.color }}>
                   <path d="M1.5 5.5l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

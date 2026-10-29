@@ -1,3 +1,4 @@
+import { TierProgressLabel } from '@/components/status/TierProgressLabel';
 import React, { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -176,7 +177,7 @@ export function NCTREarnedCelebration({
               </div>
               <Progress value={progressToNextTier} className="h-2" />
               <p className="text-xs text-center text-muted-foreground">
-                {Math.round(progressToNextTier)}% to {nextTier.name}
+                <TierProgressLabel />
               </p>
             </div>
           )}

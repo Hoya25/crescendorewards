@@ -1030,6 +1030,13 @@ export type Database = {
             foreignKeyName: "content_submissions_reward_id_fkey"
             columns: ["reward_id"]
             isOneToOne: false
+            referencedRelation: "backing_public"
+            referencedColumns: ["reward_id"]
+          },
+          {
+            foreignKeyName: "content_submissions_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
             referencedRelation: "rewards"
             referencedColumns: ["id"]
           },
@@ -1080,6 +1087,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "unified_profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contributed_reward_earnings_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "backing_public"
+            referencedColumns: ["reward_id"]
           },
           {
             foreignKeyName: "contributed_reward_earnings_reward_id_fkey"
@@ -2157,6 +2171,138 @@ export type Database = {
         }
         Relationships: []
       }
+      pick_cycle_candidates: {
+        Row: {
+          created_at: string
+          cycle_id: string
+          reward_id: string
+        }
+        Insert: {
+          created_at?: string
+          cycle_id: string
+          reward_id: string
+        }
+        Update: {
+          created_at?: string
+          cycle_id?: string
+          reward_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pick_cycle_candidates_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "pick_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pick_cycle_candidates_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "backing_public"
+            referencedColumns: ["reward_id"]
+          },
+          {
+            foreignKeyName: "pick_cycle_candidates_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pick_cycles: {
+        Row: {
+          created_at: string
+          cycle_month: string
+          decided_at: string | null
+          envelope_claims: number | null
+          id: string
+          kind: string
+          status: string
+          winner_reward_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          cycle_month: string
+          decided_at?: string | null
+          envelope_claims?: number | null
+          id?: string
+          kind: string
+          status?: string
+          winner_reward_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          cycle_month?: string
+          decided_at?: string | null
+          envelope_claims?: number | null
+          id?: string
+          kind?: string
+          status?: string
+          winner_reward_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pick_cycles_winner_reward_id_fkey"
+            columns: ["winner_reward_id"]
+            isOneToOne: false
+            referencedRelation: "backing_public"
+            referencedColumns: ["reward_id"]
+          },
+          {
+            foreignKeyName: "pick_cycles_winner_reward_id_fkey"
+            columns: ["winner_reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pick_tally: {
+        Row: {
+          backer_count: number
+          computed_at: string
+          cycle_id: string
+          detail: Json | null
+          final_score: number
+          first_backing_at: string | null
+          rank: number
+          raw_score: number
+          reward_id: string
+        }
+        Insert: {
+          backer_count: number
+          computed_at?: string
+          cycle_id: string
+          detail?: Json | null
+          final_score: number
+          first_backing_at?: string | null
+          rank: number
+          raw_score: number
+          reward_id: string
+        }
+        Update: {
+          backer_count?: number
+          computed_at?: string
+          cycle_id?: string
+          detail?: Json | null
+          final_score?: number
+          first_backing_at?: string | null
+          rank?: number
+          raw_score?: number
+          reward_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pick_tally_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "pick_cycles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           available_nctr: number
@@ -2442,6 +2588,51 @@ export type Database = {
           },
         ]
       }
+      reward_backing: {
+        Row: {
+          created_at: string
+          id: string
+          participation_factor: number
+          reward_id: string
+          tier_at_backing: string
+          user_id: string
+          weight_at_backing: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          participation_factor?: number
+          reward_id: string
+          tier_at_backing: string
+          user_id: string
+          weight_at_backing: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          participation_factor?: number
+          reward_id?: string
+          tier_at_backing?: string
+          user_id?: string
+          weight_at_backing?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_backing_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "backing_public"
+            referencedColumns: ["reward_id"]
+          },
+          {
+            foreignKeyName: "reward_backing_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reward_featured_creators: {
         Row: {
           created_at: string
@@ -2471,6 +2662,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "featured_creators"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reward_featured_creators_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "backing_public"
+            referencedColumns: ["reward_id"]
           },
           {
             foreignKeyName: "reward_featured_creators_reward_id_fkey"
@@ -2510,6 +2708,13 @@ export type Database = {
           uploaded_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "reward_images_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "backing_public"
+            referencedColumns: ["reward_id"]
+          },
           {
             foreignKeyName: "reward_images_reward_id_fkey"
             columns: ["reward_id"]
@@ -2658,6 +2863,13 @@ export type Database = {
             foreignKeyName: "reward_shares_reward_id_fkey"
             columns: ["reward_id"]
             isOneToOne: false
+            referencedRelation: "backing_public"
+            referencedColumns: ["reward_id"]
+          },
+          {
+            foreignKeyName: "reward_shares_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
             referencedRelation: "rewards"
             referencedColumns: ["id"]
           },
@@ -2716,6 +2928,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "reward_social_posts_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "backing_public"
+            referencedColumns: ["reward_id"]
+          },
           {
             foreignKeyName: "reward_social_posts_reward_id_fkey"
             columns: ["reward_id"]
@@ -2937,6 +3156,13 @@ export type Database = {
             foreignKeyName: "reward_watchlist_reward_id_fkey"
             columns: ["reward_id"]
             isOneToOne: false
+            referencedRelation: "backing_public"
+            referencedColumns: ["reward_id"]
+          },
+          {
+            foreignKeyName: "reward_watchlist_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
             referencedRelation: "rewards"
             referencedColumns: ["id"]
           },
@@ -2965,6 +3191,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "reward_wishlists_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "backing_public"
+            referencedColumns: ["reward_id"]
+          },
           {
             foreignKeyName: "reward_wishlists_reward_id_fkey"
             columns: ["reward_id"]
@@ -3302,6 +3535,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "rewards_claims_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "backing_public"
+            referencedColumns: ["reward_id"]
+          },
           {
             foreignKeyName: "rewards_claims_reward_id_fkey"
             columns: ["reward_id"]
@@ -3763,6 +4003,13 @@ export type Database = {
             foreignKeyName: "sponsorship_transactions_reward_id_fkey"
             columns: ["reward_id"]
             isOneToOne: false
+            referencedRelation: "backing_public"
+            referencedColumns: ["reward_id"]
+          },
+          {
+            foreignKeyName: "sponsorship_transactions_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
             referencedRelation: "rewards"
             referencedColumns: ["id"]
           },
@@ -3874,6 +4121,36 @@ export type Database = {
         Update: {
           event_id?: string
           processed_at?: string
+        }
+        Relationships: []
+      }
+      tier_benefits: {
+        Row: {
+          backing_weight: number
+          can_nominate: boolean
+          council_eligible: boolean
+          legacy_benefits: Json | null
+          perks: Json
+          tier_name: string
+          updated_at: string
+        }
+        Insert: {
+          backing_weight: number
+          can_nominate?: boolean
+          council_eligible?: boolean
+          legacy_benefits?: Json | null
+          perks?: Json
+          tier_name: string
+          updated_at?: string
+        }
+        Update: {
+          backing_weight?: number
+          can_nominate?: boolean
+          council_eligible?: boolean
+          legacy_benefits?: Json | null
+          perks?: Json
+          tier_name?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -4449,7 +4726,14 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      backing_public: {
+        Row: {
+          backer_count: number | null
+          in_running: boolean | null
+          reward_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       activate_member_benefit: {
@@ -4495,6 +4779,7 @@ export type Database = {
         Returns: Json
       }
       award_onboarding_item: { Args: { p_item: string }; Returns: Json }
+      back_reward: { Args: { p_reward_id: string }; Returns: Json }
       calculate_user_tier: { Args: { p_user_id: string }; Returns: string }
       cancel_gift: { Args: { p_gift_id: string }; Returns: Json }
       check_handle_available: { Args: { p_handle: string }; Returns: Json }
@@ -4513,6 +4798,7 @@ export type Database = {
       }
       claim_signup_bonus: { Args: never; Returns: Json }
       cleanup_expired_nonces: { Args: never; Returns: undefined }
+      current_member_tier: { Args: never; Returns: string }
       current_unified_profile_id: { Args: never; Returns: string }
       deactivate_member_benefit: {
         Args: { p_benefit_id: string }
@@ -4555,11 +4841,13 @@ export type Database = {
       }
       get_checkin_streak: { Args: { p_user_id: string }; Returns: Json }
       get_gift_stats: { Args: never; Returns: Json }
+      get_member_recent_earn: { Args: { p_user_id: string }; Returns: boolean }
       get_member_reward_price: {
         Args: { p_member_tier: string; p_reward_id: string }
         Returns: Json
       }
       get_merch_milestones: { Args: { p_user_id: string }; Returns: Json }
+      get_pick_cycles_public: { Args: never; Returns: Json }
       get_public_stats: { Args: never; Returns: Json }
       get_purchase_milestones: { Args: { p_user_id: string }; Returns: Json }
       get_recent_admin_activity: {
@@ -4578,6 +4866,7 @@ export type Database = {
       get_referral_leaderboard: { Args: { p_user_id?: string }; Returns: Json }
       get_reward_watch_count: { Args: { p_reward_id: string }; Returns: number }
       get_share_status: { Args: { p_user_id: string }; Returns: Json }
+      get_show_studio_share: { Args: never; Returns: boolean }
       get_sponsor_stats: { Args: { p_sponsor_id: string }; Returns: Json }
       get_tier_user_counts: {
         Args: never
@@ -4717,6 +5006,10 @@ export type Database = {
         }
         Returns: Json
       }
+      set_pick_cycle_winner: {
+        Args: { p_cycle_id: string; p_reward_id: string }
+        Returns: Json
+      }
       submit_reward_version: {
         Args: {
           p_brand: string
@@ -4734,6 +5027,7 @@ export type Database = {
         }
         Returns: Json
       }
+      tally_pick_cycle: { Args: { p_cycle_id: string }; Returns: Json }
       toggle_leaderboard_opt_in: { Args: { p_opt_in: boolean }; Returns: Json }
       track_reward_conversion: {
         Args: { p_referral_code: string; p_reward_id: string }
@@ -4755,6 +5049,7 @@ export type Database = {
         }
         Returns: Json
       }
+      withdraw_backing: { Args: { p_reward_id: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

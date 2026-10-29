@@ -9,9 +9,9 @@ export const membershipTiers: MembershipTier[] = [
     level: 0,
     name: 'Bronze',
     requirement: 1000,
-    description: 'Entry tier with enhanced earning potential (1,000-4,999 NCTR)',
+    description: 'Alliance status (1,000-4,999 NCTR committed)',
     multiplier: 1.1,
-    claims: '1 annual claim',
+    claims: '',
     discount: 0,
     benefits: [
       'Earns on every bounty',
@@ -25,10 +25,10 @@ export const membershipTiers: MembershipTier[] = [
     level: 1,
     name: 'Silver',
     requirement: 5000,
-    description: 'Enhanced benefits with quarterly claim privileges (5,000-14,999 NCTR)',
+    description: 'Alliance status (5,000-14,999 NCTR committed)',
     multiplier: 1.3,
-    claims: '4 annual claims',
-    discount: 10,
+    claims: '',
+    discount: 0,
     benefits: [
       'Earns more than Bronze on every bounty',
       'Silver rewards open'
@@ -41,10 +41,10 @@ export const membershipTiers: MembershipTier[] = [
     level: 2,
     name: 'Gold',
     requirement: 15000,
-    description: 'Elite status with monthly claims and exclusive perks (15,000-39,999 NCTR)',
+    description: 'Alliance status (15,000-39,999 NCTR committed)',
     multiplier: 1.5,
-    claims: '1 monthly claim',
-    discount: 15,
+    claims: '',
+    discount: 0,
     benefits: [
       'Earns more than Silver on every bounty',
       'Gold rewards and experiences open'
@@ -57,10 +57,10 @@ export const membershipTiers: MembershipTier[] = [
     level: 3,
     name: 'Platinum',
     requirement: 40000,
-    description: 'Premium status with bi-monthly claims and concierge service (40,000-99,999 NCTR)',
+    description: 'Alliance status (40,000-99,999 NCTR committed)',
     multiplier: 1.8,
-    claims: '2 monthly claims',
-    discount: 20,
+    claims: '',
+    discount: 0,
     benefits: [
       'Earns more than Gold on every bounty',
       'Platinum rewards, experiences, and first looks open'
@@ -73,10 +73,10 @@ export const membershipTiers: MembershipTier[] = [
     level: 4,
     name: 'Diamond',
     requirement: 100000,
-    description: 'Ultimate status with unlimited benefits and white-glove service (100,000+ NCTR)',
+    description: 'Alliance status (100,000+ NCTR committed)',
     multiplier: 2.5,
-    claims: 'Unlimited',
-    discount: 25,
+    claims: '',
+    discount: 0,
     benefits: [
       'Earns the most on every bounty',
       'Everything opens at Diamond'

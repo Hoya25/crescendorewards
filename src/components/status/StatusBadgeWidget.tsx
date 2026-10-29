@@ -23,13 +23,14 @@ function getTierInfo(locked: number) {
   }
 
   if (!current) {
+    const bronzeMin = TIER_THRESHOLDS[0]?.min ?? 1000;
     return {
       tierName: 'Member',
       tierColor: '#9E9E9E',
       currentMin: 0,
-      nextMin: 100,
-      nextName: 'Bronze',
-      progress: Math.min(100, (locked / 100) * 100),
+      nextMin: bronzeMin,
+      nextName: TIER_THRESHOLDS[0]?.name ?? 'Bronze',
+      progress: Math.min(100, (locked / bronzeMin) * 100),
       isMaxTier: false,
     };
   }

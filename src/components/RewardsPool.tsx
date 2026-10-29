@@ -22,12 +22,12 @@ import { RewardCard } from '@/components/rewards/RewardCard';
 import { VisualRewardCard } from '@/components/rewards/VisualRewardCard';
 import { RewardFilters } from '@/components/rewards/RewardFilters';
 import { FeaturedRewardsCarousel } from '@/components/rewards/FeaturedRewardsCarousel';
-import { StickyStatusBar } from '@/components/rewards/StickyStatusBar';
 import { SponsoredRewardsCarousel } from '@/components/rewards/SponsoredRewardsCarousel';
 import { SponsoredBanner } from '@/components/rewards/SponsoredBanner';
 import { WellnessRewardsSection } from '@/components/rewards/WellnessRewardsSection';
 import { StatusPerksSection } from '@/components/rewards/StatusPerksSection';
-import { StatusBenefitsBanner } from '@/components/user/StatusBenefitsBanner';
+import { useTierBenefits } from '@/hooks/useTierBenefits';
+import { earnLabel } from '@/lib/tierBenefits';
 import { CrescendoLogo } from '@/components/CrescendoLogo';
 import { BetaBadge } from '@/components/BetaBadge';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -107,6 +107,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const [searchParams, setSearchParams] = useSearchParams();
   const { isAuthenticated, signOut, setShowAuthModal, setAuthMode } = useAuthContext();
   const { profile, tier, total360Locked, nextTier, progressToNextTier } = useUnifiedUser();
+  const benefits = useTierBenefits(total360Locked || 0);
   const { ambitions } = useAmbitions();
   const { isAdmin } = useAdminRole();
   const { trackAction } = useTracking();
@@ -726,10 +727,10 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       <div style={{ backgroundColor: '#131313', padding: '40px 24px 24px' }}>
         <div className="container mx-auto max-w-full">
           <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '11px', color: '#E2FF6D', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '12px' }}>
-            CRESCENDO MEMBERSHIP
+            NCTR ALLIANCE · CRESCENDO
           </p>
           <h1 style={{ fontFamily: "'Barlow Condensed', sans-serif", fontWeight: 900, fontSize: 'clamp(36px, 8vw, 68px)', color: '#FFFFFF', textTransform: 'uppercase', lineHeight: 1.05, margin: '0 0 16px 0' }}>
-            Your Rewards. Your <span style={{ color: '#E2FF6D' }}>Opportunities</span>.
+            Your rewards. Your <span style={{ color: '#E2FF6D' }}>say</span>.
           </h1>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#D9D9D9', maxWidth: '480px', lineHeight: 1.7, margin: 0 }}>
             Your Wingman is always working — watching your six, learning what matters to you, and spotting paths you haven't seen yet. The more you engage, the smarter it gets.
@@ -758,13 +759,13 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               </div>
               {/* Multiplier */}
               <div>
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88', textTransform: 'uppercase', display: 'block' }}>Multiplier</span>
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '14px', color: '#FFFFFF' }}>{tier?.earning_multiplier || 1.0}x</span>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88', textTransform: 'uppercase', display: 'block' }}>Earn</span>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '14px', color: '#FFFFFF' }}>{tier?.earning_multiplier ? earnLabel(Number(tier.earning_multiplier)) : 'Earns at base'}</span>
               </div>
               {/* Claims */}
               <div>
                 <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88', textTransform: 'uppercase', display: 'block' }}>Claims</span>
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '14px', color: '#E2FF6D' }}>{claimBalance} this month</span>
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '14px', color: '#E2FF6D' }}>{claimBalance}</span>
               </div>
               {/* Ambitions */}
               <div>
@@ -777,10 +778,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
               <div style={{ marginTop: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                   <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88' }}>
-                    Next: {nextTier.display_name || nextTier.tier_name}
-                  </span>
-                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '10px', color: '#8A8A88' }}>
-                    {(nextTier.min_nctr_360_locked || 0).toLocaleString()} NCTR
+                    {benefits.progressLabel ?? `Next: ${nextTier.display_name || nextTier.tier_name}`}
                   </span>
                 </div>
                 <div style={{ height: '2px', backgroundColor: '#5A5A58', width: '100%' }}>

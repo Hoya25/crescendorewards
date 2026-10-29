@@ -1,3 +1,5 @@
+import { useTierBenefits } from '@/hooks/useTierBenefits';
+import { TierProgressLabel } from '@/components/status/TierProgressLabel';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
@@ -78,6 +80,8 @@ export function ProfilePage() {
   const navigate = useNavigate();
   const { signOut } = useAuthContext();
   const { profile: unifiedProfile, refreshUnifiedProfile, updateUnifiedProfile, tier, nextTier, progressToNextTier, total360Locked, bhFirstName, bhLastName } = useUnifiedUser();
+  const { forTier } = useTierBenefits();
+  const benefitLines = (name?: string | null): string[] => { const b = forTier(name); return b ? [b.earn, b.opens.label, b.say.label, ...b.perks] : []; };
   const { isAdmin } = useAdminRole();
   
   // Convert to Profile format for compatibility
@@ -528,7 +532,7 @@ export function ProfilePage() {
                         />
                       </div>
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>{Math.round(progressToNextTier)}% to next level</span>
+                        <TierProgressLabel />
                         <span className="flex items-center gap-1">
                           <span>{nextTier.badge_emoji}</span>
                           {nextTier.display_name}
@@ -550,30 +554,6 @@ export function ProfilePage() {
 
                 <Separator />
 
-                {/* Monthly Claims Allocation */}
-                <div className="space-y-2 animate-fade-in" style={{ animationDelay: '0.15s' }}>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground flex items-center gap-1.5">
-                      <Gift className="w-3.5 h-3.5" />
-                      Monthly Claims
-                    </span>
-                    <span className="font-bold">
-                      {(tier?.claims_per_month || 0)}/month
-                    </span>
-                  </div>
-                  {nextTier && (nextTier.claims_per_month || 0) > (tier?.claims_per_month || 0) && (
-                    <p 
-                      className="text-xs flex items-center gap-1 cursor-pointer hover:underline"
-                      style={{ color: nextTier.badge_color || 'hsl(var(--muted-foreground))' }}
-                      onClick={() => navigate('/membership')}
-                    >
-                      <TrendingUp className="w-3 h-3" />
-                      {nextTier.display_name} members get {nextTier.claims_per_month}/month
-                    </p>
-                  )}
-                </div>
-
-                <Separator />
 
                 {/* Benefits List with staggered animations */}
                 <div className="space-y-3">
@@ -581,11 +561,7 @@ export function ProfilePage() {
                     Your Benefits
                   </p>
                   <ul className="space-y-2">
-                    {(tier?.benefits || [
-                      'Access to basic rewards',
-                      'Earn 1x NCTR on activities',
-                      'Community access'
-                    ]).slice(0, 5).map((benefit, idx) => (
+                    {benefitLines(tier?.tier_name).map((benefit, idx) => (
                       <li 
                         key={idx} 
                         className="flex items-start gap-2 text-sm animate-fade-in opacity-0"
@@ -612,7 +588,7 @@ export function ProfilePage() {
                 </div>
 
                 {/* Next Tier Preview */}
-                {nextTier && nextTier.benefits && nextTier.benefits.length > 0 && (
+                {nextTier && benefitLines(nextTier.tier_name).length > 0 && (
                   <>
                     <Separator />
                     <div className="space-y-3 animate-fade-in" style={{ animationDelay: '0.6s' }}>
@@ -621,7 +597,7 @@ export function ProfilePage() {
                         {nextTier.display_name} Unlocks
                       </p>
                       <ul className="space-y-2">
-                        {nextTier.benefits.slice(0, 2).map((benefit, idx) => (
+                        {benefitLines(nextTier.tier_name).slice(0, 3).map((benefit, idx) => (
                           <li 
                             key={idx} 
                             className="flex items-start gap-2 text-sm opacity-50 hover:opacity-80 transition-opacity cursor-pointer group"

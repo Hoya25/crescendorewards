@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
+import { useTierBenefits } from '@/hooks/useTierBenefits';
 
 export interface OpportunityCard {
   type: string;
@@ -9,69 +10,6 @@ export interface OpportunityCard {
   details: { label: string; value: string }[];
   borderStyle?: 'solid' | 'dashed';
 }
-
-const hardcodedOpportunities: OpportunityCard[] = [
-  {
-    type: 'Earn Amplifier',
-    name: 'Silver earning',
-    description: 'Every bounty worth more at Silver.',
-    status: 'active',
-    details: [
-      { label: 'Rate', value: 'Silver' },
-      { label: 'Extra earned', value: '+2,105 NCTR' },
-      { label: 'At Gold', value: '1.5x' },
-    ],
-  },
-  {
-    type: 'Early Access',
-    name: 'Reward Previews',
-    description: 'See and claim new rewards 48 hours before Bronze.',
-    status: 'active',
-    details: [
-      { label: 'Your window', value: '48 hours' },
-      { label: 'At Gold', value: '72 hours' },
-    ],
-  },
-  {
-    type: 'Creator Tools',
-    name: 'Sponsored Content',
-    description: 'Submit original content and earn NCTR per approved piece.',
-    status: 'locked',
-    lockTier: 'Gold',
-    details: [
-      { label: 'Requires', value: '15,000 NCTR' },
-      { label: 'You need', value: '6,580 more' },
-    ],
-  },
-  {
-    type: 'Brand Access',
-    name: 'Partnership Priority',
-    description: 'When new brands join, you get first access to their bounties.',
-    status: 'locked',
-    lockTier: 'Platinum',
-    details: [
-      { label: 'Requires', value: '40,000 NCTR' },
-    ],
-  },
-  {
-    type: 'Governance',
-    name: 'Alliance Voice',
-    description: 'Shape the ecosystem. Vote on brands, rewards, and direction.',
-    status: 'locked',
-    lockTier: 'Diamond',
-    details: [
-      { label: 'Requires', value: '100,000 NCTR' },
-    ],
-  },
-  {
-    type: 'Expanding',
-    name: 'New Opportunities',
-    description: 'Growing at every tier as the ecosystem evolves.',
-    status: 'coming',
-    borderStyle: 'dashed',
-    details: [],
-  },
-];
 
 interface OpportunityCardItemProps {
   opportunity: OpportunityCard;
@@ -232,7 +170,29 @@ interface OpportunitiesTabProps {
 }
 
 export function OpportunitiesTab({ opportunities }: OpportunitiesTabProps) {
-  const cards = opportunities ?? hardcodedOpportunities;
+  const { total360Locked } = useUnifiedUser();
+  const balance = Number(total360Locked) || 0;
+  const { tiers, forTier, next, nextOpens, progressLabel } = useTierBenefits(balance);
+  const current = [...tiers].reverse().find((t) => balance >= t.min_nctr_360_locked) ?? null;
+  const mine = current ? forTier(current.tier_name) : null;
+  const derived: OpportunityCard[] = [];
+  if (mine) {
+    derived.push({ type: 'Earn', name: `${mine.tier.display_name} earning`, description: mine.earn, status: 'active', details: [] });
+    derived.push({ type: 'Your say', name: 'Backing', description: mine.say.label, status: 'active', details: [] });
+    if (mine.perks.length) derived.push({ type: 'Perks', name: `${mine.tier.display_name} perks`, description: mine.perks.join(' · '), status: 'active', details: [] });
+  }
+  if (next) {
+    const nb = forTier(next.tier_name);
+    derived.push({
+      type: 'Opens',
+      name: `Opens at ${next.display_name}`,
+      description: progressLabel ?? '',
+      status: 'locked',
+      lockTier: next.display_name,
+      details: nextOpens.slice(0, 3).map((r, i) => ({ label: `Reward ${i + 1}`, value: r.title })).concat(nb ? [{ label: 'Your say', value: nb.say.label }] : []),
+    });
+  }
+  const cards = opportunities ?? derived;
 
   return (
     <div style={{ backgroundColor: '#131313', padding: '32px 24px', minHeight: '400px' }}>
@@ -260,7 +220,7 @@ export function OpportunitiesTab({ opportunities }: OpportunitiesTabProps) {
           lineHeight: 1.5,
         }}
       >
-        Perks that are always on — unlocked by your tier, no claims needed. The higher you climb, the more doors open.
+        What your status in the Alliance gives you right now, and what opens next.
       </p>
 
       {/* Grid */}

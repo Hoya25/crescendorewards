@@ -7,6 +7,7 @@ import {
 import { Info, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useTierBenefits } from "@/hooks/useTierBenefits";
 
 const TIER_INFO = [
   {
@@ -14,8 +15,6 @@ const TIER_INFO = [
     key: "bronze",
     emoji: "🥉",
     range: "1,000+ NCTR committed",
-    mult: "1.0x",
-    perks: "1 monthly claim · wellness rewards",
     color: "#CD7F32",
   },
   {
@@ -23,8 +22,6 @@ const TIER_INFO = [
     key: "silver",
     emoji: "🥈",
     range: "5,000+ NCTR committed",
-    mult: "1.25x",
-    perks: "5 monthly claims · early access · streams",
     color: "#C0C0C0",
   },
   {
@@ -32,8 +29,6 @@ const TIER_INFO = [
     key: "gold",
     emoji: "🥇",
     range: "15,000+ NCTR committed",
-    mult: "1.5x",
-    perks: "12 monthly claims · creator tools · merch",
     color: "#FFD700",
   },
   {
@@ -41,8 +36,6 @@ const TIER_INFO = [
     key: "platinum",
     emoji: "💎",
     range: "40,000+ NCTR committed",
-    mult: "1.8x",
-    perks: "25 monthly claims · brand priority",
     color: "#E5E4E2",
   },
   {
@@ -50,8 +43,6 @@ const TIER_INFO = [
     key: "diamond",
     emoji: "👑",
     range: "100,000+ NCTR committed",
-    mult: "2.5x",
-    perks: "50 monthly claims · governance · vault",
     color: "#B9F2FF",
   },
 ];
@@ -60,6 +51,7 @@ export function StatusExplainer() {
   const [open, setOpen] = useState(false);
   const { tier } = useUnifiedUser();
   const currentTierKey = tier?.tier_name?.toLowerCase() || "bronze";
+  const { forTier } = useTierBenefits();
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
@@ -82,6 +74,7 @@ export function StatusExplainer() {
               const currentIdx = TIER_INFO.findIndex((x) => x.key === currentTierKey);
               const thisIdx = TIER_INFO.findIndex((x) => x.key === t.key);
               const isNext = thisIdx === currentIdx + 1;
+              const b = forTier(t.key);
 
               return (
                 <div
@@ -106,10 +99,10 @@ export function StatusExplainer() {
                     {t.range}
                   </p>
                   <p className="text-xs font-bold mt-1" style={{ color: t.color }}>
-                    {t.mult}
+                    {b?.earn}
                   </p>
                   <p className="text-[10px] text-muted-foreground/70 mt-1 leading-tight">
-                    {t.perks}
+                    {b ? [b.opens.label, b.say.label, ...b.perks].join(' · ') : null}
                   </p>
                   {isCurrent && (
                     <span className="inline-block mt-1.5 text-[10px] font-medium text-cta bg-cta/10 px-2 py-0.5 rounded-full">

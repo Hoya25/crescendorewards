@@ -1,3 +1,4 @@
+import { TierProgressLabel } from '@/components/status/TierProgressLabel';
 import { Card, CardContent } from "@/components/ui/card";
 import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
 import { Crown } from "lucide-react";
@@ -96,14 +97,7 @@ export function StatusHero() {
             ) : (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs font-medium">
-                  <span className="text-text-body-muted">
-                    <span style={{ fontFamily: 'var(--font-mono, "DM Mono", monospace)' }}>
-                      {total360Locked.toLocaleString()}
-                    </span> / {nextTier?.min_nctr_360_locked.toLocaleString()} NCTR committed toward {nextTier?.display_name}
-                  </span>
-                  <span className="text-text-body-muted">
-                    {Math.round(progressToNextTier)}%
-                  </span>
+                  <TierProgressLabel className="text-text-body-muted" />
                 </div>
 
                 <div className="flex items-center gap-3">

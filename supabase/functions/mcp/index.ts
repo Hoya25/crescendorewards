@@ -26,6 +26,8 @@ import { McpServer } from 'npm:@modelcontextprotocol/sdk@1.25.3/server/mcp.js'
 import { WebStandardStreamableHTTPServerTransport } from 'npm:@modelcontextprotocol/sdk@1.25.3/server/webStandardStreamableHttp.js'
 import { Hono } from 'npm:hono@^4.9.7'
 import { z } from 'npm:zod@^4.1.13'
+import { createClient } from 'npm:@supabase/supabase-js@2'
+import { loadTierBenefits, progressLabel } from '../_shared/tierBenefits.ts'
 
 // ─────────────────────────────────────────────────────────────
 // DATA: Bounties
@@ -304,51 +306,10 @@ const BOUNTIES: Bounty[] = [
 // DATA: Crescendo Status Tiers
 // ─────────────────────────────────────────────────────────────
 
-interface Tier {
-  name: string
-  threshold: number
-  multiplier: number
-  description: string
-  perks: string[]
-}
-
-const TIERS: Tier[] = [
-  {
-    name: 'Bronze',
-    threshold: 1000,
-    multiplier: 1.1,
-    description: 'Where every member starts. 1,000+ NCTR committed through 360LOCK.',
-    perks: ['Earns on every bounty', 'Access to all standard bounties', 'The Mall shopping', 'Community access']
-  },
-  {
-    name: 'Silver',
-    threshold: 5000,
-    multiplier: 1.3,
-    description: 'Silver status — 5,000+ NCTR committed through 360LOCK. Earns more on every bounty than Bronze.',
-    perks: ['Earns more than Bronze on every bounty', 'Early access to new bounties', 'Silver badge']
-  },
-  {
-    name: 'Gold',
-    threshold: 15000,
-    multiplier: 1.5,
-    description: 'Gold status — 15,000+ NCTR committed through 360LOCK. Earns more on every bounty than Silver.',
-    perks: ['Earns more than Silver on every bounty', 'Exclusive Gold bounties', 'Priority support', 'Gold badge']
-  },
-  {
-    name: 'Platinum',
-    threshold: 40000,
-    multiplier: 1.8,
-    description: 'Platinum status — 40,000+ NCTR committed through 360LOCK. Earns more on every bounty than Gold.',
-    perks: ['Earns more than Gold on every bounty', 'VIP experiences', 'Platinum-only drops', 'Platinum badge']
-  },
-  {
-    name: 'Diamond',
-    threshold: 100000,
-    multiplier: 2.5,
-    description: 'Diamond status — 100,000+ NCTR committed through 360LOCK. Earns more on every bounty than Platinum.',
-    perks: ['Earns the most on every bounty', 'Charter member recognition', 'Diamond-exclusive events', 'Diamond badge', 'Direct team access']
-  }
-]
+// Tiers are read live from the database through the shared resolver
+// (EARN · OPENS · YOUR SAY · PERKS). No tier data is hardcoded here.
+const publicDb = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '')
+const loadTiers = () => loadTierBenefits(publicDb)
 
 // ─────────────────────────────────────────────────────────────
 // DATA: Impact Engines
@@ -567,25 +528,26 @@ server.registerTool(
         .describe('Optional bounty ID to calculate tier-adjusted earning amount'),
     },
   },
-  ({ tier, bounty_id }) => {
-    let tiers = [...TIERS]
+  async ({ tier, bounty_id }) => {
+    let tiers = await loadTiers()
     if (tier) {
-      tiers = tiers.filter((t) => t.name === tier)
+      tiers = tiers.filter((t) => t.display_name === tier)
     }
 
     const bounty = bounty_id ? BOUNTIES.find((b) => b.id === bounty_id) : null
 
     const formatted = tiers.map((t) => {
       const result: Record<string, unknown> = {
-        tier: t.name,
+        tier: t.display_name,
         nctr_threshold: `${t.threshold.toLocaleString()} NCTR`,
-        multiplier: `${t.multiplier}x`,
-        description: t.description,
-        perks: t.perks,
+        earn: t.earn,
+        opens: t.opens.label,
+        your_say: t.say.label,
+        ...(t.perks.length ? { perks: t.perks } : {}),
       }
 
       if (bounty) {
-        const adjusted = Math.floor(bounty.amount * t.multiplier)
+        const adjusted = Math.floor(bounty.amount * t.earn_rate)
         result.bounty_name = bounty.name
         result.base_amount = `${bounty.amount.toLocaleString()} NCTR`
         result.adjusted_amount = `${adjusted.toLocaleString()} NCTR`
@@ -631,27 +593,31 @@ server.registerTool(
         .describe('Target tier to check requirements for'),
     },
   },
-  ({ current_balance, target_tier }) => {
+  async ({ current_balance, target_tier }) => {
+    const TIERS = await loadTiers()
+    const estimateNote = 'estimate — based on the balance you provided, not a verified member record'
     if (target_tier) {
-      const tier = TIERS.find((t) => t.name === target_tier)!
+      const tier = TIERS.find((t) => t.display_name === target_tier)!
       const result: Record<string, unknown> = {
-        tier: tier.name,
+        tier: tier.display_name,
         nctr_required: `${tier.threshold.toLocaleString()} NCTR`,
-        multiplier: `${tier.multiplier}x`,
-        perks: tier.perks,
-        description: tier.description,
+        earn: tier.earn,
+        opens: tier.opens.label,
+        your_say: tier.say.label,
+        ...(tier.perks.length ? { perks: tier.perks } : {}),
       }
 
       if (current_balance !== undefined) {
         if (current_balance >= tier.threshold) {
           result.status = 'QUALIFIED'
-          result.message = `You already qualify for ${tier.name} with ${current_balance.toLocaleString()} NCTR.`
+          result.message = `Estimate: ${current_balance.toLocaleString()} NCTR qualifies for ${tier.display_name}.`
         } else {
           const needed = tier.threshold - current_balance
           result.status = 'NOT YET'
           result.nctr_needed = `${needed.toLocaleString()} NCTR`
-          result.message = `You need ${needed.toLocaleString()} more NCTR to reach ${tier.name}.`
+          result.message = `Estimate: ${needed.toLocaleString()} more NCTR to reach ${tier.display_name}.`
         }
+        result.estimate = estimateNote
       }
 
       return {
@@ -662,10 +628,12 @@ server.registerTool(
     // Full tier progression
     const progression = TIERS.map((t) => {
       const result: Record<string, unknown> = {
-        tier: t.name,
+        tier: t.display_name,
         nctr_required: `${t.threshold.toLocaleString()} NCTR`,
-        multiplier: `${t.multiplier}x`,
-        perks: t.perks,
+        earn: t.earn,
+        opens: t.opens.label,
+        your_say: t.say.label,
+        ...(t.perks.length ? { perks: t.perks } : {}),
       }
 
       if (current_balance !== undefined) {
@@ -678,11 +646,11 @@ server.registerTool(
       return result
     })
 
-    let current_tier = 'Bronze'
+    let current_tier = 'Not yet Bronze'
     if (current_balance !== undefined) {
       for (const t of [...TIERS].reverse()) {
         if (current_balance >= t.threshold) {
-          current_tier = t.name
+          current_tier = t.display_name
           break
         }
       }
@@ -700,6 +668,7 @@ server.registerTool(
                   ? `${current_balance.toLocaleString()} NCTR`
                   : undefined,
               progression,
+              ...(current_balance !== undefined ? { estimate: estimateNote, next_step: progressLabel(TIERS, current_balance) } : {}),
               note: 'Your NCTR committed through 360LOCK sets your Crescendo status. Higher status earns more on every bounty and opens more rewards.',
             },
             null,

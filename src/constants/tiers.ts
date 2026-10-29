@@ -99,9 +99,9 @@ export interface TierVisual extends TierDefinition {
 }
 
 export const TIER_VISUALS: TierVisual[] = [
-  { ...TIER_BY_ID['bronze'],   rgb: '205,127,50',  glow: 'rgba(205,127,50,0.45)',  tagline: 'Every alliance begins here.',        perks: ['Bronze rewards catalog', 'NCTR earning on all purchases', 'Alliance member newsletter'] },
-  { ...TIER_BY_ID['silver'],   rgb: '192,192,200', glow: 'rgba(192,192,200,0.38)', tagline: 'Early access. More earning.',         perks: ['Everything in Bronze', 'Early access to new brands', '1.25× NCTR on select partners'] },
-  { ...TIER_BY_ID['gold'],     rgb: '255,215,100', glow: 'rgba(255,215,100,0.50)', tagline: 'Exclusive drops. Priority support.',  perks: ['Everything in Silver', 'Exclusive Gold reward drops', 'Priority member support'] },
-  { ...TIER_BY_ID['platinum'], rgb: '200,200,210', glow: 'rgba(200,200,210,0.35)', tagline: 'VIP experiences. Dedicated access.',  perks: ['Everything in Gold', 'VIP brand partner experiences', 'Dedicated account access'] },
-  { ...TIER_BY_ID['diamond'],  rgb: '185,242,255', glow: 'rgba(185,242,255,0.55)', tagline: 'Elite status. Diamond drops.',        perks: ['Everything in Platinum', 'Diamond member status', 'Exclusive Diamond drops'] },
+  { ...TIER_BY_ID['bronze'],   rgb: '205,127,50',  glow: 'rgba(205,127,50,0.45)',  tagline: 'Every Alliance member begins here.',        perks: [] },
+  { ...TIER_BY_ID['silver'],   rgb: '192,192,200', glow: 'rgba(192,192,200,0.38)', tagline: 'Earn more. Open more.',         perks: [] },
+  { ...TIER_BY_ID['gold'],     rgb: '255,215,100', glow: 'rgba(255,215,100,0.50)', tagline: 'More rewards open. You nominate.',  perks: [] },
+  { ...TIER_BY_ID['platinum'], rgb: '200,200,210', glow: 'rgba(200,200,210,0.35)', tagline: 'Experiences open. Council-eligible.',  perks: [] },
+  { ...TIER_BY_ID['diamond'],  rgb: '185,242,255', glow: 'rgba(185,242,255,0.55)', tagline: 'Everything opens at Diamond.',        perks: [] },
 ];

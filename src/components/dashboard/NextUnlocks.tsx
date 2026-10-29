@@ -18,7 +18,6 @@ import { supabase } from "@/lib/supabase";
 //   ],
 //   gold: [
 //     { emoji: "👑", title: "Platinum-tier exclusive rewards", description: "Highest reward quality" },
-//     { emoji: "🗳️", title: "Enhanced governance voice", description: "Shape the community direction" },
 //     { emoji: "⭐", title: "VIP experiences and access", description: "Exclusive events and opportunities" },
 //   ],
 //   platinum: [

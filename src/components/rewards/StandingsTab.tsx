@@ -1,3 +1,4 @@
+import { useTierBenefits } from '@/hooks/useTierBenefits';
 import { CommitmentArc } from '@/components/CommitmentArc';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { TIERS, getTierForBalance, getProgressToNextTier } from '@/constants/tiers';
@@ -23,11 +24,11 @@ const TIER_ARC_COLORS: Record<string, string> = {
 };
 
 const hardcodedTiers: TierRow[] = [
-  { rank: '05', name: 'Diamond', nctrRequirement: '100,000 NCTR', multiplier: '2.5x', perks: '50 claims · governance · vault', color: 'rgba(185,242,255,0.9)', arcColor: '#B9F2FF', threshold: 100000 },
-  { rank: '04', name: 'Platinum', nctrRequirement: '40,000 NCTR', multiplier: '1.8x', perks: '25 claims · brand priority', color: 'rgba(200,200,210,0.9)', arcColor: '#E5E4E2', threshold: 40000 },
-  { rank: '03', name: 'Gold', nctrRequirement: '15,000 NCTR', multiplier: '1.5x', perks: '12 claims · creator tools · merch', color: 'rgba(255,215,100,0.9)', arcColor: '#FFD700', threshold: 15000 },
-  { rank: '02', name: 'Silver', nctrRequirement: '5,000 NCTR', multiplier: '1.25x', perks: '5 claims · 48hr early · streams', color: 'rgba(192,192,200,0.8)', arcColor: '#C0C0C0', threshold: 5000 },
-  { rank: '01', name: 'Bronze', nctrRequirement: '1,000 NCTR', multiplier: '1.0x', perks: '1 claim · wellness', color: 'rgba(180,130,80,0.9)', arcColor: '#CD7F32', threshold: 1000 },
+  { rank: '05', name: 'Diamond', nctrRequirement: '100,000 NCTR', multiplier: '', perks: '', color: 'rgba(185,242,255,0.9)', arcColor: '#B9F2FF', threshold: 100000 },
+  { rank: '04', name: 'Platinum', nctrRequirement: '40,000 NCTR', multiplier: '', perks: '', color: 'rgba(200,200,210,0.9)', arcColor: '#E5E4E2', threshold: 40000 },
+  { rank: '03', name: 'Gold', nctrRequirement: '15,000 NCTR', multiplier: '', perks: '', color: 'rgba(255,215,100,0.9)', arcColor: '#FFD700', threshold: 15000 },
+  { rank: '02', name: 'Silver', nctrRequirement: '5,000 NCTR', multiplier: '', perks: '', color: 'rgba(192,192,200,0.8)', arcColor: '#C0C0C0', threshold: 5000 },
+  { rank: '01', name: 'Bronze', nctrRequirement: '1,000 NCTR', multiplier: '', perks: '', color: 'rgba(180,130,80,0.9)', arcColor: '#CD7F32', threshold: 1000 },
 ];
 
 interface StandingsTabProps {
@@ -35,6 +36,7 @@ interface StandingsTabProps {
 }
 
 export function StandingsTab({ tiers }: StandingsTabProps) {
+  const { forTier } = useTierBenefits();
   const { total360Locked } = useUnifiedUser();
   const currentPoints = Number(total360Locked) || 0;
   const currentTier = getTierForBalance(currentPoints);
@@ -152,7 +154,7 @@ export function StandingsTab({ tiers }: StandingsTabProps) {
                 minWidth: '40px',
               }}
             >
-              {tier.multiplier}
+              {forTier(tier.name)?.earn}
             </span>
 
             {/* Perks - hidden on mobile */}
@@ -166,7 +168,7 @@ export function StandingsTab({ tiers }: StandingsTabProps) {
                 minWidth: '180px',
               }}
             >
-              {tier.perks}
+              {(() => { const b = forTier(tier.name); return b ? [b.opens.label, b.say.label].join(' · ') : null; })()}
             </span>
           </div>
         ))}
