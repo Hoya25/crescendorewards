@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "npm:resend@2.0.0";
 import { isInternalCaller, unauthorized } from "../_shared/auth.ts";
+import { loadTierBenefits } from "../_shared/tierBenefits.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -122,15 +123,9 @@ const getEmailTemplate = (type: string, data: Record<string, unknown>) => {
                 <p style="margin: 8px 0 0 0; font-size: 24px; font-weight: bold;">${data.tier_name}</p>
               </div>
               
-              <h3 style="margin-bottom: 16px;">${data.tier_name} earns more on every bounty</h3>
+              <h3 style="margin-bottom: 16px;">What ${data.tier_name} gives you in the Alliance</h3>
               <ul style="padding-left: 20px;">
-                ${({
-                  bronze: ['Earns on every bounty', 'Rewards sponsored by the alliance and its partner brands open at Bronze'],
-                  silver: ['Earns more than Bronze on every bounty', 'Silver rewards open'],
-                  gold: ['Earns more than Silver on every bounty', 'Gold rewards and experiences open'],
-                  platinum: ['Earns more than Gold on every bounty', 'Platinum rewards, experiences, and first looks open'],
-                  diamond: ['Earns the most on every bounty', 'Everything opens at Diamond'],
-                }[String(data.tier_name).toLowerCase()] || []).map((benefit) => `<li>${benefit}</li>`).join('')}
+                ${(Array.isArray(data.benefit_rows) ? (data.benefit_rows as string[]) : []).map((benefit) => `<li>${benefit}</li>`).join('')}
               </ul>
               
               <p style="margin-top: 20px;">Your rewards are growing with your commitment.</p>
@@ -301,6 +296,15 @@ serve(async (req) => {
     // Add name to data for template
     data.name = userName;
 
+    if (type === 'tier_change' && data.tier_name) {
+      try {
+        const tiers = await loadTierBenefits(supabase);
+        const t = tiers.find((x) => x.tier_name.toLowerCase() === String(data.tier_name).toLowerCase() || x.display_name.toLowerCase() === String(data.tier_name).toLowerCase());
+        (data as Record<string, unknown>).benefit_rows = t?.rows ?? [];
+      } catch (e) {
+        console.warn('tier benefit lookup failed', e);
+      }
+    }
     const template = getEmailTemplate(type, data);
 
     console.log(`Sending ${type} notification to ${recipientEmail}`);
