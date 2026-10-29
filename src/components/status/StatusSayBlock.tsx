@@ -18,6 +18,8 @@ export function StatusSayBlock() {
     },
   });
   const open = (cycles ?? []).find((c) => c.status === 'open');
+  // Studio backing share has no source yet; wired to the open pick cycle where it will live.
+  const studioShare = (open as { studio_share?: number } | undefined)?.studio_share;
 
   return (
     <div style={{ borderTop: '1px solid var(--nctr-line)', marginTop: 36, paddingTop: 28 }}>
@@ -60,9 +62,9 @@ export function StatusSayBlock() {
         <div style={{ marginTop: 14, fontSize: 13, color: 'var(--nctr-muted)' }}>The next Member Pick opens soon.</div>
       )}
 
-      {showStudio && (
+      {showStudio && studioShare != null && (
         <div style={{ marginTop: 12, fontSize: 13, color: 'var(--nctr-ink-soft)' }}>
-          The Studio backs alongside members, with one share in each Member Pick.
+          The Studio leads the Alliance it built, and its say releases as the Alliance distributes. Studio backing share this month: {studioShare}%.
         </div>
       )}
 

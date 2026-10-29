@@ -13,7 +13,7 @@ const ways: Array<{
   showArrow: boolean;
   isLearnCard?: boolean;
 }> = [
-  { icon: ShoppingBag, title: 'Shop & Earn', description: <>Buy what you already buy. Brands fund your rewards instead of funding ads. Every purchase earns {N} — not points that expire, not discounts that disappear. Real value that's yours to keep.</>, href: 'https://bountyhunter.nctr.live/shop', accent: false, showArrow: true },
+  { icon: ShoppingBag, title: 'Shop & Earn', description: <>Buy what you already buy. Brands fund your rewards instead of funding ads. Every purchase earns {N} — rewards sponsored by the Alliance and its partner brands, earned through your status.</>, href: 'https://bountyhunter.nctr.live/shop', accent: false, showArrow: true },
   { icon: Shirt, title: 'Rep the Brand', description: <>Wear it. Own it. {N} merch earns 3x with 360LOCK because repping the Alliance isn't just shopping — it's ownership. Plus exclusive bounties only merch holders unlock.</>, href: 'https://merch.nctr.live', accent: false, showArrow: true },
   { icon: GraduationCap, title: 'Learn & Earn', description: <>{N} University launches Spring 2026. Complete courses on participation, ownership, and the Alliance economy — and earn {N} for every milestone. In the meantime, get a head start on your knowledge advantage by following on X and Instagram.</>, href: 'https://x.com/NCTRAlliance', accent: false, showArrow: false, isLearnCard: true },
   { icon: Users, title: 'Build Your Crew', description: <>Bring your people. You all earn {N} — when they sign up, when they buy, and when they hit milestones. Your crew compounds your status. The Alliance grows one real relationship at a time.</>, href: 'https://bountyhunter.nctr.live/network', accent: false, showArrow: true },
