@@ -1,3 +1,4 @@
+import { useTierBenefits } from '@/hooks/useTierBenefits';
 import { TierProgressLabel } from '@/components/status/TierProgressLabel';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -79,6 +80,8 @@ export function ProfilePage() {
   const navigate = useNavigate();
   const { signOut } = useAuthContext();
   const { profile: unifiedProfile, refreshUnifiedProfile, updateUnifiedProfile, tier, nextTier, progressToNextTier, total360Locked, bhFirstName, bhLastName } = useUnifiedUser();
+  const { forTier } = useTierBenefits();
+  const benefitLines = (name?: string | null): string[] => { const b = forTier(name); return b ? [b.earn, b.opens.label, b.say.label, ...b.perks] : []; };
   const { isAdmin } = useAdminRole();
   
   // Convert to Profile format for compatibility
@@ -594,7 +597,7 @@ export function ProfilePage() {
                         {nextTier.display_name} Unlocks
                       </p>
                       <ul className="space-y-2">
-                        {nextTier.benefits.slice(0, 2).map((benefit, idx) => (
+                        {benefitLines(nextTier.tier_name).slice(0, 3).map((benefit, idx) => (
                           <li 
                             key={idx} 
                             className="flex items-start gap-2 text-sm opacity-50 hover:opacity-80 transition-opacity cursor-pointer group"
