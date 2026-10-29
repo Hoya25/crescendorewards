@@ -107,6 +107,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
   const [searchParams, setSearchParams] = useSearchParams();
   const { isAuthenticated, signOut, setShowAuthModal, setAuthMode } = useAuthContext();
   const { profile, tier, total360Locked, nextTier, progressToNextTier } = useUnifiedUser();
+  const benefits = useTierBenefits(total360Locked || 0);
   const { ambitions } = useAmbitions();
   const { isAdmin } = useAdminRole();
   const { trackAction } = useTracking();
