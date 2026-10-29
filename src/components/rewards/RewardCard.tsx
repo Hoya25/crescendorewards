@@ -15,6 +15,7 @@ import {
   Bell, BellOff, Eye, Check, Percent
 } from 'lucide-react';
 import { getRewardPriceForUser } from '@/utils/getRewardPrice';
+import { BackRewardButton, BackingMeta } from '@/components/rewards/BackRewardButton';
 
 export interface RewardCardData {
   id: string;
@@ -445,6 +446,15 @@ export function RewardCard({
             )}
           </div>
         )}
+
+        <div onClick={(e) => e.stopPropagation()} className="-mx-3.5">
+          <BackingMeta rewardId={reward.id} />
+        </div>
+        <div className="flex">
+          <div className="flex-1 [&>button]:w-full [&>span>button]:w-full">
+            <BackRewardButton rewardId={reward.id} rewardName={reward.title} tierRequired={(reward as any).min_tier_required ?? null} />
+          </div>
+        </div>
 
         {/* Delivery Info */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2 border-t border-border/50">
