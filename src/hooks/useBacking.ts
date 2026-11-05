@@ -81,5 +81,5 @@ export function useToggleBacking() {
 
 export function monthLabel(iso: string): string {
   const d = new Date(iso + (iso.length === 10 ? 'T00:00:00Z' : ''));
-  return d.toLocaleString('en-US', { month: 'long', timeZone: 'UTC' });
+  return d.toLocaleString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
 }
