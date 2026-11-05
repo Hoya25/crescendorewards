@@ -46,6 +46,10 @@ export function StatusSayBlock() {
             {open.kind === 'commons' ? 'Commons Pick' : 'Member Pick'} · {monthLabel(open.cycle_month)}
             {open.envelope_claims ? ` · ${open.envelope_claims.toLocaleString()} Claims envelope` : ''}
           </div>
+          <div style={{ marginTop: 8, fontSize: 13, color: 'var(--nctr-charcoal)' }}>
+            <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Pick Day · December 1</span>
+            {' — '}Backing closes November 30. The Member Pick is announced December 1.
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10, marginTop: 10 }}>
             {open.candidates.map((c) => (
               <div key={c.reward_id} style={{ border: '1px solid var(--nctr-line)' }}>
