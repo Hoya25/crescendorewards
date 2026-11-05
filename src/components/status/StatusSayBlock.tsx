@@ -7,6 +7,12 @@ import { BackRewardButton } from '@/components/rewards/BackRewardButton';
 const MONO = '"DM Mono", monospace';
 const DISPLAY = '"Barlow Condensed", sans-serif';
 
+function pickDay(cycleMonth: string) {
+  const [y, m] = cycleMonth.slice(0, 10).split('-').map(Number);
+  const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'UTC' });
+  return { announced: fmt(new Date(Date.UTC(y, m - 1, 1))), closes: fmt(new Date(Date.UTC(y, m - 1, 0))) };
+}
+
 export function StatusSayBlock() {
   const { rows } = useTierBenefits();
   const { data: cycles } = usePickCycles();
@@ -47,8 +53,8 @@ export function StatusSayBlock() {
             {open.envelope_claims ? ` · ${open.envelope_claims.toLocaleString()} Claims envelope` : ''}
           </div>
           <div style={{ marginTop: 8, fontSize: 13, color: 'var(--nctr-charcoal)' }}>
-            <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Pick Day · December 1</span>
-            {' — '}Backing closes November 30. The Member Pick is announced December 1.
+            <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Pick Day · {pickDay(open.cycle_month).announced}</span>
+            {' — '}Backing closes {pickDay(open.cycle_month).closes}. The Member Pick is announced {pickDay(open.cycle_month).announced}.
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10, marginTop: 10 }}>
             {open.candidates.map((c) => (
