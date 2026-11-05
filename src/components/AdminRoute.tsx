@@ -2,7 +2,6 @@ import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useAdminRole } from '@/hooks/useAdminRole';
-import { ComingSoonGate } from '@/components/ComingSoonGate';
 
 interface AdminRouteProps {
   children: ReactNode;
@@ -32,5 +31,5 @@ export function AdminRoute({ children }: AdminRouteProps) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  return <ComingSoonGate>{children}</ComingSoonGate>;
+  return <>{children}</>;
 }
