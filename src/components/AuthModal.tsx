@@ -103,7 +103,11 @@ export function AuthModal({ mode: _mode, onClose, onSuccess, onToggleMode: _onTo
             setError('');
             setStatusMessage('');
             setBhFound(false);
-            setError(verifyData?.error || 'No NCTR account found with this email. Join the Alliance on Bounty Hunter first!');
+            setError(
+              verifyData?.not_found
+                ? 'No NCTR account found with this email. Join the Alliance on Bounty Hunter first!'
+                : (verifyData?.error || 'Sign-in is temporarily unavailable. Try again in a minute.')
+            );
           }
         } catch (fetchErr) {
           console.error('Universal auth check failed:', fetchErr);

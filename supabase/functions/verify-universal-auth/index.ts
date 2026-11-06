@@ -196,11 +196,21 @@ Deno.serve(async (req: Request) => {
       // Ask BH if this user exists
       const bhResult = await callBH("get_user_status", { email: normalizedEmail });
 
+      if (bhResult && bhResult.status === "not_found") {
+        console.log("BH confirmed not found:", normalizedEmail);
+        return new Response(JSON.stringify({
+          success: false,
+          not_found: true,
+          error: "No NCTR account found with this email. Join the Alliance on Bounty Hunter first!",
+        }), { status: 200, headers });
+      }
+
       if (!bhResult || bhResult.error) {
         console.log("BH lookup failed for:", normalizedEmail, bhResult?.error);
         return new Response(JSON.stringify({
           success: false,
-          error: "No NCTR account found with this email. Join the Alliance on Bounty Hunter first!",
+          unavailable: true,
+          error: "Sign-in is temporarily unavailable. Try again in a minute.",
         }), { status: 200, headers });
       }
 
