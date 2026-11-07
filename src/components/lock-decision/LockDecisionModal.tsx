@@ -356,7 +356,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
 
                 <div className="rounded-lg p-2.5 mb-3 text-center" style={{ background: 'rgba(200,255,0,0.08)' }}>
                   <p className="text-xs font-semibold" style={{ color: '#C8FF00' }}>
-                    3 for every 1, for the same effort
+                    Counts three times toward status
                   </p>
                 </div>
 

@@ -45,7 +45,7 @@ const FAQS = [
   },
   {
     q: 'What is the difference between 90LOCK and 360LOCK?',
-    a: '90LOCK is an entry-level commitment that earns no status. 360LOCK is the only path to earning status tiers and unlocking Crescendo rewards, and earns about 3 NCTR for every 1 at 90LOCK for the same bounty.',
+    a: '90LOCK is an entry-level commitment that earns no status. 360LOCK is the only path to earning status tiers and unlocking Crescendo rewards, and counts three times toward status.',
   },
 ];
 

@@ -267,7 +267,8 @@ export function ClaimsToNCTRCalculator({
         <div className="flex gap-3 p-3 bg-muted/30 rounded-lg border border-border/50">
           <Info className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
           <p className="text-xs text-muted-foreground">
-            Longer commitment periods earn more NCTR. The 360-day commitment provides <span className="font-semibold text-primary">2.67x more NCTR</span> than the 90-day commitment.
+            Longer commitment periods earn more NCTR. {/* Quantity: NCTR per claim, 360-day vs 90-day, from LOCK_PERIODS (200 vs 75). Not the status weight. */}
+The 360-day commitment earns <span className="font-semibold text-primary">{formatRatio(LOCK_PERIODS[1].nctrPerClaim / LOCK_PERIODS[0].nctrPerClaim)}</span> at 90 days.
           </p>
         </div>
       </CardContent>

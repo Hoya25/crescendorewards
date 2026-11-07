@@ -150,7 +150,7 @@ export const CONTRIBUTION_MODEL_CONFIG: Record<ContributionModel, { label: strin
   full_sponsor: { label: 'Full Sponsor', description: 'You fund free access for all members', icon: 'Crown' },
   tier_sponsor: { label: 'Tier Sponsor', description: 'Free for top tiers, Claims for others', icon: 'Award' },
   hybrid: { label: 'Hybrid', description: 'Discounted pricing by tier', icon: 'Sliders' },
-  revenue_share: { label: 'Revenue Share', description: 'Brand-funded: pay only when a member buys', icon: 'TrendingUp' },
+  revenue_share: { label: 'Shared upside', description: 'Brand-funded: pay only when a member buys', icon: 'TrendingUp' },
 };
 
 export const CAMPAIGN_TYPE_CONFIG: Record<CampaignType, { label: string; description: string }> = {
