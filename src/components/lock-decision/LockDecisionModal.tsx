@@ -677,7 +677,7 @@ function Required360View({
         </p>
         <div className="space-y-1 text-xs text-white/50">
           <p>{baseAmount.toLocaleString()} base</p>
-          {calc360.merchBonus > 1 && <p>× {calc360.merchBonus}x merch 360LOCK bonus</p>}
+          {calc360.merchBonus > 1 && <p>Merch 360LOCK bonus: earns {formatRatio(calc360.merchBonus)}</p>}
           {statusMultiplier > 1 && (
             <p><span className="capitalize">{tierName}</span> status: earns {formatRatio(statusMultiplier)}</p>
           )}
