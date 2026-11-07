@@ -41,7 +41,7 @@ export function FinalCTA() {
           <ArrowRight className="ml-2 w-5 h-5" />
         </Button>
         <p className="mt-5 text-sm text-text-body-muted">
-          Free to join. Always.
+          Free to join.
         </p>
       </div>
       <p className="relative mt-6 text-center text-xs text-text-body-muted">Your tokens stay yours.</p>

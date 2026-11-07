@@ -51,7 +51,7 @@ export function ReferralCard({ stats, referralCode, isLoading }: ReferralCardPro
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Users className="w-5 h-5" />
-          Referral Program
+          Invite friends
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">

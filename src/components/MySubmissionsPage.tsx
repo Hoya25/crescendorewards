@@ -491,7 +491,7 @@ export function MySubmissionsPage() {
                         <Lock className="w-4 h-4 text-muted-foreground" />
                         <div className="text-sm">
                           <div className="font-medium">{submission.lock_rate}LOCK</div>
-                          <div className="text-muted-foreground text-xs">Lock Period</div>
+                          <div className="text-muted-foreground text-xs">Commitment Period</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">

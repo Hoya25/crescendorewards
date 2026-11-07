@@ -89,7 +89,7 @@ export function ProfileCompletion({
               Profile Complete!
             </CardTitle>
             <Badge variant="secondary" className="bg-primary/10 text-primary">
-              100%
+              Complete
             </Badge>
           </div>
         </CardHeader>

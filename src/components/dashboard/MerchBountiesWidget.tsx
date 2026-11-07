@@ -131,7 +131,7 @@ export function MerchBountiesWidget() {
                 <Lock className="w-4 h-4 text-muted-foreground" />
                 <p className="text-2xl font-bold text-muted-foreground">{bountyCounts.locked}</p>
               </div>
-              <p className="text-xs text-muted-foreground">Locked</p>
+              <p className="text-xs text-muted-foreground">To unlock</p>
             </div>
           )}
         </div>

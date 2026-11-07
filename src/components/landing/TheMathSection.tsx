@@ -92,7 +92,7 @@ export function TheMathSection() {
           <p className="text-sm text-text-body">
             And every <NCTRLogo variant="wordmark-grey" height={14} /> you commit raises your Crescendo status. Which unlocks better bounties.
             Which earn more <NCTRLogo variant="wordmark-grey" height={14} />. Which raises your status more.{' '}
-            <span className="font-bold text-text-heading">The flywheel never stops.</span>
+            <span className="font-bold text-text-heading">The flywheel keeps turning.</span>
           </p>
         </div>
 

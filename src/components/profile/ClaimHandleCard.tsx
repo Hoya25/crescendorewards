@@ -394,7 +394,7 @@ export function ClaimHandleCard() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{Math.floor(total360Locked)} / {BRONZE_REQUIREMENT} NCTR locked</span>
+              <span>{Math.floor(total360Locked)} / {BRONZE_REQUIREMENT} NCTR committed</span>
               <span>{Math.floor(progressPercent)}%</span>
             </div>
             <Progress value={progressPercent} className="h-2" />
@@ -573,5 +573,5 @@ function getStatusMessage(
     reserved: 'This handle is reserved',
     invalid_format: '3-20 characters, letters/numbers/underscores only',
   };
-  return { icon: <X className="h-4 w-4 text-destructive" />, text: reasons[availability.reason || ''] || 'Not available', color: 'text-destructive' };
+  return { icon: <X className="h-4 w-4 text-destructive" />, text: reasons[availability.reason || ''] || 'Taken', color: 'text-destructive' };
 }

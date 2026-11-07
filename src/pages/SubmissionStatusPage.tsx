@@ -117,7 +117,7 @@ function StatusBadge({ status }: { status: OwnerRow['status'] }) {
   const map: Record<string, { bg: string; fg: string; label: string }> = {
     pending: { bg: '#2a2410', fg: '#facc15', label: 'Under review' },
     approved: { bg: '#1a2a14', fg: LIME, label: 'Approved · Live' },
-    rejected: { bg: '#2a1414', fg: '#f87171', label: 'Not approved' },
+    rejected: { bg: '#2a1414', fg: '#f87171', label: 'Declined' },
   };
   const s = map[status];
   return (

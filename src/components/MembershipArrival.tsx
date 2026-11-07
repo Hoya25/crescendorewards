@@ -62,7 +62,7 @@ export default function MembershipArrival() {
           </div>
 
           <div style={{ fontFamily: FONT_SANS, fontSize: 14.5, lineHeight: 1.55, color: 'var(--nctr-ink-soft)', marginTop: 14, maxWidth: 300 }}>
-            Standing you own &mdash; and it grows the more you do.
+            Status you own &mdash; and it grows the more you do.
           </div>
 
           {hasUser && !isMax && (
@@ -78,7 +78,7 @@ export default function MembershipArrival() {
 
           {hasUser && isMax && (
             <div style={{ marginTop: 26, fontFamily: FONT_MONO, fontSize: 11.5, letterSpacing: '0.12em', color: 'var(--nctr-charcoal)' }}>
-              {tierName.toUpperCase()} &middot; HIGHEST STANDING
+              {tierName.toUpperCase()} &middot; HIGHEST STATUS
             </div>
           )}
 

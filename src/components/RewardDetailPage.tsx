@@ -354,7 +354,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
       const mapError = (code: string | undefined, payload: any): { title: string; description: string } => {
         switch (code) {
           case 'insufficient_claims':
-            return { title: 'Not enough claims', description: `You need ${payload?.required} claims to claim this. You have ${payload?.available}.` };
+            return { title: 'Needs more claims', description: `You need ${payload?.required} claims to claim this. You have ${payload?.available}.` };
           case 'reward_sold_out':
             return { title: 'Sold out', description: 'This reward is sold out.' };
           case 'reward_not_available':
@@ -371,7 +371,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
           case 'claim_recording_failed':
             return { title: 'Try again', description: "Couldn't record your claim. Please try again." };
           case 'reward_not_found':
-            return { title: 'Not found', description: "This reward couldn't be found." };
+            return { title: "We couldn't find this reward", description: "This reward couldn't be found." };
           default:
             return { title: 'Claim failed', description: "Couldn't complete your claim. Please try again." };
         }
@@ -831,7 +831,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                       <p className="text-muted-foreground mt-2">
                         <span className="line-through">{pricing.originalPrice} claims</span>
                         <Badge variant="secondary" className="ml-2 bg-emerald-500/10 text-emerald-600">
-                          100% OFF
+                          Free
                         </Badge>
                       </p>
                     )}
@@ -1155,7 +1155,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
             {isLocked ? (
               <p className="text-muted-foreground flex items-center gap-1">
                 <Lock className="w-4 h-4" />
-                Locked
+                Unlocks with status
               </p>
             ) : pricing.isFree ? (
               <p className="text-2xl font-black text-emerald-500">FREE</p>

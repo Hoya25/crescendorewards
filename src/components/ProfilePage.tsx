@@ -709,7 +709,7 @@ export function ProfilePage() {
                           </span>
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          = Wallet ({walletNCTRBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })}) + Available ({crescendoData.available_nctr.toLocaleString()}) + Locked ({crescendoData.locked_nctr.toLocaleString()})
+                          = Wallet ({walletNCTRBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })}) + Available ({crescendoData.available_nctr.toLocaleString()}) + Committed ({crescendoData.locked_nctr.toLocaleString()})
                         </div>
                       </div>
                     </>

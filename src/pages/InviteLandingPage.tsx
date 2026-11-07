@@ -316,7 +316,7 @@ export default function InviteLandingPage() {
               How Crescendo Works
             </h2>
             <p className="text-muted-foreground">
-              Crescendo flips the script on traditional rewards programs.
+              Crescendo flips the script on traditional loyalty.
             </p>
           </motion.div>
 
@@ -479,7 +479,7 @@ export default function InviteLandingPage() {
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-primary" />
-              <span>Claims Never Expire</span>
+              <span>Claims stay in your account</span>
             </div>
           </div>
         </div>

@@ -95,7 +95,7 @@ export default function MembershipPitch() {
                 {hero.title}
               </div>
               <div style={{ fontSize: 13, color: '#A9A89F', marginTop: 7 }}>
-                {hero.dollar_value ? `$${Math.round(hero.dollar_value)} value · ` : ''}the kind of reward your standing unlocks.
+                {hero.dollar_value ? `$${Math.round(hero.dollar_value)} value · ` : ''}the kind of reward your status unlocks.
               </div>
             </div>
           </div>

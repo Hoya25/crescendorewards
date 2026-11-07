@@ -372,7 +372,7 @@ export function EarnNCTR() {
               </h3>
               <p className="text-muted-foreground mb-6 max-w-lg mx-auto">
                 Partner brands and apps can integrate with the NCTR ecosystem. 
-                We're always looking for new ways to help our community earn.
+                We keep adding new ways for our community to earn.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button 

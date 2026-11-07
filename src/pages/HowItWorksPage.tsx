@@ -30,7 +30,7 @@ const FLYWHEEL_STEPS = [
 
 const TREASURY_SOURCES = [
   { title: "Brand Partnerships", desc: "Brands join the Alliance to reach engaged members. Their sponsorship funds your rewards." },
-  { title: "Shopping Commissions", desc: "Every purchase you make through the ecosystem generates revenue that flows directly into the rewards pool." },
+  { title: "Brand-Funded Rewards", desc: "Brands fund rewards when members shop with them, and those rewards flow into the pool." },
   { title: "Reward Claims", desc: "When members claim rewards, the ecosystem grows. More activity means more brands, more rewards, more value." },
   { title: "Circular Commerce", desc: "A portion of every trade circulates back into the rewards pool — designed to grow stronger over time, not weaker." },
   { title: "Ecosystem Growth", desc: "As the Alliance expands — more brands, more members, more activity — the rewards pool compounds naturally." },
@@ -43,7 +43,7 @@ const REWARD_CHANNELS = [
 ];
 
 const BUILT_TO_LAST = [
-  { title: "Always Fueled", desc: "The treasury is constantly replenished by multiple revenue streams. As the community grows, revenue grows with it — creating a self-reinforcing cycle." },
+  { title: "Fueled by Alliance commerce", desc: "Every purchase and every claim adds to the rewards pool, so it grows as the community grows." },
   { title: "Cash Firewall", desc: "Rewards are funded before they're featured. What you see on Crescendo is backed." },
   { title: "Pay on Claim", desc: "Nothing is purchased until someone claims it. The treasury only spends when there's real demand — zero wasted inventory, ever." },
 ];

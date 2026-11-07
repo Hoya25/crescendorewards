@@ -40,11 +40,11 @@ const SPONSOR_TYPE_DETAILS: Record<SponsorType, { title: string; description: st
 };
 
 const TIER_PRICING_EXAMPLE = [
-  { tier: 'diamond', price: 'FREE', sponsorCovers: '100%' },
-  { tier: 'platinum', price: 'FREE', sponsorCovers: '100%' },
-  { tier: 'gold', price: '25 Claims', sponsorCovers: '75%' },
-  { tier: 'silver', price: '50 Claims', sponsorCovers: '50%' },
-  { tier: 'bronze', price: '100 Claims', sponsorCovers: '0%' },
+  { tier: 'diamond', price: 'FREE', sponsorCovers: 'All' },
+  { tier: 'platinum', price: 'FREE', sponsorCovers: 'All' },
+  { tier: 'gold', price: '25 Claims', sponsorCovers: '3 in 4' },
+  { tier: 'silver', price: '50 Claims', sponsorCovers: 'Half' },
+  { tier: 'bronze', price: '100 Claims', sponsorCovers: 'None' },
 ];
 
 export function BecomeASponsorPage() {
