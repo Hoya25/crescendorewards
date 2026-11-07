@@ -186,7 +186,7 @@ export function UpdateRewardModal({ open, onClose, submission, onSuccess }: Upda
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="nctr">NCTR Value *</Label>
+              <Label htmlFor="nctr">NCTR earned *</Label>
               <Input
                 id="nctr"
                 type="number"

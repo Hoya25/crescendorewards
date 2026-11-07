@@ -38,12 +38,11 @@ function Auto360LockExplainerModal({
         <div className="space-y-4 text-sm text-muted-foreground leading-relaxed">
           <p>
             When enabled, every purchase bounty you complete will automatically commit to 360 days
-            instead of the default 90 days. Longer commitments protect NCTR's long-term value by
-            keeping tokens in the ecosystem.
+            instead of the default 90 days. Longer commitments keep NCTR in the community and build your status.
           </p>
           <p>
             Members who maintain Auto 360LOCK for 30 consecutive days earn Verified Long-Term Holder
-            status, which unlocks a +0.25x bonus on all bounty completions (coming with crew
+            status, which unlocks 1 bonus NCTR for every 4 earned on bounty completions (coming with crew
             mechanics).
           </p>
           <p>
@@ -182,7 +181,7 @@ export function Auto360LockToggle() {
     if (verifiedLongTermHolder) {
       return (
         <p className="text-xs mt-2 font-medium" style={{ color: '#E2FF6D' }}>
-          ✓ Verified Long-Term Holder — +0.25x bonus unlocks with crew mechanics
+          ✓ Verified Long-Term Holder: 1 bonus NCTR for every 4 earned, unlocking with crew mechanics
         </p>
       );
     }

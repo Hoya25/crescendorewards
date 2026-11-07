@@ -162,7 +162,7 @@ export function BountyCard({ bounty, userTier, total360Locked, nextTier, claims,
           {/* Purchase required message */}
           {needsPurchase && meetsStatus && (
             <div className="rounded-lg bg-orange-500/5 p-2.5">
-              <p className="text-xs text-orange-400">Buy NCTR merch to unlock this bounty</p>
+              <p className="text-xs text-orange-400">Shop NCTR merch to unlock this bounty</p>
               <a href="https://nctr-merch.myshopify.com" target="_blank" rel="noopener noreferrer"
                  className="text-[10px] text-orange-400 underline flex items-center gap-1 mt-1">
                 Shop NCTR Merch <ExternalLink className="h-3 w-3" />

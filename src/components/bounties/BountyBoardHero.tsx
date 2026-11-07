@@ -18,7 +18,7 @@ export function BountyBoardHero({ tier, availableCount, totalCount }: BountyBoar
           Bounties: Earn NCTR for Contributing
         </h1>
         <p className="text-xs sm:text-sm text-white/60 max-w-lg">
-          Complete tasks. Choose 360LOCK. Earn 3x rewards. Higher Crescendo status unlocks bigger bounties.
+          Complete tasks. Choose 360LOCK. Earn 3 for every 1. Higher Crescendo status unlocks bigger bounties.
         </p>
       </div>
       <div className="flex items-center gap-3 shrink-0">

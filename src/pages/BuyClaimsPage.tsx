@@ -51,11 +51,11 @@ const getTierBadge = (name: string): { emoji: string; label: string } | null => 
 // Get multiplier badge for high-tier packages
 const getMultiplierBadge = (name: string): string | null => {
   switch (name) {
-    case 'Pro': return '3x Bonus';
-    case 'Elite': return '5x Bonus';
-    case 'Mega': return '6x Bonus';
-    case 'Ultra': return '7.5x Bonus';
-    case 'Max': return '10x Bonus';
+    case 'Pro': return '3-for-1 bonus';
+    case 'Elite': return '5-for-1 bonus';
+    case 'Mega': return '6-for-1 bonus';
+    case 'Ultra': return '15-for-2 bonus';
+    case 'Max': return '10-for-1 bonus';
     default: return null;
   }
 };

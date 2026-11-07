@@ -55,7 +55,7 @@ export function MerchCelebrationModal({ purchases, onDismiss }: MerchCelebration
         user_id: profile.auth_user_id,
         type: 'purchase_reward',
         title: 'NCTR Merch Purchase Confirmed!',
-        message: `You earned ${totalNctr.toLocaleString()} NCTR from your purchase. Merch bounties are now available — complete them with 360LOCK to earn 3x more!`,
+        message: `You earned ${totalNctr.toLocaleString()} NCTR from your purchase. Merch bounties are now available — complete them with 360LOCK to earn 3 for every 1.`,
         metadata: {
           nctr_earned: totalNctr,
           purchase_count: purchaseCount,
@@ -171,7 +171,7 @@ export function MerchCelebrationModal({ purchases, onDismiss }: MerchCelebration
                 </div>
 
                 <p className="text-[11px] text-white/40 text-center mt-2">
-                  Complete with 360LOCK to earn 3x rewards
+                  Complete with 360LOCK to earn 3 for every 1
                 </p>
               </motion.div>
             )}

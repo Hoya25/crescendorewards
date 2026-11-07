@@ -19,18 +19,18 @@ const ONBOARDED_KEY = "crescendo_onboarding_complete";
 
 const earningWays = [
   { icon: ShoppingBag, emoji: "🛍️", title: "Shop in Bounty Hunter", desc: "Thousands of brands. Same prices. You earn NCTR." },
-  { icon: Shirt, emoji: "👕", title: "Rep the Brand", desc: "Buy NCTR merch. Unlock content bounties. Earn 3x." },
+  { icon: Shirt, emoji: "👕", title: "Rep the Brand", desc: "Shop NCTR merch. Unlock content bounties. Earn 3 for every 1." },
   { icon: Camera, emoji: "📸", title: "Complete Bounties", desc: "Create content, refer friends, hit milestones. Get paid in NCTR." },
   { icon: Users, emoji: "🤝", title: "Invite Friends", desc: "They join, you both earn." },
   { icon: Gift, emoji: "🎁", title: "Contribute Rewards", desc: "List a reward. Earn when others claim it." },
 ];
 
 const tiers = [
-  { emoji: "🥉", name: "Bronze", mult: "1.1x", desc: "Just getting started" },
-  { emoji: "🥈", name: "Silver", mult: "1.3x", desc: "Unlocks Tier 2 bounties + better rewards" },
-  { emoji: "🥇", name: "Gold", mult: "1.5x", desc: "Unlocks campaign bounties worth up to 3,000 NCTR" },
-  { emoji: "💎", name: "Platinum", mult: "1.8x", desc: "Premium access + exclusive experiences" },
-  { emoji: "👑", name: "Diamond", mult: "2.5x", desc: "Top tier. Maximum earnings. Community leader." },
+  { emoji: "🥉", name: "Bronze", mult: "11 for 10", desc: "Just getting started" },
+  { emoji: "🥈", name: "Silver", mult: "13 for 10", desc: "Unlocks Tier 2 bounties + better rewards" },
+  { emoji: "🥇", name: "Gold", mult: "3 for 2", desc: "Unlocks campaign bounties that earn up to 3,000 NCTR" },
+  { emoji: "💎", name: "Platinum", mult: "9 for 5", desc: "Premium access + exclusive experiences" },
+  { emoji: "👑", name: "Diamond", mult: "5 for 2", desc: "Top tier. Maximum earnings. Community leader." },
 ];
 
 const paths = [

@@ -103,7 +103,7 @@ export function DemoModeToggle() {
             <div className="flex items-center justify-between">
               <h4 className="font-semibold text-white flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-amber-400" />
-                Investor Demo Mode
+                Partner Demo Mode
               </h4>
               <Button
                 size="sm"

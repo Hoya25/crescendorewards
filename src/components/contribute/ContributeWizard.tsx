@@ -6,6 +6,7 @@ import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { supabase } from '@/integrations/supabase/client';
 import { compressImageWithStats, formatBytes } from '@/lib/image-compression';
 import { toast } from 'sonner';
+import { formatRatio } from '@/lib/ratio';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -959,7 +960,7 @@ function Step5Individual({
                   {opt.label}
                 </p>
                 <p className="font-['DM_Mono'] text-sm text-neutral-300">
-                  {opt.multiplier}x multiplier
+                  counts {formatRatio(opt.multiplier)} toward status
                   {isRecommended && <Star className="inline ml-1 -mt-0.5" size={12} fill="#E2FF6D" stroke="#E2FF6D" />}
                 </p>
                 {isRecommended && (
@@ -983,23 +984,10 @@ function Step5Individual({
               <span className="font-['Barlow_Condensed'] text-2xl text-[#E2FF6D] tracking-wide">
                 ${payoutUsd?.toLocaleString()}
               </span>{' '}
-              worth of NCTR when a member claims this reward.
+              when a member claims this reward.
             </p>
             <p className="font-['DM_Sans'] text-sm text-neutral-400">
-              {priceLoading
-                ? 'Fetching today\'s NCTR price…'
-                : oracleFailed || !nctrPrice
-                ? 'NCTR price unavailable right now — your payout is still defined in dollars.'
-                : (
-                  <>
-                    At today's NCTR price (${nctrPrice.toFixed(6)}), that's approximately{' '}
-                    <span className="text-neutral-200 font-['DM_Mono']">
-                      {nctrPreview?.toLocaleString()} NCTR
-                    </span>{' '}
-                    — the exact amount is calculated when a member claims it. Committed for{' '}
-                    {LOCK_OPTIONS[lock as LockOption].durationDays} days, then withdrawable.
-                  </>
-                )}
+              Paid in NCTR, committed for {LOCK_OPTIONS[lock as LockOption].durationDays} days, then withdrawable.
             </p>
             {(oracleFailed || !nctrPrice) && !priceLoading && (
               <p className="font-['DM_Mono'] text-2xl text-neutral-700 mt-2">—</p>

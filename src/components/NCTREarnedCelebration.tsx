@@ -99,7 +99,7 @@ export function NCTREarnedCelebration({
               You Just Earned NCTR!
             </h2>
             <p className="text-sm text-muted-foreground animate-fade-in">
-              Your purchase through <span className="font-semibold">{brandName || 'The Mall'}</span> just added to your stake.
+              Your purchase through <span className="font-semibold">{brandName || 'The Mall'}</span> just added to your Crescendo status.
             </p>
           </div>
         </div>
@@ -130,7 +130,7 @@ export function NCTREarnedCelebration({
                   <Lock className="w-4 h-4 text-primary" />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  <span className="font-semibold text-foreground">{nctrEarned.toLocaleString()} NCTR</span> was added to your 360LOCK — a commitment that grows your membership stake and unlocks benefits.
+                  <span className="font-semibold text-foreground">{nctrEarned.toLocaleString()} NCTR</span> was added to your 360LOCK — a commitment that builds your Crescendo status and unlocks benefits.
                 </p>
               </div>
 
@@ -201,7 +201,7 @@ export function NCTREarnedCelebration({
             <div className="flex items-start gap-3">
               <Lightbulb className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
               <p className="text-xs text-muted-foreground leading-relaxed">
-                <span className="font-semibold text-foreground">How it works:</span> Every purchase through The Mall earns you NCTR — real digital asset stakes that grow your membership. The more you earn, the more benefits you unlock. You never buy NCTR — you earn it by living your life.
+                <span className="font-semibold text-foreground">How it works:</span> Every purchase through The Mall earns you NCTR, which builds your membership. The more you earn, the more benefits you unlock. You earn NCTR by living your life.
               </p>
             </div>
           </div>

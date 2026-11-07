@@ -26,7 +26,7 @@ export function FirstBountyTooltip({ show }: FirstBountyTooltipProps) {
         >
           <div className="rounded-lg px-3 py-2 text-xs font-medium text-black shadow-lg"
                style={{ backgroundColor: 'hsl(var(--accent-lime))' }}>
-            🎯 This is your first bounty! Complete the task and choose 360LOCK to earn 3x the reward.
+            🎯 This is your first bounty! Complete the task and choose 360LOCK to earn 3 for every 1.
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2"
                  style={{ backgroundColor: 'hsl(var(--accent-lime))' }} />
           </div>

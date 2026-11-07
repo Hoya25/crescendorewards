@@ -236,7 +236,7 @@ function Condition4({ navigate, locked }: { navigate: (path: string) => void; lo
       <TierProgress locked={locked} target={2000} tierColor={TIER_COLORS.silver} tierName="Gold" />
       <p className="text-sm text-white/70 mb-4">
         Commit <span className="font-semibold text-white">{remaining.toLocaleString()}</span> more NCTR to reach Gold
-        and unlock Tier 3 campaign bounties worth up to 3,000 NCTR each.
+        and unlock Tier 3 campaign bounties that earn up to 3,000 NCTR each.
       </p>
       <Button
         onClick={() => navigate("/bounties")}
