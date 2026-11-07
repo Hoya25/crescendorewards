@@ -29,14 +29,14 @@ export function TheMathSection() {
             </p>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-text-body">Purchase reward (1x)</span>
-                <span className="text-text-heading font-medium">1x</span>
+                <span className="text-sm text-text-body">Purchase reward (base rate)</span>
+                <span className="text-text-heading font-medium">Base</span>
               </div>
             </div>
             <div className="pt-3 border-t border-border-card">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-semibold text-text-heading">Total</span>
-                <span className="text-xl font-bold text-text-heading">1x</span>
+                <span className="text-xl font-bold text-text-heading">Base</span>
               </div>
               <p className="text-xs mt-2 text-text-body-muted">That's it.</p>
             </div>
@@ -80,7 +80,7 @@ export function TheMathSection() {
           Same hoodie. Different commitment.
         </p>
         <p className="text-center text-sm max-w-2xl mx-auto mb-4 text-text-body">
-          Bronze sets the floor. Gold (1.5x) compounds it. Diamond (2.5x) compounds it again.{' '}
+          Bronze sets the floor. Gold (3 for every 2) compounds it. Diamond (5 for every 2) compounds it again.{' '}
           <span className="font-bold text-text-accent">Status multiplies everything.</span>
         </p>
 

@@ -27,10 +27,10 @@ export function MerchBountiesHero({ activeMerchCount, totalNctrEarned, currentTi
         <div className="space-y-1">
           <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <Lock className="h-6 w-6 text-lime-500" />
-            Rep the Brand. Earn 3x.
+            Rep the Brand. Earn 3 for every 1.
           </h2>
           <p className="text-sm text-muted-foreground max-w-lg">
-            Buy NCTR merch. Complete bounties. Commit to 360LOCK. Earn 3x multiplied NCTR rewards.
+            Shop NCTR merch. Complete bounties. Commit to 360LOCK. Earn 3 NCTR for every 1.
           </p>
         </div>
         <Button

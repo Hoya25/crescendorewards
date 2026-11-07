@@ -10,8 +10,8 @@ interface LockedBountiesSectionProps {
 
 const ASPIRATION_TEXT: Record<string, string> = {
   none: 'Reach Bronze to unlock your first bounties',
-  bronze: 'Reach Silver to unlock 5 more bounties worth up to 1,500 NCTR each',
-  silver: 'Reach Gold to unlock campaign bounties worth up to 3,000 NCTR each',
+  bronze: 'Reach Silver to unlock 5 more bounties that earn up to 1,500 NCTR each',
+  silver: 'Reach Gold to unlock campaign bounties that earn up to 3,000 NCTR each',
 };
 
 export function LockedBountiesSection({ bounties, tierName }: LockedBountiesSectionProps) {

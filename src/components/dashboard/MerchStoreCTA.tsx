@@ -19,7 +19,7 @@ export function MerchStoreCTA() {
             <Sparkles className="w-3.5 h-3.5" style={{ color: '#C4991A' }} />
           </p>
           <p className="text-xs text-muted-foreground">
-            Shop merch. Complete bounties. Earn 3x with 360LOCK.
+            Shop merch. Complete bounties. Earn 3 for every 1 with 360LOCK.
           </p>
         </div>
         <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />

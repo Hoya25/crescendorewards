@@ -23,24 +23,24 @@ interface LevelUpCelebrationProps {
 
 const tierUnlocks: Record<string, { icon: any; title: string; desc: string }[]> = {
   silver: [
-    { icon: Camera, title: "4 New Bounties", desc: "Tier 2 creative bounties worth up to 1,200+ NCTR each" },
+    { icon: Camera, title: "4 New Bounties", desc: "Tier 2 creative bounties that earn up to 1,200 NCTR each" },
     { icon: Eye, title: "NCTR Sighting Bounty", desc: "Spot NCTR merch in the wild, earn 1,500 NCTR" },
     { icon: Star, title: "Silver Rewards", desc: "Better options in the Crescendo marketplace" },
   ],
   gold: [
-    { icon: Film, title: "Campaign Bounties", desc: "Tier 3 bounties worth up to 3,000+ NCTR each" },
+    { icon: Film, title: "Campaign Bounties", desc: "Tier 3 bounties that earn up to 3,000 NCTR each" },
     { icon: Trophy, title: "Multi-Purchase Bonus", desc: "3,000 NCTR bonus for completing 3 merch bounties monthly" },
     { icon: Crown, title: "Gold Rewards", desc: "Premium marketplace access" },
   ],
   platinum: [
     { icon: Gem, title: "Premium Rewards", desc: "Exclusive experiences and opportunities" },
     { icon: Star, title: "Priority Contributor", desc: "Your contributed rewards get featured placement" },
-    { icon: Zap, title: "1.8x Earning", desc: "Earns more on everything" },
+    { icon: Zap, title: "Earns 9 for every 5", desc: "Earns more on everything" },
   ],
   diamond: [
     { icon: Crown, title: "Maximum Status", desc: "Every opportunity in Crescendo is yours" },
     { icon: Users, title: "Community Leader", desc: "Featured contributor, maximum influence" },
-    { icon: TrendingUp, title: "2.5x Earning", desc: "Maximum rewards on every action" },
+    { icon: TrendingUp, title: "Earns 5 for every 2", desc: "Maximum rewards on every action" },
   ],
 };
 

@@ -140,10 +140,10 @@ export function MerchBountiesWidget() {
         <div className="p-3 rounded-lg bg-primary/5 border border-primary/10">
           <div className="flex items-center gap-2 mb-1">
             <Sparkles className="w-4 h-4 text-primary" />
-            <p className="text-sm font-medium">Earn 3x with 360LOCK</p>
+            <p className="text-sm font-medium">Earn 3 for every 1 with 360LOCK</p>
           </div>
           <p className="text-xs text-muted-foreground">
-            Complete bounties with 360LOCK to earn 3x and level up your Crescendo status
+            Complete bounties with 360LOCK to earn 3 for every 1 and level up your Crescendo status
           </p>
         </div>
 

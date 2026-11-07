@@ -10,6 +10,7 @@ import { format, addDays } from 'date-fns';
 import { TierUpgradeCelebration } from '@/components/TierUpgradeCelebration';
 import { calculateReward, DEFAULT_EARNING_MULTIPLIERS } from '@/utils/calculateReward';
 import type { LockDecisionRequest } from '@/contexts/LockDecisionContext';
+import { formatRatio } from '@/lib/ratio';
 
 const TIER_COLORS: Record<string, string> = {
   bronze: '#CD7F32',
@@ -277,7 +278,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
                 </div>
                 <p className="text-xs text-white/40 mb-4">Lock {request.baseAmount.toLocaleString()} NCTR for 90 days</p>
 
-                <div className="text-2xl font-bold text-white mb-1">1x <span className="text-base font-normal text-white/50">rewards</span></div>
+                <div className="text-2xl font-bold text-white mb-1">Base <span className="text-base font-normal text-white/50">rewards</span></div>
 
                 <div className="flex items-center gap-1.5 text-xs text-white/50 mb-3">
                   <Check className="w-3 h-3" />
@@ -334,7 +335,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
                 <p className="text-xs text-white/40 mb-4">Lock {request.baseAmount.toLocaleString()} NCTR for 360 days</p>
 
                 <div className="mb-1">
-                  <span className="text-3xl font-bold" style={{ color: '#C8FF00' }}>3x</span>
+                  <span className="text-3xl font-bold" style={{ color: '#C8FF00' }}>3 for 1</span>
                   <span className="text-base font-normal text-white/50 ml-1">rewards</span>
                 </div>
 
@@ -355,7 +356,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
 
                 <div className="rounded-lg p-2.5 mb-3 text-center" style={{ background: 'rgba(200,255,0,0.08)' }}>
                   <p className="text-xs font-semibold" style={{ color: '#C8FF00' }}>
-                    3x more NCTR for the same effort
+                    3 for every 1, for the same effort
                   </p>
                 </div>
 
@@ -678,7 +679,7 @@ function Required360View({
           <p>{baseAmount.toLocaleString()} base</p>
           {calc360.merchBonus > 1 && <p>× {calc360.merchBonus}x merch 360LOCK bonus</p>}
           {statusMultiplier > 1 && (
-            <p>× {statusMultiplier}x <span className="capitalize">{tierName}</span> status multiplier</p>
+            <p><span className="capitalize">{tierName}</span> status: earns {formatRatio(statusMultiplier)}</p>
           )}
         </div>
         <p className="text-xs text-white/40">

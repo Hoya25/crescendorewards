@@ -267,7 +267,7 @@ export function BrandDetailPage() {
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground mb-1">With Your {multiplier}x Status Multiplier</p>
+                <p className="text-sm text-muted-foreground mb-1">At your status</p>
                 <p className="text-3xl font-bold text-primary flex items-center gap-2">
                   {calculateMultipliedRate(brand.base_earning_rate)} <NCTRLogo size="lg" /> per $1
                 </p>
