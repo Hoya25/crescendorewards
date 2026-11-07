@@ -453,7 +453,7 @@ export function MembershipStatistics({ userId }: MembershipStatisticsProps) {
               <Lock className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Total Locked</p>
+              <p className="text-sm text-muted-foreground">Total Committed</p>
               <p className="text-2xl font-bold">{stats.totalLocked.toLocaleString()}</p>
             </div>
           </div>

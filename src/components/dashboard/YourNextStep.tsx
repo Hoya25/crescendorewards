@@ -167,7 +167,7 @@ function Condition2({ navigate, earned }: { navigate: (path: string) => void; ea
       {wouldReach && (
         <div className="rounded-lg bg-white/5 border border-white/10 px-4 py-2.5 mb-4 text-sm text-white/80">
           <Lock className="w-4 h-4 inline mr-1.5 -mt-0.5" style={{ color: "#C8FF00" }} />
-          {earned.toLocaleString()} NCTR locked = <span className="font-semibold text-white">{wouldReach}</span> status
+          {earned.toLocaleString()} NCTR committed = <span className="font-semibold text-white">{wouldReach}</span> status
         </div>
       )}
       <Button
@@ -187,7 +187,7 @@ function TierProgress({ locked, target, tierColor, tierName }: { locked: number;
   return (
     <div className="mb-4">
       <div className="flex justify-between text-xs text-white/60 mb-1.5">
-        <span>{locked.toLocaleString()} NCTR locked</span>
+        <span>{locked.toLocaleString()} NCTR committed</span>
         <span>{target.toLocaleString()} NCTR for {tierName}</span>
       </div>
       <div className="relative h-3 w-full overflow-hidden rounded-full bg-white/10">

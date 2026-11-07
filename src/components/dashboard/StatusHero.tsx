@@ -124,7 +124,7 @@ export function StatusHero() {
 
                 {hasNoLocked && availableNCTR > 0 ? (
                   <p className="text-xs text-text-body-muted">
-                    You have <span className="font-semibold text-accent-lime">{availableNCTR} NCTR</span> ready to lock. Choose 360LOCK on your next earn to start climbing.
+                    You have <span className="font-semibold text-accent-lime">{availableNCTR} NCTR</span> ready to commit. Choose 360LOCK on your next earn to start climbing.
                   </p>
                 ) : hasNoLocked ? (
                   <p className="text-xs text-text-body-muted">

@@ -130,7 +130,7 @@ export function MembershipHistory({ userId }: MembershipHistoryProps) {
                     <p className="text-sm font-medium">
                       {entry.locked_nctr.toLocaleString()} NCTR
                     </p>
-                    <p className="text-xs text-muted-foreground">Locked</p>
+                    <p className="text-xs text-muted-foreground">Committed</p>
                   </div>
                 </div>
 

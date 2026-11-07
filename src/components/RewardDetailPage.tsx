@@ -1155,7 +1155,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
             {isLocked ? (
               <p className="text-muted-foreground flex items-center gap-1">
                 <Lock className="w-4 h-4" />
-                Locked
+                Unlocks with status
               </p>
             ) : pricing.isFree ? (
               <p className="text-2xl font-black text-emerald-500">FREE</p>

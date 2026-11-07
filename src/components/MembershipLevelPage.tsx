@@ -277,7 +277,7 @@ export function MembershipLevelPage() {
                   <span className="font-medium">Deposited NCTR: {depositInfo.total.toLocaleString()}</span>
                   {depositInfo.earliestUnlock && (
                     <span className="text-xs text-muted-foreground">
-                      locked until {new Date(depositInfo.earliestUnlock).toLocaleDateString()}
+                      committed until {new Date(depositInfo.earliestUnlock).toLocaleDateString()}
                     </span>
                   )}
                 </div>

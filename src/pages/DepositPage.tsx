@@ -185,7 +185,7 @@ export default function DepositPage() {
               <h2 className="text-lg font-semibold">Connect Your Wallet</h2>
             </div>
             <p className="text-sm text-muted-foreground">
-              Enter the Base wallet address you'll send NCTR from. This is also where your NCTR will be returned at the end of your lock period. You can update this address anytime.
+              Enter the Base wallet address you'll send NCTR from. Your NCTR comes back to this address when your commitment ends. You can update this address anytime.
             </p>
             <input
               type="text"

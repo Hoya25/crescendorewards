@@ -394,7 +394,7 @@ export function ClaimHandleCard() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{Math.floor(total360Locked)} / {BRONZE_REQUIREMENT} NCTR locked</span>
+              <span>{Math.floor(total360Locked)} / {BRONZE_REQUIREMENT} NCTR committed</span>
               <span>{Math.floor(progressPercent)}%</span>
             </div>
             <Progress value={progressPercent} className="h-2" />
