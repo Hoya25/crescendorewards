@@ -831,7 +831,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                       <p className="text-muted-foreground mt-2">
                         <span className="line-through">{pricing.originalPrice} claims</span>
                         <Badge variant="secondary" className="ml-2 bg-emerald-500/10 text-emerald-600">
-                          100% OFF
+                          Free
                         </Badge>
                       </p>
                     )}

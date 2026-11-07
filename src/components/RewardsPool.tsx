@@ -733,7 +733,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
             Your rewards. Your <span style={{ color: '#E2FF6D' }}>say</span>.
           </h1>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '15px', color: '#D9D9D9', maxWidth: '480px', lineHeight: 1.7, margin: 0 }}>
-            Your Wingman is always working — watching your six, learning what matters to you, and spotting paths you haven't seen yet. The more you engage, the smarter it gets.
+            Your Wingman keeps working — watching your six, learning what matters to you, and spotting paths you haven't seen yet. The more you engage, the smarter it gets.
           </p>
         </div>
       </div>

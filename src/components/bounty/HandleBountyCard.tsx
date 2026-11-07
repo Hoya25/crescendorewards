@@ -73,7 +73,7 @@ export function HandleBountyCard() {
             </div>
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            You unlocked this Bronze benefit! Choose your permanent Crescendo identity.
+            You unlocked this Bronze benefit! Choose your Crescendo handle: the name members know you by.
           </p>
           <div className="rounded-lg bg-muted/50 p-3 flex items-center justify-between">
             <span className="text-xs text-muted-foreground font-medium">Reward</span>

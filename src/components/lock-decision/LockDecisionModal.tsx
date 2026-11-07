@@ -274,9 +274,9 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
                 <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 mb-3">Standard</span>
                 <div className="flex items-center gap-2 mb-1">
                   <Lock className="w-4 h-4 text-white/50" />
-                  <span className="font-bold text-white">90-Day Lock</span>
+                  <span className="font-bold text-white">90LOCK</span>
                 </div>
-                <p className="text-xs text-white/40 mb-4">Lock {request.baseAmount.toLocaleString()} NCTR for 90 days</p>
+                <p className="text-xs text-white/40 mb-4">Commit {request.baseAmount.toLocaleString()} NCTR for 90 days</p>
 
                 <div className="text-2xl font-bold text-white mb-1">Base <span className="text-base font-normal text-white/50">rewards</span></div>
 
@@ -330,9 +330,9 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
                 <span className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: '#C8FF00' }}>Best Value</span>
                 <div className="flex items-center gap-2 mb-1">
                   <Lock className="w-4 h-4" style={{ color: '#C8FF00' }} />
-                  <span className="font-bold text-white">360-Day Lock</span>
+                  <span className="font-bold text-white">360LOCK</span>
                 </div>
-                <p className="text-xs text-white/40 mb-4">Lock {request.baseAmount.toLocaleString()} NCTR for 360 days</p>
+                <p className="text-xs text-white/40 mb-4">Commit {request.baseAmount.toLocaleString()} NCTR for 360 days</p>
 
                 <div className="mb-1">
                   <span className="text-3xl font-bold" style={{ color: '#C8FF00' }}>3 for 1</span>
@@ -401,7 +401,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
                   </span>
                   <div>
                     <p className="text-sm font-semibold text-white">{tier?.display_name || 'Bronze'}</p>
-                    <p className="text-[11px] text-white/40">{total360Locked.toLocaleString()} NCTR locked</p>
+                    <p className="text-[11px] text-white/40">{total360Locked.toLocaleString()} NCTR committed</p>
                   </div>
                 </div>
               </div>
@@ -423,7 +423,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
                   </span>
                   <div>
                     <p className="text-sm font-semibold text-white">{newTier?.display_name || tier?.display_name}</p>
-                    <p className="text-[11px] text-white/40">{newLocked.toLocaleString()} NCTR locked</p>
+                    <p className="text-[11px] text-white/40">{newLocked.toLocaleString()} NCTR committed</p>
                   </div>
                 </div>
               </div>
