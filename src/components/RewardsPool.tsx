@@ -551,7 +551,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
     
     if (claimBalance < selectedReward.cost) {
       toast({
-        title: 'Not enough claims',
+        title: 'Needs more claims',
         description: (
           <span>
             Earn more by leveling up your status.{' '}
@@ -599,7 +599,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
       const mapError = (code: string | undefined, payload: any): { title: string; description: string } => {
         switch (code) {
           case 'insufficient_claims':
-            return { title: 'Not enough claims', description: `You need ${payload?.required} claims to claim this. You have ${payload?.available}.` };
+            return { title: 'Needs more claims', description: `You need ${payload?.required} claims to claim this. You have ${payload?.available}.` };
           case 'reward_sold_out':
             return { title: 'Sold out', description: 'This reward is sold out.' };
           case 'reward_not_available':
@@ -616,7 +616,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           case 'claim_recording_failed':
             return { title: 'Try again', description: "Couldn't record your claim. Please try again." };
           case 'reward_not_found':
-            return { title: 'Not found', description: "This reward couldn't be found." };
+            return { title: "We couldn't find this reward", description: "This reward couldn't be found." };
           default:
             return { title: 'Claim failed', description: "Couldn't complete your claim. Please try again." };
         }
