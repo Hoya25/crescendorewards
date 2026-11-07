@@ -106,7 +106,7 @@ const CADENCE_CONFIG: Record<string, { label: string; shortLabel: string }> = {
   monthly: { label: 'Monthly', shortLabel: 'Mo.' },
   quarterly: { label: 'Quarterly', shortLabel: 'Qtr.' },
   annual: { label: 'Annual', shortLabel: 'Yr.' },
-  one_time: { label: 'One-Time', shortLabel: '1x' },
+  one_time: { label: 'One-Time', shortLabel: 'Once' },
 };
 
 export function GroundballRewardCard({

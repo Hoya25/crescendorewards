@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
+import { requireAdmin, unauthorized } from "../_shared/auth.ts";
 
 // All 10 claim package tiers
 const PACKAGES = [
@@ -22,6 +23,9 @@ serve(async (req) => {
   if (corsResponse) return corsResponse;
   
   const corsHeaders = getCorsHeaders(req);
+
+  const adminId = await requireAdmin(req);
+  if (!adminId) return unauthorized(corsHeaders);
 
   try {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");

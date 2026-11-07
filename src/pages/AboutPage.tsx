@@ -43,9 +43,10 @@ const FAQS = [
     q: 'What is 360LOCK?',
     a: '360LOCK is a 360-day commitment. Commit your NCTR and your Crescendo status rises, Bronze through Diamond. Your NCTR stays yours throughout, and comes back to you when the commitment ends.',
   },
+  // Quantity: 360LOCK status weight against base (3 vs 1), per LOCK_OPTIONS in src/lib/contributor-economics.ts.
   {
     q: 'What is the difference between 90LOCK and 360LOCK?',
-    a: '90LOCK is an entry-level commitment that earns no status. 360LOCK is the only path to earning status tiers and unlocking Crescendo rewards, and earns about 3 NCTR for every 1 at 90LOCK for the same bounty.',
+    a: '90LOCK is an entry-level commitment that earns no status. 360LOCK is the only path to earning status tiers and unlocking Crescendo rewards, and counts three times toward status.',
   },
 ];
 

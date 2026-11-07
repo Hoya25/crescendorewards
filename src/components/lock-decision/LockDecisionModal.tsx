@@ -355,8 +355,9 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
                 </div>
 
                 <div className="rounded-lg p-2.5 mb-3 text-center" style={{ background: 'rgba(200,255,0,0.08)' }}>
+                  {/* Quantity: 360LOCK status weight against base (3 vs 1), per LOCK_OPTIONS in src/lib/contributor-economics.ts. */}
                   <p className="text-xs font-semibold" style={{ color: '#C8FF00' }}>
-                    3 for every 1, for the same effort
+                    Counts three times toward status
                   </p>
                 </div>
 
