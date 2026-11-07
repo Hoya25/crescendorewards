@@ -13,7 +13,7 @@ const PACKAGES = [
   { name: "Elite Pack", price: 125000, claims: 310, description: "310 Claims - Elite tier benefits" },
   { name: "Mega Pack", price: 250000, claims: 625, description: "625 Claims - Massive savings" },
   { name: "Ultra Pack", price: 500000, claims: 1250, description: "1,250 Claims - Ultra premium" },
-  { name: "Max Pack", price: 2500000, claims: 6250, description: "6,250 Claims - Maximum value with 10x bonus" },
+  { name: "Max Pack", price: 2500000, claims: 6250, description: "6,250 Claims, with a 10-for-1 bonus" },
 ];
 
 serve(async (req) => {

@@ -646,7 +646,7 @@ server.registerTool(
       return result
     })
 
-    let current_tier = 'Not yet Bronze'
+    let current_tier = 'Below Bronze'
     if (current_balance !== undefined) {
       for (const t of [...TIERS].reverse()) {
         if (current_balance >= t.threshold) {
