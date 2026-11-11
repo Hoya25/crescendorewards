@@ -36,6 +36,13 @@
       "when": 1794433910465,
       "tag": "0004_create_token_allocations",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794434113840,
+      "tag": "0005_token_allocations_force_release_date",
+      "breakpoints": true
     }
   ]
 }
