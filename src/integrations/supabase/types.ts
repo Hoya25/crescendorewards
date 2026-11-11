@@ -4255,6 +4255,59 @@ export type Database = {
           },
         ]
       }
+      token_allocations: {
+        Row: {
+          amount: number
+          batch_id: string | null
+          created_at: string
+          id: string
+          lock_months: number
+          member_id: string
+          notes: string | null
+          release_date: string
+          status: string
+          tx_hash: string | null
+          updated_at: string
+          wallet_address: string
+        }
+        Insert: {
+          amount: number
+          batch_id?: string | null
+          created_at?: string
+          id?: string
+          lock_months: number
+          member_id: string
+          notes?: string | null
+          release_date: string
+          status?: string
+          tx_hash?: string | null
+          updated_at?: string
+          wallet_address: string
+        }
+        Update: {
+          amount?: number
+          batch_id?: string | null
+          created_at?: string
+          id?: string
+          lock_months?: number
+          member_id?: string
+          notes?: string | null
+          release_date?: string
+          status?: string
+          tx_hash?: string | null
+          updated_at?: string
+          wallet_address?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "token_allocations_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: true
+            referencedRelation: "unified_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       unified_profiles: {
         Row: {
           auth_user_id: string | null
