@@ -1,0 +1,1 @@
+ALTER TABLE public.unified_profiles DROP CONSTRAINT unified_profiles_wallet_address_format;
