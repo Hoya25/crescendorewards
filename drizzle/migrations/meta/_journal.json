@@ -50,6 +50,13 @@
       "when": 1794435212833,
       "tag": "0006_unified_profiles_normalize_wallet",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794435618025,
+      "tag": "0007_drop_redundant_wallet_format_constraint",
+      "breakpoints": true
     }
   ]
 }
