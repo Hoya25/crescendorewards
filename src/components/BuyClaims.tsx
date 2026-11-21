@@ -12,6 +12,7 @@ import { toast } from '@/hooks/use-toast';
 import { NCTRLogo } from './NCTRLogo';
 import { getMembershipTierByNCTR, getNextMembershipTier, getMembershipProgress } from '@/utils/membershipLevels';
 import { useClaimPriceFloor } from '@/hooks/useClaimPriceFloor';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 
 interface BuyClaimsProps {
   currentBalance: number;
@@ -80,7 +81,8 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
   const [open, setOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<ClaimPackage | null>(null);
   const [processing, setProcessing] = useState(false);
-  const [lockedNCTR, setLockedNCTR] = useState(0);
+  // Committed balance: Crescendo's copy of the Bounty Hunter committed balance (same as the sidebar).
+  const { total360Locked: lockedNCTR } = useUnifiedUser();
   const [checkoutState, setCheckoutState] = useState<CheckoutState>('idle');
   const [initialBalance, setInitialBalance] = useState(currentBalance);
   const [customAmountInput, setCustomAmountInput] = useState('');
@@ -145,12 +147,11 @@ export function BuyClaims({ currentBalance, onPurchaseSuccess, trigger }: BuyCla
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('locked_nctr, claim_balance')
+        .select('claim_balance')
         .eq('id', user.id)
         .single();
 
       if (profile) {
-        setLockedNCTR(profile.locked_nctr);
         setInitialBalance(profile.claim_balance);
       }
     };

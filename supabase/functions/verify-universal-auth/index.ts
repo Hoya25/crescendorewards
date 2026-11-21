@@ -1,5 +1,12 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
+import { tierForCommitted } from "../_shared/tierFromCommitted.ts";
+
+// Tier in the lookup answer: computed from committed NCTR, title-case; left out below Bronze.
+function withCommittedTier(profile: Record<string, unknown>) {
+  const tier = tierForCommitted(Number(profile?.nctr_locked_points ?? 0));
+  return tier ? { ...profile, crescendo_tier: tier } : { ...profile };
+}
 
 const BH_ADMIN_API = "https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api";
 // NOTE: no shared/static password exists anymore. Sessions are only ever
@@ -333,8 +340,7 @@ Deno.serve(async (req: Request) => {
           .eq("id", existing.id);
         existing.bh_user_id = bh_user_id;
       }
-      const tierName = existing.status_tiers?.tier_name || "bronze";
-      return new Response(JSON.stringify({ exists: true, profile: { ...existing, crescendo_tier: tierName } }), { status: 200, headers });
+      return new Response(JSON.stringify({ exists: true, profile: withCommittedTier(existing) }), { status: 200, headers });
     }
 
     // Also check by bh_user_id
@@ -345,8 +351,7 @@ Deno.serve(async (req: Request) => {
       .maybeSingle();
 
     if (existingByBh) {
-      const tierName = existingByBh.status_tiers?.tier_name || "bronze";
-      return new Response(JSON.stringify({ exists: true, profile: { ...existingByBh, crescendo_tier: tierName } }), { status: 200, headers });
+      return new Response(JSON.stringify({ exists: true, profile: withCommittedTier(existingByBh) }), { status: 200, headers });
     }
 
     // Look up Bronze tier
@@ -375,7 +380,7 @@ Deno.serve(async (req: Request) => {
       return new Response(JSON.stringify({ error: insertError.message }), { status: 500, headers });
     }
 
-    return new Response(JSON.stringify({ exists: false, profile: { ...newProfile, crescendo_tier: "bronze" } }), { status: 201, headers });
+    return new Response(JSON.stringify({ exists: false, profile: withCommittedTier(newProfile) }), { status: 201, headers });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     return new Response(JSON.stringify({ error: message }), { status: 500, headers });

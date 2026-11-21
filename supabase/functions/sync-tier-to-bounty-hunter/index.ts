@@ -4,6 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { getCorsHeaders, handleCorsPreflightRequest } from "../_shared/cors.ts";
 import { pushToGodview } from "../_shared/push-to-godview.ts";
 import { getAuthUserId, hasSyncSecret } from "../_shared/auth.ts";
+import { tierForCommitted, PRE_BRONZE_LABEL } from "../_shared/tierFromCommitted.ts";
 
 
 const BH_ADMIN_API = "https://auibudfactqhisvmiotw.supabase.co/functions/v1/admin-api";
@@ -54,7 +55,7 @@ serve(async (req) => {
 
     const { data: identity } = await supabaseAdmin
       .from("unified_profiles")
-      .select("email, current_tier_id, status_tiers(tier_name)")
+      .select("email")
       .eq("auth_user_id", auth_user_id)
       .maybeSingle();
 
@@ -62,10 +63,6 @@ serve(async (req) => {
     if (!email) {
       return json({ synced: false, error: "Profile not found" }, 404);
     }
-
-    // Tier is derived from the member's stored tier (itself computed by
-    // calculate_user_tier from verified locked NCTR) — not from the request.
-    const new_tier = (identity as any)?.status_tiers?.tier_name ?? null;
 
 
     let referralCode: string | null = null;
@@ -109,10 +106,14 @@ serve(async (req) => {
       }
     }
 
+    // --- Tier: computed from committed NCTR at send time, title-case.
+    // Below the first threshold the tier field is left out entirely (never sent empty).
+    const new_tier = tierForCommitted(nctrLockedPoints ?? 0);
+    const tierLabel = new_tier ?? PRE_BRONZE_LABEL;
+
     // --- Build updates payload ---
-    const updates: Record<string, unknown> = {
-      crescendo_tier: new_tier ?? null,
-    };
+    const updates: Record<string, unknown> = {};
+    if (new_tier) updates.crescendo_tier = new_tier;
     if (referralCode) updates.referral_code = referralCode;
     if (nctrLockedPoints !== null) updates.nctr_locked_points = nctrLockedPoints;
     if (nctrBalancePoints !== null) updates.nctr_balance_points = nctrBalancePoints;
@@ -142,7 +143,7 @@ serve(async (req) => {
       return json({ synced: false, error: `BH admin-api ${bhRes.status}: ${bhText}` });
     }
 
-    console.log(`Synced tier=${new_tier} referral=${referralCode ?? "none"} locked_pts=${nctrLockedPoints ?? 0} balance_pts=${nctrBalancePoints ?? 0} for ${email}`);
+    console.log(`Synced tier=${tierLabel} referral=${referralCode ?? "none"} locked_pts=${nctrLockedPoints ?? 0} balance_pts=${nctrBalancePoints ?? 0} for ${email}`);
 
     // Push to Godview (fire-and-forget)
     pushToGodview("tier_upgrade", {

@@ -40,7 +40,6 @@ export function MembershipLevelPage() {
   const [bhSyncing, setBhSyncing] = useState(false);
   const [bhSyncFailed, setBhSyncFailed] = useState(false);
   const [liveAvailable, setLiveAvailable] = useState<number | null>(null);
-  const [liveLocked, setLiveLocked] = useState<number | null>(null);
 
   // FIX 1 & 3: Fetch fresh balance from BH on mount and when ?from=bh or ?locked=true
   const syncFromBH = useCallback(async () => {
@@ -55,13 +54,11 @@ export function MembershipLevelPage() {
       const data = res.data;
       if (data?.error) throw new Error(data.error);
       
-      const locked = data?.nctr_locked_points ?? data?.locked ?? null;
       const available = data?.nctr_balance_points ?? data?.available ?? null;
       
-      if (locked !== null) setLiveLocked(Number(locked));
       if (available !== null) setLiveAvailable(Number(available));
       
-      // Also refresh unified profile to pick up any DB-side updates
+      // The status read refreshes Crescendo's copy of the committed balance; reload it for display.
       await refreshUnifiedProfile();
     } catch (err) {
       console.warn('BH balance sync failed, using local data:', err);
@@ -96,12 +93,6 @@ export function MembershipLevelPage() {
   useEffect(() => {
     if (!profile) return;
     const fetchDepositInfo = async () => {
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('total_locked_nctr')
-        .eq('id', profile.auth_user_id)
-        .single();
-      
       const { data: deposits } = await supabase
         .from('nctr_deposits')
         .select('unlocks_at')
@@ -111,18 +102,19 @@ export function MembershipLevelPage() {
         .limit(1);
       
       setDepositInfo({
-        total: Number(profileData?.total_locked_nctr) || 0,
+        total: total360Locked,
         earliestUnlock: deposits?.[0]?.unlocks_at || null,
       });
     };
     fetchDepositInfo();
-  }, [profile]);
+  }, [profile, total360Locked]);
 
   if (!profile) return null;
 
   // Use wallet_portfolio data for 360LOCK (primary source of truth)
   const portfolioData = portfolio?.[0];
-  const currentLockedNCTR = liveLocked !== null ? liveLocked : total360Locked;
+  // Committed balance: Crescendo's copy of the Bounty Hunter committed balance (same as the sidebar).
+  const currentLockedNCTR = total360Locked;
   
   // Calculate available NCTR — prefer live BH data, then portfolio, then local
   const portfolioAvailable = portfolioData?.nctr_unlocked || portfolioData?.nctr_balance || 0;
@@ -274,7 +266,7 @@ export function MembershipLevelPage() {
               <div className="rounded-lg bg-[#E2FF6D]/5 border border-[#E2FF6D]/20 p-3 space-y-1">
                 <div className="flex items-center gap-2 text-sm">
                   <Wallet className="w-4 h-4 text-[#E2FF6D]" />
-                  <span className="font-medium">Deposited NCTR: {depositInfo.total.toLocaleString()}</span>
+                  <span className="font-medium">Committed NCTR: {depositInfo.total.toLocaleString()}</span>
                   {depositInfo.earliestUnlock && (
                     <span className="text-xs text-muted-foreground">
                       committed until {new Date(depositInfo.earliestUnlock).toLocaleDateString()}

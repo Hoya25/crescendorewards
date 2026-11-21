@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { toast } from 'sonner';
 import { track } from '@/lib/track';
 import { Copy, Check, Lock, ArrowRight, Wallet, Clock, AlertCircle, TrendingUp } from 'lucide-react';
@@ -39,7 +40,8 @@ export default function DepositPage() {
   const [copied, setCopied] = useState(false);
   const [showChangeWallet, setShowChangeWallet] = useState(false);
   const [showChangeConfirm, setShowChangeConfirm] = useState(false);
-  const [totalLockedNctr, setTotalLockedNctr] = useState(0);
+  // Committed balance: Crescendo's copy of the Bounty Hunter committed balance (same as the sidebar).
+  const { total360Locked: totalLockedNctr } = useUnifiedUser();
 
   const TIER_THRESHOLDS = [
     { name: 'Bronze', min: 1000 },
@@ -59,13 +61,12 @@ export default function DepositPage() {
   async function loadProfile() {
     const { data } = await supabase
       .from('profiles')
-      .select('registered_wallet_address, total_locked_nctr')
+      .select('registered_wallet_address')
       .eq('id', user!.id)
       .single();
     if (data?.registered_wallet_address) {
       setRegisteredWallet(data.registered_wallet_address);
     }
-    setTotalLockedNctr(Number(data?.total_locked_nctr) || 0);
     setLoading(false);
   }
 

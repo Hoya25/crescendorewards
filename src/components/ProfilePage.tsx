@@ -705,14 +705,14 @@ export function ProfilePage() {
                         <div className="flex items-center justify-between text-sm">
                           <span className="text-muted-foreground">Total NCTR</span>
                           <span className="font-semibold">
-                            {(walletNCTRBalance + crescendoData.available_nctr + crescendoData.locked_nctr).toLocaleString(undefined, {
+                            {(crescendoData.available_nctr + crescendoData.locked_nctr).toLocaleString(undefined, {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2
                             })}
                           </span>
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          = Wallet ({walletNCTRBalance.toLocaleString(undefined, { maximumFractionDigits: 2 })}) + Available ({crescendoData.available_nctr.toLocaleString()}) + Committed ({crescendoData.locked_nctr.toLocaleString()})
+                          = Available ({crescendoData.available_nctr.toLocaleString()}) + Committed ({crescendoData.locked_nctr.toLocaleString()})
                         </div>
                       </div>
                     </>
