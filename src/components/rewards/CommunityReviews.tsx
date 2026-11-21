@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Star, ThumbsUp, MessageSquare, Lightbulb, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
+import { PUBLIC_CONTENT_COLUMNS } from '@/lib/publicContent';
 import { MemberReviewForm } from './MemberReviewForm';
 
 interface CommunityReviewsProps {
@@ -24,7 +25,7 @@ export function CommunityReviews({ rewardId, rewardTitle, isAuthenticated }: Com
     queryFn: async () => {
       const { data, error } = await supabase
         .from('content_submissions')
-        .select('*')
+        .select(PUBLIC_CONTENT_COLUMNS)
         .eq('reward_id', rewardId)
         .in('status', ['published', 'featured'])
         .in('content_type', ['review', 'testimonial', 'tip'])

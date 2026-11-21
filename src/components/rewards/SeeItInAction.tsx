@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Play, Film } from 'lucide-react';
 import { VideoPlayerModal } from './VideoPlayerModal';
+import { PUBLIC_CONTENT_COLUMNS } from '@/lib/publicContent';
 import { getThumbnailFromUrl } from '@/lib/video-thumbnails';
 
 interface SeeItInActionProps {
@@ -27,7 +28,7 @@ export function SeeItInAction({ rewardId }: SeeItInActionProps) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('content_submissions')
-        .select('*')
+        .select(PUBLIC_CONTENT_COLUMNS)
         .eq('reward_id', rewardId)
         .in('status', ['published', 'featured'])
         .in('content_type', ['video', 'tutorial', 'unboxing'])

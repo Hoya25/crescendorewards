@@ -71,6 +71,13 @@
       "when": 1795299972800,
       "tag": "0009_award_onboarding_item_static_sql",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1795301004203,
+      "tag": "0010_signed_out_public_reads",
+      "breakpoints": true
     }
   ]
 }

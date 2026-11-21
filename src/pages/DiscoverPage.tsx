@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Compass, SlidersHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { PUBLIC_CONTENT_COLUMNS } from '@/lib/publicContent';
 import {
   Select,
   SelectContent,
@@ -46,7 +47,7 @@ export default function DiscoverPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('content_submissions')
-        .select('*')
+        .select(PUBLIC_CONTENT_COLUMNS)
         .in('status', ['published', 'featured'])
         .order('submitted_at', { ascending: false })
         .limit(200);

@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, ChevronDown } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
 import { NCTRLogo } from '@/components/NCTRLogo';
 
 interface HeroSectionProps {
@@ -97,23 +95,6 @@ function FlywheelSVG() {
 
 export function HeroSection({ onJoin }: HeroSectionProps) {
   const navigate = useNavigate();
-  const [memberCount, setMemberCount] = useState<number>(0);
-
-  useEffect(() => {
-    const fetchCount = async () => {
-      try {
-        const { count } = await supabase
-          .from('unified_profiles')
-          .select('id', { count: 'exact', head: true })
-          .not('crescendo_data->>is_test_fixture', 'eq', 'true');
-        if (count) setMemberCount(count);
-      } catch {
-        // fail silently
-      }
-    };
-    fetchCount();
-  }, []);
-
   const scrollToHowItWorks = () => {
     document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
   };

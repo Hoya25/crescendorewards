@@ -23,7 +23,10 @@ function toRow(raw: any, fallbackRank: number | null): CircleRow | null {
   };
 }
 
-async function fetchFoundingCircle(): Promise<{ top: CircleRow[]; me: CircleRow | null }> {
+async function fetchFoundingCircle(): Promise<{ top: CircleRow[]; me: CircleRow | null } | null> {
+  // The ranking comes from a member-only service; signed-out visitors don't see the card.
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return null;
   const timeout = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 10000));
   const result = await Promise.race([
     supabase.functions.invoke('bh-status-proxy', { body: { action: 'founding_circle' } }),
