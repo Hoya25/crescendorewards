@@ -633,7 +633,7 @@ export default function BountyBoardPage() {
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {[
-              'Shop through The Mall and complete bounties on Bounty Hunter to earn NCTR.',
+              'Complete bounties on Bounty Hunter and shop NCTR Merch to earn NCTR.',
               'Commit your NCTR to build status. Higher tiers unlock more rewards here on Crescendo.',
               'Your Wingman connects the dots — open it anytime to see where you stand.',
             ].map((text, i) => (

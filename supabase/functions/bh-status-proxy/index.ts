@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
     const { action, email, tx_hash, amount, question, user_id } = body;
 
     // Validate action
-    const allowedActions = ['get_user_status', 'verify_deposit', 'upgrade_to_360lock', 'wingman_briefing'];
+    const allowedActions = ['get_user_status', 'verify_deposit', 'upgrade_to_360lock', 'wingman_briefing', 'founding_circle'];
     if (!action || !allowedActions.includes(action)) {
       return new Response(JSON.stringify({ error: 'Invalid action' }), {
         status: 400,
@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
     // ignored entirely (previously it could override the verified identity, an IDOR).
     const bhPayload: Record<string, unknown> = { action };
 
-    if (action === 'get_user_status') {
+    if (action === 'get_user_status' || action === 'founding_circle') {
       bhPayload.email = userEmail;
     } else if (action === 'verify_deposit') {
       bhPayload.email = userEmail;

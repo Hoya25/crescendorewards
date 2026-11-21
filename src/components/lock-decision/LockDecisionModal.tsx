@@ -196,7 +196,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
           </h2>
           <div className="p-3 rounded-lg text-left" style={{ background: 'rgba(255,255,255,0.05)' }}>
             <p className="text-xs text-white/60">
-              💡 <span className="font-semibold text-white/80">Tip:</span> Choose 360 days next time to earn {multiplier}x and raise your status faster.
+              💡 <span className="font-semibold text-white/80">Tip:</span> Choose 360 days next time to earn {formatRatio(multiplier)} and raise your status faster.
             </p>
           </div>
           <StatusBar

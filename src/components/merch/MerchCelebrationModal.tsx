@@ -69,7 +69,7 @@ export function MerchCelebrationModal({ purchases, onDismiss }: MerchCelebration
 
   const handleViewBounties = async () => {
     await handleDismiss();
-    navigate('/bounties?filter=merch');
+    window.location.href = 'https://bountyhunter.nctr.live';
   };
 
   const handleCommitNow = async () => {

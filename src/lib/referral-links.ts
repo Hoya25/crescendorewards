@@ -22,7 +22,7 @@ export function generateReferralLink(referralCode: string): string {
   if (!referralCode || referralCode === 'LOADING') {
     return `${PRODUCTION_DOMAIN}/signup`;
   }
-  return `${PRODUCTION_DOMAIN}/signup?ref=${referralCode}`;
+  return `https://bountyhunter.nctr.live/auth?mode=signup&ref=${referralCode}`;
 }
 
 /**
@@ -43,7 +43,7 @@ export function generatePersonalizedLink(referralCode: string, displayName?: str
       .slice(0, 20); // Limit length
     
     if (cleanName.length >= 2) {
-      return `${PRODUCTION_DOMAIN}/join/${cleanName}?ref=${referralCode}`;
+      return `https://bountyhunter.nctr.live/auth?mode=signup&ref=${referralCode}`;
     }
   }
   
@@ -57,7 +57,7 @@ export function generateRewardShareLink(rewardId: string, referralCode: string):
   if (!referralCode) {
     return `${PRODUCTION_DOMAIN}/rewards/${rewardId}`;
   }
-  return `${PRODUCTION_DOMAIN}/rewards/${rewardId}?ref=${referralCode}`;
+  return `https://bountyhunter.nctr.live/auth?mode=signup&ref=${referralCode}`;
 }
 
 /**
@@ -103,7 +103,7 @@ export function getAllLinkVariants(options: ReferralLinkOptions): {
       .slice(0, 30);
     
     if (cleanAlias.length >= 2) {
-      custom = `${PRODUCTION_DOMAIN}/join/${cleanAlias}?ref=${code}`;
+      custom = `https://bountyhunter.nctr.live/auth?mode=signup&ref=${code}`;
     }
   }
   

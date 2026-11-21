@@ -9,7 +9,7 @@ const cards: Array<{ title: string; subtitle: React.ReactNode; tier: string }> =
   {
     title: 'Brands you already love',
     subtitle: (
-      <>Shop across wellness, outdoor, fashion, tech, food, and more — every purchase earns <NCTRLogo variant="wordmark-grey" height={14} /> for the life you're already living.</>
+      <>Wellness, outdoor, fashion, tech, food, and more. Earning on alliance brands is coming soon.</>
     ),
     tier: 'All members',
   },
@@ -107,7 +107,7 @@ export function RewardsHighlight({ onJoin }: RewardsHighlightProps) {
         <div className="text-center">
           <Button
             size="lg"
-            onClick={onJoin}
+            onClick={() => { window.location.href = 'https://bountyhunter.nctr.live/auth?mode=signup'; }}
             className="font-semibold px-8 gap-2 hover:opacity-90"
             style={{ borderRadius: '0px', backgroundColor: '#323232', color: '#FFFFFF' }}
           >

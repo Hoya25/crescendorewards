@@ -1,3 +1,4 @@
+import { MEMBER_CATALOG_PAUSED } from '@/lib/featureFlags';
 import { useTierBenefits } from '@/hooks/useTierBenefits';
 import { TierProgressLabel } from '@/components/status/TierProgressLabel';
 import { useState, useEffect, useRef } from 'react';
@@ -631,15 +632,17 @@ export function ProfilePage() {
                   </div>
                 </div>
                 
-                <BuyClaims 
-                  currentBalance={crescendoData.claim_balance} 
-                  onPurchaseSuccess={refreshUnifiedProfile}
-                  trigger={
-                    <Button className="w-full gap-2" variant="default">
-                      Buy Claim Passes
-                    </Button>
-                  }
-                />
+                {!MEMBER_CATALOG_PAUSED && (
+                  <BuyClaims 
+                    currentBalance={crescendoData.claim_balance} 
+                    onPurchaseSuccess={refreshUnifiedProfile}
+                    trigger={
+                      <Button className="w-full gap-2" variant="default">
+                        Buy Claim Passes
+                      </Button>
+                    }
+                  />
+                )}
               </CardContent>
             </Card>
 

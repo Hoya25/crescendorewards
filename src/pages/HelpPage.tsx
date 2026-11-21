@@ -23,7 +23,7 @@ const faqs = [
   },
   {
     question: "What are the status tiers?",
-    answer: "Crescendo has five status tiers: Bronze → Silver → Gold → Platinum → Diamond. Higher tiers unlock better pricing on sponsored rewards, exclusive access, and special perks."
+    answer: "Crescendo has five status tiers: Bronze → Silver → Gold → Platinum → Diamond. Higher tiers open more rewards, exclusive access, and special perks."
   },
   {
     question: "How do I level up my status?",

@@ -145,14 +145,14 @@ export function EarningsHistory({ className = '' }: { className?: string }) {
         <CardContent>
           <div className="text-center py-6 text-gray-400">
             <Sparkles className="w-10 h-10 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">Start shopping in The Mall to earn your first NCTR in NCTR Alliance.</p>
+            <p className="text-sm">Earn your first NCTR with a bounty or at NCTR Merch (merch.nctr.live).</p>
             <Button
               variant="outline"
               size="sm"
               className="mt-3 gap-1 border-[#5A5A58] text-gray-300 hover:text-white"
-              onClick={() => navigate('/brands')}
+              onClick={() => { window.location.href = "https://bountyhunter.nctr.live"; }}
             >
-              Browse Brands <ChevronRight className="w-3 h-3" />
+              See Bounties <ChevronRight className="w-3 h-3" />
             </Button>
           </div>
         </CardContent>

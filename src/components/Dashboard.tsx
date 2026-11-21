@@ -1,3 +1,4 @@
+import { MEMBER_CATALOG_PAUSED } from '@/lib/featureFlags';
 import { useState, useEffect } from "react";
 import { SEO } from "./SEO";
 import { WelcomeFlow, hasBeenOnboarded } from "./onboarding/WelcomeFlow";
@@ -155,9 +156,11 @@ export function Dashboard() {
           </div>
 
           {/* 4. WHAT'S UNLOCKING NEXT */}
-          <div id="next-unlocks">
-            <NextUnlocks />
-          </div>
+          {!MEMBER_CATALOG_PAUSED && (
+            <div id="next-unlocks">
+              <NextUnlocks />
+            </div>
+          )}
 
 
 

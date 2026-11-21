@@ -1,3 +1,5 @@
+import { isPreviewReward, previewOpensLabel } from '@/lib/previewRewards';
+import { MEMBER_CATALOG_PAUSED } from '@/lib/featureFlags';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { track } from '@/lib/track';
@@ -310,6 +312,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
   // Smart claim flow - check delivery data before confirming
   const initiateClaimFlow = () => {
     if (!profile || !reward) return;
+    if (isPreviewReward(reward)) return;
     
     const requiredFields = getRequiredFields();
     const { complete, missing } = checkRequiredFields(requiredFields);
@@ -333,6 +336,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
 
   const handleClaim = async () => {
     if (!profile || !reward) return;
+    if (isPreviewReward(reward)) return;
     setClaiming(true);
     trackAction('claim_reward', { reward_id: reward.id, reward_name: reward.title });
     try {
@@ -741,6 +745,14 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                     <span>From {brand.name}</span>
                   </Badge>
                 )}
+                {isPreviewReward(reward) && (
+                  <Badge
+                    className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border-0"
+                    style={{ backgroundColor: '#E2FF6D', color: '#323232', borderRadius: '0px' }}
+                  >
+                    PREVIEW
+                  </Badge>
+                )}
               </div>
               <h1 className="text-3xl lg:text-4xl font-bold leading-tight">{reward.title}</h1>
             </div>
@@ -808,7 +820,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                     <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
                       <p className="text-sm text-primary font-medium mb-1">🚀 Level Up Your Status</p>
                       <p className="text-xs text-muted-foreground">
-                        Keep earning through The Mall, referrals, and bounties to unlock this reward!
+                        Keep earning through bounties, referrals, and NCTR Merch to unlock this reward!
                       </p>
                     </div>
                     <Button 
@@ -924,7 +936,11 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
 
             {/* CLAIM BUTTON */}
             <div className="space-y-3">
-              {!profile ? (
+              {isPreviewReward(reward) ? (
+                <Button size="lg" className="w-full h-14 text-lg" variant="outline" disabled>
+                  {previewOpensLabel(effectiveMinTier)}
+                </Button>
+              ) : !profile ? (
                 <Button
                   size="lg"
                   className="w-full h-14 text-lg"
@@ -982,27 +998,31 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
                 </Button>
               ) : (
                 <div className="space-y-3">
-                  <Button
-                    size="lg"
-                    className="w-full h-12 text-base font-semibold gap-2"
-                    style={{ backgroundColor: '#C8FF00', color: '#000' }}
-                    onClick={() => navigate('/buy-claims')}
-                  >
-                    <Coins className="w-5 h-5" />
-                    Get Claims to Unlock
-                  </Button>
+                  {!MEMBER_CATALOG_PAUSED && (
+                    <Button
+                      size="lg"
+                      className="w-full h-12 text-base font-semibold gap-2"
+                      style={{ backgroundColor: '#C8FF00', color: '#000' }}
+                      onClick={() => navigate('/buy-claims')}
+                    >
+                      <Coins className="w-5 h-5" />
+                      Get Claims to Unlock
+                    </Button>
+                  )}
                   <p className="text-xs text-muted-foreground text-center">
                     You need {pricing.price - crescendoData.claim_balance} more Claims
                   </p>
                   
                   {/* Secondary option: buy claims modal */}
-                  <Button
-                    variant="ghost"
-                    className="w-full text-muted-foreground"
-                    onClick={() => setShowBuyClaimsModal(true)}
-                  >
-                    Quick purchase without leaving
-                  </Button>
+                  {!MEMBER_CATALOG_PAUSED && (
+                    <Button
+                      variant="ghost"
+                      className="w-full text-muted-foreground"
+                      onClick={() => setShowBuyClaimsModal(true)}
+                    >
+                      Quick purchase without leaving
+                    </Button>
+                  )}
                 </div>
               )}
 
@@ -1167,7 +1187,11 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
             )}
           </div>
           
-          {!profile ? (
+          {isPreviewReward(reward) ? (
+            <Button size="lg" variant="outline" disabled>
+              {previewOpensLabel(effectiveMinTier)}
+            </Button>
+          ) : !profile ? (
             <Button size="lg" onClick={() => { setAuthMode('signin'); setShowAuthModal(true); }}>
               Sign In
             </Button>
@@ -1187,7 +1211,7 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
             <Button size="lg" onClick={() => setShowClaimModal(true)}>
               Claim Now
             </Button>
-          ) : (
+          ) : MEMBER_CATALOG_PAUSED ? null : (
             <Button 
               size="lg" 
               className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
@@ -1202,15 +1226,15 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
         {/* Bounty Hunter CTA for wellness/Kroma rewards */}
         {(reward.category === 'wellness' || reward.sponsor_name === 'Kroma Wellness') && (
           <a
-            href="https://bountyhunter.nctr.live"
+            href="https://merch.nctr.live"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 p-4 bg-card hover:bg-accent transition-colors"
           >
             <span className="text-2xl">🛒</span>
             <div>
-              <p className="text-sm font-semibold text-foreground">Shop Kroma Wellness on Bounty Hunter</p>
-              <p className="text-xs text-muted-foreground">Earn NCTR with every purchase → bountyhunter.nctr.live</p>
+              <p className="text-sm font-semibold text-foreground">Kroma Wellness is a founding brand</p>
+              <p className="text-xs text-muted-foreground">Earning on alliance brands is coming soon. Earn today at NCTR Merch →</p>
             </div>
           </a>
         )}

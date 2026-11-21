@@ -20,7 +20,7 @@ interface BriefingData {
 
 const FALLBACK: BriefingData = {
   your_brief: ['Syncing with the ecosystem...'],
-  spotted: ["I'm still learning your patterns. Tap 'Want This' on any reward and I'll start connecting the dots."],
+  spotted: ["I'm still learning your patterns. Tap 'Back this' on any reward and I'll start connecting the dots."],
   ambitions_enriched: [],
 };
 

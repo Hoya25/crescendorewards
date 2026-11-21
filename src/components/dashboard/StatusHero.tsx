@@ -60,7 +60,7 @@ export function StatusHero() {
                   {total360Locked.toLocaleString()}
                 </span> NCTR committed
                 <span className="ml-2 font-semibold text-accent-lime">
-                  {currentMultiplier}x earning
+                  {tier?.display_name || "Bronze"} earning
                 </span>
               </p>
               <NctrMarketReference nctrAmount={total360Locked} />
@@ -91,7 +91,7 @@ export function StatusHero() {
               <div className="flex items-center gap-2 p-3 bg-violet-500/15 border border-violet-500/25" style={{ borderRadius: 0 }}>
                 <Crown className="w-5 h-5 text-violet-400" />
                 <p className="text-sm font-semibold text-violet-300">
-                  You've reached the highest tier! 👑 {currentMultiplier}x earning on everything.
+                  You've reached the highest tier! 👑 Diamond earning on everything.
                 </p>
               </div>
             ) : (
@@ -118,7 +118,7 @@ export function StatusHero() {
                 {nextMultiplier > currentMultiplier && (
                   <p className="text-xs text-text-body-muted">
                     Reach <span className="font-semibold" style={{ color: nextTier?.badge_color }}>{nextTier?.display_name}</span> for{' '}
-                    <span className="font-semibold text-accent-lime">{nextMultiplier}x earnings</span> on everything.
+                    <span className="font-semibold text-accent-lime">{nextTier?.display_name} earning</span> on everything.
                   </p>
                 )}
 

@@ -72,7 +72,7 @@ export function NCTREarnedCelebration({
 
   const handleExplorebenefits = () => {
     onClose();
-    navigate('/benefits');
+    navigate('/rewards');
   };
 
   const handleBackToGarden = () => {

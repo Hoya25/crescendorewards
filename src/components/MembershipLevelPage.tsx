@@ -322,7 +322,7 @@ export function MembershipLevelPage() {
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
                   <div>
                     <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#8A8A88', marginBottom: '6px' }}>
-                      Shop and earn on Bounty Hunter
+                      Earn on Bounty Hunter
                     </p>
                     <a
                       href="https://bountyhunter.nctr.live"
@@ -456,7 +456,7 @@ export function MembershipLevelPage() {
                   <TrendingUp className="w-5 h-5 text-primary" />
                 </div>
                 <h3 className="font-semibold">Earn NCTR</h3>
-                <p className="text-sm text-muted-foreground">Earn through The Mall and bounties — NCTR is the fuel for your status</p>
+                <p className="text-sm text-muted-foreground">Earn through bounties, invites, and NCTR Merch — NCTR is the fuel for your status</p>
               </div>
               <div className="space-y-2">
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">

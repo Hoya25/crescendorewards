@@ -135,7 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Show welcome toast and redirect
           setTimeout(() => {
             toast.success('Welcome to Crescendo! You earned 625 NCTR just for joining. 🎉');
-            window.location.href = '/bounties';
+            window.location.href = 'https://bountyhunter.nctr.live';
           }, 500);
         }
       }

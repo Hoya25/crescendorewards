@@ -83,7 +83,7 @@ const getEmailTemplate = (type: string, data: Record<string, unknown>) => {
               
               ${data.total_balance ? `<p><strong>Current NCTR Balance:</strong> ${formatNumber(data.total_balance as number)} NCTR</p>` : ''}
               
-              <p style="margin-top: 20px;">Keep earning at The Mall — shop thousands of brands and earn NCTR on qualifying purchases.</p>
+              <p style="margin-top: 20px;">Keep earning at NCTR Merch (merch.nctr.live). Earning on alliance brands is coming soon.</p>
               
               <div style="text-align: center;">
                 <a href="${baseUrl}/rewards" style="${buttonStyle}">View My Rewards</a>
@@ -202,12 +202,12 @@ const getEmailTemplate = (type: string, data: Record<string, unknown>) => {
               </div>
               
               <p><strong>What is NCTR?</strong></p>
-              <p>Crescendo is where NCTR Alliance members hold status. Earn NCTR through shopping and contribution. Commit it through 360LOCK to rise and open rewards sponsored by the Alliance and its partner brands.</p>
+              <p>Crescendo is where NCTR Alliance members hold status. Earn NCTR through bounties, NCTR Merch, and contribution. Commit it through 360LOCK to rise and open rewards sponsored by the Alliance and its partner brands.</p>
               
               <p style="margin-top: 20px;">Sign up for Crescendo to claim your NCTR and start unlocking rewards.</p>
               
               <div style="text-align: center;">
-                <a href="${baseUrl}/signup" style="${buttonStyle}">Claim Your NCTR</a>
+                <a href="https://bountyhunter.nctr.live/auth" style="${buttonStyle}">Claim Your NCTR</a>
               </div>
             </div>
             <div style="${footerStyle}">

@@ -172,7 +172,7 @@ export function WellnessRewardsSection() {
             <div>
               <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <h2 className="text-xl font-bold">
-                  Kroma Wellness Rewards
+                  Kroma Wellness Rewards · Preview
                 </h2>
                 <Badge
                   className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border-0"
@@ -180,6 +180,12 @@ export function WellnessRewardsSection() {
                 >
                   <Sparkles className="w-3 h-3" />
                   FEATURED PARTNER
+                </Badge>
+                <Badge
+                  className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border-0"
+                  style={{ backgroundColor: '#E2FF6D', color: '#323232', borderRadius: '0px' }}
+                >
+                  PREVIEW
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground max-w-lg">
@@ -201,10 +207,10 @@ export function WellnessRewardsSection() {
           <span className="text-3xl shrink-0">🌿</span>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-foreground">
-              Shop Kroma Wellness on The Mall → Earn NCTR toward these rewards
+              Meet Kroma Wellness, a founding brand of the alliance →
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Every Kroma purchase earns NCTR. Commit via 360LOCK to unlock the rewards below.
+              Earning on alliance brands is coming soon. Commit via 360LOCK to open the rewards below.
             </p>
           </div>
           <span className="text-muted-foreground group-hover:translate-x-1 transition-transform text-lg shrink-0">→</span>
@@ -246,19 +252,19 @@ export function WellnessRewardsSection() {
             style={{ borderRadius: '0px', backgroundColor: '#323232', color: '#E2FF6D' }}
           >
             <span className="font-semibold">How it works:</span>{' '}
-            Shop at alliance stores through The Mall → Earn NCTR → Commit with 360LOCK → Unlock these rewards.
+            Earn NCTR with bounties and NCTR Merch → Commit with 360LOCK → Unlock these rewards.
             Your commitment opens rewards. Your earned NCTR stays yours.
           </div>
           <a
-            href="https://themall.nctr.live"
+            href="https://merch.nctr.live"
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-3 text-sm leading-relaxed border border-emerald-200 dark:border-emerald-800 bg-card hover:bg-accent transition-colors flex items-center gap-2 sm:max-w-[240px]" style={{ borderRadius: '0px' }}
           >
             <span className="text-base">🛒</span>
             <span>
-              <span className="font-semibold block text-foreground">Shop Kroma and thousands of alliance stores</span>
-              <span className="text-muted-foreground text-xs">on The Mall to earn toward these rewards →</span>
+              <span className="font-semibold block text-foreground">Earn today at NCTR Merch</span>
+              <span className="text-muted-foreground text-xs">merch.nctr.live — earning on alliance brands is coming soon →</span>
             </span>
           </a>
         </div>

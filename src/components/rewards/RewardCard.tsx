@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { getRewardPriceForUser } from '@/utils/getRewardPrice';
 import { BackRewardButton, BackingMeta } from '@/components/rewards/BackRewardButton';
+import { isPreviewReward, previewOpensLabel } from '@/lib/previewRewards';
 
 export interface RewardCardData {
   id: string;
@@ -121,6 +122,7 @@ export function RewardCard({
   // claimable only if (tier OK) AND (memberCanClaim). Tier lock wins display
   // priority because it is the more fundamental unlock path.
   const isEngineLocked = !isTierLocked && memberCanClaim === false;
+  const isPreview = isPreviewReward(reward);
 
   // Calculate tier-based pricing
   const tierPricing = getRewardPriceForUser(
@@ -178,6 +180,15 @@ export function RewardCard({
 
         {/* Badge Stack - Top Left */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
+          {/* Preview Badge — same style as FEATURED PARTNER */}
+          {isPreview && (
+            <Badge
+              className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border-0"
+              style={{ backgroundColor: '#E2FF6D', color: '#323232', borderRadius: '0px' }}
+            >
+              PREVIEW
+            </Badge>
+          )}
           {/* Community Contributed Badge */}
           {(reward as any).is_contributed && (
             <Badge className="bg-primary/20 text-primary backdrop-blur-sm border-0 shadow-lg text-xs flex items-center gap-1">
@@ -312,7 +323,28 @@ export function RewardCard({
         )}
 
         {/* Action Button */}
-        {isTierLocked ? (
+        {isPreview ? (
+          <button
+            type="button"
+            className="w-full"
+            disabled
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: '12px',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase' as const,
+              backgroundColor: 'transparent',
+              color: '#8A8A88',
+              border: '1px solid #5A5A58',
+              borderRadius: '0px',
+              height: '44px',
+              cursor: 'not-allowed',
+            }}
+          >
+            {previewOpensLabel(effectiveMinTier)}
+          </button>
+        ) : isTierLocked ? (
           <div className="space-y-1.5">
             <button
               className="w-full flex items-center justify-center gap-2"

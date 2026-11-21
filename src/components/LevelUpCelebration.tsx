@@ -181,7 +181,7 @@ export function LevelUpCelebration({
               {/* Actions */}
               <div className="flex gap-3">
                 <Button
-                  onClick={() => { onClose(); navigate("/bounties"); }}
+                  onClick={() => { onClose(); window.location.href = "https://bountyhunter.nctr.live"; }}
                   className="flex-1 bg-accent-lime text-black font-semibold hover:bg-accent-lime/90"
                 >
                   See What's New →

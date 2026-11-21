@@ -5,6 +5,7 @@ import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
 import { useTierBenefits } from '@/hooks/useTierBenefits';
 import { TierBenefitsTable } from '@/components/status/TierBenefitsTable';
 import { StatusSayBlock } from '@/components/status/StatusSayBlock';
+import { FoundingCircleCard } from '@/components/status/FoundingCircleCard';
 
 const FONT_DISPLAY = '"Barlow Condensed", sans-serif';
 const FONT_SANS = '"DM Sans", sans-serif';
@@ -102,7 +103,7 @@ export default function MembershipPitch() {
         )}
 
         <div style={{ fontSize: 13, color: 'var(--nctr-muted)', marginTop: 12, fontStyle: 'italic' }}>
-          A taste of what's live right now — one of hundreds, growing weekly.
+          A taste of what your status opens — new rewards added regularly.
         </div>
 
         {grid.length > 0 && (
@@ -151,6 +152,8 @@ export default function MembershipPitch() {
           </div>
         </div>
 
+        <FoundingCircleCard />
+
         <StatusSayBlock />
       </div>
 
@@ -160,13 +163,13 @@ export default function MembershipPitch() {
             Earn your way in.
           </div>
           <div style={{ fontSize: 14.5, lineHeight: 1.55, color: '#A9A89F', marginTop: 12, maxWidth: 480 }}>
-            You earn status on <span style={{ color: 'var(--nctr-paper)' }}>Bounty Hunter</span> — shopping, bounties, inviting friends. You're not buying access. You're building the thing, and it's owned by everyone who participates.
+            You earn status on <span style={{ color: 'var(--nctr-paper)' }}>Bounty Hunter</span> — bounties, NCTR Merch, inviting friends. You're not buying access. You're building the thing, and it's owned by everyone who participates.
           </div>
           <button
             onClick={() => window.open('https://bountyhunter.nctr.live', '_blank')}
             style={{ marginTop: 20, background: 'var(--nctr-lime)', color: 'var(--nctr-charcoal)', fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 17, letterSpacing: '0.04em', textTransform: 'uppercase', padding: '15px 28px', border: 'none', cursor: 'pointer', borderRadius: 0 }}
           >
-            Start earning on Bounty Hunter →
+            Get ready for launch on Bounty Hunter →
           </button>
           <div style={{ marginTop: 16 }}>
             <button

@@ -93,33 +93,33 @@ const BOUNTIES: Bounty[] = [
     id: 'bounty-first-purchase',
     name: 'First Purchase Bounty',
     category: 'shopping',
-    description: 'Make your first purchase through The Mall and earn 2,500 NCTR.',
+    description: 'Coming soon: 2,500 NCTR for your first alliance brand purchase. Earning on alliance brands is coming soon.',
     amount: 2500,
     currency: 'NCTR',
     lock_period: '360LOCK',
     lock_days: 360,
     repeatable: false,
-    requirements: ['Complete first purchase through The Mall'],
+    requirements: ['First alliance brand purchase (coming soon)'],
     tags: ['shopping', 'first-time', 'the-garden']
   },
   {
     id: 'bounty-shop-and-earn',
-    name: 'Shop & Earn',
+    name: 'Alliance Brand Purchase Bounty',
     category: 'shopping',
-    description: 'Earn 250 NCTR per qualifying purchase through The Mall. No cap — earn every time you shop.',
+    description: 'Coming soon: 250 NCTR for every qualifying alliance brand purchase. Earning on alliance brands is coming soon.',
     amount: 250,
     currency: 'NCTR',
     lock_period: '360LOCK',
     lock_days: 360,
     repeatable: true,
-    requirements: ['Make a qualifying purchase through The Mall'],
+    requirements: ['Qualifying alliance brand purchase (coming soon)'],
     tags: ['shopping', 'recurring', 'the-garden', 'uncapped']
   },
   {
     id: 'bounty-quarterly-spend',
     name: 'Quarterly Spend Bounty',
     category: 'shopping',
-    description: 'Hit the quarterly spend threshold and earn 5,000 NCTR. Resets each quarter.',
+    description: 'Coming soon: hit the quarterly spend threshold and earn 5,000 NCTR. Resets each quarter.',
     amount: 5000,
     currency: 'NCTR',
     lock_period: '360LOCK',
@@ -145,7 +145,7 @@ const BOUNTIES: Bounty[] = [
     id: 'bounty-top-supporter-spend',
     name: 'Top Supporter Spend Bounty',
     category: 'shopping',
-    description: 'Reach the top-tier annual spend level and earn 25,000 NCTR.',
+    description: 'Coming soon: reach the top-tier annual spend level and earn 25,000 NCTR.',
     amount: 25000,
     currency: 'NCTR',
     lock_period: '360LOCK',
@@ -199,7 +199,7 @@ const BOUNTIES: Bounty[] = [
     id: 'bounty-referral-purchase',
     name: 'Referral Purchase Bounty',
     category: 'referral',
-    description: 'Earn 2,500 NCTR when your referral makes their first purchase.',
+    description: 'Coming soon: 2,500 NCTR when your referral makes their first alliance brand purchase.',
     amount: 2500,
     currency: 'NCTR',
     lock_period: '360LOCK',
@@ -291,7 +291,7 @@ const BOUNTIES: Bounty[] = [
     id: 'bounty-impact-engine-join',
     name: 'Impact Engine Join Bounty',
     category: 'engagement',
-    description: 'Join an Impact Engine community and earn 5,000 NCTR.',
+    description: 'Coming soon: 5,000 NCTR for joining an Impact Engine. The Impact Engines are coming. Early members have the most time to build and earn.',
     amount: 5000,
     currency: 'NCTR',
     lock_period: '360LOCK',
@@ -329,42 +329,42 @@ const IMPACT_ENGINES: ImpactEngine[] = [
     slug: 'throttle',
     category: 'Powersports',
     description: 'The powersports community within NCTR. Connecting riders, racers, and off-road enthusiasts through shared rewards.',
-    status: 'active'
+    status: 'coming_soon'
   },
   {
     name: 'GROUNDBALL',
     slug: 'groundball',
     category: 'Lacrosse',
     description: 'The lacrosse community within NCTR. Uniting players, coaches, and fans at every level of the sport.',
-    status: 'active'
+    status: 'coming_soon'
   },
   {
     name: 'STARDUST',
     slug: 'stardust',
     category: 'Entertainment',
     description: 'The entertainment community within NCTR. Connecting creators, performers, and fans across music, film, and live events.',
-    status: 'active'
+    status: 'coming_soon'
   },
   {
     name: 'SWEAT',
     slug: 'sweat',
     category: 'Skilled Trades',
     description: 'The skilled trades community within NCTR. Supporting tradespeople, apprentices, and craftworkers.',
-    status: 'active'
+    status: 'coming_soon'
   },
   {
     name: 'SISU',
     slug: 'sisu',
     category: 'Recovery',
     description: 'The recovery community within NCTR. A judgment-free space for people on recovery journeys.',
-    status: 'active'
+    status: 'coming_soon'
   },
   {
     name: 'INSPIRATION',
     slug: 'inspiration',
     category: 'Wellness',
     description: 'The wellness community within NCTR. Focused on mindfulness, fitness, nutrition, and holistic well-being.',
-    status: 'active'
+    status: 'coming_soon'
   }
 ]
 
@@ -747,7 +747,7 @@ server.registerTool(
     },
   },
   ({ referral_code }) => {
-    const baseUrl = 'https://crescendo.nctr.live/join'
+    const baseUrl = 'https://bountyhunter.nctr.live/auth'
     const url = referral_code ? `${baseUrl}?ref=${encodeURIComponent(referral_code)}` : baseUrl
 
     const welcomePackage = {
@@ -775,7 +775,7 @@ server.registerTool(
   {
     title: 'Get Impact Engines',
     description:
-      'Discover NCTR Impact Engine communities. Impact Engines are passion-based communities within NCTR — each focused on a different lifestyle vertical. Members can join any Impact Engine to connect with like-minded people and access community-specific experiences.',
+      'Discover NCTR Impact Engine communities. Impact Engines are passion-based communities within NCTR — each focused on a different lifestyle vertical. The Impact Engines are coming. Early members have the most time to build and earn.',
     inputSchema: {
       category: z
         .string()
@@ -819,7 +819,7 @@ server.registerTool(
             {
               impact_engines: formatted,
               count: engines.length,
-              bounty: 'Join any Impact Engine to earn the Impact Engine Join Bounty — 5,000 NCTR, committed for 360 days.',
+              bounty: 'Coming soon: the Impact Engine Join Bounty, 5,000 NCTR committed for 360 days, opens when the engines launch.',
               note: 'Impact Engines are passion-based communities. Each one connects people around a shared interest, with community-specific experiences and rewards.',
             },
             null,
@@ -852,7 +852,7 @@ app.get('/mcp', (c) => {
     ],
     links: {
       website: 'https://nctr.live',
-      the_garden: 'https://themall.nctr.live',
+      the_mall: 'https://themall.nctr.live',
       onboarding: 'https://crescendo.nctr.live',
       for_agents: 'https://themall.nctr.live/for-agents',
       manifest: 'https://nctr.live/.well-known/nctr.json',

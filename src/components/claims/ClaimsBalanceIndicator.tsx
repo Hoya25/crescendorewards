@@ -1,3 +1,4 @@
+import { MEMBER_CATALOG_PAUSED } from '@/lib/featureFlags';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,7 +28,7 @@ export function ClaimsBalanceIndicator({ compact = false }: ClaimsBalanceIndicat
       <Button
         variant="outline"
         size="sm"
-        onClick={() => navigate('/buy-claims')}
+        onClick={MEMBER_CATALOG_PAUSED ? undefined : () => navigate('/buy-claims')}
         className={cn(
           "gap-1.5 h-8 px-2.5",
           isLow && "border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20",
@@ -119,6 +120,7 @@ export function ClaimsBalanceIndicator({ compact = false }: ClaimsBalanceIndicat
             </div>
           )}
 
+          {!MEMBER_CATALOG_PAUSED && (
           <Button
             onClick={() => navigate('/buy-claims')}
             className={cn(
@@ -131,6 +133,7 @@ export function ClaimsBalanceIndicator({ compact = false }: ClaimsBalanceIndicat
             <Plus className="w-4 h-4" />
             Get More Claims
           </Button>
+          )}
         </div>
 
         <div className="border-t bg-muted/30 p-3">

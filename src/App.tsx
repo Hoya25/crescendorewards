@@ -1,3 +1,4 @@
+import { MEMBER_CATALOG_PAUSED } from '@/lib/featureFlags';
 import { Suspense, lazy, useEffect, useRef } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -76,6 +77,14 @@ const MyContentPage = lazy(() => import('./pages/MyContentPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
 const BountyBoardPage = lazy(() => import('./pages/BountyBoardPage'));
+
+// /bounties now lives in Bounty Hunter.
+function BountyHunterRedirect() {
+  useEffect(() => {
+    window.location.replace("https://bountyhunter.nctr.live");
+  }, []);
+  return null;
+}
 
 const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
 const Crescendo = lazy(() => import('./pages/Crescendo'));
@@ -316,13 +325,7 @@ function AppRoutes() {
             {/* BOUNTY BOARD - semi-public */}
             <Route 
               path="/bounties" 
-              element={
-                isAuthenticated ? (
-                  <AppLayout><BountyBoardPage /></AppLayout>
-                ) : (
-                  <BountyBoardPage />
-                )
-              } 
+              element={<BountyHunterRedirect />} 
             />
 
             {/* CRESCENDO */}
@@ -430,9 +433,13 @@ function AppRoutes() {
             <Route 
               path="/benefits" 
               element={
-                <ProtectedRoute>
-                  <AppLayout><BenefitsPage /></AppLayout>
-                </ProtectedRoute>
+                MEMBER_CATALOG_PAUSED ? (
+                  <Navigate to="/rewards" replace />
+                ) : (
+                  <ProtectedRoute>
+                    <AppLayout><BenefitsPage /></AppLayout>
+                  </ProtectedRoute>
+                )
               } 
             />
             <Route 
@@ -487,9 +494,13 @@ function AppRoutes() {
             <Route 
               path="/buy-claims" 
               element={
-                <ProtectedRoute>
-                  <AppLayout><BuyClaimsPage /></AppLayout>
-                </ProtectedRoute>
+                MEMBER_CATALOG_PAUSED ? (
+                  <Navigate to="/rewards" replace />
+                ) : (
+                  <ProtectedRoute>
+                    <AppLayout><BuyClaimsPage /></AppLayout>
+                  </ProtectedRoute>
+                )
               } 
             />
             <Route 

@@ -13,9 +13,9 @@ const ways: Array<{
   showArrow: boolean;
   isLearnCard?: boolean;
 }> = [
-  { icon: ShoppingBag, title: 'Shop & Earn', description: <>Buy what you already buy. Brands fund your rewards instead of funding ads. Every purchase earns {N} — rewards sponsored by the Alliance and its partner brands, earned through your status.</>, href: 'https://bountyhunter.nctr.live/shop', accent: false, showArrow: true },
-  { icon: Shirt, title: 'Rep the Brand', description: <>Wear it. Own it. {N} merch earns 3 for every 1 with 360LOCK: repping the Alliance is ownership. Plus exclusive bounties only merch holders unlock.</>, href: 'https://merch.nctr.live', accent: false, showArrow: true },
-  { icon: GraduationCap, title: 'Learn & Earn', description: <>{N} University launches Spring 2026. Complete courses on participation, ownership, and the Alliance economy — and earn {N} for every milestone. In the meantime, get a head start on your knowledge advantage by following on X and Instagram.</>, href: 'https://x.com/NCTRAlliance', accent: false, showArrow: false, isLearnCard: true },
+  { icon: ShoppingBag, title: 'Shop Alliance Brands', description: <>Earning on alliance brands is coming soon. Brands fund your rewards instead of funding ads. Earn today at NCTR Merch (merch.nctr.live).</>, href: 'https://merch.nctr.live', accent: false, showArrow: true },
+  { icon: Shirt, title: 'Rep the Brand', description: <>Wear it. {N} merch earns NCTR on every purchase, and earning grows with status. Plus bounties only merch holders unlock.</>, href: 'https://merch.nctr.live', accent: false, showArrow: true },
+  { icon: GraduationCap, title: 'Learn & Earn', description: <>{N} University is coming soon. Complete courses on participation, ownership, and the Alliance economy — and earn {N} for every milestone. In the meantime, get a head start on your knowledge advantage by following on X and Instagram.</>, href: 'https://x.com/NCTRAlliance', accent: false, showArrow: false, isLearnCard: true },
   { icon: Users, title: 'Build Your Crew', description: <>Bring your people. You all earn {N} — when they sign up, when they buy, and when they hit milestones. Your crew compounds your status. The Alliance grows one real relationship at a time.</>, href: 'https://bountyhunter.nctr.live/network', accent: false, showArrow: true },
   { icon: Gift, title: 'Contribute Rewards', description: <>Have something to offer? A product, a skill, an experience — list it as a Crescendo reward. When members claim it, you earn {N}. The rewards marketplace is built by the people in it.</>, href: '/rewards', accent: false, showArrow: true },
   { icon: Building2, title: 'Brands Sponsor Life', description: <>Brands fund the rewards you earn just by living your life. They earn {N} for the rewards they bring — same economy as members. In this alliance, brands don't pay tolls. They build alongside you.</>, href: 'https://beacon.nctr.live', accent: true, showArrow: true },
@@ -132,7 +132,7 @@ export function FiveWaysToEarn() {
         </div>
 
         <p className="text-center text-sm text-text-body-muted mt-8 max-w-2xl mx-auto">
-          Your Crescendo status multiplies everything. Bronze to Diamond — the more you commit, the more every action is worth.
+          Your Crescendo status raises everything you earn. Bronze to Diamond — the more you commit, the more every action earns.
         </p>
 
         <div className="flex items-center justify-center gap-6 mt-6">

@@ -12,7 +12,7 @@ const steps: Array<{ emoji: string; title: string; description: React.ReactNode 
     emoji: '🛍️',
     title: 'Earn in Bounty Hunter',
     description: (
-      <>Shop at thousands of brands, complete bounties, buy {N} merch, and invite friends — all inside Bounty Hunter. Brands power the rewards through Beacon. Every action earns {N} automatically.</>
+      <>Complete bounties, shop {N} merch at merch.nctr.live, and invite friends — all inside Bounty Hunter. Brands power the rewards through Beacon. Earning on alliance brands is coming soon.</>
     ),
   },
   {
@@ -75,18 +75,18 @@ export function HowItWorksLanding() {
           style={{ background: 'hsl(var(--accent-lime-subtle))', borderColor: 'hsl(var(--accent-lime) / 0.15)', borderRadius: '0px' }}
         >
           <p className="text-sm md:text-base text-text-body">
-            Your <NCTRLogo variant="wordmark-grey" height={14} /> doesn't expire. It's a real digital reward that builds real status — through 360LOCK, through participation, through showing up.
+            Your <NCTRLogo variant="wordmark-grey" height={14} /> builds real status — through 360LOCK, through participation, through showing up.
           </p>
         </div>
 
         <div className="text-center">
           <Button
             size="lg"
-            onClick={handleJoin}
+            onClick={() => { window.location.href = 'https://bountyhunter.nctr.live/auth?mode=signup'; }}
             className="font-semibold px-8 gap-2 hover:opacity-90"
             style={{ borderRadius: '0px', backgroundColor: '#323232', color: '#FFFFFF' }}
           >
-            Start Earning <ArrowRight className="w-4 h-4" />
+            Get Ready for Launch <ArrowRight className="w-4 h-4" />
           </Button>
         </div>
       </div>

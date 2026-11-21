@@ -191,7 +191,7 @@ export default function LeaderboardPage() {
       <Button
         variant="outline"
         className="w-full gap-2"
-        onClick={() => navigate('/bounties')}
+        onClick={() => { window.location.href = "https://bountyhunter.nctr.live"; }}
       >
         <ArrowRight className="h-4 w-4" />
         Back to Earn Progress

@@ -1,3 +1,5 @@
+import { isPreviewReward, previewOpensLabel } from '@/lib/previewRewards';
+import { MEMBER_CATALOG_PAUSED } from '@/lib/featureFlags';
 import { useState, useEffect, useCallback } from 'react';
 import { RewardRequestSection } from '@/components/rewards/RewardRequestSection';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -537,6 +539,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
   const handleClaimClick = async () => {
     if (!selectedReward) return;
+    if (isPreviewReward(selectedReward)) return;
     
     // Check if user is authenticated
     const { data: { session } } = await supabase.auth.getSession();
@@ -580,6 +583,7 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
 
   const handleClaim = async () => {
     if (!selectedReward) return;
+    if (isPreviewReward(selectedReward)) return;
 
     try {
       setClaiming(true);
@@ -842,7 +846,9 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
           <div className="flex items-center justify-between gap-3 px-4 py-2.5 my-1 rounded-md" style={{ backgroundColor: '#141416', borderLeft: '2px solid #C8FF00' }}>
             <p className="text-sm text-neutral-300">
               You have <span className="font-semibold text-white">0 Claims</span>. Get some to start claiming rewards{' '}
-              <button onClick={() => navigate('/buy-claims')} className="font-semibold hover:underline" style={{ color: '#C8FF00' }}>→</button>
+              {!MEMBER_CATALOG_PAUSED && (
+                <button onClick={() => navigate('/buy-claims')} className="font-semibold hover:underline" style={{ color: '#C8FF00' }}>→</button>
+              )}
             </p>
             <button
               onClick={(e) => { localStorage.setItem('dismiss-zero-claims-banner', 'true'); (e.target as HTMLElement).closest('[style]')?.remove(); }}
@@ -1346,7 +1352,11 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                 <Button variant="outline" onClick={() => setShowDetailModal(false)} className="flex-1">
                   Cancel
                 </Button>
-                {canAfford(selectedReward.cost) ? (
+                {isPreviewReward(selectedReward) ? (
+                  <Button className="flex-1" variant="outline" disabled>
+                    {previewOpensLabel(selectedReward.min_tier_required)}
+                  </Button>
+                ) : canAfford(selectedReward.cost) ? (
                   <Button 
                     onClick={handleClaimClick} 
                     className="flex-1"
@@ -1355,13 +1365,15 @@ export function RewardsPool({ claimBalance, onClaimSuccess, onSubmitReward, onBa
                   </Button>
                 ) : (
                   <div className="flex-1 space-y-1">
-                    <Button 
-                      onClick={() => navigate('/buy-claims')}
-                      className="w-full font-semibold"
-                      style={{ backgroundColor: '#C8FF00', color: '#000' }}
-                    >
-                      Get Claims to Unlock
-                    </Button>
+                    {!MEMBER_CATALOG_PAUSED && (
+                      <Button 
+                        onClick={() => navigate('/buy-claims')}
+                        className="w-full font-semibold"
+                        style={{ backgroundColor: '#C8FF00', color: '#000' }}
+                      >
+                        Get Claims to Unlock
+                      </Button>
+                    )}
                     <p className="text-xs text-muted-foreground text-center">
                       You need {selectedReward.cost - claimBalance} more Claims
                     </p>

@@ -1,3 +1,4 @@
+import { MEMBER_CATALOG_PAUSED } from '@/lib/featureFlags';
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
@@ -211,13 +212,15 @@ export function PurchaseHistoryPage() {
           <Card>
             <CardContent className="p-8 text-center">
               <NoTransactionsEmpty />
-              <Button 
-                onClick={() => navigate('/buy-claims')} 
-                className="mt-4 gap-2"
-              >
-                <ShoppingCart className="w-4 h-4" />
-                Get Your First Claims
-              </Button>
+              {!MEMBER_CATALOG_PAUSED && (
+                <Button 
+                  onClick={() => navigate('/buy-claims')} 
+                  className="mt-4 gap-2"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  Get Your First Claims
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (
@@ -269,6 +272,7 @@ export function PurchaseHistoryPage() {
             })}
             
             {/* Buy More CTA */}
+            {!MEMBER_CATALOG_PAUSED && (
             <Card className="border-dashed">
               <CardContent className="p-6 flex items-center justify-between">
                 <div>
@@ -281,6 +285,7 @@ export function PurchaseHistoryPage() {
                 </Button>
               </CardContent>
             </Card>
+            )}
           </div>
         )}
       </div>

@@ -1,3 +1,4 @@
+import { MEMBER_CATALOG_PAUSED } from '@/lib/featureFlags';
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -419,6 +420,7 @@ export function ClaimsPage() {
 
                     {/* Action Buttons */}
                     <div className="flex flex-col gap-2 lg:w-40">
+                      {!MEMBER_CATALOG_PAUSED && (
                       <Button 
                         onClick={() => navigate('/buy-claims')}
                         className={cn(
@@ -431,6 +433,7 @@ export function ClaimsPage() {
                         <Plus className="w-4 h-4" />
                         Get Claims
                       </Button>
+                      )}
                       <Button 
                         variant="outline"
                         onClick={() => navigate('/gift-claims')}
@@ -520,7 +523,7 @@ export function ClaimsPage() {
                           ? 'Try adjusting your filters'
                           : 'Your transaction history will appear here'}
                       </p>
-                      {transactions.length === 0 && (
+                      {transactions.length === 0 && !MEMBER_CATALOG_PAUSED && (
                         <Button 
                           variant="link" 
                           onClick={() => navigate('/buy-claims')}

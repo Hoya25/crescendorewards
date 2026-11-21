@@ -143,7 +143,7 @@ function Condition1({ navigate }: { navigate: (path: string) => void }) {
       <div className="flex flex-col sm:flex-row gap-3">
         <Button
           variant="outline"
-          onClick={() => navigate("/bounties")}
+          onClick={() => { window.location.href = "https://bountyhunter.nctr.live"; }}
           className="gap-2 border-white/20 text-white hover:bg-white/10 hover:text-white"
         >
           <Target className="w-4 h-4" />
@@ -239,7 +239,7 @@ function Condition4({ navigate, locked }: { navigate: (path: string) => void; lo
         and unlock Tier 3 campaign bounties that earn up to 3,000 NCTR each.
       </p>
       <Button
-        onClick={() => navigate("/bounties")}
+        onClick={() => { window.location.href = "https://bountyhunter.nctr.live"; }}
         className="gap-2 font-semibold"
         style={{ backgroundColor: "#C8FF00", color: "#1A1A2E" }}
       >
@@ -281,7 +281,7 @@ function Condition5({
       {featuredBounty && (
         <div
           className="rounded-lg bg-white/5 border border-white/10 px-4 py-3 mb-4 flex items-center justify-between cursor-pointer hover:bg-white/10 transition-colors"
-          onClick={() => navigate("/bounties")}
+          onClick={() => { window.location.href = "https://bountyhunter.nctr.live"; }}
         >
           <div className="flex items-center gap-3">
             <span className="text-2xl">{featuredBounty.image_emoji || "🎯"}</span>

@@ -81,7 +81,7 @@ export function TheMathSection() {
         </p>
         <p className="text-center text-sm max-w-2xl mx-auto mb-4 text-text-body">
           Bronze sets the floor. Gold (3 for every 2) compounds it. Diamond (5 for every 2) compounds it again.{' '}
-          <span className="font-bold text-text-accent">Status multiplies everything.</span>
+          <span className="font-bold text-text-accent">Status raises everything.</span>
         </p>
 
         {/* Multiplier teaser */}
@@ -99,7 +99,7 @@ export function TheMathSection() {
         <div className="text-center">
           <Button
             size="lg"
-            onClick={handleJoin}
+            onClick={() => { window.location.href = 'https://bountyhunter.nctr.live/auth?mode=signup'; }}
             className="font-semibold px-8 gap-2 hover:opacity-90"
             style={{ borderRadius: '0px', backgroundColor: '#323232', color: '#FFFFFF' }}
           >

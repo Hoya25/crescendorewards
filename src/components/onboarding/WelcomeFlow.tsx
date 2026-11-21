@@ -18,8 +18,8 @@ interface WelcomeFlowProps {
 const ONBOARDED_KEY = "crescendo_onboarding_complete";
 
 const earningWays = [
-  { icon: ShoppingBag, emoji: "🛍️", title: "Shop in Bounty Hunter", desc: "Thousands of brands. Same prices. You earn NCTR." },
-  { icon: Shirt, emoji: "👕", title: "Rep the Brand", desc: "Shop NCTR merch. Unlock content bounties. Earn 3 for every 1." },
+  { icon: ShoppingBag, emoji: "🛍️", title: "Shop Alliance Brands", desc: "Earning on alliance brands is coming soon." },
+  { icon: Shirt, emoji: "👕", title: "Rep the Brand", desc: "Shop NCTR merch. Unlock content bounties. Earn on every purchase." },
   { icon: Camera, emoji: "📸", title: "Complete Bounties", desc: "Create content, refer friends, hit milestones. Get paid in NCTR." },
   { icon: Users, emoji: "🤝", title: "Invite Friends", desc: "They join, you both earn." },
   { icon: Gift, emoji: "🎁", title: "Contribute Rewards", desc: "List a reward. Earn when others claim it." },
@@ -34,9 +34,9 @@ const tiers = [
 ];
 
 const paths = [
-  { emoji: "🛍️", label: "Shop in Bounty Hunter", route: "/rewards" },
-  { emoji: "👕", label: "Browse NCTR Merch", route: "https://nctr-merch.myshopify.com" },
-  { emoji: "📸", label: "See Available Bounties", route: "/bounties" },
+  { emoji: "🎁", label: "Browse Crescendo Rewards", route: "/rewards" },
+  { emoji: "👕", label: "Browse NCTR Merch", route: "https://merch.nctr.live" },
+  { emoji: "📸", label: "See Available Bounties", route: "https://bountyhunter.nctr.live" },
 ];
 
 export function WelcomeFlow({ isOpen, onClose }: WelcomeFlowProps) {
@@ -112,6 +112,7 @@ export function WelcomeFlow({ isOpen, onClose }: WelcomeFlowProps) {
     const chosen = selectedPath !== null ? paths[selectedPath] : null;
     if (chosen) {
       if (chosen.route.startsWith("http")) {
+        window.open(chosen.route, "_blank");
         navigate("/dashboard");
       } else {
         navigate(chosen.route);
@@ -142,7 +143,7 @@ export function WelcomeFlow({ isOpen, onClose }: WelcomeFlowProps) {
                 <h1 className="text-4xl font-bold text-text-heading">Welcome to the Alliance.</h1>
                 <p className="text-text-body">Earn NCTR. Commit it. Rise in status.</p>
                 <p className="text-sm text-text-body-muted max-w-sm mx-auto">
-                  Crescendo is where your status lives. Earn NCTR by shopping and contributing, commit it through 360LOCK, and rise from Bronze to Diamond. Every tier opens more.
+                  Crescendo is where your status lives. Earn NCTR through bounties, NCTR Merch, and contributing, commit it through 360LOCK, and rise from Bronze to Diamond. Every tier opens more.
                 </p>
                 <Button onClick={handleNext} className="w-full max-w-xs mx-auto bg-accent-lime text-black font-semibold hover:bg-accent-lime/90">
                   How It Works <ArrowRight className="w-4 h-4 ml-2" />

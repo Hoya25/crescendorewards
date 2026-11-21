@@ -1,7 +1,6 @@
 import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
 import { useHasMerchPurchases, useUncompletedMerchBountyCount } from '@/hooks/useMerchCelebration';
 
 export function MerchBountyReminderCard() {
@@ -32,9 +31,9 @@ export function MerchBountyReminderCard() {
         </div>
         <Button asChild size="sm" className="shrink-0 font-semibold gap-1"
                 style={{ backgroundColor: 'hsl(var(--accent-lime))', color: '#1A1A2E' }}>
-          <Link to="/bounties?filter=merch">
+          <a href="https://bountyhunter.nctr.live">
             Complete <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+          </a>
         </Button>
       </CardContent>
     </Card>

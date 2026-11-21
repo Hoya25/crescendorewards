@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ShoppingBag, Lock, ChevronRight, Sparkles, ArrowUp } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useUnifiedUser } from "@/contexts/UnifiedUserContext";
@@ -140,10 +139,10 @@ export function MerchBountiesWidget() {
         <div className="p-3 rounded-lg bg-primary/5 border border-primary/10">
           <div className="flex items-center gap-2 mb-1">
             <Sparkles className="w-4 h-4 text-primary" />
-            <p className="text-sm font-medium">Earn 3 for every 1 with 360LOCK</p>
+            <p className="text-sm font-medium">Earn NCTR on every merch purchase</p>
           </div>
           <p className="text-xs text-muted-foreground">
-            Complete bounties with 360LOCK to earn 3 for every 1 and level up your Crescendo status
+            Complete bounties and commit with 360LOCK to raise your Crescendo status
           </p>
         </div>
 
@@ -169,10 +168,10 @@ export function MerchBountiesWidget() {
         {/* Actions */}
         <div className="flex gap-2">
           <Button asChild variant="outline" size="sm" className="flex-1">
-            <Link to="/bounties">
+            <a href="https://bountyhunter.nctr.live">
               View Bounties
               <ChevronRight className="w-4 h-4 ml-1" />
-            </Link>
+            </a>
           </Button>
           <Button asChild size="sm" className="flex-1 bg-amber-600 hover:bg-amber-700 text-white">
             <a href="https://nctr-merch.myshopify.com" target="_blank" rel="noopener noreferrer">

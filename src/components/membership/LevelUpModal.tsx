@@ -230,7 +230,7 @@ export function LevelUpModal({
               </span>
             </div>
             <p style={{ fontFamily: sans, fontSize: '13px', color: '#D9D9D9', marginBottom: '12px' }}>
-              Shop and earn on Bounty Hunter. Every purchase earns NCTR that automatically builds your status.
+              Earn on Bounty Hunter with bounties, invites, and NCTR Merch. Every NCTR you commit builds your status.
             </p>
             <a
               href="https://bountyhunter.nctr.live"
@@ -279,7 +279,7 @@ export function LevelUpModal({
 
             <section className="mb-4 text-foreground">
               <h3 className="text-base font-semibold">Earn NCTR</h3>
-              <p><a href="https://themall.nctr.live">Shop the Mall — earn on every qualifying purchase.</a></p>
+              <p><a href="https://merch.nctr.live">Shop NCTR Merch — earn on every purchase.</a></p>
               <p><a href="https://bountyhunter.nctr.live">Complete bounties — reviews, referrals, content.</a></p>
               <p><a href="https://bountyhunter.nctr.live/lock">Commit what you earn through 360LOCK to rise.</a></p>
             </section>

@@ -1,3 +1,4 @@
+import { MEMBER_CATALOG_PAUSED } from '@/lib/featureFlags';
 import {
   Dialog,
   DialogContent,
@@ -140,7 +141,7 @@ export function BonusSlotModal({
                 </>
               )}
             </Button>
-          ) : (
+          ) : MEMBER_CATALOG_PAUSED ? null : (
             <Button asChild className="bg-primary hover:bg-primary/90">
               <a href="/buy-claims">Get More Claims</a>
             </Button>

@@ -212,7 +212,7 @@ export function EarnNCTR() {
           <div className="container mx-auto px-4 py-2.5">
             <p className="text-center text-sm text-muted-foreground">
               <Sparkles className="w-3.5 h-3.5 inline-block mr-1.5 text-primary" />
-              Every purchase and action earns you <span className="font-medium text-foreground">NCTR toward free rewards</span>
+              Bounties, invites, and NCTR Merch earn you <span className="font-medium text-foreground">NCTR toward rewards</span>
             </p>
           </div>
         </div>
@@ -223,7 +223,7 @@ export function EarnNCTR() {
         <section className="mb-12">
           <div className="flex items-center gap-2 mb-6">
             <Sparkles className="w-5 h-5 text-primary" />
-            <h2 className="text-xl font-bold">Start Earning Now</h2>
+            <h2 className="text-xl font-bold">Get Ready for Launch</h2>
           </div>
           
           {isLoading ? (

@@ -16,6 +16,11 @@ export const FEATURE_FLAGS = {
   ENGINE_INSPIRATION: import.meta.env.VITE_ENGINE_INSPIRATION_ENABLED === 'true',
 };
 
+// Member catalog pause — while true, claim packages (NCTR for USD) and the
+// partner benefits catalog are hidden on every member surface. Admin pages
+// are unaffected.
+export const MEMBER_CATALOG_PAUSED = true;
+
 // Public-safe display labels for use when a flag is ON but the partner has
 // not yet approved a branded name.
 export const ENGINE_PUBLIC_LABELS = {

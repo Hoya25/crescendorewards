@@ -4,6 +4,7 @@ import { MobileNav } from "./MobileNav";
 import { HeroSection } from "./landing/HeroSection";
 import { EntryPathsSection } from "./landing/EntryPathsSection";
 import { HowItWorksLanding } from "./landing/HowItWorksLanding";
+import { WhyAllianceSection } from "./landing/WhyAllianceSection";
 import { RewardsHighlight } from "./landing/RewardsHighlight";
 import { FiveWaysToEarn } from "./landing/FiveWaysToEarn";
 import { TheMathSection } from "./landing/TheMathSection";
@@ -68,7 +69,7 @@ export function LandingPage() {
     <div className="min-h-screen w-full overflow-x-hidden" style={{ backgroundColor: '#F9F9F7' }}>
       <SEO 
         title="Status in the NCTR Alliance"
-        description="Crescendo is where NCTR Alliance members hold status. Earn NCTR shopping thousands of stores, commit it through 360LOCK, and rise from Bronze to Diamond — rewards sponsored by the alliance and its partner brands."
+        description="Crescendo is where NCTR Alliance members hold status. Commit NCTR through 360LOCK and rise from Bronze to Diamond. Earn today at NCTR Merch; earning on alliance brands is coming soon."
       />
 
       {/* Beta Banner removed — single banner lives in AppLayout/BetaBanner */}
@@ -166,7 +167,7 @@ export function LandingPage() {
                 Sign In
               </button>
               <button
-                onClick={handleJoin}
+                onClick={() => { window.location.href = 'https://bountyhunter.nctr.live/auth?mode=signup'; }}
                 style={{
                   fontFamily: barlow,
                   fontWeight: 700,
@@ -203,6 +204,9 @@ export function LandingPage() {
 
       {/* Spacer for stat cards overlap */}
       <div style={{ height: '80px' }} />
+
+      {/* Why the alliance exists */}
+      <WhyAllianceSection />
 
       {/* Core Principle Callout */}
       <div className="container mx-auto px-6 md:px-12 mt-8 mb-8">

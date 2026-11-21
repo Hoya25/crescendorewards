@@ -33,7 +33,7 @@ export function Footer() {
         </nav>
       </div>
       <p className="text-center pb-3 px-4" style={{ fontSize: '11px', color: '#5A5A58' }}>
-        NCTR is the participation token of NCTR Alliance — earned through shopping and contribution, committed for status. It is a utility token; not an investment product or a security.
+        NCTR is the participation token of NCTR Alliance — earned through participation and contribution, committed for status. It is a utility token; not an investment product or a security.
       </p>
     </footer>
   );

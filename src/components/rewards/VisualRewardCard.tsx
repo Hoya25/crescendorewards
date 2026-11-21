@@ -19,6 +19,7 @@ import { CreatorShowcase, CreatorHandles } from '@/components/creators/CreatorSh
 import { BackRewardButton, BackingMeta } from '@/components/rewards/BackRewardButton';
 import { toast } from 'sonner';
 import { useRewardCreators } from '@/hooks/useFeaturedCreators';
+import { isPreviewReward, previewOpensLabel } from '@/lib/previewRewards';
 
 export interface VisualRewardCardData {
   id: string;
@@ -132,6 +133,7 @@ export function VisualRewardCard({
   const effectiveMinTier = reward.min_tier_required ?? null;
   const isEligible = isUserTierEligible(effectiveMinTier, userTier.tierName);
   const isTierLocked = isAuthenticated && !isEligible && !!effectiveMinTier;
+  const isPreview = isPreviewReward(reward);
   const remainingStock = reward.stock_quantity;
   
   const rewardForPricing: Reward = {
@@ -221,10 +223,19 @@ export function VisualRewardCard({
           }}
         />
 
-        {/* TOP-LEFT: Tier badge */}
+        {/* TOP-LEFT: Preview badge (same style as FEATURED PARTNER) + Tier badge */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5 items-start">
+        {isPreview && (
+          <Badge
+            className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border-0"
+            style={{ backgroundColor: '#E2FF6D', color: '#323232', borderRadius: '0px' }}
+          >
+            PREVIEW
+          </Badge>
+        )}
         {effectiveMinTier && (
           <div
-            className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1"
+            className="flex items-center gap-1 px-2 py-1"
             style={{
               backgroundColor: 'rgba(226,255,109,0.12)',
               color: '#131313',
@@ -240,6 +251,7 @@ export function VisualRewardCard({
             <span>{getTierDisplayName(effectiveMinTier)}+{!isEligible ? ' required' : ''}</span>
           </div>
         )}
+        </div>
 
         {/* TOP-RIGHT: Favorites Heart */}
         <button
@@ -346,7 +358,36 @@ export function VisualRewardCard({
       <BackingMeta rewardId={reward.id} />
 
       {/* CTA BUTTONS */}
-      {isTierLocked ? (
+      {isPreview ? (
+        <div className="px-3.5 pb-3.5 pt-2 flex flex-col sm:flex-row gap-2" style={{ backgroundColor: '#FFFFFF' }}>
+          <button
+            type="button"
+            className="flex-1"
+            disabled
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              fontFamily: dmMono,
+              fontSize: '12px',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase' as const,
+              backgroundColor: 'transparent',
+              color: '#6B6B68',
+              border: '1px solid #D4D3CF',
+              borderRadius: '0px',
+              height: '44px',
+              cursor: 'not-allowed',
+            }}
+          >
+            {previewOpensLabel(effectiveMinTier)}
+          </button>
+          <BackRewardButton
+            rewardId={reward.id}
+            rewardName={reward.title}
+            tierRequired={effectiveMinTier || 'Bronze'}
+            claimable={false}
+          />
+        </div>
+      ) : isTierLocked ? (
         <div className="px-3.5 pb-3.5 pt-2 flex flex-col sm:flex-row gap-2" style={{ backgroundColor: '#FFFFFF' }}>
           <button
             className="flex-1"

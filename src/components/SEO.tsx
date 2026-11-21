@@ -11,7 +11,7 @@ interface SEOProps {
 
 const defaultMeta = {
   title: "Crescendo | Status in the NCTR Alliance",
-  description: "Crescendo is where NCTR Alliance members hold status. Earn NCTR shopping thousands of stores, commit it through 360LOCK, and rise from Bronze to Diamond — rewards sponsored by the alliance and its partner brands.",
+  description: "Crescendo is where NCTR Alliance members hold status. Commit NCTR through 360LOCK and rise from Bronze to Diamond. Earn today at NCTR Merch; earning on alliance brands is coming soon.",
   ogImage: "https://crescendo.nctr.live/og-image.png",
   siteUrl: "https://crescendo.nctr.live",
 };
@@ -65,7 +65,7 @@ export function SEO({
         "name": "NCTR Alliance",
         "alternateName": "Nectar Alliance",
         "url": "https://nctr.live",
-        "description": "Crescendo is where NCTR Alliance members hold status. Earn NCTR shopping thousands of stores, commit it through 360LOCK, and rise from Bronze to Diamond — rewards sponsored by the alliance and its partner brands.",
+        "description": "Crescendo is where NCTR Alliance members hold status. Commit NCTR through 360LOCK and rise from Bronze to Diamond. Earn today at NCTR Merch; earning on alliance brands is coming soon.",
         "sameAs": [
           "https://crescendo.nctr.live",
           "https://themall.nctr.live",

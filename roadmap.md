@@ -4,4 +4,6 @@
 - [x] Verify catalog, copy, links, and report changed occurrences.
 - [x] Apply approved copy rulings to pages, member components, emails and public tool text.
 - [x] Update approved database benefit, bounty and Mall copy without changing economic columns.
-- [x] Update social image text, verify changes, and list all changed files and rows; do not publish.
+- [x] Update social image text, verify changes, and list all changed files and rows; do not publish.- [x] Apply coming-soon update (copy, catalog pause flag, /bounties redirect, Kroma preview, Founding Circle, landing mission section, referral links) and data rows.
+- [x] Verify coming-soon update on preview.
+- [ ] Publish, then re-verify on crescendo.nctr.live.

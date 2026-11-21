@@ -6,8 +6,8 @@ const navItems = [
   { icon: Home, label: "Home", route: "/dashboard", emoji: undefined },
   { icon: Gift, label: "Rewards", route: "/rewards", emoji: "🎁" },
   { icon: Lock, label: "Status", route: "/membership", emoji: "💎" },
-  { icon: ShoppingBag, label: "Shop", route: undefined, emoji: "🛒", external: "https://themall.nctr.live/" },
-  { icon: Zap, label: "Earn", route: "/bounties", emoji: "⚡" },
+  { icon: ShoppingBag, label: "Merch", route: undefined, emoji: "🛒", external: "https://merch.nctr.live" },
+  { icon: Zap, label: "Earn", route: undefined, emoji: "⚡", external: "https://bountyhunter.nctr.live" },
 ];
 
 export function MobileBottomNav() {
