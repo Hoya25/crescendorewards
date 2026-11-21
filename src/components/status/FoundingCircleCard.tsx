@@ -19,7 +19,7 @@ function toRow(raw: any, fallbackRank: number | null): CircleRow | null {
     rank: typeof raw.rank === 'number' ? raw.rank : fallbackRank,
     name: String(raw.display_name ?? raw.name ?? raw.handle ?? 'Member'),
     committed: Number.isFinite(committed) ? committed : 0,
-    isSelf: raw.is_self === true || raw.is_me === true,
+    isSelf: raw.is_you === true || raw.is_self === true || raw.is_me === true,
   };
 }
 
@@ -38,7 +38,7 @@ async function fetchFoundingCircle(): Promise<{ top: CircleRow[]; me: CircleRow 
     .slice(0, 10)
     .map((r, i) => toRow(r, i + 1))
     .filter((r): r is CircleRow => r !== null);
-  const me = toRow(data.me ?? data.self ?? data.member ?? null, null);
+  const me = toRow(data.you ?? data.me ?? data.self ?? data.member ?? null, null);
   return { top, me };
 }
 
