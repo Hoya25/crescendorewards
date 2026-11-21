@@ -64,6 +64,13 @@
       "when": 1795299782557,
       "tag": "0008_reject_preview_reward_claims",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1795299972800,
+      "tag": "0009_award_onboarding_item_static_sql",
+      "breakpoints": true
     }
   ]
 }
