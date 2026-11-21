@@ -138,7 +138,7 @@ function Condition1({ navigate }: { navigate: (path: string) => void }) {
       <StepLabel />
       <h3 className="text-xl font-bold text-white mb-2">Earn Your First NCTR</h3>
       <p className="text-sm text-white/70 mb-4">
-        Start earning NCTR by completing bounties or earning on Bounty Hunter.
+        Build your status by completing the launch checklist or earning on Bounty Hunter.
       </p>
       <div className="flex flex-col sm:flex-row gap-3">
         <Button

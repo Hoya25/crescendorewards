@@ -50,12 +50,13 @@ export function FoundingCircleCard() {
     retry: false,
   });
 
-  const top = data?.top ?? [];
-  if (top.length === 0) return null;
+  if (!data) return null;
+  const top = data.top;
+  const isEmpty = top.length === 0;
 
   const me = data?.me ?? null;
   const meInTop = top.some((r) => r.isSelf) || (me?.rank != null && me.rank <= 10);
-  const showMe = !!me && !meInTop;
+  const showMe = !isEmpty && !!me && !meInTop;
 
   const renderRow = (r: CircleRow, key: string, highlight = false) => (
     <div
@@ -88,6 +89,11 @@ export function FoundingCircleCard() {
         Members ranked by the people they bring who commit. The top of the circle gets first access to the first sponsored rewards when they open.
       </div>
       <div style={{ marginTop: 14 }}>
+        {isEmpty && (
+          <div style={{ fontSize: 14, color: 'var(--nctr-charcoal)', padding: '10px 0', borderBottom: '1px solid var(--nctr-line)' }}>
+            The circle opens with the first committed invite. Bring your people.
+          </div>
+        )}
         {top.map((r, i) => renderRow(r, `top-${i}`))}
         {showMe && me && (
           <div style={{ marginTop: 10 }}>{renderRow(me, 'me', true)}</div>

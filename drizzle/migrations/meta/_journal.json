@@ -57,6 +57,13 @@
       "when": 1794435618025,
       "tag": "0007_drop_redundant_wallet_format_constraint",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1795299782557,
+      "tag": "0008_reject_preview_reward_claims",
+      "breakpoints": true
     }
   ]
 }

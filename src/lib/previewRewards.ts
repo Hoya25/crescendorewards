@@ -1,8 +1,13 @@
 // Preview rewards: listed and badged so members can see what's coming, but
-// not claimable yet. Today this is every reward from these sponsors.
+// not claimable yet. The server flag `rewards.is_preview` is authoritative
+// (claims are rejected in the database); the sponsor list only covers
+// surfaces that select explicit columns without is_preview.
 export const PREVIEW_SPONSORS = ['Kroma Wellness'];
 
-export function isPreviewReward(reward?: { sponsor_name?: string | null } | null): boolean {
+export function isPreviewReward(
+  reward?: { sponsor_name?: string | null; is_preview?: boolean | null } | null,
+): boolean {
+  if (reward?.is_preview === true) return true;
   return !!reward?.sponsor_name && PREVIEW_SPONSORS.includes(reward.sponsor_name);
 }
 

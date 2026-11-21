@@ -57,6 +57,9 @@ serve(async (req) => {
   if (rErr) return json(500, { error: "reward_read_failed", detail: rErr.message });
   if (!reward) return json(404, { error: "reward_not_found" });
   if (reward.is_active !== true) return json(409, { error: "reward_not_available" });
+  // Preview rewards are visible but not claimable. Checked before any credit
+  // or write; the database trigger on rewards_claims enforces it for every path.
+  if (reward.is_preview === true) return json(409, { error: "reward_preview", detail: "This reward is a preview and is not claimable yet" });
   if (reward.stock_quantity !== null && !(reward.stock_quantity > 0)) {
     return json(409, { error: "reward_sold_out" });
   }

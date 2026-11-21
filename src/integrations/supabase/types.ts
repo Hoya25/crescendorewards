@@ -3246,6 +3246,7 @@ export type Database = {
           is_active: boolean
           is_contributed: boolean | null
           is_featured: boolean
+          is_preview: boolean
           is_sponsored: boolean | null
           linked_sponsor_id: string | null
           lock_option: string | null
@@ -3320,6 +3321,7 @@ export type Database = {
           is_active?: boolean
           is_contributed?: boolean | null
           is_featured?: boolean
+          is_preview?: boolean
           is_sponsored?: boolean | null
           linked_sponsor_id?: string | null
           lock_option?: string | null
@@ -3394,6 +3396,7 @@ export type Database = {
           is_active?: boolean
           is_contributed?: boolean | null
           is_featured?: boolean
+          is_preview?: boolean
           is_sponsored?: boolean | null
           linked_sponsor_id?: string | null
           lock_option?: string | null

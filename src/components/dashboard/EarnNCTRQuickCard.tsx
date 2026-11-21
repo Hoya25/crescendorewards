@@ -107,7 +107,7 @@ export function EarnNCTRQuickCard() {
           </div>
         ) : topOpportunities.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
-            Explore NCTR Alliance bounties to start earning.
+            Explore NCTR Alliance bounties to get ready for launch.
           </p>
         ) : (
           <div className="space-y-1">

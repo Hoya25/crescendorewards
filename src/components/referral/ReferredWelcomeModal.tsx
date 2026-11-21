@@ -157,7 +157,7 @@ export function ReferredWelcomeModal({
                   size="lg"
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
-                  Start Earning
+                  Get ready for launch
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
                 <Button 

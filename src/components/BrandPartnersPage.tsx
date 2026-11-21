@@ -226,12 +226,12 @@ export function BrandPartnersPage() {
           <h2 className="text-2xl font-bold mb-6">Partner Network</h2>
         </div>
 
-        {/* How Shop & Earn Works */}
+        {/* How Build and Earn Works */}
         <Card className="bg-primary/5">
           <CardContent className="p-6">
             <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-primary" />
-              How Shop & Earn Works
+              How Build and Earn Works
             </h2>
             <div className="grid md:grid-cols-3 gap-6">
               <div className="flex gap-4">

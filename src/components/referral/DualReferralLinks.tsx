@@ -24,7 +24,7 @@ export function DualReferralLinks({ referralCode, className, compact = false }: 
     },
     {
       key: 'bounty',
-      label: 'Shop & earn link',
+      label: 'Member link',
       url: `${BOUNTY_HUNTER_DOMAIN}/auth?ref=${referralCode}`,
     },
   ];

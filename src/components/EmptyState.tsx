@@ -76,7 +76,7 @@ export function NoTransactionsEmpty() {
     <EmptyState
       icon={Receipt}
       title="Your transaction history starts here"
-      description="Your transaction history will appear here once you start earning NCTR and claiming rewards."
+      description="Your transaction history will appear here once you get ready for launch and claim rewards."
     />
   );
 }

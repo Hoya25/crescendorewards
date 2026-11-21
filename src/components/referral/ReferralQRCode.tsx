@@ -318,7 +318,7 @@ export function ReferralQRCode({
               <span className="text-white font-semibold">🎁 Earn {allocation.toLocaleString()} NCTR 360LOCK</span>
             </div>
             <p className="text-white/50 text-xs">
-              Scan to join & start earning rewards
+              Scan to join the alliance
             </p>
           </div>
         </div>

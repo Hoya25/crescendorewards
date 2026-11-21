@@ -38,7 +38,7 @@ const cards: Array<{
   {
     icon: Rocket,
     eyebrow: 'NEW HERE?',
-    headline: 'Start earning in 2 minutes',
+    headline: 'Get ready for launch in 2 minutes',
     body: (
       <>Join Bounty Hunter, earn your first {NCTR}, and watch your Crescendo status grow. Free to join.</>
     ),
