@@ -100,19 +100,7 @@ export function LockDecisionModalInner({ request, onComplete }: Props) {
             source_name: request.sourceName,
           },
         });
-
-        const currentData = (profile.crescendo_data || {}) as Record<string, any>;
-        const currentLocked = (currentData.locked_nctr as number) || 0;
-        await supabase
-          .from('unified_profiles')
-          .update({
-            crescendo_data: {
-              ...currentData,
-              locked_nctr: currentLocked + selectedAmount,
-            },
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', profile.id);
+        // The committed total is computed on the server; members never write it.
       } catch (err) {
         console.error('Error recording lock:', err);
       }
