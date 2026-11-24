@@ -45,10 +45,10 @@ Deno.serve(async (req) => {
     // Parse the request body
     const body = await req.json();
     console.log(`[bh-status-proxy] invoked action=${body?.action} at ${new Date().toISOString()}`);
-    const { action, email, tx_hash, amount, question, user_id } = body;
+    const { action, email, tx_hash, amount, question, user_id, op, id, text } = body;
 
     // Validate action
-    const allowedActions = ['get_user_status', 'verify_deposit', 'upgrade_to_360lock', 'wingman_briefing', 'founding_circle'];
+    const allowedActions = ['get_user_status', 'verify_deposit', 'upgrade_to_360lock', 'wingman_briefing', 'founding_circle', 'smart_profile', 'smart_profile_memory'];
     if (!action || !allowedActions.includes(action)) {
       return new Response(JSON.stringify({ error: 'Invalid action' }), {
         status: 400,
@@ -78,6 +78,14 @@ Deno.serve(async (req) => {
     } else if (action === 'upgrade_to_360lock') {
       bhPayload.email = userEmail;
       bhPayload.amount = amount;
+    } else if (action === 'smart_profile') {
+      bhPayload.email = userEmail;
+    } else if (action === 'smart_profile_memory') {
+      // Only op, id and text are forwarded from the client body.
+      bhPayload.email = userEmail;
+      bhPayload.op = op;
+      bhPayload.id = id;
+      if (text !== undefined) bhPayload.text = text;
     } else if (action === 'wingman_briefing') {
       bhPayload.user_id = userId;
       if (question) bhPayload.question = question;
@@ -95,6 +103,14 @@ Deno.serve(async (req) => {
     });
 
     const bhData = await bhRes.json();
+
+    // Smart Profile actions: return BH's JSON unchanged — no mirror write, no Godview event.
+    if (action === 'smart_profile' || action === 'smart_profile_memory') {
+      return new Response(JSON.stringify(bhData), {
+        status: bhRes.status,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // For wingman_briefing, try fallback to direct wingman-briefing function
     if (action === 'wingman_briefing' && !bhRes.ok) {

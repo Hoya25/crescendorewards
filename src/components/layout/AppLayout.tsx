@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/popover';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
+import { useSmartProfileLive } from '@/hooks/useSmartProfileLive';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { toast } from 'sonner';
 
@@ -48,6 +49,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { signOut, user } = useAuthContext();
   const { profile, tier, nextTier, progressToNextTier, total360Locked, bhFirstName, bhLastName } = useUnifiedUser();
   const { isAdmin } = useAdminRole();
+  const { live: smartProfileLive } = useSmartProfileLive();
   const { pendingEarning, clearEarning } = useNCTREarningDetection(user?.id);
   const { showLockDecision, isOpen: isLockOpen } = useLockDecision();
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -193,6 +195,12 @@ export function AppLayout({ children }: AppLayoutProps) {
                           <User className="w-4 h-4 mr-2" />
                           My Account
                         </DropdownMenuItem>
+                        {smartProfileLive && (
+                          <DropdownMenuItem onClick={() => navigate('/profile/smart')}>
+                            <User className="w-4 h-4 mr-2" />
+                            Smart Profile
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem onClick={() => navigate('/profile')}>
                           <Crown className="w-4 h-4 mr-2" />
                           Settings

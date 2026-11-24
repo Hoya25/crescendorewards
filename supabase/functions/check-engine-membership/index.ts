@@ -1,3 +1,4 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 // check-engine-membership
 // Proxies an Engine membership lookup to Bounty Hunter.
 // Caller passes { user_id, engines: string[] } and receives
@@ -18,6 +19,9 @@ const BH_MEMBERSHIP_URL =
 
 const SYNC_SECRET = Deno.env.get('SYNC_SECRET') ?? '';
 
+const json = (b: unknown, status = 200) =>
+  new Response(JSON.stringify(b), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+
 interface ReqBody {
   user_id?: string;
   engines?: string[];
@@ -27,6 +31,20 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Sign-in check: a member can look up only themselves.
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) return json({ error: 'Unauthorized' }, 401);
+  const authClient = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_ANON_KEY')!,
+    { global: { headers: { Authorization: authHeader } } },
+  );
+  const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(
+    authHeader.replace('Bearer ', ''),
+  );
+  const sub = claimsData?.claims?.sub as string | undefined;
+  if (claimsError || !sub) return json({ error: 'Unauthorized' }, 401);
 
   let body: ReqBody = {};
   try {
@@ -38,12 +56,28 @@ Deno.serve(async (req) => {
     });
   }
 
-  const user_id = typeof body.user_id === 'string' ? body.user_id : '';
+  const requested = typeof body.user_id === 'string' ? body.user_id : '';
+  const serviceClient = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    { auth: { persistSession: false } },
+  );
+  const { data: me } = await serviceClient
+    .from('unified_profiles')
+    .select('bh_user_id')
+    .eq('auth_user_id', sub)
+    .maybeSingle();
+  const ownBh = (me?.bh_user_id as string | null) ?? null;
+  if (requested && requested !== sub && requested !== ownBh) {
+    return json({ error: 'forbidden' }, 403);
+  }
+  // BH always receives the caller's own bh_user_id, never a client value.
+  const user_id = ownBh ?? '';
   const engines = Array.isArray(body.engines)
     ? body.engines.filter((s) => typeof s === 'string')
     : [];
 
-  if (!user_id || engines.length === 0) {
+  if (engines.length === 0) {
     // Nothing to check → empty membership map (not a lock).
     return new Response(
       JSON.stringify({
@@ -68,6 +102,8 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
   };
+
+  if (!user_id) return lockedFallback();
 
   try {
     const ctrl = new AbortController();

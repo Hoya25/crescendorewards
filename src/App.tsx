@@ -14,6 +14,7 @@ import { DemoModeProvider } from "./contexts/DemoModeContext";
 import { LockDecisionProvider } from "./contexts/LockDecisionContext";
 import { AmbitionsProvider } from "./contexts/AmbitionsContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { SmartProfileRoute } from "./components/SmartProfileRoute";
 import { AdminRoute } from "./components/AdminRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { RouteLoading, PageLoading } from "./components/RouteLoading";
@@ -403,6 +404,14 @@ function AppRoutes() {
               element={
                 <ProtectedRoute>
                   <AppLayout><ProfilePage /></AppLayout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile/smart" 
+              element={
+                <ProtectedRoute>
+                  <AppLayout><SmartProfileRoute /></AppLayout>
                 </ProtectedRoute>
               } 
             />
