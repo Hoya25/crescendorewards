@@ -14,7 +14,7 @@ export const SP = {
   launchHeading: 'Get ready for launch',
   launchDone: (done: number) => `${done} of 5 done`,
   launchSteps: [
-    { key: 'joined', label: 'Join and confirm' },
+    { key: 'confirmed', label: 'Join and confirm' },
     { key: 'engines', label: 'Choose your engines' },
     { key: 'invited', label: 'Invite someone' },
     { key: 'shopped', label: 'Shop an earning store' },
