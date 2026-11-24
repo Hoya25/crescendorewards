@@ -7,7 +7,7 @@ export function Footer() {
         {/* Left: Ring badge + copyright */}
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-full border-2 dark:border-accent-lime border-gray-800 flex items-center justify-center flex-shrink-0">
-            <span className="text-gray-800 dark:text-accent-lime font-black text-[8px] tracking-tight">360</span>
+            <span className="text-gray-800 dark:text-accent-lime font-black text-[10px] tracking-tight">360</span>
           </div>
           <span>© 2026 NCTR Alliance · Crescendo</span>
         </div>
@@ -32,7 +32,7 @@ export function Footer() {
           </a>
         </nav>
       </div>
-      <p className="text-center pb-3 px-4" style={{ fontSize: '11px', color: '#5A5A58' }}>
+      <p className="text-center pb-3 px-4 text-[12px] text-[#5A5A58] dark:text-[#8A8A88]">
         NCTR is the participation token of NCTR Alliance — earned through participation and contribution, committed for status. It is a utility token; not an investment product or a security.
       </p>
     </footer>

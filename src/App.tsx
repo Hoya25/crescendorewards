@@ -76,7 +76,6 @@ const BenefitsPage = lazy(() => import('./components/benefits/BenefitsPage').the
 const SubmitContentPage = lazy(() => import('./pages/SubmitContentPage'));
 const MyContentPage = lazy(() => import('./pages/MyContentPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
-const DiscoverPage = lazy(() => import('./pages/DiscoverPage'));
 const BountyBoardPage = lazy(() => import('./pages/BountyBoardPage'));
 
 // /bounties now lives in Bounty Hunter.
@@ -87,8 +86,15 @@ function BountyHunterRedirect() {
   return null;
 }
 
+// /discover now lives in The Mall.
+function MallRedirect() {
+  useEffect(() => {
+    window.location.replace("https://themall.nctr.live");
+  }, []);
+  return null;
+}
+
 const LeaderboardPage = lazy(() => import('./pages/LeaderboardPage'));
-const Crescendo = lazy(() => import('./pages/Crescendo'));
 const DepositPage = lazy(() => import('./pages/DepositPage'));
 const MerchPage = lazy(() => import('./pages/MerchPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
@@ -307,17 +313,8 @@ function AppRoutes() {
               } 
             />
             
-            {/* DISCOVER - community content feed */}
-            <Route 
-              path="/discover" 
-              element={
-                isAuthenticated ? (
-                  <AppLayout><DiscoverPage /></AppLayout>
-                ) : (
-                  <DiscoverPage />
-                )
-              } 
-            />
+            {/* DISCOVER → The Mall */}
+            <Route path="/discover" element={<MallRedirect />} />
 
             {/* GROUNDBALL routes → redirect to /rewards */}
             <Route path="/groundball" element={<Navigate to="/rewards" replace />} />
@@ -330,7 +327,7 @@ function AppRoutes() {
             />
 
             {/* CRESCENDO */}
-            <Route path="/crescendo" element={<Crescendo />} />
+            <Route path="/crescendo" element={<Navigate to="/" replace />} />
 
             {/* DEPOSIT */}
             <Route 

@@ -3,13 +3,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { ContentCard, type ContentItem } from '@/components/discover/ContentCard';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, Compass } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMemo } from 'react';
 
 export function CommunityFeedSection() {
-  const navigate = useNavigate();
-
   const { data: content = [], isLoading } = useQuery({
     queryKey: ['community-feed-homepage'],
     queryFn: async () => {
@@ -77,7 +74,7 @@ export function CommunityFeedSection() {
           <Compass className="w-4 h-4 text-primary" />
           Fresh from the Community
         </h2>
-        <Button variant="ghost" size="sm" onClick={() => navigate('/discover')} className="gap-1 h-7 text-xs">
+        <Button variant="ghost" size="sm" onClick={() => window.location.assign('https://themall.nctr.live')} className="gap-1 h-7 text-xs">
           See All <ChevronRight className="w-3 h-3" />
         </Button>
       </div>

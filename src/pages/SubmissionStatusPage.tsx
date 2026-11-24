@@ -246,7 +246,7 @@ function EmptyView() {
         It may still be under review, or the link is no longer active.
       </p>
       <Link
-        to="/crescendo/rewards"
+        to="/rewards"
         style={{ display: 'inline-block', padding: '12px 20px', background: LIME, color: '#000', fontWeight: 600, fontSize: 14, textDecoration: 'none', letterSpacing: 0.3 }}
       >
         Browse rewards

@@ -33,11 +33,11 @@ export default function MerchPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('shop_settings' as any)
-        .select('nctr_per_dollar, is_active')
+        .select('is_active')
         .eq('store_identifier', 'nctr-merch')
         .single();
       if (error) throw error;
-      return data as unknown as { nctr_per_dollar: number; is_active: boolean } | null;
+      return data as unknown as { is_active: boolean } | null;
     },
     staleTime: 1000 * 60 * 5,
   });
@@ -88,7 +88,6 @@ export default function MerchPage() {
   const mostRecentDate = transactions?.[0]?.created_at;
 
   const isActive = shopSettings?.is_active !== false;
-  const earnRate = shopSettings?.nctr_per_dollar ?? 0;
 
   return (
     <div className="min-h-screen bg-[#131313]">
@@ -104,9 +103,6 @@ export default function MerchPage() {
           <div className="pt-2">
             <ShopNowButton />
           </div>
-          <p className="text-[#5A5A58] text-sm pt-1">
-            Earn NCTR on every dollar spent
-          </p>
         </div>
       </section>
 
@@ -115,11 +111,11 @@ export default function MerchPage() {
         <div className={cardStyle}>
           <div className="flex items-center gap-3 mb-3">
             <ShoppingBag className="w-6 h-6 text-[#E2FF6D]" />
-            <h2 className="text-white text-lg font-semibold">Current Earn Rate</h2>
+            <h2 className="text-white text-lg font-semibold">How you earn</h2>
           </div>
           {isActive ? (
-            <p className="text-[#E2FF6D] text-3xl font-bold" style={{ fontFamily: "'DM Mono', monospace" }}>
-              {earnRate} NCTR per $1 spent
+            <p className="text-[#D9D9D9] text-lg">
+              Orders at NCTR Merch earn NCTR, credited to your account.
             </p>
           ) : (
             <p className="text-[#5A5A58] text-lg">Merch rewards temporarily paused</p>
@@ -216,7 +212,7 @@ export default function MerchPage() {
             {[
               { icon: ShoppingCart, title: 'Shop', desc: 'Browse merch at merch.nctr.live' },
               { icon: Zap, title: 'Earn', desc: 'NCTR is automatically credited to your account' },
-              { icon: TrendingUp, title: 'Grow', desc: 'NCTR earnings count toward your Crescendo status' },
+              { icon: TrendingUp, title: 'Grow', desc: 'Commit what you earn to build your Crescendo status.' },
             ].map(({ icon: Icon, title, desc }) => (
               <div key={title} className={cardStyle}>
                 <Icon className="w-8 h-8 text-[#E2FF6D] mb-3" />
