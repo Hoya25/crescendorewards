@@ -198,9 +198,15 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
         .from('rewards')
         .select('*')
         .eq('id', rewardId)
-        .single();
+        .maybeSingle();
 
-      if (fetchError) throw fetchError;
+      // Invalid id format means the reward can't exist: treat as not available, not a load failure.
+      if (fetchError && (fetchError as any).code !== '22P02') throw fetchError;
+      if (!data || (data as any).is_active === false) {
+        setReward(null);
+        setBrand(null);
+        return;
+      }
       setReward(data as unknown as Reward);
 
       if (data?.brand_id) {
@@ -501,8 +507,9 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">Reward Not Found</h2>
-          <Button onClick={() => navigate('/rewards')}>Back to Rewards</Button>
+          <h2 className="text-2xl font-bold mb-2">This reward isn't available.</h2>
+          <p className="text-muted-foreground mb-4">See what's open now.</p>
+          <Button onClick={() => navigate('/rewards')}>Browse rewards</Button>
         </div>
       </div>
     );
