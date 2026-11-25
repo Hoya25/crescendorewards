@@ -558,7 +558,7 @@ Deno.serve(async (req) => {
               user_id: authUserId,
               type: 'status_upgrade_prompt',
               title: '🚀 More Bounties Waiting at Silver',
-              message: 'You unlocked Tier 1 merch bounties — complete them with 360LOCK and you are on your way to Silver status (13 for every 10), which unlocks Tier 2 bounties that earn up to 1,500 NCTR each.',
+              message: 'You unlocked Tier 1 merch bounties — complete them with 360LOCK and you are on your way to Silver status (13 for every 10).',
               metadata: {
                 current_tier: 'bronze',
                 target_tier: 'silver',
@@ -570,7 +570,7 @@ Deno.serve(async (req) => {
               user_id: authUserId,
               type: 'status_upgrade_prompt',
               title: '🔥 Tier 3 Bounties Waiting at Gold',
-              message: 'You have access to Tier 1 and Tier 2 merch bounties. Keep earning with 360LOCK to reach Gold (3 for every 2) and unlock Tier 3 campaign bounties that earn up to 3,000 NCTR each.',
+              message: 'You have access to Tier 1 and Tier 2 merch bounties. Keep earning with 360LOCK to reach Gold (3 for every 2).',
               metadata: {
                 current_tier: 'silver',
                 target_tier: 'gold',

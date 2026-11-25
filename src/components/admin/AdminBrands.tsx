@@ -471,7 +471,7 @@ export function AdminBrands() {
           id="name"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          placeholder="e.g., Apple Store"
+          placeholder="Brand name"
         />
       </div>
 

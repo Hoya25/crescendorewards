@@ -2142,6 +2142,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_hidden: boolean
           is_read: boolean
           message: string
           metadata: Json | null
@@ -2152,6 +2153,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          is_hidden?: boolean
           is_read?: boolean
           message: string
           metadata?: Json | null
@@ -2162,12 +2164,40 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          is_hidden?: boolean
           is_read?: boolean
           message?: string
           metadata?: Json | null
           title?: string
           type?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      phase1e_backup: {
+        Row: {
+          changed_at: string
+          column_name: string
+          id: number
+          old_value: Json | null
+          row_id: string
+          table_name: string
+        }
+        Insert: {
+          changed_at?: string
+          column_name: string
+          id?: number
+          old_value?: Json | null
+          row_id: string
+          table_name: string
+        }
+        Update: {
+          changed_at?: string
+          column_name?: string
+          id?: number
+          old_value?: Json | null
+          row_id?: string
+          table_name?: string
         }
         Relationships: []
       }

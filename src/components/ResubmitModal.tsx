@@ -247,7 +247,7 @@ export function ResubmitModal({ open, onClose, submission, onSuccess }: Resubmit
                 id="brand"
                 value={formData.brand}
                 onChange={(e) => setFormData(prev => ({ ...prev, brand: e.target.value }))}
-                placeholder="e.g., Nike, Apple"
+                placeholder="Brand name"
               />
             </div>
           </div>

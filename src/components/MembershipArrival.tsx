@@ -31,7 +31,7 @@ export default function MembershipArrival() {
   const { tier, nextTier, progressToNextTier, total360Locked } = useUnifiedUser();
 
   const hasUser = !!tier;
-  const tierName = tier?.display_name || 'Silver';
+  const tierName = tier?.display_name || '';
   const nextTierName = nextTier?.display_name;
   const isMax = hasUser && !nextTier;
   const progress = Math.min(100, Math.max(0, Math.round(progressToNextTier || 0)));
@@ -40,8 +40,9 @@ export default function MembershipArrival() {
 
   const accent = TIER_ACCENT[tierName] || '#B6B4AD';
 
-  const headlineResolve =
-    tierName === 'Bronze'
+  const headlineResolve = !hasUser
+    ? <>You're in. Commit NCTR with 360LOCK to reach Bronze.</>
+    : tierName === 'Bronze'
       ? <>AND YOU'RE IN &mdash; AT <span style={{ borderBottom: `3px solid ${accent}`, paddingBottom: 1 }}>BRONZE</span>.</>
       : <>AND IT'S BUILT YOU TO <span style={{ borderBottom: `3px solid ${accent}`, paddingBottom: 1 }}>{tierName}</span>.</>;
 

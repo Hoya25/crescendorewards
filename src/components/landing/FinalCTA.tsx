@@ -29,7 +29,7 @@ export function FinalCTA() {
           Your status in the Alliance.
         </h2>
         <p className="text-base md:text-lg mb-10 text-text-body">
-          Earn NCTR at thousands of stores. Commit it for 360 days. Every tier you reach opens rewards sponsored by the alliance and the brands that back its members.
+          Earn NCTR today at NCTR Merch and through bounties. Commit it for 360 days. Rewards open by status tier as brands join.
         </p>
         <Button
           size="lg"

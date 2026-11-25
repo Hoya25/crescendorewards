@@ -1234,7 +1234,6 @@ export function RewardDetailPage({ onClaimSuccess }: RewardDetailPageProps) {
             <span className="text-2xl">🛒</span>
             <div>
               <p className="text-sm font-semibold text-foreground">Kroma Wellness is a founding brand</p>
-              <p className="text-xs text-muted-foreground">Earning on alliance brands is coming soon. Earn today at NCTR Merch →</p>
             </div>
           </a>
         )}

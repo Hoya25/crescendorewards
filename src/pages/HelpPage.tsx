@@ -19,7 +19,7 @@ const faqs = [
   },
   {
     question: "How do I get Claims?",
-    answer: "You can purchase Claims packages with real money, or earn them through activities like referrals, daily check-ins, and special promotions. Check the Earn page for current opportunities."
+    answer: "New members receive Claims when they join, and members can receive Claims as gifts. Check the Earn page for current opportunities."
   },
   {
     question: "What are the status tiers?",
@@ -31,7 +31,7 @@ const faqs = [
   },
   {
     question: "What happens when I claim a reward?",
-    answer: "When you claim a reward, your Claims balance is deducted and the reward is delivered based on its type. Digital rewards like codes or subscriptions are delivered instantly. Physical items require shipping information."
+    answer: "Your Claims balance is deducted and the reward is delivered based on its type. Physical items require shipping information."
   },
   {
     question: "Can I transfer Claims to another user?",
@@ -47,7 +47,7 @@ const faqs = [
   },
   {
     question: "How do I contact support?",
-    answer: "Click the feedback button in the corner of any page to submit feedback or report issues, or email us at support@crescendo.nctr.live. We typically respond within 24-48 hours."
+    answer: "Click the feedback button in the corner of any page to submit feedback or report issues, or email us at support@crescendo.nctr.live."
   },
   {
     question: "Is Crescendo available on mobile?",

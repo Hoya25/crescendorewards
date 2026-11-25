@@ -906,7 +906,7 @@ export function AdminAlliancePartners() {
                         slug: prev.slug || generateSlug(name),
                       }));
                     }}
-                    placeholder="e.g., Spotify Premium"
+                    placeholder="Partner or plan name"
                   />
                 </div>
 
@@ -916,7 +916,7 @@ export function AdminAlliancePartners() {
                     id="slug"
                     value={formData.slug}
                     onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
-                    placeholder="e.g., spotify-premium"
+                    placeholder="partner-slug"
                   />
                 </div>
               </div>

@@ -23,7 +23,7 @@ export function StatusSayBlock() {
       return !!data;
     },
   });
-  const open = (cycles ?? []).find((c) => c.status === 'open');
+  const open = (cycles ?? []).find((c) => c.status === 'open' && (c.candidates?.length ?? 0) > 0);
   // Studio backing share has no source yet; wired to the open pick cycle where it will live.
   const studioShare = (open as { studio_share?: number } | undefined)?.studio_share;
 
@@ -68,9 +68,7 @@ export function StatusSayBlock() {
             ))}
           </div>
         </div>
-      ) : (
-        <div style={{ marginTop: 14, fontSize: 13, color: 'var(--nctr-muted)' }}>The next Member Pick opens soon.</div>
-      )}
+      ) : null}
 
       {showStudio && studioShare != null && (
         <div style={{ marginTop: 12, fontSize: 13, color: 'var(--nctr-ink-soft)' }}>
@@ -78,9 +76,11 @@ export function StatusSayBlock() {
         </div>
       )}
 
-      <div style={{ marginTop: 14, fontSize: 13, color: 'var(--nctr-muted)', fontStyle: 'italic' }}>
-        Member Picks start with one sponsored reward a month. As the Alliance grows, so does what members decide.
-      </div>
+      {open && (
+        <div style={{ marginTop: 14, fontSize: 13, color: 'var(--nctr-muted)', fontStyle: 'italic' }}>
+          Member Picks start with one sponsored reward a month. As the Alliance grows, so does what members decide.
+        </div>
+      )}
     </div>
   );
 }

@@ -24,6 +24,7 @@ export function useReferralSuccessToast() {
         .eq('user_id', user.id)
         .eq('type', 'referral_success')
         .eq('is_read', false)
+        .eq('is_hidden', false)
         .limit(50);
       return data ?? [];
     },

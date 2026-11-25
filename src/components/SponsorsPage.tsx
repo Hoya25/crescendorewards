@@ -295,9 +295,9 @@ export function SponsorsPage() {
                 <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
                   <Users className="w-8 h-8 text-muted-foreground" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">No sponsors found</h3>
+                <h3 className="text-lg font-semibold mb-2">{searchQuery ? 'No sponsors found' : 'No sponsors are listed yet.'}</h3>
                 <p className="text-muted-foreground mb-4">
-                  {searchQuery ? 'Try a different search term' : 'Be the first to join!'}
+                  {searchQuery ? 'Try a different search term' : 'Brands that sponsor member rewards will appear here.'}
                 </p>
                 <Button onClick={() => navigate('/become-sponsor')}>
                   Become a Sponsor

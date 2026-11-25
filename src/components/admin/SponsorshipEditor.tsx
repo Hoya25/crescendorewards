@@ -282,7 +282,7 @@ export function SponsorshipEditor({ formData, onChange }: SponsorshipEditorProps
             <Input
               value={formData.sponsor_name || ''}
               onChange={(e) => onChange({ sponsor_name: e.target.value || null })}
-              placeholder="e.g., Nike, Spotify"
+              placeholder="Sponsor name"
             />
           </div>
 

@@ -18,6 +18,8 @@ const TIER_THRESHOLDS = CANONICAL_TIERS.map(t => ({
   min: t.threshold,
 }));
 
+const BRONZE_THRESHOLD = CANONICAL_TIERS.find(t => t.id === 'bronze')?.threshold ?? 0;
+
 function getTierForAmount(amount: number) {
   for (let i = TIER_THRESHOLDS.length - 1; i >= 0; i--) {
     if (amount >= TIER_THRESHOLDS[i].min) return TIER_THRESHOLDS[i].name;
@@ -70,9 +72,11 @@ export function YourNextStep() {
   const getCondition = () => {
     if (totalEarned === 0 && locked === 0) return 1;
     if (locked === 0) return 2;
-    if (tierName === "bronze" && locked < 500) return 3;
-    if (tierName === "silver" && locked < 2000) return 4;
-    return 5; // Gold+
+    if (locked > 0 && locked < BRONZE_THRESHOLD) return 6;
+    if (tierName === "bronze" && nextTier) return 3;
+    if (tierName === "silver" && nextTier) return 4;
+    if (tierName === "gold" || tierName === "platinum" || tierName === "diamond") return 5;
+    return 1;
   };
 
   const condition = getCondition();
@@ -107,8 +111,9 @@ export function YourNextStep() {
         <CardContent className="p-5 md:p-6">
           {condition === 1 && <Condition1 navigate={navigate} />}
           {condition === 2 && <Condition2 navigate={navigate} earned={totalEarned} />}
-          {condition === 3 && <Condition3 navigate={navigate} locked={locked} />}
-          {condition === 4 && <Condition4 navigate={navigate} locked={locked} />}
+          {condition === 6 && <ConditionBronzeNext locked={locked} target={BRONZE_THRESHOLD} />}
+          {condition === 3 && <Condition3 navigate={navigate} locked={locked} target={Number(nextTier?.min_nctr_360_locked) || 0} />}
+          {condition === 4 && <Condition4 navigate={navigate} locked={locked} target={Number(nextTier?.min_nctr_360_locked) || 0} />}
           {condition === 5 && (
             <Condition5
               navigate={navigate}
@@ -200,15 +205,29 @@ function TierProgress({ locked, target, tierColor, tierName }: { locked: number;
   );
 }
 
-function Condition3({ navigate, locked }: { navigate: (path: string) => void; locked: number }) {
-  const remaining = 500 - locked;
+function ConditionBronzeNext({ locked, target }: { locked: number; target: number }) {
+  const remaining = Math.max(0, target - locked);
+  return (
+    <div>
+      <StepLabel label="Your Status" />
+      <h3 className="text-xl font-bold text-white mb-2">Bronze is next.</h3>
+      <TierProgress locked={locked} target={target} tierColor={TIER_COLORS.bronze} tierName="Bronze" />
+      <p className="text-sm text-white/70 mb-4">
+        Commit {remaining.toLocaleString()} more with 360LOCK to reach Bronze.
+      </p>
+    </div>
+  );
+}
+
+function Condition3({ navigate, locked, target }: { navigate: (path: string) => void; locked: number; target: number }) {
+  const remaining = Math.max(0, target - locked);
   return (
     <div>
       <StepLabel />
       <h3 className="text-xl font-bold text-white mb-2">
         You're Bronze! <span style={{ color: "#C0C0C0" }}>Silver</span> is Next.
       </h3>
-      <TierProgress locked={locked} target={500} tierColor={TIER_COLORS.bronze} tierName="Silver" />
+      <TierProgress locked={locked} target={target} tierColor={TIER_COLORS.bronze} tierName="Silver" />
       <p className="text-sm text-white/70 mb-4">
         Commit <span className="font-semibold text-white">{remaining.toLocaleString()}</span> more NCTR to reach Silver
         and unlock Tier 2 bounties and better rewards.
@@ -225,18 +244,17 @@ function Condition3({ navigate, locked }: { navigate: (path: string) => void; lo
   );
 }
 
-function Condition4({ navigate, locked }: { navigate: (path: string) => void; locked: number }) {
-  const remaining = 2000 - locked;
+function Condition4({ navigate, locked, target }: { navigate: (path: string) => void; locked: number; target: number }) {
+  const remaining = Math.max(0, target - locked);
   return (
     <div>
       <StepLabel label="Your Status" />
       <h3 className="text-xl font-bold text-white mb-2">
         Silver Member! <span style={{ color: "#FFD700" }}>Gold</span> is Next.
       </h3>
-      <TierProgress locked={locked} target={2000} tierColor={TIER_COLORS.silver} tierName="Gold" />
+      <TierProgress locked={locked} target={target} tierColor={TIER_COLORS.silver} tierName="Gold" />
       <p className="text-sm text-white/70 mb-4">
-        Commit <span className="font-semibold text-white">{remaining.toLocaleString()}</span> more NCTR to reach Gold
-        and unlock Tier 3 campaign bounties that earn up to 3,000 NCTR each.
+        Commit <span className="font-semibold text-white">{remaining.toLocaleString()}</span> more NCTR to reach Gold.
       </p>
       <Button
         onClick={() => { window.location.href = "https://bountyhunter.nctr.live"; }}
@@ -270,12 +288,11 @@ function Condition5({
     <div>
       <StepLabel label="Your Status" />
       <h3 className="text-xl font-bold text-white mb-2">
-        <span style={{ color: tierColor }}>{displayTier}</span> Member — You Have Full Access
+        <span style={{ color: tierColor }}>{displayTier}</span> Member
       </h3>
       <p className="text-sm text-white/70 mb-4">
-        All bounty tiers unlocked.{" "}
         {nextTier
-          ? `Keep earning to reach ${nextTier.display_name}.`
+          ? `Keep committing to reach ${nextTier.display_name}.`
           : "You've reached the highest Crescendo status!"}
       </p>
       {featuredBounty && (

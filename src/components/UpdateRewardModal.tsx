@@ -179,7 +179,7 @@ export function UpdateRewardModal({ open, onClose, submission, onSuccess }: Upda
                 id="brand"
                 value={formData.brand}
                 onChange={(e) => setFormData(prev => ({ ...prev, brand: e.target.value }))}
-                placeholder="e.g., Nike, Apple"
+                placeholder="Brand name"
               />
             </div>
           </div>

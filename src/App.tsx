@@ -76,7 +76,6 @@ const BenefitsPage = lazy(() => import('./components/benefits/BenefitsPage').the
 const SubmitContentPage = lazy(() => import('./pages/SubmitContentPage'));
 const MyContentPage = lazy(() => import('./pages/MyContentPage'));
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
-const BountyBoardPage = lazy(() => import('./pages/BountyBoardPage'));
 
 // /bounties now lives in Bounty Hunter.
 function BountyHunterRedirect() {
@@ -229,7 +228,7 @@ function AppRoutes() {
             <Route path="/faq" element={<HelpPage />} />
             <Route path="/claim" element={<ClaimGiftPage />} />
             <Route path="/submission/:id" element={<SubmissionStatusPage />} />
-            <Route path="/arrival-preview" element={<MembershipArrival />} />
+            <Route path="/arrival-preview" element={<ProtectedRoute><MembershipArrival /></ProtectedRoute>} />
             <Route path="/how-it-works" element={<MembershipPitch />} />
             
             <Route path="/about" element={<AboutPage />} />
@@ -587,8 +586,6 @@ function AppRoutes() {
             />
 
 
-            {/* Standalone Wingman Audit — no auth wrapper */}
-            <Route path="/wingman-audit" element={<Suspense fallback={<RouteLoading />}><WingmanAuditPage /></Suspense>} />
 
             {/* Admin Routes - Separate code chunk */}
             <Route 

@@ -47,260 +47,29 @@ interface Bounty {
   tags: string[]
 }
 
-const BOUNTIES: Bounty[] = [
-  // ── Entry Bounties ──
-  {
-    id: 'bounty-signup',
-    name: 'Sign-Up Bounty',
-    category: 'entry',
-    description: 'Create your NCTR account and complete onboarding. Earn 625 NCTR just for joining.',
-    amount: 625,
+// Bounties are read live from public.bounties (active rows only).
+// No bounty names or amounts are typed here.
+async function loadBounties(): Promise<Bounty[]> {
+  const { data, error } = await publicDb
+    .from('bounties')
+    .select('id, title, description, category, nctr_reward, requires_360lock, is_recurring, instructions')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true })
+  if (error || !data) return []
+  return data.map((b: any) => ({
+    id: b.id,
+    name: b.title,
+    category: String(b.category ?? '').toLowerCase() as Bounty['category'],
+    description: b.description ?? '',
+    amount: Number(b.nctr_reward) || 0,
     currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: false,
-    requirements: ['Create account', 'Verify email', 'Complete profile'],
-    tags: ['new-member', 'onboarding', 'easy']
-  },
-  {
-    id: 'bounty-early-adopter',
-    name: 'Early Adopter Bonus',
-    category: 'entry',
-    description: 'Earn 1,250 NCTR as an early adopter, while the offer runs.',
-    amount: 1250,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: false,
-    requirements: ['Join while the offer runs'],
-    tags: ['limited-time', 'launch', 'bonus']
-  },
-  {
-    id: 'bounty-profile-complete',
-    name: 'Profile Completion Bounty',
-    category: 'entry',
-    description: 'Fill out your full profile including avatar, bio, and preferences. Earn 375 NCTR.',
-    amount: 375,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: false,
-    requirements: ['Upload avatar', 'Write bio', 'Set preferences'],
-    tags: ['onboarding', 'profile', 'easy']
-  },
-  // ── Shopping Bounties ──
-  {
-    id: 'bounty-first-purchase',
-    name: 'First Purchase Bounty',
-    category: 'shopping',
-    description: 'Coming soon: 2,500 NCTR for your first alliance brand purchase. Earning on alliance brands is coming soon.',
-    amount: 2500,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: false,
-    requirements: ['First alliance brand purchase (coming soon)'],
-    tags: ['shopping', 'first-time', 'the-garden']
-  },
-  {
-    id: 'bounty-shop-and-earn',
-    name: 'Alliance Brand Purchase Bounty',
-    category: 'shopping',
-    description: 'Coming soon: 250 NCTR for every qualifying alliance brand purchase. Earning on alliance brands is coming soon.',
-    amount: 250,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: true,
-    requirements: ['Qualifying alliance brand purchase (coming soon)'],
-    tags: ['shopping', 'recurring', 'the-garden', 'uncapped']
-  },
-  {
-    id: 'bounty-quarterly-spend',
-    name: 'Quarterly Spend Bounty',
-    category: 'shopping',
-    description: 'Coming soon: hit the quarterly spend threshold and earn 5,000 NCTR. Resets each quarter.',
-    amount: 5000,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: true,
-    requirements: ['Reach quarterly spend threshold'],
-    tags: ['shopping', 'quarterly', 'milestone']
-  },
-  {
-    id: 'bounty-annual-member',
-    name: 'Annual Member Bounty',
-    category: 'shopping',
-    description: 'Maintain active membership for a full year and earn 10,000 NCTR.',
-    amount: 10000,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: true,
-    requirements: ['Maintain active membership for 12 months'],
-    tags: ['loyalty', 'annual', 'milestone']
-  },
-  {
-    id: 'bounty-top-supporter-spend',
-    name: 'Top Supporter Spend Bounty',
-    category: 'shopping',
-    description: 'Coming soon: reach the top-tier annual spend level and earn 25,000 NCTR.',
-    amount: 25000,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: true,
-    requirements: ['Reach top-tier annual spend threshold'],
-    tags: ['premium', 'annual', 'high-value']
-  },
-  // ── Merch Bounties ──
-  {
-    id: 'bounty-merch-collection',
-    name: 'Merch Collection Bounty',
-    category: 'merch',
-    description: 'Purchase from an NCTR merch collection and earn 5,000 NCTR.',
-    amount: 5000,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: false,
-    requirements: ['Purchase from official NCTR merch collection'],
-    tags: ['merch', 'collection', 'branded']
-  },
-  {
-    id: 'bounty-merch-repeat',
-    name: 'Merch Repeat Bounty',
-    category: 'merch',
-    description: 'Earn 500 NCTR for each additional merch purchase.',
-    amount: 500,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: true,
-    requirements: ['Purchase additional merch items'],
-    tags: ['merch', 'recurring']
-  },
-  // ── Referral Bounties ──
-  {
-    id: 'bounty-referral-signup',
-    name: 'Referral Sign-Up Bounty',
-    category: 'referral',
-    description: 'Refer a friend who creates an account. Earn 625 NCTR per referral.',
-    amount: 625,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: true,
-    requirements: ['Referred friend creates account'],
-    tags: ['referral', 'friend', 'recurring']
-  },
-  {
-    id: 'bounty-referral-purchase',
-    name: 'Referral Purchase Bounty',
-    category: 'referral',
-    description: 'Coming soon: 2,500 NCTR when your referral makes their first alliance brand purchase.',
-    amount: 2500,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: true,
-    requirements: ['Referred friend completes first purchase'],
-    tags: ['referral', 'purchase', 'recurring']
-  },
-  {
-    id: 'bounty-early-referral',
-    name: 'Early Referral Bonus',
-    category: 'referral',
-    description: 'Referral bonus: earn 500 NCTR per referral while the offer runs.',
-    amount: 500,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: true,
-    requirements: ['Refer while the offer runs'],
-    tags: ['referral', 'launch', 'limited-time']
-  },
-  {
-    id: 'bounty-referral-milestone-5',
-    name: 'Referral Milestone — 5 Friends',
-    category: 'referral',
-    description: 'Refer 5 friends who all sign up. Earn a 2,500 NCTR milestone bonus.',
-    amount: 2500,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: false,
-    requirements: ['5 referred friends create accounts'],
-    tags: ['referral', 'milestone']
-  },
-  {
-    id: 'bounty-referral-milestone-20',
-    name: 'Referral Milestone — 20 Friends',
-    category: 'referral',
-    description: 'Refer 20 friends who all sign up. Earn a 5,000 NCTR milestone bonus.',
-    amount: 5000,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: false,
-    requirements: ['20 referred friends create accounts'],
-    tags: ['referral', 'milestone', 'ambassador']
-  },
-  // ── Engagement Bounties ──
-  {
-    id: 'bounty-social-share',
-    name: 'Social Share Bounty',
-    category: 'engagement',
-    description: 'Share NCTR on social media and earn 500 NCTR.',
-    amount: 500,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: false,
-    requirements: ['Share NCTR content on social media', 'Tag @NCTRAlliance'],
-    tags: ['social', 'sharing', 'easy']
-  },
-  {
-    id: 'bounty-monthly-engagement',
-    name: 'Monthly Engagement Bounty',
-    category: 'engagement',
-    description: 'Stay active each month — earn 250 NCTR per month, up to 4 months.',
-    amount: 250,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: true,
-    requirements: ['Log in and complete qualifying activity each month'],
-    tags: ['monthly', 'activity', 'recurring']
-  },
-  {
-    id: 'bounty-community-contributor',
-    name: 'Community Contributor Bounty',
-    category: 'engagement',
-    description: 'Make a meaningful contribution to the NCTR community and earn 2,000 NCTR.',
-    amount: 2000,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: false,
-    requirements: ['Submit approved community contribution'],
-    tags: ['community', 'contribution']
-  },
-  {
-    id: 'bounty-impact-engine-join',
-    name: 'Impact Engine Join Bounty',
-    category: 'engagement',
-    description: 'Coming soon: 5,000 NCTR for joining an Impact Engine. The Impact Engines are coming. Early members have the most time to build and earn.',
-    amount: 5000,
-    currency: 'NCTR',
-    lock_period: '360LOCK',
-    lock_days: 360,
-    repeatable: false,
-    requirements: ['Join any Impact Engine community'],
-    tags: ['impact-engine', 'community', 'joining']
-  }
-]
+    lock_period: b.requires_360lock ? '360LOCK' : 'None',
+    lock_days: b.requires_360lock ? 360 : 0,
+    repeatable: !!b.is_recurring,
+    requirements: b.instructions ? [String(b.instructions)] : [],
+    tags: [String(b.category ?? '').toLowerCase()].filter(Boolean),
+  }))
+}
 
 // ─────────────────────────────────────────────────────────────
 // DATA: Crescendo Status Tiers
@@ -384,15 +153,15 @@ interface Promotion {
 const PROMOTIONS: Promotion[] = [
   {
     name: 'Early Adopter Bonus',
-    description: 'Earn 1,250 NCTR for joining while the offer runs. No counter and no slot limit.',
+    description: 'Earn NCTR for joining while the offer runs. No counter and no slot limit. See search_bounties for the live amount.',
     type: 'launch-bonus',
     bounty_id: 'bounty-early-adopter',
     active: true,
-    details: 'Open to new members while the offer runs. 1,250 NCTR, committed for 360 days.'
+    details: 'Open to new members while the offer runs, committed for 360 days.'
   },
   {
     name: 'Early Referral Bonus',
-    description: 'Earn 500 NCTR for each friend you refer while the offer runs, a higher bounty than the standard referral rate.',
+    description: 'Earn NCTR for each friend you refer while the offer runs, a higher bounty than the standard referral rate.',
     type: 'referral-boost',
     bounty_id: 'bounty-early-referral',
     active: true,
@@ -438,8 +207,8 @@ server.registerTool(
         .describe('If true, only return bounties that can be earned multiple times'),
     },
   },
-  ({ category, min_amount, max_amount, keyword, repeatable_only }) => {
-    let results = [...BOUNTIES]
+  async ({ category, min_amount, max_amount, keyword, repeatable_only }) => {
+    let results = await loadBounties()
 
     if (category) {
       // Silent input alias, retired 2026-10-01: legacy callers may still send
@@ -534,7 +303,7 @@ server.registerTool(
       tiers = tiers.filter((t) => t.display_name === tier)
     }
 
-    const bounty = bounty_id ? BOUNTIES.find((b) => b.id === bounty_id) : null
+    const bounty = bounty_id ? (await loadBounties()).find((b) => b.id === bounty_id) : null
 
     const formatted = tiers.map((t) => {
       const result: Record<string, unknown> = {
@@ -746,20 +515,24 @@ server.registerTool(
         .describe('Optional referral code to credit the referring member'),
     },
   },
-  ({ referral_code }) => {
+  async ({ referral_code }) => {
     const baseUrl = 'https://bountyhunter.nctr.live/auth'
     const url = referral_code ? `${baseUrl}?ref=${encodeURIComponent(referral_code)}` : baseUrl
 
+    // One-time, no-purchase bounties from public.bounties make up the welcome summary.
+    // Daily Check-in is not a welcome bounty; no summed total is presented.
+    const welcome = (await loadBounties()).filter(
+      (b) => !b.repeatable && b.category === 'engagement' && !/check[\s-]?in/i.test(b.name)
+    )
     const welcomePackage = {
       url,
-      welcome_bounties: [
-        { name: 'Sign-Up Bounty', amount: '625 NCTR', lock: '360LOCK' },
-        { name: 'Early Adopter Bonus', amount: '1,250 NCTR', lock: '360LOCK', note: 'While the offer runs' },
-        { name: 'Profile Completion Bounty', amount: '375 NCTR', lock: '360LOCK' },
-      ],
-      total_potential: '2,250 NCTR',
+      welcome_bounties: welcome.map((b) => ({
+        name: b.name,
+        amount: `${b.amount.toLocaleString()} NCTR`,
+        lock: b.lock_period,
+      })),
       referral_code: referral_code || null,
-      note: 'New members can earn up to 2,250 NCTR by signing up and completing their profile while the offer runs. All tokens are committed through 360LOCK for 360 days. Your NCTR stays yours throughout.',
+      note: 'Amounts come from the live bounty list. Your NCTR stays yours throughout.',
     }
 
     return {
@@ -819,7 +592,7 @@ server.registerTool(
             {
               impact_engines: formatted,
               count: engines.length,
-              bounty: 'Coming soon: the Impact Engine Join Bounty, 5,000 NCTR committed for 360 days, opens when the engines launch.',
+              bounty: 'Coming soon: the Impact Engine Join Bounty, committed for 360 days, opens when the engines launch.',
               note: 'Impact Engines are passion-based communities. Each one connects people around a shared interest, with community-specific experiences and rewards.',
             },
             null,

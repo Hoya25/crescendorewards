@@ -28,7 +28,7 @@ const earningWays = [
 const tiers = [
   { emoji: "🥉", name: "Bronze", mult: "11 for 10", desc: "Just getting started" },
   { emoji: "🥈", name: "Silver", mult: "13 for 10", desc: "Unlocks Tier 2 bounties + better rewards" },
-  { emoji: "🥇", name: "Gold", mult: "3 for 2", desc: "Unlocks campaign bounties that earn up to 3,000 NCTR" },
+  { emoji: "🥇", name: "Gold", mult: "3 for 2", desc: "" },
   { emoji: "💎", name: "Platinum", mult: "9 for 5", desc: "Premium access + exclusive experiences" },
   { emoji: "👑", name: "Diamond", mult: "5 for 2", desc: "Top tier. Maximum earnings. Community leader." },
 ];
@@ -90,23 +90,36 @@ export function WelcomeFlow({ isOpen, onClose }: WelcomeFlowProps) {
     localStorage.setItem("crescendo_onboarded", "true");
 
     // Award bonuses (best effort) — both amounts are fixed server-side.
+    let signupNctr: number | null = null;
+    let claimsGranted: number | null = null;
     if (profile?.id) {
       try {
-        await (supabase as any).rpc('claim_signup_bonus');
+        const { data: bonus } = await (supabase as any).rpc('claim_signup_bonus');
+        if (bonus?.success && bonus?.awarded && Number(bonus?.nctr) > 0) {
+          signupNctr = Number(bonus.nctr);
+        }
+        if (bonus?.success && bonus?.awarded && Number(bonus?.claims) > 0) {
+          claimsGranted = Number(bonus.claims);
+        }
         await (supabase as any).rpc('award_onboarding_item', { p_item: 'profile_completed' });
         await supabase
           .from("unified_profiles")
           .update({ has_completed_onboarding: true })
           .eq("id", profile.id);
         refreshUnifiedProfile();
-        toast.success('Welcome! You received 5 free Claims 🎉');
+        // Only when the bonus was granted in this flow, never when already given.
+        if (claimsGranted) {
+          toast.success(`Welcome! You received ${claimsGranted} free Claims 🎉`);
+        }
       } catch (e) {
         console.error("Failed to record onboarding bonuses:", e);
       }
     }
 
 
-    toast.success("🎉 You earned 35 NCTR! Welcome to Crescendo.");
+    if (signupNctr) {
+      toast.success(`🎉 You earned ${signupNctr.toLocaleString()} NCTR! Welcome to Crescendo.`);
+    }
     onClose();
 
     const chosen = selectedPath !== null ? paths[selectedPath] : null;
@@ -187,7 +200,7 @@ export function WelcomeFlow({ isOpen, onClose }: WelcomeFlowProps) {
                       <div className="flex-1">
                         <span className="font-semibold text-sm text-text-heading">{t.name}</span>
                         <span className="text-sm text-accent-lime ml-2">({t.mult})</span>
-                        <span className="text-sm text-text-body"> — {t.desc}</span>
+                        {t.desc && <span className="text-sm text-text-body"> — {t.desc}</span>}
                       </div>
                     </div>
                   ))}

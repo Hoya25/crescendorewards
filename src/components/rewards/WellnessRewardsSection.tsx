@@ -1,271 +1,33 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Badge } from '@/components/ui/badge';
-import { Sparkles, Lock, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
-import { VisualRewardCard } from '@/components/rewards/VisualRewardCard';
-import { useFavorites } from '@/hooks/useFavorites';
-import { useAuthContext } from '@/contexts/AuthContext';
-import { useUnifiedUser } from '@/contexts/UnifiedUserContext';
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
-
-interface WellnessReward {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  cost: number;
-  image_url: string | null;
-  stock_quantity: number | null;
-  is_active: boolean;
-  is_featured: boolean;
-  sponsor_enabled?: boolean;
-  sponsor_name?: string | null;
-  sponsor_logo?: string | null;
-  min_status_tier?: string | null;
-  min_tier_required?: string | null;
-  is_sponsored?: boolean;
-  status_tier_claims_cost?: Record<string, number> | null;
-}
-
-const TIER_WELLNESS_UNLOCKS: { tier: string; level: number; color: string; emoji: string; items: string[] }[] = [
-  { tier: 'Bronze', level: 1, color: '#CD7F32', emoji: '🥉', items: ['Kroma 5-Day Reset Kit', '24K Chicken Bone Broth', 'Super Ramen'] },
-  { tier: 'Silver', level: 2, color: '#C0C0C0', emoji: '🥈', items: ['Beauty Matcha Latte', 'Super Core Colostrum', '+ all Bronze rewards'] },
-  { tier: 'Gold', level: 3, color: '#FFD700', emoji: '🥇', items: ['Priority access to new Kroma drops', '+ all Silver & Bronze rewards'] },
-  { tier: 'Platinum', level: 4, color: '#E5E4E2', emoji: '💎', items: ['Kroma VIP access & exclusive bundles', '+ all Gold, Silver & Bronze rewards'] },
-  { tier: 'Diamond', level: 5, color: '#B9F2FF', emoji: '👑', items: ['Everything + first access to partner rewards'] },
-];
-
-function TierUnlockPreview({ userTierLevel, userTierName }: { userTierLevel: number; userTierName: string }) {
-  const [expanded, setExpanded] = useState(false);
-
-  return (
-    <div className="mb-6">
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between gap-2 border border-border bg-card px-4 py-3 text-left hover:bg-accent/50 transition-colors" style={{ borderRadius: '0px' }}
-      >
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-amber-500" />
-          <span className="text-sm font-semibold text-foreground">
-            What each tier unlocks in Kroma Wellness
-          </span>
-          <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-            Your tier: {userTierName}
-          </Badge>
-        </div>
-        {expanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
-      </button>
-
-      {expanded && (
-        <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 animate-fade-in">
-          {TIER_WELLNESS_UNLOCKS.map((t) => {
-            const isUnlocked = userTierLevel >= t.level;
-            return (
-              <div
-                key={t.tier}
-                className={cn(
-                  'border p-3 transition-all relative overflow-hidden',
-                  isUnlocked
-                    ? 'border-primary/30 bg-card shadow-sm'
-                    : 'border-border bg-muted/30 opacity-70'
-                )}
-              >
-                <div className="flex items-center gap-1.5 mb-2">
-                  <span className="text-base">{t.emoji}</span>
-                  <span className="text-xs font-bold" style={{ color: t.color }}>{t.tier}</span>
-                  {isUnlocked ? (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 ml-auto" />
-                  ) : (
-                    <Lock className="w-3.5 h-3.5 text-muted-foreground ml-auto" />
-                  )}
-                </div>
-                <ul className="space-y-1">
-                  {t.items.map((item, i) => (
-                    <li key={i} className="text-[11px] leading-snug text-muted-foreground flex items-start gap-1">
-                      <span className="shrink-0 mt-0.5">🌿</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-                {isUnlocked && (
-                  <div
-                    className="absolute inset-x-0 bottom-0 h-0.5"
-                    style={{ backgroundColor: t.color }}
-                  />
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
+const KROMA_LOGO =
+  'https://yhwcaodofmbusjurawhp.supabase.co/storage/v1/object/public/reward-images/kroma/kroma-logo.webp';
 
 export function WellnessRewardsSection() {
-  const navigate = useNavigate();
-  const { isAuthenticated } = useAuthContext();
-  const { tier, profile } = useUnifiedUser();
-  const { favorites, toggleFavorite, animatingIds } = useFavorites();
-  const [rewards, setRewards] = useState<WellnessReward[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchWellnessRewards = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('rewards')
-          .select('id, title, description, category, cost, image_url, stock_quantity, is_active, is_featured, sponsor_enabled, sponsor_name, sponsor_logo, min_tier_required, is_sponsored, status_tier_claims_cost')
-          .eq('category', 'wellness')
-          .eq('is_active', true)
-          .order('is_featured', { ascending: false })
-          .order('cost', { ascending: true });
-
-        if (error) throw error;
-        setRewards((data as WellnessReward[]) || []);
-      } catch (err) {
-        console.error('Error fetching wellness rewards:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchWellnessRewards();
-  }, []);
-
-  if (loading) {
-    return (
-      <section className="py-8">
-        <div className="container mx-auto px-4 max-w-full">
-          <Skeleton className="h-8 w-64 mb-4" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[1, 2, 3].map(i => <Skeleton key={i} className="h-72" style={{ borderRadius: '0px' }} />)}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  if (rewards.length === 0) return null;
-
-  const userTier = tier
-    ? { tierName: tier.display_name || tier.tier_name, tierLevel: tier.sort_order }
-    : { tierName: 'Bronze', tierLevel: 1 };
-
   return (
-    <section
-      className="py-8 relative overflow-hidden"
-      style={{
-        background: '#1F2020',
-      }}
-    >
+    <section className="py-8 relative overflow-hidden" style={{ background: '#1F2020' }}>
       <div className="container mx-auto px-4 max-w-full">
-        {/* Header with Kroma branding */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
-          <div className="flex items-start gap-4">
-            <img
-              src="https://yhwcaodofmbusjurawhp.supabase.co/storage/v1/object/public/reward-images/kroma/kroma-logo.webp"
-              alt="Kroma Wellness"
-              className="w-20 h-auto shrink-0 dark:invert"
-            />
-            <div>
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <h2 className="text-xl font-bold">
-                  Kroma Wellness Rewards · Preview
-                </h2>
-                <Badge
-                  className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border-0"
-                  style={{ backgroundColor: '#E2FF6D', color: '#323232', borderRadius: '0px' }}
-                >
-                  <Sparkles className="w-3 h-3" />
-                  FEATURED PARTNER
-                </Badge>
-                <Badge
-                  className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold border-0"
-                  style={{ backgroundColor: '#E2FF6D', color: '#323232', borderRadius: '0px' }}
-                >
-                  PREVIEW
-                </Badge>
-              </div>
-              <p className="text-sm text-muted-foreground max-w-lg">
-                <span className="font-medium text-foreground">Food is medicine.</span>{' '}
-                Earned through participation. Opened through commitment. Sponsored by the alliance and its partner brands.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Kroma Cross-Link Banner */}
-        <a
-          href="https://kromawellness.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group mb-6 flex items-center gap-4 border p-4 hover:shadow-md transition-all"
-          style={{ backgroundColor: '#1F2020', borderRadius: '0px', borderColor: '#323232', borderLeft: '3px solid #E2FF6D' }}
+        <div
+          className="flex flex-col sm:flex-row sm:items-center gap-4 border p-5"
+          style={{ borderRadius: '0px', borderColor: '#323232', borderLeft: '3px solid #E2FF6D' }}
         >
-          <span className="text-3xl shrink-0">🌿</span>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-foreground">
-              Meet Kroma Wellness, a founding brand of the alliance →
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Earning on alliance brands is coming soon. Commit via 360LOCK to open the rewards below.
-            </p>
-          </div>
-          <span className="text-muted-foreground group-hover:translate-x-1 transition-transform text-lg shrink-0">→</span>
-        </a>
-        {/* Tier Unlock Preview */}
-        <TierUnlockPreview userTierLevel={userTier.tierLevel} userTierName={userTier.tierName} />
-
-        {/* Rewards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-5">
-          {rewards.map((reward, i) => (
-            <div
-              key={reward.id}
-              className="animate-fade-in"
-              style={{ animationDelay: `${i * 60}ms` }}
-            >
-              <VisualRewardCard
-                reward={{
-                  ...reward,
-                  is_sponsored: reward.sponsor_enabled || false,
-                }}
-                isInFavorites={favorites.has(reward.id)}
-                onToggleFavorites={(id, e) => {
-                  e.stopPropagation();
-                  toggleFavorite(id);
-                }}
-                onClick={() => navigate(`/rewards/${reward.id}`)}
-                isAnimatingHeart={animatingIds.has(reward.id)}
-                claimBalance={profile?.crescendo_data?.claims_balance ?? 0}
-                userTier={userTier}
-              />
+          <img src={KROMA_LOGO} alt="Kroma Wellness" className="w-20 h-auto shrink-0 dark:invert" />
+          <div className="flex-1">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground" style={{ fontFamily: '"DM Mono", monospace' }}>
+              Founding brand
             </div>
-          ))}
-        </div>
-
-        {/* Explainer Callout */}
-        <div className="flex flex-col sm:flex-row gap-3 max-w-3xl">
-          <div
-            className="px-4 py-3 flex-1 text-sm leading-relaxed"
-            style={{ borderRadius: '0px', backgroundColor: '#323232', color: '#E2FF6D' }}
-          >
-            <span className="font-semibold">How it works:</span>{' '}
-            Earn NCTR with bounties and NCTR Merch → Commit with 360LOCK → Unlock these rewards.
-            Your commitment opens rewards. Your earned NCTR stays yours.
+            <h2 className="text-xl font-bold uppercase mt-1" style={{ fontFamily: '"Barlow Condensed", sans-serif' }}>
+              KROMA WELLNESS
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Kroma Wellness signed as the first founding brand.
+            </p>
           </div>
           <a
-            href="https://merch.nctr.live"
+            href="https://kromawellness.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-3 text-sm leading-relaxed border border-emerald-200 dark:border-emerald-800 bg-card hover:bg-accent transition-colors flex items-center gap-2 sm:max-w-[240px]" style={{ borderRadius: '0px' }}
+            className="text-sm font-semibold text-foreground hover:underline shrink-0"
           >
-            <span className="text-base">🛒</span>
-            <span>
-              <span className="font-semibold block text-foreground">Earn today at NCTR Merch</span>
-              <span className="text-muted-foreground text-xs">merch.nctr.live — earning on alliance brands is coming soon →</span>
-            </span>
+            Visit Kroma Wellness →
           </a>
         </div>
       </div>

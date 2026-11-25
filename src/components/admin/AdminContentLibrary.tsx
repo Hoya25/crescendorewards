@@ -471,7 +471,7 @@ export function AdminContentLibrary() {
             </div>
             <div>
               <label className="text-sm font-medium">Source Name</label>
-              <Input value={newContent.source_name} onChange={e => setNewContent(p => ({ ...p, source_name: e.target.value }))} placeholder="e.g. Feals, @username" />
+              <Input value={newContent.source_name} onChange={e => setNewContent(p => ({ ...p, source_name: e.target.value }))} placeholder="Name or @username" />
             </div>
             <div>
               <label className="text-sm font-medium">Media URL</label>

@@ -32,6 +32,7 @@ export function useCrescendoNotifications() {
         .from('notifications')
         .select('*')
         .eq('user_id', profile.id)
+        .eq('is_hidden', false)
         .order('created_at', { ascending: false })
         .limit(20);
 

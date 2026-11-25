@@ -2078,7 +2078,7 @@ export function AdminRewards() {
                   <Label className="text-xs">Powered By Name</Label>
                   <Input
                     value={(formData as any).powered_by_name || ''}
-                    placeholder="e.g. Feals"
+                    placeholder="Brand name"
                     onChange={(e) => setFormData({ ...formData, powered_by_name: e.target.value || null } as any)}
                   />
                   <p className="text-xs text-muted-foreground">
@@ -2351,7 +2351,7 @@ export function AdminRewards() {
               <Input
                 value={bulkSponsorData.sponsor_name}
                 onChange={(e) => setBulkSponsorData({ ...bulkSponsorData, sponsor_name: e.target.value })}
-                placeholder="e.g., Nike, NCTR Alliance"
+                placeholder="Sponsor name"
               />
             </div>
             

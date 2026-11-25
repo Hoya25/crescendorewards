@@ -25,6 +25,7 @@ export function useNCTREarningDetection(userId: string | undefined) {
         .eq('user_id', userId)
         .eq('type', 'nctr_earned')
         .eq('is_read', false)
+        .eq('is_hidden', false)
         .gt('created_at', lastCheckedRef.current)
         .order('created_at', { ascending: false })
         .limit(1);
