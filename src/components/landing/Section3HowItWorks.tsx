@@ -3,24 +3,32 @@ import { InlineNctrMark } from './InlineNctrMark';
 import { barlow, dmSans, sectionClass, sectionHeading } from './landingStyles';
 
 const STEPS: { n: string; title: string; body: ReactNode }[] = [
-  { n: '01', title: 'Earn.', body: 'Shop, take part, and invite your people. NCTR Merch earns today. Earning at alliance stores is coming.' },
+  { n: '01', title: 'Live.', body: 'Shop where you already shop. Bring your people. Take part.' },
   {
     n: '02',
-    title: 'Commit.',
+    title: 'Earn.',
     body: (
       <>
-        Commit your <InlineNctrMark surface="light" /> with 360LOCK. Your commitment is your status, Bronze through Diamond. Your <InlineNctrMark surface="light" /> stays yours.
+        It comes back as <InlineNctrMark surface="light" />. NCTR Merch earns today. Alliance stores are coming.
       </>
     ),
   },
-  { n: '03', title: 'Status opens rewards.', body: 'Higher status earns more on everything you do and opens more of what the alliance sponsors.' },
+  {
+    n: '03',
+    title: 'Commit.',
+    body: (
+      <>
+        Commit your <InlineNctrMark surface="light" /> with 360LOCK. Your commitment is your status. Your <InlineNctrMark surface="light" /> stays yours.
+      </>
+    ),
+  },
 ];
 
 export function Section3HowItWorks() {
   return (
     <section id="how-it-works" className={sectionClass}>
       <div className="max-w-7xl mx-auto">
-        <h2 style={sectionHeading}>How it works.</h2>
+        <h2 style={sectionHeading}>Live and Earn.</h2>
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-12">
           {STEPS.map((s) => (
             <div key={s.n}>
@@ -30,6 +38,9 @@ export function Section3HowItWorks() {
             </div>
           ))}
         </div>
+        <p className="mt-12" style={{ fontFamily: barlow, fontWeight: 700, fontSize: '24px', color: 'var(--landing-ink)', lineHeight: 1.1 }}>
+          The more you build, the more opens.
+        </p>
       </div>
     </section>
   );

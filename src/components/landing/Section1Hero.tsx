@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { InlineNctrMark } from './InlineNctrMark';
 import { barlow, dmSans, darkButton, BH_SIGNUP_URL } from './landingStyles';
 
 export function Section1Hero() {
@@ -13,12 +12,15 @@ export function Section1Hero() {
           Owned by everyone who participates.
         </p>
         <p className="mt-6 max-w-[560px]" style={{ fontFamily: dmSans, fontSize: '18px', color: 'var(--landing-ink)', lineHeight: 1.6 }}>
-          Your shopping earns <InlineNctrMark surface="light" />. Today at NCTR Merch, and at alliance stores as they open. Commit it, and your status opens rewards sponsored by the alliance and its partner brands.
+          You shop. You show up. You tell your friends. That has always been worth something. Here, it comes back to you.
         </p>
         <a href={BH_SIGNUP_URL} className="mt-8" style={darkButton}>
           Get ready for launch
         </a>
         <p className="mt-4" style={{ fontFamily: dmSans, fontSize: '14px', color: 'var(--landing-muted)' }}>
+          In beta. NCTR Merch earns today. Alliance stores are coming.
+        </p>
+        <p className="mt-2" style={{ fontFamily: dmSans, fontSize: '14px', color: 'var(--landing-muted)' }}>
           Already a member?{' '}
           <Link to="/membership" style={{ color: 'var(--landing-ink)', textDecoration: 'underline', textUnderlineOffset: '3px' }}>
             Check my status

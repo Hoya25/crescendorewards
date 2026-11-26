@@ -27,9 +27,9 @@ const chipStyle = {
 const tileTitle = { fontFamily: barlow, fontWeight: 700, fontSize: '20px', textTransform: 'uppercase' as const, color: 'var(--landing-ink)', lineHeight: 1.1 };
 
 const AT_LAUNCH = [
-  { chip: 'ALL MEMBERS', title: 'Brands you already love', text: 'Wellness, outdoor, fashion, tech, and more.' },
-  { chip: 'BRONZE', title: 'Subscriptions you love', text: 'Streaming, wellness, and content subscriptions, sponsored by the alliance as your status grows.' },
-  { chip: 'GOLD', title: "The life you're building", text: 'Products, experiences, and opportunities that match what matters to you.' },
+  { chip: 'ALL MEMBERS', title: 'The everyday.', text: 'The brands you already shop start giving back.' },
+  { chip: 'BRONZE', title: 'The things you love.', text: 'The subscriptions and rituals you pay for now, sponsored as your status grows.' },
+  { chip: 'GOLD', title: "The life you're building.", text: 'The shows, the trips, the gear. The things you keep putting off.' },
 ];
 
 const capitalise = (t: string | null) => (t ? t.charAt(0).toUpperCase() + t.slice(1).toLowerCase() : '');
@@ -69,7 +69,7 @@ export function Section2StatusOpens() {
       <div className="max-w-7xl mx-auto">
         <h2 style={sectionHeading}>What your status opens.</h2>
         <p className="mt-4" style={{ fontFamily: dmSans, fontSize: '16px', color: 'var(--landing-muted)', lineHeight: 1.6 }}>
-          The alliance exists to sponsor the things that matter to you.
+          The things you already buy sponsor the things you love.
         </p>
 
         <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" style={state.loading ? { minHeight: '420px' } : undefined}>
