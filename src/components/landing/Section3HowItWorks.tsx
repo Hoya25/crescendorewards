@@ -9,7 +9,7 @@ const STEPS: { n: string; title: string; body: ReactNode }[] = [
     title: 'Earn.',
     body: (
       <>
-        It comes back as <InlineNctrMark surface="light" />. NCTR Merch earns today. Alliance stores are coming.
+        It comes back as <InlineNctrMark surface="light" />. Our merch store earns today. Alliance stores are coming.
       </>
     ),
   },

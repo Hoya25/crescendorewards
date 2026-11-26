@@ -150,7 +150,7 @@ export function LandingPage() {
                   cursor: 'pointer',
                   transition: `color 300ms ${hoverCurve}`,
                 }}
-                onClick={() => navigate('/how-it-works')}
+                onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                 onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--landing-ink)')}
                 onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--landing-muted)')}
               >

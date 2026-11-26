@@ -52,7 +52,7 @@ export function MobileNav({ onViewRewards, onSignIn, onJoin }: MobileNavProps) {
           <Button
             variant="ghost"
             className="w-full justify-start gap-3 h-12 text-base"
-            onClick={() => handleNavigate('/how-it-works')}
+            onClick={() => { setOpen(false); setTimeout(() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 350); }}
           >
             <Sparkles className="w-5 h-5" />
             How It Works

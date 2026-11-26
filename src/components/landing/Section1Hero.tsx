@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { InlineNctrMark } from './InlineNctrMark';
 import { barlow, dmSans, darkButton, BH_SIGNUP_URL } from './landingStyles';
 
 export function Section1Hero() {
@@ -18,7 +19,7 @@ export function Section1Hero() {
           Get ready for launch
         </a>
         <p className="mt-4" style={{ fontFamily: dmSans, fontSize: '14px', color: 'var(--landing-muted)' }}>
-          In beta. NCTR Merch earns today. Alliance stores are coming.
+          In beta. <InlineNctrMark surface="light" /> Merch earns today. Alliance stores are coming.
         </p>
         <p className="mt-2" style={{ fontFamily: dmSans, fontSize: '14px', color: 'var(--landing-muted)' }}>
           Already a member?{' '}
