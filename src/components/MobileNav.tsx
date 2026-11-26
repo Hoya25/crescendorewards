@@ -33,7 +33,7 @@ export function MobileNav({ onViewRewards, onSignIn, onJoin }: MobileNavProps) {
           <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-full sm:w-80 p-0">
+      <SheetContent side="right" className="w-full sm:w-80 p-0 font-['DM_Sans',_sans-serif]">
         <SheetHeader className="p-4 border-b">
           <SheetTitle className="text-left flex items-center justify-between">
             <CrescendoLogo />
@@ -71,7 +71,7 @@ export function MobileNav({ onViewRewards, onSignIn, onJoin }: MobileNavProps) {
               onClick={() => handleNavAction(onJoin)}
             >
               <UserPlus className="w-5 h-5" />
-              Join Now
+              Get ready for launch
             </Button>
           </div>
         </nav>

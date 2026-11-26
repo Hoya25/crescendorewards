@@ -6,3 +6,6 @@
 - Preview (not-yet-claimable) rewards are flagged by `rewards.is_preview`; the `trg_reject_preview_reward_claim` trigger on `rewards_claims` refuses claims on them and `process-claim` rejects them before any credit, so no claim path can bypass the block.
 - Any tier sent to Bounty Hunter (tier sync and the sign-in lookup answer) is computed at send time from committed NCTR via `supabase/functions/_shared/tierFromCommitted.ts`, title-case, and omitted below Bronze; stored tier ids are never forwarded, so the two apps can't drift on stale or lowercase values.
 - Member screens show the committed balance only from `unified_profiles.nctr_locked_points` (via `useUnifiedUser().total360Locked`), Crescendo's mirror of Bounty Hunter's canonical balance; legacy `profiles` balance columns are not read for display.
+
+- Landing sections use independent scroll reveals and a local reward-tiles switch; this keeps tall phone sections reachable and disabled catalog reads off.
+- Landing status links reuse ProtectedRoute and its saved return path; this preserves the existing sign-in flow without a second auth implementation.

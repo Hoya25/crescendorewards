@@ -70,6 +70,18 @@ All colors MUST be HSL.
     --accent-lime: 82 100% 50%;
     --accent-lime-subtle: 82 100% 50% / 0.08;
 
+    /* Editorial landing palette — mode-invariant, isolated from member pages. */
+    --landing-paper: #F9F9F7;
+    --landing-ink: #323232;
+    --landing-muted: #5A5A58;
+    --landing-line: #E4E0D5;
+    --landing-card: #FFFFFF;
+    --landing-image-fallback: #EEEEEC;
+    --landing-band-text: #F5F4F0;
+    --landing-band-body: rgba(245,244,240,0.85);
+    --landing-badge-border: rgba(90,90,88,0.3);
+    --landing-button-hover: #1a1a1a;
+
     /* NCTR brand palette — exact hex, mode-invariant */
     --nctr-charcoal: #131313;
     --nctr-lime: #E2FF6D;

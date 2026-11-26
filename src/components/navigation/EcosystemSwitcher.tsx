@@ -40,11 +40,19 @@ export function EcosystemSwitcher({ surface = "auto" }: EcosystemSwitcherProps) 
           )}
           aria-current="page"
         >
-          <span className="inline-flex items-center gap-2 flex-wrap justify-center">
+          <span
+            className={cn(
+              lightOnly
+                ? "inline-flex items-center gap-1 flex-nowrap justify-center"
+                : "inline-flex items-center gap-2 flex-wrap justify-center"
+            )}
+          >
             CRESCENDO
             <span
               className={cn(
-                "text-[12px] leading-none px-2 py-0.5 border",
+                lightOnly
+                  ? "text-[10px] leading-none px-1.5 py-0.5 border"
+                  : "text-[12px] leading-none px-2 py-0.5 border",
                 "font-['Barlow_Condensed',_sans-serif] tracking-wider font-semibold",
                 lightOnly
                   ? "text-[#5A5A58] border-[rgba(90,90,88,0.3)] bg-transparent"

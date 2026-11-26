@@ -1,16 +1,15 @@
 import { useEffect, useRef } from "react";
 import { SEO } from "./SEO";
 import { MobileNav } from "./MobileNav";
-import { HeroSection } from "./landing/HeroSection";
-import { EntryPathsSection } from "./landing/EntryPathsSection";
-import { HowItWorksLanding } from "./landing/HowItWorksLanding";
-import { WhyAllianceSection } from "./landing/WhyAllianceSection";
-import { RewardsHighlight } from "./landing/RewardsHighlight";
-import { FiveWaysToEarn } from "./landing/FiveWaysToEarn";
-import { TheMathSection } from "./landing/TheMathSection";
-import { FinalCTA } from "./landing/FinalCTA";
+import { Section1Hero } from "./landing/Section1Hero";
+import { Section2StatusOpens } from "./landing/Section2StatusOpens";
+import { Section3HowItWorks } from "./landing/Section3HowItWorks";
+import { Section4Band } from "./landing/Section4Band";
+import { Section5Engines } from "./landing/Section5Engines";
+import { Section6ForBrands } from "./landing/Section6ForBrands";
+import { Section7Close } from "./landing/Section7Close";
 import { LandingFooter } from "./landing/LandingFooter";
-import { NCTRLogo } from "./NCTRLogo";
+import { BH_SIGNUP_URL } from "./landing/landingStyles";
 import { EcosystemSwitcher } from "./navigation/EcosystemSwitcher";
 
 import { useNavigate } from "react-router-dom";
@@ -25,6 +24,12 @@ function ScrollReveal({ children, className = "" }: { children: React.ReactNode;
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      el.classList.add("editorial-visible");
+      el.style.transition = "none";
+      return;
+    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -56,8 +61,7 @@ export function LandingPage() {
   const { setShowAuthModal, setAuthMode } = useAuthContext();
 
   const handleJoin = () => {
-    setAuthMode('signin');
-    setShowAuthModal(true);
+    window.location.href = BH_SIGNUP_URL;
   };
 
   const handleSignIn = () => {
@@ -66,7 +70,7 @@ export function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden" style={{ backgroundColor: '#F9F9F7' }}>
+    <div className="min-h-screen w-full overflow-x-hidden" style={{ backgroundColor: 'var(--landing-paper)', fontFamily: "'DM Sans', sans-serif" }}>
       <SEO 
         title="Status in the NCTR Alliance"
         description="Crescendo is where NCTR Alliance members hold status. Commit NCTR through 360LOCK and rise from Bronze to Diamond. Earn today at NCTR Merch; earning on alliance brands is coming soon."
@@ -77,7 +81,7 @@ export function LandingPage() {
       {/* Navigation */}
       <nav
         className="sticky top-0 z-20 px-6 md:px-12 py-4 md:py-5 w-full max-w-7xl mx-auto"
-        style={{ backgroundColor: '#F9F9F7' }}
+        style={{ backgroundColor: 'var(--landing-paper)' }}
       >
         <div className="w-full flex flex-col gap-3">
           <div className="flex justify-center">
@@ -94,7 +98,7 @@ export function LandingPage() {
                   fontFamily: barlow,
                   fontWeight: 900,
                   fontSize: '26px',
-                  color: '#323232',
+                  color: 'var(--landing-ink)',
                   letterSpacing: '-0.02em',
                   textTransform: 'uppercase',
                 }}
@@ -105,8 +109,8 @@ export function LandingPage() {
                 style={{
                   fontSize: '9px',
                   letterSpacing: '1px',
-                  color: '#5A5A58',
-                  border: '1px solid rgba(90,90,88,0.3)',
+                  color: 'var(--landing-muted)',
+                  border: '1px solid var(--landing-badge-border)',
                   backgroundColor: 'transparent',
                   padding: '2px 8px',
                   borderRadius: '0px',
@@ -124,15 +128,15 @@ export function LandingPage() {
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: '14px',
-                  color: '#5A5A58',
+                  color: 'var(--landing-muted)',
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
                   transition: `color 300ms ${hoverCurve}`,
                 }}
                 onClick={() => navigate('/rewards')}
-                onMouseEnter={(e) => (e.currentTarget.style.color = '#323232')}
-                onMouseLeave={(e) => (e.currentTarget.style.color = '#5A5A58')}
+                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--landing-ink)')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--landing-muted)')}
               >
                 Rewards
               </button>
@@ -140,15 +144,15 @@ export function LandingPage() {
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: '14px',
-                  color: '#5A5A58',
+                  color: 'var(--landing-muted)',
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
                   transition: `color 300ms ${hoverCurve}`,
                 }}
                 onClick={() => navigate('/how-it-works')}
-                onMouseEnter={(e) => (e.currentTarget.style.color = '#323232')}
-                onMouseLeave={(e) => (e.currentTarget.style.color = '#5A5A58')}
+                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--landing-ink)')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--landing-muted)')}
               >
                 How It Works
               </button>
@@ -156,7 +160,7 @@ export function LandingPage() {
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontSize: '14px',
-                  color: '#323232',
+                  color: 'var(--landing-ink)',
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
@@ -167,15 +171,15 @@ export function LandingPage() {
                 Sign In
               </button>
               <button
-                onClick={() => { window.location.href = 'https://bountyhunter.nctr.live/auth?mode=signup'; }}
+                onClick={handleJoin}
                 style={{
                   fontFamily: barlow,
                   fontWeight: 700,
                   fontSize: '13px',
                   letterSpacing: '0.06em',
                   textTransform: 'uppercase',
-                  backgroundColor: '#323232',
-                  color: '#FFFFFF',
+                  backgroundColor: 'var(--landing-ink)',
+                  color: 'var(--landing-card)',
                   border: 'none',
                   borderRadius: '0px',
                   padding: '10px 24px',
@@ -183,10 +187,10 @@ export function LandingPage() {
                   marginLeft: '8px',
                   transition: `background-color 300ms ${hoverCurve}`,
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1a1a1a')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#323232')}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--landing-button-hover)')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--landing-ink)')}
               >
-                JOIN FREE
+                Get ready for launch
               </button>
             </div>
 
@@ -199,73 +203,30 @@ export function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero */}
-      <HeroSection onJoin={handleJoin} />
+      <Section1Hero />
 
-      {/* Spacer for stat cards overlap */}
-      <div style={{ height: '80px' }} />
-
-      {/* Why the alliance exists */}
-      <WhyAllianceSection />
-
-      {/* Core Principle Callout */}
-      <div className="container mx-auto px-6 md:px-12 mt-8 mb-8">
-        <div
-          className="max-w-3xl mx-auto"
-          style={{
-            backgroundColor: '#323232',
-            padding: '24px 28px',
-            borderRadius: '0px',
-          }}
-        >
-          <p
-            style={{
-              fontFamily: barlow,
-              fontWeight: 700,
-              fontSize: '10px',
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: 'rgba(255,255,255,0.5)',
-              marginBottom: '6px',
-            }}
-          >
-            The Core Principle
-          </p>
-          <p
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: '14px',
-              lineHeight: 1.6,
-              color: '#FFFFFF',
-            }}
-          >
-            Commitment is rewarded. 360LOCK is how members participate — one commitment, 360 days, amplified rewards. The longer you commit, the stronger your position. Earn <NCTRLogo variant="wordmark-lime" height={16} /> through Bounty Hunter. Build your status here in Crescendo.
-          </p>
-        </div>
-      </div>
-
-      {/* Entry Paths */}
-      <EntryPathsSection />
-
-      {/* Sections */}
       <ScrollReveal>
-        <HowItWorksLanding />
+        <Section2StatusOpens />
       </ScrollReveal>
 
       <ScrollReveal>
-        <FiveWaysToEarn />
+        <Section3HowItWorks />
       </ScrollReveal>
 
       <ScrollReveal>
-        <RewardsHighlight onJoin={handleJoin} />
+        <Section4Band />
       </ScrollReveal>
 
       <ScrollReveal>
-        <TheMathSection />
+        <Section5Engines />
       </ScrollReveal>
 
       <ScrollReveal>
-        <FinalCTA />
+        <Section6ForBrands />
+      </ScrollReveal>
+
+      <ScrollReveal>
+        <Section7Close />
       </ScrollReveal>
 
       <LandingFooter />

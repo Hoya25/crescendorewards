@@ -7,3 +7,6 @@
 - [x] Update social image text, verify changes, and list all changed files and rows; do not publish.- [x] Apply coming-soon update (copy, catalog pause flag, /bounties redirect, Kroma preview, Founding Circle, landing mission section, referral links) and data rows.
 - [x] Verify coming-soon update on preview.
 - [x] Publish, then re-verify on crescendo.nctr.live.
+
+- [x] Apply the approved seven-section landing page and five adjustments; do not publish.
+- [x] Verify three viewport sizes, sign-in destination, and unchanged signed-in dashboard.
